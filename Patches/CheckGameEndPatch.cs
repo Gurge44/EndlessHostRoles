@@ -548,6 +548,11 @@ internal static class GameEndChecker
     {
         Predicate = new BedWarsGameEndPredicate();
     }
+    
+    public static void SetPredicateToDeathrace()
+    {
+        Predicate = new DeathraceGameEndPredicate();
+    }
 
     private class NormalGameEndPredicate : GameEndPredicate
     {
@@ -1085,6 +1090,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return BedWars.CheckForGameEnd(out reason);
+        }
+    }
+
+    private class DeathraceGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Deathrace.CheckGameEnd(out reason);
         }
     }
 

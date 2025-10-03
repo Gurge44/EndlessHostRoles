@@ -179,6 +179,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.HotPotato:
                     SetMaxVision();
                     break;
+                case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:
                     AURoleOptions.PhantomCooldown = 0.1f;
                     goto case CustomGameMode.RoomRush;

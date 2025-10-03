@@ -44,11 +44,11 @@ public static class AntiBlackout
                 return;
             }
 
-            revived.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true);
+            revived.RpcSetRoleGlobal(RoleTypes.Crewmate);
         }
 
-        dummyImp.RpcChangeRoleBasis(CustomRoles.ImpostorEHR, forced: true);
-        players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcChangeRoleBasis(CustomRoles.CrewmateEHR, forced: true));
+        dummyImp.RpcSetRoleGlobal(RoleTypes.Impostor);
+        players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcSetRoleGlobal(RoleTypes.Crewmate));
     }
 
     // After the ejection screen, we revert the role types to their actual values.

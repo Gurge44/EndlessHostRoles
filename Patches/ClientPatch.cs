@@ -8,7 +8,7 @@ using static EHR.Translator;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
+/*[HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
 internal static class MakePublicPatch
 {
     public static bool Prefix()
@@ -26,7 +26,7 @@ internal static class MakePublicPatch
 
         return true;
     }
-}
+}*/
 
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 // ReSharper disable once InconsistentNaming

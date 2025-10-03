@@ -119,7 +119,8 @@ public static class GameOptionsMenuPatch
                 {
                     CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(__instance.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
                     categoryHeaderMasked.SetHeader(StringNames.RolesCategory, 20);
-                    categoryHeaderMasked.Title.text = option.GetName();
+                    categoryHeaderMasked.Title.text = option.GetName(disableColor: true);
+                    categoryHeaderMasked.Background.color = option.NameColor;
                     categoryHeaderMasked.transform.localScale = Vector3.one * 0.63f;
                     categoryHeaderMasked.transform.localPosition = new(-0.903f, num, posZ);
                     var chmText = categoryHeaderMasked.transform.FindChild("HeaderText").GetComponent<TextMeshPro>();
@@ -901,10 +902,10 @@ public static class GameSettingMenuPatch
 {
     public static System.Collections.Generic.List<GameObject> GMButtons = [];
 
-    private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.4f, 0f);
-    private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.4f, 0f);
+    private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.55f, 0f);
+    private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.55f, 0f);
 
-    private static readonly Vector3 ButtonSize = new(0.45f, 0.4f, 1f);
+    private static readonly Vector3 ButtonSize = new(0.45f, 0.35f, 1f);
     // private static readonly Vector3 ButtonSize = new(0.45f, 0.6f, 1f);
 
     private static GameOptionsMenu TemplateGameOptionsMenu;
@@ -986,7 +987,7 @@ public static class GameSettingMenuPatch
             button.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
             // ReSharper disable once PossibleLossOfFraction
-            Vector3 offset = new(0f, 0.35f * (((int)tab + 1) / 2), 0f);
+            Vector3 offset = new(0f, (0.3f * (((int)tab + 1) / 2)), 0f);
             button.transform.localPosition = (((int)tab + 1) % 2 == 0 ? ButtonPositionLeft : ButtonPositionRight) - offset;
             button.transform.localScale = ButtonSize;
 
@@ -1134,7 +1135,7 @@ public static class GameSettingMenuPatch
             CustomGameMode gm = gms[index];
 
             var gmButton = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
-            gmButton.transform.localPosition = new Vector3((((index / 7) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 7)), -1f);
+            gmButton.transform.localPosition = new Vector3((((index / 8) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 8)), -1f);
 
             gmButton.transform.localScale = new(0.4f, 0.3f, 1f);
             var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
@@ -1238,7 +1239,7 @@ public static class GameSettingMenuPatch
         __instance.GamePresetsButton.gameObject.SetActive(false);
 
         PassiveButton gameSettingButton = __instance.GameSettingsButton;
-        gameSettingButton.transform.localPosition = new(-3f, -0.4f, 0f);
+        gameSettingButton.transform.localPosition = new(-3f, -0.55f, 0f);
 
         var textLabel = gameSettingButton.GetComponentInChildren<TextMeshPro>();
         textLabel.DestroyTranslator();

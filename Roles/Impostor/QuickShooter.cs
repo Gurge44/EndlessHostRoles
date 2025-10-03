@@ -147,12 +147,9 @@ internal class QuickShooter : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (Options.UsePets.GetBool())
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
             hud.PetButton?.OverrideText(Translator.GetString("QuickShooterShapeshiftText"));
         else
-        {
             hud.AbilityButton?.OverrideText(Translator.GetString("QuickShooterShapeshiftText"));
-            hud.AbilityButton?.SetUsesRemaining(ShotLimit.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0));
-        }
     }
 }

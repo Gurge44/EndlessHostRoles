@@ -176,7 +176,8 @@ public enum CustomRPC
     SpeedrunSync,
     NaturalDisastersSync,
     TMGSync,
-    BedWarsSync
+    BedWarsSync,
+    DeathraceSync
 }
 
 public enum Sounds
@@ -1294,6 +1295,13 @@ internal static class RPCHandlerPatch
                 case CustomRPC.BedWarsSync:
                 {
                     BedWars.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.DeathraceSync:
+                {
+                    if (Deathrace.Data.TryGetValue(reader.ReadByte(), out Deathrace.PlayerData data))
+                        data.Lap = reader.ReadPackedInt32();
+                    
                     break;
                 }
                 case CustomRPC.ParityCopCommand:

@@ -126,6 +126,5 @@ public class Camouflager : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.AbilityButton?.OverrideText(Translator.GetString("CamouflagerShapeshiftText"));
-        hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
     }
 }

@@ -107,7 +107,7 @@ public class EvilDiviner : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return !(killer.GetAbilityUseLimit() >= 1) || killer.CheckDoubleTrigger(target, () => { SetDivination(killer, target); });
+        return killer.GetAbilityUseLimit() < 1 || killer.CheckDoubleTrigger(target, () => { SetDivination(killer, target); });
     }
 
     public bool IsDivination(byte target)

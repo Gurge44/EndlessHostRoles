@@ -202,6 +202,9 @@ public static class FixedUpdateCaller
                         case CustomGameMode.RoomRush:
                             RoomRush.FixedUpdatePatch.Postfix();
                             goto default;
+                        case CustomGameMode.Deathrace:
+                            Deathrace.FixedUpdatePatch.Postfix();
+                            break;
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                             break;
@@ -213,10 +216,13 @@ public static class FixedUpdateCaller
                 {
                     Main.GameTimer += Time.fixedDeltaTime;
                 
-                    if (Options.EnableGameTimeLimit.GetBool() && Main.GameTimer > Options.GameTimeLimit.GetInt())
+                    if (Options.EnableGameTimeLimit.GetBool() && Main.GameTimer > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
                     {
                         Main.GameTimer = 0f;
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                        
+                        if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                            CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Select(x => x.PlayerId));
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

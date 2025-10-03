@@ -57,7 +57,7 @@ public abstract class OptionItem
     public TabGroup Tab { get; }
     public bool IsSingleValue { get; }
 
-    private Color NameColor { get; set; }
+    public Color NameColor { get; set; }
     private OptionFormat ValueFormat { get; set; }
     public CustomGameMode GameMode { get; private set; }
     public bool IsHeader { get; protected set; }

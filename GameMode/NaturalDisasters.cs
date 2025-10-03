@@ -150,7 +150,7 @@ public static class NaturalDisasters
     {
         string cb = string.Format(Translator.GetString("CollapsedBuildings"), BuildingCollapse.CollapsedBuildingsString);
         string ts = ActiveDisasters.Exists(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
-        return $"<size=80%>{cb}{ts}</size>";
+        return $"<size=70%>{cb}{ts}</size>";
     }
 
     public static int SurvivalTime(byte id)
@@ -215,6 +215,7 @@ public static class NaturalDisasters
                     CustomGameMode.HideAndSeek => (0, CustomHnS.IsBlindTime),
                     CustomGameMode.KingOfTheZones => (0, !KingOfTheZones.GameGoing),
                     CustomGameMode.RoomRush => (40, false),
+                    CustomGameMode.Deathrace => (0, !Deathrace.GameGoing),
                     _ => (0, false)
                 };
 

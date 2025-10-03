@@ -463,6 +463,9 @@ public enum CustomRoles
 
     // Bed Wars
     BedWarsPlayer,
+    
+    // Deathrace
+    Racer,
 
     // GM
     GM,

@@ -112,12 +112,9 @@ public class Twister : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (UsePets.GetBool())
+        if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
             hud.PetButton?.OverrideText(GetString("TwisterButtonText"));
         else
-        {
             hud.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
-            hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
-        }
     }
 }

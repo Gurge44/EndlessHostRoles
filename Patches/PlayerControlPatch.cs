@@ -303,6 +303,9 @@ internal static class CheckMurderPatch
                 case CustomGameMode.BedWars:
                     BedWars.OnCheckMurder(killer, target);
                     return false;
+                case CustomGameMode.Deathrace:
+                    Deathrace.OnCheckMurder(killer, target);
+                    return false;
             }
 
             Deadlined.SetDone(killer);
@@ -1482,7 +1485,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.BedWars && GameStartTimeStamp + 44 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1941,6 +1944,9 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.BedWars:
                     additionalSuffixes.Add(BedWars.GetSuffix(seer, target));
                     break;
+                case CustomGameMode.Deathrace:
+                    additionalSuffixes.Add(Deathrace.GetSuffix(seer, target, false));
+                    break;
             }
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
@@ -2243,6 +2249,8 @@ public static class PlayerControlCheckUseZiplinePatch
 
         Logger.Info($"{__instance.GetNameWithRole()}, target: {target.GetNameWithRole()}, {(fromTop ? $"from Top, travel time: {ziplineBehaviour.downTravelTime}s" : $"from Bottom, travel time: {ziplineBehaviour.upTravelTime}s")}", "Zipline Use");
 
+        if (Options.CurrentGameMode == CustomGameMode.Deathrace) return true;
+        
         if (AmongUsClient.Instance.AmHost)
         {
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;

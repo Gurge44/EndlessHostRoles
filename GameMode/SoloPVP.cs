@@ -143,8 +143,8 @@ internal static class SoloPVP
 
         finalText += "<size=70%>";
         finalText += $"\n{Translator.GetString("PVP.ATK")}: {PlayerATK[pc.PlayerId]:N1}";
-        finalText += $"\n{Translator.GetString("PVP.DF")}: {PlayerDF[pc.PlayerId]:N1}";
-        finalText += $"\n{Translator.GetString("PVP.RCO")}: {PlayerHPReco[pc.PlayerId]:N1}";
+        finalText += $" | {Translator.GetString("PVP.DF")}: {PlayerDF[pc.PlayerId]:N1}";
+        finalText += $" | {Translator.GetString("PVP.RCO")}: {PlayerHPReco[pc.PlayerId]:N1}";
         finalText += "</size>";
 
         int rank = GetRankFromScore(pc.PlayerId);

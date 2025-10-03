@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.4.3";
-    public const string PluginDisplayVersion = "6.4.3";
+    public const string PluginVersion = "6.5.0";
+    public const string PluginDisplayVersion = "6.5.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -201,7 +201,9 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
     public static ConfigEntry<bool> ShowModdedClientText { get; private set; }
     public static ConfigEntry<bool> AutoHaunt { get; private set; }
+    public static ConfigEntry<bool> ButtonCooldownInDecimalUnder10s { get; private set; }
     public static ConfigEntry<bool> TryFixStuttering { get; private set; }
+    public static ConfigEntry<float> UIScaleFactor { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -300,7 +302,9 @@ public class Main : BasePlugin
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
         AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
+        ButtonCooldownInDecimalUnder10s = Config.Bind("Client Options", "ButtonCooldownInDecimalUnder10s", false);
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
+        UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -753,6 +757,8 @@ public class Main : BasePlugin
                 { CustomRoles.TMGPlayer, "#ffff00" },
                 // Bed Wars
                 { CustomRoles.BedWarsPlayer, "#fc03f8" },
+                // Deathrace
+                { CustomRoles.Racer, "#AFAFAF" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -833,7 +839,8 @@ public class Main : BasePlugin
             [CustomGameMode.KingOfTheZones] = Color.red,
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
             [CustomGameMode.TheMindGame] = Color.yellow,
-            [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer)
+            [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
+            [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>

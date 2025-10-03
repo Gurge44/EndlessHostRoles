@@ -69,7 +69,6 @@ public class Anonymous : RoleBase
         if (playerId.GetAbilityUseLimit() >= 1)
         {
             __instance.AbilityButton.OverrideText(GetString("AnonymousShapeshiftText"));
-            __instance.AbilityButton.SetUsesRemaining((int)playerId.GetAbilityUseLimit());
         }
     }
 

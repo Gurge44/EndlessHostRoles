@@ -820,6 +820,7 @@ public static class Utils
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.BedWars:
+            case CustomGameMode.Deathrace:
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
@@ -1039,7 +1040,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars:
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
@@ -1187,7 +1188,9 @@ public static class Utils
             Color taskCompleteColor;
             Color nonCompleteColor;
 
-            if (!Options.DynamicTaskCountColor.GetBool())
+            bool dynamicColor = Options.DynamicTaskCountColor.GetBool();
+
+            if (!dynamicColor)
             {
                 taskCompleteColor = hasTasks ? Color.green : GetRoleColor(state.MainRole).ShadeColor(0.5f);
                 nonCompleteColor = hasTasks ? Color.yellow : Color.white;
@@ -1209,7 +1212,7 @@ public static class Utils
 
             Color textColor = comms ? Color.gray : normalColor;
             string completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-            return ColorString(textColor, $" {(moveAndStop ? "<size=2>" : string.Empty)}{completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}");
+            return ColorString(textColor, $" {(dynamicColor ? "(" : string.Empty)}{(moveAndStop ? "<size=2>" : string.Empty)}{completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}{(dynamicColor ? ")" : string.Empty)}");
         }
         catch { return string.Empty; }
     }
@@ -1525,6 +1528,7 @@ public static class Utils
                 }
 
                 break;
+            case CustomGameMode.Deathrace:
             case CustomGameMode.BedWars:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
@@ -2123,6 +2127,7 @@ public static class Utils
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"{modeText}\r\n") + name,
                     CustomGameMode.Quiz => ColorString(GetRoleColor(CustomRoles.QuizMaster), $"{modeText}\r\n") + name,
                     CustomGameMode.BedWars => ColorString(GetRoleColor(CustomRoles.BedWarsPlayer), $"{modeText}\r\n") + name,
+                    CustomGameMode.Deathrace => ColorString(GetRoleColor(CustomRoles.Racer), $"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -2582,6 +2587,9 @@ public static class Utils
                     case CustomGameMode.BedWars:
                         additionalSuffixes.Add(BedWars.GetSuffix(seer, seer));
                         break;
+                    case CustomGameMode.Deathrace:
+                        additionalSuffixes.Add(Deathrace.GetSuffix(seer, seer, false));
+                        break;
                 }
 
                 List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
@@ -2598,7 +2606,7 @@ public static class Utils
                 if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
                     seerRealName = seerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars)
+                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
                 {
                     CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2636,7 +2644,7 @@ public static class Utils
                     SelfSuffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
             }
 
-            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars;
+            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace;
 
             // Combine the seer's job title and SelfTaskText with the seer's player name and SelfMark
             string selfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{selfTaskText}</size>";
@@ -2805,7 +2813,7 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 targetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars)
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace)
                                 targetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
@@ -2907,6 +2915,9 @@ public static class Utils
                                         break;
                                     case CustomGameMode.BedWars:
                                         additionalSuffixes.Add(BedWars.GetSuffix(seer, target));
+                                        break;
+                                    case CustomGameMode.Deathrace:
+                                        additionalSuffixes.Add(Deathrace.GetSuffix(seer, target, false));
                                         break;
                                 }
 
@@ -3815,6 +3826,9 @@ public static class Utils
                     break;
                 case CustomGameMode.BedWars:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - {BedWars.GetStatistics(id)}";
+                    break;
+                case CustomGameMode.Deathrace:
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {Deathrace.GetStatistics(id)}";
                     break;
             }
 

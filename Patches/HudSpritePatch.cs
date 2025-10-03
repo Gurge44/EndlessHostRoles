@@ -481,8 +481,17 @@ public static class HudSpritePatch
                 }
                 default:
                 {
-                    if (!usesPetInsteadOfKill) return;
-                    break;
+                    if (usesPetInsteadOfKill) break;
+                    
+                    var roleColor = Utils.GetRoleColor(player.GetCustomRole());
+                        
+                    foreach (var button in new ActionButton[] { __instance.KillButton, __instance.AbilityButton, __instance.ImpostorVentButton, __instance.SabotageButton, __instance.PetButton, __instance.ReportButton })
+                    {
+                        button.OverrideColor(roleColor);
+                        button.buttonLabelText.color = roleColor;
+                    }
+                    
+                    return;
                 }
             }
 

@@ -288,9 +288,21 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("BedWarsPlayerInfo");
                     break;
                 }
+                case CustomGameMode.Deathrace:
+                {
+                    Color color = Utils.GetRoleColor(CustomRoles.Racer);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("Racer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("RacerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
+
+                    var s = Main.PlayerStates[lp.PlayerId].SubRoles;
 
                     if (!role.IsVanilla())
                     {
@@ -298,13 +310,12 @@ internal static class SetUpRoleTextPatch
                         __instance.RoleText.text = Utils.GetRoleName(role);
                         __instance.RoleText.color = Utils.GetRoleColor(role);
                         __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
-                        __instance.RoleBlurbText.text = "<size=50%>" + lp.GetRoleInfo() + "</size>";
+                        __instance.RoleBlurbText.text = (s.Count > 0 ? "<size=50%>" : string.Empty) + lp.GetRoleInfo() + (s.Count > 0 ? "</size>" : string.Empty);
                     }
 
-                    foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
+                    foreach (CustomRoles subRole in s)
                     {
                         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
-
                         __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                     }
 
@@ -917,7 +928,7 @@ internal static class BeginCrewmatePatch
             {
                 __instance.TeamTitle.text = GetString("TMGPlayer");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Color.yellow;
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Detective);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("TMGPlayerInfo");
                 break;
@@ -929,6 +940,15 @@ internal static class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Engineer);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("BedWarsPlayerInfo");
+                break;
+            }
+            case CustomGameMode.Deathrace:
+            {
+                __instance.TeamTitle.text = GetString("Racer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Racer);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("RacerInfo");
                 break;
             }
         }
@@ -1169,7 +1189,7 @@ internal static class IntroCutsceneDestroyPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars)
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
                 aapc.Do(map.RandomTeleport);
@@ -1224,6 +1244,9 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.BedWars:
                     Main.Instance.StartCoroutine(BedWars.OnGameStart());
                     break;
+                case CustomGameMode.Deathrace:
+                    Main.Instance.StartCoroutine(Deathrace.GameStart());
+                    break;
             }
 
             Utils.CheckAndSetVentInteractions();
@@ -1255,6 +1278,8 @@ internal static class IntroCutsceneDestroyPatch
                         pc.TP(new Vector2(3.32f, -26.57f));
                 }
             }
+            
+            if (HudSpritePatch.DefaultIcons.Length > 0) return;
             
             HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
 

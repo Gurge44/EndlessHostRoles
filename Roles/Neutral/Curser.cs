@@ -57,7 +57,7 @@ public class Curser : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return pc.IsAlive() && pc.GetAbilityUseLimit() > 0;
     }
 
     public override void SetKillCooldown(byte id)
@@ -81,6 +81,7 @@ public class Curser : RoleBase
         {
             KnownFactionPlayers.Add(target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            killer.RpcRemoveAbilityUse();
         }))
         {
             int random = IRandom.Instance.Next(4);
@@ -106,6 +107,7 @@ public class Curser : RoleBase
 
             killer.Notify(Translator.GetString($"Curser.Notify.{random}"));
             killer.SetKillCooldown();
+            killer.RpcRemoveAbilityUse();
         }
 
         return false;

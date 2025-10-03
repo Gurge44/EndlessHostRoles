@@ -66,7 +66,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -139,6 +139,18 @@ internal static class EndGamePatch
                     break;
                 case CustomGameMode.Quiz:
                     Main.AllPlayerControls.Do(x => Quiz.HasPlayedFriendCodes.Add(x.FriendCode));
+                    break;
+                case CustomGameMode.Deathrace:
+                    MapNames map = Main.CurrentMap;
+                    
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
+                    {
+                        if (!Deathrace.PlayedMaps.TryGetValue(pc.FriendCode, out var maps))
+                            Deathrace.PlayedMaps[pc.FriendCode] = [map];
+                        else
+                            maps.Add(map);
+                    }
+
                     break;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
@@ -242,10 +254,21 @@ internal static class SetEverythingUpPatch
             }
             case CustomGameMode.NaturalDisasters:
             {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(3, 252, 74, 255);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
+                var ndColor = new Color32(3, 252, 74, 255);
+                __instance.BackgroundBar.material.color = ndColor;
+
+                if (CustomWinnerHolder.WinnerIds.Count <= 1)
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                }
+                else
+                {
+                    winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                    winnerText.color = ndColor;
+                }
+                
                 goto EndOfText;
             }
             case CustomGameMode.RoomRush:
@@ -285,6 +308,14 @@ internal static class SetEverythingUpPatch
                 __instance.BackgroundBar.material.color = winnerData.Color;
                 winnerText.text = winnerData.Team;
                 winnerText.color = winnerData.Color;
+                goto EndOfText;
+            }
+            case CustomGameMode.Deathrace:
+            {
+                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Racer);
+                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                winnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
             }
         }
@@ -494,6 +525,7 @@ internal static class SetEverythingUpPatch
 
                     break;
                 }
+                case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:
                 case CustomGameMode.Quiz:
                 {

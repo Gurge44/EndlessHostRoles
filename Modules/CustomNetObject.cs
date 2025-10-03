@@ -166,6 +166,25 @@ namespace EHR
         protected void CreateNetObject(string sprite, Vector2 position)
         {
             if (GameStates.IsEnded || !AmongUsClient.Instance.AmHost) return;
+
+            if (!GameStates.InGame || !Main.IntroDestroyed)
+            {
+                if (GameStates.InGame && !Main.IntroDestroyed)
+                {
+                    Main.Instance.StartCoroutine(CoRoutine());
+                    
+                    System.Collections.IEnumerator CoRoutine()
+                    {
+                        while (GameStates.InGame && !GameStates.IsEnded && !Main.IntroDestroyed) yield return null;
+                        yield return new WaitForSeconds(3f);
+                        if (!GameStates.InGame || GameStates.IsEnded) yield break;
+                        CreateNetObject(sprite, position);
+                    }
+                }
+                
+                return;
+            }
+            
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 254;
@@ -696,6 +715,38 @@ namespace EHR
         {
             CreateNetObject(string.Empty, new Vector2(0f, 0f));
             Main.AllPlayerControls.DoIf(x => x.PlayerId != visibleTo, Hide);
+        }
+    }
+
+    public sealed class DeathracePowerUp : CustomNetObject
+    {
+        public Deathrace.PowerUp PowerUp;
+        
+        public DeathracePowerUp(Vector2 position, Deathrace.PowerUp powerUp)
+        {
+            PowerUp = powerUp;
+            
+            char icon = powerUp switch
+            {
+                Deathrace.PowerUp.Smoke => '♨',
+                Deathrace.PowerUp.Taser => '〄',
+                Deathrace.PowerUp.EnergyDrink => '∂',
+                Deathrace.PowerUp.Grenade => '♁',
+                Deathrace.PowerUp.Ice => '☃',
+                _ => throw new ArgumentOutOfRangeException(nameof(powerUp), powerUp, "Unhandled power-up type")
+            };
+            
+            Color color = powerUp switch
+            {
+                Deathrace.PowerUp.Smoke => new Color(0.5f, 0.5f, 0.5f),
+                Deathrace.PowerUp.Taser => new Color(1f, 1f, 0f),
+                Deathrace.PowerUp.EnergyDrink => new Color(1f, 0.5f, 0f),
+                Deathrace.PowerUp.Grenade => new Color(1f, 0f, 0f),
+                Deathrace.PowerUp.Ice => new Color(0f, 1f, 1f),
+                _ => throw new ArgumentOutOfRangeException(nameof(powerUp), powerUp, "Unhandled power-up type")
+            };
+            
+            CreateNetObject(Utils.ColorString(color, $"{icon}\n<size=80%>{Translator.GetString($"Deathrace.PowerUpDisplay.{powerUp}").ToUpper()}</size>"), position);
         }
     }
 }

@@ -96,6 +96,8 @@ internal static class ExtendedPlayerControl
                 return false;
             case CustomGameMode.MoveAndStop:
                 return MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.VentAccess;
+            case CustomGameMode.Deathrace:
+                return Deathrace.CanUseVent(player, ventId);
         }
 
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
@@ -394,6 +396,8 @@ internal static class ExtendedPlayerControl
         writer.Write((ushort)role);
         writer.Write(true);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        
+        Logger.Info($" {player.GetNameWithRole()} => {role} - for {GetClientById(clientId)?.Character?.GetNameWithRole() ?? "Someone"}", "RpcSetRoleDesync");
     }
 
     public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(this PlayerControl player, byte targetId = byte.MaxValue)
@@ -1082,7 +1086,7 @@ internal static class ExtendedPlayerControl
     {
         try
         {
-            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars;
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace;
             return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
         catch (Exception e)
@@ -1365,6 +1369,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.BedWars:
+            case CustomGameMode.Deathrace:
                 return true;
         }
 
@@ -1424,6 +1429,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.RoomRush => false,
             CustomGameMode.Quiz => false,
             CustomGameMode.TheMindGame => false,
+            CustomGameMode.Deathrace => Deathrace.CanUseVent(pc, pc.GetClosestVent().Id),
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
             CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
@@ -1729,6 +1735,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.KOTZPlayer => KingOfTheZones.KCD,
             CustomRoles.QuizPlayer => 3f,
             CustomRoles.BedWarsPlayer => 1f,
+            CustomRoles.Racer => 3f,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

@@ -425,9 +425,10 @@ internal static class ChangeRoleSettings
                 GhostRolesManager.Initialize();
                 RoleBlockManager.Reset();
                 ChatManager.ResetHistory();
-                CustomNetObject.Reset();
             }
             catch (Exception e) { Utils.ThrowException(e); }
+            
+            CustomNetObject.Reset();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
@@ -560,6 +561,15 @@ internal static class StartGameHostPatch
         {
             Main.LobbyBehaviourNetId = LobbyBehaviour.Instance.NetId;
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(AUClient.GameId);
+            writer.StartMessage(5);
+            writer.WritePacked(LobbyBehaviour.Instance.NetId);
+            writer.EndMessage();
+            writer.EndMessage();
+            AUClient.SendOrDisconnect(writer);
+            writer.Recycle();
+            writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(5);
             writer.Write(AUClient.GameId);
             writer.StartMessage(5);
@@ -1020,6 +1030,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.BedWars:
                     BedWars.Initialize();
                     goto default;
+                case CustomGameMode.Deathrace:
+                    Deathrace.Init();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -1082,6 +1095,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.BedWars:
                     GameEndChecker.SetPredicateToBedWars();
+                    break;
+                case CustomGameMode.Deathrace:
+                    GameEndChecker.SetPredicateToDeathrace();
                     break;
             }
 
@@ -1263,6 +1279,12 @@ internal static class StartGameHostPatch
 
                 if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper or RoleTypes.ImpostorGhost))
                     displayRole = RoleTypes.Impostor;
+
+                if (target.Is(CustomRoles.Bloodlust))
+                {
+                    roleType = RoleTypes.Impostor;
+                    displayRole = RoleTypes.Impostor;
+                }
             }
 
             if (displayRole != roleType) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;

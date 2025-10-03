@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
@@ -26,6 +28,8 @@ internal static class HudManagerPatch
     private static long LastNullError;
     public static Color? CooldownTimerFlashColor = null;
     public static string AchievementUnlockedText = string.Empty;
+
+    public static TaskPanelBehaviour RoleTab;
 
     public static void ClearLowerInfoText()
     {
@@ -205,6 +209,9 @@ internal static class HudManagerPatch
 
                     CustomRoles role = player.GetCustomRole();
 
+                    if (RoleTab == null) RoleTab = TaskPanelBehaviourPatch.CreateRoleTab(role);
+                    TaskPanelBehaviourPatch.UpdateRoleTab(RoleTab, role);
+
                     bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
                     if (usesPetInsteadOfKill) __instance.PetButton?.OverrideText(GetString("KillButtonText"));
 
@@ -280,6 +287,7 @@ internal static class HudManagerPatch
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
+                        CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
@@ -349,6 +357,35 @@ internal static class HudManagerPatch
                         __instance.AbilityButton.SetEnabled();
 
                     __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
+
+                    float abilityUseLimit = player.GetAbilityUseLimit();
+
+                    if (!float.IsNaN(abilityUseLimit))
+                    {
+                        ActionButton button;
+                        Type type = state.Role.GetType();
+
+                        if (type.GetMethod("OnVote").DeclaringType == type || role is CustomRoles.Adrenaline or CustomRoles.Battery or CustomRoles.Dad or CustomRoles.Grappler or CustomRoles.Inquirer or CustomRoles.Judge or CustomRoles.Mechanic or CustomRoles.Mediumshiper or CustomRoles.NiceSwapper or CustomRoles.ParityCop or CustomRoles.Spy or CustomRoles.Councillor or CustomRoles.CursedWolf or CustomRoles.Forger or CustomRoles.Generator or CustomRoles.Ventriloquist or CustomRoles.Bargainer or CustomRoles.Technician or CustomRoles.Virus)
+                            button = null;
+                        else if (role is CustomRoles.Bloodhound or CustomRoles.Occultist or CustomRoles.Vulture)
+                            button = __instance.ReportButton;
+                        else if (role is CustomRoles.Venter or CustomRoles.Patroller || (role == CustomRoles.Nonplus && !Options.UsePets.GetBool()))
+                            button = __instance.ImpostorVentButton;
+                        else if ((role.IsCrewmate() && role.IsDesyncRole() && !usesPetInsteadOfKill) || role is CustomRoles.Dreamweaver or CustomRoles.Enchanter or CustomRoles.VoodooMaster or CustomRoles.Blackmailer or CustomRoles.Cantankerous or CustomRoles.Consort or CustomRoles.EvilDiviner or CustomRoles.Framer or CustomRoles.Gangster or CustomRoles.Kamikaze or CustomRoles.Auditor or CustomRoles.Backstabber or CustomRoles.Cherokious or CustomRoles.Cultist or CustomRoles.Curser or CustomRoles.Gaslighter or CustomRoles.Investor or CustomRoles.Jackal or CustomRoles.PlagueDoctor or CustomRoles.Pursuer or CustomRoles.Spiritcaller or CustomRoles.Starspawn)
+                            button = __instance.KillButton;
+                        else if ((Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) || (player.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Shapeshifter or RoleTypes.Phantom && !player.Is(CustomRoles.Nimble)))
+                            button = __instance.AbilityButton;
+                        else if ((Options.UsePets.GetBool() && role.PetActivatedAbility()) || usesPetInsteadOfKill)
+                            button = __instance.PetButton;
+                        else
+                            button = null;
+
+                        if (button != null)
+                        {
+                            button.SetUsesRemaining((int)abilityUseLimit);
+                            button.usesRemainingSprite.color = Utils.GetRoleColor(role);
+                        }
+                    }
                 }
                 else
                 {
@@ -463,6 +500,22 @@ internal static class ActionButtonSetFillUpPatch
             __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
             __instance.cooldownTimerText.gameObject.SetActive(true);
         }
+    }
+}
+
+// From https://github.com/AU-Avengers/TOU-Mira/tree/main/TownOfUs/Patches/Options/KillButtonCooldownPatch.cs
+[HarmonyPatch]
+public static class ButtonCooldownPatch
+{
+    [HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetCoolDown))]
+    [HarmonyPostfix]
+    public static void Postfix(ActionButton __instance, ref float timer)
+    {
+        if (!__instance.isActiveAndEnabled) return;
+        if (!Main.ButtonCooldownInDecimalUnder10s.Value) return;
+
+        if (__instance.isCoolingDown && timer < 10f)
+            __instance.cooldownTimerText.text = timer.ToString("0.0", NumberFormatInfo.CurrentInfo);
     }
 }
 
@@ -605,6 +658,9 @@ internal static class SetHudActivePatch
                 __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ReportButton?.ToggleVisible(false);
                 break;
+            case CustomRoles.Racer:
+                __instance.AbilityButton?.ToggleVisible(true);
+                break;
             case CustomRoles.Parasite:
             case CustomRoles.Refugee:
             case CustomRoles.Magician:
@@ -623,6 +679,74 @@ internal static class SetHudActivePatch
         {
             __instance.AbilityButton?.Show();
             __instance.AbilityButton?.SetEnabled();
+        }
+    }
+}
+
+// From https://github.com/AU-Avengers/TOU-Mira/blob/main/TownOfUs/Patches/HudManagerPatches.cs
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.Start))]
+[HarmonyPriority(Priority.Last)]
+internal static class HudManagerStartPatch
+{
+    public static void Postfix(HudManager __instance)
+    {
+        Main.Instance.StartCoroutine(CoResizeUI());
+    }
+
+    public static void TryResizeUI(float newValue)
+    {
+        if (HudManager.InstanceExists)
+        {
+            ResizeUI(1f / Main.UIScaleFactor.Value);
+            ResizeUI(newValue);
+            Main.UIScaleFactor.Value = newValue;
+        }
+    }
+
+    public static IEnumerator CoResizeUI()
+    {
+        while (!HudManager.Instance)
+            yield return null;
+
+        yield return new WaitForSeconds(0.01f);
+        ResizeUI(Main.UIScaleFactor.Value);
+    }
+
+    public static void ResizeUI(float scaleFactor)
+    {
+        foreach (AspectPosition aspect in HudManager.Instance.transform.FindChild("Buttons").GetComponentsInChildren<AspectPosition>(true))
+        {
+            if (aspect.gameObject == null) continue;
+            if (aspect.gameObject.transform.parent.name == "TopRight") continue;
+            if (aspect.gameObject.transform.parent.transform.parent.name == "TopRight") continue;
+
+            aspect.gameObject.SetActive(!aspect.isActiveAndEnabled);
+            aspect.DistanceFromEdge *= new Vector2(scaleFactor, scaleFactor);
+            aspect.gameObject.SetActive(!aspect.isActiveAndEnabled);
+        }
+
+        foreach (ActionButton button in HudManager.Instance.GetComponentsInChildren<ActionButton>(true))
+        {
+            if (button.gameObject == null) continue;
+
+            button.gameObject.SetActive(!button.isActiveAndEnabled);
+            button.gameObject.transform.localScale *= scaleFactor;
+            button.gameObject.SetActive(!button.isActiveAndEnabled);
+        }
+
+        foreach (GridArrange arrange in HudManager.Instance.transform.FindChild("Buttons").GetComponentsInChildren<GridArrange>(true))
+        {
+            if (!arrange.gameObject || !arrange.transform) continue;
+
+            arrange.gameObject.SetActive(!arrange.isActiveAndEnabled);
+            arrange.CellSize = new Vector2(scaleFactor, scaleFactor);
+            arrange.gameObject.SetActive(!arrange.isActiveAndEnabled);
+
+            if (arrange.isActiveAndEnabled && arrange.gameObject.transform.childCount != 0)
+            {
+                try { arrange.ArrangeChilds(); }
+                catch { }
+            }
         }
     }
 }
@@ -675,7 +799,7 @@ internal static class SabotageMapPatch
     public static void Postfix(InfectedOverlay __instance)
     {
         if (SubmergedCompatibility.IsSubmerged()) return;
-        
+
         float perc = __instance.sabSystem.PercentCool;
         int total = __instance.sabSystem.initialCooldown ? 10 : 30;
         if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
@@ -808,197 +932,283 @@ internal static class SpawnTaskHeaderPatch
     }
 }
 
-[HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
+[HarmonyPatch(typeof(TaskPanelBehaviour))]
 internal static class TaskPanelBehaviourPatch
 {
+    // Role info tab panel code from https://github.com/All-Of-Us-Mods/MiraAPI and https://github.com/AU-Avengers/TOU-Mira
+
+    internal static TaskPanelBehaviour CreateRoleTab(CustomRoles role)
+    {
+        var ogPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
+        GameObject clonePanel = Object.Instantiate(ogPanel.gameObject, ogPanel.transform.parent);
+        clonePanel.name = "RolePanel";
+
+        var newPanel = clonePanel.GetComponent<TaskPanelBehaviour>();
+        newPanel.open = false;
+
+        GameObject tab = newPanel.tab.gameObject;
+        tab.DestroyTranslator();
+
+        newPanel.transform.localPosition = ogPanel.transform.localPosition - new Vector3(0, 1, 0);
+
+        UpdateRoleTab(newPanel, role);
+        return newPanel;
+    }
+
+    internal static void UpdateRoleTab(TaskPanelBehaviour panel, CustomRoles role)
+    {
+        var tabText = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
+        var ogPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
+        string panelName = GetString(Options.CurrentGameMode != CustomGameMode.Standard ? "GameInfo" : "RoleInfo");
+        if (tabText.text != panelName) tabText.text = panelName;
+
+        float y = ogPanel.taskText.textBounds.size.y + 1;
+        panel.closedPosition = new Vector3(ogPanel.closedPosition.x, ogPanel.open ? y : 2f, ogPanel.closedPosition.z);
+        panel.openPosition = new Vector3(ogPanel.openPosition.x, ogPanel.open ? y : 2f, ogPanel.openPosition.z);
+
+        PlayerControl player = PlayerControl.LocalPlayer;
+        
+        string roleInfo = player.GetRoleInfo();
+        var roleWithInfo = $"{role.ToColoredString()}:\r\n{roleInfo}";
+
+        if (Options.CurrentGameMode != CustomGameMode.Standard)
+        {
+            string[] splitted = roleInfo.Split(' ');
+
+            roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n" + (splitted.Length <= 3
+                ? $"{roleInfo}\r\n"
+                : $"{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}\r\n");
+        }
+        else if (roleInfo.RemoveHtmlTags().Length > 35)
+        {
+            string[] split = roleInfo.Split(' ');
+            int half = split.Length / 2;
+            roleWithInfo = $"{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}";
+        }
+
+        string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
+
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.Standard:
+            {
+                List<CustomRoles> subRoles = player.GetCustomSubRoles();
+
+                if (subRoles.Count > 0)
+                {
+                    const int max = 3;
+                    IEnumerable<string> s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
+                    finalText += s.Aggregate("<size=80%>", (current, next) => current + next) + "</size>";
+                    int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
+                    if (subRoles.Count > max) finalText += $"\r\n<size=80%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                }
+
+                finalText += $"\r\n\r\n</color><size=90%>{GetString("PressF1ShowMainRoleDes")}";
+                break;
+            }
+            case CustomGameMode.SoloKombat:
+            {
+                PlayerControl lpc = PlayerControl.LocalPlayer;
+
+                finalText += "\r\n";
+                finalText += $"\r\n{GetString("PVP.ATK")}: {SoloPVP.PlayerATK[lpc.PlayerId]:N1}";
+                finalText += $"\r\n{GetString("PVP.DF")}: {SoloPVP.PlayerDF[lpc.PlayerId]:N1}";
+                finalText += $"\r\n{GetString("PVP.RCO")}: {SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}";
+                finalText += "\r\n";
+
+                finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=80%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.KBScore.GetValueOrDefault(x, 0))}");
+
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.FFA:
+            {
+                finalText += Main.PlayerStates.Keys.OrderBy(FreeForAll.GetRankFromScore).Aggregate("<size=80%>", (s, x) => $"{s}\r\n{FreeForAll.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FreeForAll.KillCount.GetValueOrDefault(x, 0))}");
+                finalText += "</size>";
+                break;
+            }
+
+            case CustomGameMode.MoveAndStop:
+            {
+                Dictionary<byte, string> SummaryText3 = [];
+
+                foreach (byte id in Main.PlayerStates.Keys.ToArray())
+                {
+                    string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
+                    var summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
+                    if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
+
+                    SummaryText3[id] = summary;
+                }
+
+                List<(int, byte)> list3 = [];
+                foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
+
+                list3.Sort();
+                list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
+
+                foreach ((int, byte) id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
+                {
+                    bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
+                    finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2].Replace("<size=2>", "<size=1.6>") : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
+                }
+
+                break;
+            }
+            case CustomGameMode.HotPotato:
+            {
+                List<string> SummaryText4 = [];
+                SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=90%><#777777>" : "<size=90%>")}{HotPotato.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
+                finalText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
+                break;
+            }
+            case CustomGameMode.HideAndSeek when AmongUsClient.Instance.AmHost:
+            {
+                finalText += $"\r\n\r\n{CustomHnS.GetTaskBarText()}";
+                break;
+            }
+            case CustomGameMode.Speedrun:
+            {
+                finalText += $"\r\n<size=90%>{Speedrun.GetTaskBarText()}</size>";
+                break;
+            }
+            case CustomGameMode.NaturalDisasters:
+            {
+                finalText += Main.AllPlayerControls
+                    .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
+                    .OrderByDescending(x => x.alive)
+                    .ThenByDescending(x => x.time)
+                    .Aggregate("<size=80%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.RoomRush:
+            {
+                if (!RoomRush.PointsSystem)
+                {
+                    finalText += Main.AllPlayerControls
+                        .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
+                        .OrderByDescending(x => x.alive)
+                        .ThenByDescending(x => x.time)
+                        .Aggregate("<size=80%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                }
+                else
+                {
+                    finalText += Main.AllPlayerControls
+                        .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.TryParse(RoomRush.GetPoints(x.PlayerId).Split('/')[0], out int points) ? points : 0))
+                        .OrderByDescending(x => x.points_int)
+                        .Aggregate("<size=80%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {x.points_string}");
+                }
+
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.Quiz when AmongUsClient.Instance.AmHost:
+            {
+                finalText += "\r\n\r\n<size=70%>";
+                finalText += Quiz.GetTaskBarText();
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.TheMindGame when AmongUsClient.Instance.AmHost:
+            {
+                finalText += "\r\n\r\n\r\n<size=70%>";
+                finalText += TheMindGame.GetTaskBarText();
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.BedWars when AmongUsClient.Instance.AmHost:
+            {
+                finalText += "\r\n\r\n<size=80%>";
+                finalText += BedWars.GetHudText();
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.Deathrace:
+            {
+                finalText += "\r\n\r\n<size=80%>";
+                finalText += Deathrace.GetTaskBarText();
+                finalText += "</size>";
+                break;
+            }
+        }
+        
+        panel.SetTaskText(finalText);
+    }
+
+    [HarmonyPatch(nameof(TaskPanelBehaviour.Update))]
+    public static bool Prefix(TaskPanelBehaviour __instance)
+    {
+        if (__instance.gameObject.name != "RolePanel")
+        {
+            if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun)
+            {
+                var tabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
+                tabText.SetText($"{TranslationController.Instance.GetString(StringNames.Tasks)}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
+            }
+            return true;
+        }
+
+        Transform transform = __instance.background.transform;
+        Vector3 vector = __instance.background.sprite.bounds.extents;
+        Vector3 vector2 = __instance.tab.sprite.bounds.extents;
+
+        transform.localScale = __instance.taskText.textBounds.size.x > 0f
+            ? new Vector3(
+                __instance.taskText.textBounds.size.x + 0.4f,
+                __instance.taskText.textBounds.size.y + 0.3f,
+                1f)
+            : Vector3.zero;
+
+        vector.y = -vector.y;
+        vector = vector.Mul(transform.localScale);
+        __instance.background.transform.localPosition = vector;
+
+        vector2 = vector2.Mul(__instance.tab.transform.localScale);
+        vector2.y = -vector2.y;
+        vector2.x += vector.x * 2f;
+        __instance.tab.transform.localPosition = vector2;
+
+        if (!GameManager.Instance) return false;
+
+        var closePosition = new Vector3(
+            -__instance.background.sprite.bounds.size.x * __instance.background.transform.localScale.x,
+            __instance.closedPosition.y,
+            __instance.closedPosition.z);
+        __instance.closedPosition = closePosition;
+
+        __instance.timer = __instance.open
+            ? Mathf.Min(1f, __instance.timer + (Time.deltaTime / __instance.animationTimeSeconds))
+            : Mathf.Max(0f, __instance.timer - (Time.deltaTime / __instance.animationTimeSeconds));
+
+        var relativePos = new Vector3(
+            Mathf.SmoothStep(__instance.closedPosition.x, __instance.openPosition.x, __instance.timer),
+            Mathf.SmoothStep(__instance.closedPosition.y, __instance.openPosition.y, __instance.timer),
+            __instance.openPosition.z);
+        __instance.transform.localPosition = AspectPosition.ComputePosition(
+            AspectPosition.EdgeAlignments.LeftTop,
+            relativePos);
+
+        return false;
+    }
+
+    [HarmonyPatch(nameof(TaskPanelBehaviour.SetTaskText))]
     public static void Postfix(TaskPanelBehaviour __instance, [HarmonyArgument(0)] string taskList)
     {
+        if (__instance.gameObject.name == "RolePanel") return;
+
         PlayerControl player = PlayerControl.LocalPlayer;
 
         if (taskList == "None" || GameStates.IsLobby || player == null) return;
 
-        if (MeetingStates.FirstMeeting)
-        {
-            NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
-            if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
-        }
+        NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
+        if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
 
-        CustomRoles role = player.GetCustomRole();
+        if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun))
+            taskList = GetString("None");
 
-        if (!role.IsVanilla() && role != CustomRoles.NotAssigned)
-        {
-            string roleInfo = player.GetRoleInfo();
-            var roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
-
-            if (Options.CurrentGameMode != CustomGameMode.Standard)
-            {
-                string[] splitted = roleInfo.Split(' ');
-
-                roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n" + (splitted.Length <= 3
-                    ? $"<size=60%>{roleInfo}</size>\r\n"
-                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n");
-            }
-            else if (roleInfo.RemoveHtmlTags().Length > 35)
-            {
-                string[] split = roleInfo.Split(' ');
-                int half = split.Length / 2;
-                roleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
-            }
-
-            string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
-
-            switch (Options.CurrentGameMode)
-            {
-                case CustomGameMode.Standard:
-
-                    List<CustomRoles> subRoles = player.GetCustomSubRoles();
-
-                    if (subRoles.Count > 0)
-                    {
-                        const int max = 3;
-                        IEnumerable<string> s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
-                        finalText += s.Aggregate("<size=65%>", (current, next) => current + next) + "</size>";
-                        int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-                        if (subRoles.Count > max) finalText += $"\r\n<size=65%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
-                    }
-
-                    if (!Utils.HasTasks(player.Data, false) && taskList.Count(s => s == '\n') >= 2)
-                        taskList = taskList.Insert(0, $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}</size>\r\n");
-
-                    finalText += $"\r\n\r\n<size=65%>{taskList}</size>";
-                    if (MeetingStates.FirstMeeting) finalText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
-
-                    break;
-
-                case CustomGameMode.SoloKombat:
-
-                    PlayerControl lpc = PlayerControl.LocalPlayer;
-
-                    finalText += "\r\n<size=90%>";
-                    finalText += $"\r\n{GetString("PVP.ATK")}: {SoloPVP.PlayerATK[lpc.PlayerId]:N1}";
-                    finalText += $"\r\n{GetString("PVP.DF")}: {SoloPVP.PlayerDF[lpc.PlayerId]:N1}";
-                    finalText += $"\r\n{GetString("PVP.RCO")}: {SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}";
-                    finalText += "\r\n</size>";
-
-                    finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.KBScore.GetValueOrDefault(x, 0))}");
-
-                    finalText += "</size>";
-                    break;
-
-                case CustomGameMode.FFA:
-
-                    finalText += Main.PlayerStates.Keys.OrderBy(FreeForAll.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FreeForAll.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FreeForAll.KillCount.GetValueOrDefault(x, 0))}");
-
-                    finalText += "</size>";
-                    break;
-
-                case CustomGameMode.MoveAndStop:
-
-                    Dictionary<byte, string> SummaryText3 = [];
-
-                    foreach (byte id in Main.PlayerStates.Keys.ToArray())
-                    {
-                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        var summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
-
-                        SummaryText3[id] = summary;
-                    }
-
-                    if (player.IsAlive()) finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
-
-                    List<(int, byte)> list3 = [];
-                    foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
-
-                    list3.Sort();
-                    list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
-
-                    foreach ((int, byte) id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
-                    {
-                        bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
-                        finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2].Replace("<size=2>", "<size=1.6>") : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
-                    }
-
-                    break;
-
-                case CustomGameMode.HotPotato:
-
-                    List<string> SummaryText4 = [];
-                    SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotato.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
-
-                    finalText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
-
-                    break;
-
-                case CustomGameMode.HideAndSeek when AmongUsClient.Instance.AmHost:
-
-                    finalText += $"\r\n\r\n{CustomHnS.GetTaskBarText()}";
-
-                    break;
-
-                case CustomGameMode.Speedrun:
-
-                    if (player.IsAlive()) finalText += $"<size=70%>\r\n{taskList}\r\n</size>";
-                    finalText += $"\r\n<size=90%>{Speedrun.GetTaskBarText()}</size>";
-
-                    break;
-
-                case CustomGameMode.NaturalDisasters:
-
-                    finalText += Main.AllPlayerControls
-                        .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
-                        .OrderByDescending(x => x.alive)
-                        .ThenByDescending(x => x.time)
-                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
-
-                    finalText += "</size>";
-                    break;
-
-                case CustomGameMode.RoomRush:
-
-                    if (!RoomRush.PointsSystem)
-                    {
-                        finalText += Main.AllPlayerControls
-                            .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
-                            .OrderByDescending(x => x.alive)
-                            .ThenByDescending(x => x.time)
-                            .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
-                    }
-                    else
-                    {
-                        finalText += Main.AllPlayerControls
-                            .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.TryParse(RoomRush.GetPoints(x.PlayerId).Split('/')[0], out int points) ? points : 0))
-                            .OrderByDescending(x => x.points_int)
-                            .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {x.points_string}");
-                    }
-
-                    finalText += "</size>";
-                    break;
-
-                case CustomGameMode.Quiz when AmongUsClient.Instance.AmHost:
-
-                    finalText += "\r\n\r\n\r\n<size=70%>";
-                    finalText += Quiz.GetTaskBarText();
-                    finalText += "</size>";
-                    break;
-
-                case CustomGameMode.TheMindGame when AmongUsClient.Instance.AmHost:
-
-                    finalText += "\r\n\r\n\r\n<size=70%>";
-                    finalText += TheMindGame.GetTaskBarText();
-                    finalText += "</size>";
-                    break;
-
-                case CustomGameMode.BedWars when AmongUsClient.Instance.AmHost:
-
-                    finalText += "\r\n\r\n\r\n<size=70%>";
-                    finalText += BedWars.GetHudText();
-                    finalText += "</size>";
-                    break;
-            }
-
-            __instance.taskText.text = finalText;
-        }
+        __instance.taskText.text = taskList;
 
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
