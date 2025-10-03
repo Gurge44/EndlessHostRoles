@@ -1197,10 +1197,27 @@ public static class Utils
             }
             else
             {
-                Color nonCompleteColorStart = new Color32(203, 61, 64, 255);
-                Color nonCompleteColorEnd = taskCompleteColor = new Color32(15, 249, 137, 255);
-                float progress = (float)taskState.CompletedTasksCount / taskState.AllTasksCount;
-                nonCompleteColor = Color.Lerp(nonCompleteColorStart, nonCompleteColorEnd, progress);
+                Color yellow = nonCompleteColor = Color.yellow;
+                Color red = new Color32(203, 61, 64, 255);
+                Color green = taskCompleteColor = new Color32(15, 249, 137, 255);
+                
+                if (taskState.CompletedTasksCount <= 0) nonCompleteColor = red;
+                else if (taskState.CompletedTasksCount > taskState.AllTasksCount / 2)
+                {
+                    var fraction = ((taskState.CompletedTasksCount * 0.4f) / taskState.AllTasksCount);
+                    nonCompleteColor = new
+                    ((green.r * fraction + yellow.r * (1 - fraction)),
+                        (green.g * fraction + yellow.g * (1 - fraction)),
+                        (green.b * fraction + yellow.b * (1 - fraction)));
+                }
+                else if (taskState.CompletedTasksCount < taskState.AllTasksCount / 2)
+                {
+                    var fraction = ((taskState.CompletedTasksCount * 0.9f) / taskState.AllTasksCount);
+                    nonCompleteColor = new
+                    ((yellow.r * fraction + red.r * (1 - fraction)),
+                        (yellow.g * fraction + red.g * (1 - fraction)),
+                        (yellow.b * fraction + red.b * (1 - fraction)));
+                }
             }
             
             if (Workhorse.IsThisRole(playerId)) nonCompleteColor = Workhorse.RoleColor;
