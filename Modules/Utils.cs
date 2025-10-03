@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
+using BepInEx;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -3687,7 +3688,7 @@ public static class Utils
 #else
             string directory = Environment.CurrentDirectory;
 #endif
-            FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
+            FileInfo[] files = [new(Path.Combine(Paths.BepInExRootPath, "LogOutput.log")), new(CustomLogger.LOGFilePath)];
             files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
             if (!open) return;

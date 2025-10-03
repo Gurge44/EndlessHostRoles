@@ -130,7 +130,6 @@ public static class GameStartManagerPatch
         private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
 
-#if !ANDROID
         public static bool Prefix(GameStartManager __instance)
         {
             try
@@ -168,7 +167,6 @@ public static class GameStartManagerPatch
 
             return false;
         }
-#endif
 
         private static void CheckAutoStart(GameStartManager __instance)
         {
@@ -329,12 +327,10 @@ public static class GameStartManagerPatch
             instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
 
-#if !ANDROID
         public static void Postfix(GameStartManager __instance)
         {
             Postfix_ManualCall(__instance);
         }
-#endif
 
         public static void Postfix_ManualCall(GameStartManager __instance)
         {

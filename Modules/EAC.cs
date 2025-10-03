@@ -37,7 +37,6 @@ internal static class EAC
 
     public static bool ReceiveRpc(PlayerControl pc, byte callId, MessageReader reader)
     {
-        return false;
         if (!AmongUsClient.Instance.AmHost) return false;
         if (pc == null || reader == null) return false;
 

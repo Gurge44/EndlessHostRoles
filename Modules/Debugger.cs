@@ -147,7 +147,7 @@ internal static class Logger
 
 public class CustomLogger
 {
-    private static readonly string LOGFilePath = $"{Main.DataPath}/BepInEx/log.html";
+    public static readonly string LOGFilePath = $"{Main.DataPath}/EHR/log.html";
 
     private const string HtmlHeader =
         """
@@ -188,6 +188,7 @@ public class CustomLogger
 
     private CustomLogger()
     {
+        Directory.CreateDirectory(Path.GetDirectoryName(LOGFilePath) ?? throw new InvalidOperationException());
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
         else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {
