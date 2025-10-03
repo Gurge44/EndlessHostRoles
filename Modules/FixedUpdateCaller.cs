@@ -56,12 +56,6 @@ public static class FixedUpdateCaller
                     TemplateManager.SendTemplate("Notification", sendOption: Hazel.SendOption.None);
                 }
             }
-#if ANDROID
-            GameStartManager gameStartManager = GameStartManager.Instance;
-
-            if (gameStartManager)
-                GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(gameStartManager);
-#endif
             
             if (HudManager.InstanceExists)
             {

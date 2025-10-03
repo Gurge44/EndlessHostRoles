@@ -329,11 +329,6 @@ public static class GameStartManagerPatch
 
         public static void Postfix(GameStartManager __instance)
         {
-            Postfix_ManualCall(__instance);
-        }
-
-        public static void Postfix_ManualCall(GameStartManager __instance)
-        {
             try
             {
                 if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return;
