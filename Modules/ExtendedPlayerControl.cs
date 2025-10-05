@@ -420,6 +420,7 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         TempExiled.Remove(player.PlayerId);
+        if (Options.CurrentGameMode == CustomGameMode.Standard) Main.PlayerStates[player.PlayerId].Role.AfterMeetingTasks();
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
         player.ResetKillCooldown();

@@ -9,6 +9,7 @@ using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 // ReSharper disable PossibleLossOfFraction
 
@@ -21,6 +22,8 @@ public static class ModGameOptionsMenu
     public static Dictionary<OptionBehaviour, int> OptionList = new();
     public static Dictionary<int, OptionBehaviour> BehaviourList = new();
     public static Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
+
+    public static System.Collections.Generic.List<Predicate<OptionItem>> SpecialHiddenPredicates;
 }
 
 [HarmonyPatch(typeof(GameOptionsMenu))]
@@ -107,6 +110,8 @@ public static class GameOptionsMenuPatch
             var num = 2.0f;
             const float posX = 0.952f;
             const float posZ = -2.0f;
+            
+            TextOptionItem header = null;
 
             for (var index = 0; index < OptionItem.AllOptions.Count; index++)
             {
@@ -115,25 +120,43 @@ public static class GameOptionsMenuPatch
 
                 bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
-                if (option is TextOptionItem)
+                if (option is TextOptionItem toi)
                 {
                     CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(__instance.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
                     categoryHeaderMasked.SetHeader(StringNames.RolesCategory, 20);
-                    categoryHeaderMasked.Title.text = option.GetName(disableColor: true);
-                    categoryHeaderMasked.Background.color = option.NameColor;
+                    categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ');
+                    categoryHeaderMasked.Background.color = categoryHeaderMasked.Divider.color = option.NameColor;
                     categoryHeaderMasked.transform.localScale = Vector3.one * 0.63f;
                     categoryHeaderMasked.transform.localPosition = new(-0.903f, num, posZ);
                     var chmText = categoryHeaderMasked.transform.FindChild("HeaderText").GetComponent<TextMeshPro>();
-                    chmText.fontStyle = FontStyles.Bold;
+                    chmText.fontStyle = FontStyles.Bold | FontStyles.SmallCaps;
+                    chmText.fontWeight = FontWeight.Black;
                     chmText.outlineWidth = 0.17f;
+                    var chmCollider = categoryHeaderMasked.gameObject.AddComponent<BoxCollider2D>();
+                    chmCollider.size = new Vector2(7, 0.7f);
+                    chmCollider.offset = new Vector2(1.5f, -0.3f);
+                    var chmButton = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
+                    chmButton.ClickSound = __instance.BackButton.GetComponent<PassiveButton>().ClickSound;
+                    chmButton.OnMouseOver = new();
+                    chmButton.OnMouseOut = new();
+                    chmButton.OnClick.AddListener((UnityAction)(() =>
+                    {
+                        toi.CollapsesSection = !toi.CollapsesSection;
+                        ReCreateSettings(__instance);
+                    }));
+                    chmButton.SetButtonEnableState(true);
                     categoryHeaderMasked.gameObject.SetActive(enabled);
                     ModGameOptionsMenu.CategoryHeaderList.TryAdd(index, categoryHeaderMasked);
 
                     if (enabled) num -= 0.63f;
+                    header = toi;
+                    continue;
                 }
-                else if (option.IsHeader && enabled) num -= 0.18f;
 
-                if (option is TextOptionItem) continue;
+                option.Header = header;
+
+                if (option.IsHeader && enabled)
+                    num -= 0.18f;
 
                 BaseGameSetting baseGameSetting = GetSetting(option);
                 if (baseGameSetting == null) continue;
@@ -203,15 +226,15 @@ public static class GameOptionsMenuPatch
 
             return -num - 1.65f;
         }
+    }
 
-        bool AllParentsEnabledAndVisible(OptionItem o)
+    private static bool AllParentsEnabledAndVisible(OptionItem o)
+    {
+        while (true)
         {
-            while (true)
-            {
-                if (o == null) return true;
-                if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
-                o = o.Parent;
-            }
+            if (o == null) return true;
+            if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
+            o = o.Parent;
         }
     }
 
@@ -321,7 +344,7 @@ public static class GameOptionsMenuPatch
             OptionItem option = OptionItem.AllOptions[index];
             if (option.Tab != modTab) continue;
 
-            bool enabled = !option.IsCurrentlyHidden() && (option.Parent == null || (!option.Parent.IsCurrentlyHidden() && option.Parent.GetBool()));
+            bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
             if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out CategoryHeaderMasked categoryHeaderMasked))
             {
@@ -450,6 +473,22 @@ public static class ToggleOptionPatch
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
         {
             OptionItem item = OptionItem.AllOptions[index];
+
+            CustomGameMode gm = Options.CurrentGameMode;
+            Color32 color = gm == CustomGameMode.Standard ? item.Tab switch
+            {
+                TabGroup.ImpostorRoles => new(255, 25, 25, 255),
+                TabGroup.CrewmateRoles => new(140, 255, 255, 255),
+                TabGroup.NeutralRoles => new(255, 171, 27, 255),
+                TabGroup.CovenRoles => new(123, 63, 187, 255),
+                _ => new(0, 165, 255, 255)
+            } : Main.GameModeColors.TryGetValue(gm, out var c) ? c : new(0, 165, 255, 255);
+            __instance.CheckMark.sprite = Utils.LoadSprite("EHR.Resources.Images.Checkmark.png", 100f);
+            __instance.CheckMark.color = color;
+            var renderer = __instance.CheckMark.transform.parent.FindChild("ActiveSprite").GetComponent<SpriteRenderer>();
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.CheckMarkBox.png", 100f);
+            renderer.color = color;
+            
             __instance.TitleText.text = item.GetName();
             __instance.CheckMark.enabled = item.GetBool();
             item.OptionBehaviour = __instance;
@@ -1266,7 +1305,7 @@ public static class GameSettingMenuPatch
     [HarmonyPrefix]
     public static bool ChangeTabPrefix(GameSettingMenu __instance, ref int tabNum, [HarmonyArgument(1)] bool previewOnly)
     {
-        if (HiddenBySearch.Any())
+        if (HiddenBySearch.Count > 0)
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
 

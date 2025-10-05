@@ -64,6 +64,8 @@ public abstract class OptionItem
     private bool IsHidden { get; set; }
     public bool IsText { get; protected set; }
 
+    public TextOptionItem Header { get; set; } = null;
+
     public Dictionary<string, string> ReplacementDictionary
     {
         get => _replacementDictionary;
@@ -240,6 +242,7 @@ public abstract class OptionItem
 
         static bool Hidden(OptionItem oi)
         {
+            if (oi.Header is { CollapsesSection: true }) return true;
             CustomGameMode mode = EHR.Options.CurrentGameMode;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
             return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||

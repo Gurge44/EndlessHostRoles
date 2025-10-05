@@ -138,6 +138,7 @@ internal class Bomber : RoleBase
 
     private void Bomb(PlayerControl pc)
     {
+        if (Pelican.IsEaten(pc.PlayerId)) return;
         Logger.Info("Bomber explosion", "Boom");
         CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
