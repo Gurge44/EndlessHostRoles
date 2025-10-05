@@ -280,16 +280,12 @@ public class Penguin : RoleBase
             RemoveVictim(false);
         }
 
-        if (MeetingKill)
-        {
-            if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (AbductVictim == null) return;
 
-            if (AbductVictim == null) return;
+        if (!IsGoose && MeetingKill) Penguin_.Kill(AbductVictim);
 
-            if (!IsGoose) Penguin_.Kill(AbductVictim);
-
-            RemoveVictim();
-        }
+        RemoveVictim();
     }
 
     public override void AfterMeetingTasks()

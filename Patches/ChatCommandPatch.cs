@@ -669,7 +669,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!targetState.MainRole.Is(Team.Crewmate))
+        if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole == CustomRoles.GM)
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeCrew"));
             return;
