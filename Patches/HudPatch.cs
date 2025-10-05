@@ -955,6 +955,8 @@ internal static class TaskPanelBehaviourPatch
         return newPanel;
     }
 
+    private const float PosSmoothSpeed = 8f; // bigger = faster
+
     internal static void UpdateRoleTab(TaskPanelBehaviour panel, CustomRoles role)
     {
         var tabText = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
@@ -963,19 +965,24 @@ internal static class TaskPanelBehaviourPatch
         if (tabText.text != panelName) tabText.text = panelName;
 
         float y = ogPanel.taskText.textBounds.size.y + 1;
-        panel.closedPosition = new Vector3(ogPanel.closedPosition.x, ogPanel.open ? y : 2f, ogPanel.closedPosition.z);
-        panel.openPosition = new Vector3(ogPanel.openPosition.x, ogPanel.open ? y : 2f, ogPanel.openPosition.z);
+        Vector3 targetClosed = new Vector3(ogPanel.closedPosition.x, ogPanel.open ? y + 0.2f : 2f, ogPanel.closedPosition.z);
+        Vector3 targetOpen   = new Vector3(ogPanel.openPosition.x, ogPanel.open ? y : 2f, ogPanel.openPosition.z);
+
+        float t = 1f - Mathf.Exp(-PosSmoothSpeed * Time.deltaTime);
+
+        panel.closedPosition = Vector3.Lerp(panel.closedPosition, targetClosed, t);
+        panel.openPosition   = Vector3.Lerp(panel.openPosition,   targetOpen,   t);
 
         PlayerControl player = PlayerControl.LocalPlayer;
         
         string roleInfo = player.GetRoleInfo();
-        var roleWithInfo = $"{role.ToColoredString()}:\r\n{roleInfo}";
+        var roleWithInfo = $"<b>{role.ToColoredString()}</b>:\r\n{roleInfo}";
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             string[] splitted = roleInfo.Split(' ');
 
-            roleWithInfo = $"{GetString($"{Options.CurrentGameMode}")}\r\n" + (splitted.Length <= 3
+            roleWithInfo = $"<b>{GetString($"{Options.CurrentGameMode}")}</b>:\r\n" + (splitted.Length <= 3
                 ? $"{roleInfo}\r\n"
                 : $"{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}\r\n");
         }
@@ -983,7 +990,7 @@ internal static class TaskPanelBehaviourPatch
         {
             string[] split = roleInfo.Split(' ');
             int half = split.Length / 2;
-            roleWithInfo = $"{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}";
+            roleWithInfo = $"<b>{role.ToColoredString()}</b>:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}";
         }
 
         string finalText = Utils.ColorString(player.GetRoleColor(), roleWithInfo);
@@ -1147,6 +1154,12 @@ internal static class TaskPanelBehaviourPatch
                 var tabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
                 tabText.SetText($"{TranslationController.Instance.GetString(StringNames.Tasks)}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
             }
+            else
+            {
+                __instance.transform.localPosition = new Vector3(10000f, 10000f, 0f);
+                return false;
+            }
+            
             return true;
         }
 

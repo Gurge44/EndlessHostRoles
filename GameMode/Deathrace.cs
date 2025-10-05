@@ -160,7 +160,7 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        EnergyDrinkSpeedIncreasementOption = new FloatOptionItem(id++, "Deathrace.EnergyDrinkSpeedIncreasementOption", new(0.05f, 1f, 0.05f), 0.25f, tab)
+        EnergyDrinkSpeedIncreasementOption = new FloatOptionItem(id++, "Deathrace.EnergyDrinkSpeedIncreasementOption", new(0.05f, 3f, 0.05f), 0.5f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -470,6 +470,8 @@ public static class Deathrace
                     removeId = id;
                     continue;
                 }
+                
+                if (data.Player.inMovingPlat) continue;
 
                 if (SpawnedPowerUps.FindFirst(x => Vector2.Distance(data.Player.Pos(), x.Position) <= PowerUpPickupRange, out var powerUp))
                 {
