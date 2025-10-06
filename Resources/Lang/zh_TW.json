@@ -1532,7 +1532,7 @@
   "ForensicCanknowDeathReason": "是否可以知道死因",
   "ForensicCanknowAddons": "是否可以知道死亡玩家的附加職業",
   "ForensicCanknowKillTime": "是否可以知道受害者在多少秒前死亡",
-  "ForensicCanknowColorType": "Can find the color type of the killer",
+  "ForensicCanknowColorType": "可以知道殺手的顏色(深色或淺色)",
   "ParanoiaVentCooldown": "使用通風管冷卻時間",
   "ParanoiaNumOfUseButton": "召開會議次數上限",
   "EveryOneKnowSuperStar": "所有人知道誰是<color=#f6f657>大明星</color>",
