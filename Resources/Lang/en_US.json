@@ -1532,6 +1532,7 @@
   "ForensicCanknowDeathReason": "Can find the cause of death",
   "ForensicCanknowAddons": "Can find the dead player's add-ons",
   "ForensicCanknowKillTime": "Can find how long ago the player died",
+  "ForensicCanknowColorType": "Can find the color type of the killer",
   "ParanoiaVentCooldown": "Vent Cooldown",
   "ParanoiaNumOfUseButton": "Max number of portable buttons",
   "EveryOneKnowSuperStar": "Everyone knows the <color=#f6f657>Super Star</color>",
