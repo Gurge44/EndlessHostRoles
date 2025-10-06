@@ -22,8 +22,6 @@ public static class ModGameOptionsMenu
     public static Dictionary<OptionBehaviour, int> OptionList = new();
     public static Dictionary<int, OptionBehaviour> BehaviourList = new();
     public static Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
-
-    public static System.Collections.Generic.List<Predicate<OptionItem>> SpecialHiddenPredicates;
 }
 
 [HarmonyPatch(typeof(GameOptionsMenu))]
