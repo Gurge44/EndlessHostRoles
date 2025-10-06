@@ -9,7 +9,7 @@ namespace EHR.Coven;
 public class Banshee : Coven
 {
     public static bool On;
-    private static List<Banshee> Instances = [];
+    public static List<Banshee> Instances = [];
 
     private static OptionItem AbilityCooldown;
     private static OptionItem Radius;

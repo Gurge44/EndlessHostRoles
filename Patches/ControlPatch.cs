@@ -86,15 +86,11 @@ internal static class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
                 Utils.CopyCurrentSettings();
-            
-            bool admin = ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode);
 
-            if (!AmongUsClient.Instance.AmHost && !admin) return;
-
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift) && ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode))
                 HudManager.Instance.Chat.SetVisible(true);
 
-            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
+            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame && ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode))
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 GameEndChecker.CheckCustomEndCriteria();

@@ -760,7 +760,7 @@ internal static class ExtendedPlayerControl
         LateTask.New(() =>
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
-            player.SyncSettings();
+            player.MarkDirtySettings();
         }, duration, "RemoveKillFlash");
 
         if (player.AmOwner)
@@ -773,9 +773,9 @@ internal static class ExtendedPlayerControl
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.OwnerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        else if (!reactorCheck) player.ReactorFlash(); // Reactor flash
+        else if (!reactorCheck) player.ReactorFlash(canBlind: false); // Reactor flash
 
-        player.SyncSettings();
+        player.MarkDirtySettings();
     }
 
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -1229,7 +1229,7 @@ internal static class ExtendedPlayerControl
         }, 1f + (AmongUsClient.Instance.Ping / 1000f), log: false);
     }
 
-    public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN)
+    public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN, bool canBlind = true)
     {
         if (pc == null) return;
 
@@ -1242,15 +1242,15 @@ internal static class ExtendedPlayerControl
             _ => SystemTypes.Reactor
         };
 
-        if (IsActive(systemtypes))
+        if (canBlind && IsActive(systemtypes))
         {
             Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
 
             LateTask.New(() =>
             {
                 Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                pc.SyncSettings();
+                pc.MarkDirtySettings();
             }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix BlackOut Reactor Flash");
 
             return;

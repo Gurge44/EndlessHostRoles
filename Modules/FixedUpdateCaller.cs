@@ -214,15 +214,18 @@ public static class FixedUpdateCaller
 
                 try
                 {
-                    Main.GameTimer += Time.fixedDeltaTime;
-                
-                    if (Options.EnableGameTimeLimit.GetBool() && Main.GameTimer > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
+                    if (Options.EnableGameTimeLimit.GetBool())
                     {
-                        Main.GameTimer = 0f;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                        Main.GameTimer += Time.fixedDeltaTime;
                         
-                        if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
-                            CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Select(x => x.PlayerId));
+                        if (Main.GameTimer > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
+                        {
+                            Main.GameTimer = 0f;
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                        
+                            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                                CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Select(x => x.PlayerId));
+                        }
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

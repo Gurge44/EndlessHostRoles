@@ -1070,7 +1070,6 @@ internal static class IntroCutsceneDestroyPatch
             {
                 foreach (PlayerControl pc in aapc)
                 {
-                    pc.SyncSettings();
                     pc.RpcResetAbilityCooldown();
 
                     if (pc.GetCustomRole().UsesPetInsteadOfKill())

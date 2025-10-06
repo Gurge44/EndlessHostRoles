@@ -115,6 +115,22 @@ public class CopyCat : RoleBase
                 CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
                 CustomRoles.Councillor => CustomRoles.Judge,
                 CustomRoles.EvilGuesser or CustomRoles.Doomsayer => CustomRoles.NiceGuesser,
+                CustomRoles.Vengeance => CustomRoles.Adrenaline,
+                CustomRoles.Occultist => CustomRoles.Altruist,
+                CustomRoles.Dealer => CustomRoles.Merchant,
+                CustomRoles.Romantic => CustomRoles.Aid,
+                CustomRoles.Chemist => CustomRoles.Alchemist,
+                CustomRoles.Bomber or CustomRoles.Nuker => CustomRoles.Tree,
+                CustomRoles.Siren => CustomRoles.Rhapsode,
+                CustomRoles.Consort => CustomRoles.Escort,
+                CustomRoles.Parasite => CustomRoles.DoubleAgent,
+                CustomRoles.BloodKnight or CustomRoles.Wildling => CustomRoles.Safeguard,
+                CustomRoles.PlagueBearer => CustomRoles.Socialite,
+                CustomRoles.Demon => CustomRoles.Spy,
+                CustomRoles.Kidnapper => CustomRoles.Autocrat,
+                CustomRoles.Capitalism => CustomRoles.Helper,
+                CustomRoles.Technician or CustomRoles.Saboteur => CustomRoles.Mechanic,
+                CustomRoles.Magician => CustomRoles.Wizard,
                 _ => role
             };
         }
