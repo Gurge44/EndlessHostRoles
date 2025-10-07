@@ -11,7 +11,7 @@ namespace EHR;
 
 public static class Deathrace
 {
-    public static Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
+    public static readonly Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
     public static List<SystemTypes> Track = [];
     public static Dictionary<byte, PlayerData> Data = [];
     public static long LastPowerUpSpawn;
@@ -262,7 +262,7 @@ public static class Deathrace
     public static bool KnowRoleColor(PlayerControl seer, PlayerControl target, out string color)
     {
         color = "#FFFFFF";
-        return false;
+        return true;
     }
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud)
@@ -332,7 +332,24 @@ public static class Deathrace
     public static bool CheckGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        return false;
+        if (GameStates.IsEnded || !GameGoing) return false;
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+        switch (aapc.Length)
+        {
+            case 1:
+                PlayerControl winner = aapc[0];
+                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "Deathrace");
+                CustomWinnerHolder.WinnerIds = [winner.PlayerId];
+                Main.DoBlockNameChange = true;
+                return true;
+            case 0:
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
+                Logger.Warn("No players alive. Force ending the game", "Deathrace");
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static string GetTaskBarText()
