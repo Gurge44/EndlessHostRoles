@@ -1693,6 +1693,7 @@
   "EnableCommandHelper": "Enable Command Helper",
   "ShowModdedClientText": "Show Modded Client Text",
   "AutoHaunt": "Auto Haunt",
+  "ButtonCooldownInDecimalUnder10s": "Button Cooldown in Decimal Under 10s",
   "TryFixStuttering": "Try to Fix Stuttering",
   "UIScaleFactor": "Button UI Scale Factor",
   "Evolver": "Evolver",

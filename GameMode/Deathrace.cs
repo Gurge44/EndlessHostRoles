@@ -326,7 +326,7 @@ public static class Deathrace
     public static string GetStatistics(byte id)
     {
         if (!Data.TryGetValue(id, out var data)) return string.Empty;
-        return string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin);
+        return string.Format(Translator.GetString("Deathrace.Lap"), data.Lap, LapsToWin);
     }
 
     public static bool CheckGameEnd(out GameOverReason reason)
