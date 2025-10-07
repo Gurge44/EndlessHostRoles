@@ -20,7 +20,7 @@ static class ShowRoleMoveNextPatchAndroid
 {
     public static void Postfix(IntroCutscene._ShowRole_d__40 __instance, ref bool __result)
     {
-        if (AmongUsClient.Instance.AmHost || __instance.__1__state != 1 || !__result) return;
+        if (__instance.__1__state != 1 || !__result) return;
 
         GameStates.InGame = true;
         SetUpRoleTextPatch.Postfix(__instance.__4__this);
@@ -32,7 +32,7 @@ static class ShowRoleMoveNextPatch
 {
     public static void Postfix(IntroCutscene._ShowRole_d__41 __instance, ref bool __result)
     {
-        if (AmongUsClient.Instance.AmHost || __instance.__1__state != 1 || !__result) return;
+        if (__instance.__1__state != 1 || !__result) return;
 
         GameStates.InGame = true;
         SetUpRoleTextPatch.Postfix(__instance.__4__this);
@@ -45,13 +45,9 @@ static class ShowRoleMoveNextPatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
-    public static bool IntroStarted;
-
     public static bool Prefix(HudManager __instance)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return true;
-
-        IntroStarted = true;
 
         Utils.SetupLongRoleDescriptions();
 
@@ -151,7 +147,7 @@ static class CoShowIntroPatch
     }
 }
 
-[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
+//[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
 internal static class SetUpRoleTextPatch
 {
     public static bool IsInIntro;
@@ -1050,11 +1046,14 @@ internal static class BeginImpostorPatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.OnGameStart))]
 internal static class IntroCutsceneDestroyPatch
 {
+    public static bool PreventKill;
     public static void Postfix( /*IntroCutscene __instance*/)
     {
         if (!GameStates.IsInGame) return;
 
         Main.IntroDestroyed = true;
+        PreventKill = true;
+        LateTask.New(() => PreventKill = false, 5f, "PreventKillReset");
 
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
@@ -1088,15 +1087,15 @@ internal static class IntroCutsceneDestroyPatch
                             {
                                 x.ResetKillCooldown(false);
 
-                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kcd) && kcd - 2f > 0f)
-                                    x.SetKillCooldown(kcd - 2f);
+                                if (Main.AllPlayerKillCooldown.TryGetValue(x.PlayerId, out float kcd))
+                                    x.SetKillCooldown(kcd);
                             });
                         }, 2f, "FixKillCooldownTask");
                     }
                     else
                     {
                         int kcd = Options.StartingKillCooldown.GetInt();
-                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd - 2)), 2f, "FixKillCooldownTask");
+                        LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd)), 2f, "FixKillCooldownTask");
                     }
                 }
             }
@@ -1121,7 +1120,7 @@ internal static class IntroCutsceneDestroyPatch
                 {
                     lp.RpcResetAbilityCooldown();
                     lp.SetKillCooldown(10f);
-                }, 0.2f, log: false);
+                }, 0.8f, log: false);
 
                 StartGameHostPatch.RpcSetRoleReplacer.SetActualSelfRolesAfterOverride();
             }, 0.1f, log: false);
@@ -1277,9 +1276,7 @@ internal static class IntroCutsceneDestroyPatch
                         pc.TP(new Vector2(3.32f, -26.57f));
                 }
             }
-            
-            if (HudSpritePatch.DefaultIcons.Length > 0) return;
-            
+
             HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
 
             HudSpritePatch.DefaultIcons =
@@ -1299,7 +1296,4 @@ internal static class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");
     }
-
 }
-
-

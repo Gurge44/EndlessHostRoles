@@ -1174,8 +1174,6 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
-        HudSpritePatch.ResetButtonIcons = true;
-
         if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
             foreach (byte id in Main.DiedThisRound)

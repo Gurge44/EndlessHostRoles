@@ -943,7 +943,7 @@ internal static class ExtendedPlayerControl
             if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return;
         }
 
-        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks) return;
+        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return;
 
         player.AddKillTimerToDict(cd: time);
         if (target == null) target = player;
@@ -1356,7 +1356,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || !pc.IsAlive()) return false;
+        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || IntroCutsceneDestroyPatch.PreventKill || !pc.IsAlive()) return false;
 
         switch (Options.CurrentGameMode)
         {

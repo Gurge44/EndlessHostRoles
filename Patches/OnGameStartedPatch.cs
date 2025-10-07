@@ -286,8 +286,6 @@ internal static class ChangeRoleSettings
             GameEndChecker.Ended = false;
             ReportDeadBodyPatch.MeetingStarted = false;
 
-            HudSpritePatch.ResetButtonIcons = true;
-
             ShipStatusFixedUpdatePatch.ClosestVent = [];
             ShipStatusFixedUpdatePatch.CanUseClosestVent = [];
 
@@ -306,7 +304,6 @@ internal static class ChangeRoleSettings
             Main.LastNotifyNames = [];
 
             CheckForEndVotingPatch.EjectionText = string.Empty;
-            CoShowIntroPatch.IntroStarted = false;
 
             Arsonist.CurrentDousingTarget = byte.MaxValue;
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
@@ -473,8 +470,6 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
-
-    public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
     private static RoleOptionsCollectionV10 RoleOpt => Main.NormalOptions.roleOptions;
 

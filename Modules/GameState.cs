@@ -193,8 +193,6 @@ public class PlayerState(byte playerId)
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
-
-            HudSpritePatch.ResetButtonIcons = true;
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -227,9 +225,6 @@ public class PlayerState(byte playerId)
             SubRoles.Add(role);
 
         SetAddonCountTypes(role);
-
-        if (Main.IntroDestroyed && GameStates.InGame)
-            HudSpritePatch.ResetButtonIcons = true;
 
         Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
     }

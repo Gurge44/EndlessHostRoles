@@ -380,10 +380,10 @@ internal static class HudManagerPatch
                         else
                             button = null;
 
-                        if (button != null)
+                        if (button == __instance.AbilityButton)
                         {
-                            button.SetUsesRemaining((int)abilityUseLimit);
                             button.usesRemainingSprite.color = Utils.GetRoleColor(role);
+                            button.SetUsesRemaining((int)abilityUseLimit);
                         }
                     }
                 }
@@ -1152,7 +1152,10 @@ internal static class TaskPanelBehaviourPatch
             if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun)
             {
                 var tabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
-                tabText.SetText($"{TranslationController.Instance.GetString(StringNames.Tasks)}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
+                bool fakeTasks = Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
+                string sideText = TranslationController.Instance.GetString(fakeTasks ? StringNames.FakeTasks : StringNames.Tasks);
+                if (fakeTasks) sideText = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ImpostorEHR), sideText.TrimEnd(':'));
+                tabText.SetText($"{sideText}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
             }
             else
             {
