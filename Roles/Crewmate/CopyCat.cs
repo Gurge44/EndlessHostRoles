@@ -99,7 +99,7 @@ public class CopyCat : RoleBase
 
         if (CopyCrewVar.GetBool())
         {
-            role = role switch
+            var newRole = role switch
             {
                 CustomRoles.Swooper or CustomRoles.Wraith => CustomRoles.Chameleon,
                 CustomRoles.Stealth or CustomRoles.Nonplus => CustomRoles.Grenadier,
@@ -157,6 +157,9 @@ public class CopyCat : RoleBase
                 CustomRoles.Bandit => CustomRoles.Cleanser,
                 _ => role
             };
+            
+            if (newRole.GetMode() != 0 || CopyCrewVarEvenIfDisabled.GetBool())
+                role = newRole;
         }
 
         if (tpc.IsCrewmate() && !tpc.Is(CustomRoles.Rascal) && !tpc.Is(CustomRoles.Jailor) && !tpc.IsConverted())

@@ -269,7 +269,7 @@ public static class Deathrace
     {
         if (!GameGoing || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
 
-        StringBuilder sb = new();
+        StringBuilder sb = new("<#ffffff>");
         PlainShipRoom room = seer.GetPlainShipRoom();
         
         sb.AppendLine($"<#888888>{string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin)}</color>");
