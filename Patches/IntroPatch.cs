@@ -1317,6 +1317,3 @@ internal static class IntroCutsceneDestroyPatch
     }
 
 }
-
-
-
