@@ -1755,11 +1755,11 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
+            if (winners.Length > 0 && gmPoll && GameStates.IsLobby)
             {
-                int winnerIndex = winners[0].Key - 65;
+                int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 CustomGameMode mode = GMPollGameModes[winnerIndex];
-                Options.GameMode.SetValue((int)mode - 1);
+                Options.GameMode.SetValue((int)mode - 1, doSave: true, doSync: true);
             }
         }
 

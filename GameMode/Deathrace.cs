@@ -166,7 +166,7 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        PowerUpPickupRangeOption = new FloatOptionItem(id, "Deathrace.PowerUpPickupRangeOption", new(0.1f, 5f, 0.1f), 0.5f, tab)
+        PowerUpPickupRangeOption = new FloatOptionItem(id, "Deathrace.PowerUpPickupRangeOption", new(0.1f, 5f, 0.1f), 0.8f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -499,7 +499,7 @@ public static class Deathrace
 
                 PlainShipRoom room = data.Player.GetPlainShipRoom();
                 bool coordinateCheck = CoordinateChecks.TryGetValue((int)data.NextRoom, out var coordinates);
-                if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside) room = null;
+                if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
 
                 if ((room == null && !coordinateCheck) || (room != null && room.RoomId == data.LastRoom)) continue;
 

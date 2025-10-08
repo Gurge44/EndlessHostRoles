@@ -38,7 +38,7 @@ public static class AutoHaunt
         {
             while (Main.AutoHaunt.Value)
             {
-                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
+                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost && !ExtendedPlayerControl.TempExiled.Contains(PlayerControl.LocalPlayer.PlayerId))
                 {
                     if (HauntMenuMinigameStartPatch.Instance != null)
                     {

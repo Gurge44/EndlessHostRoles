@@ -9402,6 +9402,7 @@
   "CopyCatAlreadyCopy": "You have already copied a role in this round",
   "CopyCatCanNotCopy": "You can not copy target's role",
   "CopyCatCanKill": "CopyCat can kill when miscopy",
+  "CopyCrewVarEvenIfDisabled": "Can copy the crew variant even if that role is disabled",
   "CopyCrewVar": "Can copy evil variants of crew roles",
   "SunglassesVision": "<color=#E7C12B>Sunglasses</color> Vision",
   "ImpCanBeLoyal": "<color=#ff1919>Impostors</color> can become <color=#B71556>Loyal</color>",

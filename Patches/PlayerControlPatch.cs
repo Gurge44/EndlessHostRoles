@@ -1565,7 +1565,7 @@ internal static class FixedUpdatePatch
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
 
-                    player.ResetKillCooldown();
+                    player.SetKillCooldown(5f);
                     PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 
