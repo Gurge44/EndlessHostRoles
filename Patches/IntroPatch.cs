@@ -540,7 +540,7 @@ internal static class BeginCrewmatePatch
                 {
                     __instance.TeamTitle.text = GetString("TeamImpostor");
                     __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(140, 255, 255, byte.MaxValue);
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                     __instance.ImpostorText.gameObject.SetActive(true);
                     __instance.ImpostorText.text = GetString("SubText.Crewmate");
                     break;
@@ -618,11 +618,11 @@ internal static class BeginCrewmatePatch
         {
             PlayerControl.LocalPlayer.Data.Role.IntroSound = role switch
             {
-                CustomRoles.Bomber or
+                CustomRoles.Battery or
+                    CustomRoles.Bomber or
                     CustomRoles.Nuker or
                     CustomRoles.Sapper or
-                    CustomRoles.Terrorist or
-                    CustomRoles.Battery
+                    CustomRoles.Terrorist
                     => ShipStatus.Instance.CommonTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixWiring)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Dictator or
@@ -667,8 +667,10 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Ventguard
                     => ShipStatus.Instance.VentEnterSound,
 
-                CustomRoles.NiceEraser or
+                CustomRoles.MeetingManager or
+                    CustomRoles.NiceEraser or
                     CustomRoles.ParityCop or
+                    CustomRoles.President or
                     CustomRoles.TimeManager
                     => MeetingHud.Instance.VoteLockinSound,
 
@@ -688,6 +690,7 @@ internal static class BeginCrewmatePatch
                     => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
 
                 CustomRoles.Hater or
+                    CustomRoles.Lawyer or
                     CustomRoles.Opportunist or
                     CustomRoles.Revolutionist
                     => GetIntroSound(RoleTypes.Crewmate),
@@ -702,14 +705,17 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Mediumshiper or
                     CustomRoles.Observer or
                     CustomRoles.Spiritcaller or
-                    CustomRoles.Spiritualist
+                    CustomRoles.Spiritualist or
+                    CustomRoles.Whisperer
                     => GetIntroSound(RoleTypes.GuardianAngel),
 
                 CustomRoles.Engineer or
                     CustomRoles.EngineerEHR or
+                    CustomRoles.Clerk or
                     CustomRoles.Dealer or
                     CustomRoles.Detour or
                     CustomRoles.Investor or
+                    CustomRole.Merchant or
                     CustomRoles.Sentinel or
                     CustomRoles.Sentry
                     => GetIntroSound(RoleTypes.Engineer),
@@ -724,8 +730,10 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
                     or CustomRoles.Bloodhound
+                    or CustomRoles.Captain
                     or CustomRoles.EvilTracker
                     or CustomRoles.Scout
+                    or CustomRoles.Lookout
                     => GetIntroSound(RoleTypes.Tracker),
                 
                 CustomRoles.Viper
@@ -743,21 +751,29 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.DetectiveEHR
                     or CustomRoles.Analyst
                     or CustomRoles.Divinator
+                    or CustomRoles.Enigma
                     or CustomRoles.Farseer
                     or CustomRoles.Forensic
                     or CustomRoles.Insight
+                    or CustomRoles.Inquisitor
+                    or CustomRoles.Inquirer
+                    or CustomRoles.Leery
+                    or CustomRoles.Mortician
                     or CustomRoles.Oracle
                     => GetIntroSound(RoleTypes.Detective),
 
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
-                    or CustomRoles.SuperStar
-                    or CustomRoles.Stalker
+                    or CustomRoles.Markseeker
+                    or CustomRoles.Soothsayer
                     or CustomRoles.Specter
+                    or CustomRoles.SuperStar
+                    or CustomRoles.Sunnyboy
                     => GetIntroSound(RoleTypes.Noisemaker),
 
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR
+                    or CustomRoles.Ambusher
                     or CustomRoles.Stalker
                     or CustomRoles.ImperiusCurse
                     or CustomRoles.SoulHunter
@@ -1301,5 +1317,6 @@ internal static class IntroCutsceneDestroyPatch
     }
 
 }
+
 
 
