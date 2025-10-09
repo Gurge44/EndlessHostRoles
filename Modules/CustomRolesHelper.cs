@@ -1088,7 +1088,7 @@ internal static class CustomRolesHelper
             CustomRoles.Aide when pc.IsMadmate() || pc.Is(CustomRoles.Saboteur) => false,
             CustomRoles.Sleuth when pc.GetCustomRole() is CustomRoles.NecroGuesser or CustomRoles.Imitator or CustomRoles.Forensic => false,
             CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
-            CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker=> false,
+            CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
             CustomRoles.AntiTP when pc.GetCustomRole() is CustomRoles.Transmitter or CustomRoles.Miner or CustomRoles.Escapee or CustomRoles.Tunneler or CustomRoles.Ninja => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Stealth) => false,
