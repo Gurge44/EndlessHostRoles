@@ -1673,5 +1673,3 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
-
-
