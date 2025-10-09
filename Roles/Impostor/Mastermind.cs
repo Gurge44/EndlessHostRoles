@@ -128,8 +128,7 @@ public class Mastermind : RoleBase
             if (x.Value + TimeLimit.GetInt() < TimeStamp)
             {
                 ManipulatedPlayers.Remove(x.Key);
-                TempKCDs.Remove(x.Key);
-                player.RpcChangeRoleBasis(player.GetCustomRole());
+                if (!TempKCDs.Remove(x.Key)) player.RpcChangeRoleBasis(player.GetCustomRole());
                 player.Suicide(realKiller: MastermindPC);
                 RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
 
