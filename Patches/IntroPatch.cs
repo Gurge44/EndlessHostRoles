@@ -711,7 +711,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Dealer or
                     CustomRoles.Detour or
                     CustomRoles.Investor or
-                    CustomRole.Merchant or
+                    CustomRoles.Merchant or
                     CustomRoles.Sentinel or
                     CustomRoles.Sentry
                     => GetIntroSound(RoleTypes.Engineer),

@@ -100,7 +100,7 @@ internal static class CheckForEndVotingPatch
                         __instance.UpdateButtons();
                         pva.VotedFor = byte.MaxValue;
                     }
-                    else if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
+                    else if (voteTarget != null && !pc.GetCustomRole().CancelsVote() && !pc.UsesMeetingShapeshift())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
                     else if (pc.Is(CustomRoles.Godfather)) Godfather.GodfatherTarget = byte.MaxValue;
                 }

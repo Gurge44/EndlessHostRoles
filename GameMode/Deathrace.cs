@@ -148,7 +148,7 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
         
-        PowerUpEffectRangeOption = new FloatOptionItem(id++, "Deathrace.PowerUpEffectRangeOption", new(0.25f, 10f, 0.25f), 3f, tab)
+        PowerUpEffectRangeOption = new FloatOptionItem(id++, "Deathrace.PowerUpEffectRangeOption", new(0.25f, 10f, 0.25f), 4f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -160,7 +160,7 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        EnergyDrinkSpeedIncreasementOption = new FloatOptionItem(id++, "Deathrace.EnergyDrinkSpeedIncreasementOption", new(0.05f, 3f, 0.05f), 0.5f, tab)
+        EnergyDrinkSpeedIncreasementOption = new FloatOptionItem(id++, "Deathrace.EnergyDrinkSpeedIncreasementOption", new(0.05f, 3f, 0.05f), 0.75f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -241,8 +241,11 @@ public static class Deathrace
             }
         }
         else if (Main.CurrentMap == MapNames.Airship)
+        {
             yield return new WaitForSeconds(3f);
-        
+            players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
+        }
+
         for (var i = 5; i > 0; i--)
         {
             NameNotifyManager.Reset();
@@ -370,12 +373,12 @@ public static class Deathrace
             if (target == null) return;
             Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             target.MarkDirtySettings();
-        }, PowerUpEffectDuration, "Taser Revert");
+        }, PowerUpEffectDuration, $"Taser Revert ({Main.AllPlayerNames.GetValueOrDefault(killer.PlayerId, $"ID {killer.PlayerId}")} => {Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, $"ID {target.PlayerId}")})");
     }
 
     public static bool CanUseVent(PlayerControl pc, int ventId)
     {
-        if (pc.inVent && pc.GetClosestVent()?.Id == ventId) return true;
+        if (!AmongUsClient.Instance.AmHost || (pc.inVent && pc.GetClosestVent()?.Id == ventId)) return true;
         return Data.TryGetValue(pc.PlayerId, out var data) && UsableVentIDs.TryGetValue(Main.CurrentMap, out var dict) && dict.ContainsKey(data.NextRoom) && dict.TryGetValue(data.LastRoom, out var vents) && vents.Contains(ventId);
     }
 
@@ -404,7 +407,7 @@ public static class Deathrace
                         Main.AllPlayerSpeed[player.PlayerId] += SmokeSpeedReduction;
                         player.MarkDirtySettings();
                     }
-                }, PowerUpEffectDuration, "Smoke Revert");
+                }, PowerUpEffectDuration, $"Smoke Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
                 break;
             }
             case PowerUp.EnergyDrink:
@@ -414,10 +417,10 @@ public static class Deathrace
                 
                 LateTask.New(() =>
                 {
-                    if (pc == null) return;
+                    if (pc == null || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod))) return;
                     Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
                     pc.MarkDirtySettings();
-                }, PowerUpEffectDuration, "Energy Drink Revert");
+                }, PowerUpEffectDuration, $"Energy Drink Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
                 break;
             }
             case PowerUp.Grenade:
@@ -437,7 +440,7 @@ public static class Deathrace
                         state.IsBlackOut = false;
                         player.MarkDirtySettings();
                     }
-                }, PowerUpEffectDuration, "Grenade Revert");
+                }, PowerUpEffectDuration, $"Grenade Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
                 break;
             }
             case PowerUp.Ice:
@@ -456,7 +459,7 @@ public static class Deathrace
                         Main.AllPlayerSpeed[player.PlayerId] *= -1;
                         player.MarkDirtySettings();
                     }
-                }, PowerUpEffectDuration, "Smoke Revert");
+                }, PowerUpEffectDuration, $"Ice Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
                 break;
             }
         }

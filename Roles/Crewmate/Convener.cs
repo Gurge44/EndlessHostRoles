@@ -65,7 +65,7 @@ internal class Convener : RoleBase
     {
         if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
-        LateTask.New(() => Utils.TPAll(pc.Pos()), isPet ? 0.5f : 2f, "Convener TP");
+        LateTask.New(() => Main.AllAlivePlayerControls.MassTP(pc.Pos(), log: true), isPet ? 0.5f : 2f, "Convener TP");
         pc.RpcRemoveAbilityUse();
     }
 

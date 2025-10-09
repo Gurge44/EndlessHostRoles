@@ -148,11 +148,6 @@ public static class Utils
             SetAllVentInteractions();
     }
 
-    public static void TPAll(Vector2 location, bool log = true)
-    {
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) TP(pc.NetTransform, location, log);
-    }
-
     public static int NumSnapToCallsThisRound;
 
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool noCheckState = false, bool log = true)

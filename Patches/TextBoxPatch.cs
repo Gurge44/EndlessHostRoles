@@ -185,6 +185,7 @@ public static class TextBoxPatch
             }
 
             IsInvalidCommand = false;
+            HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
 
             if (PlaceHolderText == null)
             {
@@ -196,8 +197,7 @@ public static class TextBoxPatch
 
             if (CommandInfoText == null)
             {
-                HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
-                CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
+                CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
                 CommandInfoText.name = "CommandInfoText";
                 CommandInfoText.alignment = TextAlignmentOptions.Left;
                 CommandInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
@@ -212,8 +212,7 @@ public static class TextBoxPatch
 
             if (AdditionalInfoText == null)
             {
-                HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
-                AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
+                AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
                 AdditionalInfoText.name = "AdditionalInfoText";
                 AdditionalInfoText.alignment = TextAlignmentOptions.Left;
                 AdditionalInfoText.verticalAlignment = VerticalAlignmentOptions.Top;

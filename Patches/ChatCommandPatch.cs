@@ -2322,7 +2322,7 @@ internal static class ChatCommands
             ChatManager.SendPreviousMessagesToAll();
 
         PlayerControl votedPlayer = voteId.GetPlayer();
-        if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
+        if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
 
         MeetingHud.Instance.CastVote(player.PlayerId, voteId);
     }
