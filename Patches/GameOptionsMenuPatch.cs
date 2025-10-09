@@ -473,14 +473,14 @@ public static class ToggleOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
 
             CustomGameMode gm = Options.CurrentGameMode;
-            Color32 color = gm == CustomGameMode.Standard ? item.Tab switch
+            Color32 color = gm == CustomGameMode.Standard ? (TabGroup)(ModGameOptionsMenu.TabIndex - 3) switch
             {
-                TabGroup.ImpostorRoles => new(255, 25, 25, 255),
-                TabGroup.CrewmateRoles => new(140, 255, 255, 255),
-                TabGroup.NeutralRoles => new(255, 171, 27, 255),
-                TabGroup.CovenRoles => new(123, 63, 187, 255),
-                _ => new(0, 165, 255, 255)
-            } : Main.GameModeColors.TryGetValue(gm, out var c) ? c : new(0, 165, 255, 255);
+                TabGroup.ImpostorRoles => new Color32(255, 25, 25, 255),
+                TabGroup.CrewmateRoles => new Color32(140, 255, 255, 255),
+                TabGroup.NeutralRoles => new Color32(255, 171, 27, 255),
+                TabGroup.CovenRoles => new Color32(123, 63, 187, 255),
+                _ => new Color32(0, 165, 255, 255)
+            } : Main.GameModeColors.TryGetValue(gm, out var c) ? c : new Color32(0, 165, 255, 255);
             __instance.CheckMark.sprite = Utils.LoadSprite("EHR.Resources.Images.Checkmark.png", 100f);
             __instance.CheckMark.color = color;
             var renderer = __instance.CheckMark.transform.parent.FindChild("ActiveSprite").GetComponent<SpriteRenderer>();

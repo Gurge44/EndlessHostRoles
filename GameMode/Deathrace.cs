@@ -11,7 +11,7 @@ namespace EHR;
 
 public static class Deathrace
 {
-    public static Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
+    public static readonly Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
     public static List<SystemTypes> Track = [];
     public static Dictionary<byte, PlayerData> Data = [];
     public static long LastPowerUpSpawn;
@@ -166,7 +166,7 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        PowerUpPickupRangeOption = new FloatOptionItem(id, "Deathrace.PowerUpPickupRangeOption", new(0.1f, 5f, 0.1f), 0.5f, tab)
+        PowerUpPickupRangeOption = new FloatOptionItem(id, "Deathrace.PowerUpPickupRangeOption", new(0.1f, 5f, 0.1f), 0.8f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -262,14 +262,14 @@ public static class Deathrace
     public static bool KnowRoleColor(PlayerControl seer, PlayerControl target, out string color)
     {
         color = "#FFFFFF";
-        return false;
+        return true;
     }
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud)
     {
         if (!GameGoing || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
 
-        StringBuilder sb = new();
+        StringBuilder sb = new("<#ffffff>");
         PlainShipRoom room = seer.GetPlainShipRoom();
         
         sb.AppendLine($"<#888888>{string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin)}</color>");
@@ -326,13 +326,30 @@ public static class Deathrace
     public static string GetStatistics(byte id)
     {
         if (!Data.TryGetValue(id, out var data)) return string.Empty;
-        return string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin);
+        return string.Format(Translator.GetString("Deathrace.Lap"), data.Lap, LapsToWin);
     }
 
     public static bool CheckGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        return false;
+        if (GameStates.IsEnded || !GameGoing) return false;
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+        switch (aapc.Length)
+        {
+            case 1:
+                PlayerControl winner = aapc[0];
+                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "Deathrace");
+                CustomWinnerHolder.WinnerIds = [winner.PlayerId];
+                Main.DoBlockNameChange = true;
+                return true;
+            case 0:
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
+                Logger.Warn("No players alive. Force ending the game", "Deathrace");
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static string GetTaskBarText()
@@ -482,7 +499,7 @@ public static class Deathrace
 
                 PlainShipRoom room = data.Player.GetPlainShipRoom();
                 bool coordinateCheck = CoordinateChecks.TryGetValue((int)data.NextRoom, out var coordinates);
-                if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside) room = null;
+                if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
 
                 if ((room == null && !coordinateCheck) || (room != null && room.RoomId == data.LastRoom)) continue;
 

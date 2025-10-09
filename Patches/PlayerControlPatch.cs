@@ -1174,8 +1174,6 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
-        HudSpritePatch.ResetButtonIcons = true;
-
         if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
             foreach (byte id in Main.DiedThisRound)
@@ -1567,7 +1565,7 @@ internal static class FixedUpdatePatch
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
 
-                    player.ResetKillCooldown();
+                    player.SetKillCooldown(5f);
                     PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 

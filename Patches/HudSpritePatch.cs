@@ -19,18 +19,8 @@ public static class CustomButton
 //[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class HudSpritePatch
 {
-    private static Sprite Kill;
-    private static Sprite Ability;
-    private static Sprite Vent;
-    private static Sprite Sabotage;
-    private static Sprite Pet;
-    private static Sprite Report;
-
     public static Sprite[] DefaultIcons = [];
-
     private static long LastErrorTime;
-
-    public static bool ResetButtonIcons;
 
     public static void Postfix(HudManager __instance)
     {
@@ -41,39 +31,19 @@ public static class HudSpritePatch
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
             if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive()) return;
-
-            if (ResetButtonIcons || !AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame)
-            {
-                Kill = null;
-                Ability = null;
-                Vent = null;
-                Sabotage = null;
-                Pet = null;
-                Report = null;
-
-                ResetButtonIcons = false;
-                return;
-            }
-
-            bool shapeshifting = player.IsShifted();
+            if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame || IntroCutsceneDestroyPatch.PreventKill) return;
 
             if (DefaultIcons.Length == 0) return;
 
-            if (!Kill) Kill = DefaultIcons[0];
-            if (!Ability) Ability = DefaultIcons[1];
-            if (!Vent) Vent = DefaultIcons[2];
-            if (!Sabotage) Sabotage = DefaultIcons[3];
-            if (!Pet) Pet = DefaultIcons[4];
-            if (!Report) Report = DefaultIcons[5];
-
-            Sprite newKillButton = Kill;
-            Sprite newAbilityButton = Ability;
-            Sprite newVentButton = Vent;
-            Sprite newSabotageButton = Sabotage;
-            Sprite newPetButton = Pet;
-            Sprite newReportButton = Report;
+            Sprite newKillButton = DefaultIcons[0];
+            Sprite newAbilityButton = DefaultIcons[1];
+            Sprite newVentButton = DefaultIcons[2];
+            Sprite newSabotageButton = DefaultIcons[3];
+            Sprite newPetButton = DefaultIcons[4];
+            Sprite newReportButton = DefaultIcons[5];
 
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
+            bool shapeshifting = player.IsShifted();
 
             switch (player.GetCustomRole())
             {
@@ -112,7 +82,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Echo:
                 {
-                    newAbilityButton = player.IsShifted() ? Kill : CustomButton.Get("Puttpuer");
+                    newAbilityButton = player.IsShifted() ? newKillButton : CustomButton.Get("Puttpuer");
                     break;
                 }
                 case CustomRoles.Shifter:
@@ -488,7 +458,7 @@ public static class HudSpritePatch
                     foreach (var button in new ActionButton[] { __instance.KillButton, __instance.AbilityButton, __instance.ImpostorVentButton, __instance.SabotageButton, __instance.PetButton, __instance.ReportButton })
                     {
                         button.OverrideColor(roleColor);
-                        button.buttonLabelText.color = roleColor;
+                        button.buttonLabelText.SetOutlineColor(roleColor);
                     }
                     
                     return;

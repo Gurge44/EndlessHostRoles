@@ -222,7 +222,6 @@ internal static class ChatCommands
             new(["retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
             new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
             new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
-            //UIScaleCommand
             new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
@@ -1755,11 +1754,11 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length == 1 && gmPoll && GameStates.IsLobby)
+            if (winners.Length > 0 && gmPoll && GameStates.IsLobby)
             {
-                int winnerIndex = winners[0].Key - 65;
+                int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 CustomGameMode mode = GMPollGameModes[winnerIndex];
-                Options.GameMode.SetValue((int)mode - 1);
+                Options.GameMode.SetValue((int)mode - 1, doSave: true, doSync: true);
             }
         }
 

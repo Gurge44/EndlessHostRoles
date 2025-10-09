@@ -12,6 +12,7 @@ public class CopyCat : RoleBase
     private static OptionItem KillCooldown;
     private static OptionItem CanKill;
     private static OptionItem CopyCrewVar;
+    private static OptionItem CopyCrewVarEvenIfDisabled;
     private static OptionItem MiscopyLimitOpt;
     private static OptionItem ResetToCopyCatEachRound;
     public static OptionItem UsePet;
@@ -34,6 +35,10 @@ public class CopyCat : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
 
         CopyCrewVar = new BooleanOptionItem(Id + 13, "CopyCrewVar", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+        
+        CopyCrewVarEvenIfDisabled = new BooleanOptionItem(Id + 15, "CopyCrewVarEvenIfDisabled", true, TabGroup.CrewmateRoles)
+            .SetParent(CopyCrewVar)
             .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
 
         MiscopyLimitOpt = new IntegerOptionItem(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles)
@@ -94,7 +99,7 @@ public class CopyCat : RoleBase
 
         if (CopyCrewVar.GetBool())
         {
-            role = role switch
+            var newRole = role switch
             {
                 CustomRoles.Swooper or CustomRoles.Wraith => CustomRoles.Chameleon,
                 CustomRoles.Stealth or CustomRoles.Nonplus => CustomRoles.Grenadier,
@@ -131,8 +136,30 @@ public class CopyCat : RoleBase
                 CustomRoles.Capitalism => CustomRoles.Helper,
                 CustomRoles.Technician or CustomRoles.Saboteur => CustomRoles.Mechanic,
                 CustomRoles.Magician => CustomRoles.Wizard,
+                CustomRoles.Penguin => CustomRoles.Goose,
+                CustomRoles.PotionMaster => CustomRoles.Farseer,
+                CustomRoles.Anonymous => CustomRoles.Paranoia,
+                CustomRoles.ImperiusCurse or CustomRoles.Swapster => CustomRoles.Transporter,
+                CustomRoles.NoteKiller => CustomRoles.Decryptor,
+                CustomRoles.Gaslighter => new [] {CustomRoles.Medic, CustomRoles.Monarch}.RandomElement(),
+                CustomRoles.Timelord => CustomRoles.Deputy,
+                CustomRoles.Goddess => CustomRoles.Veteran,
+                CustomRoles.Pawn => CustomRoles.Snitch,
+                CustomRoles.Amnesiac => CustomRoles.Tracefinder,
+                CustomRoles.SerialKiller => CustomRoles.Sheriff,
+                CustomRoles.Maverick => CustomRoles.SwordsMan,
+                CustomRoles.Hookshot or CustomRoles.Ninja => new[] {CustomRoles.Tether, CustomRoles.Transmitter}.RandomElement(),
+                CustomRoles.Enderman => CustomRoles.Tunneler,
+                CustomRoles.Hypocrite or CustomRoles.Phantasm => CustomRoles.Speedrunner,
+                CustomRoles.Magistrate => CustomRoles.Judge,
+                CustomRoles.Curser => CustomRoles.Wizard,
+                CustomRoles.Augur => CustomRoles.NiceGuesser,
+                CustomRoles.Bandit => CustomRoles.Cleanser,
                 _ => role
             };
+            
+            if (newRole.GetMode() != 0 || CopyCrewVarEvenIfDisabled.GetBool())
+                role = newRole;
         }
 
         if (tpc.IsCrewmate() && !tpc.Is(CustomRoles.Rascal) && !tpc.Is(CustomRoles.Jailor) && !tpc.IsConverted())
