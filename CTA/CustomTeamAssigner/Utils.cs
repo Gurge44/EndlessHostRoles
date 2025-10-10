@@ -31,7 +31,6 @@ namespace CustomTeamAssigner
             { CustomRoles.LovingCrewmate, "Lover" },
             { CustomRoles.LovingImpostor, "Loving Impostor" },
             { CustomRoles.Mafia, "Nemesis" },
-            { CustomRoles.SerialKiller, "Mercenary" },
             { CustomRoles.ImperiusCurse, "Soul Catcher" },
             { CustomRoles.BoobyTrap, "Trapster" },
             { CustomRoles.Bloodhound, "Coroner" },
