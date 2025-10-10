@@ -1168,6 +1168,8 @@ internal static class ReportDeadBodyPatch
         LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
 
         CustomNetObject.OnMeeting();
+        
+        FastDestroyableSingleton<HudManager>.Instance.SetRolePanelOpen(false);
 
         Asthmatic.RunChecks = false;
 
@@ -1559,8 +1561,9 @@ internal static class FixedUpdatePatch
                     player.RpcGuardAndKill(player);
 
                     var state = Main.PlayerStates[player.PlayerId];
-                    state.RemoveSubRole(CustomRoles.Fragile);
-                    state.RemoveSubRole(CustomRoles.Unbound);
+                    state.SubRoles
+                        .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Trapper or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
+                        .ForEach(x => state.RemoveSubRole(x));
 
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);

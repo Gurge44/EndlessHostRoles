@@ -1304,6 +1304,8 @@ internal static class IntroCutsceneDestroyPatch
                 hud.PetButton.graphic.sprite,
                 hud.ReportButton.graphic.sprite
             ];
+            
+            hud.SetRolePanelOpen(true);
         }, 1f, log: false);
 
         LateTask.New(() =>

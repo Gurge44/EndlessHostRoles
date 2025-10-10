@@ -4037,6 +4037,16 @@ public static class Utils
         return casted != null;
     }
 
+    public static void SetRolePanelOpen(this HudManager hud, bool open)
+    {
+        try
+        {
+            var panelThing = hud.TaskStuff.transform.FindChild("RolePanel");
+            if (panelThing != null) panelThing.gameObject.GetComponent<TaskPanelBehaviour>().open = open;
+        }
+        catch (Exception e) { ThrowException(e); }
+    }
+
     public static string GetRegionName(IRegionInfo region = null)
     {
         region ??= ServerManager.Instance.CurrentRegion;
