@@ -466,6 +466,9 @@ public enum CustomRoles
     
     // Deathrace
     Racer,
+    
+    // Mingle
+    MinglePlayer,
 
     // GM
     GM,

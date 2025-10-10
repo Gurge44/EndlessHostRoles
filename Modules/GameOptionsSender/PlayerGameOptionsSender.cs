@@ -174,6 +174,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     AURoleOptions.EngineerCooldown = 0.01f;
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     goto case CustomGameMode.RoomRush;
+                case CustomGameMode.Mingle:
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:

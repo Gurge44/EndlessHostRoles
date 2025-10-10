@@ -1094,6 +1094,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Deathrace:
                     GameEndChecker.SetPredicateToDeathrace();
                     break;
+                case CustomGameMode.Mingle:
+                    GameEndChecker.SetPredicateToMingle();
+                    break;
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.

@@ -553,6 +553,11 @@ internal static class GameEndChecker
     {
         Predicate = new DeathraceGameEndPredicate();
     }
+    
+    public static void SetPredicateToMingle()
+    {
+        Predicate = new MingleGameEndPredicate();
+    }
 
     private class NormalGameEndPredicate : GameEndPredicate
     {
@@ -1104,6 +1109,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return Deathrace.CheckGameEnd(out reason);
+        }
+    }
+
+    private class MingleGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Mingle.CheckGameEnd(out reason);
         }
     }
 

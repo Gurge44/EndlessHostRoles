@@ -759,6 +759,8 @@ public class Main : BasePlugin
                 { CustomRoles.BedWarsPlayer, "#fc03f8" },
                 // Deathrace
                 { CustomRoles.Racer, "#AFAFAF" },
+                // Mingle
+                { CustomRoles.MinglePlayer, "#FE9900" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -840,7 +842,8 @@ public class Main : BasePlugin
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
             [CustomGameMode.TheMindGame] = Color.yellow,
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
-            [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer)
+            [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
+            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>

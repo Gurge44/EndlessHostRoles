@@ -34,6 +34,7 @@ public enum CustomGameMode
     TheMindGame = 0x0D,
     BedWars = 0x0E,
     Deathrace = 0x0F,
+    Mingle = 0x10,
     All = int.MaxValue
 }
 
@@ -86,7 +87,8 @@ public static class Options
         "Quiz",
         "TheMindGame",
         "BedWars",
-        "Deathrace"
+        "Deathrace",
+        "Mingle"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -904,6 +906,7 @@ public static class Options
         12 => CustomGameMode.TheMindGame,
         13 => CustomGameMode.BedWars,
         14 => CustomGameMode.Deathrace,
+        15 => CustomGameMode.Mingle,
         _ => CustomGameMode.Standard
     };
 
@@ -1808,6 +1811,8 @@ public static class Options
         BedWars.SetupCustomOption();
         // Deathrace
         Deathrace.SetupCustomOption();
+        // Mingle
+        Mingle.SetupCustomOption();
 
         yield return null;
 
@@ -3149,6 +3154,7 @@ public static class Options
                         12 => CustomGameMode.TheMindGame,
                         13 => CustomGameMode.BedWars,
                         14 => CustomGameMode.Deathrace,
+                        15 => CustomGameMode.Mingle,
                         _ => CustomGameMode.Standard
                     };
                     AutoGMRotationCompiled.AddRange(Enumerable.Repeat(gm, times));

@@ -9,7 +9,7 @@ public static class DeconSystemUpdateSystemPatch
     {
         if (!AmongUsClient.Instance.AmHost || SubmergedCompatibility.IsSubmerged()) return;
 
-        bool fastDecon = Options.CurrentGameMode is CustomGameMode.BedWars or CustomGameMode.RoomRush or CustomGameMode.Deathrace;
+        bool fastDecon = Options.CurrentGameMode is CustomGameMode.BedWars or CustomGameMode.RoomRush or CustomGameMode.Deathrace or CustomGameMode.Mingle;
 
         if (fastDecon || Options.ChangeDecontaminationTime.GetBool())
         {

@@ -46,6 +46,7 @@ public static class NameColorManager
                 if (FreeForAll.PlayerTeams.TryGetValue(target.PlayerId, out int team))
                     color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
+            case CustomGameMode.Mingle:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.MoveAndStop:

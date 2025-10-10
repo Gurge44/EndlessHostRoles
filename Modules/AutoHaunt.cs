@@ -23,9 +23,10 @@ public static class AutoHaunt
             CustomGameMode.HideAndSeek => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Venter or CustomRoles.Dasher).ThenByDescending(x => CustomHnS.PlayerRoles.TryGetValue(x.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) info) && info.Interface.Team == Team.Impostor).ThenByDescending(x => CustomHnS.PlayerRoles.TryGetValue(x.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) info) && info.Interface.Team == Team.Neutral).FirstOrDefault(),
             CustomGameMode.Speedrun => Speedrun.CanKill.Count > 0 ? Speedrun.CanKill.ToValidPlayers().RandomElement() : validPCs.MaxBy(x => x.GetTaskState().CompletedTasksCount),
             CustomGameMode.CaptureTheFlag => validPCs.OrderByDescending(x => CaptureTheFlag.IsCarrier(x.PlayerId)).ThenByDescending(x => CaptureTheFlag.GetFlagTime(x.PlayerId)).ThenByDescending(x => CaptureTheFlag.GetTagCount(x.PlayerId)).FirstOrDefault(),
-            CustomGameMode.RoomRush => RoomRush.PointsSystem ? validPCs.MaxBy(x => RoomRush.GetPoints(x.PlayerId)) : validPCs.FirstOrDefault(),
+            CustomGameMode.RoomRush => RoomRush.PointsSystem ? validPCs.MaxBy(x => RoomRush.GetPoints(x.PlayerId)) : validPCs.RandomElement(),
             CustomGameMode.KingOfTheZones => validPCs.MaxBy(x => KingOfTheZones.GetZoneTime(x.PlayerId)),
-            _ => validPCs.FirstOrDefault()
+            CustomGameMode.Deathrace => validPCs.MaxBy(x => Deathrace.Data.TryGetValue(x.PlayerId, out var drData) ? drData.Lap : 0),
+            _ => validPCs.RandomElement()
         };
     }
 

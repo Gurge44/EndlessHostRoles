@@ -279,6 +279,7 @@ internal static class CheckMurderPatch
                     if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Length <= 2))
                         HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                     return false;
+                case CustomGameMode.Mingle:
                 case CustomGameMode.TheMindGame:
                 case CustomGameMode.MoveAndStop:
                 case CustomGameMode.RoomRush:
@@ -1659,7 +1660,7 @@ internal static class FixedUpdatePatch
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz) || DirtyName.Remove(lpId));
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
         if (__instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
@@ -1947,6 +1948,9 @@ internal static class FixedUpdatePatch
                     break;
                 case CustomGameMode.Deathrace:
                     additionalSuffixes.Add(Deathrace.GetSuffix(seer, target, false));
+                    break;
+                case CustomGameMode.Mingle when self:
+                    additionalSuffixes.Add(Mingle.GetSuffix(seer));
                     break;
             }
 

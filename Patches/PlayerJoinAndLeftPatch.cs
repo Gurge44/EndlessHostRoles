@@ -478,7 +478,15 @@ internal static class OnPlayerLeftPatch
         {
             if (GameStates.IsInGame && data != null && data.Character != null)
             {
-                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
+                switch (Options.CurrentGameMode)
+                {
+                    case CustomGameMode.HideAndSeek:
+                        CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
+                        break;
+                    case CustomGameMode.Mingle:
+                        Mingle.HandleDisconnect();
+                        break;
+                }
 
                 if (data.Character.Is(CustomRoles.Lovers) && data.Character.IsAlive())
                 {

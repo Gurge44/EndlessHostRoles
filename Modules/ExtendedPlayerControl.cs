@@ -1087,7 +1087,7 @@ internal static class ExtendedPlayerControl
     {
         try
         {
-            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace;
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
             return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
         catch (Exception e)
@@ -1360,7 +1360,7 @@ internal static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame:
+            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame or CustomGameMode.Mingle:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.HotPotato:
@@ -1430,6 +1430,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.RoomRush => false,
             CustomGameMode.Quiz => false,
             CustomGameMode.TheMindGame => false,
+            CustomGameMode.Mingle => false,
             CustomGameMode.Deathrace => Deathrace.CanUseVent(pc, pc.GetClosestVent().Id),
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,

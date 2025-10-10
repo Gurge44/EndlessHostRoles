@@ -216,6 +216,7 @@ public static class NaturalDisasters
                     CustomGameMode.KingOfTheZones => (0, !KingOfTheZones.GameGoing),
                     CustomGameMode.RoomRush => (40, false),
                     CustomGameMode.Deathrace => (0, !Deathrace.GameGoing),
+                    CustomGameMode.Mingle => (60, !Mingle.GameGoing),
                     _ => (0, false)
                 };
 

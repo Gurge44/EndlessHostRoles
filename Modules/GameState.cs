@@ -445,7 +445,7 @@ public class TaskState
             GameData.Instance.RecomputeTaskCounts();
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
-            if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.TheMindGame)
+            if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.Mingle)
                 player.Notify(Translator.GetString("DoingTasksIsPointlessInThisGameMode"), 10f);
 
             if (AllTasksCount == -1) Init(player);

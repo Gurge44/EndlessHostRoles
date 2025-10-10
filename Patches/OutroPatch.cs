@@ -66,7 +66,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -151,6 +151,9 @@ internal static class EndGamePatch
                             maps.Add(map);
                     }
 
+                    break;
+                case CustomGameMode.Mingle:
+                    Main.AllPlayerControls.Do(x => Mingle.HasPlayedFCs.Add(x.FriendCode));
                     break;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
@@ -314,6 +317,14 @@ internal static class SetEverythingUpPatch
             {
                 byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Racer);
+                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                winnerText.color = Main.PlayerColors[winnerId];
+                goto EndOfText;
+            }
+            case CustomGameMode.Mingle:
+            {
+                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
                 winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
                 winnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
@@ -525,6 +536,7 @@ internal static class SetEverythingUpPatch
 
                     break;
                 }
+                case CustomGameMode.Mingle:
                 case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:
                 case CustomGameMode.Quiz:

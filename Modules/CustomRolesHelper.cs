@@ -72,7 +72,8 @@ internal static class CustomRolesHelper
             CustomRoles.QuizPlayer or
             CustomRoles.TMGPlayer or
             CustomRoles.BedWarsPlayer or
-            CustomRoles.Racer;
+            CustomRoles.Racer or
+            CustomRoles.MinglePlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -406,6 +407,8 @@ internal static class CustomRolesHelper
             CustomRoles.QuizPlayer => CustomRoles.Crewmate,
             // The Mind Game
             CustomRoles.TMGPlayer => CustomRoles.Crewmate,
+            // Mingle
+            CustomRoles.MinglePlayer => CustomRoles.Crewmate,
 
             _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
         };

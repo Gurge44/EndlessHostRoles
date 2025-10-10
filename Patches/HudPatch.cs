@@ -630,6 +630,9 @@ internal static class SetHudActivePatch
                 __instance.KillButton?.ToggleVisible(true);
                 __instance.SabotageButton?.ToggleVisible(false);
                 return;
+            case CustomGameMode.Mingle:
+                __instance.ReportButton?.ToggleVisible(false);
+                return;
         }
 
         PlayerControl player = PlayerControl.LocalPlayer;
@@ -1136,6 +1139,13 @@ internal static class TaskPanelBehaviourPatch
             {
                 finalText += "\r\n\r\n<size=80%>";
                 finalText += Deathrace.GetTaskBarText();
+                finalText += "</size>";
+                break;
+            }
+            case CustomGameMode.Mingle:
+            {
+                finalText += "\r\n\r\n<size=80%>";
+                finalText += Mingle.GetTaskBarText();
                 finalText += "</size>";
                 break;
             }

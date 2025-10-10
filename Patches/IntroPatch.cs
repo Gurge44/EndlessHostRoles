@@ -294,6 +294,16 @@ internal static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("RacerInfo");
                     break;
                 }
+                case CustomGameMode.Mingle:
+                {
+                    Color color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("MinglePlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("MinglePlayerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -963,6 +973,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("RacerInfo");
                 break;
             }
+            case CustomGameMode.Mingle:
+            {
+                __instance.TeamTitle.text = GetString("MinglePlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Detective);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("MinglePlayerInfo");
+                break;
+            }
         }
 
         return;
@@ -1260,6 +1279,9 @@ internal static class IntroCutsceneDestroyPatch
                     break;
                 case CustomGameMode.Deathrace:
                     Main.Instance.StartCoroutine(Deathrace.GameStart());
+                    break;
+                case CustomGameMode.Mingle:
+                    Main.Instance.StartCoroutine(Mingle.GameStart());
                     break;
             }
 
