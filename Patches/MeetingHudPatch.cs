@@ -760,7 +760,7 @@ internal static class MeetingHudStartPatch
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            if (pc.Is(CustomRoles.Mafia) && !pc.IsAlive()) AddMsg(GetString("MafiaDeadMsg"), pc.PlayerId);
+            if (pc.Is(CustomRoles.Nemesis) && !pc.IsAlive()) AddMsg(GetString("NemesisDeadMsg"), pc.PlayerId);
 
             foreach (byte csId in Main.SuperStarDead)
             {
@@ -1121,7 +1121,7 @@ internal static class MeetingHudStartPatch
         Judge.StartMeetingPatch.Postfix(__instance);
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
-        Mafia.StartMeetingPatch.Postfix(__instance);
+        Nemesis.StartMeetingPatch.Postfix(__instance);
         Imitator.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
@@ -1209,8 +1209,8 @@ internal static class MeetingHudUpdatePatch
                     case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
                         ClearShootButton(__instance, true);
                         break;
-                    case CustomRoles.Mafia when !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null:
-                        Mafia.CreateJudgeButton(__instance);
+                    case CustomRoles.Nemesis when !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null:
+                        Nemesis.CreateJudgeButton(__instance);
                         break;
                 }
 

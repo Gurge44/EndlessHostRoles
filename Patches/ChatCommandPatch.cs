@@ -393,7 +393,7 @@ internal static class ChatCommands
             if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Nemesis.NemesisMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
         }
 
         Main.IsChatCommand = false;
@@ -3595,7 +3595,7 @@ internal static class ChatCommands
                 return;
             }
 
-            if (Mediumshiper.MsMsg(player, text) || Mafia.MafiaMsgCheck(player, text))
+            if (Mediumshiper.MsMsg(player, text) || Nemesis.NemesisMsgCheck(player, text))
             {
                 LastSentCommand[player.PlayerId] = now;
                 return;

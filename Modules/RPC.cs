@@ -110,7 +110,7 @@ public enum CustomRPC
     SwordsManKill,
     SetGhostPlayer,
     SetStalkerKillCount,
-    SetEvilDiviner,
+    SetConsigliere,
     SetGreedierOe,
     SetCollectorVotes,
     SetQuickShooterShotLimit,
@@ -127,7 +127,7 @@ public enum CustomRPC
     Judge,
     Guess,
     MeetingKill,
-    MafiaRevenge,
+    NemesisRevenge,
     SetSwooperTimer,
     SetBanditStealLimit,
     SetBkTimer,
@@ -243,7 +243,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -1111,9 +1111,9 @@ internal static class RPCHandlerPatch
                     GuessManager.ReceiveRPC(reader, __instance);
                     break;
                 }
-                case CustomRPC.MafiaRevenge:
+                case CustomRPC.NemesisRevenge:
                 {
-                    Mafia.ReceiveRPC(reader, __instance);
+                    Nemesis.ReceiveRPC(reader, __instance);
                     break;
                 }
                 case CustomRPC.SetSwooperTimer:
@@ -1148,11 +1148,11 @@ internal static class RPCHandlerPatch
                     VengefulRomantic.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SetEvilDiviner:
+                case CustomRPC.SetConsigliere:
                 {
                     byte id = reader.ReadByte();
                     byte targetId = reader.ReadByte();
-                    (Main.PlayerStates[id].Role as EvilDiviner)?.ReceiveRPC(targetId);
+                    (Main.PlayerStates[id].Role as Consigliere)?.ReceiveRPC(targetId);
                 }
 
                     break;

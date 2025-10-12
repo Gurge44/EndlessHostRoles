@@ -23,7 +23,7 @@ public enum CustomRoles
     Ambusher,
     Anonymous,
     AntiAdminer,
-    Sans, // Arrogance
+    Arrogance,
     Assumer,
     Augmenter,
     Bard,
@@ -39,7 +39,7 @@ public enum CustomRoles
     Cleaner,
     ClockBlocker,
     Commander,
-    EvilDiviner, // Consigliere
+    Consigliere,
     Consort,
     Councillor,
     Crewpostor,
@@ -77,7 +77,7 @@ public enum CustomRoles
     Lurker,
     Mafioso,
     Mastermind,
-    Mafia, // Nemesis
+    Nemesis,
     Mercenary,
     Miner,
     Morphling,
@@ -167,7 +167,7 @@ public enum CustomRoles
     Cleanser,
     Convener,
     CopyCat,
-    Bloodhound, // Coroner
+    Coroner,
     LovingCrewmate,
     LovingImpostor,
     Crusader,

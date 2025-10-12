@@ -240,7 +240,7 @@ internal static class ChangeRoleSettings
             Revolutionist.RevolutionistCountdown = [];
             Farseer.FarseerTimer = [];
             Warlock.CursedPlayers = [];
-            Mafia.MafiaRevenged = [];
+            Nemesis.NemesisRevenged = [];
             Warlock.IsCurseAndKill = [];
             Warlock.IsCursed = false;
             Forensic.ForensicNotify = [];

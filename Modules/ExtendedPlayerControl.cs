@@ -69,7 +69,7 @@ internal static class ExtendedPlayerControl
     public static bool UsesMeetingShapeshift(this PlayerControl player)
     {
         CustomRoles role = player.GetCustomRole();
-        if (player.IsModdedClient() && role is CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Mafia) return false;
+        if (player.IsModdedClient() && role is CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Nemesis) return false;
         return role.UsesMeetingShapeshift();
     }
 

@@ -2858,7 +2858,7 @@ public static class Utils
 
                             if (Options.CurrentGameMode != CustomGameMode.Standard) goto BeforeEnd;
 
-                            if (guesserIsForMeeting || forMeeting || (seerRole == CustomRoles.Mafia && !seer.IsAlive() && Options.MafiaCanKillNum.GetInt() >= 1))
+                            if (guesserIsForMeeting || forMeeting || (seerRole == CustomRoles.Nemesis && !seer.IsAlive() && Options.NemesisCanKillNum.GetInt() >= 1))
                                 targetPlayerName = $"{ColorString(GetRoleColor(seerRole), target.PlayerId.ToString())} {targetPlayerName}";
 
                             switch (seerRole)

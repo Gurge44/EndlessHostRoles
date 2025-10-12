@@ -343,7 +343,7 @@ public static class Options
     public static OptionItem ArsonistCanIgniteAnytime;
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
-    public static OptionItem LegacyMafia;
+    public static OptionItem LegacyNemesis;
     public static OptionItem VeteranSkillCooldown;
     public static OptionItem VeteranSkillDuration;
     public static OptionItem VeteranSkillMaxOfUseage;
@@ -363,7 +363,7 @@ public static class Options
     public static OptionItem ExpressSpeed;
     public static OptionItem ExpressSpeedDur;
     public static OptionItem EveryOneKnowSuperStar;
-    public static OptionItem MafiaCanKillNum;
+    public static OptionItem NemesisCanKillNum;
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem GuesserDoesntDieOnMisguess;
@@ -467,8 +467,8 @@ public static class Options
     public static OptionItem ExtraKillCooldownOnAirship;
     public static OptionItem ExtraKillCooldownOnFungle;
 
-    public static OptionItem MafiaShapeshiftCD;
-    public static OptionItem MafiaShapeshiftDur;
+    public static OptionItem NemesisShapeshiftCD;
+    public static OptionItem NemesisShapeshiftDur;
 
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
     public static OptionItem DisableTaskWinIfAllCrewsAreConverted;
