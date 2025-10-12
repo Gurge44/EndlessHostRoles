@@ -148,6 +148,26 @@ internal static class OnGameJoinedPatch
                         ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
                 }
             }
+            
+            if (Options.AutoMPollCommandAfterJoin.GetBool() && !Options.RandomMapsMode.GetBool())
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                IEnumerator CoRoutine()
+                {
+                    float timer = Options.AutoMPollCommandCooldown.GetInt();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    if (Options.AutoMPollCommandAfterJoin.GetBool() && !Options.RandomMapsMode.GetBool())
+                        ChatCommands.MapPollCommand(PlayerControl.LocalPlayer, "/mpoll", ["/mpoll"]);
+                }
+            }
 
             if (Options.AutoDraftStartCommandAfterJoin.GetBool())
             {

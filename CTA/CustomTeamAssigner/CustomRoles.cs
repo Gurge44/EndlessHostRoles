@@ -23,7 +23,7 @@ public enum CustomRoles
     Ambusher,
     Anonymous,
     AntiAdminer,
-    Sans, // Arrogance
+    Sans,
     Assumer,
     Augmenter,
     Bard,
@@ -466,6 +466,9 @@ public enum CustomRoles
     
     // Deathrace
     Racer,
+    
+    // Mingle
+    MinglePlayer,
 
     // GM
     GM,

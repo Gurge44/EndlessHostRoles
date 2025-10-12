@@ -98,6 +98,7 @@ public static class Options
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
     
     public static Dictionary<CustomGameMode, OptionItem> GMPollGameModesSettings;
+    public static Dictionary<MapNames, OptionItem> MPollMapsSettings;
     public static Dictionary<CustomRoles, OptionItem> CrewAdvancedGameEndCheckingSettings;
 
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
@@ -832,6 +833,8 @@ public static class Options
     public static OptionItem PlayerAutoStart;
     public static OptionItem AutoGMPollCommandAfterJoin;
     public static OptionItem AutoGMPollCommandCooldown;
+    public static OptionItem AutoMPollCommandAfterJoin;
+    public static OptionItem AutoMPollCommandCooldown;
     public static OptionItem AutoDraftStartCommandAfterJoin;
     public static OptionItem AutoDraftStartCommandCooldown;
 
@@ -1665,6 +1668,13 @@ public static class Options
 
         AutoGMPollCommandCooldown = new IntegerOptionItem(19307, "AutoGMPollCommandCooldown", new(10, 600, 5), 15, TabGroup.SystemSettings)
             .SetParent(AutoGMPollCommandAfterJoin)
+            .SetValueFormat(OptionFormat.Seconds);
+        
+        AutoMPollCommandAfterJoin = new BooleanOptionItem(19310, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        AutoMPollCommandCooldown = new IntegerOptionItem(19308, "AutoGMPollCommandCooldown", new(10, 600, 5), 15, TabGroup.SystemSettings)
+            .SetParent(AutoMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
@@ -3028,6 +3038,12 @@ public static class Options
             .AddReplacement(("{gm}", Translator.GetString($"{x}"))));
 
         id = 69920;
+
+        MPollMapsSettings = Enum.GetValues<MapNames>()[..].ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
+            .SetHeader(x == MapNames.Skeld)
+            .AddReplacement(("{m}", Translator.GetString($"{x}"))));
+        
+        id = 69935;
 
         CrewAdvancedGameEndCheckingSettings = [];
         bool first = true;
