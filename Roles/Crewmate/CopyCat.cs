@@ -107,7 +107,7 @@ public class CopyCat : RoleBase
                 CustomRoles.EvilDiviner or CustomRoles.Ritualist or CustomRoles.PotionMaster => CustomRoles.Farseer,
                 CustomRoles.AntiAdminer => CustomRoles.Monitor,
                 CustomRoles.CursedWolf or CustomRoles.Jinx or CustomRoles.Goddess => CustomRoles.Veteran,
-                CustomRoles.EvilTracker => CustomRoles.TrackerEHR,
+                CustomRoles.EvilTracker => new[] {CustomRoles.Scout, CustomRoles.TrackerEHR}.RandomElement(),
                 CustomRoles.Mercenary => CustomRoles.Addict,
                 CustomRoles.Miner => CustomRoles.Mole,
                 CustomRoles.Escapee or CustomRoles.Enderman => CustomRoles.Tunneler,
@@ -116,7 +116,7 @@ public class CopyCat : RoleBase
                 CustomRoles.Eraser => CustomRoles.NiceEraser,
                 CustomRoles.Visionary => CustomRoles.Oracle,
                 CustomRoles.Workaholic or CustomRoles.Pawn => CustomRoles.Snitch,
-                CustomRoles.Sunnyboy => CustomRoles.Doctor,
+                CustomRoles.Sunnyboy => new[] {CustomRoles.Doctor, CustomRoles.ScientistEHR}.RandomElement(),
                 CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
                 CustomRoles.Councillor or CustomRoles.Magistrate => CustomRoles.Judge,
                 CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Augur => CustomRoles.NiceGuesser,
@@ -190,3 +190,4 @@ public class CopyCat : RoleBase
     }
 
 }
+
