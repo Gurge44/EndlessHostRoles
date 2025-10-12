@@ -5368,6 +5368,7 @@
   "Mingle.DisplayCurrentPlayerCountInEachRoomOption": "Display Current Player Count in Each Room",
   "Mingle.MinTimeOption": "Minimum Time Limit",
   "Mingle.MaxRequiredPlayersPerRoomOption": "Maximum Required Players Per Room",
+  "Mingle.NotInRequiredRoom": "Not in any assigned room",
   "MinglePlayer": "MINGLE",
   "MinglePlayerInfo": "SURVIVE BY BEING IN THE RIGHT ROOMS",
   "MinglePlayerInfoLong": "SURVIVE BY BEING IN THE RIGHT ROOMS",
