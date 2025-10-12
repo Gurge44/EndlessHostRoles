@@ -105,7 +105,7 @@ internal class Bomber : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (UsePets.GetBool())
+        if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
             hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
         else
             hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));

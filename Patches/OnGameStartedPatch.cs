@@ -1283,6 +1283,8 @@ internal static class StartGameHostPatch
                     roleType = RoleTypes.Impostor;
                     displayRole = RoleTypes.Impostor;
                 }
+                else if (target.Is(CustomRoles.DoubleAgent))
+                    displayRole = RoleTypes.Crewmate;
             }
 
             if (displayRole != roleType) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;

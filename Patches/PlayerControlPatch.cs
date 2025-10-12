@@ -1275,7 +1275,7 @@ internal static class ReportDeadBodyPatch
             if (Main.Invisible.Contains(pc.PlayerId))
                 LateTask.New(() => pc.RpcMakeVisible(), 1f, log: false);
 
-            PhantomRolePatch.OnReportDeadBody(pc);
+            // PhantomRolePatch.OnReportDeadBody(pc);
         }
 
         EAC.TimeSinceLastTaskCompletion.Clear();

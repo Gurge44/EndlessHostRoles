@@ -54,7 +54,8 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Enderman:
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
+                    if (Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("abscond");
+                    else if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
                     else newSabotageButton = CustomButton.Get("abscond");
 
                     break;
@@ -131,7 +132,7 @@ public static class HudSpritePatch
                 {
                     if (Main.PlayerStates[player.PlayerId].Role is not Ninja ninja) break;
 
-                    if (Options.UsePets.GetBool())
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
                     {
                         newKillButton = CustomButton.Get("Mark");
                         if (ninja.MarkedPlayer != byte.MaxValue) newPetButton = CustomButton.Get("Assassinate");
@@ -177,7 +178,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Disperser:
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Disperse");
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Disperse");
                     else if (!shapeshifting) newAbilityButton = CustomButton.Get("Disperse");
 
                     break;
@@ -185,7 +186,7 @@ public static class HudSpritePatch
                 case CustomRoles.ImperiusCurse:
                 case CustomRoles.Twister:
                 {
-                    if (player.Is(CustomRoles.Twister) && Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Transport");
+                    if (player.Is(CustomRoles.Twister) && Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Transport");
                     else if (!shapeshifting) newAbilityButton = CustomButton.Get("Transport");
 
                     break;
@@ -231,7 +232,7 @@ public static class HudSpritePatch
                 case CustomRoles.Bomber:
                 case CustomRoles.Nuker:
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Bomb");
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Bomb");
                     else newAbilityButton = CustomButton.Get("Bomb");
 
                     break;
@@ -369,7 +370,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Miner:
                 {
-                    if (!Options.UsePets.GetBool()) newAbilityButton = CustomButton.Get("Mine");
+                    if (!Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Mine");
                     else newPetButton = CustomButton.Get("Mine");
 
                     break;
@@ -404,7 +405,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Swiftclaw:
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Dash");
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Dash");
                     else newAbilityButton = CustomButton.Get("Dash");
 
                     break;
@@ -423,7 +424,7 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Escapee:
                 {
-                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("abscond");
                     else newAbilityButton = CustomButton.Get("abscond");
 
                     break;
@@ -453,19 +454,17 @@ public static class HudSpritePatch
                 {
                     if (usesPetInsteadOfKill) break;
                     
-                    var roleColor = Utils.GetRoleColor(player.GetCustomRole());
-                        
-                    foreach (var button in new ActionButton[] { __instance.KillButton, __instance.AbilityButton, __instance.ImpostorVentButton, __instance.SabotageButton, __instance.PetButton, __instance.ReportButton })
-                    {
-                        button.OverrideColor(roleColor);
-                        button.buttonLabelText.SetOutlineColor(roleColor);
-                    }
-                    
                     return;
                 }
             }
 
             if (usesPetInsteadOfKill) newPetButton = newKillButton;
+            
+            
+            var roleColor = Utils.GetRoleColor(player.GetCustomRole());
+                        
+            foreach (var button in new ActionButton[] { __instance.KillButton, __instance.AbilityButton, __instance.ImpostorVentButton, __instance.SabotageButton, __instance.PetButton, __instance.ReportButton })
+                button.buttonLabelText.SetOutlineColor(roleColor);
 
 
             __instance.KillButton.graphic.sprite = newKillButton;

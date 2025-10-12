@@ -308,7 +308,7 @@ public static class Mingle
             }
             else if (RequiredPlayerCount.All(x => GetNumPlayersInRoom(x.Key) == x.Value))
             {
-                Main.AllAlivePlayerControls.NotifyPlayers(Utils.ColorString(Color.green, "✓"));
+                Main.AllAlivePlayerControls.NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
                 Time = Math.Clamp(Time - TimeDecreaseOnNoDeath, MinTime, TimeLimit);
                 StartNewRound();
                 return;

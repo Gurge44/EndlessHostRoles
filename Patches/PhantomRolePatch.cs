@@ -52,7 +52,7 @@ public static class PhantomRolePatch
     }
 
     // Called when Phantom press vanish button when visible
-    [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
+    /*[HarmonyPatch(nameof(PlayerControl.CheckVanish))]
     [HarmonyPrefix]
     private static bool CheckVanish_Prefix(PlayerControl __instance)
     {
@@ -139,7 +139,7 @@ public static class PhantomRolePatch
 
         InvisibilityList.Add(phantom);
         return true;
-    }
+    }*/
 
     public static bool CheckTrigger(PlayerControl phantom)
     {
@@ -176,7 +176,7 @@ public static class PhantomRolePatch
         return true;
     }
 
-    [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
+    /*[HarmonyPatch(nameof(PlayerControl.CheckAppear))]
     [HarmonyPrefix]
     private static void CheckAppear_Prefix(PlayerControl __instance, bool shouldAnimate)
     {
@@ -309,7 +309,7 @@ public static class PhantomRolePatch
     {
         InvisibilityList.Clear();
         PetsList.Clear();
-    }
+    }*/
 }
 
 // Fixed vanilla bug for host (from TOH-Y)

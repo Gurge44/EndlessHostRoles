@@ -224,10 +224,10 @@ internal class Ninja : RoleBase
 
         if (MarkedPlayer != byte.MaxValue && !shifted)
         {
-            if (!UsePets.GetBool())
-                __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
-            else
+            if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
                 __instance.PetButton.OverrideText(GetString("AssassinShapeshiftText"));
+            else
+                __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
         }
     }
 }

@@ -2500,7 +2500,7 @@ public static class Utils
                 SelfMark.Append(Gaslighter.GetMark(seer, seer, forMeeting));
                 SelfMark.Append(Demon.TargetMark(seer, seer));
                 SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
-                if (Silencer.ForSilencer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
+                if (Silencer.ForSilencer.Contains(seer.PlayerId) && forMeeting) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
 
                 GameMode0:
 
@@ -3400,6 +3400,12 @@ public static class Utils
         {
             if (pc.IsAlive())
             {
+                if (pc.Is(CustomRoles.Bloodlust))
+                {
+                    pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+                    LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
+                }
+                
                 pc.AddKillTimerToDict();
 
                 if (pc.Is(CustomRoles.Truant))
@@ -3478,7 +3484,7 @@ public static class Utils
 
         DoorsReset.ResetDoors();
         RoleBlockManager.Reset();
-        PhantomRolePatch.AfterMeeting();
+        // PhantomRolePatch.AfterMeeting();
 
         if (Main.CurrentMap == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 11f, "GM Auto-TP Failsafe"); // TP to Main Hall

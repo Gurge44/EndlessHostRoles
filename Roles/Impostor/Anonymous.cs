@@ -67,9 +67,7 @@ public class Anonymous : RoleBase
     public override void SetButtonTexts(HudManager __instance, byte playerId)
     {
         if (playerId.GetAbilityUseLimit() >= 1)
-        {
             __instance.AbilityButton.OverrideText(GetString("AnonymousShapeshiftText"));
-        }
     }
 
     public override void OnReportDeadBody()

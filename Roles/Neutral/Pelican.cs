@@ -216,11 +216,11 @@ public class Pelican : RoleBase
             if (player == null || target == null) continue;
 
             target.TP(player);
-            Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
+            Main.AllPlayerSpeed[tar] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
             RPC.PlaySoundRPC(tar, Sounds.TaskComplete);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
+            LateTask.New(() => Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player), 0.2f, log: false);
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} died, {target.GetRealName()} is back in-game", "Pelican");
         }
 
