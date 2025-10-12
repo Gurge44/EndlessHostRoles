@@ -5368,6 +5368,7 @@
   "Mingle.DisplayCurrentPlayerCountInEachRoomOption": "Показывать кол-во игроков в каждой комнате",
   "Mingle.MinTimeOption": "Мин. лимит времени",
   "Mingle.MaxRequiredPlayersPerRoomOption": "Макс. требуемое число игроков в комнате",
+  "Mingle.NotInRequiredRoom": "Not in any assigned room",
   "MinglePlayer": "Заполнение",
   "MinglePlayerInfo": "Выживите, находясь в правильных комнатах",
   "MinglePlayerInfoLong": "Выживите, находясь в правильных комнатах",
