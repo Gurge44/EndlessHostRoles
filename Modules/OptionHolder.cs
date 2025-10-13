@@ -1670,10 +1670,9 @@ public static class Options
             .SetParent(AutoGMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
         
-        AutoMPollCommandAfterJoin = new BooleanOptionItem(19335, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
-            .SetHeader(true);
+        AutoMPollCommandAfterJoin = new BooleanOptionItem(19335, "AutoMPollCommandAfterJoin", false, TabGroup.SystemSettings);
 
-        AutoMPollCommandCooldown = new IntegerOptionItem(19336, "AutoGMPollCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+        AutoMPollCommandCooldown = new IntegerOptionItem(19336, "AutoMPollCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
             .SetParent(AutoMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
