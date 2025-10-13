@@ -2644,7 +2644,7 @@
   "Poll.Inactive": "目前没有任何活跃的调查",
   "Poll.AlreadyVoted": "您已经投了票,因此不会被计算在内.",
   "Poll.VotingInfo": "使用/pv {answer}投票,答案可以是数字或者文字",
-  "Poll.YouVoted": "您已投票给 {0},他现在有 {1} 票.",
+  "Poll.YouVoted": "You have voted for {0}, which now has {1} votes.",
   "PollUsage": "注意格式:\\n<size=80%>/poll{Question}？<size=55%>{Answer A}{Answer B}[Answer C] [Answer D] [Answer E]</size></b></size>\n\n<size=50%>注意:问题应始终以问号 (?) 结尾!",
   "VotedToStart.Title": "<#00a5ff>➡ 通过投票表决开游戏 ⬅</color>",
   "VotedToStart": "{0}想要通过投票来立刻开始游戏！\n<size=80%>如果你也想立刻开始游戏，请输入<#00a5ff>/votestart</color>指令\n如果大厅内超过半数的玩家同意立刻开始，那么游戏开始倒计时就会启动\n截至目前，{1}/{2} （即{3}％）的玩家同意立刻开始，还需{4}个人同意。</size>",
