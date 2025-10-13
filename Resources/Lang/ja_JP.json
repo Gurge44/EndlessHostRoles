@@ -2644,7 +2644,7 @@
   "Poll.Inactive": "<size=80%>現在 どの poll も有効ではありません。 </size>",
   "Poll.AlreadyVoted": "<size=80%>あなたはすでに あなたの投票を投じてるので、それはカウントされません。</size>",
   "Poll.VotingInfo": "<size=80%><b>/pv {answer}</b> を使用して投票し、answerは 文字 または 数字にすることでできます。</size>",
-  "Poll.YouVoted": "<size=80%>あなたは {0}に投票し、そこには今 {1}票 あります。</size>",
+  "Poll.YouVoted": "You have voted for {0}, which now has {1} votes.",
   "PollUsage": "形式:\\n<size=80%><b>/poll {Question}? <size=55%>{Answer A} {Answer B} [Answer C] [Answer D] [Answer E]</size></b></size>\n\n<size=50%>注意: 質問は いつでも 疑問符 (?) で終わるべきです！</size>",
   "VotedToStart.Title": "<#00a5ff>➡ VOTE TO START ⬅</color>",
   "VotedToStart": "{0} has voted to start the game!\\n<size=80%>If you also want the game to start, use <#00a5ff>/votestart</color>\\nIf more than 50% of the lobby uses this command, the starting countdown will begin.\\nCurrently, {1}/{2} ({3}%) players have used it. {4} uses are required.</size>",
