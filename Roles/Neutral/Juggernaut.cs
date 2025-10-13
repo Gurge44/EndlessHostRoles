@@ -19,15 +19,15 @@ public class Juggernaut : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Juggernaut);
 
-        DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
+        DefaultKillCooldown = new FloatOptionItem(Id + 10, "ArroganceDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 4f, TabGroup.NeutralRoles)
+        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(0f, 30f, 0.5f), 4f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut])
             .SetValueFormat(OptionFormat.Seconds);
 
-        MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 10f, TabGroup.NeutralRoles)
+        MinKillCooldown = new FloatOptionItem(Id + 12, "ArroganceMinKillCooldown", new(0f, 30f, 0.5f), 10f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -37,7 +37,7 @@ public class Juggernaut : RoleBase
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
         
-        ShowProgressText = new BooleanOptionItem(Id + 15, "SansShowProgressText", false, TabGroup.NeutralRoles)
+        ShowProgressText = new BooleanOptionItem(Id + 15, "ArroganceShowProgressText", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
     }
 

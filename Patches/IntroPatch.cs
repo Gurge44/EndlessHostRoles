@@ -735,7 +735,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
-                    or CustomRoles.Bloodhound
+                    or CustomRoles.Coroner
                     or CustomRoles.Captain
                     or CustomRoles.EvilTracker
                     or CustomRoles.Scout

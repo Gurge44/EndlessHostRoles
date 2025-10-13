@@ -17,11 +17,11 @@ public class Lurker : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Lurker);
 
-        DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+        DefaultKillCooldown = new FloatOptionItem(Id + 10, "ArroganceDefaultKillCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
+        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(0f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
             .SetValueFormat(OptionFormat.Seconds);
     }

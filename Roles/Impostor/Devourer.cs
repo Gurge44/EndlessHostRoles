@@ -30,15 +30,15 @@ public class Devourer : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Devourer);
 
-        DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
+        DefaultKillCooldown = new FloatOptionItem(Id + 10, "ArroganceDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 1.5f, TabGroup.ImpostorRoles)
+        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(0f, 30f, 0.5f), 1.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 21f, TabGroup.ImpostorRoles)
+        MinKillCooldown = new FloatOptionItem(Id + 12, "ArroganceMinKillCooldown", new(0f, 30f, 0.5f), 21f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
             .SetValueFormat(OptionFormat.Seconds);
 
