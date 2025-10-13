@@ -249,11 +249,12 @@ public static class Mingle
 
         RequiredPlayerCount = [];
         int playerCount = Main.AllAlivePlayerControls.Length;
+        bool last2 = playerCount <= 2;
 
         while (playerCount > 0)
         {
             var room = AllRooms.Except(RequiredPlayerCount.Keys).RandomElement();
-            var count = IRandom.Instance.Next(1, MaxRequiredPlayersPerRoom + 1);
+            var count = last2 ? 1 : IRandom.Instance.Next(1, Math.Min(playerCount, MaxRequiredPlayersPerRoom) + 1);
             if (count > playerCount) count = playerCount;
             RequiredPlayerCount[room] = count;
             playerCount -= count;
