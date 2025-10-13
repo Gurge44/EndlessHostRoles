@@ -488,7 +488,7 @@ public class Main : BasePlugin
                 { CustomRoles.DovesOfNeace, "#ffffff" },
                 { CustomRoles.Jailor, "#aa900d" },
                 { CustomRoles.Monarch, "#FFA500" },
-                { CustomRoles.Bloodhound, "#8B0000" },
+                { CustomRoles.Coroner, "#8B0000" },
                 { CustomRoles.Enigma, "#676798" },
                 { CustomRoles.Scout, "#3CB371" },
                 { CustomRoles.CameraMan, "#000930" },

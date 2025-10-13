@@ -1068,7 +1068,7 @@ internal static class ReportDeadBodyPatch
 
             if (target != null)
             {
-                if (Bloodhound.UnreportablePlayers.Contains(target.PlayerId)
+                if (Coroner.UnreportablePlayers.Contains(target.PlayerId)
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)
                     || (killer != null && killer.Is(CustomRoles.Goddess))
                     || Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled

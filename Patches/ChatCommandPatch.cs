@@ -108,6 +108,7 @@ internal static class ChatCommands
     private static readonly List<byte> PollVoted = [];
     private static float PollTimer = 45f;
     private static List<CustomGameMode> GMPollGameModes = [];
+    private static List<MapNames> MPollMaps = [];
 
     public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
 
@@ -204,7 +205,8 @@ internal static class ChatCommands
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
             new(["jt", "jailtalk", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
-            new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "режимголосование", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
+            new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "гмполл", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
+            new (["mp", "mpoll", "pollm", "mappoll", "мполл"], "", GetString("CommandDescription.MapPoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, MapPollCommand, true, false),
             new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new(["addtag", "createtag", "добавитьтег", "создатьтег", "добтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new(["deletetag", "удалитьтег", "убратьтег", "удтег", "убртег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
@@ -391,7 +393,7 @@ internal static class ChatCommands
             if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Nemesis.NemesisMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
         }
 
         Main.IsChatCommand = false;
@@ -936,6 +938,19 @@ internal static class ChatCommands
         GMPollGameModes = Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
         string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
+        PollCommand(player, msg, msg.Split(' '));
+    }
+    public static void MapPollCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(MapPollCommand), text, true);
+            return;
+        }
+
+        MPollMaps = Enum.GetValues<MapNames>()[..].Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
+        string mNames = string.Join(' ', MPollMaps.Select(x => GetString(x.ToString()).Replace(' ', '_')));
+        var msg = $"/poll {GetString("MapPoll.Question").TrimEnd('?')}? {mNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
 
@@ -1691,9 +1706,11 @@ internal static class ChatCommands
 
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
+        bool mPoll = msg.Contains(GetString("MapPoll.Question"));
 
-        PollTimer = gmPoll ? 60f : 45f;
+        PollTimer = gmPoll ? mPoll ? 60f : 45f : 45f;
         Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
+        
 
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
@@ -1718,7 +1735,7 @@ internal static class ChatCommands
 
             var resendTimer = 0f;
 
-            while ((notEveryoneVoted || gmPoll) && PollTimer > 0f)
+            while ((notEveryoneVoted || gmPoll || mPoll) && PollTimer > 0f)
             {
                 if (!GameStates.IsLobby) yield break;
 
@@ -1759,6 +1776,11 @@ internal static class ChatCommands
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 CustomGameMode mode = GMPollGameModes[winnerIndex];
                 Options.GameMode.SetValue((int)mode - 1, doSave: true, doSync: true);
+            }
+            if (winners.Length > 0 && mPoll && GameStates.IsLobby)
+            {
+                int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
+                Main.NormalOptions.MapId = (byte)winnerIndex;
             }
         }
 
@@ -3573,7 +3595,7 @@ internal static class ChatCommands
                 return;
             }
 
-            if (Mediumshiper.MsMsg(player, text) || Mafia.MafiaMsgCheck(player, text))
+            if (Mediumshiper.MsMsg(player, text) || Nemesis.NemesisMsgCheck(player, text))
             {
                 LastSentCommand[player.PlayerId] = now;
                 return;

@@ -104,7 +104,7 @@ public class CopyCat : RoleBase
                 CustomRoles.Swooper or CustomRoles.Wraith => CustomRoles.Chameleon,
                 CustomRoles.Stealth or CustomRoles.Nonplus => CustomRoles.Grenadier,
                 CustomRoles.TimeThief => CustomRoles.TimeManager,
-                CustomRoles.EvilDiviner or CustomRoles.Ritualist or CustomRoles.PotionMaster => CustomRoles.Farseer,
+                CustomRoles.Consigliere or CustomRoles.Ritualist or CustomRoles.PotionMaster => CustomRoles.Farseer,
                 CustomRoles.AntiAdminer => CustomRoles.Monitor,
                 CustomRoles.CursedWolf or CustomRoles.Jinx or CustomRoles.Goddess => CustomRoles.Veteran,
                 CustomRoles.EvilTracker => new[] {CustomRoles.Scout, CustomRoles.TrackerEHR}.RandomElement(),

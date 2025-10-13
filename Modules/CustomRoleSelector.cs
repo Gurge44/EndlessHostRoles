@@ -855,7 +855,7 @@ internal static class CustomRoleSelector
         if (coven.Length > 0) Logger.Info(string.Join(", ", coven.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "CovenRoleResult");
 
         if (rd.Next(0, 100) < Jester.SunnyboyChance.GetInt() && finalRolesList.Remove(CustomRoles.Jester)) finalRolesList.Add(CustomRoles.Sunnyboy);
-        if (rd.Next(0, 100) < Sans.BardChance.GetInt() && finalRolesList.Remove(CustomRoles.Sans)) finalRolesList.Add(CustomRoles.Bard);
+        if (rd.Next(0, 100) < Arrogance.BardChance.GetInt() && finalRolesList.Remove(CustomRoles.Arrogance)) finalRolesList.Add(CustomRoles.Bard);
         if (rd.Next(0, 100) < Bomber.NukerChance.GetInt() && finalRolesList.Remove(CustomRoles.Bomber)) finalRolesList.Add(CustomRoles.Nuker);
 
         RoleResult.AddRange(allPlayers.Zip(finalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), false);

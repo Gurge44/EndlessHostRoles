@@ -23,7 +23,7 @@ public enum CustomRoles
     Ambusher,
     Anonymous,
     AntiAdminer,
-    Sans, // Arrogance
+    Sans,
     Assumer,
     Augmenter,
     Bard,
