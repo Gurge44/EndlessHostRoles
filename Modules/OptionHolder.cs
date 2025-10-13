@@ -1670,16 +1670,16 @@ public static class Options
             .SetParent(AutoGMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
         
-        AutoMPollCommandAfterJoin = new BooleanOptionItem(19310, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
+        AutoMPollCommandAfterJoin = new BooleanOptionItem(19335, "AutoGMPollCommandAfterJoin", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        AutoMPollCommandCooldown = new IntegerOptionItem(19308, "AutoGMPollCommandCooldown", new(10, 600, 5), 15, TabGroup.SystemSettings)
+        AutoMPollCommandCooldown = new IntegerOptionItem(19336, "AutoGMPollCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
             .SetParent(AutoMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
 
-        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 150, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -3039,7 +3039,7 @@ public static class Options
 
         id = 69920;
 
-        MPollMapsSettings = Enum.GetValues<MapNames>()[..].ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
+        MPollMapsSettings = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
             .SetHeader(x == MapNames.Skeld)
             .AddReplacement(("{m}", Translator.GetString($"{x}"))));
         

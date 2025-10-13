@@ -940,6 +940,7 @@ internal static class ChatCommands
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
     }
+    
     public static void MapPollCommand(PlayerControl player, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
@@ -948,7 +949,7 @@ internal static class ChatCommands
             return;
         }
 
-        MPollMaps = Enum.GetValues<MapNames>()[..].Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
+        MPollMaps = Enum.GetValues<MapNames>().Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
         string mNames = string.Join(' ', MPollMaps.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("MapPoll.Question").TrimEnd('?')}? {mNames}";
         PollCommand(player, msg, msg.Split(' '));
@@ -1708,7 +1709,7 @@ internal static class ChatCommands
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
 
-        PollTimer = gmPoll ? mPoll ? 60f : 45f : 45f;
+        PollTimer = gmPoll ? 60f : 45f;
         Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
         
 
@@ -1771,16 +1772,11 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length > 0 && gmPoll && GameStates.IsLobby)
+            if (winners.Length > 0 && GameStates.IsLobby)
             {
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
-                CustomGameMode mode = GMPollGameModes[winnerIndex];
-                Options.GameMode.SetValue((int)mode - 1, doSave: true, doSync: true);
-            }
-            if (winners.Length > 0 && mPoll && GameStates.IsLobby)
-            {
-                int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
-                Main.NormalOptions.MapId = (byte)winnerIndex;
+                if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
+                if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
             }
         }
 
