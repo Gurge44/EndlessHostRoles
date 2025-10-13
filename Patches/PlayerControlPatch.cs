@@ -355,7 +355,7 @@ internal static class CheckMurderPatch
                         return false;
                 }
 
-                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId);
+                bool CheckMurder() => target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId) || Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target);
             }
 
             if (!killer.RpcCheckAndMurder(target, true)) return false;

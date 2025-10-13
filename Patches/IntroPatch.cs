@@ -1176,7 +1176,7 @@ internal static class IntroCutsceneDestroyPatch
 
                 Main.ProcessShapeshifts = false;
 
-                LateTask.New(GrantPetForEveryone, 0.7f, "Grant Pet For Everyone");
+                LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {
@@ -1204,7 +1204,7 @@ internal static class IntroCutsceneDestroyPatch
                         }
                         catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                     }
-                }, 1.4f, "Show Pet For Everyone");
+                }, 4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
             }
@@ -1328,6 +1328,9 @@ internal static class IntroCutsceneDestroyPatch
             ];
             
             hud.SetRolePanelOpen(true);
+            
+            if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
+                hud.TaskPanel.open = false;
         }, 1f, log: false);
 
         LateTask.New(() =>

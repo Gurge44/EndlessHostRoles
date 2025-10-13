@@ -73,7 +73,7 @@ public static class Mingle
 
     public static string GetSuffix(PlayerControl seer)
     {
-        return seer.IsModdedClient() ? string.Empty : GetRoomsInfo(seer);
+        return seer.IsModdedClient() ? string.Empty : GetRoomsInfo(seer, false);
     }
 
     public static int GetSurvivalTime(byte id)
@@ -90,15 +90,32 @@ public static class Mingle
     public static bool CheckGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        return false;
+        if (GameStates.IsEnded || !GameGoing) return false;
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+        switch (aapc.Length)
+        {
+            case 1:
+                PlayerControl winner = aapc[0];
+                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "Mingle");
+                CustomWinnerHolder.WinnerIds = [winner.PlayerId];
+                Main.DoBlockNameChange = true;
+                return true;
+            case 0:
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
+                Logger.Warn("No players alive. Force ending the game", "Mingle");
+                return true;
+            default:
+                return false;
+        }
     }
     
     public static string GetTaskBarText()
     {
-        return GetRoomsInfo(PlayerControl.LocalPlayer);
+        return GetRoomsInfo(PlayerControl.LocalPlayer, true);
     }
 
-    private static string GetRoomsInfo(PlayerControl pc)
+    private static string GetRoomsInfo(PlayerControl pc, bool hud)
     {
         StringBuilder sb = new("<#ffffff><size=90%>");
         PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
@@ -108,7 +125,7 @@ public static class Mingle
             int count = GetNumPlayersInRoom(room);
 
             if (plainShipRoom != null && plainShipRoom.RoomId == room)
-                sb.Append("<u>");
+                sb.Append(hud ? "➡ " : "<u>");
             
             if (DisplayCurrentPlayerCountInEachRoom)
             {
@@ -130,11 +147,12 @@ public static class Mingle
             
             if (DisplayCurrentPlayerCountInEachRoom)
             {
+                sb.Append(' ');
                 sb.Append(count > required ? "＋ <#ff0000>╳</color>" : count == required ? "＝ <#00ff00>✓</color>" : "－ <#ff0000>╳</color>");
                 sb.Append("</color>");
             }
 
-            if (plainShipRoom != null && plainShipRoom.RoomId == room)
+            if (plainShipRoom != null && plainShipRoom.RoomId == room && !hud)
                 sb.Append("</u>");
 
             sb.Append('\n');
@@ -147,7 +165,9 @@ public static class Mingle
         if (timeLeft >= 0)
         {
             sb.Append('\n');
+            if (hud) sb.Append("<b><size=200%>");
             sb.Append(timeLeft);
+            if (hud) sb.Append("</size></b>");
         }
         
         if (plainShipRoom == null || !RequiredPlayerCount.ContainsKey(plainShipRoom.RoomId))
@@ -218,9 +238,9 @@ public static class Mingle
         }
         
         NameNotifyManager.Reset();
-        StartNewRound();
         GameGoing = true;
         GameStartDateTime = DateTime.Now;
+        StartNewRound();
     }
 
     private static void StartNewRound()
@@ -272,6 +292,7 @@ public static class Mingle
                 Time = Math.Clamp(Time - TimeDecreaseOnNoDeath, MinTime, TimeLimit);
                 break;
             case var x when x == aapc.Length:
+                Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 GameGoing = false;
                 break;
@@ -281,7 +302,7 @@ public static class Mingle
         }
     }
     
-    private static int GetNumPlayersInRoom(SystemTypes room) => Main.AllAlivePlayerControls.Select(x => x.GetPlainShipRoom()).Count(x => x != null && x.RoomId == room);
+    private static int GetNumPlayersInRoom(SystemTypes room) => Main.AllAlivePlayerControls.Where(x => !x.inMovingPlat).Select(x => x.GetPlainShipRoom()).Count(x => x != null && x.RoomId == room);
 
     public static void HandleDisconnect()
     {

@@ -51,6 +51,17 @@ public static class PhantomRolePatch
         return false;
     }
 
+    [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
+    [HarmonyPrefix]
+    private static bool CheckVanish_Prefix(PlayerControl __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost || !__instance.AmOwner) return true;
+        
+        Logger.Info($" {__instance.GetNameWithRole()}", "CheckVanish");
+        
+        return CheckTrigger(__instance);
+    }
+
     // Called when Phantom press vanish button when visible
     /*[HarmonyPatch(nameof(PlayerControl.CheckVanish))]
     [HarmonyPrefix]
