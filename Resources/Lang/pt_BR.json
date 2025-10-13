@@ -2644,7 +2644,7 @@
   "Poll.Inactive": "Atualmente não há enquetes ativas.",
   "Poll.AlreadyVoted": "Você já deu o seu voto, então esse não contará no resultado final.",
   "Poll.VotingInfo": "Use /pv {resposta} para votar, a resposta pode ser uma letra ou um número.",
-  "Poll.YouVoted": "Você votou em {0}, que agora tem {1} votos.",
+  "Poll.YouVoted": "You have voted for {0}, which now has {1} votes.",
   "PollUsage": "Formato:\n<size=80%><b>/poll {Questão}? <size=55%>{Resposta A} {Resposta B} \n[Resposta C] [Resposta D] [Resposta E]</size></b></size>\n\n<size=50%>Nota: A questão deve sempre terminar com um ponto de interrogação (?)!</size>",
   "VotedToStart.Title": "<#00a5ff>➡ VOTE PARA INICIAR ⬅</color>",
   "VotedToStart": "{0} votou para iniciar o jogo!\\n<size=80%>Se você também quer que o jogo comece, Use <#00a5ff>/votestart</color>\\nSe mais de 50% do lobby usar esse comando, a contagem regressiva inicial começará.\\nAtualmente, {1}/{2} ({3}%) jogadores usaram. {4} usos são necessários.</size>",
