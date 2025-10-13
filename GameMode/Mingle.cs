@@ -182,7 +182,7 @@ public static class Mingle
             sb.Append("</size></color>");
         }
 
-        return sb.ToString().TrimEnd();
+        return sb.ToString();
     }
 
     public static System.Collections.IEnumerator GameStart()
@@ -226,7 +226,7 @@ public static class Mingle
         if (showTutorial)
         {
             players.NotifyPlayers("<#ffffff>" + Translator.GetString("Mingle.Tutorial"), 100f);
-            yield return new WaitForSeconds(9f);
+            yield return new WaitForSeconds(12f);
             NameNotifyManager.Reset();
         }
 

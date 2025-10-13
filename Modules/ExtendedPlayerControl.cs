@@ -365,6 +365,7 @@ internal static class ExtendedPlayerControl
         writer.Write((ushort)roleTypes);
         writer.Write(true);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        Logger.Info($" {player.GetNameWithRole()} => {roleTypes}", "RpcSetRoleGlobal");
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
