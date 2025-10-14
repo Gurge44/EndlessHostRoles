@@ -254,9 +254,17 @@ internal static class ChangeRoleSettings
             Lazy.BeforeMeetingPositions = [];
             Introvert.TeleportAwayDelays = [];
 
-            ReportDeadBodyPatch.CanReport = [];
+            try
+            {
+                SabotageMapPatch.TimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
+                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+            
             SabotageMapPatch.TimerTexts = [];
             MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
+            ReportDeadBodyPatch.CanReport = [];
+            
             GuessManager.Guessers = [];
             ChatCommands.VotedToStart = [];
 

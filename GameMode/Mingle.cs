@@ -50,11 +50,11 @@ public static class Mingle
             .SetColor(color)
             .SetGameMode(gameMode);
         
-        ExtraTimeOnAirshipOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnAirshipOption", new(0, 300, 1), 30, tab)
+        ExtraTimeOnAirshipOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnAirshipOption", new(0, 300, 1), 20, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
         
-        ExtraTimeOnFungleOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnFungleOption", new(0, 300, 1), 20, tab)
+        ExtraTimeOnFungleOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnFungleOption", new(0, 300, 1), 10, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
         
@@ -198,12 +198,14 @@ public static class Mingle
         MaxRequiredPlayersPerRoom = MaxRequiredPlayersPerRoomOption.GetInt();
 
         RequiredPlayerCount = [];
-        Time = TimeLimit + Main.CurrentMap switch
+        int extraTime = Main.CurrentMap switch
         {
             MapNames.Airship => ExtraTimeOnAirship,
             MapNames.Fungle => ExtraTimeOnFungle,
             _ => 0
         };
+        Time = TimeLimit + extraTime;
+        MinTime += extraTime;
         TimeEndTS = 0;
         LastUpdateTS = 0;
         NameNotifyManager.Reset();
@@ -290,7 +292,7 @@ public static class Mingle
         switch (toKill.Count)
         {
             case 0:
-                Time = Math.Clamp(Time - TimeDecreaseOnNoDeath, MinTime, TimeLimit);
+                Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
                 break;
             case var x when x == aapc.Length:
                 Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
@@ -333,7 +335,7 @@ public static class Mingle
             else if (RequiredPlayerCount.All(x => GetNumPlayersInRoom(x.Key) == x.Value))
             {
                 Main.AllAlivePlayerControls.NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
-                Time = Math.Clamp(Time - TimeDecreaseOnNoDeath, MinTime, TimeLimit);
+                Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
                 StartNewRound();
                 return;
             }

@@ -695,7 +695,7 @@ internal static class SetHudActivePatch
 [HarmonyPriority(Priority.Last)]
 internal static class HudManagerStartPatch
 {
-    public static void Postfix(HudManager __instance)
+    public static void Postfix()
     {
         Main.Instance.StartCoroutine(CoResizeUI());
     }
@@ -830,6 +830,7 @@ internal static class SabotageMapPatch
                 timerText.color = Color.white;
                 timerText.fontSize = timerText.fontSizeMax = timerText.fontSizeMin = 2.5f;
                 timerText.sortingOrder = 100;
+                timerText.gameObject.SetActive(true);
             }
 
             bool isActive = Utils.IsActive(room);
@@ -917,6 +918,7 @@ internal static class MapRoomDoorsUpdatePatch
             doorTimerText.color = Color.white;
             doorTimerText.fontSize = doorTimerText.fontSizeMax = doorTimerText.fontSizeMin = 2.5f;
             doorTimerText.sortingOrder = 100;
+            doorTimerText.gameObject.SetActive(true);
         }
 
         var remaining = (int)Math.Ceiling(timer);
@@ -972,8 +974,10 @@ internal static class TaskPanelBehaviourPatch
         if (tabText.text != panelName) tabText.text = panelName;
 
         float y = ogPanel.taskText.textBounds.size.y + 1;
-        Vector3 targetClosed = new Vector3(ogPanel.closedPosition.x, ogPanel.open ? y + 0.2f : 2f, ogPanel.closedPosition.z);
-        Vector3 targetOpen   = new Vector3(ogPanel.openPosition.x, ogPanel.open ? y : 2f, ogPanel.openPosition.z);
+        bool taskingGm = Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun;
+        float defaultPos = taskingGm ? 2f : 0.6f;
+        Vector3 targetClosed = new Vector3(ogPanel.closedPosition.x, taskingGm && ogPanel.open ? y + 0.2f : defaultPos, ogPanel.closedPosition.z);
+        Vector3 targetOpen   = new Vector3(ogPanel.openPosition.x,   taskingGm && ogPanel.open ? y        : defaultPos, ogPanel.openPosition.z);
 
         float t = 1f - Mathf.Exp(-PosSmoothSpeed * Time.deltaTime);
 
