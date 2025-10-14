@@ -562,7 +562,8 @@ public static class Utils
                     string str = GetString("Prefix." + subRole);
                     if (!subRole.IsAdditionRole()) str = GetString(subRole.ToString());
 
-                    roleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + roleText;
+                    bool brackets = Options.AddBracketsToAddons.GetBool();
+                    roleText = ColorString(GetRoleColor(subRole), $"{(brackets ? "(" : string.Empty)}{str}{(brackets ? ")" : string.Empty)} ") + roleText;
                 }
             }
         }
