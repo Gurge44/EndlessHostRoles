@@ -1263,6 +1263,7 @@ internal static class CustomRolesHelper
             
             CustomRoles.Augmenter or
                 CustomRoles.BallLightning or
+                CustomRoles.Blackmailer or
                 CustomRoles.Echo or
                 CustomRoles.FireWorks or
                 CustomRoles.Hangman or

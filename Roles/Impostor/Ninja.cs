@@ -220,14 +220,14 @@ internal class Ninja : RoleBase
     public override void SetButtonTexts(HudManager __instance, byte playerId)
     {
         bool shifted = playerId.IsPlayerShifted();
-        __instance.KillButton.OverrideText(!shifted ? GetString("AssassinMarkButtonText") : GetString("KillButtonText"));
+        __instance.KillButton.OverrideText(!shifted ? GetString("NinjaMarkButtonText") : GetString("KillButtonText"));
 
         if (MarkedPlayer != byte.MaxValue && !shifted)
         {
             if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
-                __instance.PetButton.OverrideText(GetString("AssassinShapeshiftText"));
+                __instance.PetButton.OverrideText(GetString("NinjaShapeshiftText"));
             else
-                __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
+                __instance.AbilityButton.OverrideText(GetString("NinjaShapeshiftText"));
         }
     }
 }
