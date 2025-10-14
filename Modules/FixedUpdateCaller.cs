@@ -22,9 +22,6 @@ public static class FixedUpdateCaller
     {
         try
         {
-            PingTrackerUpdatePatch.LastFPS.Add(1.0f / Time.deltaTime);
-            if (PingTrackerUpdatePatch.LastFPS.Count > 10) PingTrackerUpdatePatch.LastFPS.RemoveAt(0);
-            
             InnerNetClientFixedUpdatePatch.Postfix();
 
             var shipStatus = ShipStatus.Instance;
