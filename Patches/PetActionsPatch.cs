@@ -39,7 +39,7 @@ internal static class LocalPetPatch
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
         LastProcess[__instance.PlayerId] = Utils.TimeStamp;
-        return !__instance.GetCustomRole().PetActivatedAbility();
+        return !Main.CancelPetAnimation.Value || !__instance.GetCustomRole().PetActivatedAbility();
     }
 
     public static void Postfix(PlayerControl __instance)
@@ -48,6 +48,8 @@ internal static class LocalPetPatch
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
 
         __instance.petting = false;
+        
+        if (!Main.CancelPetAnimation.Value) __instance.MyPhysics?.CancelPet();
     }
 }
 

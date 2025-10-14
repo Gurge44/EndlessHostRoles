@@ -202,6 +202,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> ShowModdedClientText { get; private set; }
     public static ConfigEntry<bool> AutoHaunt { get; private set; }
     public static ConfigEntry<bool> ButtonCooldownInDecimalUnder10s { get; private set; }
+    public static ConfigEntry<bool> CancelPetAnimation { get; private set; }
     public static ConfigEntry<bool> TryFixStuttering { get; private set; }
     public static ConfigEntry<float> UIScaleFactor { get; private set; }
 
@@ -303,6 +304,7 @@ public class Main : BasePlugin
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
         AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
         ButtonCooldownInDecimalUnder10s = Config.Bind("Client Options", "ButtonCooldownInDecimalUnder10s", false);
+        CancelPetAnimation = Config.Bind("Client Options", "CancelPetAnimation", true);
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 

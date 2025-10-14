@@ -29,6 +29,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem ShowModdedClientText;
     private static ClientOptionItem AutoHaunt;
     private static ClientOptionItem ButtonCooldownInDecimalUnder10s;
+    private static ClientOptionItem CancelPetAnimation;
 #if !ANDROID
     private static ClientOptionItem TryFixStuttering;
 #endif
@@ -196,6 +197,9 @@ public static class OptionsMenuBehaviourStartPatch
         if (ButtonCooldownInDecimalUnder10s == null || ButtonCooldownInDecimalUnder10s.ToggleButton == null)
             ButtonCooldownInDecimalUnder10s = ClientOptionItem.Create("ButtonCooldownInDecimalUnder10s", Main.ButtonCooldownInDecimalUnder10s, __instance);
 
+        if (CancelPetAnimation == null || CancelPetAnimation.ToggleButton == null)
+            CancelPetAnimation = ClientOptionItem.Create("CancelPetAnimation", Main.CancelPetAnimation, __instance);
+        
 #if !ANDROID
         if (TryFixStuttering == null || TryFixStuttering.ToggleButton == null)
         {
