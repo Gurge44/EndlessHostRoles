@@ -51,15 +51,13 @@ public static class PhantomRolePatch
         return false;
     }
 
-    [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
+    [HarmonyPatch(nameof(PlayerControl.CheckVanish))] // This doesn't always get called for non-hosts, so we invoke CheckTrigger directly when the CheckVanish RPC is received
     [HarmonyPrefix]
     private static bool CheckVanish_Prefix(PlayerControl __instance)
     {
-        if (!AmongUsClient.Instance.AmHost || !__instance.AmOwner) return true;
-        
+        if (!AmongUsClient.Instance.AmHost) return true;
         Logger.Info($" {__instance.GetNameWithRole()}", "CheckVanish");
-        
-        return CheckTrigger(__instance);
+        return __instance.AmOwner && CheckTrigger(__instance); // This is assuming that all non-host vanish requests are for ability triggers and should be cancelled
     }
 
     // Called when Phantom press vanish button when visible
@@ -171,6 +169,13 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
+            if (Main.PlayerStates[phantom.PlayerId].Role is Sniper { IsAim: true })
+            {
+                sender.EndMessage();
+                sender.SendMessage();
+                return false;
+            }
+            
             sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
                 .WriteNetObject(phantom)
                 .Write(0)

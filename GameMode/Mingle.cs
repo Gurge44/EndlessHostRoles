@@ -238,14 +238,14 @@ public static class Mingle
         }
         
         NameNotifyManager.Reset();
+        StartNewRound();
         GameGoing = true;
         GameStartDateTime = DateTime.Now;
-        StartNewRound();
     }
 
     private static void StartNewRound()
     {
-        if (!GameGoing) return;
+        if (GameStates.IsEnded) return;
 
         RequiredPlayerCount = [];
         int playerCount = Main.AllAlivePlayerControls.Length;
@@ -314,6 +314,8 @@ public static class Mingle
     {
         public static void Postfix()
         {
+            if (!Main.IntroDestroyed || !GameGoing || GameStates.IsEnded) return;
+            
             long now = Utils.TimeStamp;
             if (LastUpdateTS == now) return;
             LastUpdateTS = now;

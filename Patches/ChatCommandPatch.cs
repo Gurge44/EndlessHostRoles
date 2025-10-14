@@ -157,7 +157,7 @@ internal static class ChatCommands
             new(["t", "template", "т", "темплейт", "模板"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, false, [GetString("CommandArgs.Template.Tag")]),
             new(["mw", "messagewait", "мв", "медленныйрежим", "消息冷却", "espera-mensagens"], "{duration}", GetString("CommandDescription.MessageWait"), Command.UsageLevels.Host, Command.UsageTimes.Always, MessageWaitCommand, true, false, [GetString("CommandArgs.MessageWait.Duration")]),
             new(["death", "d", "д", "смерть", "死亡原因", "abate"], "", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true, false),
-            new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, true, [GetString("CommandArgs.Say.Message")]),
+            new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, false, [GetString("CommandArgs.Say.Message")]),
             new(["vote", "голос", "投票给", "votar"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, true, [GetString("CommandArgs.Vote.Id")]),
             new(["ask", "спр", "спросить", "数学家提问", "perguntar"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
             new(["ans", "answer", "отв", "ответить", "回答数学家问题", "responder"], "{number}", GetString("CommandDescription.Answer"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AnswerCommand, true, false, [GetString("CommandArgs.Answer.Number")]),
@@ -199,7 +199,7 @@ internal static class ChatCommands
             new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
             new(["dn", "deathnote", "угадатьимя", "отгадатьимя", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
             new(["w", "whisper", "шёпот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
-            new(["hw", "hwhisper", "хш", "хшёпот"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, true, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
+            new(["hw", "hwhisper", "хш", "хшёпот"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, false, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
             new(["spectate", "наблюдатель", "спектатор", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
             new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
@@ -509,8 +509,6 @@ internal static class ChatCommands
         if (!pickedRole.IsImpostor() || pickedRole.IsVanilla() || CustomRoleSelector.RoleResult.ContainsValue(pickedRole) || pickedRole.GetMode() == 0) return;
         if (!Main.PlayerStates.TryGetValue(targetId, out PlayerState ts) || ts.IsDead) return;
 
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-
         loner.PickedPlayer = targetId;
         loner.PickedRole = pickedRole;
 
@@ -615,8 +613,6 @@ internal static class ChatCommands
 
         if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
 
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-
         byte realKiller = campState.GetRealKiller();
 
         if (realKiller != targetId)
@@ -661,8 +657,6 @@ internal static class ChatCommands
         }
 
         if (!Imitator.PlayerIdList.Contains(player.PlayerId) || !player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
-
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         if (!targetState.IsDead)
         {
@@ -786,8 +780,6 @@ internal static class ChatCommands
         if (!player.IsAlive() || !player.Is(CustomRoles.Pawn) || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
         if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || role.GetMode() == 0) return;
 
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
-
         ((Pawn)state.Role).ChosenRole = role;
 
         MeetingManager.SendCommandUsedMessage(args[0]);
@@ -805,8 +797,6 @@ internal static class ChatCommands
 
         if (!player.IsAlive() || !player.Is(CustomRoles.Forger) || player.GetAbilityUseLimit() < 1) return;
         if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte targetId, out CustomRoles forgeRole, out _)) return;
-
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         player.RpcRemoveAbilityUse();
 
@@ -875,8 +865,6 @@ internal static class ChatCommands
         }
 
         if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Starspawn sp || sp.HasUsedDayBreak) return;
-
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         Starspawn.IsDayBreak = true;
         sp.HasUsedDayBreak = true;
@@ -986,8 +974,6 @@ internal static class ChatCommands
         bool amJailor = Jailor.PlayerIdList.Contains(player.PlayerId);
         bool amJailed = player.PlayerId == jailor.JailorTarget;
         if (!amJailor && !amJailed) return;
-
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         string title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailTalkTitle"));
 
@@ -1176,7 +1162,6 @@ internal static class ChatCommands
         }
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         PlayerState state = Main.PlayerStates[targetId];
         if (state.IsDead || state.SubRoles.Contains(CustomRoles.Shy)) return;
@@ -1224,8 +1209,6 @@ internal static class ChatCommands
         }
 
         if (!player.Is(CustomRoles.NoteKiller) || args.Length < 2) return;
-
-        if (!player.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
 
         if (!NoteKiller.CanGuess)
         {
@@ -1564,8 +1547,6 @@ internal static class ChatCommands
 
         if (!player.Is(CustomRoles.Journalist) || !player.IsAlive()) return;
 
-        if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
-
         Journalist.OnReceiveCommand(player, args);
 
         MeetingManager.SendCommandUsedMessage(args[0]);
@@ -1582,8 +1563,6 @@ internal static class ChatCommands
         }
 
         if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || !int.TryParse(args[2], out int num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive()) return;
-
-        if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
         Assumer.Assume(player.PlayerId, id, num);
 
@@ -1630,8 +1609,6 @@ internal static class ChatCommands
         }
 
         if (!player.Is(CustomRoles.President)) return;
-
-        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
         LateTask.New(() =>
         {
@@ -2201,8 +2178,6 @@ internal static class ChatCommands
         bool hasRole = Utils.GetPlayerById(checkId).Is(checkRole);
         if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
 
-        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
-
         LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
         player.RpcRemoveAbilityUse();
 
@@ -2223,8 +2198,6 @@ internal static class ChatCommands
 
         var vl2 = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
         if (vl2.Target == byte.MaxValue) return;
-
-        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
         PlayerControl tg = Utils.GetPlayerById(vl2.Target);
         string msg = text[6..];
@@ -2250,7 +2223,6 @@ internal static class ChatCommands
 
         var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
         vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
-        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -2316,8 +2288,6 @@ internal static class ChatCommands
 
         if (args.Length < 3 || !player.Is(CustomRoles.Mathematician)) return;
 
-        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
-
         Mathematician.Ask(player, args[1], args[2]);
     }
 
@@ -2335,9 +2305,6 @@ internal static class ChatCommands
         if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
 
         if (voteId > Main.AllPlayerControls.Length) return;
-
-        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            ChatManager.SendPreviousMessagesToAll();
 
         PlayerControl votedPlayer = voteId.GetPlayer();
         if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
@@ -3544,7 +3511,7 @@ internal static class ChatCommands
     public static void OnReceiveChat(PlayerControl player, string text, out bool canceled)
     {
         canceled = false;
-        if (!AmongUsClient.Instance.AmHost || player.IsHost()) return;
+        if (!AmongUsClient.Instance.AmHost || player.AmOwner) return;
 
         long now = Utils.TimeStamp;
 
@@ -3615,6 +3582,7 @@ internal static class ChatCommands
                     break;
                 }
 
+                if (command.AlwaysHidden) ChatManager.SendPreviousMessagesToAll();
                 command.Action(player, text, args);
                 if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;

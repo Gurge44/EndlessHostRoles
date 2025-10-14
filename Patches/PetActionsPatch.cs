@@ -112,7 +112,8 @@ internal static class ExternalRpcPetPatch
             Pelican.IsEaten(pc.PlayerId) ||
             Penguin.IsVictim(pc) ||
             !AmongUsClient.Instance.AmHost ||
-            GameStates.IsLobby
+            GameStates.IsLobby ||
+            AntiBlackout.SkipTasks
             )
             return;
 
