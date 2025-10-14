@@ -1704,6 +1704,7 @@
   "ShowModdedClientText": "MOD導入クライアントのテキストを表示",
   "AutoHaunt": "自動で幽霊",
   "ButtonCooldownInDecimalUnder10s": "Button Cooldown in Decimal Under 10s",
+  "CancelPetAnimation": "Fully Cancel Self Pet Animation As Host",
   "TryFixStuttering": "吃音の修正を試す",
   "UIScaleFactor": "Button UI Scale Factor",
   "Evolver": "エボルバー",
