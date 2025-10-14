@@ -1704,6 +1704,7 @@
   "ShowModdedClientText": "نمایش متن کلاینت ماد شده",
   "AutoHaunt": "تسخیر خودکار (Auto Haunt)",
   "ButtonCooldownInDecimalUnder10s": "Button Cooldown in Decimal Under 10s",
+  "CancelPetAnimation": "Fully Cancel Self Pet Animation As Host",
   "TryFixStuttering": "تلاش برای رفع لگ/تیک (Stuttering)",
   "UIScaleFactor": "Button UI Scale Factor",
   "Evolver": "Evolver",
