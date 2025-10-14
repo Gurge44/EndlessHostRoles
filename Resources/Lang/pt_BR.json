@@ -1704,6 +1704,7 @@
   "ShowModdedClientText": "Mostrar Texto de Cliente Modificado",
   "AutoHaunt": "Assombrar Automaticamente",
   "ButtonCooldownInDecimalUnder10s": "Button Cooldown in Decimal Under 10s",
+  "CancelPetAnimation": "Fully Cancel Self Pet Animation As Host",
   "TryFixStuttering": "Tentar corrigir travamentos",
   "UIScaleFactor": "Button UI Scale Factor",
   "Evolver": "Melhorador",
