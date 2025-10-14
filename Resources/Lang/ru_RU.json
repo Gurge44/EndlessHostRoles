@@ -1704,6 +1704,7 @@
   "ShowModdedClientText": "Показывать игроков с модом",
   "AutoHaunt": "Авто-преследование",
   "ButtonCooldownInDecimalUnder10s": "Когда откат меньше 10с, показывать дес. дробь",
+  "CancelPetAnimation": "Fully Cancel Self Pet Animation As Host",
   "TryFixStuttering": "Пытаться чинить зависания",
   "UIScaleFactor": "Коэффициент размера кнопок интерфейса",
   "Evolver": "Эволюционер",
