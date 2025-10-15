@@ -46,6 +46,7 @@ internal static class AllMapIconsPatch
     }
 }
 
+#if !ANDROID
 [HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__28), nameof(AmongUsClient._CoStartGameHost_d__28.MoveNext))]
 public static class DleksPatch
 {
@@ -73,6 +74,7 @@ public static class DleksPatch
         return false;
     }
 }
+#endif
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetButtons))]
 public static class VentSetButtonsPatch

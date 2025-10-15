@@ -15,15 +15,13 @@ namespace EHR;
 // Patch for non-host modded clients to ensure that the intro cutscene is shown correctly
 // and GameStates.InGame is set to true
 #if ANDROID
-[HarmonyPatch(typeof(IntroCutscene._ShowRole_d__40), nameof(IntroCutscene._ShowRole_d__40.MoveNext))]
+[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene))]
 static class ShowRoleMoveNextPatchAndroid
 {
-    public static void Postfix(IntroCutscene._ShowRole_d__40 __instance, ref bool __result)
+    public static void Postfix(IntroCutscene __instance)
     {
-        if (__instance.__1__state != 1 || !__result) return;
-
         GameStates.InGame = true;
-        SetUpRoleTextPatch.Postfix(__instance.__4__this);
+        SetUpRoleTextPatch.Postfix(__instance);
     }
 }
 #else
