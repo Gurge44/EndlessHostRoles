@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "Помощь только с одним выстрелом",
   "RandomONImpRole": "Случ. вкл. роль предателя",
   "NameDisplayAddons": "Показывать атрибуты рядом с названием роли",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "Макс. кол-во атрибутов на одного игрока",
   "LoverSpawnChances": "Шанс появления <color=#ff9ace>Любовников</color>",
   "AdditionRolesSpawnRate": "Шанс появления",
