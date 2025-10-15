@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "One shot Assist",
   "RandomONImpRole": "Random Enabled Imp Role",
   "NameDisplayAddons": "Tampilkan add-on di samping nama",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "Maksimal add-on per pemain",
   "LoverSpawnChances": "Spawn Chance of <color=#ff9ace>Lovers</color>",
   "AdditionRolesSpawnRate": "Peluang Kemunculan",
