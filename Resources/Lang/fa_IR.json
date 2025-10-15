@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "دستیار تک‌شات (One shot Assist)",
   "RandomONImpRole": "نقش Imp (ایمپاستر) فعال‌شده به صورت تصادفی",
   "NameDisplayAddons": "نمایش Add-Ons کنار نام نقش",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "حداکثر Add-ons برای هر بازیکن",
   "LoverSpawnChances": "شانس اسپاون (Spawn Chance) <color=#ff9ace>Lovers</color>",
   "AdditionRolesSpawnRate": "شانس اسپاون (Spawn Chance)",
