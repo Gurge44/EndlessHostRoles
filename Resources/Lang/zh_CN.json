@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "一枪爆头挂",
   "RandomONImpRole": "随机启用内鬼职业",
   "NameDisplayAddons": "显示职业同时显示附加职业",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "每位玩家的最大附加职业上限",
   "LoverSpawnChances": "出现<color=#ff9ace>恋人</color>的概率",
   "AdditionRolesSpawnRate": "出现概率",
