@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "Assistência para abates em um único tiro",
   "RandomONImpRole": "Função de impostor habilitada aleatória",
   "NameDisplayAddons": "Exibir Atributos ao Lado do Nome da Função",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "Número Máximo de Atributos por Jogador",
   "LoverSpawnChances": "Chance de Aparecer <color=#ff9ace>Amantes</color>",
   "AdditionRolesSpawnRate": "Chance de Aparecer",
