@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "単発アシスト",
   "RandomONImpRole": "ランダムなインポの役割",
   "NameDisplayAddons": "属性の次に役割名を表示する",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "プレイヤーごとの 属性の最大数",
   "LoverSpawnChances": "<color=#ff9ace>ラバーズ</color>の出現確率",
   "AdditionRolesSpawnRate": "出現確率",
