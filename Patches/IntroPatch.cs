@@ -1048,8 +1048,10 @@ internal static class BeginImpostorPatch
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
-            foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
-
+            
+            foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner))
+                yourTeam.Add(pc);
+            
             __instance.BeginCrewmate(yourTeam);
             __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
             return false;
