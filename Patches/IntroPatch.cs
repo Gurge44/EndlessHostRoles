@@ -1329,6 +1329,8 @@ internal static class IntroCutsceneDestroyPatch
             
             if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
+            
+            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         }, 1f, log: false);
 
         LateTask.New(() =>

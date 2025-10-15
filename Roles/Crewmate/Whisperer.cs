@@ -81,7 +81,7 @@ public class Whisperer : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (Souls.Exists(x => x.IsQuestioning)) return;
+        if (pc.GetAbilityUseLimit() < 1 || Souls.Exists(x => x.IsQuestioning)) return;
 
         Vector2 pos = pc.Pos();
         List<Soul> souls = Souls.FindAll(x => x.IsQuestionAble && Vector2.Distance(pos, x.Position) <= 1f);

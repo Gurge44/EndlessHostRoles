@@ -1193,7 +1193,7 @@ internal static class CustomRolesHelper
             CustomRoles.DoubleShot when pc.Is(CustomRoles.CopyCat) => false,
             CustomRoles.Brakar when pc.Is(CustomRoles.Dictator) => false,
             CustomRoles.Lucky when pc.Is(CustomRoles.Luckey) => false,
-            CustomRoles.Unlucky when pc.Is(CustomRoles.Luckey) => false,
+            CustomRoles.Unlucky when pc.GetCustomRole() is CustomRoles.Luckey or CustomRoles.Tank => false,
             CustomRoles.Unlucky when pc.Is(CustomRoles.Lucky) => false,
             CustomRoles.Lucky when pc.Is(CustomRoles.Unlucky) => false,
             CustomRoles.Fool when pc.GetCustomRole() is CustomRoles.Mechanic or CustomRoles.GuardianAngelEHR or CustomRoles.Technician => false,

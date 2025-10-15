@@ -79,6 +79,11 @@ public class Adrenaline : RoleBase
         return false;
     }
 
+    public override void OnReportDeadBody()
+    {
+        Timer = 0;
+    }
+
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (Timer == 0 || !pc.IsAlive()) return;
@@ -93,7 +98,6 @@ public class Adrenaline : RoleBase
 
         long now = Utils.TimeStamp;
         if (now == LastUpdate) return;
-
         LastUpdate = now;
 
         Timer--;
