@@ -49,7 +49,7 @@ internal static class LocalPetPatch
 
         __instance.petting = false;
         
-        if (!Main.CancelPetAnimation.Value) __instance.MyPhysics?.CancelPet();
+        if (!Main.CancelPetAnimation.Value) LateTask.New(() => __instance.MyPhysics?.CancelPet(), 0.4f, log: false);
     }
 }
 
