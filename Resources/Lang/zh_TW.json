@@ -1483,7 +1483,7 @@
   "SniperAimAssistOneshot": "閃爍提示而不是一直顯示",
   "RandomONImpRole": "隨機啟用偽裝者職業",
   "NameDisplayAddons": "顯示職業時同時顯示附加職業",
-  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
+  "NameDisplayAddonsOnlyInMeetings": "僅在會議中在職業名稱旁邊顯示附加職業（如果上面設定已關閉）",
   "NoLimitAddonsNumMax": "每位玩家的附加職業上限",
   "LoverSpawnChances": "<color=#ff9ace>戀人</color>出現機率",
   "AdditionRolesSpawnRate": "出現機率",
