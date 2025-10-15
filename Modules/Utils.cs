@@ -2477,7 +2477,7 @@ public static class Utils
                 return true;
             }
 
-            var fontSize = "1.7";
+            var fontSize = Options.LargerRoleTextSize.GetBool() ? "2" : "1.7";
 
             if (forMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch))
                 fontSize = "70%";

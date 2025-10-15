@@ -100,7 +100,6 @@ netgaff#6739,01b5992f0,李克强
 pucecoast#8105,d1134e5e5
 shoesilky#8411,c85846f8a
 apemv#5959,77c89daa8
-beadyloaf#3586,9037e9c8f
 alonescrub#2592,0ad8a7627
 lineraring#9796,02c2ce996 //Toxic, was attempting to hack games
 secretname#8564,aa9e48c80
@@ -128,6 +127,7 @@ markedfee#5991, 10e7b3318, (name-not-known) //(toxic)
 freepurse#4452, ee4c01545, Brinysouth //spamming with the n word
 jetevery#3237, f00da9258, Nigertien //the n word
 jumpypool#9964, 7475bd199, NigH8R // the n word
+gougesole#0734,ed140c20d // Pedophile Behaviour
 
 ## Racist/Homophobic
 onwardhome#3591, MentoMan
