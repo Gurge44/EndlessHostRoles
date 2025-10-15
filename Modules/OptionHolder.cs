@@ -797,6 +797,7 @@ public static class Options
 
     // Add-Ons
     public static OptionItem NameDisplayAddons;
+    public static OptionItem NameDisplayAddonsOnlyInMeetings;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
 
@@ -1436,6 +1437,9 @@ public static class Options
         NameDisplayAddons = new BooleanOptionItem(210, "NameDisplayAddons", true, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
+        
+        NameDisplayAddonsOnlyInMeetings = new BooleanOptionItem(219, "NameDisplayAddonsOnlyInMeetings", false, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard);
 
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);

@@ -553,7 +553,7 @@ public static class Utils
 
         if (LastImpostor.CurrentId == targetId) roleText = GetRoleString("Last-") + roleText;
 
-        if (Options.NameDisplayAddons.GetBool() && !pure && self)
+        if ((Options.NameDisplayAddons.GetBool() || ((ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) && Options.NameDisplayAddonsOnlyInMeetings.GetBool())) && !pure && self)
         {
             foreach (CustomRoles subRole in targetSubRoles)
             {
