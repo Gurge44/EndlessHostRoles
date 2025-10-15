@@ -1483,6 +1483,7 @@
   "SniperAimAssistOneshot": "Asistencia de Un disparo",
   "RandomONImpRole": "Rol de Imp Aleatorio Activado",
   "NameDisplayAddons": "Mostrar Complementos junto al nombre de rol",
+  "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
   "NoLimitAddonsNumMax": "Complementos Máximos Por Jugador",
   "LoverSpawnChances": "Probabilidad de Aparición de <color=#ff9ace>Amantes</color>",
   "AdditionRolesSpawnRate": "Probabilidad de Aparición",
