@@ -1879,8 +1879,6 @@ internal static class ExtendedPlayerControl
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
 
         if (target == null) target = killer;
-        
-        if (!target.IsAlive()) return;
 
         CheckAndSpawnAdditionalRefugee(target.Data);
 
