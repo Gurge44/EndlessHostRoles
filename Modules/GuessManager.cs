@@ -1114,7 +1114,7 @@ public static class GuessManager
                 CreateGuesserButton(__instance);
         }
 
-        private static bool CanGuess(PlayerControl lp, bool restrictions)
+        public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
             if (Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch

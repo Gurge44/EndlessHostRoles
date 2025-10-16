@@ -422,6 +422,7 @@ public class Main : BasePlugin
                 { CustomRoles.Astral, "#b329d6" },
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
+                { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Captain, "#53B3EF" },
                 { CustomRoles.Tree, "#00ff00" },
@@ -637,6 +638,7 @@ public class Main : BasePlugin
                 { CustomRoles.Bloodmoon, "#ff1313" },
                 { CustomRoles.GA, "#8cffff" },
                 { CustomRoles.Facilitator, CovenColor },
+                { CustomRoles.Shade, "#060270" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons
@@ -653,6 +655,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },
                 { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
@@ -1115,6 +1118,7 @@ public enum AdditionalWinners
 
     // -------------
     Specter = CustomRoles.Specter,
+    Shade = CustomRoles.Shade,
     Lovers = CustomRoles.Lovers,
     Executioner = CustomRoles.Executioner,
     Opportunist = CustomRoles.Opportunist,

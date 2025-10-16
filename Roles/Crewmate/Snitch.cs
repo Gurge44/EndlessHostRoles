@@ -168,7 +168,7 @@ public class Snitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || (target != null && seer.PlayerId != target.PlayerId)) return string.Empty;
+        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || (target != null && seer.PlayerId != target.PlayerId) || hud) return string.Empty;
 
         var arrows = string.Empty;
 

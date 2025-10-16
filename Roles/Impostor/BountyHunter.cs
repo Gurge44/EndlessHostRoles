@@ -223,6 +223,7 @@ public class BountyHunter : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
+        if (seer.IsModdedClient() && !hud) return string.Empty;
         return GetTargetText(seer, target, hud) + GetTargetArrow(seer, target);
     }
 

@@ -34,6 +34,7 @@ public enum CustomRoles
     Camouflager,
     Capitalism,
     Cantankerous,
+    Centralizer,
     Changeling,
     Chronomancer,
     Cleaner,
@@ -272,6 +273,7 @@ public enum CustomRoles
     Tracefinder,
     Tree,
     Tunneler,
+    Vacuum,
     Ventguard,
     Veteran,
     SwordsMan, // Vigilante
@@ -560,11 +562,13 @@ public enum CustomRoles
     Trainee,
     DualPersonality, // Schizophrenic
     Seer,
+    Shade, // Ghost role
     Shy,
     Sleuth,
     Sonar,
     Stained,
     Taskcounter,
+    TaskMaster,
     TicketsStealer, // Stealer
     Stressed,
     Swift,

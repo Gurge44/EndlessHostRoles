@@ -190,6 +190,12 @@ internal static class GameEndChecker
                     CustomRoles role = pc.GetCustomRole();
                     RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
 
+                    if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance is Shade shade && shade.Protected.IsSupersetOf(Main.AllAlivePlayerControls.Select(x => x.PlayerId)))
+                    {
+                        AdditionalWinnerTeams.Add(AdditionalWinners.Shade);
+                        WinnerIds.Add(pc.PlayerId);
+                    }
+
                     switch (role)
                     {
                         case CustomRoles.Stalker when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.Stalker || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is Stalker { IsWinKill: true } && Stalker.SnatchesWin.GetBool())):
@@ -600,6 +606,12 @@ internal static class GameEndChecker
             int coven = AlivePlayersCount(CountTypes.Coven);
 
             var crewKeepsGameGoing = false;
+            
+            if (Options.GuessersKeepTheGameGoing.GetBool())
+            {
+                bool restrictions = Options.GuesserNumRestrictions.GetBool();
+                crewKeepsGameGoing |= statesCoutingAsCrew.Any(x => !x.IsDead && x.Player != null && GuessManager.StartMeetingPatch.CanGuess(x.Player, restrictions));
+            }
 
             foreach (PlayerState playerState in statesCoutingAsCrew)
             {

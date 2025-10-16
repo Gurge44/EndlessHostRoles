@@ -123,12 +123,7 @@ public class Coroner : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (GameStates.IsMeeting || seer.PlayerId != CoronerId || hud) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not Coroner bh) return string.Empty;
-
-        return bh.CoronerTargets.Count > 0 ? bh.CoronerTargets.Select(targetId => TargetArrow.GetArrows(seer, targetId)).Aggregate(string.Empty, (current, arrow) => current + Utils.ColorString(seer.GetRoleColor(), arrow)) : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+        if (target != null && seer.PlayerId != target.PlayerId || GameStates.IsMeeting || seer.PlayerId != CoronerId || hud || Main.PlayerStates[seer.PlayerId].Role is not Coroner cn) return string.Empty;
+        return cn.CoronerTargets.Count > 0 ? cn.CoronerTargets.Select(targetId => TargetArrow.GetArrows(seer, targetId)).Aggregate(string.Empty, (current, arrow) => current + Utils.ColorString(seer.GetRoleColor(), arrow)) : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 }

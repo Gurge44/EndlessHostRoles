@@ -1950,6 +1950,8 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
+            Vacuum.BeforeMurderCheck(target);
+            
             killer.RpcMurderPlayer(target, true);
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)

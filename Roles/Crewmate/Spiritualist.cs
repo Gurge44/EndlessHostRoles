@@ -126,12 +126,7 @@ internal class Spiritualist : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!seer.IsAlive() || seer.PlayerId != SpiritualistId) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (GameStates.IsMeeting) return string.Empty;
-
+        if (!seer.IsAlive() || seer.PlayerId != SpiritualistId || target != null && seer.PlayerId != target.PlayerId || meeting || hud) return string.Empty;
         return SpiritualistTarget != byte.MaxValue && ShowArrow ? Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget)) : string.Empty;
     }
 

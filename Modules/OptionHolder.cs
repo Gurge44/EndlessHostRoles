@@ -100,6 +100,7 @@ public static class Options
     public static Dictionary<CustomGameMode, OptionItem> GMPollGameModesSettings;
     public static Dictionary<MapNames, OptionItem> MPollMapsSettings;
     public static Dictionary<CustomRoles, OptionItem> CrewAdvancedGameEndCheckingSettings;
+    public static OptionItem GuessersKeepTheGameGoing;
 
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
     public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
@@ -3034,6 +3035,9 @@ public static class Options
         yield return null;
 
         id = 69900;
+
+        new TextOptionItem(110020, "MenuTitle.GMPoll", TabGroup.SystemSettings)
+            .SetHeader(true);
         
         GMPollGameModesSettings = Enum.GetValues<CustomGameMode>()[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
             .SetColor(Main.GameModeColors[x])
@@ -3041,6 +3045,9 @@ public static class Options
             .AddReplacement(("{gm}", Translator.GetString($"{x}"))));
 
         id = 69920;
+
+        new TextOptionItem(110030, "MenuTitle.MPoll", TabGroup.SystemSettings)
+            .SetHeader(true);
 
         MPollMapsSettings = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
             .SetHeader(x == MapNames.Skeld)
@@ -3050,6 +3057,9 @@ public static class Options
 
         CrewAdvancedGameEndCheckingSettings = [];
         bool first = true;
+
+        new TextOptionItem(110000, "MenuTitle.CrewAdvancedGameEndChecking", TabGroup.SystemSettings)
+            .SetHeader(true);
 
         foreach (RoleBase roleBase in Main.AllRoleClasses)
         {
@@ -3063,8 +3073,15 @@ public static class Options
             
             first = false;
         }
+        
+        GuessersKeepTheGameGoing = new BooleanOptionItem(id, "GuessersKeepTheGameGoing", false, TabGroup.SystemSettings)
+            .SetHeader(true)
+            .SetColor(Color.yellow);
 
         id = 69000;
+
+        new TextOptionItem(110010, "MenuTitle.AutoGMRotation", TabGroup.SystemSettings)
+            .SetHeader(true);
 
         EnableAutoGMRotation = new BooleanOptionItem(id++, "EnableAutoGMRotation", false, TabGroup.SystemSettings)
             .SetColor(Color.magenta)
