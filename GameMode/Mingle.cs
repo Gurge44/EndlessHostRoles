@@ -46,15 +46,15 @@ public static class Mingle
             .SetColor(color)
             .SetGameMode(gameMode);
         
-        TimeDecreaseOnNoDeathOption = new IntegerOptionItem(id++, "Mingle.TimeDecreaseOnNoDeathOption", new(0, 60, 1), 5, tab)
+        TimeDecreaseOnNoDeathOption = new IntegerOptionItem(id++, "Mingle.TimeDecreaseOnNoDeathOption", new(0, 60, 1), 10, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
         
-        ExtraTimeOnAirshipOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnAirshipOption", new(0, 300, 1), 20, tab)
+        ExtraTimeOnAirshipOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnAirshipOption", new(0, 300, 1), 10, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
         
-        ExtraTimeOnFungleOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnFungleOption", new(0, 300, 1), 10, tab)
+        ExtraTimeOnFungleOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnFungleOption", new(0, 300, 1), 5, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
         
@@ -62,7 +62,7 @@ public static class Mingle
             .SetColor(color)
             .SetGameMode(gameMode);
         
-        MinTimeOption = new IntegerOptionItem(id++, "Mingle.MinTimeOption", new(1, 300, 1), 15, tab)
+        MinTimeOption = new IntegerOptionItem(id++, "Mingle.MinTimeOption", new(1, 300, 1), 10, tab)
             .SetColor(color)
             .SetGameMode(gameMode);
         
@@ -73,7 +73,7 @@ public static class Mingle
 
     public static string GetSuffix(PlayerControl seer)
     {
-        return seer.IsModdedClient() ? string.Empty : GetRoomsInfo(seer, false);
+        return seer.IsHost() ? string.Empty : GetRoomsInfo(seer, false);
     }
 
     public static int GetSurvivalTime(byte id)
@@ -296,6 +296,7 @@ public static class Mingle
                 break;
             case var x when x == aapc.Length:
                 Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                Main.PlayerStates.Values.DoIf(s => !s.IsDead, s => s.SetDead());
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 GameGoing = false;
                 break;

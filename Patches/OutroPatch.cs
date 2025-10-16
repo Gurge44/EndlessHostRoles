@@ -205,129 +205,132 @@ internal static class SetEverythingUpPatch
         var additionalWinnerText = string.Empty;
         string customWinnerColor = Utils.GetRoleColorCode(CustomRoles.Crewmate);
 
-        switch (Options.CurrentGameMode)
+        if (CustomWinnerHolder.WinnerTeam is not (CustomWinner.None or CustomWinner.Draw or CustomWinner.Error))
         {
-            case CustomGameMode.SoloKombat:
+            switch (Options.CurrentGameMode)
             {
-                __instance.BackgroundBar.material.color = new Color32(245, 82, 82, 255);
-                customWinnerText = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
-                customWinnerColor = "#f55252";
-                additionalWinnerText = "\n" + string.Format(GetString("SoloKombat.WinnersKillCount"), SoloPVP.KBScore[CustomWinnerHolder.WinnerIds.First()]);
-                goto Skip;
-            }
-            case CustomGameMode.FFA:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(0, 255, 255, 255);
-                winnerText.text = FreeForAll.FFATeamMode.GetBool() ? string.Empty : Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.MoveAndStop:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(0, 255, 165, 255);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.HotPotato:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(232, 205, 70, 255);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.Speedrun:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Speedrunner);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.CaptureTheFlag:
-            {
-                (Color Color, string Team) winnerData = CaptureTheFlag.WinnerData;
-                __instance.BackgroundBar.material.color = winnerData.Color;
-                winnerText.text = winnerData.Team;
-                winnerText.color = winnerData.Color;
-                goto EndOfText;
-            }
-            case CustomGameMode.NaturalDisasters:
-            {
-                var ndColor = new Color32(3, 252, 74, 255);
-                __instance.BackgroundBar.material.color = ndColor;
-
-                if (CustomWinnerHolder.WinnerIds.Count <= 1)
+                case CustomGameMode.SoloKombat:
+                {
+                    __instance.BackgroundBar.material.color = new Color32(245, 82, 82, 255);
+                    customWinnerText = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                    customWinnerColor = "#f55252";
+                    additionalWinnerText = "\n" + string.Format(GetString("SoloKombat.WinnersKillCount"), SoloPVP.KBScore[CustomWinnerHolder.WinnerIds.First()]);
+                    goto Skip;
+                }
+                case CustomGameMode.FFA:
                 {
                     byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(0, 255, 255, 255);
+                    winnerText.text = FreeForAll.FFATeamMode.GetBool() ? string.Empty : Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+                case CustomGameMode.MoveAndStop:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(0, 255, 165, 255);
                     winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
                     winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
                 }
-                else
+                case CustomGameMode.HotPotato:
                 {
-                    winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
-                    winnerText.color = ndColor;
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(232, 205, 70, 255);
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
                 }
+                case CustomGameMode.Speedrun:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Speedrunner);
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+                case CustomGameMode.CaptureTheFlag:
+                {
+                    (Color Color, string Team) winnerData = CaptureTheFlag.WinnerData;
+                    __instance.BackgroundBar.material.color = winnerData.Color;
+                    winnerText.text = winnerData.Team;
+                    winnerText.color = winnerData.Color;
+                    goto EndOfText;
+                }
+                case CustomGameMode.NaturalDisasters:
+                {
+                    var ndColor = new Color32(3, 252, 74, 255);
+                    __instance.BackgroundBar.material.color = ndColor;
+
+                    if (CustomWinnerHolder.WinnerIds.Count <= 1)
+                    {
+                        byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                        winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                        winnerText.color = Main.PlayerColors[winnerId];
+                    }
+                    else
+                    {
+                        winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                        winnerText.color = ndColor;
+                    }
                 
-                goto EndOfText;
-            }
-            case CustomGameMode.RoomRush:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(255, 171, 27, 255);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.KingOfTheZones:
-            {
-                (Color Color, string Team) winnerData = KingOfTheZones.WinnerData;
-                __instance.BackgroundBar.material.color = winnerData.Color;
-                winnerText.text = winnerData.Team;
-                winnerText.color = winnerData.Color;
-                goto EndOfText;
-            }
-            case CustomGameMode.Quiz:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.QuizMaster);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.TheMindGame:
-            {
-                __instance.BackgroundBar.material.color = Color.yellow;
-                winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
-                winnerText.color = Color.yellow;
-                goto EndOfText;
-            }
-            case CustomGameMode.BedWars:
-            {
-                (Color Color, string Team) winnerData = BedWars.WinnerData;
-                __instance.BackgroundBar.material.color = winnerData.Color;
-                winnerText.text = winnerData.Team;
-                winnerText.color = winnerData.Color;
-                goto EndOfText;
-            }
-            case CustomGameMode.Deathrace:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Racer);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
-            }
-            case CustomGameMode.Mingle:
-            {
-                byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
-                winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                winnerText.color = Main.PlayerColors[winnerId];
-                goto EndOfText;
+                    goto EndOfText;
+                }
+                case CustomGameMode.RoomRush:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = new Color32(255, 171, 27, 255);
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+                case CustomGameMode.KingOfTheZones:
+                {
+                    (Color Color, string Team) winnerData = KingOfTheZones.WinnerData;
+                    __instance.BackgroundBar.material.color = winnerData.Color;
+                    winnerText.text = winnerData.Team;
+                    winnerText.color = winnerData.Color;
+                    goto EndOfText;
+                }
+                case CustomGameMode.Quiz:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.QuizMaster);
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+                case CustomGameMode.TheMindGame:
+                {
+                    __instance.BackgroundBar.material.color = Color.yellow;
+                    winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                    winnerText.color = Color.yellow;
+                    goto EndOfText;
+                }
+                case CustomGameMode.BedWars:
+                {
+                    (Color Color, string Team) winnerData = BedWars.WinnerData;
+                    __instance.BackgroundBar.material.color = winnerData.Color;
+                    winnerText.text = winnerData.Team;
+                    winnerText.color = winnerData.Color;
+                    goto EndOfText;
+                }
+                case CustomGameMode.Deathrace:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Racer);
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
+                case CustomGameMode.Mingle:
+                {
+                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
+                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                    winnerText.color = Main.PlayerColors[winnerId];
+                    goto EndOfText;
+                }
             }
         }
 
