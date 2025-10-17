@@ -4,6 +4,8 @@ public class Pawn : RoleBase
 {
     public static bool On;
 
+    public static OptionItem KeepsGameGoing;
+    
     public CustomRoles ChosenRole;
 
     public override bool IsEnable => On;
@@ -11,6 +13,7 @@ public class Pawn : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(651500)
+            .AutoSetupOption(ref KeepsGameGoing, true)
             .CreateOverrideTasksData();
     }
 

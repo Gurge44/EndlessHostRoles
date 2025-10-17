@@ -469,7 +469,7 @@ public static class Deathrace
     {
         public static void Postfix()
         {
-            if (!GameGoing || GameStates.IsEnded) return;
+            if (!AmongUsClient.Instance.AmHost || !GameGoing || GameStates.IsEnded) return;
 
             long now = Utils.TimeStamp;
 

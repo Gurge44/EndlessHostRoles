@@ -1304,7 +1304,7 @@ internal static class IntroCutsceneDestroyPatch
         {
             Main.GameTimer = 0f;
             
-            if (SubmergedCompatibility.IsSubmerged())
+            if (AmongUsClient.Instance.AmHost && SubmergedCompatibility.IsSubmerged())
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
@@ -1331,6 +1331,8 @@ internal static class IntroCutsceneDestroyPatch
             
             if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
+            
+            if (!AmongUsClient.Instance.AmHost) return;
             
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         }, 1f, log: false);

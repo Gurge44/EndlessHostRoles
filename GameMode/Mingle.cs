@@ -317,7 +317,7 @@ public static class Mingle
     {
         public static void Postfix()
         {
-            if (!Main.IntroDestroyed || !GameGoing || GameStates.IsEnded) return;
+            if (!AmongUsClient.Instance.AmHost || !Main.IntroDestroyed || !GameGoing || GameStates.IsEnded) return;
             
             long now = Utils.TimeStamp;
             if (LastUpdateTS == now) return;

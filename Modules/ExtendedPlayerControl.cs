@@ -133,6 +133,8 @@ internal static class ExtendedPlayerControl
     // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
     public static void SetChatVisible(this PlayerControl player, bool visible)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
+        
         Logger.Info($"Setting the chat {(visible ? "visible" : "hidden")} for {player.GetNameWithRole()}", "SetChatVisible");
 
         if (player.AmOwner)

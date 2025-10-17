@@ -214,7 +214,7 @@ public static class FixedUpdateCaller
 
                 try
                 {
-                    if (Options.EnableGameTimeLimit.GetBool())
+                    if (AmongUsClient.Instance.AmHost && Options.EnableGameTimeLimit.GetBool())
                     {
                         Main.GameTimer += Time.fixedDeltaTime;
                         
