@@ -39,7 +39,6 @@ internal static class CustomRolesHelper
         CustomRoles.PortalMaker,
         CustomRoles.Gardener,
         CustomRoles.Farmer,
-        CustomRoles.Explosivist,
         CustomRoles.Tree,
 
         // Add-ons
@@ -509,7 +508,8 @@ internal static class CustomRolesHelper
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.Duality => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
-            CustomRoles.Explosivist => RoleTypes.Impostor,
+            CustomRoles.Explosivist => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
+            CustomRoles.Sharpshooter => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Thanos => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Slenderman => RoleTypes.Impostor,
             CustomRoles.Amogus => RoleTypes.Impostor,
@@ -639,6 +639,7 @@ internal static class CustomRolesHelper
             CustomRoles.Rogue or
             CustomRoles.Parasite or
             CustomRoles.SerialKiller or
+            CustomRoles.Sharpshooter or
             CustomRoles.Explosivist or
             CustomRoles.Thanos or
             CustomRoles.Duality or
@@ -1082,6 +1083,7 @@ internal static class CustomRolesHelper
             CustomRoles.Bargainer or
             CustomRoles.Chemist or
             CustomRoles.Simon or
+            CustomRoles.Sharpshooter or
             CustomRoles.Patroller or
             CustomRoles.Weatherman or
             CustomRoles.NoteKiller or
@@ -1934,6 +1936,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    Sharpshooter,
     Explosivist,
     Thanos,
     Duality,

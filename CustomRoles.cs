@@ -366,6 +366,7 @@ public enum CustomRoles
     SchrodingersCat,
     Seamstress,
     SerialKiller,
+    Sharpshooter,
     Shifter,
     Sidekick,
     Simon,

@@ -129,6 +129,54 @@ internal static class ExtendedPlayerControl
 
         return vents;
     }
+    
+    // Next 2 from https://github.com/Rabek009/MoreGamemodes/blob/master/Roles/Impostor/Concealing/Droner.cs
+
+    public static void RevertFreeze(this PlayerControl pc, Vector2 realPosition)
+    {
+        pc.NetTransform.SnapTo(realPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
+        CustomRpcSender sender = CustomRpcSender.Create("Explosivist Revert", SendOption.Reliable);
+        sender.StartMessage();
+        sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            .WriteVector2(pc.transform.position)
+            .Write((ushort)(pc.NetTransform.lastSequenceId + 32767))
+            .EndRpc();
+        sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            .WriteVector2(pc.transform.position)
+            .Write((ushort)(pc.NetTransform.lastSequenceId + 32767 + 16383))
+            .EndRpc();
+        sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            .WriteVector2(pc.transform.position)
+            .Write(pc.NetTransform.lastSequenceId)
+            .EndRpc();
+        sender.EndMessage();
+        sender.SendMessage();
+        NumSnapToCallsThisRound += 3;
+        pc.Visible = true;
+    }
+
+    public static void FreezeForOthers(this PlayerControl player)
+    {
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        {
+            if (pc == player || pc.AmOwner) continue;
+            CustomRpcSender sender = CustomRpcSender.Create("Explosivist", SendOption.Reliable);
+            sender.StartMessage(pc.GetClientId());
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(player.transform.position)
+                .Write(player.NetTransform.lastSequenceId)
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(player.transform.position)
+                .Write((ushort)(player.NetTransform.lastSequenceId + 16383))
+                .EndRpc();
+            sender.EndMessage();
+            sender.SendMessage();
+            NumSnapToCallsThisRound += 2;
+        }
+
+        player.Visible = false;
+    }
 
     // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
     public static void SetChatVisible(this PlayerControl player, bool visible)

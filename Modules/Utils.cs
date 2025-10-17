@@ -840,6 +840,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.Sharpshooter:
             case CustomRoles.Explosivist:
             case CustomRoles.Thanos:
             case CustomRoles.Slenderman:
@@ -3357,6 +3358,7 @@ public static class Utils
             CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
             CustomRoles.Amogus => Amogus.AbilityCooldown.GetInt() + (includeDuration ? Amogus.AbilityDuration.GetInt() : 0),
             CustomRoles.Explosivist => Explosivist.AbilityCooldown.GetInt() + (includeDuration ? Explosivist.ExplosionDelay.GetInt() : 0),
+            CustomRoles.Sharpshooter => Sharpshooter.AbilityCooldown.GetInt() + (includeDuration ? Sharpshooter.AbilityDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
             CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
