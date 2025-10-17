@@ -225,6 +225,7 @@ internal static class ChatCommands
             new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
             new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
             new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
+            new(["fabricate", "фабриковать", "伪造", "fabricar"], "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
             
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
@@ -488,7 +489,32 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-    public static void UIScaleCommand(PlayerControl player, string text, string[] args)
+    private static void FabricateCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(SelectCommand), text);
+            return;
+        }
+
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Fabricator fab) return;
+        
+        if (args.Length < 2 || !Enum.GetValues<PlayerState.DeathReason>().FindFirst(x => GetString(x.ToString()).Replace(" ", string.Empty).Equals(args[1].Replace(" ", string.Empty), StringComparison.OrdinalIgnoreCase), out PlayerState.DeathReason newDeathReason))
+        {
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Fabricator.InvalidDeathReason"), args.Length >= 2 ? args[1] : ""));
+            return;
+        }
+
+        fab.NextDeathReason = newDeathReason;
+        
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Fabricator.SetDeathReason"), GetString(newDeathReason.ToString())));
+        
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    private static void UIScaleCommand(PlayerControl player, string text, string[] args)
     {
         if (args.Length < 2 || !float.TryParse(args[1], out float scale) || scale == 0f) return;
         HudManagerStartPatch.TryResizeUI(scale);

@@ -1474,8 +1474,9 @@ internal static class RPC
     {
         byte playerId = reader.ReadByte();
         var deathReason = (PlayerState.DeathReason)reader.ReadInt32();
-        Main.PlayerStates[playerId].deathReason = deathReason;
-        Main.PlayerStates[playerId].IsDead = true;
+        PlayerState state = Main.PlayerStates[playerId];
+        state.deathReason = deathReason;
+        state.IsDead = true;
     }
 
     public static void ForceEndGame(CustomWinner win)
