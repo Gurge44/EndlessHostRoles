@@ -506,6 +506,7 @@ public enum CustomRoles
     Clumsy,
     Commited,
     Compelled,
+    Composter,
     Contagious,
     Damocles,
     Deadlined,

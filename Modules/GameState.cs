@@ -484,7 +484,12 @@ public class TaskState
                     }
 
                     float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
-                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
+                    
+                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
+                    {
+                        if (player.Is(CustomRoles.Composter)) add *= Composter.AbilityUseGainMultiplier.GetFloat();
+                        player.RpcIncreaseAbilityUseLimitBy(add);
+                    }
                 }
 
                 try { Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount); }

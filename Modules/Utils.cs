@@ -721,7 +721,12 @@ public static class Utils
         if (Main.PlayerStates[killer.PlayerId].Role is Mafioso { IsEnable: true } mo) mo.OnMurder(killer, null);
 
         float add = GetSettingNameAndValueForRole(killer.GetCustomRole(), "AbilityUseGainWithEachKill");
-        killer.RpcIncreaseAbilityUseLimitBy(add);
+        
+        if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
+        {
+            if (killer.Is(CustomRoles.Composter)) add *= Composter.AbilityUseGainMultiplier.GetFloat();
+            killer.RpcIncreaseAbilityUseLimitBy(add);
+        }
     }
 
     public static void ThrowException(Exception ex, [CallerFilePath] string fileName = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string callerMemberName = "")

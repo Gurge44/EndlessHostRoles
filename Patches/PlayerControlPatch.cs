@@ -2002,7 +2002,7 @@ internal static class FixedUpdatePatch
         if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
         {
             if (player.Is(CustomRoles.Bloodlust)) add *= 5;
-
+            if (player.Is(CustomRoles.Composter)) add *= Composter.AbilityUseGainMultiplier.GetFloat();
             player.RpcIncreaseAbilityUseLimitBy(add);
         }
     }
