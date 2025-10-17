@@ -40,6 +40,7 @@ internal static class CustomRolesHelper
         CustomRoles.Gardener,
         CustomRoles.Farmer,
         CustomRoles.Tree,
+        CustomRoles.Doorjammer,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -241,6 +242,7 @@ internal static class CustomRolesHelper
             CustomRoles.Farmer => CustomRoles.Crewmate,
             CustomRoles.Captain => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Doorjammer => CustomRoles.Crewmate,
             CustomRoles.Tree => CustomRoles.Crewmate,
             CustomRoles.Inquisitor => CustomRoles.Crewmate,
             CustomRoles.Gardener => CustomRoles.Crewmate,
@@ -1819,6 +1821,7 @@ internal static class CustomRolesHelper
             CustomRoles.Crusader => RoleOptionType.Crewmate_Support,
             CustomRoles.Deputy => RoleOptionType.Crewmate_Support,
             CustomRoles.DonutDelivery => RoleOptionType.Crewmate_Support,
+            CustomRoles.Doorjammer => RoleOptionType.Crewmate_Support,
             CustomRoles.DovesOfNeace => RoleOptionType.Crewmate_Support,
             CustomRoles.Electric => RoleOptionType.Crewmate_Support,
             CustomRoles.Escort => RoleOptionType.Crewmate_Support,

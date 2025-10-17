@@ -44,19 +44,23 @@ public static class Mingle
         TimeLimitOption = new IntegerOptionItem(id++, "Mingle.TimeLimitOption", new(1, 300, 1), 60, tab)
             .SetHeader(true)
             .SetColor(color)
-            .SetGameMode(gameMode);
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Seconds);
         
         TimeDecreaseOnNoDeathOption = new IntegerOptionItem(id++, "Mingle.TimeDecreaseOnNoDeathOption", new(0, 60, 1), 10, tab)
             .SetColor(color)
-            .SetGameMode(gameMode);
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Seconds);
         
         ExtraTimeOnAirshipOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnAirshipOption", new(0, 300, 1), 10, tab)
             .SetColor(color)
-            .SetGameMode(gameMode);
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Seconds);
         
         ExtraTimeOnFungleOption = new IntegerOptionItem(id++, "Mingle.ExtraTimeOnFungleOption", new(0, 300, 1), 5, tab)
             .SetColor(color)
-            .SetGameMode(gameMode);
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Seconds);
         
         DisplayCurrentPlayerCountInEachRoomOption = new BooleanOptionItem(id++, "Mingle.DisplayCurrentPlayerCountInEachRoomOption", true, tab)
             .SetColor(color)
@@ -64,11 +68,13 @@ public static class Mingle
         
         MinTimeOption = new IntegerOptionItem(id++, "Mingle.MinTimeOption", new(1, 300, 1), 10, tab)
             .SetColor(color)
-            .SetGameMode(gameMode);
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Seconds);
         
         MaxRequiredPlayersPerRoomOption = new IntegerOptionItem(id++, "Mingle.MaxRequiredPlayersPerRoomOption", new(1, 30, 1), 10, tab)
             .SetColor(color)
-            .SetGameMode(gameMode);
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Players);
     }
 
     public static string GetSuffix(PlayerControl seer)

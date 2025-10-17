@@ -3312,6 +3312,7 @@ public static class Utils
             CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
+            CustomRoles.Doorjammer => Doorjammer.AbilityCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Tree => 5 + (includeDuration ? Tree.FallDelay.GetInt() + Tree.FallStunDuration.GetInt() : 0),

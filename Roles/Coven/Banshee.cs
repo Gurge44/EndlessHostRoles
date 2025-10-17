@@ -64,7 +64,7 @@ public class Banshee : Coven
         IEnumerable<PlayerControl> nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
-        else nearbyPlayers.Do(x => x.Suicide(realKiller: pc));
+        else nearbyPlayers.Do(x => x.Suicide(PlayerState.DeathReason.Deafened, pc));
 
         if (ScreechedPlayers.Count > 0)
         {

@@ -71,6 +71,7 @@ public class PlayerState(byte playerId)
         Taxes,
         DidntVote,
         SkippedVote,
+        Deafened,
 
         // Natural Disasters
         Meteor,
