@@ -9381,6 +9381,7 @@
   "RememberButtonText": "Remember",
   "CanRememberCrewPower": "Can Remember <#8cffff>Crewmate</color> <#fbff00>Power</color> Roles",
   "ReportBodyAfterRemember": "After remembering a role by reporting, report the body",
+  "RememberAddons": "Also Remember Add-ons",
   "HasArrowsToDeadBodies": "Sees Arrows to Dead Bodies (If Remembering by Reporting)",
   "IncompatibleNeutralMode": "If neutral is incompatible, turn into",
   "ImmuneToAttacksWhenTasksDone": "Immune to attacks on task completion",
