@@ -5388,7 +5388,7 @@
   "Mingle": "尋找同伴",
   "ModeMingle": "遊戲模式：尋找同伴",
   "ModeDescribe.Mingle": "在尋找同伴模式中，遊戲會將一定數量的玩家分配到地圖上的特定房間。時間限制結束時，房間內必須有恰好該數量的玩家。如果某個房間內的玩家過多或過少，該房間內的所有玩家都會死亡。如果您不在任何指定的房間內，也會死亡。哦，對了，如果一輪中無人死亡，時間限制將永久減少。最後存活下來的玩家獲勝！",
-  "Mingle.Tutorial": "目前遊戲模式為<#CF2472>尋找同伴</color>。 \\n<size=90%>遊戲會將一定數量的玩家分配到地圖上的特定房間。 \\n在時間限制結束時，房間裡必須有恰好該數量的玩家。 \\n如果某個房間中的玩家過多或過少，則該房間中的所有玩家都會死亡。 \\n如果您不在任何指定的房間中，您將死亡。 \\n哦，對了，如果一輪中沒有人死亡，時間限制將永久減少。 \\n最後存活下來的玩家獲勝！ </size>",
+  "Mingle.Tutorial": "The current game mode is <#FE9900>Mingle</color>.\\n<size=90%>The game assigns a certain number of players to certain rooms on the map.\\nAt the end of the time limit, exactly those numbers of players need to be in the rooms.\\nIf there are too many or too few players in a room, all players in that room die.\\nIf you are not in any of the assigned rooms, you die.\\nOh, and if no one dies in a round, the time limit permanently decreases.\\nThe last player alive wins!</size>",
   "Mingle.TimeLimitOption": "開始時間限制",
   "Mingle.TimeDecreaseOnNoDeathOption": "無死亡時間減少",
   "Mingle.ExtraTimeOnAirshipOption": "Airship上的額外時間",
