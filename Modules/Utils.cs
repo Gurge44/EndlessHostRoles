@@ -3393,11 +3393,10 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
+        LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 1f, "Enable GameEndChecker");
+        
         if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
-        {
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
-            GameEndChecker.CheckCustomEndCriteria();
-        }
 
         AFKDetector.NumAFK = 0;
         AFKDetector.PlayerData.Clear();
