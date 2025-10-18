@@ -41,7 +41,6 @@ internal static class ExtendedPlayerControl
         else
         {
             if (!Cleanser.CleansedCanGetAddon.GetBool() && player.Is(CustomRoles.Cleansed)) return;
-
             Main.PlayerStates[player.PlayerId].SetSubRole(role, replaceAllAddons);
         }
 

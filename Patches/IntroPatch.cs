@@ -1158,6 +1158,18 @@ internal static class IntroCutsceneDestroyPatch
                 }, 0.8f, log: false);
 
                 StartGameHostPatch.RpcSetRoleReplacer.SetActualSelfRolesAfterOverride();
+                
+                var doubleAgents = Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.DoubleAgent)).ToList();
+
+                if (doubleAgents.Count > 0)
+                {
+                    Main.AllAlivePlayerControls.DoIf(x => x.Is(Team.Impostor), x =>
+                    {
+                        var sender = CustomRpcSender.Create("Double Agent", SendOption.Reliable);
+                        doubleAgents.ForEach(da => sender.RpcSetRole(da, RoleTypes.Impostor, x.OwnerId, changeRoleMap: true));
+                        sender.SendMessage();
+                    });
+                }
             }, 0.1f, log: false);
 
             if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.BedWars)

@@ -25,6 +25,7 @@ public class Amnesiac : RoleBase
     private static OptionItem HasArrowsToDeadBodies;
     private static OptionItem ArrowMinDelay;
     private static OptionItem ArrowMaxDelay;
+    private static OptionItem RememberAddons;
 
     private static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
@@ -85,6 +86,9 @@ public class Amnesiac : RoleBase
         ArrowMaxDelay = new FloatOptionItem(Id + 19, "ArrowDelayMax", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(HasArrowsToDeadBodies)
             .SetValueFormat(OptionFormat.Seconds);
+        
+        RememberAddons = new BooleanOptionItem(Id + 20, "RememberAddons", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
     }
 
     public override void Init()
@@ -227,6 +231,8 @@ public class Amnesiac : RoleBase
 
         amnesiac.RpcSetCustomRole(role);
         amnesiac.RpcChangeRoleBasis(role);
+        
+        if (RememberAddons.GetBool()) target.GetCustomSubRoles().ForEach(x => amnesiac.RpcSetCustomRole(x));
 
         hasValue |= sender.Notify(amnesiac, amneNotifyString);
         hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));

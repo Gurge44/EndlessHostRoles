@@ -140,6 +140,9 @@ public static class Utils
                 }, 8f, "Anti-Black Exit Game");
             }
         }
+
+        try { FastDestroyableSingleton<LoadingBarManager>.Instance.ToggleLoadingBar(false); }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static void CheckAndSetVentInteractions()
@@ -938,7 +941,7 @@ public static class Utils
             case CustomRoles.Cultist:
             case CustomRoles.Necromancer:
             case CustomRoles.Deathknight:
-            case CustomRoles.Amnesiac:
+            case CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 1:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
@@ -958,6 +961,7 @@ public static class Utils
             case CustomRoles.Doomsayer:
                 hasTasks = false;
                 break;
+            case CustomRoles.Amnesiac:
             case CustomRoles.Dad when ((Dad)state.Role).DoneTasks:
             case CustomRoles.Workaholic:
             case CustomRoles.Terrorist:
