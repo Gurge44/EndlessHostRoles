@@ -9381,6 +9381,7 @@
   "RememberButtonText": "Relembrar",
   "CanRememberCrewPower": "Pode Lembrar Funções de <#8cffff>Tripulantes</color> que tem <#fbff00>Poderes</color>",
   "ReportBodyAfterRemember": "Após lembrar uma função reportando, reporte o corpo",
+  "RememberAddons": "Also Remember Add-ons",
   "HasArrowsToDeadBodies": "Sees Arrows to Dead Bodies (If Remembering by Reporting)",
   "IncompatibleNeutralMode": "Se o Neutro for incompatível, vira:",
   "ImmuneToAttacksWhenTasksDone": "Imune a ataques quando as tarefas estiverem completas",
