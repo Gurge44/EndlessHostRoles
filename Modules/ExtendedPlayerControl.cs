@@ -1946,12 +1946,12 @@ internal static class ExtendedPlayerControl
             IncreaseAbilityUseLimitOnKill(killer);
 
         target.SetRealKiller(killer, true);
+        
+        PlayerControl realKiller = Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state) ? state.RealKiller.ID.GetPlayer() ?? killer : killer;
+        if (realKiller == null) realKiller = killer;
 
         if (target.PlayerId == Godfather.GodfatherTarget)
-        {
-            PlayerControl realKiller = Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state) ? state.RealKiller.ID.GetPlayer() ?? killer : killer;
             realKiller.RpcSetCustomRole(CustomRoles.Refugee);
-        }
 
         if (target.Is(CustomRoles.Jackal)) Jackal.Instances.Do(x => x.PromoteSidekick());
 
@@ -1960,7 +1960,7 @@ internal static class ExtendedPlayerControl
         if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
             Achievements.Type.InnocentKiller.Complete();
 
-        if (Options.AnonymousBodies.GetBool())
+        if (Options.AnonymousBodies.GetBool() || realKiller.Is(CustomRoles.Concealer))
         {
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.SyncSettings();
@@ -2004,8 +2004,8 @@ internal static class ExtendedPlayerControl
             
             killer.RpcMurderPlayer(target, true);
 
-            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
-                state.SetDead();
+            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var playerState) && !playerState.IsDead)
+                playerState.SetDead();
 
             LateTask.New(() =>
             {

@@ -971,6 +971,7 @@ internal static class CustomRoleSelector
 
             switch (role)
             {
+                case CustomRoles.Concealer when Options.AnonymousBodies.GetBool():
                 case CustomRoles.Autopsy when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.Gravestone when Options.EveryoneSeesDeadPlayersRoles.GetBool():
                 case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
