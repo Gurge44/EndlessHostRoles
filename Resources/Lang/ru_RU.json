@@ -9381,6 +9381,7 @@
   "RememberButtonText": "Скопировать",
   "CanRememberCrewPower": "Может скопировать роли <#fbff00>Сильных</color> <#8cffff>Членов Экипажа</color>",
   "ReportBodyAfterRemember": "Репортнуть труп после копирования роли",
+  "RememberAddons": "Also Remember Add-ons",
   "HasArrowsToDeadBodies": "Видит стрелку на трупы (Если копирует кнопкой репорта)",
   "IncompatibleNeutralMode": "Если Нейтрал несовместим, превратиться в",
   "ImmuneToAttacksWhenTasksDone": "Неуязвим к атакам после выполнения всех тасков",
