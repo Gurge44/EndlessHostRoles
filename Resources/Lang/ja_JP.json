@@ -9381,6 +9381,7 @@
   "RememberButtonText": "記憶",
   "CanRememberCrewPower": "<#fbff00>力を持つ</color> <#8cffff>クルーメイト</color>の役割を記憶できる",
   "ReportBodyAfterRemember": "報告によって 1つの役割を記憶した後、死体を報告する",
+  "RememberAddons": "Also Remember Add-ons",
   "HasArrowsToDeadBodies": "Sees Arrows to Dead Bodies (If Remembering by Reporting)",
   "IncompatibleNeutralMode": "もし <#ffab1b>ニュートラル</color>に 互換性がないときに、変わる役割",
   "ImmuneToAttacksWhenTasksDone": "タスク完了時の攻撃への耐性",
