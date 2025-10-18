@@ -572,13 +572,14 @@ public enum CustomRoles
     Sleuth,
     Sonar,
     Stained,
-    Taskcounter,
-    TaskMaster,
     TicketsStealer, // Stealer
     Stressed,
     Swift,
     Sunglasses,
+    Taskcounter,
+    TaskMaster,
     Brakar, // Tiebreaker
+    Tired,
     Torch,
     Truant,
     Unbound,

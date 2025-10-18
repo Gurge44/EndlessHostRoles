@@ -469,6 +469,12 @@ internal static class CheckMurderPatch
             return false;
         }
 
+        if (!Tired.CheckMurderLimit(killer.PlayerId))
+        {
+            Notify("TiredReachedMaxKillsPerRound");
+            return false;
+        }
+
         if ((Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) ||
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
@@ -751,6 +757,8 @@ internal static class MurderPlayerPatch
         }
 
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
+        
+        Tired.OnMurder(killer.PlayerId);
 
         Chef.SpitOutFood(killer);
         

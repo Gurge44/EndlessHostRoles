@@ -1,4 +1,4 @@
-﻿namespace EHR.AddOns.Common;
+﻿namespace EHR.AddOns.Impostor;
 
 public class Concealer : IAddon
 {

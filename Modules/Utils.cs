@@ -3490,6 +3490,7 @@ public static class Utils
         Stressed.AfterMeetingTasks();
         Circumvent.AfterMeetingTasks();
         Deadlined.AfterMeetingTasks();
+        Tired.Reset();
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();
