@@ -308,6 +308,9 @@ internal static class CheckMurderPatch
                     Deathrace.OnCheckMurder(killer, target);
                     return false;
             }
+            
+            PlagueBearer.CheckAndSpreadInfection(killer, target);
+            PlagueBearer.CheckAndSpreadInfection(target, killer);
 
             Deadlined.SetDone(killer);
 
@@ -857,7 +860,7 @@ internal static class ShapeshiftPatch
 
         Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
 
-        if (meetingSS)
+        if (AmongUsClient.Instance.AmHost && meetingSS)
         {
             if (MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)
                 Main.PlayerStates[shapeshifter.PlayerId].Role.OnMeetingShapeshift(shapeshifter, target);
@@ -888,6 +891,11 @@ internal static class ShapeshiftPatch
         if (!AmongUsClient.Instance.AmHost) return true;
 
         if (!shapeshifting) Camouflage.RpcSetSkin(shapeshifter);
+        else
+        {
+            PlagueBearer.CheckAndSpreadInfection(shapeshifter, target);
+            PlagueBearer.CheckAndSpreadInfection(target, shapeshifter);
+        }
 
         var isSSneeded = true;
 
@@ -1101,9 +1109,12 @@ internal static class ReportDeadBodyPatch
 
                 if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Report)) return false; // Player dies, no notify needed
 
-                if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
-
                 PlayerControl tpc = target.Object;
+                
+                PlagueBearer.CheckAndSpreadInfection(__instance, tpc);
+                PlagueBearer.CheckAndSpreadInfection(tpc, __instance);
+
+                if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
                 if (__instance.Is(CustomRoles.Unlucky) && (tpc == null || !tpc.Is(CustomRoles.Bait)))
                 {

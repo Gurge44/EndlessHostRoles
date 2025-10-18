@@ -19,6 +19,7 @@ public static class CustomButton
 //[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class HudSpritePatch
 {
+    public static bool ForceUpdate;
     public static Sprite[] DefaultIcons = [];
     private static long LastErrorTime;
 
@@ -452,8 +453,7 @@ public static class HudSpritePatch
                 }
                 default:
                 {
-                    if (usesPetInsteadOfKill) break;
-                    
+                    if (ForceUpdate || usesPetInsteadOfKill) break;
                     return;
                 }
             }
@@ -483,6 +483,8 @@ public static class HudSpritePatch
                 __instance.PetButton.graphic,
                 __instance.ReportButton.graphic
             }.Do(x => x.SetCooldownNormalizedUvs());
+            
+            ForceUpdate = false;
         }
         catch (Exception e)
         {
