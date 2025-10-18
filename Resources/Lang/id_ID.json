@@ -9381,6 +9381,7 @@
   "RememberButtonText": "Ingat",
   "CanRememberCrewPower": "Bisa mengingat peran <#8cffff>Crewmate</color> <#fbff00>Berpengaruh</color>",
   "ReportBodyAfterRemember": "After remembering a role by reporting, report the body",
+  "RememberAddons": "Also Remember Add-ons",
   "HasArrowsToDeadBodies": "Sees Arrows to Dead Bodies (If Remembering by Reporting)",
   "IncompatibleNeutralMode": "Jika posisi netral nirkompatibel, beralih menjadi?",
   "ImmuneToAttacksWhenTasksDone": "Kebal dari serangan setelah misi rampung",
