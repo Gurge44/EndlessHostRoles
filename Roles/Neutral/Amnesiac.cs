@@ -22,6 +22,9 @@ public class Amnesiac : RoleBase
     private static OptionItem VentCooldown;
     private static OptionItem VentDuration;
     private static OptionItem ReportBodyAfterRemember;
+    private static OptionItem HasArrowsToDeadBodies;
+    private static OptionItem ArrowMinDelay;
+    private static OptionItem ArrowMaxDelay;
 
     private static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
@@ -40,8 +43,6 @@ public class Amnesiac : RoleBase
     private byte AmnesiacId;
 
     public override bool IsEnable => Instances.Count > 0;
-
-    public override bool SeesArrowsToDeadBodies => RememberMode.GetValue() == 0;
 
     public override void SetupCustomOption()
     {
@@ -73,6 +74,17 @@ public class Amnesiac : RoleBase
 
         ReportBodyAfterRemember = new BooleanOptionItem(Id + 16, "ReportBodyAfterRemember", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+        
+        HasArrowsToDeadBodies = new BooleanOptionItem(Id + 17, "HasArrowsToDeadBodies", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+        
+        ArrowMinDelay = new FloatOptionItem(Id + 18, "ArrowDelayMin", new(0f, 60f, 0.5f), 2f, TabGroup.NeutralRoles)
+            .SetParent(HasArrowsToDeadBodies)
+            .SetValueFormat(OptionFormat.Seconds);
+        
+        ArrowMaxDelay = new FloatOptionItem(Id + 19, "ArrowDelayMax", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
+            .SetParent(HasArrowsToDeadBodies)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -247,13 +259,13 @@ public class Amnesiac : RoleBase
         LocateArrow.RemoveAllTarget(AmnesiacId);
     }
 
-    public override bool KnowRole(PlayerControl player, PlayerControl target)
+    public static void OnAnyoneDead(PlayerControl target)
     {
-        if (base.KnowRole(player, target)) return true;
-
-        if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
-
-        return player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee);
+        if (HasArrowsToDeadBodies.GetBool())
+        {
+            var pos = target.Pos();
+            Instances.ForEach(x => LateTask.New(() => LocateArrow.Add(x.AmnesiacId, pos), IRandom.Instance.Next(ArrowMinDelay.GetInt(), ArrowMaxDelay.GetInt() + 1), "Amnesiac Arrow"));
+        }
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -265,7 +277,6 @@ public class Amnesiac : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != AmnesiacId || meeting || hud) return string.Empty;
-
         return LocateArrow.GetArrows(seer);
     }
 }

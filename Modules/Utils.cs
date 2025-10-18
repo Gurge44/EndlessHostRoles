@@ -3552,6 +3552,7 @@ public static class Utils
                 Anonymous.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
                 Tracefinder.OnPlayerDead(target);
+                Amnesiac.OnAnyoneDead(target);
                 Scout.OnPlayerDeath(target);
                 Dad.OnAnyoneDeath(target);
                 Crewmate.Sentry.OnAnyoneMurder(target);
