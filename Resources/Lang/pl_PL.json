@@ -5388,7 +5388,7 @@
   "Mingle": "MINGLE",
   "ModeMingle": "Gamemode: Mingle",
   "ModeDescribe.Mingle": "In the Mingle gamemode, the game assigns a certain number of players to certain rooms on the map. At the end of the time limit, exactly that number of players need to be in the rooms. If there are too many or too few players in a room, all players in that room die. If you are not in any of the assigned rooms, you die. Oh, and if no one dies in a round, the time limit permanently decreases. The last player alive wins!",
-  "Mingle.Tutorial": "The current game mode is <#CF2472>Mingle</color>.\\n<size=90%>The game assigns a certain number of players to certain rooms on the map.\\nAt the end of the time limit, exactly those numbers of players need to be in the rooms.\\nIf there are too many or too few players in a room, all players in that room die.\\nIf you are not in any of the assigned rooms, you die.\\nOh, and if no one dies in a round, the time limit permanently decreases.\\nThe last player alive wins!</size>",
+  "Mingle.Tutorial": "The current game mode is <#FE9900>Mingle</color>.\\n<size=90%>The game assigns a certain number of players to certain rooms on the map.\\nAt the end of the time limit, exactly those numbers of players need to be in the rooms.\\nIf there are too many or too few players in a room, all players in that room die.\\nIf you are not in any of the assigned rooms, you die.\\nOh, and if no one dies in a round, the time limit permanently decreases.\\nThe last player alive wins!</size>",
   "Mingle.TimeLimitOption": "Starting Time Limit",
   "Mingle.TimeDecreaseOnNoDeathOption": "Time Decrease on No Death",
   "Mingle.ExtraTimeOnAirshipOption": "Extra Time on Airship",
