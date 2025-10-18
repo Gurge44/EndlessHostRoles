@@ -9381,6 +9381,7 @@
   "RememberButtonText": "记住",
   "CanRememberCrewPower": "可以记忆<#8cff>船员</color> <#fbff00>力量型</color> 职业",
   "ReportBodyAfterRemember": "通过报告回忆身份后发起报告",
+  "RememberAddons": "Also Remember Add-ons",
   "HasArrowsToDeadBodies": "Sees Arrows to Dead Bodies (If Remembering by Reporting)",
   "IncompatibleNeutralMode": "如果中立不兼容，则变为",
   "ImmuneToAttacksWhenTasksDone": "完成任务后免疫击杀",
