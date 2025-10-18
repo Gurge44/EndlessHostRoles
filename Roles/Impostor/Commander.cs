@@ -258,6 +258,7 @@ internal class Commander : RoleBase
 
         if (seer.PlayerId == target.PlayerId)
         {
+            if (hud) return string.Empty;
             if (arrowToCommander.Length > 0) return $"{Translator.GetString("Commander")} {arrowToCommander}";
         }
         else if (isTargetTarget)

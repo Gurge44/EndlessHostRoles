@@ -357,7 +357,7 @@ public class Alchemist : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || playerId.IsPlayerModdedClient()) return string.Empty;
+        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || playerId.IsPlayerModdedClient()) return base.GetProgressText(playerId, comms);
 
         var sb = new StringBuilder(base.GetProgressText(playerId, comms));
 

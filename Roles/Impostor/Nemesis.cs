@@ -11,30 +11,30 @@ using static EHR.Translator;
 
 namespace EHR.Impostor;
 
-internal class Mafia : RoleBase
+internal class Nemesis : RoleBase
 {
     public static bool On;
 
-    public static Dictionary<byte, int> MafiaRevenged = [];
+    public static Dictionary<byte, int> NemesisRevenged = [];
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
+        SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Nemesis);
 
-        MafiaCanKillNum = new IntegerOptionItem(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia])
+        NemesisCanKillNum = new IntegerOptionItem(3200, "NemesisCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Nemesis])
             .SetValueFormat(OptionFormat.Players);
 
-        LegacyMafia = new BooleanOptionItem(3210, "UseLegacyVersion", false, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
+        LegacyNemesis = new BooleanOptionItem(3210, "UseLegacyVersion", false, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Nemesis]);
 
-        MafiaShapeshiftCD = new FloatOptionItem(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
-            .SetParent(LegacyMafia)
+        NemesisShapeshiftCD = new FloatOptionItem(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(LegacyNemesis)
             .SetValueFormat(OptionFormat.Seconds);
 
-        MafiaShapeshiftDur = new FloatOptionItem(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
-            .SetParent(LegacyMafia)
+        NemesisShapeshiftDur = new FloatOptionItem(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
+            .SetParent(LegacyNemesis)
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -55,34 +55,34 @@ internal class Mafia : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        AURoleOptions.ShapeshifterCooldown = MafiaShapeshiftCD.GetFloat();
-        AURoleOptions.ShapeshifterDuration = MafiaShapeshiftDur.GetFloat();
+        AURoleOptions.ShapeshifterCooldown = NemesisShapeshiftCD.GetFloat();
+        AURoleOptions.ShapeshifterDuration = NemesisShapeshiftDur.GetFloat();
     }
 
-    public static bool MafiaMsgCheck(PlayerControl pc, string msg, bool isUI = false)
+    public static bool NemesisMsgCheck(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
 
         if (!GameStates.IsInGame || pc == null) return false;
 
-        if (!pc.Is(CustomRoles.Mafia)) return false;
+        if (!pc.Is(CustomRoles.Nemesis)) return false;
 
         msg = msg.Trim().ToLower().Replace(" ", string.Empty);
         if (msg.Length < 3 || !msg.StartsWith("/rv")) return false;
 
-        if (MafiaCanKillNum.GetInt() < 1)
+        if (NemesisCanKillNum.GetInt() < 1)
         {
             if (!isUI)
-                Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId, sendOption: SendOption.None);
+                Utils.SendMessage(GetString("NemesisKillDisable"), pc.PlayerId, sendOption: SendOption.None);
             else
-                pc.ShowPopUp(GetString("MafiaKillDisable"));
+                pc.ShowPopUp(GetString("NemesisKillDisable"));
 
             return true;
         }
 
         if (pc.IsAlive())
         {
-            Utils.SendMessage(GetString("MafiaAliveKill"), pc.PlayerId, sendOption: SendOption.None);
+            Utils.SendMessage(GetString("NemesisAliveKill"), pc.PlayerId, sendOption: SendOption.None);
             return true;
         }
 
@@ -95,14 +95,14 @@ internal class Mafia : RoleBase
             return true;
         }
 
-        if (!MafiaRevenged.TryAdd(pc.PlayerId, 0))
+        if (!NemesisRevenged.TryAdd(pc.PlayerId, 0))
         {
-            if (MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
+            if (NemesisRevenged[pc.PlayerId] >= NemesisCanKillNum.GetInt())
             {
                 if (!isUI)
-                    Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
+                    Utils.SendMessage(GetString("NemesisKillMax"), pc.PlayerId);
                 else
-                    pc.ShowPopUp(GetString("MafiaKillMax"));
+                    pc.ShowPopUp(GetString("NemesisKillMax"));
 
                 return true;
             }
@@ -118,9 +118,9 @@ internal class Mafia : RoleBase
         catch
         {
             if (!isUI)
-                Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId, sendOption: SendOption.None);
+                Utils.SendMessage(GetString("NemesisKillDead"), pc.PlayerId, sendOption: SendOption.None);
             else
-                pc.ShowPopUp(GetString("MafiaKillDead"));
+                pc.ShowPopUp(GetString("NemesisKillDead"));
 
             return true;
         }
@@ -128,9 +128,9 @@ internal class Mafia : RoleBase
         if (target == null || !target.IsAlive())
         {
             if (!isUI)
-                Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId, sendOption: SendOption.None);
+                Utils.SendMessage(GetString("NemesisKillDead"), pc.PlayerId, sendOption: SendOption.None);
             else
-                pc.ShowPopUp(GetString("MafiaKillDead"));
+                pc.ShowPopUp(GetString("NemesisKillDead"));
 
             return true;
         }
@@ -145,11 +145,11 @@ internal class Mafia : RoleBase
             return true;
         }
 
-        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} revenged {target.GetNameWithRole().RemoveHtmlTags()}", "Mafia");
+        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} revenged {target.GetNameWithRole().RemoveHtmlTags()}", "Nemesis");
 
         string name = target.GetRealName();
 
-        MafiaRevenged[pc.PlayerId]++;
+        NemesisRevenged[pc.PlayerId]++;
 
         CustomSoundsManager.RPCPlayCustomSoundAll("AWP");
 
@@ -169,15 +169,15 @@ internal class Mafia : RoleBase
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 
-            LateTask.New(() => { Utils.SendMessage(string.Format(GetString("MafiaKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), GetString("MafiaRevengeTitle"))); }, 0.6f, "Mafia Kill");
-        }, 0.2f, "Mafia Kill");
+            LateTask.New(() => { Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Nemesis), GetString("NemesisRevengeTitle"))); }, 0.6f, "Nemesis Kill");
+        }, 0.2f, "Nemesis Kill");
 
         return true;
     }
 
     private static void SendRPC(byte playerId)
     {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MafiaRevenge, SendOption.Reliable, AmongUsClient.Instance.HostId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NemesisRevenge, SendOption.Reliable, AmongUsClient.Instance.HostId);
         writer.Write(playerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -185,17 +185,17 @@ internal class Mafia : RoleBase
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         int playerId = reader.ReadByte();
-        MafiaMsgCheck(pc, $"/rv {playerId}", true);
+        NemesisMsgCheck(pc, $"/rv {playerId}", true);
     }
 
-    private static void MafiaOnClick(byte playerId /*, MeetingHud __instance*/)
+    private static void NemesisOnClick(byte playerId /*, MeetingHud __instance*/)
     {
-        Logger.Msg($"Click: ID {playerId}", "Mafia UI");
+        Logger.Msg($"Click: ID {playerId}", "Nemesis UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
 
         if (AmongUsClient.Instance.AmHost)
-            MafiaMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
+            NemesisMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
         else
             SendRPC(playerId);
     }
@@ -215,7 +215,7 @@ internal class Mafia : RoleBase
             renderer.sprite = CustomButton.Get("MeetingKillButton");
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
-            button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId)));
+            button.OnClick.AddListener((Action)(() => NemesisOnClick(pva.TargetPlayerId)));
         }
     }
 
@@ -224,7 +224,7 @@ internal class Mafia : RoleBase
     {
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive())
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Nemesis) && !PlayerControl.LocalPlayer.IsAlive())
                 CreateJudgeButton(__instance);
         }
     }

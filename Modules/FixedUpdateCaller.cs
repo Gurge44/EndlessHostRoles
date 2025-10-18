@@ -22,9 +22,6 @@ public static class FixedUpdateCaller
     {
         try
         {
-            PingTrackerUpdatePatch.LastFPS.Add(1.0f / Time.deltaTime);
-            if (PingTrackerUpdatePatch.LastFPS.Count > 10) PingTrackerUpdatePatch.LastFPS.RemoveAt(0);
-            
             InnerNetClientFixedUpdatePatch.Postfix();
 
             var shipStatus = ShipStatus.Instance;
@@ -202,6 +199,12 @@ public static class FixedUpdateCaller
                         case CustomGameMode.RoomRush:
                             RoomRush.FixedUpdatePatch.Postfix();
                             goto default;
+                        case CustomGameMode.Deathrace:
+                            Deathrace.FixedUpdatePatch.Postfix();
+                            goto default;
+                        case CustomGameMode.Mingle:
+                            Mingle.FixedUpdatePatch.Postfix();
+                            goto default;
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                             break;
@@ -211,12 +214,18 @@ public static class FixedUpdateCaller
 
                 try
                 {
-                    Main.GameTimer += Time.fixedDeltaTime;
-                
-                    if (Options.EnableGameTimeLimit.GetBool() && Main.GameTimer > Options.GameTimeLimit.GetInt())
+                    if (AmongUsClient.Instance.AmHost && Options.EnableGameTimeLimit.GetBool())
                     {
-                        Main.GameTimer = 0f;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                        Main.GameTimer += Time.fixedDeltaTime;
+                        
+                        if (Main.GameTimer > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
+                        {
+                            Main.GameTimer = 0f;
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                        
+                            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                                CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Select(x => x.PlayerId));
+                        }
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

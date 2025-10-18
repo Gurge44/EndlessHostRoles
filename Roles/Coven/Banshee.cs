@@ -9,7 +9,7 @@ namespace EHR.Coven;
 public class Banshee : Coven
 {
     public static bool On;
-    private static List<Banshee> Instances = [];
+    public static List<Banshee> Instances = [];
 
     private static OptionItem AbilityCooldown;
     private static OptionItem Radius;
@@ -64,7 +64,7 @@ public class Banshee : Coven
         IEnumerable<PlayerControl> nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
-        else nearbyPlayers.Do(x => x.Suicide(realKiller: pc));
+        else nearbyPlayers.Do(x => x.Suicide(PlayerState.DeathReason.Deafened, pc));
 
         if (ScreechedPlayers.Count > 0)
         {
@@ -113,6 +113,6 @@ public class Banshee : Coven
 
     public override void OnReportDeadBody()
     {
-        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().Do(x => x.SetChatVisible(false)), 4f, "Set Chat Hidden For Banshee Victims");
+        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().DoIf(x => x.IsAlive(), x => x.SetChatVisible(false)), 4f, "Set Chat Hidden For Banshee Victims");
     }
 }

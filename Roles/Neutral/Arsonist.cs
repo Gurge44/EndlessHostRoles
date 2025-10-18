@@ -231,7 +231,7 @@ internal class Arsonist : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.KillButton?.OverrideText(Translator.GetString("ArsonistDouseButtonText"));
-        ActionButton usedButton = UsePets.GetBool() ? hud.PetButton : hud.KillButton;
+        ActionButton usedButton = UsePhantomBasis.GetBool() ? hud.AbilityButton : UsePets.GetBool() ? hud.PetButton : hud.ImpostorVentButton;
         usedButton?.OverrideText(Translator.GetString("ArsonistVentButtonText"));
     }
 }

@@ -177,7 +177,7 @@ internal static class RpcSetTasksPatch
         }
 
         // GM and Lazy Guy have no tasks
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars)
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle)
         {
             hasCommonTasks = false;
             numShortTasks = 0;

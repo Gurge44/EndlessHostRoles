@@ -1,6 +1,9 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Impostor;
 
@@ -88,7 +91,7 @@ public class Venerer : RoleBase
         switch (Stage)
         {
             case 1:
-                var outfit = pc.Data.DefaultOutfit;
+                var outfit = Camouflage.PlayerSkins[pc.PlayerId];
                 Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""));
                 ChangedSkin = true;
                 LateTask.New(() =>
@@ -96,6 +99,7 @@ public class Venerer : RoleBase
                     if (!ChangedSkin || pc == null || !pc.IsAlive()) return;
                     Utils.RpcChangeSkin(pc, outfit);
                     ChangedSkin = false;
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }, AbilityDuration.GetInt(), log: false);
                 break;
             case 2:
@@ -109,18 +113,52 @@ public class Venerer : RoleBase
                 }, AbilityDuration.GetInt(), log: false);
                 goto case 1;
             case 3:
-                Utils.GetPlayersInRadius(FreezeRadius.GetFloat(), pc.Pos()).Without(pc).Do(x =>
-                {
-                    Main.AllPlayerSpeed[x.PlayerId] = DecreasedSpeed.GetFloat();
-                    x.MarkDirtySettings();
-                    LateTask.New(() =>
-                    {
-                        if (x == null || !x.IsAlive()) return;
-                        Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                        if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) x.MarkDirtySettings();
-                    }, AbilityDuration.GetInt(), log: false);
-                });
+                Main.Instance.StartCoroutine(FreezeNearbyPlayers());
                 goto case 2;
+
+                System.Collections.IEnumerator FreezeNearbyPlayers()
+                {
+                    HashSet<byte> frozenPlayers = [];
+                    int timer = AbilityDuration.GetInt();
+                    float radius = FreezeRadius.GetFloat();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks)
+                        {
+                            frozenPlayers.Do(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                            yield break;
+                        }
+
+                        HashSet<byte> nearbyPlayers = Utils.GetPlayersInRadius(radius, pc.Pos()).Without(pc).Select(x => x.PlayerId).ToHashSet();
+                        frozenPlayers.Except(nearbyPlayers).Do(x =>
+                        {
+                            PlayerControl p = Utils.GetPlayerById(x);
+                            if (p == null || !p.IsAlive()) return;
+                            Main.AllPlayerSpeed[p.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            p.MarkDirtySettings();
+                        });
+                        nearbyPlayers.Except(frozenPlayers).Do(x =>
+                        {
+                            PlayerControl p = Utils.GetPlayerById(x);
+                            if (p == null || !p.IsAlive()) return;
+                            Main.AllPlayerSpeed[p.PlayerId] = DecreasedSpeed.GetFloat();
+                            p.MarkDirtySettings();
+                        });
+                        frozenPlayers = nearbyPlayers;
+                        
+                        yield return new WaitForSeconds(1f);
+                        timer--;
+                    }
+                    
+                    frozenPlayers.Do(x =>
+                    {
+                        PlayerControl p = Utils.GetPlayerById(x);
+                        if (p == null || !p.IsAlive()) return;
+                        Main.AllPlayerSpeed[p.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) p.MarkDirtySettings();
+                    });
+                }
         }
     }
 
@@ -131,7 +169,7 @@ public class Venerer : RoleBase
             ChangedSkin = false;
             PlayerControl pc = VenererId.GetPlayer();
             if (pc == null || !pc.IsAlive()) return;
-            Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[PlayerControl.LocalPlayer.PlayerId]);
+            Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[VenererId]);
         }
     }
 

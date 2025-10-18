@@ -65,7 +65,7 @@ internal class LateTask
             }
             catch (Exception ex)
             {
-                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.Name}\" ({task.CallerData})\n{ex.StackTrace}", "LateTask.Error", false);
+                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.Name}\" ({task.CallerData})\n\n{ex.StackTrace}", "LateTask.Error", false, multiLine: true);
                 Tasks.Remove(task);
             }
         }

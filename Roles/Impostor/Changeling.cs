@@ -53,6 +53,7 @@ internal class Changeling : RoleBase
 
             List<CustomRoles> rolesList = result.ToList();
             rolesList.Remove(CustomRoles.Changeling);
+            rolesList.Remove(CustomRoles.Loner);
             rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla() || x.IsAdditionRole());
             return rolesList;
         }

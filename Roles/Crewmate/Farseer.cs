@@ -84,7 +84,8 @@ public class Farseer : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        killer.SetKillCooldown(FarseerRevealTime.GetFloat());
+        float revealTime = FarseerRevealTime.GetFloat();
+        killer.SetKillCooldown(revealTime == 0f ? FarseerCooldown.GetFloat() : revealTime);
 
         if (!IsRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
         {

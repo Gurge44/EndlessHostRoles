@@ -423,6 +423,7 @@ public static class GameStartManagerPatch
                     CustomGameMode.NaturalDisasters => 180 + (30 * NaturalDisasters.FrequencyOfDisasters * Math.Max(1, PlayerControl.AllPlayerControls.Count / 4)),
                     CustomGameMode.RoomRush => (int)Math.Round((RoomRush.PointsSystem ? RoomRush.RawPointsToWin * 1.5f : PlayerControl.AllPlayerControls.Count - 1) * ((Main.NormalOptions.MapId is 0 or 3 ? 15 : 20) / Main.NormalOptions.PlayerSpeedMod)),
                     CustomGameMode.KingOfTheZones => Math.Min(KingOfTheZones.MaxGameTime, KingOfTheZones.MaxGameTimeByPoints),
+                    CustomGameMode.Deathrace => Deathrace.LapsToWin * (int)Math.Ceiling(25 / Main.NormalOptions.PlayerSpeedMod),
                     _ => 0
                 };
 

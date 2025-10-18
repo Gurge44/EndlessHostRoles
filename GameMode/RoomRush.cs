@@ -171,7 +171,7 @@ public static class RoomRush
 
     public static int GetSurvivalTime(byte id)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || ChatCommands.Spectators.Contains(id) || (id == 0 && Main.GM.Value)) return -1;
+        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || ChatCommands.Spectators.Contains(id) || (id == 0 && Main.GM.Value) || state.deathReason == PlayerState.DeathReason.Disconnected) return -1;
 
         if (!state.IsDead) return 0;
 

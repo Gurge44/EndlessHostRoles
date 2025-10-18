@@ -57,12 +57,14 @@ public abstract class OptionItem
     public TabGroup Tab { get; }
     public bool IsSingleValue { get; }
 
-    private Color NameColor { get; set; }
+    public Color NameColor { get; set; }
     private OptionFormat ValueFormat { get; set; }
     public CustomGameMode GameMode { get; private set; }
     public bool IsHeader { get; protected set; }
     private bool IsHidden { get; set; }
     public bool IsText { get; protected set; }
+
+    public TextOptionItem Header { get; set; } = null;
 
     public Dictionary<string, string> ReplacementDictionary
     {
@@ -240,6 +242,7 @@ public abstract class OptionItem
 
         static bool Hidden(OptionItem oi)
         {
+            if (oi.Header is { CollapsesSection: true }) return true;
             CustomGameMode mode = EHR.Options.CurrentGameMode;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
             return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||

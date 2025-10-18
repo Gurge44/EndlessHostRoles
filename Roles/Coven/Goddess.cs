@@ -98,7 +98,7 @@ public class Goddess : Coven
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (AbilityEndTS == 0 || killer.Is(CustomRoles.Pestilence)) return true;
+        if (AbilityEndTS == 0 || killer.Is(CustomRoles.Pestilence) || !killer.IsAlive()) return true;
 
         killer.SetRealKiller(target);
         target.Kill(killer);

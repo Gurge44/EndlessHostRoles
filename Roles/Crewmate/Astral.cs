@@ -15,8 +15,8 @@ public class Astral : RoleBase
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachTaskCompleted;
     private static OptionItem AbilityChargesWhenFinishedTasks;
-    private byte AstralId;
 
+    private byte AstralId;
     private long BackTS;
     private long LastNotifyTS;
 
@@ -69,7 +69,7 @@ public class Astral : RoleBase
 
     void BecomeGhostTemporarily(PlayerControl pc)
     {
-        if (pc.GetAbilityUseLimit() < 1f) return;
+        if (pc.GetAbilityUseLimit() < 1f || ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
         pc.RpcRemoveAbilityUse();
 
         pc.Exiled();

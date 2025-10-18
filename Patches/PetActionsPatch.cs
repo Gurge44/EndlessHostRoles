@@ -39,7 +39,7 @@ internal static class LocalPetPatch
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
         LastProcess[__instance.PlayerId] = Utils.TimeStamp;
-        return !__instance.GetCustomRole().PetActivatedAbility();
+        return !Main.CancelPetAnimation.Value || !__instance.GetCustomRole().PetActivatedAbility();
     }
 
     public static void Postfix(PlayerControl __instance)
@@ -48,6 +48,8 @@ internal static class LocalPetPatch
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
 
         __instance.petting = false;
+        
+        if (!Main.CancelPetAnimation.Value) LateTask.New(() => __instance.MyPhysics?.CancelPet(), 0.4f, log: false);
     }
 }
 
@@ -112,7 +114,8 @@ internal static class ExternalRpcPetPatch
             Pelican.IsEaten(pc.PlayerId) ||
             Penguin.IsVictim(pc) ||
             !AmongUsClient.Instance.AmHost ||
-            GameStates.IsLobby
+            GameStates.IsLobby ||
+            AntiBlackout.SkipTasks
             )
             return;
 
@@ -149,9 +152,13 @@ internal static class ExternalRpcPetPatch
         if (target != null) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
+        
+        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        
         bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
 
-        if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
+        if (!pc.CanUseKillButton() && !alwaysPetRole)
+            hasKillTarget = false;
 
         if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {

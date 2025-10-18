@@ -10,6 +10,8 @@ public class TextOptionItem : OptionItem
         IsHeader = true;
     }
 
+    public bool CollapsesSection { get; set; } = false;
+
     // Getter
     public override int GetInt()
     {

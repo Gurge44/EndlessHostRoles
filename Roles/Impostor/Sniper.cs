@@ -377,13 +377,9 @@ public class Sniper : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (Options.UsePets.GetBool())
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
             hud.PetButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
         else
-        {
-            if (IsSniper(id)) hud.AbilityButton.SetUsesRemaining(bulletCount);
-
             hud.AbilityButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
-        }
     }
 }

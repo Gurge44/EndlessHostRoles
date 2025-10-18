@@ -116,12 +116,9 @@ public class Disperser : RoleBase
     {
         __instance.AbilityButton.ToggleVisible(GetPlayerById(id).IsAlive());
 
-        if (UsePets.GetBool())
+        if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
             __instance.PetButton?.OverrideText(GetString("DisperserVentButtonText"));
         else
-        {
             __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
-            __instance.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
-        }
     }
 }

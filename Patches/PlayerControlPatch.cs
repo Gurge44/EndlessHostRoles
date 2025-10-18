@@ -279,6 +279,7 @@ internal static class CheckMurderPatch
                     if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Length <= 2))
                         HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                     return false;
+                case CustomGameMode.Mingle:
                 case CustomGameMode.TheMindGame:
                 case CustomGameMode.MoveAndStop:
                 case CustomGameMode.RoomRush:
@@ -302,6 +303,9 @@ internal static class CheckMurderPatch
                     return false;
                 case CustomGameMode.BedWars:
                     BedWars.OnCheckMurder(killer, target);
+                    return false;
+                case CustomGameMode.Deathrace:
+                    Deathrace.OnCheckMurder(killer, target);
                     return false;
             }
 
@@ -351,7 +355,7 @@ internal static class CheckMurderPatch
                         return false;
                 }
 
-                bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target) || target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId);
+                bool CheckMurder() => target.Is(CustomRoles.Fragile) || Ambusher.FragilePlayers.ContainsKey(target.PlayerId) || Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target);
             }
 
             if (!killer.RpcCheckAndMurder(target, true)) return false;
@@ -1064,7 +1068,7 @@ internal static class ReportDeadBodyPatch
 
             if (target != null)
             {
-                if (Bloodhound.UnreportablePlayers.Contains(target.PlayerId)
+                if (Coroner.UnreportablePlayers.Contains(target.PlayerId)
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)
                     || (killer != null && killer.Is(CustomRoles.Goddess))
                     || Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
@@ -1165,13 +1169,13 @@ internal static class ReportDeadBodyPatch
         LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
 
         CustomNetObject.OnMeeting();
+        
+        FastDestroyableSingleton<HudManager>.Instance.SetRolePanelOpen(false);
 
         Asthmatic.RunChecks = false;
 
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
-
-        HudSpritePatch.ResetButtonIcons = true;
 
         if (Options.CurrentGameMode == CustomGameMode.Standard)
         {
@@ -1271,7 +1275,7 @@ internal static class ReportDeadBodyPatch
             if (Main.Invisible.Contains(pc.PlayerId))
                 LateTask.New(() => pc.RpcMakeVisible(), 1f, log: false);
 
-            PhantomRolePatch.OnReportDeadBody(pc);
+            // PhantomRolePatch.OnReportDeadBody(pc);
         }
 
         EAC.TimeSinceLastTaskCompletion.Clear();
@@ -1374,7 +1378,6 @@ internal static class FixedUpdatePatch
     private static readonly Dictionary<byte, long> LastAddAbilityTime = [];
     private static long LastErrorTS;
     private static long LastSelfNameUpdateTS;
-    private static readonly Dictionary<byte, TextMeshPro> RoleTextTMPs = [];
 
     public static void Postfix(PlayerControl __instance, bool lowLoad)
     {
@@ -1483,7 +1486,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.BedWars && GameStartTimeStamp + 44 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1559,13 +1562,14 @@ internal static class FixedUpdatePatch
                     player.RpcGuardAndKill(player);
 
                     var state = Main.PlayerStates[player.PlayerId];
-                    state.RemoveSubRole(CustomRoles.Fragile);
-                    state.RemoveSubRole(CustomRoles.Unbound);
+                    state.SubRoles
+                        .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Trapper or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
+                        .ForEach(x => state.RemoveSubRole(x));
 
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
 
-                    player.ResetKillCooldown();
+                    player.SetKillCooldown(5f);
                     PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 
@@ -1652,23 +1656,13 @@ internal static class FixedUpdatePatch
                 player.RpcSetName(name);
         }
 
-        if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
-        {
-            RoleTextTMPs.Clear();
-            return;
-        }
-
-        if (!RoleTextTMPs.TryGetValue(__instance.PlayerId, out TextMeshPro roleText) || roleText == null)
-        {
-            Transform roleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
-            RoleTextTMPs[__instance.PlayerId] = roleText = roleTextTransform.GetComponent<TextMeshPro>();
-        }
+        if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz) || DirtyName.Remove(lpId));
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
-        if (roleText == null || __instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
+        if (__instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
         if (self) LastSelfNameUpdateTS = now;
 
@@ -1692,51 +1686,49 @@ internal static class FixedUpdatePatch
 
         if (GameStates.IsInGame)
         {
-            if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard)
-            {
-                roleText.text = string.Empty;
-                roleText.enabled = false;
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard) return;
 
             bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
-            (string, Color) roleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
 
-            roleText.text = roleTextData.Item1;
-            roleText.color = roleTextData.Item2;
+            string roleText;
+            bool hideRoleText = false;
 
-            if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek) roleText.text = string.Empty;
-
-            roleText.enabled = IsRoleTextEnabled(__instance);
-
-            if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
+            if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek || !IsRoleTextEnabled(__instance))
             {
-                roleText.text = Farseer.RandomRole[lpId];
-                roleText.text += Farseer.GetTaskState();
+                roleText = string.Empty;
+                hideRoleText = true;
+            }
+            else
+            {
+                (string, Color) roleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
+                roleText = ColorString(roleTextData.Item2, roleTextData.Item1);
+            }
+
+            if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
+            {
+                roleText = Farseer.RandomRole[lpId];
+                roleText += Farseer.GetTaskState();
             }
 
             if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
             {
-                roleText.enabled = false;
+                roleText = string.Empty;
+                hideRoleText = true;
                 if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
             }
 
-            var isProgressTextLong = false;
             string progressText = GetProgressText(__instance);
 
             if (progressText.RemoveHtmlTags().Length > 25 && Main.VisibleTasksCount)
-            {
-                isProgressTextLong = true;
                 progressText = $"\n{progressText}";
-            }
 
             bool moveandstop = Options.CurrentGameMode == CustomGameMode.MoveAndStop;
 
-            if (Main.VisibleTasksCount)
+            if (!hideRoleText && Main.VisibleTasksCount)
             {
-                if (moveandstop) roleText.text = roleText.text.Insert(0, progressText);
-                else roleText.text += progressText;
+                if (moveandstop) roleText = roleText.Insert(0, progressText);
+                else roleText += progressText;
             }
 
             PlayerControl seer = PlayerControl.LocalPlayer;
@@ -1745,14 +1737,12 @@ internal static class FixedUpdatePatch
             if (target.Is(CustomRoles.Car))
             {
                 target.cosmetics.nameText.text = Car.Name;
-                roleText.enabled = false;
                 return;
             }
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true })
             {
                 target.cosmetics.nameText.text = Tree.Sprite;
-                roleText.enabled = false;
                 return;
             }
 
@@ -1956,13 +1946,19 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.BedWars:
                     additionalSuffixes.Add(BedWars.GetSuffix(seer, target));
                     break;
+                case CustomGameMode.Deathrace:
+                    additionalSuffixes.Add(Deathrace.GetSuffix(seer, target, false));
+                    break;
+                case CustomGameMode.Mingle when self:
+                    additionalSuffixes.Add(Mingle.GetSuffix(seer));
+                    break;
             }
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
             List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
-            if (addSuff.Count > 0) Suffix.Append("\n" + string.Join('\n', addSuff));
+            if (addSuff.Count > 0) Suffix.Append(string.Join('\n', addSuff));
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
@@ -1980,54 +1976,20 @@ internal static class FixedUpdatePatch
             if (!self && Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
+            if (!hideRoleText)
+            {
+                if (!Options.LargerRoleTextSize.GetBool())
+                    roleText = $"<size=1.7>{roleText}</size>\n";
+                else
+                    roleText += "\n";
+            }
+            else
+                roleText = string.Empty;
+            
             string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\r\n" : " - ";
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
-            string currentText = target.cosmetics.nameText.text;
-            var changeTo = $"{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
-            bool needUpdate = currentText != changeTo;
-
-            if (needUpdate)
-            {
-                target.cosmetics.nameText.text = changeTo;
-
-                var offset = 0.1f;
-
-                if (self && NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
-                {
-                    int count = notify.Count(x => x == '\n');
-                    for (var i = 0; i < count; i++) offset += 0.15f;
-                }
-
-                if (Suffix.ToString() != string.Empty)
-                {
-                    offset += moveandstop ? 0.15f : 0.1f;
-                    offset += moveandstop ? 0f : Suffix.ToString().Count(x => x == '\n') * 0.15f;
-                }
-
-                if (!seer.IsAlive())
-                    offset += 0.1f;
-
-                if (isProgressTextLong)
-                    offset += 0.3f;
-
-                if (moveandstop)
-                    offset += 0.3f;
-
-                if (Suffix.ToString().Contains(GetString("MoveAndStop_Tutorial")))
-                    offset += 0.8f;
-
-                if (Options.LargerRoleTextSize.GetBool())
-                    offset += 0.05f;
-
-                roleText.transform.SetLocalY(offset);
-                target.cosmetics.colorBlindText.transform.SetLocalY(-(offset + 0.2f));
-            }
-        }
-        else
-        {
-            // Restoring the position text coordinates to their initial values
-            roleText.transform.SetLocalY(0.1f);
+            target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
         }
     }
 
@@ -2040,7 +2002,7 @@ internal static class FixedUpdatePatch
         if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
         {
             if (player.Is(CustomRoles.Bloodlust)) add *= 5;
-
+            if (player.Is(CustomRoles.Composter)) add *= Composter.AbilityUseGainMultiplier.GetFloat();
             player.RpcIncreaseAbilityUseLimitBy(add);
         }
     }
@@ -2068,25 +2030,6 @@ internal static class FixedUpdatePatch
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
         else
             partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
-    }
-}
-
-[HarmonyPatch(typeof(PlayerControl._Start_d__82), nameof(PlayerControl._Start_d__82.MoveNext))]
-internal static class PlayerStartPatch
-{
-    public static void Postfix(PlayerControl._Start_d__82 __instance, ref bool __result)
-    {
-        try
-        {
-            if (__result || __instance == null || __instance.__4__this == null || __instance.__4__this.PlayerId >= 254 || __instance.__4__this.cosmetics == null) return;
-            TextMeshPro nameText = __instance.__4__this.cosmetics.nameText;
-            TextMeshPro roleText = Object.Instantiate(nameText, nameText.transform, true);
-            if (!Options.LargerRoleTextSize.GetBool()) roleText.fontSize -= 0.9f;
-            roleText.text = "RoleText";
-            roleText.gameObject.name = "RoleText";
-            roleText.enabled = false;
-        }
-        catch { }
     }
 }
 
@@ -2311,6 +2254,8 @@ public static class PlayerControlCheckUseZiplinePatch
 
         Logger.Info($"{__instance.GetNameWithRole()}, target: {target.GetNameWithRole()}, {(fromTop ? $"from Top, travel time: {ziplineBehaviour.downTravelTime}s" : $"from Bottom, travel time: {ziplineBehaviour.upTravelTime}s")}", "Zipline Use");
 
+        if (Options.CurrentGameMode == CustomGameMode.Deathrace) return true;
+        
         if (AmongUsClient.Instance.AmHost)
         {
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;

@@ -56,7 +56,7 @@ internal class Rabbit : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != target.PlayerId || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
+        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
 
         string suffix = state.Suffix;
         return hud ? $"<size=200%>{suffix}</size>" : suffix;

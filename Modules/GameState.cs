@@ -71,6 +71,7 @@ public class PlayerState(byte playerId)
         Taxes,
         DidntVote,
         SkippedVote,
+        Deafened,
 
         // Natural Disasters
         Meteor,
@@ -193,8 +194,6 @@ public class PlayerState(byte playerId)
 
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
-
-            HudSpritePatch.ResetButtonIcons = true;
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -227,9 +226,6 @@ public class PlayerState(byte playerId)
             SubRoles.Add(role);
 
         SetAddonCountTypes(role);
-
-        if (Main.IntroDestroyed && GameStates.InGame)
-            HudSpritePatch.ResetButtonIcons = true;
 
         Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
     }
@@ -450,7 +446,7 @@ public class TaskState
             GameData.Instance.RecomputeTaskCounts();
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
-            if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.TheMindGame)
+            if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.Mingle)
                 player.Notify(Translator.GetString("DoingTasksIsPointlessInThisGameMode"), 10f);
 
             if (AllTasksCount == -1) Init(player);
@@ -489,7 +485,12 @@ public class TaskState
                     }
 
                     float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
-                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
+                    
+                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
+                    {
+                        if (player.Is(CustomRoles.Composter)) add *= Composter.AbilityUseGainMultiplier.GetFloat();
+                        player.RpcIncreaseAbilityUseLimitBy(add);
+                    }
                 }
 
                 try { Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount); }

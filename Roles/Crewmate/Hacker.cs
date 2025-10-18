@@ -34,10 +34,12 @@ public class Hacker : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Hacker);
 
-        AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
 
-        UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
 
         HackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
@@ -48,13 +50,15 @@ public class Hacker : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
 
-        ModdedClientAbilityUseSecondsMultiplier = new FloatOptionItem(Id + 14, "HackerModdedClientAbilityUseSecondsMultiplier", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        ModdedClientAbilityUseSecondsMultiplier = new FloatOptionItem(Id + 14, "HackerModdedClientAbilityUseSecondsMultiplier", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
 
         ModdedClientCanMoveWhileViewingMap = new BooleanOptionItem(Id + 15, "HackerModdedClientCanMoveWhileViewingMap", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker]);
 
-        VanillaClientSeesInfoFor = new FloatOptionItem(Id + 16, "HackerVanillaClientSeesInfoFor", new(0f, 70f, 1f), 4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        VanillaClientSeesInfoFor = new FloatOptionItem(Id + 16, "HackerVanillaClientSeesInfoFor", new(0f, 70f, 1f), 4f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
     }
 

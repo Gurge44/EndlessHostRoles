@@ -211,7 +211,8 @@ public class Romantic : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!lowLoad && (Partner == null || Partner.Data == null || Partner.Data.Disconnected || !Partner.IsAlive()) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic)) ChangeRole();
+        if (!lowLoad && ((Partner != null && Partner.Data != null && !Partner.Data.Disconnected && !Partner.IsAlive()) || (Main.PlayerStates.TryGetValue(PartnerId, out var state) && state.IsDead)) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
+            ChangeRole();
     }
 
     public static string TargetMark(PlayerControl seer, PlayerControl target)

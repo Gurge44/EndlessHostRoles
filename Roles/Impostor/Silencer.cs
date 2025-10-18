@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
+using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -21,7 +23,8 @@ public class Silencer : RoleBase
     private static readonly string[] SilenceModes =
     [
         "EKill",
-        "Shapeshift"
+        "Shapeshift",
+        "Vanish"
     ];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -58,8 +61,17 @@ public class Silencer : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
-        AURoleOptions.ShapeshifterDuration = 1f;
+        switch (SilenceMode.GetValue())
+        {
+            case 1:
+                AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+                break;
+            case 2:
+                AURoleOptions.PhantomCooldown = SkillCooldown.GetFloat();
+                AURoleOptions.PhantomDuration = 1f;
+                break;
+        }
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -89,6 +101,31 @@ public class Silencer : RoleBase
             ForSilencer.Add(target.PlayerId);
 
             if (shapeshifter.IsLocalPlayer())
+            {
+                LocalPlayerTotalSilences++;
+                if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
+
+                if (target.Is(CustomRoles.Snitch) && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
+                    Achievements.Type.YouWontTellAnyone.Complete();
+            }
+        }
+
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (SilenceMode.GetValue() == 2 && ForSilencer.Count == 0)
+        {
+            var pos = pc.Pos();
+            var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+            var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => !x.IsImpostor()).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
+            PlayerControl target = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
+            if (target == null) return false;
+            
+            ForSilencer.Add(target.PlayerId);
+
+            if (pc.IsLocalPlayer())
             {
                 LocalPlayerTotalSilences++;
                 if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();

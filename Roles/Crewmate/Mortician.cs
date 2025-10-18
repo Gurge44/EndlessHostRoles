@@ -82,11 +82,8 @@ public class Mortician : RoleBase
     {
         if (ShowArrows.GetBool())
         {
-            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-            if (seer.PlayerId != MorticianId) return string.Empty;
-
-            return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
+            if (target != null && seer.PlayerId != target.PlayerId || seer.PlayerId != MorticianId || hud) return string.Empty;
+            return meeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }
 
         return string.Empty;

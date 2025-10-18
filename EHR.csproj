@@ -8,7 +8,8 @@
         <Description>EHR</Description>
         <Authors>Gurge44</Authors>
         <langVersion>preview</langVersion>
-        <AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>
+        <!--<AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>-->
+        <AmongUs>C:\Program Files\Epic Games\AmongUs</AmongUs>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Optimize>True</Optimize>
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>
@@ -27,8 +28,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AmongUs.GameLibs.Steam" Version="2025.9.9" PrivateAssets="all" Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug'" />
-        <PackageReference Include="AmongUs.GameLibs.Android" Version="2025.6.10" PrivateAssets="all" Condition="'$(Configuration)' == 'Android'"/>
+        <PackageReference Include="AmongUs.GameLibs.Steam" Version="2025.10.14" PrivateAssets="all" Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug'" />
+        <PackageReference Include="AmongUs.GameLibs.Android" Version="2025.9.9" PrivateAssets="all" Condition="'$(Configuration)' == 'Android'"/>
         <PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.1.0-rc.1"/>
         <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.735" Private="false" ExcludeAssets="runtime;native"/>
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />

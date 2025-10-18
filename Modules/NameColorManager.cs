@@ -46,6 +46,7 @@ public static class NameColorManager
                 if (FreeForAll.PlayerTeams.TryGetValue(target.PlayerId, out int team))
                     color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
+            case CustomGameMode.Mingle:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.MoveAndStop:
@@ -77,6 +78,8 @@ public static class NameColorManager
             case CustomGameMode.BedWars:
                 color = BedWars.GetNameColor(target);
                 return true;
+            case CustomGameMode.Deathrace:
+                return Deathrace.KnowRoleColor(seer, target, out color);
         }
 
         RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;

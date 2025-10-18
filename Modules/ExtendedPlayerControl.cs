@@ -69,7 +69,7 @@ internal static class ExtendedPlayerControl
     public static bool UsesMeetingShapeshift(this PlayerControl player)
     {
         CustomRoles role = player.GetCustomRole();
-        if (player.IsModdedClient() && role is CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Mafia) return false;
+        if (player.IsModdedClient() && role is CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Nemesis) return false;
         return role.UsesMeetingShapeshift();
     }
 
@@ -96,6 +96,8 @@ internal static class ExtendedPlayerControl
                 return false;
             case CustomGameMode.MoveAndStop:
                 return MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.VentAccess;
+            case CustomGameMode.Deathrace:
+                return Deathrace.CanUseVent(player, ventId);
         }
 
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
@@ -127,10 +129,60 @@ internal static class ExtendedPlayerControl
 
         return vents;
     }
+    
+    // Next 2 from https://github.com/Rabek009/MoreGamemodes/blob/master/Roles/Impostor/Concealing/Droner.cs
+
+    public static void RevertFreeze(this PlayerControl pc, Vector2 realPosition)
+    {
+        pc.NetTransform.SnapTo(realPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
+        CustomRpcSender sender = CustomRpcSender.Create("Explosivist Revert", SendOption.Reliable);
+        sender.StartMessage();
+        sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            .WriteVector2(pc.transform.position)
+            .Write((ushort)(pc.NetTransform.lastSequenceId + 32767))
+            .EndRpc();
+        sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            .WriteVector2(pc.transform.position)
+            .Write((ushort)(pc.NetTransform.lastSequenceId + 32767 + 16383))
+            .EndRpc();
+        sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+            .WriteVector2(pc.transform.position)
+            .Write(pc.NetTransform.lastSequenceId)
+            .EndRpc();
+        sender.EndMessage();
+        sender.SendMessage();
+        NumSnapToCallsThisRound += 3;
+        pc.Visible = true;
+    }
+
+    public static void FreezeForOthers(this PlayerControl player)
+    {
+        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        {
+            if (pc == player || pc.AmOwner) continue;
+            CustomRpcSender sender = CustomRpcSender.Create("Explosivist", SendOption.Reliable);
+            sender.StartMessage(pc.GetClientId());
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(player.transform.position)
+                .Write(player.NetTransform.lastSequenceId)
+                .EndRpc();
+            sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
+                .WriteVector2(player.transform.position)
+                .Write((ushort)(player.NetTransform.lastSequenceId + 16383))
+                .EndRpc();
+            sender.EndMessage();
+            sender.SendMessage();
+            NumSnapToCallsThisRound += 2;
+        }
+
+        player.Visible = false;
+    }
 
     // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
     public static void SetChatVisible(this PlayerControl player, bool visible)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
+        
         Logger.Info($"Setting the chat {(visible ? "visible" : "hidden")} for {player.GetNameWithRole()}", "SetChatVisible");
 
         if (player.AmOwner)
@@ -363,6 +415,7 @@ internal static class ExtendedPlayerControl
         writer.Write((ushort)roleTypes);
         writer.Write(true);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        Logger.Info($" {player.GetNameWithRole()} => {roleTypes}", "RpcSetRoleGlobal");
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
@@ -394,6 +447,8 @@ internal static class ExtendedPlayerControl
         writer.Write((ushort)role);
         writer.Write(true);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        
+        Logger.Info($" {player.GetNameWithRole()} => {role} - for {GetClientById(clientId)?.Character?.GetNameWithRole() ?? "Someone"}", "RpcSetRoleDesync");
     }
 
     public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(this PlayerControl player, byte targetId = byte.MaxValue)
@@ -416,6 +471,7 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         TempExiled.Remove(player.PlayerId);
+        if (Options.CurrentGameMode == CustomGameMode.Standard) Main.PlayerStates[player.PlayerId].Role.AfterMeetingTasks();
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
         player.ResetKillCooldown();
@@ -755,7 +811,7 @@ internal static class ExtendedPlayerControl
         LateTask.New(() =>
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
-            player.SyncSettings();
+            player.MarkDirtySettings();
         }, duration, "RemoveKillFlash");
 
         if (player.AmOwner)
@@ -768,9 +824,9 @@ internal static class ExtendedPlayerControl
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.KillFlash, SendOption.Reliable, player.OwnerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        else if (!reactorCheck) player.ReactorFlash(); // Reactor flash
+        else if (!reactorCheck) player.ReactorFlash(canBlind: false); // Reactor flash
 
-        player.SyncSettings();
+        player.MarkDirtySettings();
     }
 
     public static void RpcGuardAndKill(this PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
@@ -938,7 +994,7 @@ internal static class ExtendedPlayerControl
             if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return;
         }
 
-        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks) return;
+        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return;
 
         player.AddKillTimerToDict(cd: time);
         if (target == null) target = player;
@@ -1082,7 +1138,7 @@ internal static class ExtendedPlayerControl
     {
         try
         {
-            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars;
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
             return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
         catch (Exception e)
@@ -1224,7 +1280,7 @@ internal static class ExtendedPlayerControl
         }, 1f + (AmongUsClient.Instance.Ping / 1000f), log: false);
     }
 
-    public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN)
+    public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN, bool canBlind = true)
     {
         if (pc == null) return;
 
@@ -1237,15 +1293,15 @@ internal static class ExtendedPlayerControl
             _ => SystemTypes.Reactor
         };
 
-        if (IsActive(systemtypes))
+        if (canBlind && IsActive(systemtypes))
         {
             Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
-            pc.SyncSettings();
+            pc.MarkDirtySettings();
 
             LateTask.New(() =>
             {
                 Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                pc.SyncSettings();
+                pc.MarkDirtySettings();
             }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix BlackOut Reactor Flash");
 
             return;
@@ -1351,11 +1407,11 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || !pc.IsAlive()) return false;
+        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || IntroCutsceneDestroyPatch.PreventKill || !pc.IsAlive()) return false;
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame:
+            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame or CustomGameMode.Mingle:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.HotPotato:
@@ -1365,6 +1421,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.BedWars:
+            case CustomGameMode.Deathrace:
                 return true;
         }
 
@@ -1424,6 +1481,8 @@ internal static class ExtendedPlayerControl
             CustomGameMode.RoomRush => false,
             CustomGameMode.Quiz => false,
             CustomGameMode.TheMindGame => false,
+            CustomGameMode.Mingle => false,
+            CustomGameMode.Deathrace => Deathrace.CanUseVent(pc, pc.GetClosestVent().Id),
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
             CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
@@ -1729,6 +1788,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.KOTZPlayer => KingOfTheZones.KCD,
             CustomRoles.QuizPlayer => 3f,
             CustomRoles.BedWarsPlayer => 1f,
+            CustomRoles.Racer => 3f,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
@@ -1940,6 +2000,8 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
+            Vacuum.BeforeMurderCheck(target);
+            
             killer.RpcMurderPlayer(target, true);
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && !state.IsDead)
@@ -2048,7 +2110,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsSnitchTarget(this PlayerControl player)
     {
-        return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers.Contains(player.PlayerId) || player.GetCustomRole().IsSnitchTarget();
+        return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers.Contains(player.PlayerId) || Snitch.IsSnitchTarget(player);
     }
 
     public static bool IsMadmate(this PlayerControl player)
