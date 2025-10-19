@@ -1379,6 +1379,7 @@
   "ShowArrows": "دارای پیکان‌هایی به سمت اجساد",
   "ArrowDelayMin": "حداقل تأخیر در نمایش پیکان",
   "ArrowDelayMax": "حداکثر تأخیر در نمایش پیکان",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "کولداون کُشتن برای خیمه‌شب‌باز (Puppeteer)",
   "PuppeteerCD": "کولداون عروسک (Puppet)",
   "PuppeteerUsesRemaining": "شما {0} عروسک باقی‌مانده دارید",
