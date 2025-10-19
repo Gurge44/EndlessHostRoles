@@ -454,18 +454,14 @@ public static class HudSpritePatch
                 default:
                 {
                     if (ForceUpdate || usesPetInsteadOfKill) break;
+                    SetButtonColors();
                     return;
                 }
             }
 
             if (usesPetInsteadOfKill) newPetButton = newKillButton;
             
-            
-            var roleColor = Utils.GetRoleColor(player.GetCustomRole());
-                        
-            foreach (var button in new ActionButton[] { __instance.KillButton, __instance.AbilityButton, __instance.ImpostorVentButton, __instance.SabotageButton, __instance.PetButton, __instance.ReportButton })
-                button.buttonLabelText.SetOutlineColor(roleColor);
-
+            SetButtonColors();
 
             __instance.KillButton.graphic.sprite = newKillButton;
             __instance.AbilityButton.graphic.sprite = newAbilityButton;
@@ -485,6 +481,14 @@ public static class HudSpritePatch
             }.Do(x => x.SetCooldownNormalizedUvs());
             
             ForceUpdate = false;
+
+            void SetButtonColors()
+            {
+                var roleColor = Utils.GetRoleColor(player.GetCustomRole());
+
+                foreach (var button in new ActionButton[] { __instance.KillButton, __instance.AbilityButton, __instance.ImpostorVentButton, __instance.SabotageButton, __instance.PetButton, __instance.ReportButton })
+                    button.buttonLabelText.SetOutlineColor(roleColor);
+            }
         }
         catch (Exception e)
         {

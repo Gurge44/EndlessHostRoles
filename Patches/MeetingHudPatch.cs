@@ -1256,6 +1256,7 @@ internal static class MeetingHudOnDestroyPatch
         if (AmongUsClient.Instance.AmHost)
         {
             GameEndChecker.ShouldNotCheck = true;
+            LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 15f, "Re-enable GameEndChecker after meeting");
             
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
 

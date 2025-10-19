@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EHR.AddOns.Impostor;
@@ -21,7 +22,8 @@ public class Tired : IAddon
 
     public static void Reset()
     {
-        KillsThisRound = Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Tired)).ToDictionary(x => x.PlayerId, _ => 0);
+        try { KillsThisRound = Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Tired)).ToDictionary(x => x.PlayerId, _ => 0); }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
     
     public static void OnMurder(byte killerId)

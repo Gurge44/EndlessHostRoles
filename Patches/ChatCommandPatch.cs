@@ -495,13 +495,13 @@ internal static class ChatCommands
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SelectCommand), text);
+            RequestCommandProcessingFromHost(nameof(FabricateCommand), text);
             return;
         }
 
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Fabricator fab) return;
         
-        if (args.Length < 2 || !Enum.GetValues<PlayerState.DeathReason>().FindFirst(x => GetString(x.ToString()).Replace(" ", string.Empty).Equals(args[1].Replace(" ", string.Empty), StringComparison.OrdinalIgnoreCase), out PlayerState.DeathReason newDeathReason))
+        if (args.Length < 2 || !Enum.GetValues<PlayerState.DeathReason>().FindFirst(x => GetString($"DeathReason.{x}").Replace(" ", string.Empty).Equals(args[1].Replace(" ", string.Empty), StringComparison.OrdinalIgnoreCase), out PlayerState.DeathReason newDeathReason))
         {
             Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Fabricator.InvalidDeathReason"), args.Length >= 2 ? args[1] : ""));
             return;
@@ -509,7 +509,7 @@ internal static class ChatCommands
 
         fab.NextDeathReason = newDeathReason;
         
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Fabricator.SetDeathReason"), GetString(newDeathReason.ToString())));
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Fabricator.SetDeathReason"), GetString($"DeathReason.{newDeathReason}")));
         
         MeetingManager.SendCommandUsedMessage(args[0]);
     }

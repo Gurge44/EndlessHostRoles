@@ -160,6 +160,8 @@ internal static class ExternalRpcPetPatch
         if (!pc.CanUseKillButton() && !alwaysPetRole)
             hasKillTarget = false;
 
+        RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
+
         if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {
             if (Options.CurrentGameMode != CustomGameMode.Speedrun)
@@ -173,16 +175,16 @@ internal static class ExternalRpcPetPatch
             PlagueBearer.CheckAndSpreadInfection(pc, target);
             PlagueBearer.CheckAndSpreadInfection(target, pc);
 
-            if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
+            if (roleBase.OnCheckMurder(pc, target))
                 pc.RpcCheckAndMurder(target);
 
             if (alwaysPetRole) pc.SetKillCooldown();
         }
-        else Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
+        else roleBase.OnPet(pc);
 
         Skip:
 
-        if (pc.HasAbilityCD() || Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true }) return;
+        if (pc.HasAbilityCD() || roleBase is Sniper { IsAim: true } or Centralizer { MarkedPosition: not null } or Escapee { EscapeeLocation: not null }) return;
 
         pc.AddAbilityCD();
     }
