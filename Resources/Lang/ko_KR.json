@@ -1379,6 +1379,7 @@
   "ShowArrows": "Has Arrows pointing toward bodies",
   "ArrowDelayMin": "Minimum Arrow show-up delay",
   "ArrowDelayMax": "Maximum Arrow show-up delay",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "Puppeteer Kill Cooldown",
   "PuppeteerCD": "Puppet Cooldown",
   "PuppeteerUsesRemaining": "You have {0} puppets remaining",
