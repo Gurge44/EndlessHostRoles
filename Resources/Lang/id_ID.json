@@ -1379,6 +1379,7 @@
   "ShowArrows": "Ada Panah Tertuju Pada Mayat",
   "ArrowDelayMin": "Minimum Jeda Muncul Panah",
   "ArrowDelayMax": "Maksimum Jeda Muncul Panah",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "Puppeteer Kill Cooldown",
   "PuppeteerCD": "Puppet Cooldown",
   "PuppeteerUsesRemaining": "You have {0} puppets remaining",
