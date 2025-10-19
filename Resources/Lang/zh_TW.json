@@ -1379,6 +1379,7 @@
   "ShowArrows": "有指向屍體的箭頭",
   "ArrowDelayMin": "箭頭最短延遲時間",
   "ArrowDelayMax": "箭頭最長延遲時間",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "傀儡師擊殺冷卻時間",
   "PuppeteerCD": "傀儡冷卻時間",
   "PuppeteerUsesRemaining": "你還有 {0} 個傀儡",
