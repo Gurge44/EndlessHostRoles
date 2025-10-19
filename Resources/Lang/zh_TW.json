@@ -9381,7 +9381,7 @@
   "RememberButtonText": "回憶",
   "CanRememberCrewPower": "可以回憶 <#8cffff>船員</color> <#fbff00>力量型</color> 職業",
   "ReportBodyAfterRemember": "通過報告回憶身分後發起報告",
-  "RememberAddons": "Also Remember Add-ons",
+  "RememberAddons": "並且記住附加職業",
   "HasArrowsToDeadBodies": "看到指向屍體的箭頭（如果透過報告記住的話）",
   "IncompatibleNeutralMode": "如果中立不兼容則職業變成",
   "ImmuneToAttacksWhenTasksDone": "完成任務後免疫擊殺",
