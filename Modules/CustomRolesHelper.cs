@@ -1288,6 +1288,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Hangman or
                 CustomRoles.Mastermind or
                 CustomRoles.Ninja or
+                CustomRoles.OverKiller or
                 CustomRoles.Penguin or
                 CustomRoles.Postponer or
                 CustomRoles.Puppeteer or
