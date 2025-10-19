@@ -9155,6 +9155,7 @@
   "Centralizer": "Centralizer",
   "CentralizerInfo": "Centralize Players' Locations",
   "CentralizerInfoLong": "(Impostors):\\nAs the Centralizer, mark a position. Then use your ability again to teleport a certain number of players to that position. You may also be included.",
+  "Centralizer.NumPlayersTeleported": "Number of Players Teleported",
   "Vacuum": "Vacuum",
   "VacuumInfo": "Suck In Dead Bodies",
   "VacuumInfoLong": "(Crewmates):\\nAs the Vacuum, while using your ability, all kills' bodies will teleport to you.",
