@@ -1255,6 +1255,8 @@ internal static class MeetingHudOnDestroyPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
+            GameEndChecker.ShouldNotCheck = true;
+            
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
 
             if (meetingSS && Options.UseMeetingShapeshiftForGuessing.GetBool())

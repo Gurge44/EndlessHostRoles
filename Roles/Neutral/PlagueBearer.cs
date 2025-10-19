@@ -19,6 +19,7 @@ public class PlagueBearer : RoleBase
     public static OptionItem PestilenceCDOpt;
     public static OptionItem PestilenceCanVent;
     public static OptionItem PestilenceHasImpostorVision;
+    public static OptionItem InfectionSpreads;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -38,6 +39,9 @@ public class PlagueBearer : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
 
         PestilenceHasImpostorVision = new BooleanOptionItem(Id + 13, "PestilenceHasImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
+        
+        InfectionSpreads = new BooleanOptionItem(Id + 14, "InfectionSpreads", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
     }
 
@@ -76,13 +80,13 @@ public class PlagueBearer : RoleBase
         return PlaguedList.TryGetValue(pc, out List<byte> x) && x.Contains(target);
     }
 
-    public static void SendRPC(PlayerControl player, PlayerControl target)
+    private static void SendRPC(byte player, byte target)
     {
         if (!Utils.DoRPC) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetPlaguedPlayer, SendOption.Reliable);
-        writer.Write(player.PlayerId);
-        writer.Write(target.PlayerId);
+        writer.Write(player);
+        writer.Write(target);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -125,7 +129,7 @@ public class PlagueBearer : RoleBase
         }
 
         PlaguedList[killer.PlayerId].Add(target.PlayerId);
-        SendRPC(killer, target);
+        SendRPC(killer.PlayerId, target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
@@ -141,6 +145,15 @@ public class PlagueBearer : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(false);
+    }
+
+    public static void CheckAndSpreadInfection(PlayerControl pc, PlayerControl target)
+    {
+        if (PlayerIdList.Count == 0 || !InfectionSpreads.GetBool()) return;
+        if (!PlaguedList.FindFirst(x => x.Value.Contains(pc.PlayerId) && !x.Value.Contains(target.PlayerId), out KeyValuePair<byte, List<byte>> kvp)) return;
+        kvp.Value.Add(target.PlayerId);
+        SendRPC(kvp.Key, target.PlayerId);
+        Utils.NotifyRoles(SpecifySeer: kvp.Key.GetPlayer(), SpecifyTarget: target);
     }
 }
 
@@ -186,10 +199,11 @@ public class Pestilence : RoleBase
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
+        if (killer == null || target == null || !killer.IsAlive()) return false;
 
         killer.SetRealKiller(target);
         target.Kill(killer);
+        target.SetKillCooldown(1f);
 
         if (target.IsLocalPlayer())
             Achievements.Type.YoureTooLate.Complete();

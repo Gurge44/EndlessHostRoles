@@ -169,6 +169,9 @@ internal static class ExternalRpcPetPatch
             if (!Starspawn.CheckInteraction(pc, target)) goto Skip;
 
             Seamstress.OnAnyoneCheckMurder(pc, target);
+            
+            PlagueBearer.CheckAndSpreadInfection(pc, target);
+            PlagueBearer.CheckAndSpreadInfection(target, pc);
 
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
                 pc.RpcCheckAndMurder(target);

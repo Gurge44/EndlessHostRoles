@@ -140,6 +140,9 @@ public static class Utils
                 }, 8f, "Anti-Black Exit Game");
             }
         }
+
+        try { FastDestroyableSingleton<LoadingBarManager>.Instance.ToggleLoadingBar(false); }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static void CheckAndSetVentInteractions()
@@ -938,7 +941,7 @@ public static class Utils
             case CustomRoles.Cultist:
             case CustomRoles.Necromancer:
             case CustomRoles.Deathknight:
-            case CustomRoles.Amnesiac:
+            case CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 1:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
@@ -958,6 +961,7 @@ public static class Utils
             case CustomRoles.Doomsayer:
                 hasTasks = false;
                 break;
+            case CustomRoles.Amnesiac:
             case CustomRoles.Dad when ((Dad)state.Role).DoneTasks:
             case CustomRoles.Workaholic:
             case CustomRoles.Terrorist:
@@ -3393,11 +3397,10 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
+        LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 1f, "Enable GameEndChecker");
+        
         if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
-        {
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
-            GameEndChecker.CheckCustomEndCriteria();
-        }
 
         AFKDetector.NumAFK = 0;
         AFKDetector.PlayerData.Clear();
@@ -3490,6 +3493,7 @@ public static class Utils
         Stressed.AfterMeetingTasks();
         Circumvent.AfterMeetingTasks();
         Deadlined.AfterMeetingTasks();
+        Tired.Reset();
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();
@@ -3613,6 +3617,7 @@ public static class Utils
                 Anonymous.AddDeadBody(target);
                 Mortician.OnPlayerDead(target);
                 Tracefinder.OnPlayerDead(target);
+                Amnesiac.OnAnyoneDead(target);
                 Scout.OnPlayerDeath(target);
                 Dad.OnAnyoneDeath(target);
                 Crewmate.Sentry.OnAnyoneMurder(target);

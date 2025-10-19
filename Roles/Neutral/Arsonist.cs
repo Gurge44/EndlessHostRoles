@@ -54,7 +54,7 @@ internal class Arsonist : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return ArsonistCanIgniteAnytime.GetBool() ? Utils.GetDousedPlayerCount(pc.PlayerId).Item1 < ArsonistMaxPlayersToIgnite.GetInt() : !pc.IsDouseDone();
+        return ArsonistCanIgniteAnytime.GetBool() || !pc.IsDouseDone();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -80,6 +80,12 @@ internal class Arsonist : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        if (ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(killer.PlayerId).Doused >= ArsonistMaxPlayersToIgnite.GetInt())
+        {
+            Ignite(killer.MyPhysics);
+            return false;
+        }
+        
         float douseTime = ArsonistDouseTime.GetFloat();
         killer.SetKillCooldown(Mathf.Approximately(douseTime, 0f) ? ArsonistCooldown.GetFloat() : douseTime);
 
@@ -95,11 +101,13 @@ internal class Arsonist : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
+        if (ArsonistCanIgniteAnytime.GetBool()) return;
         Ignite(pc.MyPhysics);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
+        if (ArsonistCanIgniteAnytime.GetBool()) return;
         if (UsePets.GetBool()) return;
         if (AmongUsClient.Instance.IsGameStarted)
             Ignite(pc.MyPhysics);

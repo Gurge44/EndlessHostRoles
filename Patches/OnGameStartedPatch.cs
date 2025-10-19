@@ -406,6 +406,7 @@ internal static class ChangeRoleSettings
                 DoubleShot.Init();
                 Circumvent.Init();
                 Commited.Init();
+                Tired.Reset();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
 

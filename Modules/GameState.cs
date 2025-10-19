@@ -173,6 +173,7 @@ public class PlayerState(byte playerId)
             {
                 HudManager.Instance.SetHudActive(true);
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
+                HudSpritePatch.ForceUpdate = true;
             }
 
             if (Decryptor.On) Decryptor.Instances.ForEach(x => x.OnRoleChange(PlayerId));
