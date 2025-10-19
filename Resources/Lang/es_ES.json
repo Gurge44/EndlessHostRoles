@@ -1379,6 +1379,7 @@
   "ShowArrows": "Tiene Flechas apuntando hacia cuerpos",
   "ArrowDelayMin": "Mínimo retraso de aparición de Flecha",
   "ArrowDelayMax": "Máximo Retraso de Aparición de flecha",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "Tiempo de Reutilización de Asesinato Titiritero",
   "PuppeteerCD": "Tiempo de Reutilización Títere",
   "PuppeteerUsesRemaining": "Tienes {0} títeres restantes",
