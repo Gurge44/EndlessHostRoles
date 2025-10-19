@@ -1379,6 +1379,7 @@
   "ShowArrows": "Tem setas apontando para corpos",
   "ArrowDelayMin": "Atraso Mínimo de Exibição da Seta",
   "ArrowDelayMax": "Atraso Máximo de Exibição da Seta",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "Recarga de Abate do Marionetista",
   "PuppeteerCD": "Recarga para Manipular",
   "PuppeteerUsesRemaining": "Você tem {0} Manipulações restantes",
