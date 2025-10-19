@@ -1379,6 +1379,7 @@
   "ShowArrows": "Показывать стрелки на трупы",
   "ArrowDelayMin": "Мин. задержка показа стрелок",
   "ArrowDelayMax": "Макс. задержка показа стрелок",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "Откат убийства Кукловода",
   "PuppeteerCD": "Откат проклятия",
   "PuppeteerUsesRemaining": "У вас осталось {0} проклятий",
