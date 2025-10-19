@@ -1379,6 +1379,7 @@
   "ShowArrows": "指向鸡腿的箭头",
   "ArrowDelayMin": "箭头显示最短延迟时间",
   "ArrowDelayMax": "箭头显示最长延迟时间",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "傀儡师击杀冷却时间",
   "PuppeteerCD": "傀儡选定傀儡的冷却时间",
   "PuppeteerUsesRemaining": "你还有 {0} 傀儡",
