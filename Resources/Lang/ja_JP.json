@@ -1379,6 +1379,7 @@
   "ShowArrows": "死体に向う矢印を持つ",
   "ArrowDelayMin": "最小の矢印表示の遅れ",
   "ArrowDelayMax": "最大の矢印表示の遅れ",
+  "InfectionSpreads": "Infection Spreads",
   "PuppeteerKCD": "パペッティアのキルのクールダウン",
   "PuppeteerCD": "人形のクールダウン",
   "PuppeteerUsesRemaining": "あなたは残り {0}つの人形がある",
