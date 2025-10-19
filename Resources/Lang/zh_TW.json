@@ -9155,7 +9155,7 @@
   "Centralizer": "集中器",
   "CentralizerInfo": "集中船員的位置",
   "CentralizerInfoLong": "(偽裝者陣營):\\n作為集中器，標記一個位置。 然後再次使用你的能力將一定數量的玩家傳送到該位置。 你也可能被包括在內。",
-  "Centralizer.NumPlayersTeleported": "Number of Players Teleported",
+  "Centralizer.NumPlayersTeleported": "傳送的玩家數量",
   "Vacuum": "吸塵器",
   "VacuumInfo": "吮吸屍體",
   "VacuumInfoLong": "(船員陣營):\\n作為吸塵器，在使用你的能力時，所有被殺的屍體都會傳送到你的位置。",
