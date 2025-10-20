@@ -94,7 +94,7 @@ public abstract class GameOptionsSender
 
     #region Static
 
-    public static readonly List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
+    public static readonly List<GameOptionsSender> AllSenders = [new NormalGameOptionsSender()];
 
     public static IEnumerator SendAllGameOptionsAsync()
     {

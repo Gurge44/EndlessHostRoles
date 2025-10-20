@@ -49,6 +49,8 @@ public abstract class CustomSabotage
     }
 
 
+    private static long LastNotifyTS;
+    
     public static string GetAllSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
     {
         if (!AmongUsClient.Instance.AmHost || Options.CurrentGameMode != CustomGameMode.Standard) return string.Empty;
@@ -67,8 +69,14 @@ public abstract class CustomSabotage
 
         if (seer.IsNonHostModdedClient())
         {
-            if (NameNotifyManager.GetNameNotify(seer, out string name) && name == result) return string.Empty;
-            seer.Notify(result, 3f, true, false);
+            long now = Utils.TimeStamp;
+            
+            if (LastNotifyTS != now)
+            {
+                seer.Notify(result, 3f, true, false);
+                LastNotifyTS = now;
+            }
+
             return string.Empty;
         }
 
@@ -159,7 +167,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
             return;
         }
 
-        if (LastReactorFlash + 2 <= now)
+        if (LastReactorFlash + 3 <= now)
         {
             LastReactorFlash = now;
             aapc.ExceptBy(HasMask, x => x.PlayerId).Do(x => x.ReactorFlash(flashDuration: 0.5f));

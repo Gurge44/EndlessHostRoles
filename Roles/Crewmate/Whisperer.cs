@@ -19,12 +19,14 @@ public class Whisperer : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static DateTime LastMeetingStart;
+    private static Dictionary<byte, (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage)> DeathInfo = [];
 
     private int Count;
     private (string Name, int Percent) CurrentlyQuestioning;
     private List<string> Info;
     private List<Soul> Souls;
     private byte WhispererId;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -36,7 +38,7 @@ public class Whisperer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        Duration = new IntegerOptionItem(++id, "WhispererDuration", new(0, 60, 1), 7, TabGroup.CrewmateRoles)
+        Duration = new IntegerOptionItem(++id, "WhispererDuration", new(0, 60, 1), 4, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -44,7 +46,7 @@ public class Whisperer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
             .SetValueFormat(OptionFormat.Times);
 
-        WhispererAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+        WhispererAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 3.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
             .SetValueFormat(OptionFormat.Times);
 
@@ -57,6 +59,7 @@ public class Whisperer : RoleBase
     {
         On = false;
         Instances = [];
+        DeathInfo = [];
     }
 
     public override void Add(byte playerId)
@@ -78,7 +81,7 @@ public class Whisperer : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (Souls.Exists(x => x.IsQuestioning)) return;
+        if (pc.GetAbilityUseLimit() < 1 || Souls.Exists(x => x.IsQuestioning)) return;
 
         Vector2 pos = pc.Pos();
         List<Soul> souls = Souls.FindAll(x => x.IsQuestionAble && Vector2.Distance(pos, x.Position) <= 1f);
@@ -100,7 +103,7 @@ public class Whisperer : RoleBase
 
         byte soulPlayerId = soul.Player.PlayerId;
 
-        if (Vector2.Distance(pc.Pos(), soul.Position) > 1f)
+        if (Vector2.Distance(pc.Pos(), soul.Position) > 1.5f)
         {
             soul.QuestioningTime = 0f;
             Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 3, soulPlayerId, soul.QuestioningTime);
@@ -124,15 +127,22 @@ public class Whisperer : RoleBase
             {
                 PlayerState state = Main.PlayerStates[soulPlayerId];
                 (DateTime TimeStamp, byte ID) killer = state.RealKiller;
-                int next = IRandom.Instance.Next(4);
+                int next = IRandom.Instance.Next(7);
                 if (state.deathReason == PlayerState.DeathReason.Disconnected) next = 2;
+                (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage) deathInfo = ([], null);
+                if (next > 3 && !DeathInfo.TryGetValue(soulPlayerId, out deathInfo)) next = IRandom.Instance.Next(4);
+                if (pc.Is(CustomRoles.Autopsy) || pc.Is(CustomRoles.Doctor) || Options.EveryoneSeesDeathReasons.GetBool()) next = IRandom.Instance.Next(6);
+                PlayerState killerState = Main.PlayerStates[killer.ID];
 
                 info = next switch
                 {
                     0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(Utils.GetPlayerInfoById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
                     1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - killer.TimeStamp).TotalSeconds)),
-                    2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString()),
-                    3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), Main.PlayerStates[killer.ID].MainRole.ToColoredString()),
+                    2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString() + (state.SubRoles.Count == 0 ? string.Empty : string.Join(' ', state.SubRoles.ConvertAll(x => x.ToColoredString())))),
+                    3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), killerState.MainRole.ToColoredString() + (killerState.SubRoles.Count == 0 ? string.Empty : string.Join(' ', killerState.SubRoles.ConvertAll(x => x.ToColoredString())))),
+                    4 => string.Format(Translator.GetString(deathInfo.SameRoomPlayers.Length == 0 ? "WhispererInfo.AloneInRoomAtDeath" : "WhispererInfo.PlayersInSameRoomAtDeath"), string.Join(", ", deathInfo.SameRoomPlayers.Select(x => x.ColoredPlayerName()))),
+                    5 => string.Format(Translator.GetString(deathInfo.ActiveSabotage.HasValue ? "WhispererInfo.NoSabotageAtDeath" : "WhispererInfo.SabotageAtDeath"), Translator.GetString(deathInfo.ActiveSabotage.HasValue ? deathInfo.ActiveSabotage.ToString() : "None")),
+                    6 => string.Format(Translator.GetString("WhispererInfo.DeathReason"), Translator.GetString($"DeathReason.{state.deathReason}")),
                     _ => string.Empty
                 };
 
@@ -188,6 +198,9 @@ public class Whisperer : RoleBase
             instance.Souls.Add(new(target));
             Utils.SendRPC(CustomRPC.SyncRoleData, instance.WhispererId, 5, target.PlayerId);
         }
+
+        var room = target.GetPlainShipRoom();
+        DeathInfo[target.PlayerId] = (room == null ? [] : Main.AllAlivePlayerControls.Where(x => x.GetPlainShipRoom() == room).Select(x => x.PlayerId).ToArray(), new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
     }
 
     public override void OnReportDeadBody()
@@ -233,7 +246,6 @@ public class Whisperer : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != WhispererId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
-
         return "<size=70%>" + string.Join('\n', Info) + (CurrentlyQuestioning.Percent > 0 ? "\n" + string.Format(Translator.GetString("WhispererQuestioning"), CurrentlyQuestioning.Name, CurrentlyQuestioning.Percent) : string.Empty) + "</size>";
     }
 

@@ -90,6 +90,7 @@ internal static class GhostRolesManager
     {
         try
         {
+            if (GameStates.IsEnded) return false;
             if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
             if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
 
@@ -100,6 +101,7 @@ internal static class GhostRolesManager
                 case CustomRoles.GM:
                 case CustomRoles.Curser:
                 case CustomRoles.Backstabber:
+                case CustomRoles.Innocent:
                 case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool():
                     return false;
             }

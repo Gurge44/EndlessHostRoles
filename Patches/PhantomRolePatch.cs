@@ -15,8 +15,8 @@ namespace EHR.Patches;
 [HarmonyPatch(typeof(PlayerControl))]
 public static class PhantomRolePatch
 {
-    private static readonly List<PlayerControl> InvisibilityList = new();
-    private static readonly System.Collections.Generic.Dictionary<byte, string> PetsList = [];
+    /*private static readonly List<PlayerControl> InvisibilityList = new();
+    private static readonly System.Collections.Generic.Dictionary<byte, string> PetsList = [];*/
 
     [HarmonyPatch(nameof(PlayerControl.CmdCheckVanish))]
     [HarmonyPrefix]
@@ -51,8 +51,17 @@ public static class PhantomRolePatch
         return false;
     }
 
+    [HarmonyPatch(nameof(PlayerControl.CheckVanish))] // This doesn't always get called for non-hosts, so we invoke CheckTrigger directly when the CheckVanish RPC is received
+    [HarmonyPrefix]
+    private static bool CheckVanish_Prefix(PlayerControl __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+        Logger.Info($" {__instance.GetNameWithRole()}", "CheckVanish");
+        return __instance.AmOwner && CheckTrigger(__instance); // This is assuming that all non-host vanish requests are for ability triggers and should be cancelled
+    }
+
     // Called when Phantom press vanish button when visible
-    [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
+    /*[HarmonyPatch(nameof(PlayerControl.CheckVanish))]
     [HarmonyPrefix]
     private static bool CheckVanish_Prefix(PlayerControl __instance)
     {
@@ -139,15 +148,18 @@ public static class PhantomRolePatch
 
         InvisibilityList.Add(phantom);
         return true;
-    }
+    }*/
 
     public static bool CheckTrigger(PlayerControl phantom)
     {
-        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !Main.PlayerStates[phantom.PlayerId].Role.OnVanish(phantom))
+        RoleBase roleBase = Main.PlayerStates[phantom.PlayerId].Role;
+
+        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !roleBase.OnVanish(phantom))
         {
             if (phantom.AmOwner)
             {
                 HudManager.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                if (Utils.ShouldNotApplyAbilityCooldown(roleBase)) return false;
                 phantom.Data.Role.SetCooldown();
                 return false;
             }
@@ -160,6 +172,13 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
+            if (Utils.ShouldNotApplyAbilityCooldown(roleBase))
+            {
+                sender.EndMessage();
+                sender.SendMessage();
+                return false;
+            }
+            
             sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
                 .WriteNetObject(phantom)
                 .Write(0)
@@ -176,7 +195,7 @@ public static class PhantomRolePatch
         return true;
     }
 
-    [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
+    /*[HarmonyPatch(nameof(PlayerControl.CheckAppear))]
     [HarmonyPrefix]
     private static void CheckAppear_Prefix(PlayerControl __instance, bool shouldAnimate)
     {
@@ -309,7 +328,7 @@ public static class PhantomRolePatch
     {
         InvisibilityList.Clear();
         PetsList.Clear();
-    }
+    }*/
 }
 
 // Fixed vanilla bug for host (from TOH-Y)

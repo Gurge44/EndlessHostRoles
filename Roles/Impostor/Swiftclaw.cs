@@ -94,6 +94,9 @@ internal class Swiftclaw : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.PetButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
+        if (!Options.UsePhantomBasis.GetBool())
+            hud.PetButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
+        else
+            hud.AbilityButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
     }
 }

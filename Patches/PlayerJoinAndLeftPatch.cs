@@ -148,6 +148,26 @@ internal static class OnGameJoinedPatch
                         ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
                 }
             }
+            
+            if (Options.AutoMPollCommandAfterJoin.GetBool() && !Options.RandomMapsMode.GetBool())
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                IEnumerator CoRoutine()
+                {
+                    float timer = Options.AutoMPollCommandCooldown.GetInt();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    if (Options.AutoMPollCommandAfterJoin.GetBool() && !Options.RandomMapsMode.GetBool())
+                        ChatCommands.MapPollCommand(PlayerControl.LocalPlayer, "/mpoll", ["/mpoll"]);
+                }
+            }
 
             if (Options.AutoDraftStartCommandAfterJoin.GetBool())
             {
@@ -479,7 +499,15 @@ internal static class OnPlayerLeftPatch
         {
             if (GameStates.IsInGame && data != null && data.Character != null)
             {
-                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
+                switch (Options.CurrentGameMode)
+                {
+                    case CustomGameMode.HideAndSeek:
+                        CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
+                        break;
+                    case CustomGameMode.Mingle:
+                        Mingle.HandleDisconnect();
+                        break;
+                }
 
                 if (data.Character.Is(CustomRoles.Lovers) && data.Character.IsAlive())
                 {

@@ -270,7 +270,7 @@ internal static class MoveAndStop
 
     public static void SetupCustomOption()
     {
-        GameTime = new IntegerOptionItem(68_213_001, "FFA_GameTime", new(30, 1200, 10), 900, TabGroup.GameSettings)
+        GameTime = new IntegerOptionItem(68_213_001, "FFA_GameTime", new(30, 3600, 10), 900, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)

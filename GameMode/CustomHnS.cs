@@ -395,8 +395,7 @@ internal static class CustomHnS
 
     public static string GetTaskBarText()
     {
-        string text = HasTasks(PlayerControl.LocalPlayer.Data) ? $"<size=65%>{GetTaskText()}</size>\r\n\r\n" : string.Empty;
-        text += Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+        string text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
         return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
         static string GetStateText(KeyValuePair<byte, PlayerState> state)
@@ -421,29 +420,6 @@ internal static class CustomHnS
             CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
 
             string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
-        }
-
-        static string GetTaskText()
-        {
-            Il2CppSystem.Text.StringBuilder sb = new();
-            bool flag = PlayerControl.LocalPlayer.Data.Role != null && PlayerControl.LocalPlayer.Data.Role.IsImpostor;
-
-            foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
-            {
-                if (task != null)
-                {
-                    if (task.TaskType == TaskTypes.FixComms && !flag)
-                    {
-                        sb.Clear();
-                        task.AppendTaskText(sb);
-                        break;
-                    }
-
-                    task.AppendTaskText(sb);
-                }
-            }
-
-            return sb.ToString();
         }
     }
 

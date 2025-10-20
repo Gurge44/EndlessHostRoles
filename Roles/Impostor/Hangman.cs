@@ -99,7 +99,5 @@ public class Hangman : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (id.IsPlayerShifted()) hud.KillButton?.OverrideText(Translator.GetString("HangmanKillButtonTextDuringSS"));
-
-        hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
     }
 }

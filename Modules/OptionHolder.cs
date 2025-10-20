@@ -33,6 +33,8 @@ public enum CustomGameMode
     Quiz = 0x0C,
     TheMindGame = 0x0D,
     BedWars = 0x0E,
+    Deathrace = 0x0F,
+    Mingle = 0x10,
     All = int.MaxValue
 }
 
@@ -66,6 +68,7 @@ public static class Options
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
     public static Dictionary<AddonTypes, List<CustomRoles>> GroupedAddons = [];
 
+    public static OptionItem Preset;
     public static OptionItem GameMode;
 
     private static readonly string[] GameModes =
@@ -83,7 +86,9 @@ public static class Options
         "KingOfTheZones",
         "Quiz",
         "TheMindGame",
-        "BedWars"
+        "BedWars",
+        "Deathrace",
+        "Mingle"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -93,7 +98,9 @@ public static class Options
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
     
     public static Dictionary<CustomGameMode, OptionItem> GMPollGameModesSettings;
+    public static Dictionary<MapNames, OptionItem> MPollMapsSettings;
     public static Dictionary<CustomRoles, OptionItem> CrewAdvancedGameEndCheckingSettings;
+    public static OptionItem GuessersKeepTheGameGoing;
 
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
     public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
@@ -337,7 +344,7 @@ public static class Options
     public static OptionItem ArsonistCanIgniteAnytime;
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
-    public static OptionItem LegacyMafia;
+    public static OptionItem LegacyNemesis;
     public static OptionItem VeteranSkillCooldown;
     public static OptionItem VeteranSkillDuration;
     public static OptionItem VeteranSkillMaxOfUseage;
@@ -357,7 +364,7 @@ public static class Options
     public static OptionItem ExpressSpeed;
     public static OptionItem ExpressSpeedDur;
     public static OptionItem EveryOneKnowSuperStar;
-    public static OptionItem MafiaCanKillNum;
+    public static OptionItem NemesisCanKillNum;
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem GuesserDoesntDieOnMisguess;
@@ -461,8 +468,8 @@ public static class Options
     public static OptionItem ExtraKillCooldownOnAirship;
     public static OptionItem ExtraKillCooldownOnFungle;
 
-    public static OptionItem MafiaShapeshiftCD;
-    public static OptionItem MafiaShapeshiftDur;
+    public static OptionItem NemesisShapeshiftCD;
+    public static OptionItem NemesisShapeshiftDur;
 
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
     public static OptionItem DisableTaskWinIfAllCrewsAreConverted;
@@ -791,6 +798,7 @@ public static class Options
 
     // Add-Ons
     public static OptionItem NameDisplayAddons;
+    public static OptionItem NameDisplayAddonsOnlyInMeetings;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
 
@@ -827,6 +835,8 @@ public static class Options
     public static OptionItem PlayerAutoStart;
     public static OptionItem AutoGMPollCommandAfterJoin;
     public static OptionItem AutoGMPollCommandCooldown;
+    public static OptionItem AutoMPollCommandAfterJoin;
+    public static OptionItem AutoMPollCommandCooldown;
     public static OptionItem AutoDraftStartCommandAfterJoin;
     public static OptionItem AutoDraftStartCommandCooldown;
 
@@ -900,6 +910,8 @@ public static class Options
         11 => CustomGameMode.Quiz,
         12 => CustomGameMode.TheMindGame,
         13 => CustomGameMode.BedWars,
+        14 => CustomGameMode.Deathrace,
+        15 => CustomGameMode.Mingle,
         _ => CustomGameMode.Standard
     };
 
@@ -1266,7 +1278,7 @@ public static class Options
 
         int defaultPresetNumber = OptionSaver.GetDefaultPresetNumber();
 
-        _ = new PresetOptionItem(defaultPresetNumber, TabGroup.SystemSettings)
+        Preset = new PresetOptionItem(defaultPresetNumber, TabGroup.SystemSettings)
             .SetColor(new Color32(255, 235, 4, byte.MaxValue))
             .SetHidden(true);
 
@@ -1426,6 +1438,9 @@ public static class Options
         NameDisplayAddons = new BooleanOptionItem(210, "NameDisplayAddons", true, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true);
+        
+        NameDisplayAddonsOnlyInMeetings = new BooleanOptionItem(219, "NameDisplayAddonsOnlyInMeetings", false, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard);
 
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);
@@ -1659,10 +1674,16 @@ public static class Options
         AutoGMPollCommandCooldown = new IntegerOptionItem(19307, "AutoGMPollCommandCooldown", new(10, 600, 5), 15, TabGroup.SystemSettings)
             .SetParent(AutoGMPollCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
+        
+        AutoMPollCommandAfterJoin = new BooleanOptionItem(19335, "AutoMPollCommandAfterJoin", false, TabGroup.SystemSettings);
+
+        AutoMPollCommandCooldown = new IntegerOptionItem(19336, "AutoMPollCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+            .SetParent(AutoMPollCommandAfterJoin)
+            .SetValueFormat(OptionFormat.Seconds);
 
         AutoDraftStartCommandAfterJoin = new BooleanOptionItem(19426, "AutoDraftStartCommandAfterJoin", false, TabGroup.SystemSettings);
 
-        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 90, TabGroup.SystemSettings)
+        AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 150, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -1802,6 +1823,10 @@ public static class Options
         TheMindGame.SetupCustomOption();
         // Bed Wars
         BedWars.SetupCustomOption();
+        // Deathrace
+        Deathrace.SetupCustomOption();
+        // Mingle
+        Mingle.SetupCustomOption();
 
         yield return null;
 
@@ -3010,6 +3035,9 @@ public static class Options
         yield return null;
 
         id = 69900;
+
+        new TextOptionItem(110020, "MenuTitle.GMPoll", TabGroup.SystemSettings)
+            .SetHeader(true);
         
         GMPollGameModesSettings = Enum.GetValues<CustomGameMode>()[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
             .SetColor(Main.GameModeColors[x])
@@ -3018,8 +3046,20 @@ public static class Options
 
         id = 69920;
 
+        new TextOptionItem(110030, "MenuTitle.MPoll", TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        MPollMapsSettings = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
+            .SetHeader(x == MapNames.Skeld)
+            .AddReplacement(("{m}", Translator.GetString($"{x}"))));
+        
+        id = 69935;
+
         CrewAdvancedGameEndCheckingSettings = [];
         bool first = true;
+
+        new TextOptionItem(110000, "MenuTitle.CrewAdvancedGameEndChecking", TabGroup.SystemSettings)
+            .SetHeader(true);
 
         foreach (RoleBase roleBase in Main.AllRoleClasses)
         {
@@ -3033,8 +3073,15 @@ public static class Options
             
             first = false;
         }
+        
+        GuessersKeepTheGameGoing = new BooleanOptionItem(id, "GuessersKeepTheGameGoing", false, TabGroup.SystemSettings)
+            .SetHeader(true)
+            .SetColor(Color.yellow);
 
         id = 69000;
+
+        new TextOptionItem(110010, "MenuTitle.AutoGMRotation", TabGroup.SystemSettings)
+            .SetHeader(true);
 
         EnableAutoGMRotation = new BooleanOptionItem(id++, "EnableAutoGMRotation", false, TabGroup.SystemSettings)
             .SetColor(Color.magenta)
@@ -3142,6 +3189,8 @@ public static class Options
                         11 => CustomGameMode.Quiz,
                         12 => CustomGameMode.TheMindGame,
                         13 => CustomGameMode.BedWars,
+                        14 => CustomGameMode.Deathrace,
+                        15 => CustomGameMode.Mingle,
                         _ => CustomGameMode.Standard
                     };
                     AutoGMRotationCompiled.AddRange(Enumerable.Repeat(gm, times));

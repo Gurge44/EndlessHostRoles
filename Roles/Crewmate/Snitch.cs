@@ -93,7 +93,7 @@ public class Snitch : RoleBase
         return IsExposed[snitchId];
     }
 
-    private static bool IsSnitchTarget(PlayerControl target)
+    public static bool IsSnitchTarget(PlayerControl target)
     {
         return (target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster)) || (target.IsNeutralKiller() && CanFindNeutralKiller) || (target.Is(CustomRoleTypes.Coven) && CanFindCoven) || (target.Is(CustomRoles.Madmate) && CanFindMadmate) || (target.Is(CustomRoles.Rascal) && CanFindMadmate);
     }
@@ -168,7 +168,7 @@ public class Snitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || (target != null && seer.PlayerId != target.PlayerId)) return string.Empty;
+        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || (target != null && seer.PlayerId != target.PlayerId) || hud) return string.Empty;
 
         var arrows = string.Empty;
 

@@ -38,6 +38,8 @@ public class Postponer : RoleBase
     {
         if (!base.OnCheckMurder(killer, target) || !killer.RpcCheckAndMurder(target, check: true)) return false;
         
+        if (target.Is(CustomRoles.Bait)) return true;
+        
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         killer.RpcRemoveAbilityUse();
         target.Data.IsDead = true;

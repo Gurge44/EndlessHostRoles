@@ -88,15 +88,11 @@ internal static class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
                 Utils.CopyCurrentSettings();
-            
-            bool admin = ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode);
 
-            if (!AmongUsClient.Instance.AmHost && !admin) return;
-
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift) && (AmongUsClient.Instance.AmHost || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode)))
                 HudManager.Instance.Chat.SetVisible(true);
 
-            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
+            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame && (AmongUsClient.Instance.AmHost || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode)))
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                 GameEndChecker.CheckCustomEndCriteria();
@@ -203,95 +199,95 @@ internal static class ControllerManagerUpdatePatch
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
                 Logger.SendInGame($"In-game output log: {Logger.IsAlsoInGame}");
             }
-        }
-        catch { }
 
-        if (!Options.NoGameEnd.GetBool()) return;
+            if (!Options.NoGameEnd.GetBool()) return;
 
 #if DEBUG
-        if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
-        {
-            Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
-            if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
-        }
-
-        if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame)
-        {
-            HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-            HudManager.Instance.StartCoroutine(FastDestroyableSingleton<HudManager>.Instance.CoShowIntro());
-        }
-
-        if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
-            MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
-
-        if (KeysDown(KeyCode.Return, KeyCode.D, KeyCode.LeftShift) && GameStates.IsInGame)
-        {
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 79);
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 80);
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
-        }
-
-        if (KeysDown(KeyCode.Return, KeyCode.K, KeyCode.LeftShift) && GameStates.IsInGame)
-        {
-            PlayerControl.LocalPlayer.SetKillTimer(0f);
-            PlayerControl.LocalPlayer.SetKillCooldown(0f);
-        }
-
-        if (KeysDown(KeyCode.Return, KeyCode.T, KeyCode.LeftShift) && GameStates.IsInGame)
-            foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
-                PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
-
-        if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            RPC.SyncCustomSettingsRPC();
-            Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
-        }
-
-        if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            Main.VisibleTasksCount = !Main.VisibleTasksCount;
-            FastDestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
-        }
-
-        if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
-            Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
-        }
-
-        if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-                if (!pc.AmOwner)
-                    pc.MyPhysics.RpcEnterVent(2);
-        }
-
-        if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
-
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+            if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
             {
-                if (!pc.AmOwner)
+                Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
+                if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
+            }
+
+            if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame)
+            {
+                HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
+                HudManager.Instance.StartCoroutine(FastDestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            }
+
+            if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
+                MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
+
+            if (KeysDown(KeyCode.Return, KeyCode.D, KeyCode.LeftShift) && GameStates.IsInGame)
+            {
+                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 79);
+                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 80);
+                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
+                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
+            }
+
+            if (KeysDown(KeyCode.Return, KeyCode.K, KeyCode.LeftShift) && GameStates.IsInGame)
+            {
+                PlayerControl.LocalPlayer.SetKillTimer(0f);
+                PlayerControl.LocalPlayer.SetKillCooldown(0f);
+            }
+
+            if (KeysDown(KeyCode.Return, KeyCode.T, KeyCode.LeftShift) && GameStates.IsInGame)
+                foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
+                    PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
+
+            if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                RPC.SyncCustomSettingsRPC();
+                Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
+            }
+
+            if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                Main.VisibleTasksCount = !Main.VisibleTasksCount;
+                FastDestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
+            }
+
+            if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
+                Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
+            }
+
+            if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+                    if (!pc.AmOwner)
+                        pc.MyPhysics.RpcEnterVent(2);
+            }
+
+            if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
+
+                foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                 {
-                    pc.TP(pos);
-                    pos.x += 0.5f;
+                    if (!pc.AmOwner)
+                    {
+                        pc.TP(pos);
+                        pos.x += 0.5f;
+                    }
                 }
             }
-        }
 
-        if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-        {
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-                if (!pc.AmOwner)
-                    pc.MyPhysics.RpcExitVent(2);
-        }
+            if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            {
+                foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+                    if (!pc.AmOwner)
+                        pc.MyPhysics.RpcExitVent(2);
+            }
 
-        if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-            VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
+            if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+                VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
 
 #endif
+        }
+        catch { }
     }
 
     private static bool KeysDown(params KeyCode[] keys)
@@ -432,7 +428,7 @@ public static class InGameRoleInfoMenu
 
         subRoles.ForEach(subRole =>
         {
-            addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+            addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
             string searchSubStr = GetString(subRole.ToString());
             addons.Replace(searchSubStr, subRole.ToColoredString());
             addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());

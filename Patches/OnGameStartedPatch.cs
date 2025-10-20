@@ -183,6 +183,8 @@ internal static class ChangeRoleSettings
 
             Utils.GameStartTimeStamp = Utils.TimeStamp;
 
+            Main.GameEndDueToTimer = false;
+
             try { Main.AllRoleClasses.Do(x => x.Init()); }
             catch (Exception e) { Utils.ThrowException(e); }
 
@@ -240,7 +242,7 @@ internal static class ChangeRoleSettings
             Revolutionist.RevolutionistCountdown = [];
             Farseer.FarseerTimer = [];
             Warlock.CursedPlayers = [];
-            Mafia.MafiaRevenged = [];
+            Nemesis.NemesisRevenged = [];
             Warlock.IsCurseAndKill = [];
             Warlock.IsCursed = false;
             Forensic.ForensicNotify = [];
@@ -254,9 +256,17 @@ internal static class ChangeRoleSettings
             Lazy.BeforeMeetingPositions = [];
             Introvert.TeleportAwayDelays = [];
 
-            ReportDeadBodyPatch.CanReport = [];
+            try
+            {
+                SabotageMapPatch.TimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
+                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+            
             SabotageMapPatch.TimerTexts = [];
             MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
+            ReportDeadBodyPatch.CanReport = [];
+            
             GuessManager.Guessers = [];
             ChatCommands.VotedToStart = [];
 
@@ -286,8 +296,6 @@ internal static class ChangeRoleSettings
             GameEndChecker.Ended = false;
             ReportDeadBodyPatch.MeetingStarted = false;
 
-            HudSpritePatch.ResetButtonIcons = true;
-
             ShipStatusFixedUpdatePatch.ClosestVent = [];
             ShipStatusFixedUpdatePatch.CanUseClosestVent = [];
 
@@ -306,7 +314,6 @@ internal static class ChangeRoleSettings
             Main.LastNotifyNames = [];
 
             CheckForEndVotingPatch.EjectionText = string.Empty;
-            CoShowIntroPatch.IntroStarted = false;
 
             Arsonist.CurrentDousingTarget = byte.MaxValue;
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
@@ -425,9 +432,10 @@ internal static class ChangeRoleSettings
                 GhostRolesManager.Initialize();
                 RoleBlockManager.Reset();
                 ChatManager.ResetHistory();
-                CustomNetObject.Reset();
             }
             catch (Exception e) { Utils.ThrowException(e); }
+            
+            CustomNetObject.Reset();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
@@ -472,8 +480,6 @@ internal static class StartGameHostPatch
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
-
-    public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
     private static RoleOptionsCollectionV10 RoleOpt => Main.NormalOptions.roleOptions;
 
@@ -560,6 +566,15 @@ internal static class StartGameHostPatch
         {
             Main.LobbyBehaviourNetId = LobbyBehaviour.Instance.NetId;
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(AUClient.GameId);
+            writer.StartMessage(5);
+            writer.WritePacked(LobbyBehaviour.Instance.NetId);
+            writer.EndMessage();
+            writer.EndMessage();
+            AUClient.SendOrDisconnect(writer);
+            writer.Recycle();
+            writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(5);
             writer.Write(AUClient.GameId);
             writer.StartMessage(5);
@@ -991,6 +1006,7 @@ internal static class StartGameHostPatch
                 Spurt.Add();
                 Allergic.Init();
                 Lovers.Init();
+                LateTask.New(Tired.Reset, 7f, log: false);
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
@@ -1019,6 +1035,9 @@ internal static class StartGameHostPatch
                     goto default;
                 case CustomGameMode.BedWars:
                     BedWars.Initialize();
+                    goto default;
+                case CustomGameMode.Deathrace:
+                    Deathrace.Init();
                     goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
@@ -1083,6 +1102,12 @@ internal static class StartGameHostPatch
                 case CustomGameMode.BedWars:
                     GameEndChecker.SetPredicateToBedWars();
                     break;
+                case CustomGameMode.Deathrace:
+                    GameEndChecker.SetPredicateToDeathrace();
+                    break;
+                case CustomGameMode.Mingle:
+                    GameEndChecker.SetPredicateToMingle();
+                    break;
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
@@ -1144,15 +1169,6 @@ internal static class StartGameHostPatch
             pc.Data.Disconnected = disconnected;
             if (!disconnected) pc.Data.SendGameData();
         }
-
-        LateTask.New(() =>
-        {
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                pc.SetKillCooldown(10f);
-                pc.RpcResetAbilityCooldown();
-            }
-        }, 7f, log: false);
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)
@@ -1263,6 +1279,14 @@ internal static class StartGameHostPatch
 
                 if (target.Is(Team.Impostor) && roleType is not (RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom or RoleTypes.Viper or RoleTypes.ImpostorGhost))
                     displayRole = RoleTypes.Impostor;
+
+                if (target.Is(CustomRoles.Bloodlust))
+                {
+                    roleType = RoleTypes.Impostor;
+                    displayRole = RoleTypes.Impostor;
+                }
+                else if (target.Is(CustomRoles.DoubleAgent))
+                    displayRole = RoleTypes.Crewmate;
             }
 
             if (displayRole != roleType) RpcSetRoleReplacer.OverriddenTeamRevealScreen[target.PlayerId] = roleType;

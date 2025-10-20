@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -31,11 +32,11 @@ public class Vampire : RoleBase
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
 
-        Cooldown = new FloatOptionItem(Id + 9, "VampireKillCooldown", new(1f, 90f, 1f), 30f, TabGroup.ImpostorRoles)
+        Cooldown = new FloatOptionItem(Id + 9, "VampireKillCooldown", new(1f, 120f, 1f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OptionKillDelay = new FloatOptionItem(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles)
+        OptionKillDelay = new FloatOptionItem(Id + 10, "VampireKillDelay", new(1f, 120f, 1f), 3f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -147,19 +148,18 @@ public class Vampire : RoleBase
         }
     }
 
-    private void KillBitten(PlayerControl vampire, PlayerControl target, bool isButton = false)
+    private void KillBitten(PlayerControl vampire, PlayerControl target, bool meeting = false)
     {
         if (vampire == null || target == null || target.Data.Disconnected) return;
 
         if (target.IsAlive())
         {
             target.Suicide(IsPoisoner ? PlayerState.DeathReason.Poison : PlayerState.DeathReason.Bite, vampire);
+            RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
 
-            if (!isButton && vampire.IsAlive())
+            if (!meeting && vampire.IsAlive())
             {
-                RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
                 if (target.Is(CustomRoles.Trapper)) vampire.TrapperKilled(target);
-
                 vampire.Notify(GetString("VampireTargetDead"));
             }
         }
@@ -167,12 +167,20 @@ public class Vampire : RoleBase
 
     public override void OnReportDeadBody()
     {
-        foreach (byte targetId in BittenPlayers.Keys)
+        try
         {
-            PlayerControl target = Utils.GetPlayerById(targetId);
-            PlayerControl vampire = Utils.GetPlayerById(BittenPlayers[targetId].VampireId);
-            KillBitten(vampire, target);
+            foreach (byte targetId in BittenPlayers.Keys)
+            {
+                try
+                {
+                    PlayerControl target = Utils.GetPlayerById(targetId);
+                    PlayerControl vampire = Utils.GetPlayerById(BittenPlayers[targetId].VampireId);
+                    KillBitten(vampire, target, meeting: true);
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         BittenPlayers.Clear();
     }

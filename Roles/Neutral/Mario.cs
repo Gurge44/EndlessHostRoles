@@ -61,7 +61,6 @@ internal class Mario : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.AbilityButton.buttonLabelText.text = Translator.GetString("MarioVentButtonText");
-        hud.AbilityButton?.SetUsesRemaining(MarioVentNumWin - MarioVentCount.GetValueOrDefault(id, 0));
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

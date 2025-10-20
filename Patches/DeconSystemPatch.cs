@@ -9,13 +9,12 @@ public static class DeconSystemUpdateSystemPatch
     {
         if (!AmongUsClient.Instance.AmHost || SubmergedCompatibility.IsSubmerged()) return;
 
-        bool bedwars = Options.CurrentGameMode == CustomGameMode.BedWars;
-        bool roomrush = Options.CurrentGameMode == CustomGameMode.RoomRush;
+        bool fastDecon = Options.CurrentGameMode is CustomGameMode.BedWars or CustomGameMode.RoomRush or CustomGameMode.Deathrace or CustomGameMode.Mingle;
 
-        if (bedwars || roomrush || Options.ChangeDecontaminationTime.GetBool())
+        if (fastDecon || Options.ChangeDecontaminationTime.GetBool())
         {
-            __instance.DoorOpenTime = bedwars || roomrush
-                ? 2f
+            __instance.DoorOpenTime = fastDecon
+                ? 1.5f
                 : Main.CurrentMap switch
             {
                 MapNames.MiraHQ => Options.DecontaminationDoorOpenTimeOnMiraHQ.GetFloat(),
@@ -23,7 +22,7 @@ public static class DeconSystemUpdateSystemPatch
                 _ => 3f
             };
 
-            __instance.DeconTime = bedwars || roomrush
+            __instance.DeconTime = fastDecon
                 ? 0.1f
                 : Main.CurrentMap switch
             {

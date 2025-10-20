@@ -100,7 +100,7 @@ internal static class CheckForEndVotingPatch
                         __instance.UpdateButtons();
                         pva.VotedFor = byte.MaxValue;
                     }
-                    else if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
+                    else if (voteTarget != null && !pc.GetCustomRole().CancelsVote() && !pc.UsesMeetingShapeshift())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
                     else if (pc.Is(CustomRoles.Godfather)) Godfather.GodfatherTarget = byte.MaxValue;
                 }
@@ -693,7 +693,7 @@ internal static class MeetingHudStartPatch
 
                 foreach (CustomRoles subRole in Main.PlayerStates[pc.PlayerId].SubRoles)
                 {
-                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
                     string searchSubStr = GetString(subRole.ToString());
                     sb.Replace(searchSubStr, subRole.ToColoredString());
                     sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
@@ -760,7 +760,7 @@ internal static class MeetingHudStartPatch
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            if (pc.Is(CustomRoles.Mafia) && !pc.IsAlive()) AddMsg(GetString("MafiaDeadMsg"), pc.PlayerId);
+            if (pc.Is(CustomRoles.Nemesis) && !pc.IsAlive()) AddMsg(GetString("NemesisDeadMsg"), pc.PlayerId);
 
             foreach (byte csId in Main.SuperStarDead)
             {
@@ -1121,7 +1121,7 @@ internal static class MeetingHudStartPatch
         Judge.StartMeetingPatch.Postfix(__instance);
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
-        Mafia.StartMeetingPatch.Postfix(__instance);
+        Nemesis.StartMeetingPatch.Postfix(__instance);
         Imitator.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
@@ -1209,8 +1209,8 @@ internal static class MeetingHudUpdatePatch
                     case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
                         ClearShootButton(__instance, true);
                         break;
-                    case CustomRoles.Mafia when !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null:
-                        Mafia.CreateJudgeButton(__instance);
+                    case CustomRoles.Nemesis when !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null:
+                        Nemesis.CreateJudgeButton(__instance);
                         break;
                 }
 
@@ -1255,6 +1255,9 @@ internal static class MeetingHudOnDestroyPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
+            GameEndChecker.ShouldNotCheck = true;
+            LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 15f, "Re-enable GameEndChecker after meeting");
+            
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
 
             if (meetingSS && Options.UseMeetingShapeshiftForGuessing.GetBool())

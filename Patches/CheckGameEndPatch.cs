@@ -190,6 +190,12 @@ internal static class GameEndChecker
                     CustomRoles role = pc.GetCustomRole();
                     RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
 
+                    if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance is Shade shade && shade.Protected.IsSupersetOf(Main.AllAlivePlayerControls.Select(x => x.PlayerId)))
+                    {
+                        AdditionalWinnerTeams.Add(AdditionalWinners.Shade);
+                        WinnerIds.Add(pc.PlayerId);
+                    }
+
                     switch (role)
                     {
                         case CustomRoles.Stalker when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorsBySabotage)) || WinnerTeam == CustomWinner.Stalker || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.CrewmatesByTask) && roleBase is Stalker { IsWinKill: true } && Stalker.SnatchesWin.GetBool())):
@@ -548,6 +554,16 @@ internal static class GameEndChecker
     {
         Predicate = new BedWarsGameEndPredicate();
     }
+    
+    public static void SetPredicateToDeathrace()
+    {
+        Predicate = new DeathraceGameEndPredicate();
+    }
+    
+    public static void SetPredicateToMingle()
+    {
+        Predicate = new MingleGameEndPredicate();
+    }
 
     private class NormalGameEndPredicate : GameEndPredicate
     {
@@ -579,6 +595,7 @@ internal static class GameEndChecker
             }
 
             if (Main.AllAlivePlayerControls.Any(x => x.GetCountTypes() == CountTypes.CustomTeam)) return false;
+            if (Pawn.KeepsGameGoing.GetBool() && CustomRoles.Pawn.RoleExist()) return false;
 
             PlayerState[] statesCoutingAsCrew = Main.PlayerStates.Values.Where(x => x.countTypes == CountTypes.Crew).ToArray();
 
@@ -590,10 +607,16 @@ internal static class GameEndChecker
             int coven = AlivePlayersCount(CountTypes.Coven);
 
             var crewKeepsGameGoing = false;
+            
+            if (Options.GuessersKeepTheGameGoing.GetBool())
+            {
+                bool restrictions = Options.GuesserNumRestrictions.GetBool();
+                crewKeepsGameGoing |= statesCoutingAsCrew.Any(x => !x.IsDead && x.Player != null && GuessManager.StartMeetingPatch.CanGuess(x.Player, restrictions));
+            }
 
             foreach (PlayerState playerState in statesCoutingAsCrew)
             {
-                if (playerState.Player == null || !playerState.Player.IsAlive() || !Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool()) continue;
+                if (playerState.IsDead || !Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool()) continue;
                 playerState.Role.ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs);
                 crewKeepsGameGoing |= keepGameGoing;
                 crew += countsAs - 1;
@@ -1085,6 +1108,34 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return BedWars.CheckForGameEnd(out reason);
+        }
+    }
+
+    private class DeathraceGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Deathrace.CheckGameEnd(out reason);
+        }
+    }
+
+    private class MingleGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Mingle.CheckGameEnd(out reason);
         }
     }
 

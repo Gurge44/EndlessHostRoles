@@ -112,6 +112,5 @@ public class Dazzler : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.AbilityButton?.OverrideText(GetString("DazzleButtonText"));
-        hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
     }
 }

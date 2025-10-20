@@ -97,8 +97,7 @@ public class Glitch : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.SabotageButton?.ToggleVisible(!Main.PlayerStates[id].IsDead);
-        hud.SabotageButton?.OverrideText(Translator.GetString("HackButtonText"));
+        hud.AbilityButton?.OverrideText(Translator.GetString("HackButtonText"));
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

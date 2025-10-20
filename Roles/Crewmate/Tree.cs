@@ -67,9 +67,8 @@ public class Tree : RoleBase
         
         LateTask.New(() =>
         {
-            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
-            
             Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
             pc.MarkDirtySettings();
             
             if (treeSpriteVisible)
@@ -77,7 +76,8 @@ public class Tree : RoleBase
                 TreeSpriteActive = false;
                 Utils.NotifyRoles(SpecifyTarget: pc);
             }
-            else pc.RpcMakeVisible();
+            else
+                pc.RpcMakeVisible();
             
             int chance = FallKillChance.GetInt();
             
@@ -91,8 +91,8 @@ public class Tree : RoleBase
                     
                     LateTask.New(() =>
                     {
-                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
                         Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
                         x.MarkDirtySettings();
                     }, FallStunDuration.GetFloat(), log: false);
                 }

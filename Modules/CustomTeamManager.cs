@@ -155,10 +155,22 @@ internal static class CustomTeamManager
 
         try
         {
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            if (aapc.Length == 1)
+            {
+                PlayerControl lastPlayer = aapc[0];
+                CustomTeam lastTeam = GetCustomTeam(lastPlayer.PlayerId);
+                WinnerTeam = lastTeam;
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
+                CustomWinnerHolder.WinnerIds = [lastPlayer.PlayerId];
+                return true;
+            }
+            
             CustomTeamPlayerIds.Do(x => x.Value.RemoveWhere(p =>
             {
                 PlayerControl pc = Utils.GetPlayerById(p);
-                return pc == null || pc.Data.Disconnected;
+                return pc == null || pc.Data == null || pc.Data.Disconnected;
             }));
 
             Dictionary<CustomTeam, HashSet<byte>> aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
@@ -167,9 +179,9 @@ internal static class CustomTeamManager
             List<CustomTeam> toRemove = aliveTeamPlayers.Where(x => x.Value.Count == 0).Select(x => x.Key).ToList();
             toRemove.ForEach(x => aliveTeamPlayers.Remove(x));
 
-            CustomTeam team = aliveTeamPlayers.Keys.First();
+            CustomTeam team = aliveTeamPlayers.Keys.FirstOrDefault();
 
-            if (aliveTeamPlayers.Count == 1 && Main.AllAlivePlayerControls.All(x =>
+            if (aliveTeamPlayers.Count == 1 && aapc.All(x =>
             {
                 CustomTeam customTeam = GetCustomTeam(x.PlayerId);
                 return customTeam != null && customTeam.Equals(team);

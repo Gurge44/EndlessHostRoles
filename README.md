@@ -66,7 +66,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400+ roles and add-ons, 13 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 400+ roles and add-ons, 15 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide And Seek roles and Vanilla roles)</span>
 
@@ -214,23 +214,28 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 :x:   Can never use the command<br>
 :question:    Host setting determines<br>
 
-| Feature   | Regular Players | VIP                | Moderator          | Admin              | Host               |
-|-----------|-----------------|--------------------|--------------------|--------------------|--------------------|
-| /color    | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
-| /rename   | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
-| /tpin     | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
-| /tpout    | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
-| /kick     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /ban      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /say      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /mute     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /ds       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /gmpoll   | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /fix      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| /exe      | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| /end      | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
-| Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Feature     | Regular Players | VIP                | Moderator          | Admin              | Host               |
+|-------------|-----------------|--------------------|--------------------|--------------------|--------------------|
+| /color      | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /rename     | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /tpin       | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /tpout      | :question:      | :heavy_check_mark: | :question:         | :question:         | :heavy_check_mark: |
+| /kick       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /ban        | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /say        | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /poll       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /mute       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /ds         | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /gmpoll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /fix        | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /exe        | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /end        | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /afkexempt  | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /os         | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /unmute     | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /readycheck | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /end        | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| Lobby tag   | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 <br>
 
@@ -261,7 +266,7 @@ Source language: English
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
-- EHR has 13 unique custom game modes, which can be played with any number of players, some even alone.
+- EHR has 15 unique custom game modes, which can be played with any number of players, some even alone.
 - You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the
   player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
@@ -353,6 +358,7 @@ Source language: English
 | /jt<br>/jailtalk                               | Talk to the Jailor as a jailed player or vice versa.                                          | &#x1F538; **message** – The message to send to the Jailor/jailed player<br>                                                                                                                                                                                                                                                  | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark: |
 | /gm<br>/gml<br>/gamemodes<br>/gamemodelist     | View the list of all game modes in the mod.                                                   | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                |
 | /gmp<br>/gmpoll<br>/pollgm<br>/gamemodepoll    | Start a poll to vote for the next game mode.                                                  | –                                                                                                                                                                                                                                                                                                                            | :red_circle: Host, Moderators, And Admins | :green_square: In Lobby                 | :x:                |
+| /mp<br>/mpoll<br>/pollm<br>/mappoll            | Start a poll to vote for the next map.                                                        | –                                                                                                                                                                                                                                                                                                                            | :red_circle: Host, Moderators, And Admins | :green_square: In Lobby                 | :x:                |
 | /8ball                                         | Ask the magic 8-ball a question.                                                              | &#x1F539; **question** – The question to ask<br>                                                                                                                                                                                                                                                                             | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                |
 | /addtag<br>/createtag                          | Add a tag to a player (visible in YOUR lobbies only) (appears before, in-line with the name). | &#x1F538; **id** – The player's ID to add a tag to<br>&#x1F538; **color** – The color of the tag (format: hex, without the leading # (example: 00ffa5))<br>&#x1F538; **tag** – The tag to add (you can use HTML tags) (don't forget a separator at the end)<br>                                                              | :yellow_circle: Host                      | :purple_square: Always                  | :x:                |
 | /deletetag                                     | Delete a tag from a player.                                                                   | &#x1F538; **id** – The player's ID to delete the tag from<br>                                                                                                                                                                                                                                                                | :yellow_circle: Host                      | :green_square: In Lobby                 | :x:                |
@@ -369,6 +375,8 @@ Source language: English
 | /imitate                                       | Imitate a dead player's role as the Imitator                                                  | &#x1F538; **id** – The dead player's ID to imitate the role of<br>                                                                                                                                                                                                                                                           | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark: |
 | /retribute                                     | Guess who killed the player you camped as the Retributionist                                  | &#x1F538; **id** – The potential killer's ID to guess<br>                                                                                                                                                                                                                                                                    | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark: |
 | /revive                                        | Revives a dead player. Requires special access or No Game End enabled.                        | &#x1F538; **id** – The dead player's ID to revive<br>                                                                                                                                                                                                                                                                        | :yellow_circle: Host                      | :white_large_square: In Game            | :x:                |
+| /select                                        | Select your impostor partner and their role.                                                  | &#x1F538; **id** – The player's ID to select as your impostor partner<br>&#x1F538; **role** – The role to select for your impostor partner<br>                                                                                                                                                                               | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark: |
+| /uiscale                                       | Set the scale of the buttons in the UI                                                        | &#x1F538; **scale** – The scale to set (1.0 = default, 0.5 = half size, 2.0 = double size)<br>                                                                                                                                                                                                                               | :green_circle: Modded Clients             | :purple_square: Always                  | :x:                |
 | /confirmauth                                   | Command required to register a new EHR account                                                | &#x1F538; **uuid** – The unique token provided by the server<br>                                                                                                                                                                                                                                                             | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                |
 | /shoot<br>/guess<br>/bet<br>/bt<br>/st         | Guess a player's role                                                                         | &#x1F538; **id** – The player's ID to guess<br>&#x1F538; **role** – The role or add-on to guess<br>                                                                                                                                                                                                                          | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
 | /tl<br>/sp<br>/jj<br>/trial                    | Trial a player as the Judge or Councillor                                                     | &#x1F538; **id** – The player's ID to trial or kill<br>                                                                                                                                                                                                                                                                      | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
@@ -377,7 +385,7 @@ Source language: English
 | /ms<br>/mediumship<br>/medium                  | Answer the Medium's question                                                                  | &#x1F538; **answer** – yes/no<br>                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
 | /rv                                            | Take revenge on (kill) a player as the Nemesis                                                | &#x1F538; **id** – The player's ID to take revenge on (kill)<br>                                                                                                                                                                                                                                                             | :purple_circle: Everyone                  | :red_square: After Death                | :x:                |
 |                                                |                                                                                               |                                                                                                                                                                                                                                                                                                                              |                                           |                                         |                    |
-| 99                                             |                                                                                               |                                                                                                                                                                                                                                                                                                                              |                                           |                                         |                    |
+| 101                                            |                                                                                               |                                                                                                                                                                                                                                                                                                                              |                                           |                                         |                    |
 
 <br>
 
@@ -673,6 +681,8 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
+
 
 
 

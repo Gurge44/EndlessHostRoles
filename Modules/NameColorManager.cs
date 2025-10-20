@@ -46,6 +46,7 @@ public static class NameColorManager
                 if (FreeForAll.PlayerTeams.TryGetValue(target.PlayerId, out int team))
                     color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
+            case CustomGameMode.Mingle:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.MoveAndStop:
@@ -77,6 +78,8 @@ public static class NameColorManager
             case CustomGameMode.BedWars:
                 color = BedWars.GetNameColor(target);
                 return true;
+            case CustomGameMode.Deathrace:
+                return Deathrace.KnowRoleColor(seer, target, out color);
         }
 
         RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;
@@ -140,6 +143,7 @@ public static class NameColorManager
         // Check if the seer can see the target's role color
         color = seerRole switch
         {
+            CustomRoles.Silencer when Silencer.ForSilencer.Contains(target.PlayerId) => "000000",
             CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId) => "000000",
             CustomRoles.Executioner when Executioner.Target.TryGetValue(seer.PlayerId, out byte exeTarget) && exeTarget == target.PlayerId => "000000",
             CustomRoles.Lawyer when Lawyer.Target.TryGetValue(seer.PlayerId, out byte lawyerTarget) && lawyerTarget == target.PlayerId => "000000",

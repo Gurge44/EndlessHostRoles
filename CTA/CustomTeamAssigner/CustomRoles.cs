@@ -23,7 +23,7 @@ public enum CustomRoles
     Ambusher,
     Anonymous,
     AntiAdminer,
-    Sans, // Arrogance
+    Arrogance,
     Assumer,
     Augmenter,
     Bard,
@@ -34,12 +34,13 @@ public enum CustomRoles
     Camouflager,
     Capitalism,
     Cantankerous,
+    Centralizer,
     Changeling,
     Chronomancer,
     Cleaner,
     ClockBlocker,
     Commander,
-    EvilDiviner, // Consigliere
+    Consigliere,
     Consort,
     Councillor,
     Crewpostor,
@@ -54,6 +55,7 @@ public enum CustomRoles
     Eraser,
     EvilGuesser,
     EvilTracker,
+    Fabricator,
     FireWorks,
     Forger,
     Framer,
@@ -77,7 +79,7 @@ public enum CustomRoles
     Lurker,
     Mafioso,
     Mastermind,
-    Mafia, // Nemesis
+    Nemesis,
     Mercenary,
     Miner,
     Morphling,
@@ -167,7 +169,7 @@ public enum CustomRoles
     Cleanser,
     Convener,
     CopyCat,
-    Bloodhound, // Coroner
+    Coroner,
     LovingCrewmate,
     LovingImpostor,
     Crusader,
@@ -178,6 +180,7 @@ public enum CustomRoles
     Dictator,
     Doctor,
     DonutDelivery,
+    Doorjammer,
     DoubleAgent,
     DovesOfNeace,
     Drainer,
@@ -272,6 +275,7 @@ public enum CustomRoles
     Tracefinder,
     Tree,
     Tunneler,
+    Vacuum,
     Ventguard,
     Veteran,
     SwordsMan, // Vigilante
@@ -364,6 +368,7 @@ public enum CustomRoles
     SchrodingersCat,
     Seamstress,
     SerialKiller,
+    Sharpshooter,
     Shifter,
     Sidekick,
     Simon,
@@ -463,6 +468,12 @@ public enum CustomRoles
 
     // Bed Wars
     BedWarsPlayer,
+    
+    // Deathrace
+    Racer,
+    
+    // Mingle
+    MinglePlayer,
 
     // GM
     GM,
@@ -496,6 +507,8 @@ public enum CustomRoles
     Clumsy,
     Commited,
     Compelled,
+    Composter,
+    Concealer,
     Contagious,
     Damocles,
     Deadlined,
@@ -554,16 +567,19 @@ public enum CustomRoles
     Trainee,
     DualPersonality, // Schizophrenic
     Seer,
+    Shade, // Ghost role
     Shy,
     Sleuth,
     Sonar,
     Stained,
-    Taskcounter,
     TicketsStealer, // Stealer
     Stressed,
     Swift,
     Sunglasses,
+    Taskcounter,
+    TaskMaster,
     Brakar, // Tiebreaker
+    Tired,
     Torch,
     Truant,
     Unbound,

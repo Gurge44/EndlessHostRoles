@@ -457,6 +457,17 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         if (SecurityGuard.BlockSabo.Count > 0) return false;
 
+        if (Doorjammer.BlockSabotagesFromJammedRooms.GetBool())
+        {
+            var room = player.GetPlainShipRoom();
+            
+            if (room != null && Doorjammer.JammedRooms.Contains(room.RoomId))
+            {
+                player.Notify(Translator.GetString("DoorjammerBlockSabo"));
+                return false;
+            }
+        }
+
         if (player.IsRoleBlocked())
         {
             player.Notify(BlockedAction.Sabotage.GetBlockNotify());

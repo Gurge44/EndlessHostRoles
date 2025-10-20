@@ -174,11 +174,13 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     AURoleOptions.EngineerCooldown = 0.01f;
                     AURoleOptions.EngineerInVentMaxTime = 0f;
                     goto case CustomGameMode.RoomRush;
+                case CustomGameMode.Mingle:
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                     SetMaxVision();
                     break;
+                case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:
                     AURoleOptions.PhantomCooldown = 0.1f;
                     goto case CustomGameMode.RoomRush;
@@ -275,10 +277,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            try
-            {
-                state.Role.ApplyGameOptions(opt, player.PlayerId);
-            }
+            try { state.Role.ApplyGameOptions(opt, player.PlayerId); }
             catch (Exception e) { Utils.ThrowException(e); }
 
             if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
@@ -580,6 +579,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool AmValid()
     {
-        return base.AmValid() && player != null && !player.Data.Disconnected && Main.RealOptionsData != null;
+        return base.AmValid() && player != null && player.Data != null && !player.Data.Disconnected && Main.RealOptionsData != null;
     }
 }

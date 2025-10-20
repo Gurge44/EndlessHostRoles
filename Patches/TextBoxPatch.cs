@@ -194,36 +194,38 @@ public static class TextBoxPatch
                 PlaceHolderText.transform.localPosition = __instance.outputText.transform.localPosition;
             }
 
-            if (CommandInfoText == null && HudManager.InstanceExists)
-            {
+            if (HudManager.InstanceExists)
+            { 
                 HudManager hud = HudManager.Instance;
-                CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
-                CommandInfoText.name = "CommandInfoText";
-                CommandInfoText.alignment = TextAlignmentOptions.Left;
-                CommandInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
-                CommandInfoText.transform.localPosition = new(-3.2f, -2.35f, 0f);
-                CommandInfoText.overflowMode = TextOverflowModes.Overflow;
-                CommandInfoText.enableWordWrapping = false;
-                CommandInfoText.color = Color.white;
-                CommandInfoText.fontSize = CommandInfoText.fontSizeMax = CommandInfoText.fontSizeMin = 1.8f;
-                CommandInfoText.sortingOrder = 1000;
-                CommandInfoText.transform.SetAsLastSibling();
-            }
+                if (CommandInfoText == null)
+                {
+                    CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
+                    CommandInfoText.name = "CommandInfoText";
+                    CommandInfoText.alignment = TextAlignmentOptions.Left;
+                    CommandInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
+                    CommandInfoText.transform.localPosition = new(-3.2f, -2.35f, 0f);
+                    CommandInfoText.overflowMode = TextOverflowModes.Overflow;
+                    CommandInfoText.enableWordWrapping = false;
+                    CommandInfoText.color = Color.white;
+                    CommandInfoText.fontSize = CommandInfoText.fontSizeMax = CommandInfoText.fontSizeMin = 1.8f;
+                    CommandInfoText.sortingOrder = 1000;
+                    CommandInfoText.transform.SetAsLastSibling();
+                }
 
-            if (AdditionalInfoText == null && HudManager.InstanceExists)
-            {
-                HudManager hud = HudManager.Instance;
-                AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
-                AdditionalInfoText.name = "AdditionalInfoText";
-                AdditionalInfoText.alignment = TextAlignmentOptions.Left;
-                AdditionalInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
-                AdditionalInfoText.transform.localPosition = new(-5f, 0f, 0f);
-                AdditionalInfoText.overflowMode = TextOverflowModes.Overflow;
-                AdditionalInfoText.enableWordWrapping = false;
-                AdditionalInfoText.color = Color.white;
-                AdditionalInfoText.fontSize = AdditionalInfoText.fontSizeMax = AdditionalInfoText.fontSizeMin = 1.8f;
-                AdditionalInfoText.sortingOrder = 1000;
-                AdditionalInfoText.transform.SetAsLastSibling();
+                if (AdditionalInfoText == null)
+                {
+                    AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
+                    AdditionalInfoText.name = "AdditionalInfoText";
+                    AdditionalInfoText.alignment = TextAlignmentOptions.Left;
+                    AdditionalInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
+                    AdditionalInfoText.transform.localPosition = new(-5f, 0f, 0f);
+                    AdditionalInfoText.overflowMode = TextOverflowModes.Overflow;
+                    AdditionalInfoText.enableWordWrapping = false;
+                    AdditionalInfoText.color = Color.white;
+                    AdditionalInfoText.fontSize = AdditionalInfoText.fontSizeMax = AdditionalInfoText.fontSizeMin = 1.8f;
+                    AdditionalInfoText.sortingOrder = 1000;
+                    AdditionalInfoText.transform.SetAsLastSibling();
+                }
             }
 
             string inputForm = input.TrimStart('/');

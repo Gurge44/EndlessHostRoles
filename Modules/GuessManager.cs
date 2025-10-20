@@ -1043,8 +1043,27 @@ public static class GuessManager
             )
             return false;
 
-        if (!role.IsEnable() && !role.RoleExist(true) && !role.IsConverted()) return false;
+        if (!role.IsEnable() && !role.RoleExist(true) && !CanMakeRoleSpawn(role)) return false;
         return Options.CurrentGameMode == CustomGameMode.Standard && !CustomHnS.AllHnSRoles.Contains(role) && !role.IsVanilla();
+
+        bool CanMakeRoleSpawn(CustomRoles r)
+        {
+            Dictionary<CustomRoles, CustomRoles> d = new()
+            {
+                [CustomRoles.Pestilence] = CustomRoles.PlagueBearer,
+                [CustomRoles.VengefulRomantic] = CustomRoles.Romantic,
+                [CustomRoles.RuthlessRomantic] = CustomRoles.Romantic,
+                [CustomRoles.Deathknight] = CustomRoles.Necromancer,
+                [CustomRoles.Undead] = CustomRoles.Necromancer,
+                [CustomRoles.Sidekick] = CustomRoles.Jackal,
+                [CustomRoles.Recruit] = CustomRoles.Jackal,
+                [CustomRoles.Charmed] = CustomRoles.Cultist,
+                [CustomRoles.Contagious] = CustomRoles.Virus,
+                [CustomRoles.Entranced] = CustomRoles.Siren
+            };
+            
+            return d.TryGetValue(r, out var baseRole) && baseRole.RoleExist(true);
+        }
     }
 
     // Modded non-host client guess Role/Add-on
@@ -1105,8 +1124,9 @@ public static class GuessManager
                 CreateGuesserButton(__instance);
         }
 
-        private static bool CanGuess(PlayerControl lp, bool restrictions)
+        public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
+            if (Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
                 CustomRoles.EvilGuesser => true,

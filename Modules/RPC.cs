@@ -110,7 +110,7 @@ public enum CustomRPC
     SwordsManKill,
     SetGhostPlayer,
     SetStalkerKillCount,
-    SetEvilDiviner,
+    SetConsigliere,
     SetGreedierOe,
     SetCollectorVotes,
     SetQuickShooterShotLimit,
@@ -127,7 +127,7 @@ public enum CustomRPC
     Judge,
     Guess,
     MeetingKill,
-    MafiaRevenge,
+    NemesisRevenge,
     SetSwooperTimer,
     SetBanditStealLimit,
     SetBkTimer,
@@ -176,7 +176,8 @@ public enum CustomRPC
     SpeedrunSync,
     NaturalDisastersSync,
     TMGSync,
-    BedWarsSync
+    BedWarsSync,
+    DeathraceSync
 }
 
 public enum Sounds
@@ -242,7 +243,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -455,17 +456,18 @@ internal static class RPCHandlerPatch
                     if (AmongUsClient.Instance.AmHost) break;
 
                     int startIndex = reader.ReadPackedInt32();
+                    
+                    if (startIndex == 2)
+                    {
+                        Options.Preset.SetValue(9);
+                        Options.GameMode.SetValue(reader.ReadPackedInt32());
+                    }
 
                     for (int i = startIndex; i < OptionItem.AllOptions.Count; ++i)
                     {
                         if (reader.BytesRemaining == 0) break;
                         var option = OptionItem.AllOptions[i];
-                        
-                        if (option.Id == 0)
-                        {
-                            option.SetValue(9);
-                            continue;
-                        }
+                        if (option is TextOptionItem) continue;
                         
                         option.SetValue(reader.ReadPackedInt32());
                     }
@@ -1109,9 +1111,9 @@ internal static class RPCHandlerPatch
                     GuessManager.ReceiveRPC(reader, __instance);
                     break;
                 }
-                case CustomRPC.MafiaRevenge:
+                case CustomRPC.NemesisRevenge:
                 {
-                    Mafia.ReceiveRPC(reader, __instance);
+                    Nemesis.ReceiveRPC(reader, __instance);
                     break;
                 }
                 case CustomRPC.SetSwooperTimer:
@@ -1146,14 +1148,11 @@ internal static class RPCHandlerPatch
                     VengefulRomantic.ReceiveRPC(reader);
                     break;
                 }
-                //case CustomRPC.SetCursedSoulCurseLimit:
-                //    CursedSoul.ReceiveRPC(reader);
-                //    break;
-                case CustomRPC.SetEvilDiviner:
+                case CustomRPC.SetConsigliere:
                 {
                     byte id = reader.ReadByte();
                     byte targetId = reader.ReadByte();
-                    (Main.PlayerStates[id].Role as EvilDiviner)?.ReceiveRPC(targetId);
+                    (Main.PlayerStates[id].Role as Consigliere)?.ReceiveRPC(targetId);
                 }
 
                     break;
@@ -1295,6 +1294,13 @@ internal static class RPCHandlerPatch
                     BedWars.ReceiveRPC(reader);
                     break;
                 }
+                case CustomRPC.DeathraceSync:
+                {
+                    if (Deathrace.Data.TryGetValue(reader.ReadByte(), out Deathrace.PlayerData data))
+                        data.Lap = reader.ReadPackedInt32();
+                    
+                    break;
+                }
                 case CustomRPC.ParityCopCommand:
                 {
                     ParityCop.ReceiveRPC(reader);
@@ -1352,13 +1358,15 @@ internal static class RPC
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
 
-        Logger.Msg(" Starting from 0", "SyncCustomSettings");
+        Logger.Msg(" Starting from 2", "SyncCustomSettings");
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-        writer.WritePacked(0);
+        writer.WritePacked(2);
+        writer.WritePacked(Options.GameMode.GetValue());
         
-        for (int i = 0; i < OptionItem.AllOptions.Count; ++i)
+        for (int i = 2; i < OptionItem.AllOptions.Count; ++i)
         {
             var option = OptionItem.AllOptions[i];
+            if (option is TextOptionItem) continue;
             
             if (writer.Length > 500)
             {
@@ -1466,8 +1474,9 @@ internal static class RPC
     {
         byte playerId = reader.ReadByte();
         var deathReason = (PlayerState.DeathReason)reader.ReadInt32();
-        Main.PlayerStates[playerId].deathReason = deathReason;
-        Main.PlayerStates[playerId].IsDead = true;
+        PlayerState state = Main.PlayerStates[playerId];
+        state.deathReason = deathReason;
+        state.IsDead = true;
     }
 
     public static void ForceEndGame(CustomWinner win)
@@ -1676,4 +1685,3 @@ internal static class PlayerPhysicsRPCHandlerPatch
     }
 
 }
-

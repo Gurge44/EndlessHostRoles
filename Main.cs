@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.4.0";
-    public const string PluginDisplayVersion = "6.4.0";
+    public const string PluginVersion = "6.7.0";
+    public const string PluginDisplayVersion = "6.7.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -156,6 +156,7 @@ public class Main : BasePlugin
     public static uint LobbyBehaviourNetId;
     
     public static float GameTimer;
+    public static bool GameEndDueToTimer;
 
     public static bool ShowResult = true;
 
@@ -201,7 +202,10 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
     public static ConfigEntry<bool> ShowModdedClientText { get; private set; }
     public static ConfigEntry<bool> AutoHaunt { get; private set; }
+    public static ConfigEntry<bool> ButtonCooldownInDecimalUnder10s { get; private set; }
+    public static ConfigEntry<bool> CancelPetAnimation { get; private set; }
     public static ConfigEntry<bool> TryFixStuttering { get; private set; }
+    public static ConfigEntry<float> UIScaleFactor { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -300,7 +304,10 @@ public class Main : BasePlugin
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
         AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
+        ButtonCooldownInDecimalUnder10s = Config.Bind("Client Options", "ButtonCooldownInDecimalUnder10s", false);
+        CancelPetAnimation = Config.Bind("Client Options", "CancelPetAnimation", true);
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
+        UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -416,7 +423,9 @@ public class Main : BasePlugin
                 { CustomRoles.Astral, "#b329d6" },
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
+                { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Doorjammer, "#FFECA1" },
                 { CustomRoles.Captain, "#53B3EF" },
                 { CustomRoles.Tree, "#00ff00" },
                 { CustomRoles.Inquisitor, "#7726B6" },
@@ -484,7 +493,7 @@ public class Main : BasePlugin
                 { CustomRoles.DovesOfNeace, "#ffffff" },
                 { CustomRoles.Jailor, "#aa900d" },
                 { CustomRoles.Monarch, "#FFA500" },
-                { CustomRoles.Bloodhound, "#8B0000" },
+                { CustomRoles.Coroner, "#8B0000" },
                 { CustomRoles.Enigma, "#676798" },
                 { CustomRoles.Scout, "#3CB371" },
                 { CustomRoles.CameraMan, "#000930" },
@@ -545,6 +554,7 @@ public class Main : BasePlugin
                 { CustomRoles.Duality, "#8D6F64" },
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.SerialKiller, "#233fcc" },
+                { CustomRoles.Sharpshooter, "#5901D4" },
                 { CustomRoles.Explosivist, "#ff5900" },
                 { CustomRoles.Slenderman, "#2c2e00" },
                 { CustomRoles.Amogus, "#ff0000" },
@@ -631,6 +641,7 @@ public class Main : BasePlugin
                 { CustomRoles.Bloodmoon, "#ff1313" },
                 { CustomRoles.GA, "#8cffff" },
                 { CustomRoles.Facilitator, CovenColor },
+                { CustomRoles.Shade, "#060270" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons
@@ -647,6 +658,10 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Tired, "#ff1919" },
+                { CustomRoles.Concealer, "#ff1919" },
+                { CustomRoles.Composter, "#8D6F64" },
+                { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },
                 { CustomRoles.Commited, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
@@ -753,6 +768,10 @@ public class Main : BasePlugin
                 { CustomRoles.TMGPlayer, "#ffff00" },
                 // Bed Wars
                 { CustomRoles.BedWarsPlayer, "#fc03f8" },
+                // Deathrace
+                { CustomRoles.Racer, "#AFAFAF" },
+                // Mingle
+                { CustomRoles.MinglePlayer, "#FE9900" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -847,7 +866,9 @@ public class Main : BasePlugin
             [CustomGameMode.KingOfTheZones] = Color.red,
             [CustomGameMode.Quiz] = Utils.GetRoleColor(CustomRoles.QuizMaster),
             [CustomGameMode.TheMindGame] = Color.yellow,
-            [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer)
+            [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
+            [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
+            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
@@ -1043,6 +1064,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.SerialKiller,
+    Sharpshooter = CustomRoles.Sharpshooter,
     Explosivist = CustomRoles.Explosivist,
     Thanos = CustomRoles.Thanos,
     Duality = CustomRoles.Duality,
@@ -1117,6 +1139,7 @@ public enum AdditionalWinners
 
     // -------------
     Specter = CustomRoles.Specter,
+    Shade = CustomRoles.Shade,
     Lovers = CustomRoles.Lovers,
     Executioner = CustomRoles.Executioner,
     Opportunist = CustomRoles.Opportunist,

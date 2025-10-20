@@ -105,7 +105,7 @@ internal class Bomber : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (UsePets.GetBool())
+        if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
             hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
         else
             hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
@@ -138,6 +138,7 @@ internal class Bomber : RoleBase
 
     private void Bomb(PlayerControl pc)
     {
+        if (Pelican.IsEaten(pc.PlayerId)) return;
         Logger.Info("Bomber explosion", "Boom");
         CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
@@ -171,7 +172,7 @@ internal class Bomber : RoleBase
 
             if (pc.IsLocalPlayer() && totalAlive <= murderCount)
                 Achievements.Type.ItsJustAPrankBro.Complete();
-        }, 1.5f, "Bomber Suiscide");
+        }, 0.2f, "Bomber Suiscide");
 
         if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool())
             pc.SetKillCooldown();

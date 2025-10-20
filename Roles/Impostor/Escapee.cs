@@ -44,7 +44,7 @@ internal class Escapee : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (Options.UsePets.GetBool())
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
             hud.PetButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
         else
             hud.AbilityButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));

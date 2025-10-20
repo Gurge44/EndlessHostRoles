@@ -30,7 +30,7 @@ internal static class LateTask
         }
         catch (Exception ex)
         {
-            Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{name}\" ({callerData})\n{ex.StackTrace}", "LateTask.Error", false);
+            Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{name}\" ({callerData})\n{ex.StackTrace}", "LateTask.Error", false, multiLine:true);
         }
     }
 }

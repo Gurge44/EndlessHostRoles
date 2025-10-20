@@ -218,13 +218,7 @@ public class Deathpact : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (GameStates.IsMeeting) return string.Empty;
-
-        if (!ShowArrowsToOtherPlayersInPact.GetBool()) return string.Empty;
-
-        if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (!IsInActiveDeathpact(seer)) return string.Empty;
+        if (meeting || hud || !ShowArrowsToOtherPlayersInPact.GetBool() || target != null && seer.PlayerId != target.PlayerId || !IsInActiveDeathpact(seer)) return string.Empty;
 
         var arrows = string.Empty;
 

@@ -164,7 +164,7 @@ public class Sapper : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (UsePets.GetBool())
+        if (UsePets.GetBool() && !UsePhantomBasis.GetBool())
             hud.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
         else
             hud.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));

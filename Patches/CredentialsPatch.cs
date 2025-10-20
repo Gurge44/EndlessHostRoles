@@ -17,10 +17,12 @@ internal static class PingTrackerUpdatePatch
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
-    public static readonly List<float> LastFPS = [];
+    private static readonly List<float> LastFPS = [];
 
     public static bool Prefix(PingTracker __instance)
     {
+        FpsSampler.TickFrame();
+        
         PingTracker instance = Instance == null ? __instance : Instance;
 
         if (AmongUsClient.Instance == null) return false;
@@ -66,7 +68,7 @@ internal static class PingTrackerUpdatePatch
         AppendSeparator();
         Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
 
-        if (Main.ShowFps.Value)
+        if (Main.ShowFps.Value && LastFPS.Count > 0)
         {
             float fps = LastFPS.Average();
 
@@ -86,6 +88,24 @@ internal static class PingTrackerUpdatePatch
         return false;
 
         void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
+    }
+    
+    static class FpsSampler
+    {
+        private static int Frames;
+        private static float Elapsed;
+        private const float SampleInterval = 0.5f; // half-second window
+    
+        public static void TickFrame()
+        {
+            Frames++;
+            Elapsed += Time.unscaledDeltaTime;
+            if (Elapsed < SampleInterval) return;
+            LastFPS.Add(Frames / Elapsed);
+            if (LastFPS.Count > 10) LastFPS.RemoveAt(0);
+            Frames = 0;
+            Elapsed = 0f;
+        }
     }
 }
 

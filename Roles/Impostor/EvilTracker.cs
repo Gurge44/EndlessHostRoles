@@ -202,7 +202,7 @@ public class EvilTracker : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!GameStates.IsInTask) return string.Empty;
+        if (meeting || hud) return string.Empty;
 
         byte trackerId = target.PlayerId;
         if (seer.PlayerId != trackerId || seer.PlayerId != EvilTrackerId) return string.Empty;
