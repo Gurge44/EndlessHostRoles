@@ -15,8 +15,8 @@ namespace EHR.Patches;
 [HarmonyPatch(typeof(PlayerControl))]
 public static class PhantomRolePatch
 {
-    private static readonly List<PlayerControl> InvisibilityList = new();
-    private static readonly System.Collections.Generic.Dictionary<byte, string> PetsList = [];
+    /*private static readonly List<PlayerControl> InvisibilityList = new();
+    private static readonly System.Collections.Generic.Dictionary<byte, string> PetsList = [];*/
 
     [HarmonyPatch(nameof(PlayerControl.CmdCheckVanish))]
     [HarmonyPrefix]
@@ -152,7 +152,9 @@ public static class PhantomRolePatch
 
     public static bool CheckTrigger(PlayerControl phantom)
     {
-        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !Main.PlayerStates[phantom.PlayerId].Role.OnVanish(phantom))
+        RoleBase roleBase = Main.PlayerStates[phantom.PlayerId].Role;
+
+        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !roleBase.OnVanish(phantom))
         {
             if (phantom.AmOwner)
             {
@@ -169,7 +171,7 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
-            if (Main.PlayerStates[phantom.PlayerId].Role is Sniper { IsAim: true })
+            if (roleBase is Sniper { IsAim: true } or Centralizer { MarkedPosition: not null } or Escapee { EscapeeLocation: not null })
             {
                 sender.EndMessage();
                 sender.SendMessage();

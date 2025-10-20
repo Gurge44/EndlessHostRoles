@@ -1999,7 +1999,8 @@ internal static class ExtendedPlayerControl
 
         void DoKill()
         {
-            Vacuum.BeforeMurderCheck(target);
+            if (!Vacuum.BeforeMurderCheck(target))
+                killer = target;
             
             killer.RpcMurderPlayer(target, true);
 

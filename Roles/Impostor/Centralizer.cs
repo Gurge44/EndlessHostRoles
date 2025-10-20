@@ -14,7 +14,7 @@ public class Centralizer : RoleBase
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachKill;
 
-    private Vector2? MarkedPosition;
+    public Vector2? MarkedPosition;
 
     public override void SetupCustomOption()
     {

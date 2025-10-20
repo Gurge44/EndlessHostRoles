@@ -1981,9 +1981,6 @@ internal static class FixedUpdatePatch
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
-            
-            if (Suffix.Length > 0 && !Suffix.ToString().StartsWith('\n'))
-                Suffix.Insert(0, "\n");
 
             // Devourer
             if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)))

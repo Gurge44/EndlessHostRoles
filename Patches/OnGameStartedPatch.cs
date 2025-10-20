@@ -406,7 +406,6 @@ internal static class ChangeRoleSettings
                 DoubleShot.Init();
                 Circumvent.Init();
                 Commited.Init();
-                Tired.Reset();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
 
@@ -1005,6 +1004,7 @@ internal static class StartGameHostPatch
                 Spurt.Add();
                 Allergic.Init();
                 Lovers.Init();
+                LateTask.New(Tired.Reset, 7f, log: false);
             }
             catch (Exception e) { Utils.ThrowException(e); }
 

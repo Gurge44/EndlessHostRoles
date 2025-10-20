@@ -302,7 +302,7 @@ public static class Mingle
                 break;
             case var x when x == aapc.Length:
                 Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-                Main.PlayerStates.Values.DoIf(s => !s.IsDead, s => s.SetDead());
+                Main.PlayerStates.Values.DoIf(s => !s.IsDead, s => s.RealKiller.TimeStamp = DateTime.Now);
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 GameGoing = false;
                 break;
