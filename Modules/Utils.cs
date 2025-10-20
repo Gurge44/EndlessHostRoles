@@ -3429,10 +3429,10 @@ public static class Utils
                     pc.MarkDirtySettings();
 
                     LateTask.New(() =>
-                        {
-                            Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
-                            pc.MarkDirtySettings();
-                        }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                    {
+                        Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
+                        pc.MarkDirtySettings();
+                    }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
                 }
 
                 if (Options.UsePets.GetBool())
@@ -3441,6 +3441,7 @@ public static class Utils
 
                     LateTask.New(() =>
                     {
+                        if (GameStates.IsEnded) return;
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId);
                         pc.RpcSetPet(petId);
@@ -3505,7 +3506,13 @@ public static class Utils
         // PhantomRolePatch.AfterMeeting();
 
         if (Main.CurrentMap == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
-            LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
+        {
+            LateTask.New(() =>
+            {
+                if (GameStates.IsEnded) return;
+                PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
+            }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
+        }
 
         LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
         EAC.InvalidReports.Clear();
@@ -3542,6 +3549,9 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
+                case CustomRoles.Silencer when disconnect:
+                    Silencer.ForSilencer = [];
+                    break;
                 case CustomRoles.Hypnotist when disconnect && Hypnotist.DoReportAfterHypnosisEnds.GetBool():
                     ReportDeadBodyPatch.CanReport.SetAllValues(true);
                     break;

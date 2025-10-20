@@ -942,7 +942,7 @@ internal static class ShapeshiftPatch
 
         if (!isSSneeded)
         {
-            Main.CheckShapeshift[shapeshifter.PlayerId] = false;
+            if (!doSSwithoutAnim) Main.CheckShapeshift[shapeshifter.PlayerId] = false;
             shapeshifter.RpcRejectShapeshift();
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
         }

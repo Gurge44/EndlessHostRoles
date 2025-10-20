@@ -1167,15 +1167,6 @@ internal static class StartGameHostPatch
             pc.Data.Disconnected = disconnected;
             if (!disconnected) pc.Data.SendGameData();
         }
-
-        LateTask.New(() =>
-        {
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                pc.SetKillCooldown(10f);
-                pc.RpcResetAbilityCooldown();
-            }
-        }, 7f, log: false);
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)
