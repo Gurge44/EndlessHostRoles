@@ -2798,7 +2798,8 @@ internal static class ChatCommands
         }
 
         string subArgs = text.Remove(0, 2);
-        SendRolesInfo(subArgs, player.PlayerId);
+        byte to = player.AmOwner && Input.GetKeyDown(KeyCode.LeftShift) ? byte.MaxValue : player.PlayerId;
+        SendRolesInfo(subArgs, to);
     }
 
     private static void DisconnectCommand(PlayerControl player, string text, string[] args)
