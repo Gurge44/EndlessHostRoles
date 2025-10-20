@@ -183,6 +183,8 @@ internal static class ChangeRoleSettings
 
             Utils.GameStartTimeStamp = Utils.TimeStamp;
 
+            Main.GameEndDueToTimer = false;
+
             try { Main.AllRoleClasses.Do(x => x.Init()); }
             catch (Exception e) { Utils.ThrowException(e); }
 

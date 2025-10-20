@@ -758,7 +758,7 @@ public static class StringOptionPatch
                 if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out CustomRoles value))
                 {
                     string roleName = value.IsVanilla() ? value + "EHR" : value.ToString();
-                    string str = Translator.GetString($"{roleName}InfoLong");
+                    string str = Translator.GetString($"{roleName}InfoLong").FixRoleName(value);
                     string infoLong;
 
                     try { infoLong = CustomHnS.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }

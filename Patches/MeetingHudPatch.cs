@@ -693,7 +693,7 @@ internal static class MeetingHudStartPatch
 
                 foreach (CustomRoles subRole in Main.PlayerStates[pc.PlayerId].SubRoles)
                 {
-                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
                     string searchSubStr = GetString(subRole.ToString());
                     sb.Replace(searchSubStr, subRole.ToColoredString());
                     sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());

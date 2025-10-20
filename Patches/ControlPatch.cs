@@ -413,7 +413,7 @@ public static class InGameRoleInfoMenu
 
         subRoles.ForEach(subRole =>
         {
-            addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+            addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
             string searchSubStr = GetString(subRole.ToString());
             addons.Replace(searchSubStr, subRole.ToColoredString());
             addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());

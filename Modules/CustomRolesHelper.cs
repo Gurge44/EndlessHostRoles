@@ -137,7 +137,7 @@ internal static class CustomRolesHelper
             CustomRoles.Vampire => CustomRoles.Impostor,
             CustomRoles.BountyHunter => CustomRoles.Impostor,
             CustomRoles.Trickster => CustomRoles.Impostor,
-            CustomRoles.Witch => CustomRoles.Impostor,
+            CustomRoles.Witch => (Witch.SwitchTrigger)Witch.ModeSwitchAction.GetValue() == Witch.SwitchTrigger.Vanish ? CustomRoles.Phantom : CustomRoles.Impostor,
             CustomRoles.Agitater => CustomRoles.Impostor,
             CustomRoles.Consigliere => CustomRoles.Impostor,
             CustomRoles.Wildling => Wildling.CanShapeshiftOpt.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,

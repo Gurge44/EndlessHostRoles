@@ -1445,7 +1445,7 @@ internal static class ChatCommands
         StringBuilder sb = new();
         StringBuilder settings = new();
         var title = $"{coloredString} {Utils.GetRoleMode(role)}";
-        sb.Append(GetString($"{role}InfoLong").TrimStart());
+        sb.Append(GetString($"{role}InfoLong").FixRoleName(role).TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem chance)) AddSettings(chance);
         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
         string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
@@ -2477,7 +2477,7 @@ internal static class ChatCommands
 
             foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
             {
-                sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
                 string searchSubStr = GetString(subRole.ToString());
                 sb.Replace(searchSubStr, subRole.ToColoredString());
                 sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
@@ -3492,7 +3492,7 @@ internal static class ChatCommands
                 StringBuilder sb = new();
                 StringBuilder settings = new();
                 var title = $"{coloredString} {Utils.GetRoleMode(rl)}";
-                sb.Append(GetString($"{rl}InfoLong").TrimStart());
+                sb.Append(GetString($"{rl}InfoLong").FixRoleName(rl).TrimStart());
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 

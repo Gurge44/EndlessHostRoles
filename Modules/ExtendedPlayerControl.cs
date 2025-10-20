@@ -2038,12 +2038,8 @@ internal static class ExtendedPlayerControl
 
         ReportDeadBodyPatch.AfterReportTasks(reporter, target);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
-
-        LateTask.New(() =>
-        {
-            FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
-            reporter.RpcStartMeeting(target);
-        }, 0.2f, "NoCheckStartMeeting Delay");
+        FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
+        reporter.RpcStartMeeting(target);
     }
 
     public static bool UsesPetInsteadOfKill(this PlayerControl pc)
@@ -2139,7 +2135,8 @@ internal static class ExtendedPlayerControl
         if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
         string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);
-        return GetString($"{role.ToString()}{info}");
+        string roleInfo = GetString($"{role.ToString()}{info}");
+        return infoLong ? roleInfo.FixRoleName(role) : roleInfo;
     }
 
     public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool notOverRide = false)

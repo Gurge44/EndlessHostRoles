@@ -221,6 +221,7 @@ public static class FixedUpdateCaller
                         if (Main.GameTimer > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
                         {
                             Main.GameTimer = 0f;
+                            Main.GameEndDueToTimer = true;
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                         
                             if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)

@@ -401,7 +401,7 @@ internal static class SetEverythingUpPatch
                 __instance.WinText.text = string.Empty;
                 __instance.WinText.color = Color.black;
                 __instance.BackgroundBar.material.color = Color.gray;
-                winnerText.text = GetString("EveryoneDied");
+                winnerText.text = GetString(Main.GameEndDueToTimer ? "GameTimerEnded" : "EveryoneDied");
                 winnerText.color = Color.gray;
                 break;
             case CustomWinner.Error:

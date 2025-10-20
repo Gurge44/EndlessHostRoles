@@ -1249,7 +1249,7 @@ public static class Utils
         if (Options.SabotageTimeControl.GetBool()) messages.Add(new(GetString("SabotageTimeControlInfo"), playerId));
         if (Options.RandomMapsMode.GetBool()) messages.Add(new(GetString("RandomMapsModeInfo"), playerId));
         if (Main.GM.Value) messages.Add(new(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), playerId));
-        messages.AddRange(from role in Enum.GetValues<CustomRoles>() where role.IsEnable() && !role.IsVanilla() select new Message(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong"), playerId));
+        messages.AddRange(from role in Enum.GetValues<CustomRoles>() where role.IsEnable() && !role.IsVanilla() select new Message(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong").FixRoleName(role), playerId));
         if (Options.NoGameEnd.GetBool()) messages.Add(new(GetString("NoGameEndInfo"), playerId));
         messages.SendMultipleMessages();
     }
@@ -4171,7 +4171,7 @@ public static class Utils
 
             if (continuation && progress >= count) continue;
 
-            string str = GetString($"{role}InfoLong");
+            string str = GetString($"{role}InfoLong").FixRoleName(role);
             string infoLong;
 
             try { infoLong = CustomHnS.AllHnSRoles.Contains(role) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }

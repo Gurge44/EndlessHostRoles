@@ -71,7 +71,7 @@ public static class Mingle
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
         
-        MaxRequiredPlayersPerRoomOption = new IntegerOptionItem(id++, "Mingle.MaxRequiredPlayersPerRoomOption", new(1, 30, 1), 10, tab)
+        MaxRequiredPlayersPerRoomOption = new IntegerOptionItem(id, "Mingle.MaxRequiredPlayersPerRoomOption", new(1, 30, 1), 10, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Players);
@@ -263,7 +263,7 @@ public static class Mingle
         {
             var room = AllRooms.Except(RequiredPlayerCount.Keys).RandomElement();
             var count = last2 ? 1 : IRandom.Instance.Next(1, Math.Min(playerCount, MaxRequiredPlayersPerRoom) + 1);
-            if (count > playerCount) count = playerCount;
+            if (count >= playerCount) count = playerCount - 1;
             RequiredPlayerCount[room] = count;
             playerCount -= count;
         }

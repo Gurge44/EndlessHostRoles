@@ -156,6 +156,7 @@ public class Main : BasePlugin
     public static uint LobbyBehaviourNetId;
     
     public static float GameTimer;
+    public static bool GameEndDueToTimer;
 
     public static bool ShowResult = true;
 

@@ -17,6 +17,7 @@ public static class Translator
 {
     private const string LanguageFolderName = "Language";
     private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
+    public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
 
     public static void Init()
     {
@@ -83,6 +84,9 @@ public static class Translator
         // Loading custom translation files
         if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
+        try { OriginalRoleNames = Enum.GetValues<CustomRoles>().ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
+        catch (Exception e) { Utils.ThrowException(e); }
+        
         // Creating a translation template
         CreateTemplateFile();
 
@@ -299,5 +303,10 @@ public static class Translator
         }
 
         File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/export_{lang}.dat", sb.ToString());
+    }
+
+    public static string FixRoleName(this string infoLong, CustomRoles role)
+    {
+        return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
     }
 }
