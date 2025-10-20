@@ -526,7 +526,7 @@ public static class Utils
 
         bool self = seerId == targetId || seerState.IsDead;
 
-        if (!self && Main.DiedThisRound.Contains(seerId)) return (string.Empty, Color.white);
+        if (!self && Main.DiedThisRound.Contains(seerId) && IsRevivingRoleAlive()) return (string.Empty, Color.white);
 
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && CustomHnS.PlayerRoles[seerId].Interface.Team != Team.Impostor)
             targetMainRole = CustomRoles.Hider;
@@ -3293,6 +3293,18 @@ public static class Utils
         Dictionary<Options.GameStateInfo, object> states = nums.ToDictionary(x => x.Key, x => x.Key == Options.GameStateInfo.RomanticState ? GetString($"GSRomanticState.{x.Value}") : (object)x.Value);
         states.DoIf(x => checkDict[x.Key].GetBool(), x => sb.AppendLine(string.Format(GetString($"GSInfo.{x.Key}"), x.Value, GameData.Instance.TotalTasks)));
         return $"<#ffffff><size=90%>{sb.ToString().TrimEnd()}</size></color>";
+    }
+
+    public static bool ShouldNotApplyAbilityCooldown(RoleBase roleBase)
+    {
+        return roleBase switch
+        {
+            Sniper { IsAim: true } => true,
+            Centralizer { MarkedPosition: not null } => true,
+            Escapee { EscapeeLocation: not null } => true,
+            Silencer when Silencer.ForSilencer.Count == 0 => true,
+            _ => false
+        };
     }
 
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)

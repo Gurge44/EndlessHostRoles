@@ -184,7 +184,7 @@ internal static class ExternalRpcPetPatch
 
         Skip:
 
-        if (pc.HasAbilityCD() || roleBase is Sniper { IsAim: true } or Centralizer { MarkedPosition: not null } or Escapee { EscapeeLocation: not null }) return;
+        if (pc.HasAbilityCD() || Utils.ShouldNotApplyAbilityCooldown(roleBase)) return;
 
         pc.AddAbilityCD();
     }

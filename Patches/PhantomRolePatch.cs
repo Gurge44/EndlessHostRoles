@@ -159,6 +159,7 @@ public static class PhantomRolePatch
             if (phantom.AmOwner)
             {
                 FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                if (Utils.ShouldNotApplyAbilityCooldown(roleBase)) return false;
                 phantom.Data.Role.SetCooldown();
                 return false;
             }
@@ -171,7 +172,7 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
-            if (roleBase is Sniper { IsAim: true } or Centralizer { MarkedPosition: not null } or Escapee { EscapeeLocation: not null })
+            if (Utils.ShouldNotApplyAbilityCooldown(roleBase))
             {
                 sender.EndMessage();
                 sender.SendMessage();

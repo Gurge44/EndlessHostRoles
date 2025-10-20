@@ -3,6 +3,8 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
+using Epic.OnlineServices.PlayerDataStorage;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -81,6 +83,7 @@ public class Silencer : RoleBase
         return killer.CheckDoubleTrigger(target, () =>
         {
             ForSilencer.Add(target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1, target.PlayerId);
             killer.SetKillCooldown(3f);
 
             if (killer.IsLocalPlayer())
@@ -99,6 +102,7 @@ public class Silencer : RoleBase
         if (SilenceMode.GetValue() == 1 && ForSilencer.Count == 0 && shapeshifter.PlayerId != target.PlayerId)
         {
             ForSilencer.Add(target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, shapeshifter.PlayerId, 1, target.PlayerId);
 
             if (shapeshifter.IsLocalPlayer())
             {
@@ -119,11 +123,12 @@ public class Silencer : RoleBase
         {
             var pos = pc.Pos();
             var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-            var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => !x.IsImpostor()).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
+            var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
             PlayerControl target = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
             if (target == null) return false;
             
             ForSilencer.Add(target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, target.PlayerId);
 
             if (pc.IsLocalPlayer())
             {
@@ -138,8 +143,23 @@ public class Silencer : RoleBase
         return false;
     }
 
+    public void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                ForSilencer.Add(reader.ReadByte());
+                break;
+            case 2:
+                ForSilencer = [];
+                break;
+        }
+    }
+
     public override void AfterMeetingTasks()
     {
         ForSilencer.Clear();
+        if (PlayerIdList.Count == 0) return;
+        Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList[0], 2);
     }
 }
