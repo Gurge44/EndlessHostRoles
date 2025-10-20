@@ -212,7 +212,7 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-                HudManager.Instance.StartCoroutine(FastDestroyableSingleton<HudManager>.Instance.CoShowIntro());
+                HudManager.Instance.StartCoroutine(HudManager.Instance.CoShowIntro());
             }
 
             if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
@@ -245,7 +245,7 @@ internal static class ControllerManagerUpdatePatch
             if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
             {
                 Main.VisibleTasksCount = !Main.VisibleTasksCount;
-                FastDestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
+                HudManager.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
             }
 
             if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)

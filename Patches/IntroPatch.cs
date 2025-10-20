@@ -696,7 +696,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Deputy or
                     CustomRoles.Sheriff
-                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
+                    => HnSImpostorScreamSfx.Instance.HnSOtherYeehawSfx,
 */
                 CustomRoles.Hater or
                     CustomRoles.Lawyer or

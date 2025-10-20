@@ -142,7 +142,7 @@ public static class Utils
             }
         }
 
-        try { FastDestroyableSingleton<LoadingBarManager>.Instance.ToggleLoadingBar(false); }
+        try { LoadingBarManager.Instance.ToggleLoadingBar(false); }
         catch (Exception e) { ThrowException(e); }
     }
 
