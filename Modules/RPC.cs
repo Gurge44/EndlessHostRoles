@@ -1665,7 +1665,7 @@ internal static class RPC
     }
 }
 
-//[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
+[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
 internal static class PlayerPhysicsRPCHandlerPatch
 {
     public static bool Prefix(PlayerPhysics __instance, byte callId, MessageReader reader)
