@@ -736,7 +736,7 @@
   "WildlingInfoLong": "(内鬼职业):\\n野人可以变形但不能跳管,当野人击杀时,会暂时免疫攻击(跟嗜血骑士一样)",
   "TricksterInfoLong": "(内鬼职业):\\n骗术师跟普通内鬼一样,不过骗术师被视为船员(法官审判骗术师会暴毙.警长不能执法骗术师.死神看骗术师是船员.告密者不能找到骗术师等)",
   "VindicatorInfoLong": "(内鬼职业):\\n卫道士有额外票数,像市长一样(票数根据房主设定)",
-  "ParasiteInfoLong": "(叛徒职业):\\n寄生虫和内鬼互不相认，除此之外寄生虫就是普通内鬼",
+  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
   "DisperserInfoLong": "(内鬼阵营):\\n分散者可以使用隐身/抚摸宠物将所有玩家传送到一个随机的通风口。\\n\\n注意：分散者本身不会被传送，处于通风口的玩家也不能被传送。",
   "InhibitorInfoLong": "(内鬼职业):\\n抑制者只能在没有发生严重破坏时才能击杀（如灯光或反应堆）。",
   "SaboteurInfoLong": "(内鬼职业):\\n破坏者只能在发生严重破坏时才能击杀（如通讯或氧气）。每当破坏者击杀时，将会在当前破坏的基础上激活另一个随机的严重破坏。",
