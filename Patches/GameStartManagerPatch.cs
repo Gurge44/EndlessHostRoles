@@ -330,7 +330,14 @@ public static class GameStartManagerPatch
             instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
 
+#if !ANDROID
         public static void Postfix(GameStartManager __instance)
+        {
+            Postfix_ManualCall(__instance);
+        }
+#endif
+
+        public static void Postfix_ManualCall(GameStartManager __instance)
         {
             try
             {
@@ -522,14 +529,6 @@ public static class GameStartRandomMap
 {
     public static bool Prefix(GameStartManager __instance)
     {
-        if (Options.RandomMapsMode.GetBool())
-        {
-            Main.NormalOptions.MapId = SelectRandomMap();
-            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
-        }
-        else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
-        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
-
         PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
         if (invalidColor.Length > 0)

@@ -1,4 +1,3 @@
-#if !ANDROID
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,9 @@ using static EHR.Translator;
 
 namespace EHR;
 
+#if !ANDROID
 [HarmonyPatch(typeof(ControllerManager), nameof(ControllerManager.Update))]
+#endif
 internal static class ControllerManagerUpdatePatch
 {
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
@@ -194,7 +195,6 @@ internal static class ControllerManagerUpdatePatch
 
             if (!Options.NoGameEnd.GetBool()) return;
 
-#endif
 #if DEBUG
             if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
             {
@@ -277,6 +277,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
                 VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
+#endif
         }
         catch { }
     }
@@ -451,4 +452,3 @@ public static class InGameRoleInfoMenu
         }
     }
 }
-#endif
