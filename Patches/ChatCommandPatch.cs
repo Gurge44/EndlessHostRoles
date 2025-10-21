@@ -1775,7 +1775,7 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length > 0 && GameStates.IsLobby)
+            if (winners.Length is > 0 and < 4 && GameStates.IsLobby)
             {
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
