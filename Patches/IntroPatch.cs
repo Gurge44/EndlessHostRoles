@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.AddOns.Common;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -43,7 +45,7 @@ static class ShowRoleMoveNextPatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
-    public static bool Prefix(HudManager __instance)
+    public static bool Prefix(HudManager __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return true;
 
@@ -67,12 +69,12 @@ static class CoShowIntroPatch
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
         }, 4f, "Assign Tasks");
 
-        Main.Instance.StartCoroutine(CoShowIntro());
+        __result = CoShowIntro().WrapToIl2Cpp();
         return false;
 
         IEnumerator CoShowIntro()
         {
-            while (!ShipStatus.Instance) yield return null;
+            while (!ShipStatus.Instance || !HudManager.InstanceExists) yield return null;
 
             RPC.RpcVersionCheck();
             GameStates.InGame = true;
@@ -80,11 +82,9 @@ static class CoShowIntroPatch
             __instance.IsIntroDisplayed = true;
             __instance.LobbyTimerExtensionUI.HideAll();
             __instance.SetMapButtonEnabled(false);
+            __instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
-            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
-            hudManager.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
-
-            yield return hudManager.ShowEmblem(true);
+            yield return __instance.ShowEmblem(true);
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
@@ -1326,6 +1326,8 @@ internal static class IntroCutsceneDestroyPatch
                         pc.TP(new Vector2(3.32f, -26.57f));
                 }
             }
+            
+            if (!HudManager.InstanceExists) return;
 
             HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
 
@@ -1344,7 +1346,7 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
             
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool()) return;
             
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         }, 1f, log: false);

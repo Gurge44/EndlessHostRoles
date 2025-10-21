@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.AddOns.GhostRoles;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
-using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -937,7 +937,7 @@ public static class StringOptionPatch
 [HarmonyPatch(typeof(GameSettingMenu))]
 public static class GameSettingMenuPatch
 {
-    public static System.Collections.Generic.List<GameObject> GMButtons = [];
+    public static List<GameObject> GMButtons = [];
 
     private static readonly Vector3 ButtonPositionLeft = new(-3.9f, -0.55f, 0f);
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.55f, 0f);
@@ -948,15 +948,15 @@ public static class GameSettingMenuPatch
     private static GameOptionsMenu TemplateGameOptionsMenu;
     private static PassiveButton TemplateGameSettingsButton;
 
-    private static System.Collections.Generic.Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
-    private static System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
+    private static Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
+    private static Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
 
     public static NumberOption PresetBehaviour;
 
     public static long LastPresetChange;
 
     public static FreeChatInputField InputField;
-    private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
+    private static List<OptionItem> HiddenBySearch = [];
     public static Action SearchForOptionsAction;
 
     private static int NumImpsOnOpen = 1;
@@ -1196,7 +1196,7 @@ public static class GameSettingMenuPatch
         }
 
 
-        FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField; // FastDestroyableSingleton DOES NOT WORK HERE!!!! IF YOU USE THAT, IT BREAKS THE ENTIRE SETTINGS MENU
+        FreeChatInputField freeChatField = FastDestroyableSingleton<HudManager>.Instance.Chat.freeChatField; // FastDestroyableSingleton DOES NOT WORK HERE!!!! IF YOU USE THAT, IT BREAKS THE ENTIRE SETTINGS MENU
         FreeChatInputField field = Object.Instantiate(freeChatField, parentLeftPanel.parent);
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.7f, -2.5f, -5f);
@@ -1253,9 +1253,9 @@ public static class GameSettingMenuPatch
             string text = textField.textArea.text.Trim().ToLower();
             var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
             OptionItem[] optionItems = Options.GroupedOptions[modTab];
-            System.Collections.Generic.List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
+            List<OptionItem> result = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
             HiddenBySearch = result;
-            System.Collections.Generic.List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
+            List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
 
             if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || gameSettings == null)
             {
@@ -1394,7 +1394,7 @@ public static class GameSettingMenuPatch
         ModGameOptionsMenu.CategoryHeaderList = new();
 
         ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-        FastDestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
+        if (HudManager.InstanceExists) FastDestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
         if (Controller.currentTouchType != Controller.TouchType.Joystick) __instance.ChangeTab(1, false);
 
         __instance.StartCoroutine(__instance.CoSelectDefault());

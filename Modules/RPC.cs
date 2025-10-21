@@ -1520,10 +1520,10 @@ internal static class RPC
                 case Sounds.KillSound:
                     SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.KillSfx, false);
                     break;
-                case Sounds.TaskComplete:
+                case Sounds.TaskComplete when HudManager.InstanceExists:
                     SoundManager.Instance.PlaySound(FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound, false);
                     break;
-                case Sounds.TaskUpdateSound:
+                case Sounds.TaskUpdateSound when HudManager.InstanceExists:
                     SoundManager.Instance.PlaySound(FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound, false);
                     break;
                 case Sounds.ImpTransform:

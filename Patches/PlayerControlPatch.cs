@@ -1189,7 +1189,7 @@ internal static class ReportDeadBodyPatch
 
         CustomNetObject.OnMeeting();
         
-        FastDestroyableSingleton<HudManager>.Instance.SetRolePanelOpen(false);
+        if (HudManager.InstanceExists) FastDestroyableSingleton<HudManager>.Instance.SetRolePanelOpen(false);
 
         Asthmatic.RunChecks = false;
 

@@ -51,7 +51,7 @@
     <Target Name="Roles" AfterTargets="Build">
         <Copy SourceFiles="CustomRoles.cs" DestinationFolder="CTA/CustomTeamAssigner/"/>
     </Target>
-    <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != ''">
+    <Target Name="Copy" AfterTargets="Build" Condition="'$(AmongUs)' != '' And '$(Configuration)' != 'Android'">
         <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(AmongUs)/BepInEx/plugins/"/>
     </Target>
 </Project>

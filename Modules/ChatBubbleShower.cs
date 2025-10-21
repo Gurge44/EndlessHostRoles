@@ -17,7 +17,7 @@ public static class ChatBubbleShower
     {
         try
         {
-            if (Queue.Count == 0 || ExileController.Instance) return;
+            if (Queue.Count == 0 || ExileController.Instance || !HudManager.InstanceExists) return;
 
             long now = Utils.TimeStamp;
             int wait = GameStates.IsInTask ? 8 : 4;

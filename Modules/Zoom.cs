@@ -52,7 +52,7 @@ public static class Zoom
 
     public static void SetZoomSize(bool times = false, bool reset = false)
     {
-        if (Camera.main == null) return;
+        if (Camera.main == null || !HudManager.InstanceExists) return;
 
         var size = 1.5f;
         if (!times) size = 1 / size;
@@ -81,7 +81,7 @@ public static class Zoom
 
     public static void OnFixedUpdate()
     {
-        if (Camera.main == null) return;
+        if (Camera.main == null || !HudManager.InstanceExists) return;
 
         FastDestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
     }

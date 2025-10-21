@@ -10,6 +10,7 @@ using static EHR.Translator;
 
 namespace EHR;
 
+#if !ANDROID
 [HarmonyPatch(typeof(ControllerManager), nameof(ControllerManager.Update))]
 internal static class ControllerManagerUpdatePatch
 {
@@ -133,7 +134,7 @@ internal static class ControllerManagerUpdatePatch
                 Utils.ShowActiveSettings();
             }
 
-            if (GameStates.IsLobby && KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
+            if (GameStates.IsLobby && HudManager.InstanceExists && KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
             {
                 Prompt.Show(GetString("Promt.ResetAllOptions"), ResetAllOptions, () => { });
 
@@ -193,6 +194,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (!Options.NoGameEnd.GetBool()) return;
 
+#endif
 #if DEBUG
             if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
             {
@@ -200,7 +202,7 @@ internal static class ControllerManagerUpdatePatch
                 if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
             }
 
-            if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame)
+            if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame && HudManager.InstanceExists)
             {
                 HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
                 HudManager.Instance.StartCoroutine(FastDestroyableSingleton<HudManager>.Instance.CoShowIntro());
@@ -233,7 +235,7 @@ internal static class ControllerManagerUpdatePatch
                 Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
             }
 
-            if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
+            if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && HudManager.InstanceExists && !HudManager.Instance.Chat.IsOpenOrOpening)
             {
                 Main.VisibleTasksCount = !Main.VisibleTasksCount;
                 FastDestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
@@ -277,6 +279,7 @@ internal static class ControllerManagerUpdatePatch
                 VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
 
 #endif
+#if !ANDROID
         }
         catch { }
     }
@@ -321,11 +324,13 @@ internal static class HandleHUDPatch
     public static void Postfix(Player player)
     {
         if (player.GetButtonDown(8) && // 8: Kill button actionId
+            HudManager.InstanceExists &&
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseKillButton())
             FastDestroyableSingleton<HudManager>.Instance.KillButton.DoClick();
 
         if (player.GetButtonDown(50) && // 50: Impostor vent button actionId
+            HudManager.InstanceExists &&
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseImpostorVentButton())
             FastDestroyableSingleton<HudManager>.Instance.ImpostorVentButton.DoClick();
@@ -448,5 +453,5 @@ public static class InGameRoleInfoMenu
             Menu?.SetActive(false);
         }
     }
-
 }
+#endif

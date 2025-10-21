@@ -861,7 +861,9 @@ public class Main : BasePlugin
         {
             CustomLogger.ClearLog();
 
+#if !ANDROID
             StartCoroutine(ModNewsFetcher.FetchNews());
+#endif
 
             try { DevManager.StartFetchingTags(); }
             catch (Exception e) { Utils.ThrowException(e); }

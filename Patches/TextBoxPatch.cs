@@ -109,7 +109,7 @@ public static class TextBoxPatch
     {
         try
         {
-            if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
+            if (!HudManager.InstanceExists || !__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
 
             if (!Main.EnableCommandHelper.Value)
             {
@@ -363,7 +363,7 @@ public static class TextBoxPatch
     {
         try
         {
-            bool open = FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening ?? false;
+            bool open = HudManager.InstanceExists && (FastDestroyableSingleton<HudManager>.Instance?.Chat?.IsOpenOrOpening ?? false);
             PlaceHolderText?.gameObject.SetActive(open);
             CommandInfoText?.gameObject.SetActive(open);
             AdditionalInfoText?.gameObject.SetActive(open);

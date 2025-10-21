@@ -199,7 +199,7 @@ internal static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if ((DestroyableSingleton<HudManager>.InstanceExists && FastDestroyableSingleton<HudManager>.Instance != null && FastDestroyableSingleton<HudManager>.Instance.Chat != null && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
+                if ((HudManager.InstanceExists && FastDestroyableSingleton<HudManager>.Instance != null && FastDestroyableSingleton<HudManager>.Instance.Chat != null && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
                     return false;
 
                 __instance.friendBars = new();
@@ -406,7 +406,6 @@ internal static class ModManagerLateUpdatePatch
     {
         __instance.ShowModStamp();
 
-        LateTask.Update(Time.deltaTime);
         ChatBubbleShower.Update();
 
         if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 60)
@@ -417,7 +416,7 @@ internal static class ModManagerLateUpdatePatch
 
     public static void Postfix(ModManager __instance)
     {
-        __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists
+        __instance.localCamera = !HudManager.InstanceExists
             ? Camera.main
             : FastDestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
 
@@ -439,7 +438,7 @@ internal static class OptionsMenuBehaviourOpenPatch
     {
         try
         {
-            if (DestroyableSingleton<HudManager>.InstanceExists && !FastDestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
+            if (HudManager.InstanceExists && !FastDestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
         }
         catch { }
 
@@ -459,7 +458,7 @@ internal static class OptionsMenuBehaviourOpenPatch
             __instance.UpdateButtons();
             __instance.gameObject.SetActive(true);
             __instance.MenuButton?.SelectButton(true);
-            if (DestroyableSingleton<HudManager>.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
+            if (HudManager.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
 
             if (!__instance.grabbedControllerButtons)
             {

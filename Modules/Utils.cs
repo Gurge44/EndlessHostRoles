@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
+using BepInEx;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -1853,10 +1854,13 @@ public static class Utils
 
             if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
             {
-                string name = sender.Data.PlayerName;
-                sender.SetName(title);
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
-                sender.SetName(name);
+                if (HudManager.InstanceExists)
+                {
+                    string name = sender.Data.PlayerName;
+                    sender.SetName(title);
+                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+                    sender.SetName(name);
+                }
 
                 try
                 {
@@ -2060,7 +2064,7 @@ public static class Utils
                 .Write(text)
                 .EndRpc();
 
-            if (sendTo == byte.MaxValue)
+            if (sendTo == byte.MaxValue && HudManager.InstanceExists)
             {
                 string name = sender.Data.PlayerName;
                 sender.SetName(title);
@@ -3754,17 +3758,13 @@ public static class Utils
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
             var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
-#if ANDROID
-            var directory = Main.DataPath;
-#else
-            string directory = Environment.CurrentDirectory;
-#endif
-            FileInfo[] files = [new($"{directory}/BepInEx/LogOutput.log"), new($"{directory}/BepInEx/log.html")];
+            
+            FileInfo[] files = [new(Path.Combine(Paths.BepInExRootPath, "LogOutput.log")), new(CustomLogger.LOGFilePath)];
             files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
             if (!open) return;
 
-            if (PlayerControl.LocalPlayer != null)
+            if (PlayerControl.LocalPlayer != null && HudManager.InstanceExists)
                 FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
 #if !ANDROID
@@ -4006,6 +4006,7 @@ public static class Utils
 
     public static void FlashColor(Color color, float duration = 1f)
     {
+        if (!HudManager.InstanceExists) return;
         HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
         if (hud.FullScreen == null) return;
 

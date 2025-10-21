@@ -61,13 +61,16 @@ public static class FixedUpdateCaller
                 GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(gameStartManager);
 #endif
 
-            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
-
-            if (hudManager)
+            if (HudManager.InstanceExists)
             {
-                HudManagerPatch.Postfix(hudManager);
-                Zoom.Postfix();
-                HudSpritePatch.Postfix(hudManager);
+                HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+
+                if (hudManager)
+                {
+                    HudManagerPatch.Postfix(hudManager);
+                    Zoom.Postfix();
+                    HudSpritePatch.Postfix(hudManager);
+                }
             }
 
             try
@@ -84,7 +87,7 @@ public static class FixedUpdateCaller
 
             try
             {
-                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
+                if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
                 {
                     Predicate<PlayerControl> predicate = AmongUsClient.Instance.AmHost
                         ? Options.CurrentGameMode switch
@@ -99,7 +102,7 @@ public static class FixedUpdateCaller
                     List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted(predicate);
                     PlayerControl closest = players.Count == 0 ? null : players[0];
 
-                    KillButton killButton = hudManager.KillButton;
+                    KillButton killButton = FastDestroyableSingleton<HudManager>.Instance.KillButton;
 
                     if (killButton.currentTarget && killButton.currentTarget != closest)
                         killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);

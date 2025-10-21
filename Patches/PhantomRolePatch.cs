@@ -152,6 +152,8 @@ public static class PhantomRolePatch
 
     public static bool CheckTrigger(PlayerControl phantom)
     {
+        if (!HudManager.InstanceExists) return true;
+        
         RoleBase roleBase = Main.PlayerStates[phantom.PlayerId].Role;
 
         if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !roleBase.OnVanish(phantom))
@@ -337,7 +339,7 @@ public static class PhantomRoleUseAbilityPatch
 {
     public static bool Prefix(PhantomRole __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return true;
+        if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return true;
 
         if (__instance.Player.AmOwner && !__instance.Player.Data.IsDead && __instance.Player.moveable && !Minigame.Instance && !__instance.IsCoolingDown && !__instance.fading)
         {

@@ -2034,6 +2034,7 @@ internal static class ExtendedPlayerControl
 
     public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
+        if (!HudManager.InstanceExists) return;
         if (Options.DisableMeeting.GetBool() && !force) return;
 
         ReportDeadBodyPatch.AfterReportTasks(reporter, target);
@@ -2281,7 +2282,7 @@ internal static class ExtendedPlayerControl
         if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;
         
         ClientData client = pc.GetClient();
-        return client != null && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
+        return client != null && FriendsListManager.InstanceExists && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
     }
 
     public static bool IsBeginner(this PlayerControl pc)

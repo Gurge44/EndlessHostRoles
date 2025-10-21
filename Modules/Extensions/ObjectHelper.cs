@@ -66,9 +66,13 @@ public static unsafe class FastDestroyableSingleton<T> where T : MonoBehaviour
     {
         get
         {
+#if ANDROID
+            return DestroyableSingleton<T>.Instance;
+#else
             IntPtr objectPointer;
             IL2CPP.il2cpp_field_static_get_value(FieldPtr, &objectPointer);
             return objectPointer == IntPtr.Zero ? DestroyableSingleton<T>.Instance : CreateObject(objectPointer);
+#endif
         }
     }
 }
@@ -79,7 +83,11 @@ public static class Il2CppCastHelper
     public static T CastFast<T>(this Il2CppObjectBase obj) where T : Il2CppObjectBase
     {
         if (obj is T casted) return casted;
+#if ANDROID
+        return obj.Cast<T>();
+#else
         return obj.Pointer.CastFast<T>();
+#endif
     }
 
     private static T CastFast<T>(this IntPtr ptr) where T : Il2CppObjectBase

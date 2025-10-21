@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -1222,11 +1224,19 @@ internal enum GameDataTag : byte
     XboxDeclareXuid = 207
 }
 
+#if !ANDROID
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
 internal class GameDataHandlerPatch
 {
-    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum)
+    private static IEnumerator EmptyCoroutine()
     {
+        yield break;
+    }
+    
+    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref Il2CppSystem.Collections.IEnumerator __result)
+    {
+        __result = EmptyCoroutine().WrapToIl2Cpp(); // fix errors if we return false
+        
         var tag = (GameDataTag)reader.Tag;
 
         switch (tag)
@@ -1365,6 +1375,7 @@ internal static class StartGameHostPatchEAC
         if (ShipStatus.Instance != null) IsStartingAsHost = false;
     }
 }
+#endif
 
 //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class CheckInvalidMovementPatch

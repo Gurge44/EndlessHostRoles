@@ -219,7 +219,7 @@ public static class ChatManager
 
     public static void SendPreviousMessagesToAll()
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return;
 
         Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
 
@@ -284,7 +284,7 @@ public static class ChatManager
         {
             bool toEveryone = receiver == null;
             bool toLocalPlayer = !toEveryone && receiver.IsLocalPlayer();
-            if (toLocalPlayer || toEveryone) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
+            if (HudManager.InstanceExists && (toLocalPlayer || toEveryone)) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
             writer.Write("<size=32767>.");

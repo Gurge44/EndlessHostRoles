@@ -173,7 +173,10 @@ public static class MainMenuManagerPatch
 
         foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
         {
-            var buttonText = GameObject.Find(buttonName).transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+            var go = GameObject.Find(buttonName);
+            if (!go) continue;
+            var buttonText = go.GetComponentInChildren<TMP_Text>();
+            if (!buttonText) continue;
             buttonText.DestroyTranslator();
             buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
         }
