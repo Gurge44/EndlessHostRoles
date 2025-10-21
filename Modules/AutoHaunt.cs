@@ -50,7 +50,7 @@ public static class AutoHaunt
                             HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, preferredTarget);
                     }
                     else
-                        FastDestroyableSingleton<HudManager>.Instance.AbilityButton.DoClick();
+                        HudManager.Instance.AbilityButton.DoClick();
                 }
 
                 yield return new WaitForSeconds(5f);

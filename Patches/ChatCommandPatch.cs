@@ -2834,7 +2834,7 @@ internal static class ChatCommands
 
             default:
                 if (!HudManager.InstanceExists) break;
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "crew | imp");
+                HudManager.Instance.Chat.AddChat(player, "crew | imp");
                 break;
         }
 
@@ -3359,7 +3359,7 @@ internal static class ChatCommands
     private static void VersionCommand(PlayerControl player, string text, string[] args)
     {
         string versionText = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
-        if (versionText != string.Empty && HudManager.InstanceExists) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + versionText);
+        if (versionText != string.Empty && HudManager.InstanceExists) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + versionText);
     }
 
     private static void LTCommand(PlayerControl player, string text, string[] args)
@@ -3685,7 +3685,7 @@ internal static class ChatUpdatePatch
         if (clientId == -1 && HudManager.InstanceExists)
         {
             player.SetName(title);
-            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            HudManager.Instance.Chat.AddChat(player, msg);
             player.SetName(name);
         }
 
@@ -3754,9 +3754,9 @@ internal static class RpcSendChatPatch
 
         int return_count = PlayerControl.LocalPlayer.name.Count(x => x == '\n');
         chatText = new StringBuilder(chatText).Insert(0, "\n", return_count).ToString();
-        if (AmongUsClient.Instance.AmClient && HudManager.InstanceExists) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
+        if (AmongUsClient.Instance.AmClient && HudManager.InstanceExists) HudManager.Instance.Chat.AddChat(__instance, chatText);
 
-        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) FastDestroyableSingleton<UnityTelemetry>.Instance.SendWho();
+        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) UnityTelemetry.Instance.SendWho();
 
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable);
         messageWriter.Write(chatText);

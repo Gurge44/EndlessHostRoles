@@ -53,7 +53,7 @@ public static class GameStartManagerPatch
 
                 if (GameData.Instance && HudManager.InstanceExists && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                 {
-                    HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+                    HudManager hudManager = HudManager.Instance;
                     hudManager.ShowLobbyTimer(597);
                     hudManager.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(false);
                     GameStartManagerUpdatePatch.Warned = false;
@@ -62,7 +62,7 @@ public static class GameStartManagerPatch
                 if (AmongUsClient.Instance.AmHost)
                 {
                     __instance.GameStartTextParent.GetComponent<SpriteRenderer>().sprite = null;
-                    __instance.StartButton.ChangeButtonText(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
+                    __instance.StartButton.ChangeButtonText(TranslationController.Instance.GetString(StringNames.StartLabel));
                     __instance.GameStartText.transform.localPosition = new(__instance.GameStartText.transform.localPosition.x, 2f, __instance.GameStartText.transform.localPosition.z);
                     __instance.StartButton.activeTextColor = __instance.StartButton.inactiveTextColor = Color.white;
 
@@ -258,11 +258,11 @@ public static class GameStartManagerPatch
 
             instance.CheckSettingsDiffs();
             instance.StartButton.gameObject.SetActive(true);
-            instance.RulesPresetText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
+            instance.RulesPresetText.text = TranslationController.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
 
-            if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null) instance.privatePublicPanelText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
-            else if (AmongUsClient.Instance.IsGamePublic) instance.privatePublicPanelText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PublicHeader);
-            else instance.privatePublicPanelText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PrivateHeader);
+            if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null) instance.privatePublicPanelText.text = TranslationController.Instance.GetString(StringNames.LocalButton);
+            else if (AmongUsClient.Instance.IsGamePublic) instance.privatePublicPanelText.text = TranslationController.Instance.GetString(StringNames.PublicHeader);
+            else instance.privatePublicPanelText.text = TranslationController.Instance.GetString(StringNames.PrivateHeader);
 
             instance.HostPrivateButton.gameObject.SetActive(!AmongUsClient.Instance.IsGamePublic);
             instance.HostPublicButton.gameObject.SetActive(AmongUsClient.Instance.IsGamePublic);
@@ -282,12 +282,12 @@ public static class GameStartManagerPatch
                 ActionMapGlyphDisplay startButtonGlyph = instance.StartButtonGlyph;
                 startButtonGlyph?.SetColor(instance.LastPlayerCount >= instance.MinPlayers ? Palette.EnabledColor : Palette.DisabledClear);
 
-                if (DestroyableSingleton<DiscordManager>.InstanceExists)
+                if (DiscordManager.InstanceExists)
                 {
                     if (AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
-                        FastDestroyableSingleton<DiscordManager>.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
+                        DiscordManager.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
                     else
-                        FastDestroyableSingleton<DiscordManager>.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
+                        DiscordManager.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
                 }
             }
 
@@ -307,14 +307,14 @@ public static class GameStartManagerPatch
                     if (!instance.GameStartTextParent.activeSelf) SoundManager.Instance.PlaySound(instance.gameStartSound, false);
 
                     instance.GameStartTextParent.SetActive(true);
-                    instance.GameStartText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.GameStarting, num2);
+                    instance.GameStartText.text = TranslationController.Instance.GetString(StringNames.GameStarting, num2);
                     if (num != num2) PlayerControl.LocalPlayer.RpcSetStartCounter(num2);
 
                     if (num2 <= 0) instance.FinallyBegin();
                 }
                 else
                 {
-                    instance.StartButton.ChangeButtonText(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
+                    instance.StartButton.ChangeButtonText(TranslationController.Instance.GetString(StringNames.StartLabel));
                     instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f, 1f);
                     instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
                     instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.3f, 0.3f, 0.3f, 0.5f);
@@ -326,10 +326,10 @@ public static class GameStartManagerPatch
             
             if (!HudManager.InstanceExists) return;
 
-            if (instance.LobbyInfoPane.gameObject.activeSelf && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            if (instance.LobbyInfoPane.gameObject.activeSelf && HudManager.Instance.Chat.IsOpenOrOpening)
                 instance.LobbyInfoPane.DeactivatePane();
 
-            instance.LobbyInfoPane.gameObject.SetActive(!FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening);
+            instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
 
 #if !ANDROID
@@ -461,14 +461,14 @@ public static class GameStartManagerPatch
                 {
                     float timer = Timer;
 
-                    if (LobbyTimerBg == null) LobbyTimerBg = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
+                    if (LobbyTimerBg == null) LobbyTimerBg = HudManager.Instance.LobbyTimerExtensionUI.timerText.transform.parent.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
                     LobbyTimerBg.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyTimerBG.png", 100f);
                     LobbyTimerBg.color = GetTimerColor(timer);
 
                     if (timer <= 60 && !Warned && AmongUsClient.Instance.AmHost)
                     {
                         Warned = true;
-                        LobbyTimerExtensionUI lobbyTimerExtensionUI = FastDestroyableSingleton<HudManager>.Instance.LobbyTimerExtensionUI;
+                        LobbyTimerExtensionUI lobbyTimerExtensionUI = HudManager.Instance.LobbyTimerExtensionUI;
                         lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
                         SoundManager.Instance.PlaySound(lobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
                         Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 2f);

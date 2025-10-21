@@ -2039,7 +2039,7 @@ internal static class ExtendedPlayerControl
 
         ReportDeadBodyPatch.AfterReportTasks(reporter, target);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
-        FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
+        HudManager.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
     }
 
@@ -2282,7 +2282,7 @@ internal static class ExtendedPlayerControl
         if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;
         
         ClientData client = pc.GetClient();
-        return client != null && FriendsListManager.InstanceExists && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
+        return client != null && FriendsListManager.InstanceExists && FriendsListManager.Instance.IsPlayerFriend(client.ProductUserId);
     }
 
     public static bool IsBeginner(this PlayerControl pc)

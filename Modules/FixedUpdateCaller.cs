@@ -63,7 +63,7 @@ public static class FixedUpdateCaller
 
             if (HudManager.InstanceExists)
             {
-                HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+                HudManager hudManager = HudManager.Instance;
 
                 if (hudManager)
                 {
@@ -102,7 +102,7 @@ public static class FixedUpdateCaller
                     List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted(predicate);
                     PlayerControl closest = players.Count == 0 ? null : players[0];
 
-                    KillButton killButton = FastDestroyableSingleton<HudManager>.Instance.KillButton;
+                    KillButton killButton = HudManager.Instance.KillButton;
 
                     if (killButton.currentTarget && killButton.currentTarget != closest)
                         killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);

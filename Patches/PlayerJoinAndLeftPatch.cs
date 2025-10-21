@@ -472,7 +472,7 @@ internal static class OnPlayerJoinedPatch
             Logger.Info(msg, "Android Kick");
         }
 
-        if (FriendsListManager.InstanceExists && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Niko and not GameStates.ServerType.Local)
+        if (FriendsListManager.InstanceExists && FriendsListManager.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost && GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Niko and not GameStates.ServerType.Local)
         {
             AmongUsClient.Instance.KickPlayer(client.Id, true);
             Logger.Info($"Blocked Player {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");
@@ -503,7 +503,7 @@ internal static class OnPlayerLeftPatch
                     case CustomGameMode.HideAndSeek:
                         CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
                         break;
-                    case CustomGameMode.Mingle:
+                    case CustomGameMode.Mingle when data.Character.IsAlive():
                         Mingle.HandleDisconnect();
                         break;
                 }

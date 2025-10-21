@@ -149,7 +149,7 @@ internal static class ControllerManagerUpdatePatch
                         yield return new WaitForSeconds(0.1f);
 
                         string format = GetString("ResettingOptions");
-                        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+                        HudManager hudManager = HudManager.Instance;
                         hudManager.ShowPopUp(string.Format(format, 0, OptionItem.AllOptions.Count));
                         hudManager.Dialogue.BackButton.gameObject.SetActive(false);
 
@@ -205,7 +205,7 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame && HudManager.InstanceExists)
             {
                 HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-                HudManager.Instance.StartCoroutine(FastDestroyableSingleton<HudManager>.Instance.CoShowIntro());
+                HudManager.Instance.StartCoroutine(HudManager.Instance.CoShowIntro());
             }
 
             if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
@@ -238,7 +238,7 @@ internal static class ControllerManagerUpdatePatch
             if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && HudManager.InstanceExists && !HudManager.Instance.Chat.IsOpenOrOpening)
             {
                 Main.VisibleTasksCount = !Main.VisibleTasksCount;
-                FastDestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
+                HudManager.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
             }
 
             if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
@@ -327,13 +327,13 @@ internal static class HandleHUDPatch
             HudManager.InstanceExists &&
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseKillButton())
-            FastDestroyableSingleton<HudManager>.Instance.KillButton.DoClick();
+            HudManager.Instance.KillButton.DoClick();
 
         if (player.GetButtonDown(50) && // 50: Impostor vent button actionId
             HudManager.InstanceExists &&
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseImpostorVentButton())
-            FastDestroyableSingleton<HudManager>.Instance.ImpostorVentButton.DoClick();
+            HudManager.Instance.ImpostorVentButton.DoClick();
     }
 }
 

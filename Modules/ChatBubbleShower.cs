@@ -27,7 +27,7 @@ public static class ChatBubbleShower
             (string message, string title) = Queue.First();
             Queue.Remove((message, title));
 
-            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+            ChatController chat = HudManager.Instance.Chat;
 
             if (GameStates.IsMeeting || chat.IsOpenOrOpening) ShowBubbleWithoutPlayer();
             else if (GameStates.IsLobby) Utils.SendMessage(message, PlayerControl.LocalPlayer.PlayerId, title);

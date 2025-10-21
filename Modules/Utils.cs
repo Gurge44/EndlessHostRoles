@@ -142,7 +142,7 @@ public static class Utils
             }
         }
 
-        try { FastDestroyableSingleton<LoadingBarManager>.Instance.ToggleLoadingBar(false); }
+        try { LoadingBarManager.Instance.ToggleLoadingBar(false); }
         catch (Exception e) { ThrowException(e); }
     }
 
@@ -1858,7 +1858,7 @@ public static class Utils
                 {
                     string name = sender.Data.PlayerName;
                     sender.SetName(title);
-                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+                    HudManager.Instance.Chat.AddChat(sender, text);
                     sender.SetName(name);
                 }
 
@@ -2068,7 +2068,7 @@ public static class Utils
             {
                 string name = sender.Data.PlayerName;
                 sender.SetName(title);
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, text);
+                HudManager.Instance.Chat.AddChat(sender, text);
                 sender.SetName(name);
             }
 
@@ -3765,7 +3765,7 @@ public static class Utils
             if (!open) return;
 
             if (PlayerControl.LocalPlayer != null && HudManager.InstanceExists)
-                FastDestroyableSingleton<HudManager>.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
 #if !ANDROID
             Process.Start("explorer.exe", f.Replace("/", "\\"));
@@ -4007,7 +4007,7 @@ public static class Utils
     public static void FlashColor(Color color, float duration = 1f)
     {
         if (!HudManager.InstanceExists) return;
-        HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+        HudManager hud = HudManager.Instance;
         if (hud.FullScreen == null) return;
 
         GameObject obj = hud.transform.FindChild("FlashColor_FullScreen")?.gameObject;

@@ -1237,7 +1237,7 @@ internal static class TaskPanelBehaviourPatch
         if (taskList == "None" || GameStates.IsLobby || player == null) return;
 
         NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
-        if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
+        if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {TranslationController.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
 
         if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun))
             taskList = GetString("None");

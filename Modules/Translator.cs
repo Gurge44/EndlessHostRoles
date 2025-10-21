@@ -180,7 +180,7 @@ public static class Translator
 #if ANDROID
         return TranslationController.Instance.GetString(stringName);
 #else
-        return FastDestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
+        return TranslationController.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
 #endif
     }
 

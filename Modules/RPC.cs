@@ -1521,13 +1521,13 @@ internal static class RPC
                     SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.KillSfx, false);
                     break;
                 case Sounds.TaskComplete when HudManager.InstanceExists:
-                    SoundManager.Instance.PlaySound(FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound, false);
+                    SoundManager.Instance.PlaySound(HudManager.Instance.TaskCompleteSound, false);
                     break;
                 case Sounds.TaskUpdateSound when HudManager.InstanceExists:
-                    SoundManager.Instance.PlaySound(FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound, false);
+                    SoundManager.Instance.PlaySound(HudManager.Instance.TaskUpdateSound, false);
                     break;
                 case Sounds.ImpTransform:
-                    SoundManager.Instance.PlaySound(FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
+                    SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
                     break;
             }
         }

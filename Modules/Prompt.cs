@@ -18,7 +18,7 @@ public static class Prompt
         try
         {
             if (!HudManager.InstanceExists) return;
-            HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+            HudManager hud = HudManager.Instance;
 
             if (CurrentQuestion != string.Empty || !hud)
             {
