@@ -736,7 +736,7 @@
   "WildlingInfoLong": "(Impostores):\\nComo Selvagem, você pode se metamorfar, mas perde a habilidade de usar dutos. Ao matar, você fica temporariamente imune a ataques.",
   "TricksterInfoLong": "(Impostores):\\nO Trapaceiro é uma função de Impostor regular, mas com apenas uma diferença \\nVocê vai aparecer como Tripulante para as funções de Tripulante.\\n\\nO Xerife não pode matar você.\\nO Psíquico não pode ver você como malvado.\\nO Agente não pode te encontrar.",
   "VindicatorInfoLong": "(Impostores):\\nComo o Vindicador, você tem votos extra igual ao Prefeito.",
-  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you are an Impostor that does not know the other Impostors. You may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
+  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
   "DisperserInfoLong": "(Impostores):\\nO Dispersor pode usar o botão de Desaparecer/pet para teleportar todos os jogadores para dutos aleatórios.\\n\\nNota: o Dispersor em si não será teleportado ao usar o botão de Desaparecer/pet, e os jogadores que estiverem em um duto não serão teleportados.",
   "InhibitorInfoLong": "(Impostores):\\nComo o Inibidor, você só pode matar quando não há um sabotagem crítica ativa (por exemplo, Luzes ou Reator).",
   "SaboteurInfoLong": "(Impostores):\\nComo o Sabotador, você só pode matar quando há uma sabotagem crítica ativa (por exemplo, Comunicações ou O2). Sempre que você matar, outra sabotagem crítica aleatório será ativada em cima da que está ativa.",
