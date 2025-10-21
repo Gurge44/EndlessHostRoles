@@ -34,7 +34,7 @@ internal static class ChangeRoleSettings
 
     public static bool Prefix(AmongUsClient __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
-        if (!GameStates.IsLocalGame) return true;
+        if (!GameStates.IsLocalGame || !HudManager.InstanceExists) return true;
 
         __result = CoStartGame().WrapToIl2Cpp();
         return false;

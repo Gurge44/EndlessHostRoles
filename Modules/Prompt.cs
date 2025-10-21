@@ -17,12 +17,7 @@ public static class Prompt
     {
         try
         {
-            if (!HudManager.InstanceExists)
-            {
-                Logger.Error("HudManager instance does not exist.", "Prompt.Show");
-                return;
-            }
-
+            if (!HudManager.InstanceExists) return;
             HudManager hud = HudManager.Instance;
 
             if (CurrentQuestion != string.Empty || !hud)

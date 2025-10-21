@@ -1520,25 +1520,14 @@ internal static class RPC
                 case Sounds.KillSound:
                     SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.KillSfx, false);
                     break;
-                case Sounds.TaskComplete:
-                    if (!HudManager.InstanceExists)
-                    {
-                        Logger.Warn("HudManager does not exist!", "PlaySound");
-                        break;
-                    }
+                case Sounds.TaskComplete when HudManager.InstanceExists:
                     SoundManager.Instance.PlaySound(HudManager.Instance.TaskCompleteSound, false);
                     break;
-                case Sounds.TaskUpdateSound:
-                    if (!HudManager.InstanceExists)
-                    {
-                        Logger.Warn("HudManager does not exist!", "PlaySound");
-                        break;
-                    }
+                case Sounds.TaskUpdateSound when HudManager.InstanceExists:
                     SoundManager.Instance.PlaySound(HudManager.Instance.TaskUpdateSound, false);
                     break;
                 case Sounds.ImpTransform:
-                    // TODO: figure out how to get an instance of HnSImpostorScreamSfx
-                    //SoundManager.Instance.PlaySound(HnSImpostorScreamSfx.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
+                    SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
                     break;
             }
         }

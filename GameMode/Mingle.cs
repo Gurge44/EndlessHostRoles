@@ -316,7 +316,10 @@ public static class Mingle
 
     public static void HandleDisconnect()
     {
-        RequiredPlayerCount[AllRooms.First(x => RequiredPlayerCount.TryGetValue(x, out var required) && GetNumPlayersInRoom(x) < required)]--;
+        SystemTypes decreaseRoom = AllRooms.First(x => RequiredPlayerCount.TryGetValue(x, out var required) && GetNumPlayersInRoom(x) < required);
+        
+        if (RequiredPlayerCount[decreaseRoom] <= 1) RequiredPlayerCount.Remove(decreaseRoom);
+        else RequiredPlayerCount[decreaseRoom]--;
     }
 
     public static class FixedUpdatePatch
@@ -339,12 +342,17 @@ public static class Mingle
                 KillPlayers();
                 StartNewRound();
             }
-            else if (RequiredPlayerCount.All(x => GetNumPlayersInRoom(x.Key) == x.Value))
+            else
             {
-                Main.AllAlivePlayerControls.NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
-                Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
-                StartNewRound();
-                return;
+                Dictionary<SystemTypes, int> numPlayersInRoom = Main.AllAlivePlayerControls.Select(x => (pc: x, room: x.GetPlainShipRoom())).GroupBy(x => x.room == null ? SystemTypes.Outside : x.room.RoomId).ToDictionary(x => x.Key, x => x.Count());
+                
+                if (RequiredPlayerCount.All(x => numPlayersInRoom.GetValueOrDefault(x.Key, 0) == x.Value))
+                {
+                    Main.AllAlivePlayerControls.NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
+                    Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
+                    StartNewRound();
+                    return;
+                }
             }
             
             Utils.NotifyRoles();

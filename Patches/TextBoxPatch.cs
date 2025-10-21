@@ -109,7 +109,7 @@ public static class TextBoxPatch
     {
         try
         {
-            if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
+            if (!HudManager.InstanceExists || !__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
 
             if (!Main.EnableCommandHelper.Value)
             {
@@ -366,12 +366,7 @@ public static class TextBoxPatch
     {
         try
         {
-            if (!HudManager.InstanceExists)
-            {
-                Logger.Error("HudManager instance does not exist.", "TextBoxPatch");
-                return;
-            }
-            bool open = HudManager.Instance.Chat.IsOpenOrOpening;
+            bool open = HudManager.InstanceExists && (HudManager.Instance?.Chat?.IsOpenOrOpening ?? false);
             PlaceHolderText?.gameObject.SetActive(open);
             CommandInfoText?.gameObject.SetActive(open);
             AdditionalInfoText?.gameObject.SetActive(open);

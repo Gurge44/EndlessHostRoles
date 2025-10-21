@@ -12,6 +12,7 @@ using UnityEngine.Networking;
 
 namespace EHR;
 
+#if !ANDROID
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ModNews
 {
@@ -102,3 +103,4 @@ public static class ModNewsHistory
             aRange[i] = finalAllNews[i];
     }
 }
+#endif

@@ -39,7 +39,7 @@ public static class AutoHaunt
         {
             while (Main.AutoHaunt.Value)
             {
-                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost && !ExtendedPlayerControl.TempExiled.Contains(PlayerControl.LocalPlayer.PlayerId))
+                if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost && !ExtendedPlayerControl.TempExiled.Contains(PlayerControl.LocalPlayer.PlayerId))
                 {
                     if (HauntMenuMinigameStartPatch.Instance != null)
                     {
@@ -47,9 +47,11 @@ public static class AutoHaunt
                         PlayerControl preferredTarget = GetPreferredHauntTarget();
 
                         if (preferredTarget != null && currentTarget != preferredTarget)
+                        {
                             HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, preferredTarget);
+                        }
                     }
-                    else if (HudManager.InstanceExists)
+                    else
                     {
                         HudManager.Instance.AbilityButton.DoClick();
                     }
@@ -59,7 +61,9 @@ public static class AutoHaunt
             }
 
             if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance != null)
+            {
                 HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, null);
+            }
         }
     }
 }

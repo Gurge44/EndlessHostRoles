@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.AddOns.Common;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -73,7 +74,7 @@ static class CoShowIntroPatch
 
         IEnumerator CoShowIntro()
         {
-            while (!ShipStatus.Instance) yield return null;
+            while (!ShipStatus.Instance || !HudManager.InstanceExists) yield return null;
 
             RPC.RpcVersionCheck();
             GameStates.InGame = true;
@@ -81,11 +82,9 @@ static class CoShowIntroPatch
             __instance.IsIntroDisplayed = true;
             __instance.LobbyTimerExtensionUI.HideAll();
             __instance.SetMapButtonEnabled(false);
+            __instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
-            HudManager hudManager = __instance;
-            hudManager.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
-
-            yield return hudManager.ShowEmblem(true);
+            yield return __instance.ShowEmblem(true);
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
@@ -688,16 +687,14 @@ internal static class BeginCrewmatePatch
                     CustomRoles.TimeMaster
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
-                /* TODO: Find out how to access HnSImpostorScreamSfx properly
-           
                 CustomRoles.Chronomancer or
                     CustomRoles.Tremor
-                    => HnSImpostorScreamSfx.Instance.HnSOtherImpostorTransformSfx,
+                    => DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
 
                 CustomRoles.Deputy or
                     CustomRoles.Sheriff
-                    => HnSImpostorScreamSfx.Instance.HnSOtherYeehawSfx,
-*/
+                    => DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
+
                 CustomRoles.Hater or
                     CustomRoles.Lawyer or
                     CustomRoles.Opportunist or
@@ -855,8 +852,7 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("ModeSoloKombat");
                 __instance.BackgroundBar.material.color = color;
-                //PlayerControl.LocalPlayer.Data.Role.IntroSound = HnSImpostorScreamSfx.Instance.HnSOtherImpostorTransformSfx;
-                // TODO: Find out how to access HnSImpostorScreamSfx properly
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 break;
             }
             case CustomGameMode.FFA:
@@ -1333,6 +1329,8 @@ internal static class IntroCutsceneDestroyPatch
                 }
             }
             
+            if (!HudManager.InstanceExists) return;
+
             HudManager hud = HudManager.Instance;
 
             HudSpritePatch.DefaultIcons =
@@ -1350,7 +1348,7 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
             
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool()) return;
             
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         }, 1f, log: false);

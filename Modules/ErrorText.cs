@@ -178,6 +178,7 @@ public class ErrorText : MonoBehaviour
                 Logger.Error("Hudmanager instance not found", "ErrorText");
                 return;
             }
+            
             _camera1 = HudManager.Instance.PlayerCam.GetComponent<Camera>();
             _camera = Camera.main;
         }

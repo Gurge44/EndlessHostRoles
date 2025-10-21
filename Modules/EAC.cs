@@ -1224,18 +1224,20 @@ internal enum GameDataTag : byte
     XboxDeclareXuid = 207
 }
 
-//[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
+#if !ANDROID
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
 internal class GameDataHandlerPatch
 {
     private static IEnumerator EmptyCoroutine()
     {
         yield break;
     }
-
+    
     public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum, ref Il2CppSystem.Collections.IEnumerator __result)
     {
-        var tag = (GameDataTag)reader.Tag;
         __result = EmptyCoroutine().WrapToIl2Cpp(); // fix errors if we return false
+        
+        var tag = (GameDataTag)reader.Tag;
 
         switch (tag)
         {
@@ -1358,7 +1360,7 @@ internal class GameDataHandlerPatch
     }
 }
 
-//[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
+[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
 internal static class StartGameHostPatchEAC
 {
     public static bool IsStartingAsHost;
@@ -1373,6 +1375,7 @@ internal static class StartGameHostPatchEAC
         if (ShipStatus.Instance != null) IsStartingAsHost = false;
     }
 }
+#endif
 
 //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class CheckInvalidMovementPatch

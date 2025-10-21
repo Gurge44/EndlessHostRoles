@@ -1854,18 +1854,13 @@ public static class Utils
 
             if (sendTo != byte.MaxValue && receiver.IsLocalPlayer())
             {
-                string name = sender.Data.PlayerName;
-                sender.SetName(title);
-
                 if (HudManager.InstanceExists)
                 {
+                    string name = sender.Data.PlayerName;
+                    sender.SetName(title);
                     HudManager.Instance.Chat.AddChat(sender, text);
+                    sender.SetName(name);
                 }
-                else
-                {
-                    Logger.Error("HudManager Instance not found, message not sent to chat.", "SendMessage");
-                }
-                sender.SetName(name);
 
                 try
                 {
@@ -2069,19 +2064,11 @@ public static class Utils
                 .Write(text)
                 .EndRpc();
 
-            if (sendTo == byte.MaxValue)
+            if (sendTo == byte.MaxValue && HudManager.InstanceExists)
             {
                 string name = sender.Data.PlayerName;
                 sender.SetName(title);
-
-                if (HudManager.InstanceExists)
-                {
-                    HudManager.Instance.Chat.AddChat(sender, text);
-                }
-                else
-                {
-                    Logger.Error("HudManager Instance not found, message not sent to chat.", "SendMessage");
-                }
+                HudManager.Instance.Chat.AddChat(sender, text);
                 sender.SetName(name);
             }
 
@@ -3771,24 +3758,14 @@ public static class Utils
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
             var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
-#if ANDROID
-            var directory = Main.DataPath;
-#else
-            string directory = Environment.CurrentDirectory;
-#endif
+            
             FileInfo[] files = [new(Path.Combine(Paths.BepInExRootPath, "LogOutput.log")), new(CustomLogger.LOGFilePath)];
             files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
 
             if (!open) return;
 
             if (PlayerControl.LocalPlayer != null && HudManager.InstanceExists)
-            {
-                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
-            }
-            else
-            {
-                Logger.Error("Could not send chat message, HudManager or LocalPlayer is null", "DumpLog");
-            }
+                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
 #if !ANDROID
             Process.Start("explorer.exe", f.Replace("/", "\\"));
@@ -4029,11 +4006,7 @@ public static class Utils
 
     public static void FlashColor(Color color, float duration = 1f)
     {
-        if (!HudManager.InstanceExists)
-        {
-            Logger.Error("HudManager does not exist!", "FlashColor");
-            return;
-        }
+        if (!HudManager.InstanceExists) return;
         HudManager hud = HudManager.Instance;
         if (hud.FullScreen == null) return;
 

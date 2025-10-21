@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.AddOns.GhostRoles;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -1196,13 +1196,9 @@ public static class GameSettingMenuPatch
         }
 
 
-        if (!HudManager.InstanceExists)
-        {
-            Logger.Error("HudManager instance does not exist! Cannot create search bar!", "ExtendedGameSettingsUI");
-            return;
-        }
-
-        FreeChatInputField freeChatField = HudManager.Instance.Chat.freeChatField; // FastDestroyableSingleton DOES NOT WORK HERE!!!! IF YOU USE THAT, IT BREAKS THE ENTIRE SETTINGS MENU
+        if (!HudManager.InstanceExists) return;
+        
+        FreeChatInputField freeChatField = HudManager.Instance.Chat.freeChatField;
         FreeChatInputField field = Object.Instantiate(freeChatField, parentLeftPanel.parent);
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.7f, -2.5f, -5f);
@@ -1400,15 +1396,7 @@ public static class GameSettingMenuPatch
         ModGameOptionsMenu.CategoryHeaderList = new();
 
         ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-
-        if (HudManager.InstanceExists)
-        {
-            HudManager.Instance.menuNavigationPrompts.SetActive(false);
-        }
-        else
-        {
-            Logger.Error("Could not find HudManager instance to disable menu prompts.", "GameSettingMenuPatch");
-        }
+        if (HudManager.InstanceExists) HudManager.Instance.menuNavigationPrompts.SetActive(false);
         if (Controller.currentTouchType != Controller.TouchType.Joystick) __instance.ChangeTab(1, false);
 
         __instance.StartCoroutine(__instance.CoSelectDefault());

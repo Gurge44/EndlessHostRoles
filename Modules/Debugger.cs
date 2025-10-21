@@ -147,7 +147,11 @@ internal static class Logger
 
 public class CustomLogger
 {
+#if ANDROID
     public static readonly string LOGFilePath = $"{Main.DataPath}/EHR/log.html";
+#else
+    public static readonly string LOGFilePath = $"{Main.DataPath}/BepInEx/log.html";
+#endif
 
     private const string HtmlHeader =
         """

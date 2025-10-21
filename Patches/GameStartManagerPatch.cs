@@ -321,8 +321,11 @@ public static class GameStartManagerPatch
                     instance.GameStartText.text = string.Empty;
                 }
             }
+            
+            if (!HudManager.InstanceExists) return;
 
-            if (instance.LobbyInfoPane.gameObject.activeSelf && HudManager.Instance.Chat.IsOpenOrOpening) instance.LobbyInfoPane.DeactivatePane();
+            if (instance.LobbyInfoPane.gameObject.activeSelf && HudManager.Instance.Chat.IsOpenOrOpening)
+                instance.LobbyInfoPane.DeactivatePane();
 
             instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
@@ -445,7 +448,7 @@ public static class GameStartManagerPatch
                 tmp.gameObject.SetActive(true);
 
                 // Lobby timer
-                if (GameData.Instance && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                if (GameData.Instance && HudManager.InstanceExists && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                 {
                     float timer = Timer;
 
@@ -453,7 +456,7 @@ public static class GameStartManagerPatch
                     LobbyTimerBg.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyTimerBG.png", 100f);
                     LobbyTimerBg.color = GetTimerColor(timer);
 
-                    if (timer <= 60 && !Warned)
+                    if (timer <= 60 && !Warned && AmongUsClient.Instance.AmHost)
                     {
                         Warned = true;
                         LobbyTimerExtensionUI lobbyTimerExtensionUI = HudManager.Instance.LobbyTimerExtensionUI;
@@ -537,6 +540,14 @@ public static class GameStartRandomMap
             Utils.SendMessage(msg, sendOption: SendOption.None);
             return false;
         }
+        
+        if (Options.RandomMapsMode.GetBool())
+        {
+            Main.NormalOptions.MapId = SelectRandomMap();
+            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+        }
+        else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
             Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;

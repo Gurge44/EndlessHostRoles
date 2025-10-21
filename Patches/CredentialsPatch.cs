@@ -199,7 +199,7 @@ internal static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if (!HudManager.InstanceExists || (HudManager.InstanceExists && HudManager.Instance.Chat && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance)
+                if ((HudManager.InstanceExists && HudManager.Instance != null && HudManager.Instance.Chat != null && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
                     return false;
 
                 __instance.friendBars = new();
@@ -405,6 +405,7 @@ internal static class ModManagerLateUpdatePatch
     public static bool Prefix(ModManager __instance)
     {
         __instance.ShowModStamp();
+
         ChatBubbleShower.Update();
 
         if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 60)
