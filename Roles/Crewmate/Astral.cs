@@ -146,6 +146,7 @@ public class Astral : RoleBase
     public override void OnReportDeadBody()
     {
         if (BackTS != 0) BecomeAliveAgain(AstralId.GetPlayer(), true);
+        ChatManager.ClearChat(AstralId.GetPlayer());
     }
 
     public void ReceiveRPC(MessageReader reader)

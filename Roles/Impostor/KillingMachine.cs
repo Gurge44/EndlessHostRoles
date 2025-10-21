@@ -50,6 +50,11 @@ internal class KillingMachine : RoleBase
         return false;
     }
 
+    public override bool CanUseSabotage(PlayerControl pc)
+    {
+        return false;
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(false);
