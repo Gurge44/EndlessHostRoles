@@ -736,7 +736,7 @@
   "WildlingInfoLong": "(<#ff1919>インポスター</color>):\\n<size=80%>ワイルディングとして、あなたは 変身ができますが 通気口ができません。\\nあなたが 殺害するとき、あなたは 一時的に 攻撃を免れるようになります。</size>",
   "TricksterInfoLong": "(<#ff1919>インポスター</color>):\\n<size=75%>トリックスターとして、あなたは 通常の<#ff1919>インポスター</color>として機能しますが 1つの重要な違いがあります。\\nあなたは <#8cffff>クルーメイト</color>の役割に <#8cffff>クルーメイト</color>と見られます。\\n\\n<#ffb347>シェリフ</color>は あなたを殺せません。\\n<#6F698C>霊能者</color>は あなたを邪悪として見ることができません。\\n<#b8fb4f>スニッチ</color>は あなたを見つけることができません。</size>",
   "VindicatorInfoLong": "(<#ff1919>インポスター</color>):\\n<size=82%>ヴィンディケーターとして、あなたは <#204d42>メイヤー</color>と同様に 追加票を持ちます。</size>",
-  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you are an Impostor that does not know the other Impostors. You may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
+  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
   "DisperserInfoLong": "(<#ff1919>インポスター</color>):\\n<size=75%>ディスパーザーは ランダムな通気口に すべてのプレイヤーをテレポートさせる 消える/ペットを使用できます。\\n\\n注意: ディスパーザー自身は 消える/ペットで テレポートはされず ならびに 通気口にいるプレイヤーの誰かを テレポートをさせることはできません。</size>",
   "InhibitorInfoLong": "(<#ff1919>インポスター</color>):\\n<size=80%>インヒビターとして、あなたは 致命的なサボタージュが 有効ではないときにのみ 殺害ができます (例えば。、停電 または リアクター など)。</size>",
   "SaboteurInfoLong": "(<#ff1919>インポスター</color>):\\n<size=75%>サボタージャーとして、あなたは 致命的なサボタージュが有効であるときにのみ 殺害ができます (例えば。、通信妨害 あるいは O2)。\\nあなたが 殺害するたび、別のランダムの致命的なサボタージュが 継続中の1つの上に 有効になります。</size>",
