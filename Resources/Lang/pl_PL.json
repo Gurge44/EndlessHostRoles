@@ -736,7 +736,7 @@
   "WildlingInfoLong": "(Impostors):\\nJako Wildling mozesz sie zmieniac (shapeshift), ale nie mozesz korzystac z kanalów wentylacyjnych (vent). Gdy zabijasz, stajesz sie tymczasowo odporny na ataki.",
   "TricksterInfoLong": "(Impostors):\\nJako Trickster dzialasz jak zwykly Impostor, ale z jedna kluczowa roznica – wygladasz jak crewmate dla rol crewmate'ow.\n\nSheriff nie moze Cie zabic.\nPsychic nie widzi Cie jako zlego.\nSnitch nie moze Cie wykryc.",
   "VindicatorInfoLong": "(Impostors):\\nJako Vindicator masz dodatkowe glosy, podobnie jak Mayor.",
-  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you are an Impostor that does not know the other Impostors. You may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
+  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
   "DisperserInfoLong": "(Impostors):\\nDisperser moze uzyc vanisha lub glaskania peta, by teleportowac wszystkich graczy do losowych ventow.\n\nUwaga: Sam Disperser nie zostanie teleportowany po uzyciu znikniecia/glaskania, a gracze znajdujacy sie juz w ventach nie zostana przeniesieni.",
   "InhibitorInfoLong": "(Impostors):\\nJako Inhibitor mozesz zabijac tylko wtedy, gdy nie ma aktywnego krytycznego sabotazu (np. swiatla lub Reaktora).",
   "SaboteurInfoLong": "(Impostors):\\nJako Saboteur mozesz zabijac tylko wtedy, gdy aktywny jest krytyczny sabotaz (np. Comms lub O2). Za kazdym razem, gdy kogos zabijesz, aktywuje sie dodatkowy losowy krytyczny sabotaz – niezaleznie od tego, czy inny juz trwa.",
