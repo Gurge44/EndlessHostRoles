@@ -55,10 +55,9 @@ public static class FixedUpdateCaller
             }
 
 #if ANDROID
-            GameStartManager gameStartManager = GameStartManager.Instance;
 
-            if (gameStartManager)
-                GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(gameStartManager);
+            if (GameStartManager.InstanceExists)
+                GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(GameStartManager.Instance);
 #endif
 
             if (HudManager.InstanceExists)
