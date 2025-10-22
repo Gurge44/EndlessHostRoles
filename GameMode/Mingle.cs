@@ -263,7 +263,7 @@ public static class Mingle
         {
             var room = AllRooms.Except(RequiredPlayerCount.Keys).RandomElement();
             var count = last2 ? 1 : IRandom.Instance.Next(1, Math.Min(playerCount, MaxRequiredPlayersPerRoom) + 1);
-            if (count >= playerCount) count = playerCount - 1;
+            if (count >= playerCount) count = Math.Max(1, playerCount - 1);
             RequiredPlayerCount[room] = count;
             playerCount -= count;
         }

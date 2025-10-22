@@ -516,7 +516,7 @@ internal static class CheckForEndVotingPatch
 
                 pc.TP(pos);
             }
-        }, 10f, "Teleport Lazy Players");
+        }, 12f, "Teleport Lazy Players");
     }
 
     public static bool CheckRole(byte id, CustomRoles role)

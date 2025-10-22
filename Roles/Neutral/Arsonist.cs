@@ -148,7 +148,6 @@ internal class Arsonist : RoleBase
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
                         if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
-
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                     }
 

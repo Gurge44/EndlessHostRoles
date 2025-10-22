@@ -180,7 +180,7 @@ internal class TimeMaster : RoleBase
         long now = Utils.TimeStamp;
         if (BackTrack.ContainsKey(now)) return;
 
-        BackTrack[now] = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, x => x.Pos());
+        BackTrack[now] = Main.AllAlivePlayerControls.Where(x => !x.inVent && !x.onLadder && !x.inMovingPlat).ToDictionary(x => x.PlayerId, x => x.Pos());
 
         if (TimeMasterCanUseVitals.GetBool()) return;
 

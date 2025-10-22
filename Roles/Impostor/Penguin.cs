@@ -349,7 +349,7 @@ public class Penguin : RoleBase
                 LastNotify = Utils.TimeStamp;
             }
 
-            if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+            if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !Penguin_.inMovingPlat && !Penguin_.onLadder)
             {
                 // Set IsDead to true first (prevents ladder chase)
                 if (!IsGoose)
@@ -359,7 +359,7 @@ public class Penguin : RoleBase
                 }
 
                 // If the penguin himself is on a ladder, kill him after getting off the ladder.
-                if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+                if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !AbductVictim.inMovingPlat && !AbductVictim.onLadder)
                 {
                     PlayerControl abductVictim = AbductVictim;
 
@@ -393,7 +393,7 @@ public class Penguin : RoleBase
                 }
             }
             // SnapToRPC does not work for players on top of the ladder, and only the host behaves differently, so teleporting is not done uniformly.
-            else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+            else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !AbductVictim.inMovingPlat && !AbductVictim.onLadder)
             {
                 Vector3 position = Penguin_.Pos();
 
@@ -413,10 +413,7 @@ public class Penguin : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
-
-        if (!Main.PlayerStates.TryGetValue(seer.PlayerId, out PlayerState state) || state.Role is not Penguin pg || pg.AbductVictim == null) return string.Empty;
-
+        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || !Main.PlayerStates.TryGetValue(seer.PlayerId, out PlayerState state) || state.Role is not Penguin pg || pg.AbductVictim == null) return string.Empty;
         return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";
     }
 }
