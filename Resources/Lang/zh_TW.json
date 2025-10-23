@@ -736,7 +736,7 @@
   "WildlingInfoLong": "(偽裝者陣營):\\n野人每次殺人後都可以獲得一定時間的護盾，護盾可以抵擋掉所有正常殺人的舉動，直到護盾時間結束並失效。\\n\\n請注意: 野人可以變形但無法使用通風口。",
   "TricksterInfoLong": "(偽裝者陣營):\\n騙術師跟普通偽裝者一樣，不過你被視為船員(警長執法、法官審判你會暴斃，死神看你是船員，告密者無法找到你等等)。",
   "VindicatorInfoLong": "(偽裝者陣營):\\n衛道士在投票時一票算做多票，就像市長一樣。",
-  "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
+  "ParasiteInfoLong": "(叛徒陣營):\\n作為寄生蟲，你可以殺人、跳管、破壞，什麼都可以。 要知道，你是個偽裝者。",
   "DisperserInfoLong": "(偽裝者陣營)：\\n分散者可以使用消失/寵物將所有玩家傳送至隨機通風口。 \\n\\n注意：分散者本身不會因消失/寵物而被傳送，位於通風口裡的玩家也無法被傳送。",
   "InhibitorInfoLong": "(偽裝者陣營)：\\n作為抑制者，你只能在沒有嚴重破壞活動(例如，燈光或反應爐)時擊殺。",
   "SaboteurInfoLong": "(偽裝者陣營)：\\n作為破壞者，你只能在嚴重破壞活動(例如，通訊或氧氣)進行時進行擊殺。每次你擊殺敵人，都會在當前破壞的基礎上隨機觸發另一個嚴重破壞活動。",
