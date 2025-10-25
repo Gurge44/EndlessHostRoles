@@ -620,7 +620,7 @@ public class Main : BasePlugin
                 { CustomRoles.Virus, "#2E8B57" },
                 { CustomRoles.Investigator, "#BA55D3" },
                 { CustomRoles.Pursuer, "#617218" },
-                { CustomRoles.Phantasm, "#662962" },
+                { CustomRoles.Specter, "#662962" },
                 { CustomRoles.Jinx, "#ed2f91" },
                 { CustomRoles.Maverick, "#781717" },
                 { CustomRoles.Ritualist, "#663399" },
@@ -636,7 +636,7 @@ public class Main : BasePlugin
                 // Ghost roles
                 { CustomRoles.Warden, "#32a852" },
                 { CustomRoles.Minion, "#ff1919" },
-                { CustomRoles.Specter, "#b446e3" },
+                { CustomRoles.Phantasm, "#b446e3" },
                 { CustomRoles.Haunter, "#d1b1de" },
                 { CustomRoles.Bloodmoon, "#ff1313" },
                 { CustomRoles.GA, "#8cffff" },
@@ -1092,7 +1092,7 @@ public enum CustomWinner
     Juggernaut = CustomRoles.Juggernaut,
     Bandit = CustomRoles.Bandit,
     Virus = CustomRoles.Virus,
-    Phantom = CustomRoles.Phantasm,
+    Specter = CustomRoles.Specter,
     Jinx = CustomRoles.Jinx,
     Ritualist = CustomRoles.Ritualist,
     Pickpocket = CustomRoles.Pickpocket,
@@ -1108,7 +1108,7 @@ public enum CustomWinner
     Doppelganger = CustomRoles.Doppelganger,
     Pulse = CustomRoles.Pulse,
     Cherokious = CustomRoles.Cherokious,
-    Specter = CustomRoles.Specter,
+    Phantasm = CustomRoles.Phantasm,
 
     Coven = CustomRoles.CovenLeader,
 
@@ -1126,7 +1126,7 @@ public enum AdditionalWinners
     Fox = CustomRoles.Fox,
 
     // -------------
-    Specter = CustomRoles.Specter,
+    Phantasm = CustomRoles.Phantasm,
     Shade = CustomRoles.Shade,
     Lovers = CustomRoles.Lovers,
     Executioner = CustomRoles.Executioner,
@@ -1139,7 +1139,7 @@ public enum AdditionalWinners
     Romantic = CustomRoles.Romantic,
     VengefulRomantic = CustomRoles.VengefulRomantic,
     Pursuer = CustomRoles.Pursuer,
-    Phantom = CustomRoles.Phantasm,
+    Specter = CustomRoles.Specter,
     Sidekick = CustomRoles.Sidekick,
     Maverick = CustomRoles.Maverick,
     Curser = CustomRoles.Curser,

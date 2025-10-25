@@ -2,24 +2,24 @@
 
 namespace EHR.Neutral;
 
-internal class Phantasm : RoleBase
+internal class Specter : RoleBase
 {
     public override bool IsEnable => false;
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantasm);
+        SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Specter);
 
         PhantomCanVent = new BooleanOptionItem(11410, "CanVent", false, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Phantasm]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Specter]);
 
         PhantomSnatchesWin = new BooleanOptionItem(11411, "SnatchesWin", false, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Phantasm]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Specter]);
 
         PhantomCanGuess = new BooleanOptionItem(11412, "CanGuess", false, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Phantasm]);
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Specter]);
 
-        OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Phantasm);
+        OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Specter);
     }
 
     public override void Init() { }
@@ -30,7 +30,7 @@ internal class Phantasm : RoleBase
     {
         if (completedTaskCount + 1 >= totalTaskCount)
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Phantom);
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Specter);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
     }

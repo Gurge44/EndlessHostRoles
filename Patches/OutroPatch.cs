@@ -380,8 +380,8 @@ internal static class SetEverythingUpPatch
             case CustomWinner.Lovers:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 break;
-            case CustomWinner.Specter:
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Specter);
+            case CustomWinner.Phantasm:
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Phantasm);
                 break;
             case CustomWinner.Draw:
                 __instance.WinText.text = GetString("ForceEnd");

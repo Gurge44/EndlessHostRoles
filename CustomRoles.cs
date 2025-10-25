@@ -345,7 +345,7 @@ public enum CustomRoles
     Pawn,
     Pelican,
     Pestilence,
-    Phantasm,
+    Specter,
     Pickpocket,
     PlagueBearer,
     Poisoner,
@@ -558,7 +558,7 @@ public enum CustomRoles
     Onbound,
     Spurt,
     Sleep,
-    Specter, // Ghost role
+    Phantasm, // Ghost role
     Physicist,
     Rascal,
     Reach,

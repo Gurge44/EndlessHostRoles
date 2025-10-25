@@ -131,7 +131,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Imitator          | Mafioso         | Pawn              |               | Loyal          |
 | Insight           | Mastermind      | Pelican           |               | Lucky          |
 | Inspector         | Nemesis         | Pestilence        |               | Madmate        |
-| Inquirer          | Mercenary       | Specter           |               | Magnet         |
+| Inquirer          | Mercenary       | Phantasm          |               | Magnet         |
 | Inquisitor        | Miner           | Pickpocket        |               | Mare           |
 | Jailor            | Morphling       | Plaguebearer      |               | Messenger      |
 | Journalist        | Ninja           | Infection         |               | Mimic          |
@@ -144,7 +144,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Decryptor         | Postponer       | Quiz Master       |               | Onbound        |
 | Markseeker        | Psychopath      | Reckless          |               | Spurt          |
 | Marshall          | Puppeteer       | Revolutionist     |               | Sleep          |
-| Mathematician     | Quick Shooter   | Ritualist         |               | Phantasm       |
+| Mathematician     | Quick Shooter   | Ritualist         |               | Specter        |
 | Mayor             | Renegade        | Rogue             |               | Physicist      |
 | Mechanic          | Rift Maker      | Romantic          |               | Rascal         |
 | Medic             | Saboteur        | Room Rusher       |               | Reach          |

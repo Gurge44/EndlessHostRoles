@@ -146,7 +146,7 @@ public class CopyCat : RoleBase
                 CustomRoles.SerialKiller => CustomRoles.Sheriff,
                 CustomRoles.Maverick => CustomRoles.Vigilante,
                 CustomRoles.Hookshot or CustomRoles.Ninja => new[] {CustomRoles.Tether, CustomRoles.Transmitter}.RandomElement(),
-                CustomRoles.Hypocrite or CustomRoles.Phantasm => CustomRoles.Speedrunner,
+                CustomRoles.Hypocrite or CustomRoles.Specter => CustomRoles.Speedrunner,
                 CustomRoles.Bandit => CustomRoles.Cleanser,
                 CustomRoles.Weatherman => CustomRoles.Tornado,
                 _ => role

@@ -770,7 +770,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.Markseeker
                     or CustomRoles.Soothsayer
-                    or CustomRoles.Specter
+                    or CustomRoles.Phantasm
                     or CustomRoles.SuperStar
                     or CustomRoles.Sunnyboy
                     => GetIntroSound(RoleTypes.Noisemaker),

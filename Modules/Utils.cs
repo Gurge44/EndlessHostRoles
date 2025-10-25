@@ -971,7 +971,7 @@ public static class Utils
             case CustomRoles.Opportunist:
             case CustomRoles.Executioner:
             case CustomRoles.Lawyer:
-            case CustomRoles.Phantasm:
+            case CustomRoles.Specter:
             case CustomRoles.Duality:
                 if (forRecompute) hasTasks = false;
                 break;
@@ -1012,7 +1012,7 @@ public static class Utils
                 case CustomRoles.Bloodlust:
                     hasTasks = false;
                     break;
-                case CustomRoles.Specter:
+                case CustomRoles.Phantasm:
                 case CustomRoles.Haunter:
                     hasTasks = !forRecompute;
                     break;
@@ -3481,7 +3481,7 @@ public static class Utils
 
             Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
 
-            if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter))
+            if (pc.Is(CustomRoles.Phantasm) || pc.Is(CustomRoles.Haunter))
                 pc.RpcResetAbilityCooldown();
             
             if (pc.Is(CustomRoles.TaskMaster))

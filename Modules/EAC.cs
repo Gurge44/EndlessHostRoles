@@ -316,7 +316,7 @@ internal static class EAC
                 case RpcCalls.StartVanish:
                 case RpcCalls.StartAppear:
                 {
-                    string sreason = "Direct Phantom RPCs " + rpc;
+                    string sreason = "Direct Specter RPCs " + rpc;
                     Report(pc, sreason);
                     MessageWriter swriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.StartAppear, SendOption.Reliable);
                     swriter.Write(false);
