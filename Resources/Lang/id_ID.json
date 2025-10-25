@@ -9459,7 +9459,7 @@
   "Decryptor.GuessMode": "Boleh Tebak Peran",
   "Decryptor.Suffix": "<size=70%><#00ffa5>Selesaikan</color> <b>{0}</b> <#00ffa5>misi untuk mendapatkan huruf lain</color></size>",
   "ParityCopTryHideMsg": "Hide <color=#0D57AF>Inspector</color>'s commands",
-  "MaxParityCheckLimit": "Max inspections per game",
+  "MaxInspectorCheckLimit": "Max inspections per game",
   "ParityCheckLimitPerMeeting": "Max inspections per meeting",
   "ParityCheckEgoistickCountMode": "<color=#5600ff>Egoist</color> counts as",
   "ParityCheckTargetKnow": "Targets know they were checked by <color=#0D57AF>Inspector</color>",

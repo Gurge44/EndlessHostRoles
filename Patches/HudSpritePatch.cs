@@ -184,7 +184,7 @@ public static class HudSpritePatch
 
                     break;
                 }
-                case CustomRoles.ImperiusCurse:
+                case CustomRoles.SoulCatcher:
                 case CustomRoles.Twister:
                 {
                     if (player.Is(CustomRoles.Twister) && Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Transport");
@@ -435,7 +435,7 @@ public static class HudSpritePatch
                     newPetButton = CustomButton.Get("abscond");
                     break;
                 }
-                case CustomRoles.Farseer:
+                case CustomRoles.Investigator:
                 {
                     newKillButton = CustomButton.Get("prophecies");
                     break;

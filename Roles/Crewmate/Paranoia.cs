@@ -31,7 +31,7 @@ internal class Paranoia : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
             .SetValueFormat(OptionFormat.Times);
         
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(7813, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(7813, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
             .SetValueFormat(OptionFormat.Times);
     }

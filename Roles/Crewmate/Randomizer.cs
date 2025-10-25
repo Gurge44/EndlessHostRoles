@@ -350,7 +350,7 @@ internal static class EffectExtenstions
                     if (allPc.Length == 0) break;
 
                     PlayerControl target = allPc.RandomElement();
-                    BallLightning.CheckBallLightningMurder(killer, target, true);
+                    Impostor.Lightning.CheckLightningMurder(killer, target, true);
                     NotifyAboutRNG(target);
                 }
 

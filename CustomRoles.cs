@@ -30,7 +30,7 @@ public enum CustomRoles
     Blackmailer,
     Bomber,
     BountyHunter,
-    OverKiller, // Butcher
+    Butcher,
     Camouflager,
     Capitalism,
     Cantankerous,
@@ -73,7 +73,7 @@ public enum CustomRoles
     Kamikaze,
     Kidnapper,
     KillingMachine,
-    BallLightning, // Lightning
+    Lightning,
     Librarian,
     Loner,
     LovingImpostor,
@@ -102,14 +102,14 @@ public enum CustomRoles
     Scavenger,
     Silencer,
     Sniper,
-    ImperiusCurse, // Soul Catcher
+    SoulCatcher,
     Stasis,
     Swapster,
     Swiftclaw,
     Swooper,
     Stealth,
     TimeThief,
-    BoobyTrap, // Trapster
+    Trapster,
     Trickster,
     Twister,
     Undertaker,
@@ -189,7 +189,7 @@ public enum CustomRoles
     Escort,
     Express,
     Farmer,
-    Farseer, // Investigator
+    Investigator,
     Forensic,
     Divinator, // Fortune Teller
     Gardener,
@@ -204,7 +204,7 @@ public enum CustomRoles
     Ignitor,
     Imitator,
     Insight,
-    ParityCop, // Inspector
+    Inspector,
     Inquirer,
     Inquisitor,
     Jailor,
@@ -225,7 +225,7 @@ public enum CustomRoles
     Medic,
     Mediumshiper,
     Merchant,
-    Monitor, // Telecommunication
+    Telecommunication,
     Mole,
     Monarch,
     Mortician,
@@ -278,7 +278,7 @@ public enum CustomRoles
     Vacuum,
     Ventguard,
     Veteran,
-    SwordsMan, // Vigilante
+    Vigilante,
     Whisperer,
     Witness,
     Wizard,

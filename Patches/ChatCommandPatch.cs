@@ -391,7 +391,7 @@ internal static class ChatCommands
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Inspector.InspectorCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Nemesis.NemesisMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -3578,7 +3578,7 @@ internal static class ChatCommands
             if (GuessManager.GuesserMsg(player, text) ||
                 Judge.TrialMsg(player, text) ||
                 NiceSwapper.SwapMsg(player, text) ||
-                ParityCop.ParityCheckMsg(player, text) ||
+                Inspector.InspectorCheckMsg(player, text) ||
                 Councillor.MurderMsg(player, text))
             {
                 canceled = true;

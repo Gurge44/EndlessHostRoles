@@ -931,7 +931,7 @@ public static class Utils
             case CustomRoles.Ritualist:
             case CustomRoles.Stalker:
             case CustomRoles.Collector:
-            case CustomRoles.ImperiusCurse:
+            case CustomRoles.SoulCatcher:
             case CustomRoles.Provocateur:
             case CustomRoles.BloodKnight:
             case CustomRoles.Camouflager:
@@ -946,7 +946,7 @@ public static class Utils
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
             case CustomRoles.Virus:
-            case CustomRoles.Farseer when !Options.UsePets.GetBool() || !Farseer.UsePet.GetBool():
+            case CustomRoles.Investigator when !Options.UsePets.GetBool() || !Investigator.UsePet.GetBool():
             case CustomRoles.Aid when !Options.UsePets.GetBool() || !Aid.UsePet.GetBool():
             case CustomRoles.Socialite when !Options.UsePets.GetBool() || !Socialite.UsePet.GetBool():
             case CustomRoles.Escort when !Options.UsePets.GetBool() || !Escort.UsePet.GetBool():
@@ -1032,7 +1032,7 @@ public static class Utils
                    (pc.Is(CustomRoles.Snitch) && !Options.SnitchCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Judge) && !Options.JudgeCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
-                   (pc.Is(CustomRoles.Farseer) && !Options.FarseerCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.Investigator) && !Options.InvestigatorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
                    pc.Is(CustomRoles.NiceSwapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
@@ -2509,7 +2509,7 @@ public static class Utils
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
 
-                if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
+                if (Impostor.Lightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gaslighter.GetMark(seer, seer, forMeeting));
@@ -2553,7 +2553,7 @@ public static class Utils
                         case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
                             SelfMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
                             break;
-                        case CustomRoles.Monitor:
+                        case CustomRoles.Telecommunication:
                             if (AntiAdminer.IsAdminWatch) additionalSuffixes.Add($"{GetString("AntiAdminerAD")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                             if (AntiAdminer.IsVitalWatch) additionalSuffixes.Add($"{GetString("AntiAdminerVI")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                             if (AntiAdminer.IsDoorLogWatch) additionalSuffixes.Add($"{GetString("AntiAdminerDL")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
@@ -2795,7 +2795,7 @@ public static class Utils
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
 
-                            if (BallLightning.IsGhost(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
+                            if (Impostor.Lightning.IsGhost(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
                             TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
@@ -2822,8 +2822,8 @@ public static class Utils
                                     if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) arKvp1) && arKvp1.Player == target)
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
                                     break;
-                                case CustomRoles.Farseer when Farseer.FarseerTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) arKvp2) && arKvp2.PLAYER == target:
-                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
+                                case CustomRoles.Investigator when Investigator.InvestigatorTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) arKvp2) && arKvp2.PLAYER == target:
+                                    TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Investigator)}>○</color>");
                                     break;
                                 case CustomRoles.Analyst when (Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
                                     TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
@@ -2855,8 +2855,8 @@ public static class Utils
                             {
                                 if (seer.IsAlive() && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
                                 {
-                                    targetRoleText = Farseer.RandomRole[seer.PlayerId];
-                                    targetRoleText += Farseer.GetTaskState();
+                                    targetRoleText = Investigator.RandomRole[seer.PlayerId];
+                                    targetRoleText += Investigator.GetTaskState();
                                 }
 
                                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat) targetRoleText = $"<size={fontSize}>{GetProgressText(target)}</size>\r\n";
@@ -3329,7 +3329,7 @@ public static class Utils
             CustomRoles.Thanos => 5,
             CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
-            CustomRoles.Monitor => Monitor.VentCooldown.GetInt(),
+            CustomRoles.Telecommunication => Telecommunication.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
             CustomRoles.Doorjammer => Doorjammer.AbilityCooldown.GetInt(),

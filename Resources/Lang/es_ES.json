@@ -9459,7 +9459,7 @@
   "Decryptor.GuessMode": "Can Guess",
   "Decryptor.Suffix": "<size=70%><#00ffa5>Complete</color> <b>{0}</b> <#00ffa5>tasks for the next letters</color></size>",
   "ParityCopTryHideMsg": "Ocultar comandos del <color=#0D57AF>Inspector</color>",
-  "MaxParityCheckLimit": "Inspecciones máximas por juego",
+  "MaxInspectorCheckLimit": "Inspecciones máximas por juego",
   "ParityCheckLimitPerMeeting": "Inspecciones máximas por reunión",
   "ParityCheckEgoistickCountMode": "<color=#5600ff>Egoísta</color> cuenta como",
   "ParityCheckTargetKnow": "Objetivos saben que fueron revisados por el <color=#0D57AF>Inspector</color>",
