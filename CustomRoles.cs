@@ -51,7 +51,7 @@ public enum CustomRoles
     Duellist,
     Dazzler,
     Echo,
-    Escapee,
+    Escapee, // Escapist
     Eraser,
     EvilGuesser,
     EvilTracker,
@@ -189,7 +189,6 @@ public enum CustomRoles
     Escort,
     Express,
     Farmer,
-    Investigator,
     Forensic,
     Divinator, // Fortune Teller
     Gardener,
@@ -205,6 +204,7 @@ public enum CustomRoles
     Imitator,
     Insight,
     Inspector,
+    Investigator,
     Inquirer,
     Inquisitor,
     Jailor,
