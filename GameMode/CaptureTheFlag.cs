@@ -392,7 +392,7 @@ public static class CaptureTheFlag
                                             var pc2 = id2.GetPlayer();
                                             if (pc2 == null) continue;
 
-                                            pc2.RpcSetRoleDesync(RoleTypes.Phantom, targetClientId, true);
+                                            pc2.RpcSetRoleDesync(RoleTypes.Specter, targetClientId, true);
                                         }
                                         catch (Exception e) { Utils.ThrowException(e); }
                                     }

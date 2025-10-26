@@ -9459,7 +9459,7 @@
   "Decryptor.GuessMode": "Pode Adivinhar",
   "Decryptor.Suffix": "<size=70%><#00ffa5>Complete</color> <b>{0}</b> <#00ffa5>tarefas para obter as próximas letras</color></size>",
   "ParityCopTryHideMsg": "Esconder comandos do <color=#0D57AF>Inspetor</color>",
-  "MaxParityCheckLimit": "Máximo de inspeções por Jogo",
+  "MaxInspectorCheckLimit": "Máximo de inspeções por Jogo",
   "ParityCheckLimitPerMeeting": "Máximo de inspeções por Reunião",
   "ParityCheckEgoistickCountMode": "<color=#5600ff>Egoísta</color> conta como",
   "ParityCheckTargetKnow": "Alvo sabe que ele foi verificado pelo <color=#0D57AF>Inspetor</color>",

@@ -202,14 +202,14 @@ internal static class GameEndChecker
                             ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorsByKill;
-                            ResetAndSetWinner(CustomWinner.Phantom);
+                            ResetAndSetWinner(CustomWinner.Specter);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
                             WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
                             break;
                         case CustomRoles.VengefulRomantic when VengefulRomantic.HasKilledKiller:
                             WinnerIds.Add(pc.PlayerId);
@@ -277,12 +277,12 @@ internal static class GameEndChecker
                     }
                 }
 
-                byte[] winningSpecters = GhostRolesManager.AssignedGhostRoles.Where(x => x.Value.Instance is Specter { IsWon: true }).Select(x => x.Key).ToArray();
+                byte[] winningPhantasm = GhostRolesManager.AssignedGhostRoles.Where(x => x.Value.Instance is Phantasm { IsWon: true }).Select(x => x.Key).ToArray();
 
-                if (winningSpecters.Length > 0)
+                if (winningPhantasm.Length > 0)
                 {
-                    AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
-                    WinnerIds.UnionWith(winningSpecters);
+                    AdditionalWinnerTeams.Add(AdditionalWinners.Phantasm);
+                    WinnerIds.UnionWith(winningPhantasm);
                 }
 
                 if (CustomRoles.God.RoleExist())
@@ -446,7 +446,7 @@ internal static class GameEndChecker
         {
             switch (state.MainRole)
             {
-                case CustomRoles.Phantasm when state.TaskState.RemainingTasksCount <= 0 && state.IsDead:
+                case CustomRoles.Specter when state.TaskState.RemainingTasksCount <= 0 && state.IsDead:
                 case CustomRoles.VengefulRomantic when VengefulRomantic.HasKilledKiller:
                 case CustomRoles.SchrodingersCat when !state.SubRoles.Any(x => x.IsConverted()):
                 case CustomRoles.Opportunist when !state.IsDead:

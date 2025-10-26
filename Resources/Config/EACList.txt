@@ -1,4 +1,4 @@
-## AUM
+## Hackers and cheaters
 wreckastir#1163,c4088d65
 ourregion#2992,米娜桑
 muddytee#7260,帅哥别刀我
@@ -60,7 +60,7 @@ spafain#1094,AUM
 storedusty#6125,o O
 farcorn#5146,Acfun
 tilesteep#2740,Engineer
-imagetense#5619,Chinese//Non aum hacker
+imagetense#5619,Chinese
 gabledebb#2717.部屋潰しガチ勢SEX
 coopfunny#1119,Terklom
 clayrymole#8193,joseph0809
@@ -84,8 +84,12 @@ dollepic#0847,17be4645c // DESTRUCT10
 donehoof#2148
 daytiddly#8682,f5f420927,Wardpatchy // Nuking lobbies
 coachcalm#9343,354aa4ac3,Twinfabled // Hacking the game
+goldapex#3225,a89e4420e,BoomplayYT
+woveelixir#4088,42044d211,DMD 3CD //hacker and probably BoomplayYT's alt
+tenpalace#1924,6a259fcd9,Goaty
+cat#2761,f70d4ddb1,ULC
 
-## Griefer
+## Griefers, toxic, harrasing, morons
 setmolar#4374,藏族顶针
 overtfeast#5802,黑影
 roomybump#8560,中国国民党
@@ -104,21 +108,7 @@ apemv#5959,77c89daa8
 alonescrub#2592,0ad8a7627
 lineraring#9796,02c2ce996 //Toxic, was attempting to hack games
 secretname#8564,aa9e48c80
-
-## 冒充开发者
 polkaoval#0453,自作Modな橋本環奈
-
-## Lagging others' games
-tenpalace#1924,6a259fcd9,Goaty
-cat#2761,f70d4ddb1,ULC
-
-## Other
-tenthrope#3476,Oldishwire
-greencorps#9587,4a403fe31,ellsbells
-finlucky#6381,433b2e672,Wuwu
-nattertame#9540,0abd54784,Wuwu // Alt account
-
-## teaming and harassing hosts in multiple lobbies and toxic
 broadbarn#7413,niah
 tidytrice#2024,Alisa?//(either this or above one)
 Foamcrisp#5124, e5be77e02, Barbie //(aka princess, broadbarn alt) 
@@ -129,6 +119,11 @@ freepurse#4452, ee4c01545, Brinysouth //spamming with the n word
 jetevery#3237, f00da9258, Nigertien //the n word
 jumpypool#9964, 7475bd199, NigH8R // the n word
 gougesole#0734,ed140c20d // Pedophile Behaviour
-
-## Racist/Homophobic
 onwardhome#3591, MentoMan
+
+
+## Other
+tenthrope#3476,Oldishwire
+greencorps#9587,4a403fe31,ellsbells
+finlucky#6381,433b2e672,Wuwu
+nattertame#9540,0abd54784,Wuwu // Alt account

@@ -60,7 +60,7 @@ public static class PhantomRolePatch
         return __instance.AmOwner && CheckTrigger(__instance); // This is assuming that all non-host vanish requests are for ability triggers and should be cancelled
     }
 
-    // Called when Phantom press vanish button when visible
+    // Called when Specter press vanish button when visible
     /*[HarmonyPatch(nameof(PlayerControl.CheckVanish))]
     [HarmonyPrefix]
     private static bool CheckVanish_Prefix(PlayerControl __instance)
@@ -81,14 +81,14 @@ public static class PhantomRolePatch
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
-                phantom.SetRole(RoleTypes.Phantom);
+                phantom.SetRole(RoleTypes.Specter);
                 phantom.CheckVanish();
             }
             else
             {
                 var writer = CustomRpcSender.Create("PhantomRolePatch.CheckVanish_Prefix", SendOption.Reliable);
                 
-                writer.RpcSetRole(phantom, RoleTypes.Phantom, clientId);
+                writer.RpcSetRole(phantom, RoleTypes.Specter, clientId);
 
                 writer.AutoStartRpc(phantom.NetId, RpcCalls.CheckVanish, clientId);
                 writer.Write(0); // not used, lol
@@ -144,7 +144,7 @@ public static class PhantomRolePatch
 
                 sender.SendMessage(!hasData);
             }
-        }, 1.2f, "Set Phantom Invisible");
+        }, 1.2f, "Set Specter Invisible");
 
         InvisibilityList.Add(phantom);
         return true;
@@ -215,7 +215,7 @@ public static class PhantomRolePatch
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             if (!target.IsAlive() || phantom.PlayerId == target.PlayerId || target.AmOwner || !target.HasDesyncRole()) continue;
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, target.OwnerId);
+            phantom.RpcSetRoleDesync(RoleTypes.Specter, target.OwnerId);
         }
 
         LateTask.New(() =>
@@ -277,7 +277,7 @@ public static class PhantomRolePatch
     {
         try
         {
-            if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Phantom || seer.AmOwner || !seer.HasDesyncRole()) return;
+            if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Specter || seer.AmOwner || !seer.HasDesyncRole()) return;
 
             foreach (PlayerControl phantom in InvisibilityList)
             {
@@ -298,12 +298,12 @@ public static class PhantomRolePatch
         if (seer.OwnerId == -1 || phantom == null) yield break;
         phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.OwnerId);
 
-        // Return Phantom in meeting
+        // Return Specter in meeting
         yield return new WaitForSeconds(1f);
 
         {
             if (seer.OwnerId == -1 || phantom == null) yield break;
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, seer.OwnerId);
+            phantom.RpcSetRoleDesync(RoleTypes.Specter, seer.OwnerId);
         }
 
         // Revert invis for phantom

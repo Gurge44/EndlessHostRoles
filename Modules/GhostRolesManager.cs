@@ -110,7 +110,7 @@ internal static class GhostRolesManager
 
             return suitableRole switch
             {
-                CustomRoles.Specter when IsPartnerPickedRole() => false,
+                CustomRoles.Phantasm when IsPartnerPickedRole() => false,
                 _ => suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole)
             };
 

@@ -52,7 +52,7 @@ public class Judge : RoleBase
         CanTrialCoven = new BooleanOptionItem(Id + 21, "JudgeCanTrialCoven", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         TryHideMsg = new BooleanOptionItem(Id + 11, "JudgeTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetColor(Color.green);
         JudgeAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 19, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 20, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 20, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
     }
 
     public override void Init()

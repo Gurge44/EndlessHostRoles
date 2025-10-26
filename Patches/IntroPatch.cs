@@ -635,7 +635,7 @@ internal static class BeginCrewmatePatch
                     => HudManager.Instance.Chat.messageSound,
 
                 CustomRoles.AntiAdminer or
-                    CustomRoles.Monitor
+                    CustomRoles.Telecommunication
                     => HudManager.Instance.Chat.warningSound,
 
                 CustomRoles.GM or
@@ -657,7 +657,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.KillingMachine or
                     CustomRoles.NiceGuesser or
-                    CustomRoles.SwordsMan or
+                    CustomRoles.Vigilante or
                     CustomRoles.Veteran
                     => PlayerControl.LocalPlayer.KillSfx,
 
@@ -673,7 +673,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.MeetingManager or
                     CustomRoles.NiceEraser or
-                    CustomRoles.ParityCop or
+                    CustomRoles.Inspector or
                     CustomRoles.President or
                     CustomRoles.TimeManager
                     => MeetingHud.Instance.VoteLockinSound,
@@ -756,7 +756,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Analyst
                     or CustomRoles.Divinator
                     or CustomRoles.Enigma
-                    or CustomRoles.Farseer
+                    or CustomRoles.Investigator
                     or CustomRoles.Forensic
                     or CustomRoles.Insight
                     or CustomRoles.Inquisitor
@@ -770,7 +770,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.Markseeker
                     or CustomRoles.Soothsayer
-                    or CustomRoles.Specter
+                    or CustomRoles.Phantasm
                     or CustomRoles.SuperStar
                     or CustomRoles.Sunnyboy
                     => GetIntroSound(RoleTypes.Noisemaker),
@@ -779,7 +779,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.PhantomEHR
                     or CustomRoles.Ambusher
                     or CustomRoles.Stalker
-                    or CustomRoles.ImperiusCurse
+                    or CustomRoles.SoulCatcher
                     or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),
 

@@ -1721,9 +1721,9 @@ internal static class ExtendedPlayerControl
 
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || Farseer.IsRevealed == null) return false;
+        if (player == null || target == null || Investigator.IsRevealed == null) return false;
 
-        Farseer.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
+        Investigator.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
 

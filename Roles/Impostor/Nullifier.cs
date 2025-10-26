@@ -81,9 +81,9 @@ internal class Nullifier : RoleBase
                             Hacker.UseLimit[target.PlayerId]--;
 
                         break;
-                    case CustomRoles.SwordsMan:
-                        SwordsMan.Killed.Add(target.PlayerId);
-                        SwordsMan.SendRPC(target.PlayerId);
+                    case CustomRoles.Vigilante:
+                        Vigilante.Killed.Add(target.PlayerId);
+                        Vigilante.SendRPC(target.PlayerId);
                         break;
                     default:
                         target.RpcRemoveAbilityUse();

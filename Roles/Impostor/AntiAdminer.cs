@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
-using Monitor = EHR.Crewmate.Monitor;
 
 namespace EHR.Impostor;
 
@@ -37,7 +37,7 @@ internal class AntiAdminer : RoleBase
     private int Count;
     private long ExtraAbilityStartTimeStamp;
 
-    private bool IsMonitor;
+    private bool IsTelecommunication;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -73,10 +73,10 @@ internal class AntiAdminer : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
+        IsTelecommunication = Main.PlayerStates[playerId].MainRole == CustomRoles.Telecommunication;
         ExtraAbilityStartTimeStamp = 0;
         AntiAdminerId = playerId;
-        if (IsMonitor && Main.CurrentMap != MapNames.MiraHQ) playerId.SetAbilityUseLimit(Monitor.UseLimitOpt.GetFloat());
+        if (IsTelecommunication && Main.CurrentMap != MapNames.MiraHQ) playerId.SetAbilityUseLimit(Telecommunication.UseLimitOpt.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -86,7 +86,7 @@ internal class AntiAdminer : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (IsMonitor || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
+        if (IsTelecommunication || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
 
         ExtraAbilityStartTimeStamp = Utils.TimeStamp;
 
@@ -106,7 +106,7 @@ internal class AntiAdminer : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (!IsMonitor)
+        if (!IsTelecommunication)
         {
             if (Options.UsePhantomBasis.GetBool())
             {
@@ -122,9 +122,9 @@ internal class AntiAdminer : RoleBase
             return;
         }
 
-        bool canVent = Monitor.CanVent.GetBool();
+        bool canVent = Telecommunication.CanVent.GetBool();
 
-        AURoleOptions.EngineerCooldown = canVent ? 0f : Monitor.VentCooldown.GetFloat();
+        AURoleOptions.EngineerCooldown = canVent ? 0f : Telecommunication.VentCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = canVent ? 0f : 1f;
     }
 
@@ -134,7 +134,7 @@ internal class AntiAdminer : RoleBase
 
         var notify = false;
 
-        if (!IsMonitor && ExtraAbilityStartTimeStamp > 0)
+        if (!IsTelecommunication && ExtraAbilityStartTimeStamp > 0)
         {
             if (ExtraAbilityStartTimeStamp + Delay.GetInt() < Utils.TimeStamp)
             {
@@ -166,7 +166,7 @@ internal class AntiAdminer : RoleBase
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (pc.inVent || (pc.IsImpostor() && !IsMonitor)) continue;
+            if (pc.inVent || (pc.IsImpostor() && !IsTelecommunication)) continue;
 
             try
             {
@@ -324,13 +324,13 @@ internal class AntiAdminer : RoleBase
         change |= IsDoorLogWatch != doorLog;
         IsDoorLogWatch = doorLog;
 
-        if (IsMonitor ? Monitor.CanCheckCamera.GetBool() : CanCheckCamera.GetBool())
+        if (IsTelecommunication ? Telecommunication.CanCheckCamera.GetBool() : CanCheckCamera.GetBool())
         {
             change |= IsCameraWatch != camera;
             IsCameraWatch = camera;
         }
 
-        if (IsMonitor) notify |= oldPlayersNearDevices.Count != PlayersNearDevices.Count || oldPlayersNearDevices.Any(x => !PlayersNearDevices.TryGetValue(x.Key, out HashSet<Device> c) || !x.Value.SetEquals(c));
+        if (IsTelecommunication) notify |= oldPlayersNearDevices.Count != PlayersNearDevices.Count || oldPlayersNearDevices.Any(x => !PlayersNearDevices.TryGetValue(x.Key, out HashSet<Device> c) || !x.Value.SetEquals(c));
 
         if (notify || change) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
 
@@ -338,7 +338,7 @@ internal class AntiAdminer : RoleBase
 
         void AddDeviceUse(byte id, Device device)
         {
-            if (Main.PlayerStates[id].MainRole is CustomRoles.Monitor or CustomRoles.AntiAdminer) return;
+            if (Main.PlayerStates[id].MainRole is CustomRoles.Telecommunication or CustomRoles.AntiAdminer) return;
 
             if (!PlayersNearDevices.TryGetValue(id, out HashSet<Device> devices))
                 PlayersNearDevices[id] = [device];
@@ -348,20 +348,20 @@ internal class AntiAdminer : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (IsMonitor) OpenDoors(pc);
+        if (IsTelecommunication) OpenDoors(pc);
         else OnVanish(pc);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (Options.UsePets.GetBool()) return;
-        if (!IsMonitor) return;
+        if (!IsTelecommunication) return;
         OpenDoors(pc);
     }
 
     private void OpenDoors(PlayerControl pc)
     {
-        if (!IsMonitor) return;
+        if (!IsTelecommunication) return;
         if (pc == null) return;
         if (Main.CurrentMap == MapNames.MiraHQ) return;
         
@@ -376,7 +376,7 @@ internal class AntiAdminer : RoleBase
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
-        return !pc.Is(CustomRoles.Monitor) || pc.Is(CustomRoles.Nimble) || Monitor.CanVent.GetBool() || pc.GetClosestVent()?.Id == ventId;
+        return !pc.Is(CustomRoles.Telecommunication) || pc.Is(CustomRoles.Nimble) || Telecommunication.CanVent.GetBool() || pc.GetClosestVent()?.Id == ventId;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -394,7 +394,7 @@ internal class AntiAdminer : RoleBase
 
         foreach (byte id in PlayerIdList)
         {
-            if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsMonitor: false } x || x.ExtraAbilityStartTimeStamp == 0) continue;
+            if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsTelecommunication: false } x || x.ExtraAbilityStartTimeStamp == 0) continue;
 
             if (aa != null && x.ExtraAbilityStartTimeStamp >= aa.ExtraAbilityStartTimeStamp) continue;
 

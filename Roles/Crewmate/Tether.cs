@@ -38,7 +38,7 @@ public class Tether : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
             .SetValueFormat(OptionFormat.Times);
 
