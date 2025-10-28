@@ -9428,7 +9428,7 @@
   "Ambusher.InvisTimeLeft": "隱身狀態將在 {0} 秒後解除",
   "Psychopath": "精神病患",
   "PsychopathInfo": "你被迫擊殺船員當冷卻時間結束",
-  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range. There's also a chance you accidentally stab multiple people in range at once!",
+  "PsychopathInfoLong": "(偽裝者陣營):\\n作為精神病患，你的擊殺冷卻時間一到，只要有人進入你的擊殺範圍，你就會立即擊殺。你也有可能不小心同時刺殺範圍內的多個人！",
   "DoubleAgent": "臥底",
   "DoubleAgentInfo": "潛伏在偽裝者中",
   "DoubleAgentInfoLong": "(船員陣營):\\n臥底會被偽裝者們視作他們的一員，但臥底不知道偽裝者是誰。欺騙他們，讓他們以為你是他們的同伴之一，從而揭露他們!",
