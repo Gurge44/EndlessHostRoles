@@ -9428,7 +9428,7 @@
   "Ambusher.InvisTimeLeft": "Invisibility expires in {0}s",
   "Psychopath": "Psychopath",
   "PsychopathInfo": "You're Forced to Kill Off Cooldown",
-  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range.",
+  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range. There's also a chance you accidentally stab multiple people in range at once!",
   "DoubleAgent": "Double Agent",
   "DoubleAgentInfo": "An Impostor Among Impostors",
   "DoubleAgentInfoLong": "(Crewmates):\\nAs the Double Agent, you are an impostor among impostors. The real impostors see you as their partner, but you don't know who they are. Trick them into thinking you're one of their partners to expose them!",
