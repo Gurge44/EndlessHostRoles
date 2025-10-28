@@ -9428,7 +9428,7 @@
   "Ambusher.InvisTimeLeft": "Invisibility expires in {0}s",
   "Psychopath": "Psychopath",
   "PsychopathInfo": "You're Forced to Kill Off Cooldown",
-  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range.",
+  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range. There's also a chance you accidentally stab multiple people in range at once!",
   "DoubleAgent": "双面间谍",
   "DoubleAgentInfo": "内鬼中的内鬼",
   "DoubleAgentInfoLong": "(船员职业)：\\n双面间谍是内鬼中的一个内鬼。 真正的内鬼将你视为他们的队友，但你不知道他们是谁。 让他们认为你是他们的队友之一！",
