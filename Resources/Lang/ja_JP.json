@@ -9428,7 +9428,7 @@
   "Ambusher.InvisTimeLeft": "Invisibility expires in {0}s",
   "Psychopath": "Psychopath",
   "PsychopathInfo": "You're Forced to Kill Off Cooldown",
-  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range.",
+  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range. There's also a chance you accidentally stab multiple people in range at once!",
   "DoubleAgent": "ダブルエージェント",
   "DoubleAgentInfo": "<#ff1919>インポスター</color>の間での 詐欺師です",
   "DoubleAgentInfoLong": "(<color=#8cffff>クルーメイト</color>):\\n<size=75%>ダブルエージェントとして、あなたは <#ff1919>インポスター</color>の間での 詐欺師です。\\n本物の<#ff1919>インポスター</color>は あなたを 彼らのパートナーと見ますが、あなたは 彼らが 誰かを知りません。\\n彼らを暴露するために 彼らのパートナーの1人として あなたは 思考に入れて 彼らを騙しましょう！</size>",
