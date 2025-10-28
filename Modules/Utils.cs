@@ -1599,7 +1599,7 @@ public static class Utils
 
         foreach ((byte id, PlayerState state) in Main.PlayerStates)
         {
-            if (state.RoleHistory.Count > 1)
+            if (state.RoleHistory.Count > 0)
             {
                 string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
                 sb.AppendLine($"{id.ColoredPlayerName()}: {join} > {state.MainRole.ToColoredString()}");

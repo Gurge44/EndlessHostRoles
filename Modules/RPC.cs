@@ -163,6 +163,7 @@ public enum CustomRPC
     ImitatorClick,
     Invisibility,
     ResetAbilityCooldown,
+    SetChatVisible,
 
     // Game Modes
     RoomRushDataSync,
@@ -248,17 +249,19 @@ internal static class RPCHandlerPatch
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
     {
+        if (!AmongUsClient.Instance.AmHost || __instance.AmOwner || (__instance.IsModdedClient() && rpcType == RpcCalls.SendChat)) return true;
+        
         if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, [])) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
         Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
         if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
 
-        if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
+        if ((!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
         {
             bool kick = Options.EnableEHRRateLimit.GetBool();
             if (kick) AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
             Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), kick ? __instance.Data?.PlayerName : "Someone"), Color.yellow);
             Logger.Warn($"Sent {calls[rpcType]} RPCs of type {rpcType} ({(byte)rpcType}), which exceeds the limit of {limit}. Kicking player.", "Kick");
-            return false;
+            return !kick;
         }
 
         return true;
@@ -1338,6 +1341,12 @@ internal static class RPCHandlerPatch
                 case CustomRPC.ResetAbilityCooldown:
                 {
                     PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+                    break;
+                }
+                case CustomRPC.SetChatVisible:
+                {
+                    HudManager.Instance.Chat.SetVisible(reader.ReadBoolean());
+                    HudManager.Instance.Chat.HideBanButton();
                     break;
                 }
             }

@@ -39,8 +39,7 @@ public class DiscordRPC
                 activity.Details = details;
             }
         }
-
-        catch (ArgumentException ex)
+        catch (Exception ex)
         {
             Logger.Error("Error in updating discord rpc", "DiscordPatch");
             Logger.Exception(ex, "DiscordPatch");

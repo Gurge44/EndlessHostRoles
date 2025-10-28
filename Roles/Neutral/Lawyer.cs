@@ -180,11 +180,6 @@ public class Lawyer : RoleBase
         lawyer.Notify(Translator.GetString("LawyerChangeRole"));
     }
 
-    public static bool CheckExileTarget(NetworkedPlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
-    {
-        return Target.Where(x => x.Value == exiled.PlayerId).Select(kvp => Utils.GetPlayerById(kvp.Key)).Any(lawyer => lawyer != null && !lawyer.Data.Disconnected);
-    }
-
     public override void OnReportDeadBody()
     {
         if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool() && Target.TryGetValue(LawyerId, out byte target))

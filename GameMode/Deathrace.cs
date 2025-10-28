@@ -142,13 +142,13 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
         
-        PowerUpEffectDurationOption = new IntegerOptionItem(id++, "Deathrace.PowerUpEffectDurationOption", new(1, 60, 1), 3, tab)
+        PowerUpEffectDurationOption = new IntegerOptionItem(id++, "Deathrace.PowerUpEffectDurationOption", new(1, 60, 1), 5, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
         
-        PowerUpEffectRangeOption = new FloatOptionItem(id++, "Deathrace.PowerUpEffectRangeOption", new(0.25f, 10f, 0.25f), 4f, tab)
+        PowerUpEffectRangeOption = new FloatOptionItem(id++, "Deathrace.PowerUpEffectRangeOption", new(0.25f, 10f, 0.25f), 5f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -166,7 +166,7 @@ public static class Deathrace
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        PowerUpPickupRangeOption = new FloatOptionItem(id, "Deathrace.PowerUpPickupRangeOption", new(0.1f, 5f, 0.1f), 0.8f, tab)
+        PowerUpPickupRangeOption = new FloatOptionItem(id, "Deathrace.PowerUpPickupRangeOption", new(0.1f, 5f, 0.1f), 1f, tab)
             .SetParent(SpawnPowerUpsOption)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -239,6 +239,9 @@ public static class Deathrace
                 yield return new WaitForSeconds(4f);
                 NameNotifyManager.Reset();
             }
+            
+            if (Main.CurrentMap == MapNames.Airship)
+                players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
         }
         else if (Main.CurrentMap == MapNames.Airship)
         {
@@ -393,9 +396,13 @@ public static class Deathrace
         {
             case PowerUp.Smoke:
             {
+                playersInRange = playersInRange.Where(x => !Mathf.Approximately(Main.AllPlayerSpeed[x.PlayerId], Main.MinSpeed)).ToArray();
+                
                 foreach (PlayerControl player in playersInRange)
                 {
-                    Main.AllPlayerSpeed[player.PlayerId] -= SmokeSpeedReduction;
+                    if (Main.AllPlayerSpeed[player.PlayerId] < 0f) Main.AllPlayerSpeed[player.PlayerId] += SmokeSpeedReduction;
+                    else Main.AllPlayerSpeed[player.PlayerId] -= SmokeSpeedReduction;
+                    
                     player.MarkDirtySettings();
                 }
                 
@@ -404,7 +411,10 @@ public static class Deathrace
                     foreach (PlayerControl player in playersInRange)
                     {
                         if (player == null) continue;
-                        Main.AllPlayerSpeed[player.PlayerId] += SmokeSpeedReduction;
+                        
+                        if (Main.AllPlayerSpeed[player.PlayerId] < 0f) Main.AllPlayerSpeed[player.PlayerId] -= SmokeSpeedReduction;
+                        else Main.AllPlayerSpeed[player.PlayerId] += SmokeSpeedReduction;
+                        
                         player.MarkDirtySettings();
                     }
                 }, PowerUpEffectDuration, $"Smoke Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
@@ -412,13 +422,15 @@ public static class Deathrace
             }
             case PowerUp.EnergyDrink:
             {
-                Main.AllPlayerSpeed[pc.PlayerId] += EnergyDrinkSpeedIncreasement;
+                if (Main.AllPlayerSpeed[pc.PlayerId] < 0f) Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
+                else Main.AllPlayerSpeed[pc.PlayerId] += EnergyDrinkSpeedIncreasement;
                 pc.MarkDirtySettings();
                 
                 LateTask.New(() =>
                 {
-                    if (pc == null || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod))) return;
-                    Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
+                    if (pc == null || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
+                    if (Main.AllPlayerSpeed[pc.PlayerId] < 0f) Main.AllPlayerSpeed[pc.PlayerId] += EnergyDrinkSpeedIncreasement;
+                    else Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
                     pc.MarkDirtySettings();
                 }, PowerUpEffectDuration, $"Energy Drink Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
                 break;
@@ -455,7 +467,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null || Main.AllPlayerSpeed[player.PlayerId] > 0f) continue;
+                        if (player == null || Main.AllPlayerSpeed[player.PlayerId] >= 0f) continue;
                         Main.AllPlayerSpeed[player.PlayerId] *= -1;
                         player.MarkDirtySettings();
                     }
@@ -504,7 +516,11 @@ public static class Deathrace
                 bool coordinateCheck = CoordinateChecks.TryGetValue((int)data.NextRoom, out var coordinates);
                 if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
 
-                if ((room == null && !coordinateCheck) || (room != null && room.RoomId == data.LastRoom)) continue;
+                if ((room == null && !coordinateCheck) || (room != null && room.RoomId == data.LastRoom))
+                {
+                    CheckAndNotify(data);
+                    continue;
+                }
 
                 if (coordinateCheck ? Vector2.Distance(coordinates, data.Player.Pos()) < 2f : room.RoomId == data.NextRoom)
                 {
@@ -555,16 +571,21 @@ public static class Deathrace
                 
                 if (data.Player.AmOwner) continue;
 
-                string suffix = GetSuffix(data.Player, data.Player, false);
-
-                if (data.LastSuffix != suffix)
-                {
-                    Utils.NotifyRoles(SpecifySeer: data.Player, SpecifyTarget: data.Player);
-                    data.LastSuffix = suffix;
-                }
+                CheckAndNotify(data);
             }
 
             Data.Remove(removeId);
+        }
+
+        private static void CheckAndNotify(PlayerData data)
+        {
+            string suffix = GetSuffix(data.Player, data.Player, false);
+
+            if (data.LastSuffix != suffix)
+            {
+                Utils.NotifyRoles(SpecifySeer: data.Player, SpecifyTarget: data.Player);
+                data.LastSuffix = suffix;
+            }
         }
     }
 

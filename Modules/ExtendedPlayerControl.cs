@@ -134,7 +134,7 @@ internal static class ExtendedPlayerControl
     public static void RevertFreeze(this PlayerControl pc, Vector2 realPosition)
     {
         pc.NetTransform.SnapTo(realPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
-        CustomRpcSender sender = CustomRpcSender.Create("Explosivist Revert", SendOption.Reliable);
+        CustomRpcSender sender = CustomRpcSender.Create($"Revert SnapTo Freeze ({pc.GetNameWithRole()})", SendOption.Reliable);
         sender.StartMessage();
         sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
             .WriteVector2(pc.transform.position)
@@ -159,7 +159,7 @@ internal static class ExtendedPlayerControl
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == player || pc.AmOwner) continue;
-            CustomRpcSender sender = CustomRpcSender.Create("Explosivist", SendOption.Reliable);
+            CustomRpcSender sender = CustomRpcSender.Create($"SnapTo Freeze ({player.GetNameWithRole()})", SendOption.Reliable);
             sender.StartMessage(pc.GetClientId());
             sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
                 .WriteVector2(player.transform.position)
@@ -188,6 +188,14 @@ internal static class ExtendedPlayerControl
         {
             HudManager.Instance.Chat.SetVisible(visible);
             HudManager.Instance.Chat.HideBanButton();
+            return;
+        }
+
+        if (player.IsModdedClient())
+        {
+            var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetChatVisible, SendOption.Reliable, player.OwnerId);
+            msg.Write(visible);
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
             return;
         }
 
@@ -295,25 +303,6 @@ internal static class ExtendedPlayerControl
         if (!player.IsConverted() && state.SubRoles.Contains(CustomRoles.Bloodlust)) return CountTypes.Bloodlust;
 
         return state.countTypes;
-    }
-
-    // By TommyXL
-    public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
-    {
-        int clientId = seer.OwnerId;
-        if (clientId == -1) return;
-
-        if (AmongUsClient.Instance.ClientId == clientId)
-        {
-            player.SetPet(petId);
-            return;
-        }
-
-        player.Data.DefaultOutfit.PetSequenceId += 10;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
-        writer.Write(petId);
-        writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void RpcResetTasks(this PlayerControl player, bool init = true)
