@@ -3038,6 +3038,8 @@
   "AllCrewRolesHaveVanillaColor": "Todas as funções de <#8cffff>Tripulante</color> têm a <#8cffff>cor padrão de Tripulante</color> <#ffff00>(REQUER REINÍCIO)</color>",
   "StoreCompletedAchievementsOnEHRDatabase": "Armazene conquistas concluídas no banco de dados EHR (para manter o progresso em caso de reinstalação ou atualização)",
   "PostLobbyCodeToEHRDiscordServer": "Publique o código da sala no servidor EHR do Discord",
+  "SendHashedPuidToUseLinkedAccount": "I have an EHR account linked to my discord account, send my hashed PUID to let discord users identify me",
+  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>O código da sala foi enviado para o servidor Discord do EHR.</color></size>\\n<size=70%>Você pode desativar esse recurso nas configurações (aba Configurações do Sistema).</size>",
   "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color> <#ff5555>Falha ao enviar o código da sala para o servidor do EHR.</color></size>\\n<size=70%>{0}</size>",
   "ActiveRolesList": "Lista de função ativa",
