@@ -9428,7 +9428,7 @@
   "Ambusher.InvisTimeLeft": "Invisibility expires in {0}s",
   "Psychopath": "Psychopath",
   "PsychopathInfo": "You're Forced to Kill Off Cooldown",
-  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range.",
+  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range. There's also a chance you accidentally stab multiple people in range at once!",
   "DoubleAgent": "Double Agent",
   "DoubleAgentInfo": "임포스터를 속이는 크루원",
   "DoubleAgentInfoLong": "(크루원):\\n이중요원은 임포스터가 누군지 모르지만 임포스터 또한 이중요원을 임포스터라고 인식합니다. 임포스터와 친한 척을 하여 임포스터를 드러내세요!",
