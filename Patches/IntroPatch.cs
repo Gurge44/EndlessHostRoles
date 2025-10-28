@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.AddOns.Common;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -43,7 +45,7 @@ static class ShowRoleMoveNextPatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
-    public static bool Prefix(HudManager __instance)
+    public static bool Prefix(HudManager __instance, ref Il2CppSystem.Collections.IEnumerator __result)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return true;
 
@@ -67,12 +69,12 @@ static class CoShowIntroPatch
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
         }, 4f, "Assign Tasks");
 
-        Main.Instance.StartCoroutine(CoShowIntro());
+        __result = CoShowIntro().WrapToIl2Cpp();
         return false;
 
         IEnumerator CoShowIntro()
         {
-            while (!ShipStatus.Instance) yield return null;
+            while (!ShipStatus.Instance || !HudManager.InstanceExists) yield return null;
 
             RPC.RpcVersionCheck();
             GameStates.InGame = true;
@@ -80,11 +82,9 @@ static class CoShowIntroPatch
             __instance.IsIntroDisplayed = true;
             __instance.LobbyTimerExtensionUI.HideAll();
             __instance.SetMapButtonEnabled(false);
+            __instance.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
 
-            HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
-            hudManager.FullScreen.transform.localPosition = new Vector3(0.0f, 0.0f, -250f);
-
-            yield return hudManager.ShowEmblem(true);
+            yield return __instance.ShowEmblem(true);
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
@@ -131,7 +131,7 @@ static class CoShowIntroPatch
             else
             {
                 int adjustedNumImpostors = GameManager.Instance.LogicOptions.GetAdjustedNumImpostors(GameData.Instance.PlayerCount);
-                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsS) : FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
+                introCutscene.ImpostorText.text = adjustedNumImpostors == 1 ? TranslationController.Instance.GetString(StringNames.NumImpostorsS) : TranslationController.Instance.GetString(StringNames.NumImpostorsP, adjustedNumImpostors);
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[FF1919FF]", "<color=#FF1919FF>");
                 introCutscene.ImpostorText.text = introCutscene.ImpostorText.text.Replace("[]", "</color>");
             }
@@ -632,21 +632,21 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Dictator or
                     CustomRoles.Mayor or
                     CustomRoles.NiceSwapper
-                    => FastDestroyableSingleton<HudManager>.Instance.Chat.messageSound,
+                    => HudManager.Instance.Chat.messageSound,
 
                 CustomRoles.AntiAdminer or
-                    CustomRoles.Monitor
-                    => FastDestroyableSingleton<HudManager>.Instance.Chat.warningSound,
+                    CustomRoles.Telecommunication
+                    => HudManager.Instance.Chat.warningSound,
 
                 CustomRoles.GM or
                     CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
                     CustomRoles.Workaholic
-                    => FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound,
+                    => HudManager.Instance.TaskCompleteSound,
 
                 CustomRoles.Helper or
                     CustomRoles.TaskManager
-                    => FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound,
+                    => HudManager.Instance.TaskUpdateSound,
 
                 CustomRoles.Inhibitor or
                     CustomRoles.Mechanic or
@@ -657,7 +657,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.KillingMachine or
                     CustomRoles.NiceGuesser or
-                    CustomRoles.SwordsMan or
+                    CustomRoles.Vigilante or
                     CustomRoles.Veteran
                     => PlayerControl.LocalPlayer.KillSfx,
 
@@ -673,7 +673,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.MeetingManager or
                     CustomRoles.NiceEraser or
-                    CustomRoles.ParityCop or
+                    CustomRoles.Inspector or
                     CustomRoles.President or
                     CustomRoles.TimeManager
                     => MeetingHud.Instance.VoteLockinSound,
@@ -687,11 +687,11 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Chronomancer or
                     CustomRoles.Tremor
-                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
+                    => DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx,
 
                 CustomRoles.Deputy or
                     CustomRoles.Sheriff
-                    => FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
+                    => DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx,
 
                 CustomRoles.Hater or
                     CustomRoles.Lawyer or
@@ -756,7 +756,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Analyst
                     or CustomRoles.Divinator
                     or CustomRoles.Enigma
-                    or CustomRoles.Farseer
+                    or CustomRoles.Investigator
                     or CustomRoles.Forensic
                     or CustomRoles.Insight
                     or CustomRoles.Inquisitor
@@ -770,7 +770,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.Markseeker
                     or CustomRoles.Soothsayer
-                    or CustomRoles.Specter
+                    or CustomRoles.Phantasm
                     or CustomRoles.SuperStar
                     or CustomRoles.Sunnyboy
                     => GetIntroSound(RoleTypes.Noisemaker),
@@ -779,7 +779,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.PhantomEHR
                     or CustomRoles.Ambusher
                     or CustomRoles.Stalker
-                    or CustomRoles.ImperiusCurse
+                    or CustomRoles.SoulCatcher
                     or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),
 
@@ -850,7 +850,7 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("ModeSoloKombat");
                 __instance.BackgroundBar.material.color = color;
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 break;
             }
             case CustomGameMode.FFA:
@@ -1326,8 +1326,10 @@ internal static class IntroCutsceneDestroyPatch
                         pc.TP(new Vector2(3.32f, -26.57f));
                 }
             }
+            
+            if (!HudManager.InstanceExists) return;
 
-            HudManager hud = FastDestroyableSingleton<HudManager>.Instance;
+            HudManager hud = HudManager.Instance;
 
             HudSpritePatch.DefaultIcons =
             [
@@ -1344,7 +1346,7 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
             
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool()) return;
             
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         }, 1f, log: false);

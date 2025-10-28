@@ -60,7 +60,7 @@ public static class PhantomRolePatch
         return __instance.AmOwner && CheckTrigger(__instance); // This is assuming that all non-host vanish requests are for ability triggers and should be cancelled
     }
 
-    // Called when Phantom press vanish button when visible
+    // Called when Specter press vanish button when visible
     /*[HarmonyPatch(nameof(PlayerControl.CheckVanish))]
     [HarmonyPrefix]
     private static bool CheckVanish_Prefix(PlayerControl __instance)
@@ -81,14 +81,14 @@ public static class PhantomRolePatch
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
-                phantom.SetRole(RoleTypes.Phantom);
+                phantom.SetRole(RoleTypes.Specter);
                 phantom.CheckVanish();
             }
             else
             {
                 var writer = CustomRpcSender.Create("PhantomRolePatch.CheckVanish_Prefix", SendOption.Reliable);
                 
-                writer.RpcSetRole(phantom, RoleTypes.Phantom, clientId);
+                writer.RpcSetRole(phantom, RoleTypes.Specter, clientId);
 
                 writer.AutoStartRpc(phantom.NetId, RpcCalls.CheckVanish, clientId);
                 writer.Write(0); // not used, lol
@@ -144,7 +144,7 @@ public static class PhantomRolePatch
 
                 sender.SendMessage(!hasData);
             }
-        }, 1.2f, "Set Phantom Invisible");
+        }, 1.2f, "Set Specter Invisible");
 
         InvisibilityList.Add(phantom);
         return true;
@@ -152,13 +152,16 @@ public static class PhantomRolePatch
 
     public static bool CheckTrigger(PlayerControl phantom)
     {
+        if (!HudManager.InstanceExists) return true;
+        
         RoleBase roleBase = Main.PlayerStates[phantom.PlayerId].Role;
 
         if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !roleBase.OnVanish(phantom))
         {
             if (phantom.AmOwner)
             {
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                HudManager.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                if (Utils.ShouldNotApplyAbilityCooldown(roleBase)) return false;
                 phantom.Data.Role.SetCooldown();
                 return false;
             }
@@ -171,7 +174,7 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
-            if (roleBase is Sniper { IsAim: true } or Centralizer { MarkedPosition: not null } or Escapee { EscapeeLocation: not null })
+            if (Utils.ShouldNotApplyAbilityCooldown(roleBase))
             {
                 sender.EndMessage();
                 sender.SendMessage();
@@ -212,7 +215,7 @@ public static class PhantomRolePatch
         foreach (PlayerControl target in Main.AllPlayerControls)
         {
             if (!target.IsAlive() || phantom.PlayerId == target.PlayerId || target.AmOwner || !target.HasDesyncRole()) continue;
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, target.OwnerId);
+            phantom.RpcSetRoleDesync(RoleTypes.Specter, target.OwnerId);
         }
 
         LateTask.New(() =>
@@ -274,7 +277,7 @@ public static class PhantomRolePatch
     {
         try
         {
-            if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Phantom || seer.AmOwner || !seer.HasDesyncRole()) return;
+            if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Specter || seer.AmOwner || !seer.HasDesyncRole()) return;
 
             foreach (PlayerControl phantom in InvisibilityList)
             {
@@ -295,12 +298,12 @@ public static class PhantomRolePatch
         if (seer.OwnerId == -1 || phantom == null) yield break;
         phantom.RpcSetRoleDesync(RoleTypes.Scientist, seer.OwnerId);
 
-        // Return Phantom in meeting
+        // Return Specter in meeting
         yield return new WaitForSeconds(1f);
 
         {
             if (seer.OwnerId == -1 || phantom == null) yield break;
-            phantom.RpcSetRoleDesync(RoleTypes.Phantom, seer.OwnerId);
+            phantom.RpcSetRoleDesync(RoleTypes.Specter, seer.OwnerId);
         }
 
         // Revert invis for phantom
@@ -336,7 +339,7 @@ public static class PhantomRoleUseAbilityPatch
 {
     public static bool Prefix(PhantomRole __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return true;
+        if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return true;
 
         if (__instance.Player.AmOwner && !__instance.Player.Data.IsDead && __instance.Player.moveable && !Minigame.Instance && !__instance.IsCoolingDown && !__instance.fading)
         {
@@ -350,8 +353,8 @@ public static class PhantomRoleUseAbilityPatch
                     return false;
                 }
 
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.SetSecondImage(__instance.Ability);
-                FastDestroyableSingleton<HudManager>.Instance.AbilityButton.OverrideText(FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PhantomAbilityUndo, new Il2CppReferenceArray<Il2CppSystem.Object>(0)));
+                HudManager.Instance.AbilityButton.SetSecondImage(__instance.Ability);
+                HudManager.Instance.AbilityButton.OverrideText(TranslationController.Instance.GetString(StringNames.PhantomAbilityUndo, new Il2CppReferenceArray<Il2CppSystem.Object>(0)));
                 __instance.Player.CmdCheckVanish(GameManager.Instance.LogicOptions.GetRoleFloat(FloatOptionNames.PhantomDuration));
                 return false;
             }

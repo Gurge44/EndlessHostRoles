@@ -6,10 +6,15 @@ using EHR.AddOns.GhostRoles;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
-using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+
+#if ANDROID
+using System.Collections.Generic;
+#else
+using Il2CppSystem.Collections.Generic;
+#endif
 
 // ReSharper disable PossibleLossOfFraction
 
@@ -758,7 +763,7 @@ public static class StringOptionPatch
                 if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out CustomRoles value))
                 {
                     string roleName = value.IsVanilla() ? value + "EHR" : value.ToString();
-                    string str = Translator.GetString($"{roleName}InfoLong");
+                    string str = Translator.GetString($"{roleName}InfoLong").FixRoleName(value);
                     string infoLong;
 
                     try { infoLong = CustomHnS.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length]; }
@@ -1074,7 +1079,7 @@ public static class GameSettingMenuPatch
         presetTmp.DestroyTranslator();
         presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
-        bool russian = FastDestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
+        bool russian = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Russian;
         float size = !russian ? 2.45f : 1.45f;
         presetTmp.fontSizeMax = presetTmp.fontSizeMin = size;
 
@@ -1196,7 +1201,9 @@ public static class GameSettingMenuPatch
         }
 
 
-        FreeChatInputField freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField; // FastDestroyableSingleton DOES NOT WORK HERE!!!! IF YOU USE THAT, IT BREAKS THE ENTIRE SETTINGS MENU
+        if (!HudManager.InstanceExists) return;
+        
+        FreeChatInputField freeChatField = HudManager.Instance.Chat.freeChatField;
         FreeChatInputField field = Object.Instantiate(freeChatField, parentLeftPanel.parent);
         field.transform.localScale = new(0.3f, 0.59f, 1);
         field.transform.localPosition = new(-0.7f, -2.5f, -5f);
@@ -1394,7 +1401,7 @@ public static class GameSettingMenuPatch
         ModGameOptionsMenu.CategoryHeaderList = new();
 
         ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-        FastDestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
+        if (HudManager.InstanceExists) HudManager.Instance.menuNavigationPrompts.SetActive(false);
         if (Controller.currentTouchType != Controller.TouchType.Joystick) __instance.ChangeTab(1, false);
 
         __instance.StartCoroutine(__instance.CoSelectDefault());

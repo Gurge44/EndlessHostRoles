@@ -31,7 +31,7 @@ internal class SecurityGuard : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
 
-        SecurityGuardAbilityChargesWhenFinishedTasks = new FloatOptionItem(6868, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        SecurityGuardAbilityChargesWhenFinishedTasks = new FloatOptionItem(6868, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
     }

@@ -17,7 +17,7 @@ public static class ChatBubbleShower
     {
         try
         {
-            if (Queue.Count == 0 || ExileController.Instance) return;
+            if (Queue.Count == 0 || ExileController.Instance || !HudManager.InstanceExists) return;
 
             long now = Utils.TimeStamp;
             int wait = GameStates.IsInTask ? 8 : 4;
@@ -27,7 +27,7 @@ public static class ChatBubbleShower
             (string message, string title) = Queue.First();
             Queue.Remove((message, title));
 
-            ChatController chat = FastDestroyableSingleton<HudManager>.Instance.Chat;
+            ChatController chat = HudManager.Instance.Chat;
 
             if (GameStates.IsMeeting || chat.IsOpenOrOpening) ShowBubbleWithoutPlayer();
             else if (GameStates.IsLobby) Utils.SendMessage(message, PlayerControl.LocalPlayer.PlayerId, title);

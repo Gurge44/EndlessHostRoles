@@ -234,7 +234,7 @@ internal static class HudManagerPatch
 
                     switch (role)
                     {
-                        case CustomRoles.Farseer:
+                        case CustomRoles.Investigator:
                         case CustomRoles.Escort:
                         case CustomRoles.Gaulois:
                         case CustomRoles.Sheriff:
@@ -365,7 +365,7 @@ internal static class HudManagerPatch
                         ActionButton button;
                         Type type = state.Role.GetType();
 
-                        if (type.GetMethod("OnVote").DeclaringType == type || role is CustomRoles.Adrenaline or CustomRoles.Battery or CustomRoles.Dad or CustomRoles.Grappler or CustomRoles.Inquirer or CustomRoles.Judge or CustomRoles.Mechanic or CustomRoles.Mediumshiper or CustomRoles.NiceSwapper or CustomRoles.ParityCop or CustomRoles.Spy or CustomRoles.Councillor or CustomRoles.CursedWolf or CustomRoles.Forger or CustomRoles.Generator or CustomRoles.Ventriloquist or CustomRoles.Bargainer or CustomRoles.Technician or CustomRoles.Virus)
+                        if (type.GetMethod("OnVote").DeclaringType == type || role is CustomRoles.Adrenaline or CustomRoles.Battery or CustomRoles.Dad or CustomRoles.Grappler or CustomRoles.Inquirer or CustomRoles.Judge or CustomRoles.Mechanic or CustomRoles.Mediumshiper or CustomRoles.NiceSwapper or CustomRoles.Inspector or CustomRoles.Spy or CustomRoles.Councillor or CustomRoles.CursedWolf or CustomRoles.Forger or CustomRoles.Generator or CustomRoles.Ventriloquist or CustomRoles.Bargainer or CustomRoles.Technician or CustomRoles.Virus)
                             button = null;
                         else if (role is CustomRoles.Coroner or CustomRoles.Occultist or CustomRoles.Vulture)
                             button = __instance.ReportButton;
@@ -373,7 +373,7 @@ internal static class HudManagerPatch
                             button = __instance.ImpostorVentButton;
                         else if ((role.IsCrewmate() && role.IsDesyncRole() && !usesPetInsteadOfKill) || role is CustomRoles.Dreamweaver or CustomRoles.Enchanter or CustomRoles.VoodooMaster or CustomRoles.Blackmailer or CustomRoles.Cantankerous or CustomRoles.Consort or CustomRoles.Consigliere or CustomRoles.Framer or CustomRoles.Gangster or CustomRoles.Kamikaze or CustomRoles.Auditor or CustomRoles.Backstabber or CustomRoles.Cherokious or CustomRoles.Cultist or CustomRoles.Curser or CustomRoles.Gaslighter or CustomRoles.Investor or CustomRoles.Jackal or CustomRoles.PlagueDoctor or CustomRoles.Pursuer or CustomRoles.Spiritcaller or CustomRoles.Starspawn)
                             button = __instance.KillButton;
-                        else if ((Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) || (player.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Shapeshifter or RoleTypes.Phantom && !player.Is(CustomRoles.Nimble) && player.GetCustomRole() is not (CustomRoles.Mechanic or CustomRoles.Monitor)))
+                        else if ((Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) || (player.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Shapeshifter or RoleTypes.Phantom && !player.Is(CustomRoles.Nimble) && player.GetCustomRole() is not (CustomRoles.Mechanic or CustomRoles.Telecommunication)))
                             button = __instance.AbilityButton;
                         else if ((Options.UsePets.GetBool() && role.PetActivatedAbility()) || usesPetInsteadOfKill)
                             button = __instance.PetButton;
@@ -646,7 +646,7 @@ internal static class SetHudActivePatch
         {
             case CustomRoles.Sheriff:
             case CustomRoles.Arsonist:
-            case CustomRoles.SwordsMan:
+            case CustomRoles.Vigilante:
             case CustomRoles.Deputy:
             case CustomRoles.Monarch:
             case CustomRoles.Pelican:
@@ -654,7 +654,7 @@ internal static class SetHudActivePatch
             case CustomRoles.Medic:
             case CustomRoles.Demon:
             case CustomRoles.Stalker:
-            case CustomRoles.Farseer:
+            case CustomRoles.Investigator:
             case CustomRoles.Crusader:
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
@@ -1237,7 +1237,7 @@ internal static class TaskPanelBehaviourPatch
         if (taskList == "None" || GameStates.IsLobby || player == null) return;
 
         NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
-        if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
+        if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {TranslationController.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
 
         if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun))
             taskList = GetString("None");
@@ -1255,10 +1255,8 @@ internal static class DialogueBoxShowPatch
     public static bool Prefix(DialogueBox __instance, [HarmonyArgument(0)] string dialogue)
     {
         __instance.target.text = dialogue;
-
         if (Minigame.Instance) Minigame.Instance.Close();
         if (Minigame.Instance) Minigame.Instance.Close();
-
         __instance.gameObject.SetActive(true);
         return false;
     }

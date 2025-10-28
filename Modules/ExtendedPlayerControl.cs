@@ -1721,9 +1721,9 @@ internal static class ExtendedPlayerControl
 
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || Farseer.IsRevealed == null) return false;
+        if (player == null || target == null || Investigator.IsRevealed == null) return false;
 
-        Farseer.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
+        Investigator.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
 
@@ -2034,16 +2034,13 @@ internal static class ExtendedPlayerControl
 
     public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
+        if (!HudManager.InstanceExists) return;
         if (Options.DisableMeeting.GetBool() && !force) return;
 
         ReportDeadBodyPatch.AfterReportTasks(reporter, target);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
-
-        LateTask.New(() =>
-        {
-            FastDestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
-            reporter.RpcStartMeeting(target);
-        }, 0.2f, "NoCheckStartMeeting Delay");
+        HudManager.Instance.OpenMeetingRoom(reporter);
+        reporter.RpcStartMeeting(target);
     }
 
     public static bool UsesPetInsteadOfKill(this PlayerControl pc)
@@ -2139,7 +2136,8 @@ internal static class ExtendedPlayerControl
         if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
         string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);
-        return GetString($"{role.ToString()}{info}");
+        string roleInfo = GetString($"{role.ToString()}{info}");
+        return infoLong ? roleInfo.FixRoleName(role) : roleInfo;
     }
 
     public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool notOverRide = false)
@@ -2284,7 +2282,7 @@ internal static class ExtendedPlayerControl
         if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;
         
         ClientData client = pc.GetClient();
-        return client != null && FastDestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId);
+        return client != null && FriendsListManager.InstanceExists && FriendsListManager.Instance.IsPlayerFriend(client.ProductUserId);
     }
 
     public static bool IsBeginner(this PlayerControl pc)

@@ -227,7 +227,7 @@ public static class GuessManager
                             ShowMessage("GGGuessMax");
                             return true;
                         case CustomRoles.Shifter when !Shifter.CanGuess.GetBool():
-                        case CustomRoles.Phantasm when !Options.PhantomCanGuess.GetBool():
+                        case CustomRoles.Specter when !Options.PhantomCanGuess.GetBool():
                         case CustomRoles.Terrorist when !Options.TerroristCanGuess.GetBool():
                         case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
                         case CustomRoles.God when !God.GodCanGuess.GetBool():
@@ -298,7 +298,7 @@ public static class GuessManager
                             if (DoubleShot.CheckGuess(pc, isUI)) return true;
                             guesserSuicide = true;
                             break;
-                        case CustomRoles.Phantasm:
+                        case CustomRoles.Specter:
                             ShowMessage("GuessPhantom");
                             return true;
                         case CustomRoles.Snitch when pc.IsSnitchTarget() && target.GetTaskState().RemainingTasksCount <= Snitch.RemainingTasksToBeFound:
@@ -611,7 +611,8 @@ public static class GuessManager
 
     private static void ProcessGuess(PlayerControl pc, MeetingHud meetingHud)
     {
-        HudManager hudManager = FastDestroyableSingleton<HudManager>.Instance;
+        if (!HudManager.InstanceExists) return;
+        HudManager hudManager = HudManager.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
 

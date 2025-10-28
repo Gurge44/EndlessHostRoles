@@ -199,7 +199,7 @@ internal static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if ((DestroyableSingleton<HudManager>.InstanceExists && FastDestroyableSingleton<HudManager>.Instance != null && FastDestroyableSingleton<HudManager>.Instance.Chat != null && FastDestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
+                if ((HudManager.InstanceExists && HudManager.Instance != null && HudManager.Instance.Chat != null && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
                     return false;
 
                 __instance.friendBars = new();
@@ -210,13 +210,13 @@ internal static class FriendsListUIOpenPatch
                 __instance.gameObject.SetActive(true);
                 __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(t => t.gameObject.SetActive(false)));
                 __instance.ViewRequestsButton.color = __instance.NoRequestsColor;
-                __instance.ViewRequestsText.text = FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NoNewRequests);
+                __instance.ViewRequestsText.text = TranslationController.Instance.GetString(StringNames.NoNewRequests);
 
-                __instance.StartCoroutine(FastDestroyableSingleton<FriendsListManager>.Instance.RefreshFriendsList((Action)(() =>
+                __instance.StartCoroutine(FriendsListManager.Instance.RefreshFriendsList((Action)(() =>
                 {
                     __instance.ClearNotifs();
 
-                    if (FastDestroyableSingleton<EOSManager>.Instance.IsFriendsListAllowed())
+                    if (EOSManager.Instance.IsFriendsListAllowed())
                     {
                         __instance.AddFriendObjects.SetActive(true);
                         __instance.RefreshBlockedPlayers();
@@ -406,7 +406,6 @@ internal static class ModManagerLateUpdatePatch
     {
         __instance.ShowModStamp();
 
-        LateTask.Update(Time.deltaTime);
         ChatBubbleShower.Update();
 
         if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
@@ -417,9 +416,9 @@ internal static class ModManagerLateUpdatePatch
 
     public static void Postfix(ModManager __instance)
     {
-        __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists
+        __instance.localCamera = !HudManager.InstanceExists
             ? Camera.main
-            : FastDestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+            : HudManager.Instance.GetComponentInChildren<Camera>();
 
         if (__instance.localCamera != null)
         {
@@ -439,7 +438,7 @@ internal static class OptionsMenuBehaviourOpenPatch
     {
         try
         {
-            if (DestroyableSingleton<HudManager>.InstanceExists && !FastDestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
+            if (HudManager.InstanceExists && !HudManager.Instance.SettingsButton.activeSelf) return false;
         }
         catch { }
 
@@ -459,7 +458,7 @@ internal static class OptionsMenuBehaviourOpenPatch
             __instance.UpdateButtons();
             __instance.gameObject.SetActive(true);
             __instance.MenuButton?.SelectButton(true);
-            if (DestroyableSingleton<HudManager>.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
+            if (HudManager.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
 
             if (!__instance.grabbedControllerButtons)
             {

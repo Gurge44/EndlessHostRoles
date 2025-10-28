@@ -132,6 +132,8 @@ public static class AntiBlackout
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
+            
+            ExileControllerWrapUpPatch.Stopwatch.Reset();
 
             // Only execute AfterMeetingTasks after everything is reset.
             LateTask.New(() =>

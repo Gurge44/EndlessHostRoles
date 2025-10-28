@@ -97,7 +97,7 @@ internal static class EndGamePatch
 
         Arsonist.IsDoused = [];
         Revolutionist.IsDraw = [];
-        Farseer.IsRevealed = [];
+        Investigator.IsRevealed = [];
 
         Main.VisibleTasksCount = false;
 
@@ -380,8 +380,8 @@ internal static class SetEverythingUpPatch
             case CustomWinner.Lovers:
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 break;
-            case CustomWinner.Specter:
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Specter);
+            case CustomWinner.Phantasm:
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Phantasm);
                 break;
             case CustomWinner.Draw:
                 __instance.WinText.text = GetString("ForceEnd");
@@ -401,7 +401,7 @@ internal static class SetEverythingUpPatch
                 __instance.WinText.text = string.Empty;
                 __instance.WinText.color = Color.black;
                 __instance.BackgroundBar.material.color = Color.gray;
-                winnerText.text = GetString("EveryoneDied");
+                winnerText.text = GetString(Main.GameEndDueToTimer ? "GameTimerEnded" : "EveryoneDied");
                 winnerText.color = Color.gray;
                 break;
             case CustomWinner.Error:

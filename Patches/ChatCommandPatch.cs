@@ -391,7 +391,7 @@ internal static class ChatCommands
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Inspector.InspectorCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Nemesis.NemesisMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -1445,7 +1445,7 @@ internal static class ChatCommands
         StringBuilder sb = new();
         StringBuilder settings = new();
         var title = $"{coloredString} {Utils.GetRoleMode(role)}";
-        sb.Append(GetString($"{role}InfoLong").TrimStart());
+        sb.Append(GetString($"{role}InfoLong").FixRoleName(role).TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem chance)) AddSettings(chance);
         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
         string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
@@ -1775,7 +1775,7 @@ internal static class ChatCommands
             PollAnswers.Clear();
             PollVoted.Clear();
 
-            if (winners.Length > 0 && GameStates.IsLobby)
+            if (winners.Length is > 0 and < 4 && GameStates.IsLobby)
             {
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
@@ -2477,7 +2477,7 @@ internal static class ChatCommands
 
             foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
             {
-                sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
                 string searchSubStr = GetString(subRole.ToString());
                 sb.Replace(searchSubStr, subRole.ToColoredString());
                 sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
@@ -2798,7 +2798,8 @@ internal static class ChatCommands
         }
 
         string subArgs = text.Remove(0, 2);
-        SendRolesInfo(subArgs, player.PlayerId);
+        byte to = player.AmOwner && Input.GetKeyDown(KeyCode.LeftShift) ? byte.MaxValue : player.PlayerId;
+        SendRolesInfo(subArgs, to);
     }
 
     private static void DisconnectCommand(PlayerControl player, string text, string[] args)
@@ -2832,7 +2833,8 @@ internal static class ChatCommands
                 break;
 
             default:
-                FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, "crew | imp");
+                if (!HudManager.InstanceExists) break;
+                HudManager.Instance.Chat.AddChat(player, "crew | imp");
                 break;
         }
 
@@ -3357,7 +3359,7 @@ internal static class ChatCommands
     private static void VersionCommand(PlayerControl player, string text, string[] args)
     {
         string versionText = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
-        if (versionText != string.Empty) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + versionText);
+        if (versionText != string.Empty && HudManager.InstanceExists) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + versionText);
     }
 
     private static void LTCommand(PlayerControl player, string text, string[] args)
@@ -3491,7 +3493,7 @@ internal static class ChatCommands
                 StringBuilder sb = new();
                 StringBuilder settings = new();
                 var title = $"{coloredString} {Utils.GetRoleMode(rl)}";
-                sb.Append(GetString($"{rl}InfoLong").TrimStart());
+                sb.Append(GetString($"{rl}InfoLong").FixRoleName(rl).TrimStart());
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
@@ -3576,7 +3578,7 @@ internal static class ChatCommands
             if (GuessManager.GuesserMsg(player, text) ||
                 Judge.TrialMsg(player, text) ||
                 NiceSwapper.SwapMsg(player, text) ||
-                ParityCop.ParityCheckMsg(player, text) ||
+                Inspector.InspectorCheckMsg(player, text) ||
                 Councillor.MurderMsg(player, text))
             {
                 canceled = true;
@@ -3680,10 +3682,10 @@ internal static class ChatUpdatePatch
 
         string name = player.Data.PlayerName;
 
-        if (clientId == -1)
+        if (clientId == -1 && HudManager.InstanceExists)
         {
             player.SetName(title);
-            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            HudManager.Instance.Chat.AddChat(player, msg);
             player.SetName(name);
         }
 
@@ -3752,9 +3754,9 @@ internal static class RpcSendChatPatch
 
         int return_count = PlayerControl.LocalPlayer.name.Count(x => x == '\n');
         chatText = new StringBuilder(chatText).Insert(0, "\n", return_count).ToString();
-        if (AmongUsClient.Instance.AmClient && FastDestroyableSingleton<HudManager>.Instance) FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
+        if (AmongUsClient.Instance.AmClient && HudManager.InstanceExists) HudManager.Instance.Chat.AddChat(__instance, chatText);
 
-        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) FastDestroyableSingleton<UnityTelemetry>.Instance.SendWho();
+        if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) UnityTelemetry.Instance.SendWho();
 
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable);
         messageWriter.Write(chatText);

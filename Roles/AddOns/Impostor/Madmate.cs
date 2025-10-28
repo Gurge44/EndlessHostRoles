@@ -28,7 +28,7 @@ internal class Madmate : IAddon
         MarshallCanBeMadmate = new BooleanOptionItem(15815, "MarshallCanBeMadmate", false, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
 
-        FarseerCanBeMadmate = new BooleanOptionItem(15816, "FarseerCanBeMadmate", false, TabGroup.Addons)
+        InvestigatorCanBeMadmate = new BooleanOptionItem(15816, "InvestigatorCanBeMadmate", false, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
 
         PresidentCanBeMadmate = new BooleanOptionItem(15817, "PresidentCanBeMadmate", false, TabGroup.Addons)

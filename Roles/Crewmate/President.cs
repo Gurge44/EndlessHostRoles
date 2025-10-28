@@ -34,12 +34,12 @@ public class President : RoleBase
     [
         CustomRoles.Sheriff,
         CustomRoles.Bodyguard,
-        CustomRoles.ParityCop,
+        CustomRoles.Inspector,
         CustomRoles.Jailor,
         CustomRoles.SecurityGuard,
         CustomRoles.NiceGuesser,
         CustomRoles.Inquirer,
-        CustomRoles.Farseer
+        CustomRoles.Investigator
     ];
 
     private bool IsDeclassification;

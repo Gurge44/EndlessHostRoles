@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
 using Hazel;
+using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -19,12 +21,15 @@ public class Witch : RoleBase
     [
         "TriggerKill",
         "TriggerVent",
-        "TriggerDouble"
+        "TriggerDouble",
+        "TriggerVanish"
     ];
 
     public static List<byte> PlayerIdList = [];
 
-    private static OptionItem ModeSwitchAction;
+    public static OptionItem ModeSwitchAction;
+    private static OptionItem SpellCooldown;
+    private static OptionItem MaxSpellsPerRound;
     private static SwitchTrigger NowSwitchTrigger;
 
     private bool IsHM;
@@ -39,6 +44,13 @@ public class Witch : RoleBase
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
 
         ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
+        
+        SpellCooldown = new FloatOptionItem(Id + 11, "WitchSpellCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Witch])
+            .SetValueFormat(OptionFormat.Seconds);
+        
+        MaxSpellsPerRound = new IntegerOptionItem(Id + 12, "WitchMaxSpellsPerRound", new(1, 14, 1), 3, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
     }
 
@@ -57,6 +69,7 @@ public class Witch : RoleBase
         SpelledPlayer = [];
 
         IsHM = Main.PlayerStates[playerId].MainRole == CustomRoles.HexMaster;
+        if (!IsHM) playerId.SetAbilityUseLimit(MaxSpellsPerRound.GetInt());
         NowSwitchTrigger = IsHM ? (SwitchTrigger)HexMaster.ModeSwitchAction.GetValue() : (SwitchTrigger)ModeSwitchAction.GetValue();
     }
 
@@ -68,6 +81,15 @@ public class Witch : RoleBase
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return true;
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (NowSwitchTrigger == SwitchTrigger.Vanish)
+        {
+            AURoleOptions.PhantomCooldown = SpellCooldown.GetFloat();
+            AURoleOptions.PhantomDuration = 1f;
+        }
     }
 
     private static void SendRPC(bool doSpell, byte witchId, byte target = 255, bool spellMode = false)
@@ -110,9 +132,24 @@ public class Witch : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) return;
+        if (NowSwitchTrigger is SwitchTrigger.DoubleTrigger or SwitchTrigger.Vanish) return;
 
         SwitchMode(pc.PlayerId);
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (NowSwitchTrigger == SwitchTrigger.Vanish)
+        {
+            var pos = pc.Pos();
+            var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+            var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => !x.IsImpostor()).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
+            PlayerControl target = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
+            if (target == null) return false;
+            SetSpelled(pc, target);
+        }
+
+        return false;
     }
 
     private void SwitchSpellMode(byte playerId, bool kill)
@@ -142,12 +179,13 @@ public class Witch : RoleBase
 
     private void SetSpelled(PlayerControl killer, PlayerControl target)
     {
-        if (!IsSpelled(target.PlayerId))
+        if (!IsSpelled(target.PlayerId) && killer.GetAbilityUseLimit() > 0)
         {
             SpelledPlayer.Add(target.PlayerId);
             SendRPC(true, killer.PlayerId, target.PlayerId);
-            killer.SetKillCooldown();
+            killer.SetKillCooldown(SpellCooldown.GetFloat());
             killer.RPCPlayCustomSound("Curse");
+            killer.RpcRemoveAbilityUse();
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
         }
     }
@@ -198,7 +236,8 @@ public class Witch : RoleBase
     {
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
-        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) return killer.CheckDoubleTrigger(target, () => SetSpelled(killer, target));
+        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
+            return killer.CheckDoubleTrigger(target, () => SetSpelled(killer, target));
 
         if (!SpellMode)
         {
@@ -224,7 +263,6 @@ public class Witch : RoleBase
                 if (PlayerIdList.Contains(id))
                 {
                     if (Main.PlayerStates[id].Role is not Witch wc) continue;
-
                     wc.SpelledPlayer.Clear();
                 }
             }
@@ -248,6 +286,8 @@ public class Witch : RoleBase
                     }
                     else
                         Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                    
+                    witchId.SetAbilityUseLimit(MaxSpellsPerRound.GetInt());
                 }
             }
 
@@ -281,17 +321,25 @@ public class Witch : RoleBase
         else
             str.Append($"{GetString("Mode")}: ");
 
-        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
-            str.Append(GetString("WitchModeDouble"));
-        else
-            str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+        switch (NowSwitchTrigger)
+        {
+            case SwitchTrigger.DoubleTrigger:
+                str.Append(GetString("WitchModeDouble"));
+                break;
+            case SwitchTrigger.Vanish:
+                str.Append(GetString("WitchModeVanish"));
+                break;
+            default:
+                str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+                break;
+        }
 
         return str.ToString();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (SpellMode && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
+        if (SpellMode && NowSwitchTrigger is not SwitchTrigger.DoubleTrigger and not SwitchTrigger.Vanish)
             hud.KillButton.OverrideText(GetString("WitchSpellButtonText"));
         else
             hud.KillButton.OverrideText(GetString("KillButtonText"));
@@ -308,10 +356,11 @@ public class Witch : RoleBase
         }
     }
 
-    private enum SwitchTrigger
+    public enum SwitchTrigger
     {
         Kill,
         Vent,
-        DoubleTrigger
+        DoubleTrigger,
+        Vanish
     }
 }

@@ -12,7 +12,6 @@ public class PlagueBearer : RoleBase
     private const int Id = 26000;
     public static List<byte> PlayerIdList = [];
     public static Dictionary<byte, List<byte>> PlaguedList = [];
-    public static Dictionary<byte, float> PlagueBearerCD = [];
     public static List<byte> PestilenceList = [];
 
     public static OptionItem PlagueBearerCDOpt;
@@ -49,14 +48,12 @@ public class PlagueBearer : RoleBase
     {
         PlayerIdList = [];
         PlaguedList = [];
-        PlagueBearerCD = [];
         PestilenceList = [];
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        PlagueBearerCD.Add(playerId, PlagueBearerCDOpt.GetFloat());
         PlaguedList[playerId] = [];
     }
 
@@ -67,7 +64,7 @@ public class PlagueBearer : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];
+        Main.AllPlayerKillCooldown[id] = PlagueBearerCDOpt.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -132,8 +129,7 @@ public class PlagueBearer : RoleBase
         SendRPC(killer.PlayerId, target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         killer.ResetKillCooldown();
-        killer.SetKillCooldown();
-        Logger.Msg($"Kill cooldown: {PlagueBearerCD[killer.PlayerId]}", "PlagueBearer");
+        killer.SetKillCooldown(PlagueBearerCDOpt.GetFloat());
         return false;
     }
 
@@ -154,6 +150,7 @@ public class PlagueBearer : RoleBase
         kvp.Value.Add(target.PlayerId);
         SendRPC(kvp.Key, target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: kvp.Key.GetPlayer(), SpecifyTarget: target);
+        Logger.Info($"{pc.GetNameWithRole()} infects {target.GetNameWithRole()}", "PlagueBearer");
     }
 }
 

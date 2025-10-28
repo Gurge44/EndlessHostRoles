@@ -402,8 +402,8 @@ public static class Options
     public static OptionItem SecurityGuardSkillCooldown;
     public static OptionItem SecurityGuardSkillDuration;
     public static OptionItem SecurityGuardSkillMaxOfUseage;
-    public static OptionItem ShapeImperiusCurseShapeshiftDuration;
-    public static OptionItem ImperiusCurseShapeshiftCooldown;
+    public static OptionItem ShapeSoulCatcherShapeshiftDuration;
+    public static OptionItem SoulCatcherShapeshiftCooldown;
     public static OptionItem CrewpostorCanKillAllies;
     public static OptionItem CrewpostorKnowsAllies;
     public static OptionItem AlliesKnowCrewpostor;
@@ -821,7 +821,7 @@ public static class Options
     public static OptionItem SnitchCanBeMadmate;
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
-    public static OptionItem FarseerCanBeMadmate;
+    public static OptionItem InvestigatorCanBeMadmate;
     public static OptionItem PresidentCanBeMadmate;
 
     public static OptionItem MadSnitchTasks;

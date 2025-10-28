@@ -107,7 +107,7 @@ public enum CustomRPC
     SetCpTasksDone,
     SetDemonHealth,
     SetPelicanEtenNum,
-    SwordsManKill,
+    VigilanteKill,
     SetGhostPlayer,
     SetStalkerKillCount,
     SetConsigliere,
@@ -159,7 +159,7 @@ public enum CustomRPC
     SyncIntrovert,
     SyncAllergic,
     SyncAsthmatic,
-    ParityCopCommand,
+    InspectorCommand,
     ImitatorClick,
     Invisibility,
     ResetAbilityCooldown,
@@ -243,7 +243,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -778,10 +778,10 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetRevealedPlayer:
                 {
-                    byte farseerId = reader.ReadByte();
+                    byte investigatorId = reader.ReadByte();
                     byte revealId = reader.ReadByte();
                     bool revealed = reader.ReadBoolean();
-                    Farseer.IsRevealed[(farseerId, revealId)] = revealed;
+                    Investigator.IsRevealed[(investigatorId, revealId)] = revealed;
                     break;
                 }
                 case CustomRPC.SetNameColorData:
@@ -996,9 +996,9 @@ internal static class RPCHandlerPatch
                     Doomsayer.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SwordsManKill:
+                case CustomRPC.VigilanteKill:
                 {
-                    SwordsMan.ReceiveRPC(reader);
+                    Vigilante.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.PlayCustomSound:
@@ -1008,7 +1008,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetGhostPlayer:
                 {
-                    BallLightning.ReceiveRPC(reader);
+                    Impostor.Lightning.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetStalkerKillCount:
@@ -1301,9 +1301,9 @@ internal static class RPCHandlerPatch
                     
                     break;
                 }
-                case CustomRPC.ParityCopCommand:
+                case CustomRPC.InspectorCommand:
                 {
-                    ParityCop.ReceiveRPC(reader);
+                    Inspector.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.ImitatorClick:
@@ -1520,14 +1520,14 @@ internal static class RPC
                 case Sounds.KillSound:
                     SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.KillSfx, false);
                     break;
-                case Sounds.TaskComplete:
-                    SoundManager.Instance.PlaySound(FastDestroyableSingleton<HudManager>.Instance.TaskCompleteSound, false);
+                case Sounds.TaskComplete when HudManager.InstanceExists:
+                    SoundManager.Instance.PlaySound(HudManager.Instance.TaskCompleteSound, false);
                     break;
-                case Sounds.TaskUpdateSound:
-                    SoundManager.Instance.PlaySound(FastDestroyableSingleton<HudManager>.Instance.TaskUpdateSound, false);
+                case Sounds.TaskUpdateSound when HudManager.InstanceExists:
+                    SoundManager.Instance.PlaySound(HudManager.Instance.TaskUpdateSound, false);
                     break;
                 case Sounds.ImpTransform:
-                    SoundManager.Instance.PlaySound(FastDestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
+                    SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
                     break;
             }
         }

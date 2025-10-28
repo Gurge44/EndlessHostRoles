@@ -516,7 +516,7 @@ internal static class CheckForEndVotingPatch
 
                 pc.TP(pos);
             }
-        }, 10f, "Teleport Lazy Players");
+        }, 12f, "Teleport Lazy Players");
     }
 
     public static bool CheckRole(byte id, CustomRoles role)
@@ -693,7 +693,7 @@ internal static class MeetingHudStartPatch
 
                 foreach (CustomRoles subRole in Main.PlayerStates[pc.PlayerId].SubRoles)
                 {
-                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
                     string searchSubStr = GetString(subRole.ToString());
                     sb.Replace(searchSubStr, subRole.ToColoredString());
                     sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
@@ -897,8 +897,8 @@ internal static class MeetingHudStartPatch
 
             if (!seer.Data.IsDead && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
             {
-                roleTextMeeting.text = Farseer.RandomRole[seer.PlayerId];
-                roleTextMeeting.text += Farseer.GetTaskState();
+                roleTextMeeting.text = Investigator.RandomRole[seer.PlayerId];
+                roleTextMeeting.text += Investigator.GetTaskState();
             }
 
             if (EvilTracker.IsTrackTarget(seer, target) && EvilTracker.CanSeeLastRoomInMeeting)
@@ -1085,8 +1085,8 @@ internal static class MeetingHudStartPatch
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
 
-            if (BallLightning.IsGhost(target))
-                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.BallLightning), "■"));
+            if (Impostor.Lightning.IsGhost(target))
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lightning), "■"));
 
             if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 2)
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
@@ -1117,7 +1117,7 @@ internal static class MeetingHudStartPatch
 
         Coven.Coven.CovenMeetingStartPatch.Postfix();
         GuessManager.StartMeetingPatch.Postfix(__instance);
-        ParityCop.StartMeetingPatch.Postfix(__instance);
+        Inspector.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);
         NiceSwapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
