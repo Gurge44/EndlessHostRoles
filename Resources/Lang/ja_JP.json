@@ -3038,6 +3038,8 @@
   "AllCrewRolesHaveVanillaColor": "すべての <#8cffff>クルーメイト</color>の役割を <#8cffff>バニラ クルーメイトの色</color>にする <#ffff00>(再起動が必要)</color>",
   "StoreCompletedAchievementsOnEHRDatabase": "完了した実績を EHRのデータベースに保存する (アップデート または 再インストールのケースで 進歩を維持するため)",
   "PostLobbyCodeToEHRDiscordServer": "EHRのウェブサイトに ロビーコードを投稿する",
+  "SendHashedPuidToUseLinkedAccount": "I have an EHR account linked to my discord account, send my hashed PUID to let discord users identify me",
+  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>ロビーコードが EHRのウェブサイトに送信されました。\\nこの助けにより EHRのロビーが 他の人に見つけやすくなります。</color></size>\\n<size=70%>この機能は 設定で無効にできます (システム設定のタブ)。</size>",
   "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color> <#ff5555>ロビーコードの EHRのウェブサイトの送信に失敗しました。</color></size>\\n<size=70%>{0}</size>",
   "ActiveRolesList": "有効な役割リスト",
