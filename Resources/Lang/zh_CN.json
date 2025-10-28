@@ -3038,6 +3038,8 @@
   "AllCrewRolesHaveVanillaColor": "所有<#8cffff>船员阵营</color>职业使用<#8cffff>原版船员职业颜色</color> <#ffff00>（需要重启）</color>",
   "StoreCompletedAchievementsOnEHRDatabase": "将已完成的成就存储到EHR数据库(以便在重新安装或更新时保持进度)",
   "PostLobbyCodeToEHRDiscordServer": "将房间代码发布到EHR网站上",
+  "SendHashedPuidToUseLinkedAccount": "I have an EHR account linked to my discord account, send my hashed PUID to let discord users identify me",
+  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color><#00a5ff>房间代码已发送到EHR网站。这将帮助其他人找到EHR模组房间。</color></size>\\n<size=70%>您可以在设置(系统设置标签页)中禁用此功能</size>",
   "Message.LobbyCodeSendError": "<size=90%><#ff0000>X</color><#ff5555>向 EHR 网站发送大厅代码失败。</color></size>\\n<size=70%>{0}</size>",
   "ActiveRolesList": "有效职业一览",
