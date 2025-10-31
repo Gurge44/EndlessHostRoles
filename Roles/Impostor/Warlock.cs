@@ -316,11 +316,7 @@ internal class Warlock : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModdedClient() && !hud) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;
-
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
+        if (seer.IsModdedClient() && !hud || Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl || seer.PlayerId != target.PlayerId) return string.Empty;
 
         var sb = new StringBuilder();
         if (wl.KCD > 0f) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");

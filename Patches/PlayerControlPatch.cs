@@ -1181,11 +1181,14 @@ internal static class ReportDeadBodyPatch
         if (MeetingStarted) return;
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
+
+        if (!SubmergedCompatibility.IsSubmerged())
+        {
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
+            Main.AllAlivePlayerControls.Do(x => x.SyncSettings());
         
-        Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
-        Main.AllAlivePlayerControls.Do(x => x.SyncSettings());
-        
-        LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
+            LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
+        }
 
         CustomNetObject.OnMeeting();
         

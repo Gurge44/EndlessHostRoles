@@ -681,6 +681,8 @@ internal static class StartGameHostPatch
     private static IEnumerator AssignRoles()
     {
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
+        
+        Options.AutoSetFactionMinMaxSettings();
 
         RpcSetRoleReplacer.Initialize();
 

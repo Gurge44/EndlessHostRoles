@@ -462,19 +462,21 @@ internal static class RPCHandlerPatch
                     
                     if (startIndex == 2)
                     {
-                        Options.Preset.SetValue(9);
-                        Options.GameMode.SetValue(reader.ReadPackedInt32());
+                        Options.Preset.SetValue(9, false, false);
+                        Options.GameMode.SetValue(reader.ReadPackedInt32(), false, false);
                     }
 
-                    for (int i = startIndex; i < OptionItem.AllOptions.Count; ++i)
+                    for (int i = startIndex; i < OptionItem.AllOptions.Count; i++)
                     {
                         if (reader.BytesRemaining == 0) break;
                         var option = OptionItem.AllOptions[i];
-                        if (option is TextOptionItem) continue;
+                        if (option is TextOptionItem || option.Id >= 660000) continue;
                         
-                        option.SetValue(reader.ReadPackedInt32());
+                        option.SetValue(reader.ReadPackedInt32(), false, false);
                     }
 
+                    OptionSaver.Save();
+                    Main.Instance.StartCoroutine(OptionShower.GetText());
                     break;
                 }
                 case CustomRPC.SetDeathReason:
@@ -1372,10 +1374,10 @@ internal static class RPC
         writer.WritePacked(2);
         writer.WritePacked(Options.GameMode.GetValue());
         
-        for (int i = 2; i < OptionItem.AllOptions.Count; ++i)
+        for (int i = 2; i < OptionItem.AllOptions.Count; i++)
         {
             var option = OptionItem.AllOptions[i];
-            if (option is TextOptionItem) continue;
+            if (option is TextOptionItem || option.Id >= 660000) continue;
             
             if (writer.Length > 500)
             {
@@ -1396,10 +1398,12 @@ internal static class RPC
     {
         if (AmongUsClient.Instance.AmHost) PlaySound(playerID, sound);
 
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
-            return; // Spamming this may disconnect the host
+        SendOption sendOption = SendOption.Reliable;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable);
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
+            sendOption = SendOption.None;
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, sendOption);
         writer.Write(playerID);
         writer.Write((byte)sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1562,24 +1566,6 @@ internal static class RPC
         foreach (PlayerControl lp in Main.LoversPlayers) writer.Write(lp.PlayerId);
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void SendRpcLogger(uint targetNetId, byte callId, SendOption sendOption, int targetClientId = -1)
-    {
-        if (!DebugModeManager.AmDebugger) return;
-
-        string rpcName = GetRpcName(callId);
-        var from = targetNetId.ToString();
-        var target = targetClientId.ToString();
-
-        try
-        {
-            target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId).PlayerName;
-            from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
-        }
-        catch { }
-
-        Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName}) / SendOption: {sendOption}", "SendRPC");
     }
 
     public static string GetRpcName(byte callId)

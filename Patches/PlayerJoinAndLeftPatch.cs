@@ -91,6 +91,8 @@ internal static class OnGameJoinedPatch
             LateTask.New(() =>
             {
                 JoiningGame = false;
+                
+                Options.AutoSetFactionMinMaxSettings();
 
                 if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()) && GameStates.IsOnlineGame)
                 {
@@ -485,6 +487,9 @@ internal static class OnPlayerJoinedPatch
         {
             Main.SayStartTimes.Remove(client.Id);
             Main.SayBanwordsTimes.Remove(client.Id);
+            
+            if (GameStates.IsLobby && !OnGameJoinedPatch.JoiningGame)
+                LateTask.New(Options.AutoSetFactionMinMaxSettings, 2f, log: false);
         }
     }
 }
@@ -585,6 +590,9 @@ internal static class OnPlayerLeftPatch
                             Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }, 2.5f, "Repeat Despawn", false);
                 }
+            
+                if (GameStates.IsLobby)
+                    Options.AutoSetFactionMinMaxSettings();
             }
 
             Utils.CountAlivePlayers(true);

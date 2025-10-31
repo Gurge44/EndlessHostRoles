@@ -102,6 +102,8 @@ public static class Options
     public static Dictionary<CustomRoles, OptionItem> CrewAdvancedGameEndCheckingSettings;
     public static OptionItem GuessersKeepTheGameGoing;
 
+    public static OptionItem EnableAutoFactionMinMaxSettings;
+    public static readonly List<(OptionItem MinPlayersToActivate, Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> TeamSettings, OptionItem MinNNKs, OptionItem MaxNNKs)> AutoFactionMinMaxSettings = [];
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
     public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
 
@@ -3042,6 +3044,45 @@ public static class Options
         #endregion
 
         yield return null;
+        
+        id = 68000;
+        
+        new TextOptionItem(110040, "MenuTitle.AutoFactionMinMaxSettings", TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        EnableAutoFactionMinMaxSettings = new BooleanOptionItem(id++, "EnableAutoFactionMinMaxSettings", false, TabGroup.SystemSettings)
+            .SetHeader(true)
+            .SetColor(Color.cyan)
+            .SetGameMode(CustomGameMode.Standard);
+
+        for (int index = 0; index < 10; index++)
+        {
+            OptionItem minPlayers = new IntegerOptionItem(id++, "AutoFactionMinMaxSettings.PlayerCap", new(0, 30, 1), 0, TabGroup.SystemSettings)
+                .SetParent(EnableAutoFactionMinMaxSettings);
+            
+            Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> settings = new();
+            
+            foreach (Team team in new[] { Team.Impostor, Team.Coven, Team.Neutral })
+            {
+                OptionItem minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                    .SetParent(minPlayers)
+                    .SetColor(team.GetColor());
+
+                OptionItem maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                    .SetParent(minPlayers)
+                    .SetColor(team.GetColor());
+
+                settings[team] = (minSetting, maxSetting);
+            }
+
+            OptionItem minNNKs = new IntegerOptionItem(id++, "MinNNKs", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                .SetParent(minPlayers);
+            
+            OptionItem maxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                .SetParent(minPlayers);
+            
+            AutoFactionMinMaxSettings.Add((minPlayers, settings, minNNKs, maxNNKs));
+        }
 
         id = 69900;
 
@@ -3162,6 +3203,35 @@ public static class Options
         IsLoaded = true;
 
         PostLoadTasks();
+    }
+
+    public static void AutoSetFactionMinMaxSettings()
+    {
+        try
+        {
+            if (!AmongUsClient.Instance.AmHost || !EnableAutoFactionMinMaxSettings.GetBool()) return;
+
+            int playerCount = PlayerControl.AllPlayerControls.Count;
+            var filtered = AutoFactionMinMaxSettings.FindAll(x => x.MinPlayersToActivate.GetInt() > 0 && x.MinPlayersToActivate.GetInt() <= playerCount);
+            if (filtered.Count == 0) return;
+            var usedValues = filtered.MaxBy(x => x.MinPlayersToActivate.GetInt());
+
+            foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in FactionMinMaxSettings)
+            {
+                var teamSettings = usedValues.TeamSettings[team];
+                minSetting.SetValue(teamSettings.MinSetting.GetInt(), false, false);
+                maxSetting.SetValue(teamSettings.MaxSetting.GetInt(), false, false);
+            }
+        
+            MinNNKs.SetValue(usedValues.MinNNKs.GetInt(), false, false);
+            MaxNNKs.SetValue(usedValues.MaxNNKs.GetInt(), false, false);
+        
+            OptionSaver.Save();
+            OptionItem.SyncAllOptions();
+            
+            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedValues.MinPlayersToActivate.GetInt(), string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void CompileAutoGMRotationSettings()

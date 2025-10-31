@@ -74,7 +74,7 @@ public class Executioner : RoleBase
 
                 if (targetList.Count == 0)
                 {
-                    ChangeRole(Utils.GetPlayerById(playerId));
+                    LateTask.New(() => ChangeRole(Utils.GetPlayerById(playerId)), 8f, log: false);
                     return;
                 }
 
@@ -84,7 +84,7 @@ public class Executioner : RoleBase
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
             }
             catch (Exception ex) { Logger.Error(ex.ToString(), "Executioner.Add"); }
-        }, 8f, log: false);
+        }, 0.5f, log: false);
     }
 
     public override void Remove(byte playerId)
