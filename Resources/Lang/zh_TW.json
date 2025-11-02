@@ -699,7 +699,7 @@
   "MercenaryInfoLong": "(偽裝者陣營)：\\n作為嗜血殺手，你的擊殺冷卻比其他偽裝者短，但你也有一個計時器。你必須擊殺敵人才能重置它。如果計時器歸零，你就會自殺。如果計時器低於20秒，你可以在你的名字上方看到計時器。",
   "MareInfoLong": "(附加職業):\\n獵夢者有很低的殺人冷卻以及很快的移動速度，但是他只能在關燈狀態下殺人，且名字會變成紅色。\\n\\n該附加職業只會分配給偽裝者並且無法被猜測。",
   "VampireInfoLong": "(偽裝者陣營):\\n吸血鬼的擊殺目標不會立刻死亡，而是在一段時間後突然暴斃，如果在這段時間內進入會議，被吸血的玩家將立刻死亡。\\n請注意: 如果吸血鬼的目標為誘餌，吸血鬼會直接擊殺誘餌並報告屍體。",
-  "WarlockInfoLong": "(Impostors):\\nWarlock can curse a player while not Shapeshifted. If they vanish/pet after cursing, the closest player to the cursed one is killed, regardless of distance. Only one player can be cursed at a time.\\n\\nYou can kill normally by double clicking your kill button on someone. Killing, vanishing/petting, and cursing all have separate cooldowns. The Warlock may freeze in place for a few seconds after killing via cursed player.",
+  "WarlockInfoLong": "(偽裝者陣營):\\n術士在未變形狀態下可以詛咒玩家。如果術士在詛咒後隱形/撫摸，則距離被詛咒玩家最近的玩家會被殺死，無論距離遠近。一次只能詛咒一名玩家。 \\n\\n你可以透過雙擊擊殺按鈕來正常擊殺玩家。擊殺、消失/撫摸和詛咒都有各自的冷卻時間。術士在通過詛咒玩家擊殺後可能會原地凍結幾秒鐘。",
   "ZombieInfoLong": "(偽裝者陣營):\\n殭屍的殺人冷卻很短，但移動速度極慢且視野非常小。\\n殭屍無法被獨裁主義者以外的人票出。\\n殭屍的移動速度會隨著時間流逝或殺人冷卻而變慢。",
   "NinjaInfoLong": "(偽裝者陣營)：\\n刺客可以使用擊殺按鈕標記目標，如果標記成功，會出現一個盾牌動畫作為提醒。之後，刺客可以使用消失/寵物傳送到被標記者身邊並殺死該目標。刺客無法進行常規擊殺，但根據房主的設置，刺殺後或許可以進行常規擊殺。",
   "AnonymousInfoLong": "(偽裝者陣營):\\n駭客可以使用變形來駭入他變形的目標，被駭入的目標將會立刻報告本輪駭客殺死的被害者屍體，如果這輪駭客沒有殺死任何人，那麼將隨機報告場上的屍體，如果這輪根本沒有屍體，那麼被駭入的目標將自我報告。\\n請注意: 駭客的技能可以無視屍體是否可以被報告(也可以報告已被清除者清理過的屍體，或是清道夫殺人被傳送到地圖外面的屍體)\\n請注意: 駭入擺爛人並不會發動技能。",
