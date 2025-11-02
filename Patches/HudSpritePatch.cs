@@ -268,9 +268,9 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Pyromaniac");
                     break;
                 }
-                case CustomRoles.FireWorks when Main.PlayerStates[player.PlayerId].Role is FireWorks fw:
+                case CustomRoles.Fireworker when Main.PlayerStates[player.PlayerId].Role is Fireworker fw:
                 {
-                    newAbilityButton = CustomButton.Get(fw.nowFireWorksCount == 0 ? "FireworkD" : "FireworkP");
+                    newAbilityButton = CustomButton.Get(fw.nowFireworksCount == 0 ? "FireworkD" : "FireworkP");
                     break;
                 }
                 case CustomRoles.Anonymous:

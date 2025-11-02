@@ -268,7 +268,7 @@ internal static class CheckMurderPatch
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.SoloKombat:
+                case CustomGameMode.SoloPVP:
                     SoloPVP.OnPlayerAttack(killer, target);
                     return false;
                 case CustomGameMode.FFA:
@@ -281,7 +281,7 @@ internal static class CheckMurderPatch
                     return false;
                 case CustomGameMode.Mingle:
                 case CustomGameMode.TheMindGame:
-                case CustomGameMode.MoveAndStop:
+                case CustomGameMode.StopAndGo:
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.NaturalDisasters:
                 case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
@@ -1682,7 +1682,7 @@ internal static class FixedUpdatePatch
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
         if (__instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
@@ -1745,11 +1745,11 @@ internal static class FixedUpdatePatch
             if (progressText.RemoveHtmlTags().Length > 25 && Main.VisibleTasksCount)
                 progressText = $"\n{progressText}";
 
-            bool moveandstop = Options.CurrentGameMode == CustomGameMode.MoveAndStop;
+            bool stopandgo = Options.CurrentGameMode == CustomGameMode.StopAndGo;
 
             if (!hideRoleText && Main.VisibleTasksCount)
             {
-                if (moveandstop) roleText = roleText.Insert(0, progressText);
+                if (stopandgo) roleText = roleText.Insert(0, progressText);
                 else roleText += progressText;
             }
 
@@ -1786,7 +1786,7 @@ internal static class FixedUpdatePatch
 
                 switch (Options.CurrentGameMode)
                 {
-                    case CustomGameMode.SoloKombat:
+                    case CustomGameMode.SoloPVP:
                         SoloPVP.GetNameNotify(target, ref realName);
                         break;
                     case CustomGameMode.BedWars when self:
@@ -1935,14 +1935,14 @@ internal static class FixedUpdatePatch
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.SoloKombat:
+                case CustomGameMode.SoloPVP:
                     additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, self));
                     break;
                 case CustomGameMode.FFA:
                     additionalSuffixes.Add(FreeForAll.GetPlayerArrow(seer, target));
                     break;
-                case CustomGameMode.MoveAndStop when self:
-                    additionalSuffixes.Add(MoveAndStop.GetSuffixText(seer));
+                case CustomGameMode.StopAndGo when self:
+                    additionalSuffixes.Add(StopAndGo.GetSuffixText(seer));
                     break;
                 case CustomGameMode.Speedrun when self:
                     additionalSuffixes.Add(Speedrun.GetSuffixText(seer));
@@ -1976,7 +1976,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+            if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
             List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
@@ -2130,7 +2130,7 @@ internal static class EnterVentPatch
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
-            case CustomGameMode.SoloKombat when !SoloPVP.CanVent:
+            case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }

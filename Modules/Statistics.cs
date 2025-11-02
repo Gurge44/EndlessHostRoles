@@ -72,10 +72,10 @@ public static class Statistics
                 case CustomGameMode.FFA when won:
                     Achievements.Type.SerialKiller.CompleteAfterGameEnd();
                     return;
-                case CustomGameMode.SoloKombat when won:
+                case CustomGameMode.SoloPVP when won:
                     Achievements.Type.PVPMaster.CompleteAfterGameEnd();
                     return;
-                case CustomGameMode.MoveAndStop when won:
+                case CustomGameMode.StopAndGo when won:
                     Achievements.Type.HarderThanDrivingThroughTrafficLightsRight.CompleteAfterGameEnd();
                     return;
                 case CustomGameMode.Speedrun when won:

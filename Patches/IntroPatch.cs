@@ -160,11 +160,11 @@ internal static class SetUpRoleTextPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.SoloKombat:
+            case CustomGameMode.SoloPVP:
             {
                 Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
                 __instance.YouAreText.transform.gameObject.SetActive(false);
-                __instance.RoleText.text = GetString("SoloKombat");
+                __instance.RoleText.text = GetString("SoloPVP");
                 __instance.RoleText.color = Utils.GetRoleColor(lp.GetCustomRole());
                 __instance.RoleBlurbText.color = color;
                 __instance.RoleBlurbText.text = lp.GetRoleInfo();
@@ -180,11 +180,11 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleBlurbText.text = GetString("KillerInfo");
                 break;
             }
-            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.StopAndGo:
             {
                 Color color = ColorUtility.TryParseHtmlString("#00ffa5", out Color c) ? c : new(255, 255, 255, 255);
                 __instance.YouAreText.transform.gameObject.SetActive(false);
-                __instance.RoleText.text = GetString("MoveAndStop");
+                __instance.RoleText.text = GetString("StopAndGo");
                 __instance.RoleText.color = color;
                 __instance.RoleBlurbText.color = color;
                 __instance.RoleBlurbText.text = GetString("TaskerInfo");
@@ -839,13 +839,13 @@ internal static class BeginCrewmatePatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.SoloKombat:
+            case CustomGameMode.SoloPVP:
             {
                 Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
                 __instance.TeamTitle.text = Utils.GetRoleName(role);
                 __instance.TeamTitle.color = Utils.GetRoleColor(role);
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("ModeSoloKombat");
+                __instance.ImpostorText.text = GetString("ModeSoloPVP");
                 __instance.BackgroundBar.material.color = color;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 break;
@@ -860,9 +860,9 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("KillerInfo");
                 break;
             }
-            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.StopAndGo:
             {
-                __instance.TeamTitle.text = GetString("MoveAndStop");
+                __instance.TeamTitle.text = GetString("StopAndGo");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 165, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
@@ -1271,8 +1271,8 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Quiz:
                     Main.Instance.StartCoroutine(Quiz.OnGameStart());
                     break;
-                case CustomGameMode.MoveAndStop:
-                    MoveAndStop.OnGameStart();
+                case CustomGameMode.StopAndGo:
+                    StopAndGo.OnGameStart();
                     break;
                 case CustomGameMode.TheMindGame:
                     Main.Instance.StartCoroutine(TheMindGame.OnGameStart());

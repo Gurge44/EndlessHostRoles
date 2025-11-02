@@ -20,9 +20,9 @@ namespace EHR;
 public enum CustomGameMode
 {
     Standard = 0x01,
-    SoloKombat = 0x02,
+    SoloPVP = 0x02,
     FFA = 0x03,
-    MoveAndStop = 0x04,
+    StopAndGo = 0x04,
     HotPotato = 0x05,
     HideAndSeek = 0x06,
     Speedrun = 0x07,
@@ -74,9 +74,9 @@ public static class Options
     private static readonly string[] GameModes =
     [
         "Standard",
-        "SoloKombat",
+        "SoloPVP",
         "FFA",
-        "MoveAndStop",
+        "StopAndGo",
         "HotPotato",
         "HideAndSeek",
         "Speedrun",
@@ -901,9 +901,9 @@ public static class Options
 
     public static CustomGameMode CurrentGameMode => GameMode.GetInt() switch
     {
-        1 => CustomGameMode.SoloKombat,
+        1 => CustomGameMode.SoloPVP,
         2 => CustomGameMode.FFA,
-        3 => CustomGameMode.MoveAndStop,
+        3 => CustomGameMode.StopAndGo,
         4 => CustomGameMode.HotPotato,
         5 => CustomGameMode.HideAndSeek,
         6 => CustomGameMode.Speedrun,
@@ -1808,12 +1808,12 @@ public static class Options
 
         MainLoadingText = "Building Settings for Other Gamemodes";
 
-        // SoloKombat
+        // SoloPVP
         SoloPVP.SetupCustomOption();
         // FFA
         FreeForAll.SetupCustomOption();
         // Move And Stop
-        MoveAndStop.SetupCustomOption();
+        StopAndGo.SetupCustomOption();
         // Hot Potato
         HotPotato.SetupCustomOption();
         // Speedrun
@@ -3255,9 +3255,9 @@ public static class Options
                 case AutoGMRoationSlotOptions.Explicit:
                     CustomGameMode gm = explicitChoice.GetInt() switch
                     {
-                        1 => CustomGameMode.SoloKombat,
+                        1 => CustomGameMode.SoloPVP,
                         2 => CustomGameMode.FFA,
-                        3 => CustomGameMode.MoveAndStop,
+                        3 => CustomGameMode.StopAndGo,
                         4 => CustomGameMode.HotPotato,
                         5 => CustomGameMode.HideAndSeek,
                         6 => CustomGameMode.Speedrun,
