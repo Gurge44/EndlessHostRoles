@@ -131,7 +131,7 @@ public class Main : BasePlugin
 
     public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
     {
-        [CustomGameMode.SoloKombat] = [],
+        [CustomGameMode.SoloPVP] = [],
         [CustomGameMode.FFA] = [],
         [CustomGameMode.HotPotato] = [],
         [CustomGameMode.HideAndSeek] = [],
@@ -744,7 +744,7 @@ public class Main : BasePlugin
                 { CustomRoles.Mare, "#ff1919" },
                 { CustomRoles.Underdog, "#ff1919" },
 
-                // SoloKombat
+                // SoloPVP
                 { CustomRoles.KB_Normal, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
@@ -840,9 +840,9 @@ public class Main : BasePlugin
         GameModeColors = new()
         {
             [CustomGameMode.Standard] = Color.white,
-            [CustomGameMode.SoloKombat] = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : Color.white,
+            [CustomGameMode.SoloPVP] = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : Color.white,
             [CustomGameMode.FFA] = Color.cyan,
-            [CustomGameMode.MoveAndStop] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
+            [CustomGameMode.StopAndGo] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
             [CustomGameMode.HotPotato] = ColorUtility.TryParseHtmlString("#e8cd46", out c) ? c : Color.white,
             [CustomGameMode.HideAndSeek] = ColorUtility.TryParseHtmlString("#345eeb", out c) ? c : Color.white,
             [CustomGameMode.Speedrun] = Utils.GetRoleColor(CustomRoles.Speedrunner),

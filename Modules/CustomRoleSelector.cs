@@ -23,9 +23,9 @@ internal static class CustomRoleSelector
 
     public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
     {
-        { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
+        { CustomGameMode.SoloPVP, CustomRoles.KB_Normal },
         { CustomGameMode.FFA, CustomRoles.Killer },
-        { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
+        { CustomGameMode.StopAndGo, CustomRoles.Tasker },
         { CustomGameMode.HotPotato, CustomRoles.Potato },
         { CustomGameMode.Speedrun, CustomRoles.Runner },
         { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },

@@ -25,7 +25,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     {
         get
         {
-            if (MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.HiddenTimers)
+            if (StopAndGo.IsEventActive && StopAndGo.Event.Type == StopAndGo.Events.HiddenTimers)
                 return "--";
 
             bool hidden = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed);
@@ -68,7 +68,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     }
 }
 
-internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float positionY, int lives)
+internal class StopAndGoPlayerData(Counter[] counters, float positionX, float positionY, int lives)
 {
     public Counter LeftCounter { get; } = counters[0];
 
@@ -120,13 +120,13 @@ internal class MoveAndStopPlayerData(Counter[] counters, float positionX, float 
         }
 
         pc.KillFlash();
-        pc.Notify(string.Format(GetString("MoveAndStop_LivesRemainingNotify"), Lives));
+        pc.Notify(string.Format(GetString("StopAndGo_LivesRemainingNotify"), Lives));
 
         return false;
     }
 }
 
-internal static class MoveAndStop
+internal static class StopAndGo
 {
     public enum Events
     {
@@ -138,7 +138,7 @@ internal static class MoveAndStop
         CommsSabotage
     }
 
-    private static Dictionary<byte, MoveAndStopPlayerData> AllPlayerTimers = [];
+    private static Dictionary<byte, StopAndGoPlayerData> AllPlayerTimers = [];
 
     private static OptionItem GameTime;
     private static OptionItem PlayerLives;
@@ -204,7 +204,7 @@ internal static class MoveAndStop
             '➡' => Random.Next(RightCounterRedMin.GetInt(), RightCounterRedMax.GetInt()),
             '⇅' => Random.Next(MiddleCounterRedMin.GetInt(), MiddleCounterRedMax.GetInt()),
             '⬅' => Random.Next(LeftCounterRedMin.GetInt(), LeftCounterRedMax.GetInt()),
-            _ => throw new ArgumentException("Invalid symbol representing the direction (RandomRedTime method in MoveAndStop.cs)", nameof(direction))
+            _ => throw new ArgumentException("Invalid symbol representing the direction (RandomRedTime method in StopAndGo.cs)", nameof(direction))
         };
 
         ApplyEventToTimer(ref time);
@@ -218,7 +218,7 @@ internal static class MoveAndStop
             '➡' => Random.Next(RightCounterGreenMin.GetInt(), RightCounterGreenMax.GetInt()),
             '⇅' => Random.Next(MiddleCounterGreenMin.GetInt(), MiddleCounterGreenMax.GetInt()),
             '⬅' => Random.Next(LeftCounterGreenMin.GetInt(), LeftCounterGreenMax.GetInt()),
-            _ => throw new ArgumentException("Invalid symbol representing the direction (RandomGreenTime method in MoveAndStop.cs)", nameof(direction))
+            _ => throw new ArgumentException("Invalid symbol representing the direction (RandomGreenTime method in StopAndGo.cs)", nameof(direction))
         };
 
         ApplyEventToTimer(ref time);
@@ -241,13 +241,13 @@ internal static class MoveAndStop
 
     private static string CounterSettingString(string direction, bool red, bool min)
     {
-        return $"MoveAndStop_{direction}Counter{(red ? "Red" : "Green")}{(min ? "Min" : "Max")}";
+        return $"StopAndGo_{direction}Counter{(red ? "Red" : "Green")}{(min ? "Min" : "Max")}";
     }
 
     private static OptionItem CreateSetting(int id, string direction, bool red, bool min)
     {
         return new IntegerOptionItem(id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .AddReplacement(new("Red", Utils.ColorString(Color.red, "Red")))
@@ -261,8 +261,8 @@ internal static class MoveAndStop
 
     private static OptionItem CreateExtraTimeSetting(int id, string mapName, int defaultValue)
     {
-        return new IntegerOptionItem(id, $"MoveAndStop_ExtraGreenTimeOn{mapName}", ExtraTimeValue, defaultValue, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+        return new IntegerOptionItem(id, $"StopAndGo_ExtraGreenTimeOn{mapName}", ExtraTimeValue, defaultValue, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .AddReplacement(new("Green", Utils.ColorString(Color.green, "Green")));
@@ -271,13 +271,13 @@ internal static class MoveAndStop
     public static void SetupCustomOption()
     {
         GameTime = new IntegerOptionItem(68_213_001, "FFA_GameTime", new(30, 3600, 10), 900, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
-        PlayerLives = new IntegerOptionItem(68_213_017, "MoveAndStop_PlayerLives", new(1, 10, 1), 2, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+        PlayerLives = new IntegerOptionItem(68_213_017, "StopAndGo_PlayerLives", new(1, 10, 1), 2, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health)
             .SetHeader(true);
@@ -297,26 +297,26 @@ internal static class MoveAndStop
         ExtraGreenTimeOnAirhip = CreateExtraTimeSetting(68_213_014, "Airship", 20);
         ExtraGreenTimeOnFungle = CreateExtraTimeSetting(68_213_015, "Fungle", 10);
 
-        EnableTutorial = new BooleanOptionItem(68_213_016, "MoveAndStop_EnableTutorial", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+        EnableTutorial = new BooleanOptionItem(68_213_016, "StopAndGo_EnableTutorial", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetHeader(true)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue));
 
-        EventFrequency = new IntegerOptionItem(68_213_018, "MoveAndStop_EventFrequency", new(2, 120, 1), 30, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+        EventFrequency = new IntegerOptionItem(68_213_018, "StopAndGo_EventFrequency", new(2, 120, 1), 30, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
         Events[] events = Enum.GetValues<Events>();
 
-        EventChances = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + (int)x, $"MoveAndStop_EventChance_{x}", new(0, 100, 5), EventDefaults(x).Chance, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+        EventChances = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + (int)x, $"StopAndGo_EventChance_{x}", new(0, 100, 5), EventDefaults(x).Chance, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Percent));
 
-        EventDurations = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + events.Length + (int)x, $"MoveAndStop_EventDuration_{x}", new(5, 120, 5), EventDefaults(x).Duration, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.MoveAndStop)
+        EventDurations = events.ToDictionary(x => x, x => new IntegerOptionItem(68_213_019 + events.Length + (int)x, $"StopAndGo_EventDuration_{x}", new(5, 120, 5), EventDefaults(x).Duration, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.StopAndGo)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds));
 
@@ -336,7 +336,7 @@ internal static class MoveAndStop
 
     public static void Init()
     {
-        if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
+        if (Options.CurrentGameMode != CustomGameMode.StopAndGo) return;
 
         FixedUpdatePatch.LastSuffix = [];
         FixedUpdatePatch.Limit = [];
@@ -390,20 +390,20 @@ internal static class MoveAndStop
 
     public static string GetSuffixText(PlayerControl pc)
     {
-        if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData timers)) return string.Empty;
+        if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out StopAndGoPlayerData timers)) return string.Empty;
 
-        string text = IsEventActive ? $"{string.Format(GetString("MoveAndStop_EventActive"), GetString($"MoveAndStop_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
+        string text = IsEventActive ? $"{string.Format(GetString("StopAndGo_EventActive"), GetString($"StopAndGo_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
         text += IsEventActive && Event.Type == Events.FrozenTimers ? FixedUpdatePatch.LastSuffix[pc.PlayerId].Trim() : timers.ToString();
 
         if (TimeSinceStart < 20 && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode))
-            text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
+            text += $"\n\n{GetString("StopAndGo_Tutorial")}";
 
         return text;
     }
 
     public static int GetLivesRemaining(byte id)
     {
-        return AllPlayerTimers.TryGetValue(id, out MoveAndStopPlayerData data) ? data.Lives : 0;
+        return AllPlayerTimers.TryGetValue(id, out StopAndGoPlayerData data) ? data.Lives : 0;
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -416,7 +416,7 @@ internal static class MoveAndStop
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || !Main.IntroDestroyed || __instance.PlayerId >= 254) return;
+            if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.StopAndGo || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks || !Main.IntroDestroyed || __instance.PlayerId >= 254) return;
 
             PlayerControl pc = __instance;
             long now = Utils.TimeStamp;
@@ -478,7 +478,7 @@ internal static class MoveAndStop
                 }
             }
 
-            if (AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData data))
+            if (AllPlayerTimers.TryGetValue(pc.PlayerId, out StopAndGoPlayerData data))
             {
                 Vector2 previousPosition = new(data.PositionX, data.PositionY);
 

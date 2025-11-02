@@ -143,7 +143,7 @@ internal static class CustomRolesHelper
             CustomRoles.Morphling => CustomRoles.Shapeshifter,
             CustomRoles.Warlock => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Mercenary => CustomRoles.Impostor,
-            CustomRoles.FireWorks => CustomRoles.Shapeshifter,
+            CustomRoles.Fireworker => CustomRoles.Shapeshifter,
             CustomRoles.SpeedBooster => CustomRoles.Crewmate,
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.DoubleAgent => CustomRoles.Crewmate,
@@ -456,7 +456,7 @@ internal static class CustomRolesHelper
         
         return role switch
         {
-            // SoloKombat
+            // SoloPVP
             CustomRoles.KB_Normal => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
@@ -774,7 +774,7 @@ internal static class CustomRolesHelper
             CustomRoles.Trickster or
             CustomRoles.Nemesis or
             CustomRoles.KillingMachine or
-            CustomRoles.FireWorks or
+            CustomRoles.Fireworker or
             CustomRoles.Sniper or
             CustomRoles.EvilTracker or
             CustomRoles.EvilGuesser or
@@ -1059,7 +1059,7 @@ internal static class CustomRolesHelper
             CustomRoles.Centralizer or
             CustomRoles.Disperser or
             CustomRoles.Escapee or
-            CustomRoles.FireWorks or
+            CustomRoles.Fireworker or
             CustomRoles.Hypnotist or
             CustomRoles.Librarian or
             CustomRoles.Miner or
@@ -1156,7 +1156,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mare when pc.Is(CustomRoles.Swift) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Nemesis) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Sniper) => false,
-            CustomRoles.Mare when pc.Is(CustomRoles.FireWorks) => false,
+            CustomRoles.Mare when pc.Is(CustomRoles.Fireworker) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Swooper) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Vampire) => false,
             CustomRoles.Torch when pc.GetCustomRole() is CustomRoles.Lighter or CustomRoles.Ignitor or CustomRoles.Investigator or CustomRoles.Eclipse or CustomRoles.Decryptor => false,
@@ -1283,7 +1283,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Lightning or
                 CustomRoles.Blackmailer or
                 CustomRoles.Echo or
-                CustomRoles.FireWorks or
+                CustomRoles.Fireworker or
                 CustomRoles.Hangman or
                 CustomRoles.Mastermind or
                 CustomRoles.Ninja or
@@ -1625,7 +1625,7 @@ internal static class CustomRolesHelper
             CustomRoles.Chronomancer => RoleOptionType.Impostor_Killing,
             CustomRoles.Councillor => RoleOptionType.Impostor_Killing,
             CustomRoles.EvilGuesser => RoleOptionType.Impostor_Killing,
-            CustomRoles.FireWorks => RoleOptionType.Impostor_Killing,
+            CustomRoles.Fireworker => RoleOptionType.Impostor_Killing,
             CustomRoles.Greedier => RoleOptionType.Impostor_Killing,
             CustomRoles.Hitman => RoleOptionType.Impostor_Killing,
             CustomRoles.Inhibitor => RoleOptionType.Impostor_Killing,

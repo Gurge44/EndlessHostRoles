@@ -56,7 +56,7 @@ public enum CustomRoles
     EvilGuesser,
     EvilTracker,
     Fabricator,
-    FireWorks,
+    Fireworker,
     Forger,
     Framer,
     Freezer,

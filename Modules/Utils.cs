@@ -815,7 +815,7 @@ public static class Utils
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.SoloKombat:
+            case CustomGameMode.SoloPVP:
             case CustomGameMode.FFA:
             case CustomGameMode.HotPotato:
             case CustomGameMode.CaptureTheFlag:
@@ -830,7 +830,7 @@ public static class Utils
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
-            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.StopAndGo:
             case CustomGameMode.Speedrun:
                 return !p.IsDead;
         }
@@ -1051,7 +1051,7 @@ public static class Utils
             case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
-            case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
+            case CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
             case CustomGameMode.HideAndSeek when CustomHnS.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance):
                 return true;
         }
@@ -1126,7 +1126,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, AmongUsClient.Instance.AmHost);
+            case CustomGameMode.StopAndGo: return GetTaskCount(playerId, comms, AmongUsClient.Instance.AmHost);
             case CustomGameMode.Speedrun:
             case CustomGameMode.Standard when Forger.Forges.ContainsKey(playerId) && Main.PlayerStates.TryGetValue(playerId, out var state) && state.IsDead:
                 return string.Empty;
@@ -1175,7 +1175,7 @@ public static class Utils
         catch { return string.Empty; }
     }
 
-    public static string GetTaskCount(byte playerId, bool comms, bool moveAndStop = false)
+    public static string GetTaskCount(byte playerId, bool comms, bool stopAndGo = false)
     {
         try
         {
@@ -1237,7 +1237,7 @@ public static class Utils
 
             Color textColor = comms ? Color.gray : normalColor;
             string completed = comms ? "?" : $"{taskState.CompletedTasksCount}";
-            return ColorString(textColor, $" {(dynamicColor ? "(" : string.Empty)}{(moveAndStop ? "<size=2>" : string.Empty)}{completed}/{taskState.AllTasksCount}{(moveAndStop ? $" <#ffffff>({MoveAndStop.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}{(dynamicColor ? ")" : string.Empty)}");
+            return ColorString(textColor, $" {(dynamicColor ? "(" : string.Empty)}{(stopAndGo ? "<size=2>" : string.Empty)}{completed}/{taskState.AllTasksCount}{(stopAndGo ? $" <#ffffff>({StopAndGo.GetLivesRemaining(playerId)} \u2665)</color></size>" : string.Empty)}{(dynamicColor ? ")" : string.Empty)}");
         }
         catch { return string.Empty; }
     }
@@ -1514,7 +1514,7 @@ public static class Utils
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.SoloKombat:
+            case CustomGameMode.SoloPVP:
                 List<(int, byte)> list = [];
                 list.AddRange(cloneRoles.Select(id => (SoloPVP.GetRankFromScore(id), id)));
 
@@ -1540,9 +1540,9 @@ public static class Utils
                 }
 
                 break;
-            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.StopAndGo:
                 List<(int, byte)> list3 = [];
-                list3.AddRange(cloneRoles.Select(id => (MoveAndStop.GetRankFromScore(id), id)));
+                list3.AddRange(cloneRoles.Select(id => (StopAndGo.GetRankFromScore(id), id)));
 
                 list3.Sort();
 
@@ -2143,9 +2143,9 @@ public static class Utils
 
                 name = Options.CurrentGameMode switch
                 {
-                    CustomGameMode.SoloKombat => $"<color=#f55252>{modeText}</color>\r\n{name}",
+                    CustomGameMode.SoloPVP => $"<color=#f55252>{modeText}</color>\r\n{name}",
                     CustomGameMode.FFA => $"<color=#00ffff>{modeText}</color>\r\n{name}",
-                    CustomGameMode.MoveAndStop => $"<color=#00ffa5>{modeText}</color>\r\n{name}",
+                    CustomGameMode.StopAndGo => $"<color=#00ffa5>{modeText}</color>\r\n{name}",
                     CustomGameMode.HotPotato => $"<color=#e8cd46>{modeText}</color>\r\n{name}",
                     CustomGameMode.HideAndSeek => $"<color=#345eeb>{modeText}</color>\r\n{name}",
                     CustomGameMode.CaptureTheFlag => $"<color=#1313c2>{modeText}</color>\r\n{name}",
@@ -2581,11 +2581,11 @@ public static class Utils
                     case CustomGameMode.FFA:
                         additionalSuffixes.Add(FreeForAll.GetPlayerArrow(seer));
                         break;
-                    case CustomGameMode.SoloKombat:
+                    case CustomGameMode.SoloPVP:
                         additionalSuffixes.Add(SoloPVP.GetDisplayHealth(seer, true));
                         break;
-                    case CustomGameMode.MoveAndStop:
-                        additionalSuffixes.Add(MoveAndStop.GetSuffixText(seer));
+                    case CustomGameMode.StopAndGo:
+                        additionalSuffixes.Add(StopAndGo.GetSuffixText(seer));
                         break;
                     case CustomGameMode.HotPotato:
                         additionalSuffixes.Add(HotPotato.GetSuffixText(seer.PlayerId));
@@ -2639,7 +2639,7 @@ public static class Utils
                 if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
                     seerRealName = seerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle)
+                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle)
                 {
                     CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2719,7 +2719,7 @@ public static class Utils
 
                 switch (Options.CurrentGameMode)
                 {
-                    case CustomGameMode.SoloKombat:
+                    case CustomGameMode.SoloPVP:
                         SoloPVP.GetNameNotify(seer, ref selfName);
                         selfName = $"<size={fontSize}>{selfTaskText}</size>\r\n{selfName}";
                         break;
@@ -2745,7 +2745,7 @@ public static class Utils
             bool onlySelfNameUpdateRequired = Options.CurrentGameMode switch
             {
                 CustomGameMode.FFA => !FreeForAll.FFATeamMode.GetBool(),
-                CustomGameMode.MoveAndStop => true,
+                CustomGameMode.StopAndGo => true,
                 CustomGameMode.CaptureTheFlag => true,
                 CustomGameMode.NaturalDisasters => true,
                 CustomGameMode.RoomRush => true,
@@ -2859,7 +2859,7 @@ public static class Utils
                                     targetRoleText += Investigator.GetTaskState();
                                 }
 
-                                if (Options.CurrentGameMode == CustomGameMode.SoloKombat) targetRoleText = $"<size={fontSize}>{GetProgressText(target)}</size>\r\n";
+                                if (Options.CurrentGameMode == CustomGameMode.SoloPVP) targetRoleText = $"<size={fontSize}>{GetProgressText(target)}</size>\r\n";
                             }
                             else
                                 targetRoleText = string.Empty;
@@ -2936,7 +2936,7 @@ public static class Utils
 
                                 switch (Options.CurrentGameMode)
                                 {
-                                    case CustomGameMode.SoloKombat:
+                                    case CustomGameMode.SoloPVP:
                                         additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, false));
                                         break;
                                     case CustomGameMode.HideAndSeek:
@@ -3058,7 +3058,7 @@ public static class Utils
                (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles)) ||
                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
-               Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun ||
+               Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun ||
                (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.IsRoleTextEnabled(seer, target)) ||
                (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
@@ -3853,14 +3853,14 @@ public static class Utils
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.SoloKombat:
+                case CustomGameMode.SoloPVP:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - {SoloPVP.GetSummaryStatistics(id)}";
                     break;
                 case CustomGameMode.FFA:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} {GetKillCountText(id, true)}";
                     break;
                 case CustomGameMode.Speedrun:
-                case CustomGameMode.MoveAndStop:
+                case CustomGameMode.StopAndGo:
                     summary = $"{ColorString(Main.PlayerColors[id], name)} -{taskCount.Replace("(", string.Empty).Replace(")", string.Empty)}  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.HotPotato:
@@ -4239,7 +4239,7 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloKombat => 3000f,
+            CustomGameMode.SoloPVP => 3000f,
             CustomGameMode.BedWars => 1500f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,
