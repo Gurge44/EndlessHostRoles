@@ -3061,6 +3061,7 @@
   "ModBrokenMessage": "模組檔案損壞\\n請重新安裝模組",
   "DisabledByProgram": "公開房間的操作已被程式禁用",
   "EnterVentToWin": "跳進管道來點火!",
+  "PetToWin": "Pet to Ignite!",
   "EatenByPelican": "您被鵜鶘吞了，請等待鵜鶘死亡或會議...",
   "KBBackCountDown": "你<#ff0000>死了</color>\\n<#ffffff></color>{0}秒後復活</color>\\n\\n",
   "SoloPVP.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
