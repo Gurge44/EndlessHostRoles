@@ -3061,6 +3061,7 @@
   "ModBrokenMessage": "El archivo del MOD está dañado.\\nPor favor reinstala.",
   "DisabledByProgram": "Salas públicas han sido desactivadas por el programa",
   "EnterVentToWin": "¡Entra a una Ventila para Incendiar!",
+  "PetToWin": "Pet to Ignite!",
   "EatenByPelican": "Estás tragado, esperando a que el Pelícano muera o a una reunión",
   "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloPVP.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
