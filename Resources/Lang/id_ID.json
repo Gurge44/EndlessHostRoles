@@ -3061,6 +3061,7 @@
   "ModBrokenMessage": "The MOD file is damaged.\\nPlease reinstall.",
   "DisabledByProgram": "Public rooms have been disabled by the program",
   "EnterVentToWin": "Enter a Vent to Ignite!",
+  "PetToWin": "Pet to Ignite!",
   "EatenByPelican": "Kamu sedang tertelan, silakan menunggu di luar arena permainan sampai Pelican mati atau ada panggilan rapat",
   "KBBackCountDown": "<#ff0000>DEAD</color>\\n<#ffffff>Respawning in <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloPVP.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
