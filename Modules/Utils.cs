@@ -879,6 +879,7 @@ public static class Utils
             case CustomRoles.Doppelganger:
             case CustomRoles.NecroGuesser:
             case CustomRoles.PlagueDoctor:
+            case CustomRoles.Thief:
             case CustomRoles.Postman:
             case CustomRoles.Dealer:
             case CustomRoles.Auditor:

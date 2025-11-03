@@ -1265,6 +1265,9 @@ internal static class ReportDeadBodyPatch
                 QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), target.Object);
                 if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
             }
+            
+            if (player.Is(CustomRoles.Looter))
+                tpc.GetCustomSubRoles().FindAll(x => !player.Is(x) && !x.IsGhostRole()).ForEach(x => player.RpcSetCustomRole(x));
         }
 
         if (QuizMaster.On)
@@ -1359,7 +1362,7 @@ internal static class ReportDeadBodyPatch
                 {
                     if (pc.IsAlive())
                     {
-                        if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting)
+                        if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
                             Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
 
                         if (Magistrate.CallCourtNextMeeting)
