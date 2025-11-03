@@ -3061,6 +3061,7 @@
   "ModBrokenMessage": "模组文件损坏了!\\n请重新安装本模组.",
   "DisabledByProgram": "公开房间的操作已被程序禁用",
   "EnterVentToWin": "选择一个有效目标来点燃他",
+  "PetToWin": "Pet to Ignite!",
   "EatenByPelican": "您被鹈鹕吞了，请等待鹈鹕死亡或会议的召开...",
   "KBBackCountDown": "你<#ff0000>死了</color>\\n<#ffffff></color>{0}秒后复活</color>\\n\\n",
   "SoloPVP.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
