@@ -2708,7 +2708,7 @@ public static class Utils
 
             selfName = seerRole switch
             {
-                CustomRoles.Arsonist when seer.IsDouseDone() => $"{ColorString(seer.GetRoleColor(), GetString("EnterVentToWin"))}",
+                CustomRoles.Arsonist when seer.IsDouseDone() => $"{ColorString(seer.GetRoleColor(), GetString(Options.UsePets.GetBool() ? "PetToWin" : "EnterVentToWin"))}",
                 CustomRoles.Revolutionist when seer.IsDrawDone() => $">{ColorString(seer.GetRoleColor(), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(seer.PlayerId, 10)))}",
                 _ => selfName
             };

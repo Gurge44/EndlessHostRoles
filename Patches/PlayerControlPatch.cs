@@ -1781,7 +1781,7 @@ internal static class FixedUpdatePatch
             if (target.AmOwner && inTask)
             {
                 if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
-                    realName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
+                    realName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString(Options.UsePets.GetBool() ? "PetToWin" : "EnterVentToWin"));
                 else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone()) realName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(lpId, 10)));
 
                 if (Pelican.IsEaten(lpId)) realName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
