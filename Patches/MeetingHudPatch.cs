@@ -331,7 +331,7 @@ internal static class CheckForEndVotingPatch
             Statistics.OnVotingComplete(states.ToArray(), exiledPlayer, tie, false);
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
-            Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer);
+            Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer, ejection: true);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersVotedLastMeeting = __instance.playerStates.Count(x => x.DidVote);
 

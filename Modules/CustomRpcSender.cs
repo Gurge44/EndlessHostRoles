@@ -412,7 +412,7 @@ public static class CustomRpcSenderExtensions
 
             void ChangeRoleMapForClient(byte id)
             {
-                (byte, byte) key = (player.PlayerId, id);
+                (byte, byte) key = (id, player.PlayerId);
 
                 if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
                 {

@@ -80,7 +80,7 @@ internal class Arsonist : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(killer.PlayerId).Doused >= ArsonistMinPlayersToIgnite.GetInt())
+        if (ArsonistCanIgniteAnytime.GetBool() && IsDoused[(killer.PlayerId, target.PlayerId)] && Utils.GetDousedPlayerCount(killer.PlayerId).Doused >= ArsonistMinPlayersToIgnite.GetInt())
         {
             Ignite(killer.MyPhysics);
             return false;

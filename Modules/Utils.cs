@@ -1786,7 +1786,7 @@ public static class Utils
         }
     }
 
-    public static void CheckAndSpawnAdditionalRefugee(NetworkedPlayerInfo deadPlayer)
+    public static void CheckAndSpawnAdditionalRefugee(NetworkedPlayerInfo deadPlayer, bool ejection = false)
     {
         try
         {
@@ -1798,7 +1798,27 @@ public static class Utils
             {
                 PlayerControl pc = listToChooseFrom.RandomElement();
                 pc.RpcSetCustomRole(CustomRoles.Refugee);
-                pc.SetKillCooldown();
+
+                if (!ejection && !AntiBlackout.SkipTasks)
+                {
+                    pc.RpcChangeRoleBasis(CustomRoles.Refugee);
+                    pc.SetKillCooldown();
+                }
+                else
+                {
+                    CheckForEndVotingPatch.EjectionText = string.Join('\n', CheckForEndVotingPatch.EjectionText.Split('\n')[..^1]);
+                    Main.Instance.StartCoroutine(WaitForMeetingEnd());
+                    
+                    IEnumerator WaitForMeetingEnd()
+                    {
+                        while (AntiBlackout.SkipTasks || GameStates.IsMeeting || ExileController.Instance) yield return null;
+                        if (GameStates.IsEnded || GameStates.IsLobby) yield break;
+                        pc.RpcChangeRoleBasis(CustomRoles.Refugee);
+                        pc.ResetKillCooldown();
+                        pc.SetKillCooldown();
+                    }
+                }
+                
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Madmate);
                 Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
             }

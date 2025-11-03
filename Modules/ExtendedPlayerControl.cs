@@ -425,7 +425,7 @@ internal static class ExtendedPlayerControl
         {
             try
             {
-                (byte, byte) key = (player.PlayerId, GetClientById(clientId).Character.PlayerId);
+                (byte, byte) key = (GetClientById(clientId).Character.PlayerId, player.PlayerId);
 
                 if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
                 {

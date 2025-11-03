@@ -856,7 +856,7 @@ internal static class StartGameHostPatch
                         PlayerControl seer = Utils.GetPlayerById(seerId);
                         if (seer == null) continue;
 
-                        target.RpcSetRoleDesync(RoleTypes.Impostor, seer.OwnerId);
+                        target.RpcSetRoleDesync(RoleTypes.Impostor, seer.OwnerId, setRoleMap: true);
                     }
                 }
             }

@@ -163,6 +163,7 @@ public enum CustomRPC
     ImitatorClick,
     Invisibility,
     ResetAbilityCooldown,
+    SyncCamouflage,
 
     // Game Modes
     RoomRushDataSync,
@@ -1338,6 +1339,11 @@ internal static class RPCHandlerPatch
                 case CustomRPC.ResetAbilityCooldown:
                 {
                     PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+                    break;
+                }
+                case CustomRPC.SyncCamouflage:
+                {
+                    Camouflage.IsCamouflage = reader.ReadBoolean();
                     break;
                 }
             }

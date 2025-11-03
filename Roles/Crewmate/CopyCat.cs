@@ -8,6 +8,7 @@ public class CopyCat : RoleBase
 {
     private const int Id = 666420;
     public static List<CopyCat> Instances = [];
+    private static bool Resetting;
 
     private static OptionItem KillCooldown;
     private static OptionItem CanKill;
@@ -53,12 +54,14 @@ public class CopyCat : RoleBase
 
     public override void Init()
     {
+        if (Resetting) return;
         Instances = [];
         CurrentKillCooldown = AdjustedDefaultKillCooldown;
     }
 
     public override void Add(byte playerId)
     {
+        if (Resetting) return;
         Instances.Add(this);
         CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
@@ -90,7 +93,11 @@ public class CopyCat : RoleBase
     public static void ResetRoles()
     {
         if (!ResetToCopyCatEachRound.GetBool()) return;
-        Instances.Do(x => x.ResetRole());
+        
+        Resetting = true;
+
+        try { Instances.Do(x => x.ResetRole()); }
+        finally { Resetting = false; }
     }
 
     public override bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)
@@ -188,6 +195,4 @@ public class CopyCat : RoleBase
         SetKillCooldown(pc.PlayerId);
         return false;
     }
-
 }
-

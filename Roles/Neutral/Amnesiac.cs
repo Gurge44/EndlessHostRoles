@@ -265,6 +265,11 @@ public class Amnesiac : RoleBase
         LocateArrow.RemoveAllTarget(AmnesiacId);
     }
 
+    public override void AfterMeetingTasks()
+    {
+        LocateArrow.RemoveAllTarget(AmnesiacId);
+    }
+
     public static void OnAnyoneDead(PlayerControl target)
     {
         if (HasArrowsToDeadBodies.GetBool())

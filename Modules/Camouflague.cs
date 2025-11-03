@@ -126,6 +126,10 @@ public static class Camouflage
             Logger.Info($"IsCamouflage: {IsCamouflage}", "CheckCamouflage");
             WaitingForSkinChange = [];
             Main.Instance.StartCoroutine(UpdateCamouflageStatusAsync());
+            if (!Utils.DoRPC) return true;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCamouflage, SendOption.Reliable);
+            writer.Write(IsCamouflage);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
             return true;
         }
 

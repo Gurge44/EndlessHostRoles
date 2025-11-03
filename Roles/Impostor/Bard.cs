@@ -25,7 +25,7 @@ public class Bard : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown / Math.Max(0f, 2f * BardCreations);
+        Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown / Math.Max(1, 2 * BardCreations);
     }
 
     public static void OnMeetingHudDestroy(ref string name)

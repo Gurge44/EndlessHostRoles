@@ -98,8 +98,6 @@ public class Lawyer : RoleBase
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
-        if (!Utils.DoRPC) return;
-
         MessageWriter writer;
 
         switch (Progress)
