@@ -3061,6 +3061,7 @@
   "ModBrokenMessage": "O Arquivo do Mod está corrompido.\nPor favor Reinstale.",
   "DisabledByProgram": "Salas Públicas foram desabilitadas",
   "EnterVentToWin": "Entre no duto para vencer!!",
+  "PetToWin": "Pet to Ignite!",
   "EatenByPelican": "Você foi engolido! Aguarde o Glutão morrer ou uma reunião ser chamada",
   "KBBackCountDown": "<#ff0000>MORTO</color>\\n<#ffffff>Renascendo em <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloPVP.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
