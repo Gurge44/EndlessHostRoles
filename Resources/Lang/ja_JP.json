@@ -3061,6 +3061,7 @@
   "ModBrokenMessage": "MODファイルが破損しています。\\n再インストールをお願いします。",
   "DisabledByProgram": "公開ルームは プログラムにより無効化されています",
   "EnterVentToWin": "通気口に潜入して 点火せよ！",
+  "PetToWin": "Pet to Ignite!",
   "EatenByPelican": "あなたは <#34c84b>ペリカン</color>に飲み込まれた、\\n<#34c84b>ペリカン</color>が死ぬ または 会議の招集 を待っています",
   "KBBackCountDown": "<#ff0000>死亡</color>\\n<#ffffff>再出現するまで <#ffff00>{0}</color>s</color>\\n\\n",
   "SoloPVP.WinnersKillCount": "They got <color=#ffffff>{0}</color> kills!",
