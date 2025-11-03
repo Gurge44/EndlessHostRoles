@@ -159,7 +159,7 @@
   "CTA.MaxPlayers.Neutral": "<#0000ff>Maksymalna</color> liczba graczy z druzyny <color=#ffab1b>Neutral</color>",
   "CTA.MaxPlayers.Crewmate": "<#0000ff>Maksymalna</color> liczba graczy z druzyny <color=#8cffff>Crewmate</color>",
   "CTA.MaxPlayers.Coven": "<#0000ff>Maksymalna</color> liczba graczy z druzyny <color=#7b3fbb>Coven</color>",
-  "GM": "Game Master",
+  "GM": "Mistrz Gry",
   "Sunnyboy": "Sunnyboy",
   "Bard": "Bard",
   "Nuker": "Nuker",
