@@ -3585,6 +3585,9 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
+                case CustomRoles.NiceSwapper when disconnect:
+                    NiceSwapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
+                    break;
                 case CustomRoles.Silencer when disconnect:
                     Silencer.ForSilencer = [];
                     break;
