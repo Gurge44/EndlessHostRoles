@@ -120,7 +120,7 @@ internal static class AddTasksFromListPatch
 
         bool IsTaskAlwaysDisabled(TaskTypes type) => type switch
         {
-            TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun,
+            TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.Speedrun,
             TaskTypes.VentCleaning => Options.CurrentGameMode == CustomGameMode.RoomRush,
             TaskTypes.RunDiagnostics => Options.CurrentGameMode == CustomGameMode.Speedrun,
             _ => false
@@ -145,7 +145,7 @@ internal static class RpcSetTasksPatch
         PlayerControl pc = __instance.Object;
         if (pc == null) return;
 
-        CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) gr) && gr.Instance is Specter or Haunter ? gr.Role : pc.GetCustomRole();
+        CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) gr) && gr.Instance is Phantasm or Haunter ? gr.Role : pc.GetCustomRole();
 
         // Default number of tasks
         var hasCommonTasks = true;
@@ -159,7 +159,7 @@ internal static class RpcSetTasksPatch
             numLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
             numShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
             // Longs and shorts are constantly reallocated.
-            if (role is CustomRoles.Specter or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = numLongTasks + numShortTasks;
+            if (role is CustomRoles.Phantasm or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = numLongTasks + numShortTasks;
         }
 
         if (pc.Is(CustomRoles.Busy))
@@ -177,7 +177,7 @@ internal static class RpcSetTasksPatch
         }
 
         // GM and Lazy Guy have no tasks
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle)
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle)
         {
             hasCommonTasks = false;
             numShortTasks = 0;

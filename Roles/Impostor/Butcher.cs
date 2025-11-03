@@ -5,20 +5,20 @@ using Hazel;
 
 namespace EHR.Impostor;
 
-internal class OverKiller : RoleBase
+internal class Butcher : RoleBase
 {
     public static bool On;
 
-    public static List<byte> OverDeadPlayerList = [];
+    public static List<byte> ButcherDeadPlayerList = [];
     private static OptionItem KillCooldown;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
+        Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.Butcher);
 
         KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.OverKiller])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Butcher])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -34,7 +34,7 @@ internal class OverKiller : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton?.OverrideText(Translator.GetString("OverKillerButtonText"));
+        hud.KillButton?.OverrideText(Translator.GetString("ButcherButtonText"));
     }
 
     public override void SetKillCooldown(byte id)
@@ -52,8 +52,8 @@ internal class OverKiller : RoleBase
 
             LateTask.New(() =>
             {
-                if (!OverDeadPlayerList.Contains(target.PlayerId))
-                    OverDeadPlayerList.Add(target.PlayerId);
+                if (!ButcherDeadPlayerList.Contains(target.PlayerId))
+                    ButcherDeadPlayerList.Add(target.PlayerId);
 
                 if (target.Is(CustomRoles.Avanger))
                 {
@@ -91,7 +91,7 @@ internal class OverKiller : RoleBase
                     yield return null;
                     killer.TP(originPos);
                 }
-            }, 0.05f, "OverKiller Murder");
+            }, 0.05f, "Butcher Murder");
         }
 
         return base.OnCheckMurder(killer, target);

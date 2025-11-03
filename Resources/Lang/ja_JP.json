@@ -9459,7 +9459,7 @@
   "Decryptor.GuessMode": "推測ができる",
   "Decryptor.Suffix": "<size=70%><#00ffa5>次の文字のためには タスクを</color> <b>{0}</b>つ <#00ffa5>完了しよう</color></size>",
   "ParityCopTryHideMsg": "<color=#0D57AF>インスペクター</color>のコマンドを隠す",
-  "MaxParityCheckLimit": "最大の ゲームごとの検査回数",
+  "MaxInspectorCheckLimit": "最大の ゲームごとの検査回数",
   "ParityCheckLimitPerMeeting": "最大の 会議ごとの検査回数",
   "ParityCheckEgoistickCountMode": "<color=#5600ff>エゴイスト</color>のカウント",
   "ParityCheckTargetKnow": "ターゲットは <color=#0D57AF>インスペクター</color>によって それらを確認されたことを知れる",

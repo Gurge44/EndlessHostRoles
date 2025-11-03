@@ -25,7 +25,7 @@ public class Inquirer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(649715, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(649715, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Inquirer])
             .SetValueFormat(OptionFormat.Times);
     }

@@ -75,7 +75,7 @@ internal class Analyst : RoleBase
             {
                 CustomRoles.Impostor or CustomRoles.ImpostorEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
                 CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
-                CustomRoles.Phantom or CustomRoles.PhantomEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Witness), GetString("Phantom")),
+                CustomRoles.Phantom or CustomRoles.PhantomEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Witness), GetString("Specter")),
                 CustomRoles.Viper or CustomRoles.ViperEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Poisoner), GetString("Viper")),
                 CustomRoles.Crewmate or CustomRoles.CrewmateEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
                 CustomRoles.Engineer or CustomRoles.EngineerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),

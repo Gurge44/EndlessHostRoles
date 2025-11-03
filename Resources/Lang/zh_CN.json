@@ -9459,7 +9459,7 @@
   "Decryptor.GuessMode": "可以猜测",
   "Decryptor.Suffix": "<size=70%><#00ffa5>完成</color> <b>{0}</b> <#00ffa5>任务以获取下一个字母</color></size>",
   "ParityCopTryHideMsg": "尝试混淆<color=#0D57AF>检查员</color>指令",
-  "MaxParityCheckLimit": "每场游戏的最大检查次数",
+  "MaxInspectorCheckLimit": "每场游戏的最大检查次数",
   "ParityCheckLimitPerMeeting": "每次会议的最大检查次数",
   "ParityCheckEgoistickCountMode": "确认<color=#5600ff>利己主义者们</color>的数量",
   "ParityCheckTargetKnow": "目标知道他们被<color=#0D57AF>检查员</color>检查过",

@@ -268,7 +268,7 @@ internal static class CheckMurderPatch
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.SoloKombat:
+                case CustomGameMode.SoloPVP:
                     SoloPVP.OnPlayerAttack(killer, target);
                     return false;
                 case CustomGameMode.FFA:
@@ -281,7 +281,7 @@ internal static class CheckMurderPatch
                     return false;
                 case CustomGameMode.Mingle:
                 case CustomGameMode.TheMindGame:
-                case CustomGameMode.MoveAndStop:
+                case CustomGameMode.StopAndGo:
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.NaturalDisasters:
                 case CustomGameMode.Speedrun when !Speedrun.OnCheckMurder(killer, target):
@@ -696,7 +696,7 @@ internal static class MurderPlayerPatch
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
-        if (OverKiller.OverDeadPlayerList.Contains(target.PlayerId)) return;
+        if (Butcher.ButcherDeadPlayerList.Contains(target.PlayerId)) return;
 
         PlayerControl killer = __instance; // Alternative variable
 
@@ -745,8 +745,8 @@ internal static class MurderPlayerPatch
 
         switch (target.GetCustomRole())
         {
-            case CustomRoles.BallLightning when killer != target:
-                BallLightning.MurderPlayer(killer, target);
+            case CustomRoles.Lightning when killer != target:
+                Impostor.Lightning.MurderPlayer(killer, target);
                 break;
             case CustomRoles.Bane when killer != target:
                 Bane.OnKilled(killer);
@@ -1104,7 +1104,7 @@ internal static class ReportDeadBodyPatch
                 }
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false; // Player dies, no notify needed
-                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false; // Player dies, no notify needed
+                if (!Trapster.OnAnyoneCheckReportDeadBody(__instance, target)) return false; // Player dies, no notify needed
 
                 if (!Hypnotist.OnAnyoneReport())
                 {
@@ -1181,11 +1181,14 @@ internal static class ReportDeadBodyPatch
         if (MeetingStarted) return;
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
+
+        if (!SubmergedCompatibility.IsSubmerged())
+        {
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
+            Main.AllAlivePlayerControls.Do(x => x.SyncSettings());
         
-        Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
-        Main.AllAlivePlayerControls.Do(x => x.SyncSettings());
-        
-        LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
+            LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
+        }
 
         CustomNetObject.OnMeeting();
         
@@ -1312,7 +1315,7 @@ internal static class ReportDeadBodyPatch
 
         Main.LastVotedPlayerInfo = null;
         Arsonist.ArsonistTimer.Clear();
-        Farseer.FarseerTimer.Clear();
+        Investigator.InvestigatorTimer.Clear();
         Puppeteer.PuppeteerList.Clear();
         Puppeteer.PuppeteerDelayList.Clear();
         Veteran.VeteranInProtect.Clear();
@@ -1681,7 +1684,7 @@ internal static class FixedUpdatePatch
 
         bool self = lpId == __instance.PlayerId;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
         if (__instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
@@ -1728,8 +1731,8 @@ internal static class FixedUpdatePatch
 
             if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
             {
-                roleText = Farseer.RandomRole[lpId];
-                roleText += Farseer.GetTaskState();
+                roleText = Investigator.RandomRole[lpId];
+                roleText += Investigator.GetTaskState();
             }
 
             if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
@@ -1744,11 +1747,11 @@ internal static class FixedUpdatePatch
             if (progressText.RemoveHtmlTags().Length > 25 && Main.VisibleTasksCount)
                 progressText = $"\n{progressText}";
 
-            bool moveandstop = Options.CurrentGameMode == CustomGameMode.MoveAndStop;
+            bool stopandgo = Options.CurrentGameMode == CustomGameMode.StopAndGo;
 
             if (!hideRoleText && Main.VisibleTasksCount)
             {
-                if (moveandstop) roleText = roleText.Insert(0, progressText);
+                if (stopandgo) roleText = roleText.Insert(0, progressText);
                 else roleText += progressText;
             }
 
@@ -1785,7 +1788,7 @@ internal static class FixedUpdatePatch
 
                 switch (Options.CurrentGameMode)
                 {
-                    case CustomGameMode.SoloKombat:
+                    case CustomGameMode.SoloPVP:
                         SoloPVP.GetNameNotify(target, ref realName);
                         break;
                     case CustomGameMode.BedWars when self:
@@ -1858,10 +1861,10 @@ internal static class FixedUpdatePatch
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
 
                     break;
-                case CustomRoles.Farseer:
+                case CustomRoles.Investigator:
                     if (Revolutionist.CurrentDrawTarget != byte.MaxValue &&
                         Revolutionist.CurrentDrawTarget == target.PlayerId)
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Farseer)}>○</color>");
+                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Investigator)}>○</color>");
 
                     break;
                 case CustomRoles.Analyst when (Main.PlayerStates[lpId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
@@ -1879,7 +1882,7 @@ internal static class FixedUpdatePatch
                 case CustomRoles.Scout:
                     Mark.Append(Scout.GetTargetMark(seer, target));
                     break;
-                case CustomRoles.Monitor when inTask && self:
+                case CustomRoles.Telecommunication when inTask && self:
                     if (AntiAdminer.IsAdminWatch) additionalSuffixes.Add($"{GetString("AntiAdminerAD")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Admin)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                     if (AntiAdminer.IsVitalWatch) additionalSuffixes.Add($"{GetString("AntiAdminerVI")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.Vitals)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
                     if (AntiAdminer.IsDoorLogWatch) additionalSuffixes.Add($"{GetString("AntiAdminerDL")} <size=70%>({AntiAdminer.PlayersNearDevices.Where(x => x.Value.Contains(AntiAdminer.Device.DoorLog)).Select(x => x.Key.ColoredPlayerName()).Join()})</size>");
@@ -1908,7 +1911,7 @@ internal static class FixedUpdatePatch
 
             if (target.AmOwner) Mark.Append(Sniper.GetShotNotify(target.PlayerId));
 
-            if (BallLightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
+            if (Impostor.Lightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
             Mark.Append(Medic.GetMark(seer, target));
             Mark.Append(Gaslighter.GetMark(seer, target));
@@ -1934,14 +1937,14 @@ internal static class FixedUpdatePatch
 
             switch (Options.CurrentGameMode)
             {
-                case CustomGameMode.SoloKombat:
+                case CustomGameMode.SoloPVP:
                     additionalSuffixes.Add(SoloPVP.GetDisplayHealth(target, self));
                     break;
                 case CustomGameMode.FFA:
                     additionalSuffixes.Add(FreeForAll.GetPlayerArrow(seer, target));
                     break;
-                case CustomGameMode.MoveAndStop when self:
-                    additionalSuffixes.Add(MoveAndStop.GetSuffixText(seer));
+                case CustomGameMode.StopAndGo when self:
+                    additionalSuffixes.Add(StopAndGo.GetSuffixText(seer));
                     break;
                 case CustomGameMode.Speedrun when self:
                     additionalSuffixes.Add(Speedrun.GetSuffixText(seer));
@@ -1975,7 +1978,7 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+            if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
             List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
@@ -2015,7 +2018,7 @@ internal static class FixedUpdatePatch
     {
         if (Main.HasJustStarted || !player.IsAlive()) return;
 
-        float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
+        float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "InspectorChargesWhenFinishedTasks");
 
         if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
         {
@@ -2129,7 +2132,7 @@ internal static class EnterVentPatch
             case CustomGameMode.KingOfTheZones:
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
-            case CustomGameMode.SoloKombat when !SoloPVP.CanVent:
+            case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }

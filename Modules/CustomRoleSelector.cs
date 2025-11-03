@@ -23,9 +23,9 @@ internal static class CustomRoleSelector
 
     public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
     {
-        { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
+        { CustomGameMode.SoloPVP, CustomRoles.KB_Normal },
         { CustomGameMode.FFA, CustomRoles.Killer },
-        { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
+        { CustomGameMode.StopAndGo, CustomRoles.Tasker },
         { CustomGameMode.HotPotato, CustomRoles.Potato },
         { CustomGameMode.Speedrun, CustomRoles.Runner },
         { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
@@ -398,8 +398,12 @@ internal static class CustomRoleSelector
                 {
                     CustomRoles selected = alwaysImpRoles.RandomElement();
                     RoleAssignInfo info = impRoleCounts.FirstOrDefault(x => x.Role == selected);
-                    alwaysImpRoles.Remove(selected);
-                    if (info.AssignedCount >= info.MaxCount) continue;
+                    
+                    if (info.AssignedCount >= info.MaxCount)
+                    {
+                        alwaysImpRoles.Remove(selected);
+                        continue;
+                    }
 
                     finalRolesList.Add(selected);
                     info.AssignedCount++;
@@ -477,8 +481,12 @@ internal static class CustomRoleSelector
                     {
                         CustomRoles selected = alwaysNNKRoles.RandomElement();
                         RoleAssignInfo info = nnkRoleCounts.FirstOrDefault(x => x.Role == selected);
-                        alwaysNNKRoles.Remove(selected);
-                        if (info.AssignedCount >= info.MaxCount) continue;
+                        
+                        if (info.AssignedCount >= info.MaxCount)
+                        {
+                            alwaysNNKRoles.Remove(selected);
+                            continue;
+                        }
 
                         finalRolesList.Add(selected);
                         info.AssignedCount++;
@@ -554,8 +562,12 @@ internal static class CustomRoleSelector
                     {
                         CustomRoles selected = alwaysNKRoles.RandomElement();
                         RoleAssignInfo info = nkRoleCounts.FirstOrDefault(x => x.Role == selected);
-                        alwaysNKRoles.Remove(selected);
-                        if (info.AssignedCount >= info.MaxCount) continue;
+                        
+                        if (info.AssignedCount >= info.MaxCount)
+                        {
+                            alwaysNKRoles.Remove(selected);
+                            continue;
+                        }
 
                         finalRolesList.Add(selected);
                         info.AssignedCount++;
@@ -632,8 +644,12 @@ internal static class CustomRoleSelector
                 {
                     CustomRoles selected = alwaysMadmateRoles.RandomElement();
                     RoleAssignInfo info = madRoleCounts.FirstOrDefault(x => x.Role == selected);
-                    alwaysMadmateRoles.Remove(selected);
-                    if (info.AssignedCount >= info.MaxCount) continue;
+                    
+                    if (info.AssignedCount >= info.MaxCount)
+                    {
+                        alwaysMadmateRoles.Remove(selected);
+                        continue;
+                    }
 
                     finalRolesList.Add(selected);
                     info.AssignedCount++;
@@ -709,8 +725,12 @@ internal static class CustomRoleSelector
                 {
                     CustomRoles selected = alwaysCovenRoles.RandomElement();
                     RoleAssignInfo info = covenRoleCounts.FirstOrDefault(x => x.Role == selected);
-                    alwaysCovenRoles.Remove(selected);
-                    if (info.AssignedCount >= info.MaxCount) continue;
+                    
+                    if (info.AssignedCount >= info.MaxCount)
+                    {
+                        alwaysCovenRoles.Remove(selected);
+                        continue;
+                    }
 
                     finalRolesList.Add(selected);
                     info.AssignedCount++;
@@ -792,8 +812,12 @@ internal static class CustomRoleSelector
                 {
                     CustomRoles selected = alwaysCrewRoles.RandomElement();
                     RoleAssignInfo info = crewRoleCounts.FirstOrDefault(x => x.Role == selected);
-                    alwaysCrewRoles.Remove(selected);
-                    if (info.AssignedCount >= info.MaxCount) continue;
+                    
+                    if (info.AssignedCount >= info.MaxCount)
+                    {
+                        alwaysCrewRoles.Remove(selected);
+                        continue;
+                    }
 
                     finalRolesList.Add(selected);
                     info.AssignedCount++;

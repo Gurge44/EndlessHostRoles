@@ -590,7 +590,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### Privacy Policy for EHR Lobby Sharing
 
-**Effective Date:** 2025-01-05
+**Effective Date:** 2025. 01. 05.
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -614,6 +614,7 @@ When using this integration, we collect the following non-personal information:
 - **Map Name:** The name of the map selected for the game (e.g., Skeld, Polus, Submerged).
 - **Game Mode:** The selected game mode (e.g., Standard, Room Rush, Free For All, Bed Wars).
 - **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
+- **Hashed PUID of the Host:** An encrypted version of the host's product user ID (see below), if `I have an EHR account linked to my discord account, send my hashed PUID to let discord users identify me` is enabled in System Settings, otherwise this field is left empty.
 
 Furthermore, the following information is collected to enhance the user experience:
 

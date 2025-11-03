@@ -3,8 +3,8 @@ using EHR.Modules;
 
 namespace EHR.AddOns.GhostRoles;
 
-// TOU-R Phantom
-internal class Specter : IGhostRole
+// TOU Phantom
+internal class Phantasm : IGhostRole
 {
     private static OptionItem SnatchWin;
 
@@ -29,19 +29,19 @@ internal class Specter : IGhostRole
             pc.SyncSettings();
             pc.RpcResetAbilityCooldown();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }, 1f, "Specter Assign");
+        }, 1f, "Phantasm Assign");
     }
 
     public void OnProtect(PlayerControl pc, PlayerControl target) { }
 
     public void SetupCustomOption()
     {
-        Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
+        Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Phantasm);
 
         SnatchWin = new BooleanOptionItem(649102, "SnatchWin", false, TabGroup.OtherRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Phantasm]);
 
-        Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);
+        Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Phantasm);
     }
 
     public void OnFinishedTasks(PlayerControl pc)
@@ -53,7 +53,7 @@ internal class Specter : IGhostRole
         }
 
         pc.RPCPlayCustomSound("Congrats");
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Specter);
+        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Phantasm);
         CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
     }
 }

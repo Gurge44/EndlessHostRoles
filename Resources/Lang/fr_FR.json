@@ -5439,7 +5439,7 @@
   "Lyncher.GuessMode": "Can Guess",
   "Lyncher.Suffix": "<size=70%><#00ffa5>Complete</color> <b>{0}</b> <#00ffa5>tasks for the next letters</color></size>",
   "ParityCopTryHideMsg": "Hide <color=#0D57AF>Inspector</color>'s commands",
-  "MaxParityCheckLimit": "Max inspections per game",
+  "MaxInspectorCheckLimit": "Max inspections per game",
   "ParityCheckLimitPerMeeting": "Max inspections per meeting",
   "ParityCheckEgoistickCountMode": "<color=#5600ff>Egoist</color> counts as",
   "ParityCheckTargetKnow": "Targets know they were checked by <color=#0D57AF>Inspector</color>",

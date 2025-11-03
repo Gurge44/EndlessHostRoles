@@ -72,10 +72,10 @@ public static class Statistics
                 case CustomGameMode.FFA when won:
                     Achievements.Type.SerialKiller.CompleteAfterGameEnd();
                     return;
-                case CustomGameMode.SoloKombat when won:
+                case CustomGameMode.SoloPVP when won:
                     Achievements.Type.PVPMaster.CompleteAfterGameEnd();
                     return;
-                case CustomGameMode.MoveAndStop when won:
+                case CustomGameMode.StopAndGo when won:
                     Achievements.Type.HarderThanDrivingThroughTrafficLightsRight.CompleteAfterGameEnd();
                     return;
                 case CustomGameMode.Speedrun when won:
@@ -140,7 +140,7 @@ public static class Statistics
 
             switch (CustomWinnerHolder.WinnerTeam)
             {
-                case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avanger), out PlayerState state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.OverKiller):
+                case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avanger), out PlayerState state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.Butcher):
                     Achievements.Type.FuriousAvenger.CompleteAfterGameEnd();
                     break;
                 case CustomWinner.Crewmate when won && apc.Count(x => x.IsImpostor() || x.IsNeutralKiller()) >= 2 && MeetingStates.MeetingNum < 3:

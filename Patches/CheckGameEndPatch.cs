@@ -202,14 +202,14 @@ internal static class GameEndChecker
                             ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorsByKill;
-                            ResetAndSetWinner(CustomWinner.Phantom);
+                            ResetAndSetWinner(CustomWinner.Specter);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
                             WinnerIds.Add(pc.PlayerId);
-                            AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
                             break;
                         case CustomRoles.VengefulRomantic when VengefulRomantic.HasKilledKiller:
                             WinnerIds.Add(pc.PlayerId);
@@ -277,12 +277,12 @@ internal static class GameEndChecker
                     }
                 }
 
-                byte[] winningSpecters = GhostRolesManager.AssignedGhostRoles.Where(x => x.Value.Instance is Specter { IsWon: true }).Select(x => x.Key).ToArray();
+                byte[] winningPhantasm = GhostRolesManager.AssignedGhostRoles.Where(x => x.Value.Instance is Phantasm { IsWon: true }).Select(x => x.Key).ToArray();
 
-                if (winningSpecters.Length > 0)
+                if (winningPhantasm.Length > 0)
                 {
-                    AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
-                    WinnerIds.UnionWith(winningSpecters);
+                    AdditionalWinnerTeams.Add(AdditionalWinners.Phantasm);
+                    WinnerIds.UnionWith(winningPhantasm);
                 }
 
                 if (CustomRoles.God.RoleExist())
@@ -446,7 +446,7 @@ internal static class GameEndChecker
         {
             switch (state.MainRole)
             {
-                case CustomRoles.Phantasm when state.TaskState.RemainingTasksCount <= 0 && state.IsDead:
+                case CustomRoles.Specter when state.TaskState.RemainingTasksCount <= 0 && state.IsDead:
                 case CustomRoles.VengefulRomantic when VengefulRomantic.HasKilledKiller:
                 case CustomRoles.SchrodingersCat when !state.SubRoles.Any(x => x.IsConverted()):
                 case CustomRoles.Opportunist when !state.IsDead:
@@ -490,9 +490,9 @@ internal static class GameEndChecker
         Predicate = new NormalGameEndPredicate();
     }
 
-    public static void SetPredicateToSoloKombat()
+    public static void SetPredicateToSoloPVP()
     {
-        Predicate = new SoloKombatGameEndPredicate();
+        Predicate = new SoloPVPGameEndPredicate();
     }
 
     public static void SetPredicateToFFA()
@@ -500,9 +500,9 @@ internal static class GameEndChecker
         Predicate = new FFAGameEndPredicate();
     }
 
-    public static void SetPredicateToMoveAndStop()
+    public static void SetPredicateToStopAndGo()
     {
-        Predicate = new MoveAndStopGameEndPredicate();
+        Predicate = new StopAndGoGameEndPredicate();
     }
 
     public static void SetPredicateToHotPotato()
@@ -755,7 +755,7 @@ internal static class GameEndChecker
         }
     }
 
-    private class SoloKombatGameEndPredicate : GameEndPredicate
+    private class SoloPVPGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
         {
@@ -852,7 +852,7 @@ internal static class GameEndChecker
         }
     }
 
-    private class MoveAndStopGameEndPredicate : GameEndPredicate
+    private class StopAndGoGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
         {
@@ -864,10 +864,10 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
 
-            if (MoveAndStop.RoundTime <= 0)
+            if (StopAndGo.RoundTime <= 0)
             {
                 PlayerControl[] apc = Main.AllPlayerControls;
-                SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStop.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
+                SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => StopAndGo.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                 return true;
             }
 
@@ -885,8 +885,8 @@ internal static class GameEndChecker
                     SetWinner(aapc[0]);
                     return true;
                 case 0:
-                    MoveAndStop.RoundTime = 0;
-                    Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
+                    StopAndGo.RoundTime = 0;
+                    Logger.Warn("No players alive. Force ending the game", "StopAndGo");
                     break;
             }
 
@@ -894,7 +894,7 @@ internal static class GameEndChecker
 
             void SetWinner(PlayerControl winner)
             {
-                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "StopAndGo");
                 WinnerIds = [winner.PlayerId];
                 Main.DoBlockNameChange = true;
             }

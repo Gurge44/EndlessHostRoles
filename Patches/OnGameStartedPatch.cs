@@ -230,17 +230,17 @@ internal static class ChangeRoleSettings
             SecurityGuard.BlockSabo = [];
             Ventguard.BlockedVents = [];
             Grenadier.MadGrenadierBlinding = [];
-            OverKiller.OverDeadPlayerList = [];
+            Butcher.ButcherDeadPlayerList = [];
             Warlock.WarlockTimer = [];
             Arsonist.IsDoused = [];
             Revolutionist.IsDraw = [];
-            Farseer.IsRevealed = [];
+            Investigator.IsRevealed = [];
             Arsonist.ArsonistTimer = [];
             Revolutionist.RevolutionistTimer = [];
             Revolutionist.RevolutionistStart = [];
             Revolutionist.RevolutionistLastTime = [];
             Revolutionist.RevolutionistCountdown = [];
-            Farseer.FarseerTimer = [];
+            Investigator.InvestigatorTimer = [];
             Warlock.CursedPlayers = [];
             Nemesis.NemesisRevenged = [];
             Warlock.IsCurseAndKill = [];
@@ -415,7 +415,7 @@ internal static class ChangeRoleSettings
             {
                 SoloPVP.Init();
                 FreeForAll.Init();
-                MoveAndStop.Init();
+                StopAndGo.Init();
                 HotPotato.Init();
                 CustomHnS.Init();
                 Speedrun.Init();
@@ -681,6 +681,8 @@ internal static class StartGameHostPatch
     private static IEnumerator AssignRoles()
     {
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
+        
+        Options.AutoSetFactionMinMaxSettings();
 
         RpcSetRoleReplacer.Initialize();
 
@@ -1063,14 +1065,14 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Standard:
                     GameEndChecker.SetPredicateToNormal();
                     break;
-                case CustomGameMode.SoloKombat:
-                    GameEndChecker.SetPredicateToSoloKombat();
+                case CustomGameMode.SoloPVP:
+                    GameEndChecker.SetPredicateToSoloPVP();
                     break;
                 case CustomGameMode.FFA:
                     GameEndChecker.SetPredicateToFFA();
                     break;
-                case CustomGameMode.MoveAndStop:
-                    GameEndChecker.SetPredicateToMoveAndStop();
+                case CustomGameMode.StopAndGo:
+                    GameEndChecker.SetPredicateToStopAndGo();
                     break;
                 case CustomGameMode.HotPotato:
                     GameEndChecker.SetPredicateToHotPotato();

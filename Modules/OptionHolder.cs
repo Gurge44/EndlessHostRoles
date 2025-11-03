@@ -20,9 +20,9 @@ namespace EHR;
 public enum CustomGameMode
 {
     Standard = 0x01,
-    SoloKombat = 0x02,
+    SoloPVP = 0x02,
     FFA = 0x03,
-    MoveAndStop = 0x04,
+    StopAndGo = 0x04,
     HotPotato = 0x05,
     HideAndSeek = 0x06,
     Speedrun = 0x07,
@@ -74,9 +74,9 @@ public static class Options
     private static readonly string[] GameModes =
     [
         "Standard",
-        "SoloKombat",
+        "SoloPVP",
         "FFA",
-        "MoveAndStop",
+        "StopAndGo",
         "HotPotato",
         "HideAndSeek",
         "Speedrun",
@@ -102,6 +102,8 @@ public static class Options
     public static Dictionary<CustomRoles, OptionItem> CrewAdvancedGameEndCheckingSettings;
     public static OptionItem GuessersKeepTheGameGoing;
 
+    public static OptionItem EnableAutoFactionMinMaxSettings;
+    public static readonly List<(OptionItem MinPlayersToActivate, Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> TeamSettings, OptionItem MinNNKs, OptionItem MaxNNKs)> AutoFactionMinMaxSettings = [];
     public static readonly Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> FactionMinMaxSettings = [];
     public static readonly Dictionary<RoleOptionType, OptionItem[]> RoleSubCategoryLimits = [];
 
@@ -402,8 +404,8 @@ public static class Options
     public static OptionItem SecurityGuardSkillCooldown;
     public static OptionItem SecurityGuardSkillDuration;
     public static OptionItem SecurityGuardSkillMaxOfUseage;
-    public static OptionItem ShapeImperiusCurseShapeshiftDuration;
-    public static OptionItem ImperiusCurseShapeshiftCooldown;
+    public static OptionItem ShapeSoulCatcherShapeshiftDuration;
+    public static OptionItem SoulCatcherShapeshiftCooldown;
     public static OptionItem CrewpostorCanKillAllies;
     public static OptionItem CrewpostorKnowsAllies;
     public static OptionItem AlliesKnowCrewpostor;
@@ -732,6 +734,8 @@ public static class Options
     public static OptionItem PhantomCanGuess;
 
     public static OptionItem PostLobbyCodeToEHRWebsite;
+    public static OptionItem SendHashedPuidToUseLinkedAccount;
+    public static OptionItem LobbyUpdateInterval;
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
     public static OptionItem MessageRpcSizeLimit;
@@ -819,7 +823,7 @@ public static class Options
     public static OptionItem SnitchCanBeMadmate;
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
-    public static OptionItem FarseerCanBeMadmate;
+    public static OptionItem InvestigatorCanBeMadmate;
     public static OptionItem PresidentCanBeMadmate;
 
     public static OptionItem MadSnitchTasks;
@@ -897,9 +901,9 @@ public static class Options
 
     public static CustomGameMode CurrentGameMode => GameMode.GetInt() switch
     {
-        1 => CustomGameMode.SoloKombat,
+        1 => CustomGameMode.SoloPVP,
         2 => CustomGameMode.FFA,
-        3 => CustomGameMode.MoveAndStop,
+        3 => CustomGameMode.StopAndGo,
         4 => CustomGameMode.HotPotato,
         5 => CustomGameMode.HideAndSeek,
         6 => CustomGameMode.Speedrun,
@@ -1761,6 +1765,13 @@ public static class Options
         PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings)
             .SetHeader(true);
 
+        SendHashedPuidToUseLinkedAccount = new BooleanOptionItem(19501, "SendHashedPuidToUseLinkedAccount", true, TabGroup.SystemSettings)
+            .SetParent(PostLobbyCodeToEHRWebsite);
+        
+        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 600, 5), 30, TabGroup.SystemSettings)
+            .SetParent(PostLobbyCodeToEHRWebsite)
+            .SetValueFormat(OptionFormat.Seconds);
+
         StoreCompletedAchievementsOnEHRDatabase = new BooleanOptionItem(19423, "StoreCompletedAchievementsOnEHRDatabase", true, TabGroup.SystemSettings);
 
         AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
@@ -1797,12 +1808,12 @@ public static class Options
 
         MainLoadingText = "Building Settings for Other Gamemodes";
 
-        // SoloKombat
+        // SoloPVP
         SoloPVP.SetupCustomOption();
         // FFA
         FreeForAll.SetupCustomOption();
         // Move And Stop
-        MoveAndStop.SetupCustomOption();
+        StopAndGo.SetupCustomOption();
         // Hot Potato
         HotPotato.SetupCustomOption();
         // Speedrun
@@ -3033,6 +3044,45 @@ public static class Options
         #endregion
 
         yield return null;
+        
+        id = 68000;
+        
+        new TextOptionItem(110040, "MenuTitle.AutoFactionMinMaxSettings", TabGroup.SystemSettings)
+            .SetHeader(true);
+
+        EnableAutoFactionMinMaxSettings = new BooleanOptionItem(id++, "EnableAutoFactionMinMaxSettings", false, TabGroup.SystemSettings)
+            .SetHeader(true)
+            .SetColor(Color.cyan)
+            .SetGameMode(CustomGameMode.Standard);
+
+        for (int index = 0; index < 10; index++)
+        {
+            OptionItem minPlayers = new IntegerOptionItem(id++, "AutoFactionMinMaxSettings.PlayerCap", new(0, 30, 1), 0, TabGroup.SystemSettings)
+                .SetParent(EnableAutoFactionMinMaxSettings);
+            
+            Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> settings = new();
+            
+            foreach (Team team in new[] { Team.Impostor, Team.Coven, Team.Neutral })
+            {
+                OptionItem minSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Min", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                    .SetParent(minPlayers)
+                    .SetColor(team.GetColor());
+
+                OptionItem maxSetting = new IntegerOptionItem(id++, $"FactionLimits.{team}.Max", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                    .SetParent(minPlayers)
+                    .SetColor(team.GetColor());
+
+                settings[team] = (minSetting, maxSetting);
+            }
+
+            OptionItem minNNKs = new IntegerOptionItem(id++, "MinNNKs", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                .SetParent(minPlayers);
+            
+            OptionItem maxNNKs = new IntegerOptionItem(id++, "MaxNNKs", new(0, 15, 1), 0, TabGroup.SystemSettings)
+                .SetParent(minPlayers);
+            
+            AutoFactionMinMaxSettings.Add((minPlayers, settings, minNNKs, maxNNKs));
+        }
 
         id = 69900;
 
@@ -3155,6 +3205,35 @@ public static class Options
         PostLoadTasks();
     }
 
+    public static void AutoSetFactionMinMaxSettings()
+    {
+        try
+        {
+            if (!AmongUsClient.Instance.AmHost || !EnableAutoFactionMinMaxSettings.GetBool()) return;
+
+            int playerCount = PlayerControl.AllPlayerControls.Count;
+            var filtered = AutoFactionMinMaxSettings.FindAll(x => x.MinPlayersToActivate.GetInt() > 0 && x.MinPlayersToActivate.GetInt() <= playerCount);
+            if (filtered.Count == 0) return;
+            var usedValues = filtered.MaxBy(x => x.MinPlayersToActivate.GetInt());
+
+            foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in FactionMinMaxSettings)
+            {
+                var teamSettings = usedValues.TeamSettings[team];
+                minSetting.SetValue(teamSettings.MinSetting.GetInt(), false, false);
+                maxSetting.SetValue(teamSettings.MaxSetting.GetInt(), false, false);
+            }
+        
+            MinNNKs.SetValue(usedValues.MinNNKs.GetInt(), false, false);
+            MaxNNKs.SetValue(usedValues.MaxNNKs.GetInt(), false, false);
+        
+            OptionSaver.Save();
+            OptionItem.SyncAllOptions();
+            
+            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedValues.MinPlayersToActivate.GetInt(), string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+    }
+
     public static void CompileAutoGMRotationSettings()
     {
         if (!EnableAutoGMRotation.GetBool())
@@ -3176,9 +3255,9 @@ public static class Options
                 case AutoGMRoationSlotOptions.Explicit:
                     CustomGameMode gm = explicitChoice.GetInt() switch
                     {
-                        1 => CustomGameMode.SoloKombat,
+                        1 => CustomGameMode.SoloPVP,
                         2 => CustomGameMode.FFA,
-                        3 => CustomGameMode.MoveAndStop,
+                        3 => CustomGameMode.StopAndGo,
                         4 => CustomGameMode.HotPotato,
                         5 => CustomGameMode.HideAndSeek,
                         6 => CustomGameMode.Speedrun,

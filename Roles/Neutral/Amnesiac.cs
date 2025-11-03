@@ -245,6 +245,8 @@ public class Amnesiac : RoleBase
         LateTask.New(() => amnesiac.SetKillCooldown(3f), 0.2f, log: false);
         if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
 
+        if (Utils.HasTasks(amnesiac.Data, false)) amnesiac.GetTaskState().HasTasks = true;
+
         if (!amnesiac.IsLocalPlayer()) return;
 
         switch (role)

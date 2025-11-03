@@ -38,7 +38,7 @@ internal class Lighter : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Times);
 
-        LighterAbilityChargesWhenFinishedTasks = new FloatOptionItem(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        LighterAbilityChargesWhenFinishedTasks = new FloatOptionItem(6858, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Times);
     }

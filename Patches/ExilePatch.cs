@@ -19,8 +19,9 @@ internal static class ExileControllerWrapUpPatch
 
     public static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
-        var decidedWinner = false;
         if (!AmongUsClient.Instance.AmHost) return;
+        
+        var decidedWinner = false;
 
         if (!Collector.CollectorWin(false) && exiled != null)
         {
@@ -69,8 +70,6 @@ internal static class ExileControllerWrapUpPatch
 
             if (Executioner.CheckExileTarget(exiled)) decidedWinner = true;
 
-            if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) decidedWinner = false;
-
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist)
                 Main.PlayerStates[exiled.PlayerId].SetDead();
         }
@@ -102,6 +101,8 @@ internal static class ExileControllerWrapUpPatch
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
+        
+        if (decidedWinner) GameEndChecker.CheckCustomEndCriteria();
 
         if (exiled == null) return;
         byte id = exiled.PlayerId;
@@ -226,7 +227,7 @@ internal static class ExileControllerWrapUpPatch
 }
 
 [HarmonyPatch(typeof(PbExileController), nameof(PbExileController.PlayerSpin))]
-internal class PolusExileHatFixPatch
+internal static class PolusExileHatFixPatch
 {
     public static void Prefix(PbExileController __instance)
     {

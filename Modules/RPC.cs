@@ -63,7 +63,7 @@ public enum CustomRPC
     RemoveExecutionerTarget,
     SetLawyerTarget,
     RemoveLawyerTarget,
-    SendFireWorksState,
+    SendFireworkerState,
     SetCurrentDousingTarget,
     SetEvilTrackerTarget,
     SetBountyTarget,
@@ -107,7 +107,7 @@ public enum CustomRPC
     SetCpTasksDone,
     SetDemonHealth,
     SetPelicanEtenNum,
-    SwordsManKill,
+    VigilanteKill,
     SetGhostPlayer,
     SetStalkerKillCount,
     SetConsigliere,
@@ -159,11 +159,12 @@ public enum CustomRPC
     SyncIntrovert,
     SyncAllergic,
     SyncAsthmatic,
-    ParityCopCommand,
+    InspectorCommand,
     ImitatorClick,
     Invisibility,
     ResetAbilityCooldown,
     SyncCamouflage,
+    SetChatVisible,
 
     // Game Modes
     RoomRushDataSync,
@@ -244,22 +245,24 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.ParityCopCommand or CustomRPC.ImitatorClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
     {
+        if (!AmongUsClient.Instance.AmHost || __instance.AmOwner || (__instance.IsModdedClient() && rpcType == RpcCalls.SendChat)) return true;
+        
         if (NumRPCsThisSecond.TryAdd(__instance.PlayerId, [])) LateTask.New(() => NumRPCsThisSecond.Remove(__instance.PlayerId), 1f, log: false);
         Dictionary<RpcCalls, int> calls = NumRPCsThisSecond[__instance.PlayerId];
         if (!calls.TryAdd(rpcType, 1)) calls[rpcType]++;
 
-        if (AmongUsClient.Instance.AmHost && !__instance.IsHost() && !(__instance.IsModdedClient() && rpcType == RpcCalls.SendChat) && (!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
+        if ((!RateLimitWhiteList.TryGetValue(__instance.PlayerId, out long expireTS) || expireTS < Utils.TimeStamp) && RpcRateLimit.TryGetValue(rpcType, out int limit) && calls[rpcType] > limit)
         {
             bool kick = Options.EnableEHRRateLimit.GetBool();
             if (kick) AmongUsClient.Instance.KickPlayer(__instance.OwnerId, false);
             Logger.SendInGame(string.Format(GetString("Warning.TooManyRPCs"), kick ? __instance.Data?.PlayerName : "Someone"), Color.yellow);
             Logger.Warn($"Sent {calls[rpcType]} RPCs of type {rpcType} ({(byte)rpcType}), which exceeds the limit of {limit}. Kicking player.", "Kick");
-            return false;
+            return !kick;
         }
 
         return true;
@@ -460,19 +463,21 @@ internal static class RPCHandlerPatch
                     
                     if (startIndex == 2)
                     {
-                        Options.Preset.SetValue(9);
-                        Options.GameMode.SetValue(reader.ReadPackedInt32());
+                        Options.Preset.SetValue(9, false, false);
+                        Options.GameMode.SetValue(reader.ReadPackedInt32(), false, false);
                     }
 
-                    for (int i = startIndex; i < OptionItem.AllOptions.Count; ++i)
+                    for (int i = startIndex; i < OptionItem.AllOptions.Count; i++)
                     {
                         if (reader.BytesRemaining == 0) break;
                         var option = OptionItem.AllOptions[i];
-                        if (option is TextOptionItem) continue;
+                        if (option is TextOptionItem || option.Id >= 660000) continue;
                         
-                        option.SetValue(reader.ReadPackedInt32());
+                        option.SetValue(reader.ReadPackedInt32(), false, false);
                     }
 
+                    OptionSaver.Save();
+                    Main.Instance.StartCoroutine(OptionShower.GetText());
                     break;
                 }
                 case CustomRPC.SetDeathReason:
@@ -779,10 +784,10 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetRevealedPlayer:
                 {
-                    byte farseerId = reader.ReadByte();
+                    byte investigatorId = reader.ReadByte();
                     byte revealId = reader.ReadByte();
                     bool revealed = reader.ReadBoolean();
-                    Farseer.IsRevealed[(farseerId, revealId)] = revealed;
+                    Investigator.IsRevealed[(investigatorId, revealId)] = revealed;
                     break;
                 }
                 case CustomRPC.SetNameColorData:
@@ -898,13 +903,13 @@ internal static class RPCHandlerPatch
                     Lawyer.ReceiveRPC(reader, false);
                     break;
                 }
-                case CustomRPC.SendFireWorksState:
+                case CustomRPC.SendFireworkerState:
                 {
                     byte id = reader.ReadByte();
                     int count = reader.ReadInt32();
                     int state = reader.ReadInt32();
-                    var newState = (FireWorks.FireWorksState)state;
-                    (Main.PlayerStates[id].Role as FireWorks)?.ReceiveRPC(count, newState);
+                    var newState = (Fireworker.FireworkerState)state;
+                    (Main.PlayerStates[id].Role as Fireworker)?.ReceiveRPC(count, newState);
                 }
 
                     break;
@@ -997,9 +1002,9 @@ internal static class RPCHandlerPatch
                     Doomsayer.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SwordsManKill:
+                case CustomRPC.VigilanteKill:
                 {
-                    SwordsMan.ReceiveRPC(reader);
+                    Vigilante.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.PlayCustomSound:
@@ -1009,7 +1014,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetGhostPlayer:
                 {
-                    BallLightning.ReceiveRPC(reader);
+                    Impostor.Lightning.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetStalkerKillCount:
@@ -1302,9 +1307,9 @@ internal static class RPCHandlerPatch
                     
                     break;
                 }
-                case CustomRPC.ParityCopCommand:
+                case CustomRPC.InspectorCommand:
                 {
-                    ParityCop.ReceiveRPC(reader);
+                    Inspector.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.ImitatorClick:
@@ -1346,6 +1351,12 @@ internal static class RPCHandlerPatch
                     Camouflage.IsCamouflage = reader.ReadBoolean();
                     break;
                 }
+                case CustomRPC.SetChatVisible:
+                {
+                    HudManager.Instance.Chat.SetVisible(reader.ReadBoolean());
+                    HudManager.Instance.Chat.HideBanButton();
+                    break;
+                }
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -1369,10 +1380,10 @@ internal static class RPC
         writer.WritePacked(2);
         writer.WritePacked(Options.GameMode.GetValue());
         
-        for (int i = 2; i < OptionItem.AllOptions.Count; ++i)
+        for (int i = 2; i < OptionItem.AllOptions.Count; i++)
         {
             var option = OptionItem.AllOptions[i];
-            if (option is TextOptionItem) continue;
+            if (option is TextOptionItem || option.Id >= 660000) continue;
             
             if (writer.Length > 500)
             {
@@ -1393,10 +1404,12 @@ internal static class RPC
     {
         if (AmongUsClient.Instance.AmHost) PlaySound(playerID, sound);
 
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
-            return; // Spamming this may disconnect the host
+        SendOption sendOption = SendOption.Reliable;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable);
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && Options.CurrentGameMode != CustomGameMode.Standard)
+            sendOption = SendOption.None;
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, sendOption);
         writer.Write(playerID);
         writer.Write((byte)sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1559,24 +1572,6 @@ internal static class RPC
         foreach (PlayerControl lp in Main.LoversPlayers) writer.Write(lp.PlayerId);
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void SendRpcLogger(uint targetNetId, byte callId, SendOption sendOption, int targetClientId = -1)
-    {
-        if (!DebugModeManager.AmDebugger) return;
-
-        string rpcName = GetRpcName(callId);
-        var from = targetNetId.ToString();
-        var target = targetClientId.ToString();
-
-        try
-        {
-            target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId).PlayerName;
-            from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
-        }
-        catch { }
-
-        Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName}) / SendOption: {sendOption}", "SendRPC");
     }
 
     public static string GetRpcName(byte callId)

@@ -208,7 +208,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
                     goto case CustomGameMode.RoomRush;
                 }
-                case CustomGameMode.MoveAndStop:
+                case CustomGameMode.StopAndGo:
                 {
                     try
                     {
@@ -232,7 +232,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     goto case CustomGameMode.RoomRush;
                 }
                 case CustomGameMode.KingOfTheZones:
-                case CustomGameMode.SoloKombat:
+                case CustomGameMode.SoloPVP:
                 {
                     try { AURoleOptions.GuardianAngelCooldown = 900f; }
                     catch (Exception e) { Utils.ThrowException(e); }

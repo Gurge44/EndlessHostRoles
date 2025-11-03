@@ -1443,6 +1443,8 @@ public static class GameSettingMenuPatch
                 Options.CompileAutoGMRotationSettings();
         }
         catch (Exception e) { Utils.ThrowException(e); }
+        
+        Options.AutoSetFactionMinMaxSettings();
 
         foreach (PassiveButton button in ModSettingsButtons.Values) Object.Destroy(button);
         foreach (GameOptionsMenu tab in ModSettingsTabs.Values) Object.Destroy(tab);

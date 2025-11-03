@@ -42,7 +42,7 @@ public static class AFKDetector
 
     public static void RecordPosition(PlayerControl pc)
     {
-        if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.Deathrace) return;
+        if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.Deathrace) return;
 
         var waitingTime = 10f;
         if (!pc.IsAlive()) waitingTime += 5f;

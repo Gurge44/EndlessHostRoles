@@ -392,7 +392,7 @@ public static class CaptureTheFlag
                                             var pc2 = id2.GetPlayer();
                                             if (pc2 == null) continue;
 
-                                            pc2.RpcSetRoleDesync(RoleTypes.Phantom, targetClientId, true);
+                                            pc2.RpcSetRoleDesync(RoleTypes.Specter, targetClientId, true);
                                         }
                                         catch (Exception e) { Utils.ThrowException(e); }
                                     }
@@ -715,7 +715,7 @@ public static class CaptureTheFlag
 
                     switch (timeLeft)
                     {
-                        case <= 1 when TeamData[CTFTeam.Blue].RoundsWon != TeamData[CTFTeam.Yellow].RoundsWon:
+                        case <= 1 when TeamData.Count == 2 && TeamData[CTFTeam.Blue].RoundsWon != TeamData[CTFTeam.Yellow].RoundsWon:
                         {
                             CTFTeamData winner = TeamData.Values.MaxBy(x => x.RoundsWon);
                             winner.SetAsWinner();

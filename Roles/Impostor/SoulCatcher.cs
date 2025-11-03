@@ -4,21 +4,21 @@ using static EHR.Options;
 
 namespace EHR.Impostor;
 
-internal class ImperiusCurse : RoleBase
+internal class SoulCatcher : RoleBase
 {
     public static bool On;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(3700, TabGroup.ImpostorRoles, CustomRoles.ImperiusCurse);
+        SetupRoleOptions(3700, TabGroup.ImpostorRoles, CustomRoles.SoulCatcher);
 
-        ShapeImperiusCurseShapeshiftDuration = new FloatOptionItem(3710, "ShapeshiftDuration", new(2.5f, 300f, 0.5f), 20f, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
+        ShapeSoulCatcherShapeshiftDuration = new FloatOptionItem(3710, "ShapeshiftDuration", new(2.5f, 300f, 0.5f), 20f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SoulCatcher])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ImperiusCurseShapeshiftCooldown = new FloatOptionItem(3711, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.ImperiusCurse])
+        SoulCatcherShapeshiftCooldown = new FloatOptionItem(3711, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.SoulCatcher])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -34,14 +34,14 @@ internal class ImperiusCurse : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        AURoleOptions.ShapeshifterCooldown = ImperiusCurseShapeshiftCooldown.GetFloat();
+        AURoleOptions.ShapeshifterCooldown = SoulCatcherShapeshiftCooldown.GetFloat();
         AURoleOptions.ShapeshifterLeaveSkin = false;
-        AURoleOptions.ShapeshifterDuration = ShapeImperiusCurseShapeshiftDuration.GetFloat();
+        AURoleOptions.ShapeshifterDuration = ShapeSoulCatcherShapeshiftDuration.GetFloat();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.AbilityButton?.OverrideText(Translator.GetString("ImperiusCurseButtonText"));
+        hud.AbilityButton?.OverrideText(Translator.GetString("SoulCatcherButtonText"));
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -59,7 +59,7 @@ internal class ImperiusCurse : RoleBase
                     shapeshifter.RPCPlayCustomSound("Teleport");
                     target.RPCPlayCustomSound("Teleport");
                 }
-            }, 1.5f, "ImperiusCurse TP");
+            }, 1.5f, "SoulCatcher TP");
         }
 
         return true;

@@ -56,6 +56,6 @@ public class MeetingManager : RoleBase
     public static void OnCompare(PlayerControl tg1, PlayerControl tg2)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutCompare"), CustomRoles.ParityCop.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutCompare"), CustomRoles.Inspector.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
     }
 }

@@ -93,8 +93,8 @@ internal static class ExtendedPlayerControl
                 return true;
             case CustomGameMode.Standard when Main.AllAlivePlayerControls.Length == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
-            case CustomGameMode.MoveAndStop:
-                return MoveAndStop.IsEventActive && MoveAndStop.Event.Type == MoveAndStop.Events.VentAccess;
+            case CustomGameMode.StopAndGo:
+                return StopAndGo.IsEventActive && StopAndGo.Event.Type == StopAndGo.Events.VentAccess;
             case CustomGameMode.Deathrace:
                 return Deathrace.CanUseVent(player, ventId);
         }
@@ -134,7 +134,7 @@ internal static class ExtendedPlayerControl
     public static void RevertFreeze(this PlayerControl pc, Vector2 realPosition)
     {
         pc.NetTransform.SnapTo(realPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
-        CustomRpcSender sender = CustomRpcSender.Create("Explosivist Revert", SendOption.Reliable);
+        CustomRpcSender sender = CustomRpcSender.Create($"Revert SnapTo Freeze ({pc.GetNameWithRole()})", SendOption.Reliable);
         sender.StartMessage();
         sender.StartRpc(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo)
             .WriteVector2(pc.transform.position)
@@ -159,7 +159,7 @@ internal static class ExtendedPlayerControl
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == player || pc.AmOwner) continue;
-            CustomRpcSender sender = CustomRpcSender.Create("Explosivist", SendOption.Reliable);
+            CustomRpcSender sender = CustomRpcSender.Create($"SnapTo Freeze ({player.GetNameWithRole()})", SendOption.Reliable);
             sender.StartMessage(pc.GetClientId());
             sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
                 .WriteVector2(player.transform.position)
@@ -188,6 +188,14 @@ internal static class ExtendedPlayerControl
         {
             HudManager.Instance.Chat.SetVisible(visible);
             HudManager.Instance.Chat.HideBanButton();
+            return;
+        }
+
+        if (player.IsModdedClient())
+        {
+            var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetChatVisible, SendOption.Reliable, player.OwnerId);
+            msg.Write(visible);
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
             return;
         }
 
@@ -297,25 +305,6 @@ internal static class ExtendedPlayerControl
         return state.countTypes;
     }
 
-    // By TommyXL
-    public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
-    {
-        int clientId = seer.OwnerId;
-        if (clientId == -1) return;
-
-        if (AmongUsClient.Instance.ClientId == clientId)
-        {
-            player.SetPet(petId);
-            return;
-        }
-
-        player.Data.DefaultOutfit.PetSequenceId += 10;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
-        writer.Write(petId);
-        writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
     public static void RpcResetTasks(this PlayerControl player, bool init = true)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null) return;
@@ -385,7 +374,7 @@ internal static class ExtendedPlayerControl
 
             RoleTypes newRoleType = state.MainRole.GetRoleTypes();
 
-            if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars)
+            if (Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars)
                 hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
 
             player.ResetKillCooldown();
@@ -1137,7 +1126,7 @@ internal static class ExtendedPlayerControl
     {
         try
         {
-            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
             return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
         catch (Exception e)
@@ -1410,7 +1399,7 @@ internal static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame or CustomGameMode.Mingle:
+            case CustomGameMode.StopAndGo or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.TheMindGame or CustomGameMode.Mingle:
             case CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.HotPotato:
@@ -1432,7 +1421,7 @@ internal static class ExtendedPlayerControl
 
         return pc.GetCustomRole() switch
         {
-            // SoloKombat
+            // SoloPVP
             CustomRoles.KB_Normal => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
@@ -1470,9 +1459,9 @@ internal static class ExtendedPlayerControl
 
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloKombat => SoloPVP.CanVent,
+            CustomGameMode.SoloPVP => SoloPVP.CanVent,
             CustomGameMode.FFA => true,
-            CustomGameMode.MoveAndStop => false,
+            CustomGameMode.StopAndGo => false,
             CustomGameMode.HotPotato => false,
             CustomGameMode.Speedrun => false,
             CustomGameMode.CaptureTheFlag => false,
@@ -1721,9 +1710,9 @@ internal static class ExtendedPlayerControl
 
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || Farseer.IsRevealed == null) return false;
+        if (player == null || target == null || Investigator.IsRevealed == null) return false;
 
-        Farseer.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
+        Investigator.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
 
@@ -1925,7 +1914,7 @@ internal static class ExtendedPlayerControl
             return;
         }
         
-        if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
+        if (Options.CurrentGameMode == CustomGameMode.SoloPVP) return;
 
         if (target == null) target = killer;
 
