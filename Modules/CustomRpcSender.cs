@@ -517,7 +517,7 @@ public static class CustomRpcSenderExtensions
             if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return false;
         }
 
-        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks) return false;
+        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return false;
 
         player.AddKillTimerToDict(cd: time);
         if (target == null) target = player;

@@ -1563,7 +1563,8 @@ internal static class FixedUpdatePatch
                     player.MarkDirtySettings();
                 }
 
-                if (!Main.KillTimers.TryAdd(playerId, 10f) && ((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0) Main.KillTimers[playerId] -= Time.fixedDeltaTime;
+                if (!Main.KillTimers.TryAdd(playerId, 10f) && (!player.inVent || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
+                    Main.KillTimers[playerId] -= Time.fixedDeltaTime;
 
                 if (localPlayer)
                 {

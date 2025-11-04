@@ -3465,8 +3465,6 @@ public static class Utils
                     pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
                     LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
                 }
-                
-                pc.AddKillTimerToDict();
 
                 if (pc.Is(CustomRoles.Truant))
                 {
