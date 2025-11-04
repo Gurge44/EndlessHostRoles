@@ -222,7 +222,7 @@ public class ToiletMaster : RoleBase
                         x.MarkDirtySettings();
                         affectedPlayers.Add(x);
 
-                        if (x.IsLocalPlayer())
+                        if (x.AmOwner)
                             Achievements.Type.TooCold.CompleteAfterGameEnd();
                     });
 

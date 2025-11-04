@@ -195,7 +195,7 @@ public class Medic : RoleBase
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        if (target.IsLocalPlayer() && target.Is(CustomRoles.Snitch))
+        if (target.AmOwner && target.Is(CustomRoles.Snitch))
         {
             if (WhoCanSeeProtect.GetInt() is 1 or 3) Achievements.Type.ImUnstoppable.CompleteAfterGameEnd();
             else Achievements.Type.ImUnstoppable.Complete();
@@ -258,7 +258,7 @@ public class Medic : RoleBase
             }
         }
 
-        if (killer.IsLocalPlayer())
+        if (killer.AmOwner)
         {
             LocalPlayerTryKillShieldedTimes++;
             if (LocalPlayerTryKillShieldedTimes >= 2) Achievements.Type.DiePleaseDie.CompleteAfterGameEnd();

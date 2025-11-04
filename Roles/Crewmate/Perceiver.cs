@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate;
 
@@ -77,6 +79,14 @@ internal class Perceiver : RoleBase
         pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
 
         pc.RpcRemoveAbilityUse();
+
+        if (pc.AmOwner)
+        {
+            HashSet<byte> allKillers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton()).Select(x => x.PlayerId).ToHashSet();
+            
+            if (allKillers.SetEquals(killers.Select(x => x.PlayerId)))
+                Achievements.Type.MindReader.CompleteAfterGameEnd();
+        }
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

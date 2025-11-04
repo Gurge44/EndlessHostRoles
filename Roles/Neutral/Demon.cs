@@ -125,7 +125,7 @@ public class Demon : RoleBase
             {
                 target.Kill(killer);
 
-                if (target.IsLocalPlayer())
+                if (target.AmOwner)
                     Achievements.Type.YoureTooLate.Complete();
 
                 return false;

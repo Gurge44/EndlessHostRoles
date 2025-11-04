@@ -93,7 +93,7 @@ internal class TimeMaster : RoleBase
 
         Main.Instance.StartCoroutine(Rewind());
         
-        if (pc.IsLocalPlayer())
+        if (pc.AmOwner)
             Achievements.Type.APerfectTimeToRewindIt.Complete();
     }
 
@@ -105,7 +105,7 @@ internal class TimeMaster : RoleBase
 
         Main.Instance.StartCoroutine(Rewind());
         
-        if (pc.IsLocalPlayer())
+        if (pc.AmOwner)
             Achievements.Type.APerfectTimeToRewindIt.Complete();
     }
 

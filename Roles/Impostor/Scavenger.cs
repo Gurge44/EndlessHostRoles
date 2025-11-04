@@ -63,7 +63,7 @@ internal class Scavenger : RoleBase
 
         killer.Suicide(PlayerState.DeathReason.Kill, target);
 
-        if (target.IsLocalPlayer())
+        if (target.AmOwner)
             Achievements.Type.YoureTooLate.Complete();
 
         return false;

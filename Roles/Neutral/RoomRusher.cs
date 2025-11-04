@@ -206,7 +206,7 @@ public class RoomRusher : RoleBase
             if (Won) StartNewRound(dontCount: true);
             else pc.Suicide();
 
-            if (pc.IsLocalPlayer())
+            if (pc.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }
     }

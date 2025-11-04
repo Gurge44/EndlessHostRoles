@@ -107,7 +107,7 @@ internal class Necromancer : RoleBase
 
             new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[target.PlayerId].RemoveSubRole(x));
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
                 Achievements.Type.YoureMyFriendNow.Complete();
 
             return false;
@@ -238,7 +238,7 @@ internal class Deathknight : RoleBase
 
             Logger.Info($"Recruit: {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Undead}", $"Assign {CustomRoles.Undead}");
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
                 Achievements.Type.YoureMyFriendNow.Complete();
 
             return false;

@@ -1240,7 +1240,7 @@ internal static class StartGameHostPatch
                 {
                     try
                     {
-                        if (seer.PlayerId == target.PlayerId || target.IsLocalPlayer()) continue;
+                        if (seer.PlayerId == target.PlayerId || target.AmOwner) continue;
 
                         if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                         {

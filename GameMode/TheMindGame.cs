@@ -784,7 +784,7 @@ public static class TheMindGame
                             byte id = FindTargetIdFromText();
                             if (id == byte.MaxValue) break;
 
-                            if (!pc.IsLocalPlayer()) ChatManager.SendPreviousMessagesToAll();
+                            if (!pc.AmOwner) ChatManager.SendPreviousMessagesToAll();
 
                             if (id == WinningBriefcaseHolderId)
                             {

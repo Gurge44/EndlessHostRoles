@@ -132,7 +132,7 @@ public class Mastermind : RoleBase
                 player.Suicide(realKiller: MastermindPC);
                 RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
 
-                if (player.IsLocalPlayer())
+                if (player.AmOwner)
                     Achievements.Type.OutOfTime.Complete();
             }
 
@@ -173,7 +173,7 @@ public class Mastermind : RoleBase
             target.Kill(killer);
             TempKCDs.Remove(killer.PlayerId);
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
                 Achievements.Type.YoureTooLate.Complete();
 
             return false;

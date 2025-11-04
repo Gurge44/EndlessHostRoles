@@ -111,7 +111,7 @@ public class Patroller : RoleBase
 
         pc.MarkDirtySettings();
 
-        if (pc.IsLocalPlayer()) HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
+        if (pc.AmOwner) HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

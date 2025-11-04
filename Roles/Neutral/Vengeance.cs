@@ -113,7 +113,7 @@ public class Vengeance : RoleBase
         {
             player.Suicide(PlayerState.DeathReason.Kill);
 
-            if (player.IsLocalPlayer())
+            if (player.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
 
             return;

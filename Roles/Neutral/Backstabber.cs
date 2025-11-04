@@ -79,7 +79,7 @@ public class Backstabber : RoleBase
             _ => WinningTeam.Imp
         };
 
-        if (targetTeam == EHR.Team.Crewmate && killer.IsLocalPlayer())
+        if (targetTeam == EHR.Team.Crewmate && killer.AmOwner)
             Achievements.Type.StabbingTheBack.Complete();
 
         killer.RpcRemoveAbilityUse();

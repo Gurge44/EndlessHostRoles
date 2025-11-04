@@ -220,7 +220,7 @@ internal class Revolutionist : RoleBase
 
                         player.Suicide(PlayerState.DeathReason.Sacrifice);
 
-                        if (player.IsLocalPlayer())
+                        if (player.AmOwner)
                             Achievements.Type.OutOfTime.Complete();
                     }
                     else RevolutionistCountdown[playerId] = countdown;

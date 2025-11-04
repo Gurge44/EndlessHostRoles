@@ -107,7 +107,7 @@ public class Adrenaline : RoleBase
             Timer = 0;
             pc.Suicide();
 
-            if (pc.IsLocalPlayer())
+            if (pc.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }
 

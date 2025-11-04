@@ -85,7 +85,7 @@ internal class Beacon : RoleBase
 
                 LastChange[pc.PlayerId] = now;
 
-                if (pc.IsLocalPlayer() && lightsOff)
+                if (pc.AmOwner && lightsOff)
                     Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
 
                 break;

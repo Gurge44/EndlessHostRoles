@@ -358,7 +358,7 @@ internal class Bargainer : RoleBase
                         break;
                 }
 
-                if (pc.IsLocalPlayer())
+                if (pc.AmOwner)
                     PurchasedItems.Add(SelectedItem);
 
                 break;

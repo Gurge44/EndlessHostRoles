@@ -110,7 +110,7 @@ public class Technician : RoleBase
             else IsWon = true;
         }
 
-        if (TechnicianPC.IsLocalPlayer())
+        if (TechnicianPC.AmOwner)
             LocalPlayerFixedSabotageTypes.Add(actualSystemType);
     }
 

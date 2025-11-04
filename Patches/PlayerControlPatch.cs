@@ -198,7 +198,7 @@ internal static class CheckMurderPatch
                 target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-                if (tempTarget.IsLocalPlayer())
+                if (tempTarget.AmOwner)
                 {
                     Detour.TotalRedirections++;
                     if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
@@ -543,7 +543,7 @@ internal static class CheckMurderPatch
         {
             Notify("GAGuarded");
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
                 Achievements.Type.IForgotThisRoleExists.CompleteAfterGameEnd();
 
             return false;
@@ -786,6 +786,9 @@ internal static class MurderPlayerPatch
         {
             var realKiller = target.GetRealKiller();
             if (realKiller != null) killer = realKiller;
+            
+            if (killer.AmOwner && Main.PlayerStates.TryGetValue(killer.PlayerId, out var ks) && ks.GetKillCount() <= 1)
+                Achievements.Type.OhNo.CompleteAfterGameEnd();
             
             if (target != killer && !killer.Is(CustomRoles.KillingMachine) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
             {
@@ -1108,7 +1111,7 @@ internal static class ReportDeadBodyPatch
 
                 if (!Hypnotist.OnAnyoneReport())
                 {
-                    if (__instance.IsLocalPlayer())
+                    if (__instance.AmOwner)
                         Achievements.Type.Hypnosis.CompleteAfterGameEnd();
 
                     Notify("HypnosisNoMeeting");
@@ -1455,7 +1458,7 @@ internal static class FixedUpdatePatch
                 GhostRolesManager.AssignGhostRole(__instance);
         }
 
-        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !(__instance.IsHost() && __instance.IsLocalPlayer()) && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
+        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !(__instance.IsHost() && __instance.AmOwner) && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
         {
             int buffer = Options.DeepLowLoad.GetBool() ? 150 : 60;
             DeadBufferTime.TryAdd(id, buffer);
@@ -2065,7 +2068,7 @@ internal static class ExitVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
-        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
+        if (pc.AmOwner) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -2089,7 +2092,7 @@ internal static class EnterVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
-        if (pc.IsLocalPlayer()) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
+        if (pc.AmOwner) LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.1f, log: false);
 
         if (AmongUsClient.Instance.AmHost && !pc.CanUseVent(__instance.Id) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
         {
@@ -2202,7 +2205,7 @@ internal static class EnterVentPatch
 
         Main.PlayerStates[pc.PlayerId].Role.OnEnterVent(pc, __instance);
 
-        if (pc.IsLocalPlayer())
+        if (pc.AmOwner)
             Statistics.VentTimes++;
     }
 }

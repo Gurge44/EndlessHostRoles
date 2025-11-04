@@ -55,7 +55,7 @@ internal class Freezer : RoleBase
                 target.MarkDirtySettings();
             }, FreezeDuration.GetFloat(), "FreezerFreezeDuration");
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
                 Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
 

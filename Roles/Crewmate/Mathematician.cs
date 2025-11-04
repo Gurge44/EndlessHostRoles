@@ -58,7 +58,7 @@ internal class Mathematician : RoleBase
                 Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Translator.GetString("Mathematician"));
                 State.AskedQuestion = false;
 
-                if (pc.IsLocalPlayer())
+                if (pc.AmOwner)
                     Achievements.Type.TheBestInSchool.Complete();
             }
         }

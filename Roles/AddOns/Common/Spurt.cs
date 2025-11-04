@@ -94,7 +94,7 @@ internal class Spurt : IAddon
 
         int charge = DetermineCharge(player);
 
-        if (player.IsLocalPlayer() && charge is <= 0 or >= 100)
+        if (player.AmOwner && charge is <= 0 or >= 100)
             LocalPlayerAvoidsZeroAndOneHundredPrecent = false;
 
         if (DisplaysCharge.GetBool() && !player.IsModdedClient() && LastNum[player.PlayerId] != charge)

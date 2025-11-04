@@ -155,7 +155,7 @@ internal class Hookshot : RoleBase
             SendRPC();
             HookshotPC.SetKillCooldown(5f);
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
                 Achievements.Type.WellMeetAgainSomeSunnyDay.Complete();
         });
     }

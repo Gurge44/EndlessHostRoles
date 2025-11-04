@@ -180,7 +180,7 @@ public class Spiritcaller : RoleBase
                 RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
             }, SpiritFreezeTime.GetFloat(), "SpiritcallerFreezeTime");
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
                 Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
     }

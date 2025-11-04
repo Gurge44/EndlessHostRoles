@@ -130,7 +130,7 @@ internal static class EffectExtenstions
                     pc.MarkDirtySettings();
                     NotifyAboutRNG(pc);
 
-                    if (pc.IsLocalPlayer())
+                    if (pc.AmOwner)
                         Achievements.Type.TooCold.CompleteAfterGameEnd();
                 }
 

@@ -256,7 +256,7 @@ public static class Camouflage
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc.IsLocalPlayer()) CheckCamouflage();
+        if (pc.AmOwner) CheckCamouflage();
 
         if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat) return;
 

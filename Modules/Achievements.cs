@@ -111,16 +111,15 @@ public static class Achievements
         MasterOfTheStones, // Get all infinity stones as Thanos
         FastestRunner, // Win in Deathrace gamemode
         CloseCall, // Survive russian roulette with 5 bullets as Roulette Grandeur
-        IKnowYourNames, // Get 3 peoples name guessed as note killer
-        ThisAintSquidGames, // Win a game of Mingle
-        ItsGamblingTime, // As sheriff, shot a killer first 10 seconds into the game
+        IKnowYourNames, // Get 3 peoples name guessed as Note Killer
+        ThisAintSquidGames, // Win in Mingle game mode
+        ItsGamblingTime, // As Sheriff, shoot a killer 10 seconds into the game
         FriendlyFire, // Accidentally blow up your impostor partner as Sapper/Bomber/Fireworker
-        MyBad, // As Tree, Kill everyone in ur radius by falling
-        WasteOfTime, // As Altruist, revive someone just for them to dies under 10 seconds
-        MindReader, // As Perceiver, get all killers on ur ability radius
-        OhNo, // Kill the Bait as ur first kill
-        Why, // As Pawn, choose crewmate after doing ur tasks
-        GetMuted, // As Banshee, make everyone not have a chat button on meeting
+        MyBad, // As Tree, kill everyone in ur radius by falling
+        MindReader, // As Perceiver, get all killers in your ability radius
+        OhNo, // Kill the Bait as your first kill
+        Why, // As Pawn, choose vanilla Crewmate after doing your tasks
+        GetMuted, // As Banshee, make everyone not have a chat button in a meeting
         BadEncounter, // As Veteran, get killed while alerted (pestilence,pelican, bypass abilities, etc)
         DestinysChoice, // Die to the Wyrd's fate countdown
         YouUnderestimatedMe // Get shielded by the Medic then kill them

@@ -139,7 +139,7 @@ public class Chef : RoleBase
             }
         }
 
-        if (target.IsLocalPlayer())
+        if (target.AmOwner)
             Achievements.Type.Delicious.Complete();
     }
 

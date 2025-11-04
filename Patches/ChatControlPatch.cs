@@ -179,7 +179,7 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
-                if (player.IsLocalPlayer()) break;
+                if (player.AmOwner) break;
 
                 LateTask.New(() =>
                 {
@@ -283,7 +283,7 @@ public static class ChatManager
         void SendEmptyMessage(PlayerControl receiver)
         {
             bool toEveryone = receiver == null;
-            bool toLocalPlayer = !toEveryone && receiver.IsLocalPlayer();
+            bool toLocalPlayer = !toEveryone && receiver.AmOwner;
             if (HudManager.InstanceExists && (toLocalPlayer || toEveryone)) HudManager.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);

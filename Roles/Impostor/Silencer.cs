@@ -86,7 +86,7 @@ public class Silencer : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1, target.PlayerId);
             killer.SetKillCooldown(3f);
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
             {
                 LocalPlayerTotalSilences++;
                 if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
@@ -104,7 +104,7 @@ public class Silencer : RoleBase
             ForSilencer.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, shapeshifter.PlayerId, 1, target.PlayerId);
 
-            if (shapeshifter.IsLocalPlayer())
+            if (shapeshifter.AmOwner)
             {
                 LocalPlayerTotalSilences++;
                 if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();
@@ -130,7 +130,7 @@ public class Silencer : RoleBase
             ForSilencer.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, target.PlayerId);
 
-            if (pc.IsLocalPlayer())
+            if (pc.AmOwner)
             {
                 LocalPlayerTotalSilences++;
                 if (LocalPlayerTotalSilences >= 5) Achievements.Type.Censorship.Complete();

@@ -601,7 +601,7 @@ internal static class BeginCrewmatePatch
                         }
                     }
 
-                    if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.IsLocalPlayer()))
+                    if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.AmOwner))
                     {
                         __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                         byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
@@ -1009,7 +1009,7 @@ internal static class BeginImpostorPatch
         {
             foreach (var pc in Main.AllPlayerControls)
             {
-                if (pc.IsMadmate() && !pc.IsLocalPlayer())
+                if (pc.IsMadmate() && !pc.AmOwner)
                     yourTeam.Add(pc);
             }
         }
@@ -1023,7 +1023,7 @@ internal static class BeginImpostorPatch
             {
                 foreach (var pc in Main.AllPlayerControls)
                 {
-                    if (pc.IsImpostor() && !pc.IsLocalPlayer())
+                    if (pc.IsImpostor() && !pc.AmOwner)
                         yourTeam.Add(pc);
                 }
             }
@@ -1032,7 +1032,7 @@ internal static class BeginImpostorPatch
             {
                 foreach (var pc in Main.AllPlayerControls)
                 {
-                    if (pc.IsMadmate() && !pc.IsLocalPlayer())
+                    if (pc.IsMadmate() && !pc.AmOwner)
                         yourTeam.Add(pc);
                 }
             }

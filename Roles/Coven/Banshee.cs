@@ -114,5 +114,10 @@ public class Banshee : Coven
     public override void OnReportDeadBody()
     {
         LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().DoIf(x => x.IsAlive(), x => x.SetChatVisible(false)), 4f, "Set Chat Hidden For Banshee Victims");
+
+        PlayerControl pc = BansheeId.GetPlayer();
+        
+        if (pc != null && pc.AmOwner && Instances.SelectMany(x => x.ScreechedPlayers).Distinct().Count() == Main.AllAlivePlayerControls.Count(x => !Instances.Exists(a => a.BansheeId == x.PlayerId)))
+            Achievements.Type.GetMuted.CompleteAfterGameEnd();
     }
 }

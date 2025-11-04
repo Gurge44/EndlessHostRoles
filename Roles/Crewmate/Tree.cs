@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate;
 
@@ -80,12 +81,16 @@ public class Tree : RoleBase
                 pc.RpcMakeVisible();
             
             int chance = FallKillChance.GetInt();
+            bool allKill = true;
+            bool any = false;
             
             Utils.GetPlayersInRadius(FallRadius.GetFloat(), pc.Pos()).Without(pc).Do(x =>
             {
+                any = true;
                 if (IRandom.Instance.Next(100) < chance) x.Suicide(PlayerState.DeathReason.Fall, pc);
                 else
                 {
+                    allKill = false;
                     Main.AllPlayerSpeed[x.PlayerId] = Main.MinSpeed;
                     x.MarkDirtySettings();
                     
@@ -100,6 +105,9 @@ public class Tree : RoleBase
 
             var cno = new FallenTree(pc.Pos());
             LateTask.New(() => cno.Despawn(), FallStunDuration.GetFloat(), log: false);
+            
+            if (pc.AmOwner && any && allKill)
+                Achievements.Type.MyBad.Complete();
         }, FallDelay.GetFloat(), log: false);
     }
 }

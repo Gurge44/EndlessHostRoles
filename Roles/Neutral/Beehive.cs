@@ -111,7 +111,7 @@ public class Beehive : RoleBase
                 {
                     pc.Suicide(deathReason: PlayerState.DeathReason.Stung, realKiller: Utils.GetPlayerById(BeehiveId));
 
-                    if (pc.IsLocalPlayer())
+                    if (pc.AmOwner)
                         Achievements.Type.OutOfTime.Complete();
                 }
             }

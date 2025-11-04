@@ -1276,6 +1276,9 @@ internal static class ChatCommands
         Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), coloredName));
 
         NoteKiller.Kills++;
+        
+        if (player.AmOwner && NoteKiller.Kills >= 3)
+            Achievements.Type.IKnowYourNames.CompleteAfterGameEnd();
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -2392,7 +2395,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (player.IsLocalPlayer())
+        if (player.AmOwner)
         {
             if (args.Length > 1)
                 TemplateManager.SendTemplate(args[1]);
@@ -2921,7 +2924,7 @@ internal static class ChatCommands
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {
-            if (player.IsLocalPlayer())
+            if (player.AmOwner)
                 Main.NickName = name;
             else
             {

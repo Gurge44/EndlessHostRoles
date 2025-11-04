@@ -523,7 +523,7 @@ public static class RoomRush
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
                     pc.Notify($"<size=100%>{DonePlayers.Count}.</size>", 2f);
-                    if (pc.IsLocalPlayer()) Utils.DirtyName.Add(pc.PlayerId);
+                    if (pc.AmOwner) Utils.DirtyName.Add(pc.PlayerId);
 
                     if (WinByPointsInsteadOfDeaths.GetBool())
                         Points[pc.PlayerId] += aapc.Length == 1 ? 1 : aapc.Length - DonePlayers.Count;
@@ -537,7 +537,7 @@ public static class RoomRush
                         TimeLimitEndTS = now + setTo;
                         LastUpdate = now;
 
-                        if (aapc.Length == 2 && pc.IsLocalPlayer())
+                        if (aapc.Length == 2 && pc.AmOwner)
                             Achievements.Type.WheresTheBlueShell.CompleteAfterGameEnd();
                     }
 
@@ -584,7 +584,7 @@ public static class RoomRush
 
             StartNewRound();
 
-            if (playersOutsideRoom.Any(x => x.IsLocalPlayer()))
+            if (playersOutsideRoom.Any(x => x.AmOwner))
                 Achievements.Type.OutOfTime.Complete();
         }
     }

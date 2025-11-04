@@ -1830,7 +1830,7 @@ internal static class ExtendedPlayerControl
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
         }, Options.TrapperBlockMoveTime.GetFloat(), "Trapper BlockMove");
 
-        if (killer.IsLocalPlayer())
+        if (killer.AmOwner)
             Achievements.Type.TooCold.CompleteAfterGameEnd();
     }
 
@@ -1945,7 +1945,7 @@ internal static class ExtendedPlayerControl
 
         Main.DiedThisRound.Add(target.PlayerId);
 
-        if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
+        if (killer.AmOwner && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
             Achievements.Type.InnocentKiller.Complete();
 
         if (Options.AnonymousBodies.GetBool() || realKiller.Is(CustomRoles.Concealer) || target.Is(CustomRoles.Hidden))
@@ -2037,21 +2037,9 @@ internal static class ExtendedPlayerControl
         return pc != null && !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();
     }
 
-    public static bool IsLocalPlayer(this PlayerControl pc)
-    {
-        if (pc == null) return false;
-        return pc.PlayerId == PlayerControl.LocalPlayer.PlayerId;
-    }
-
-    public static bool IsLocalPlayer(this NetworkedPlayerInfo npi)
-    {
-        if (npi == null) return false;
-        return npi.PlayerId == PlayerControl.LocalPlayer.PlayerId;
-    }
-
     public static bool IsModdedClient(this PlayerControl player)
     {
-        return player.IsLocalPlayer() || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
+        return player.AmOwner || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
     }
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false)

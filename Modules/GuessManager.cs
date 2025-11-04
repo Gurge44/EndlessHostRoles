@@ -547,7 +547,7 @@ public static class GuessManager
                         if (pc.Is(CustomRoles.Pickpocket) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("PickpocketGetVote"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Pickpocket.VotesPerKill.GetFloat())), pc.PlayerId), 0.7f, log: false);
                     }, 0.2f, "Guesser Kill");
 
-                    if (guesserSuicide && pc.IsLocalPlayer())
+                    if (guesserSuicide && pc.AmOwner)
                         Achievements.Type.BadLuckOrBadObservation.Complete();
                 }
 

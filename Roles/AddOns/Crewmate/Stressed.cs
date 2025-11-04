@@ -139,7 +139,7 @@ public class Stressed : IAddon
             Timers[pc.PlayerId] = 0;
             pc.Suicide();
 
-            if (pc.IsLocalPlayer())
+            if (pc.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }
 
