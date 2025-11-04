@@ -2025,7 +2025,7 @@ internal static class FixedUpdatePatch
     {
         if (Main.HasJustStarted || !player.IsAlive()) return;
 
-        float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "InspectorChargesWhenFinishedTasks");
+        float add = GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityChargesWhenFinishedTasks");
 
         if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
         {
