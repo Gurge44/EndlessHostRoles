@@ -3326,8 +3326,17 @@ public static class Utils
         {
             Sniper { IsAim: true } => true,
             Centralizer { MarkedPosition: not null } => true,
-            Escapee { EscapeeLocation: not null } => true,
+            Escapee { EscapeeLocation: null } => true,
             Silencer when Silencer.ForSilencer.Count == 0 => true,
+            _ => false
+        };
+    }
+
+    public static bool ShouldNotApplyAbilityCooldownAfterMeeting(PlayerControl pc)
+    {
+        return pc.GetCustomRole() switch
+        {
+            CustomRoles.Escapee => true,
             _ => false
         };
     }
@@ -3586,6 +3595,14 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
+                case CustomRoles.Catalyst when Catalyst.RemoveGivenAddonsAfterDeath.GetBool():
+                    foreach ((byte id, List<CustomRoles> addons) in ((Catalyst)Main.PlayerStates[target.PlayerId].Role).GivenAddons)
+                    {
+                        if (!Main.PlayerStates.TryGetValue(id, out var state)) continue;
+                        addons.ForEach(state.RemoveSubRole);
+                    }
+
+                    break;
                 case CustomRoles.NiceSwapper when disconnect:
                     NiceSwapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
                     break;

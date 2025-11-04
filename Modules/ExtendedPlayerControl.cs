@@ -1948,7 +1948,7 @@ internal static class ExtendedPlayerControl
         if (killer.IsLocalPlayer() && !killer.HasKillButton() && killer.PlayerId != target.PlayerId && Options.CurrentGameMode == CustomGameMode.Standard)
             Achievements.Type.InnocentKiller.Complete();
 
-        if (Options.AnonymousBodies.GetBool() || realKiller.Is(CustomRoles.Concealer))
+        if (Options.AnonymousBodies.GetBool() || realKiller.Is(CustomRoles.Concealer) || target.Is(CustomRoles.Hidden))
         {
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.SyncSettings();

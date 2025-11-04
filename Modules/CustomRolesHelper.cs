@@ -155,6 +155,8 @@ internal static class CustomRolesHelper
             CustomRoles.Psychopath => CustomRoles.Impostor,
             CustomRoles.Loner => CustomRoles.Impostor,
             CustomRoles.Postponer => CustomRoles.Impostor,
+            CustomRoles.Catalyst => CustomRoles.Impostor,
+            CustomRoles.Exclusionary => CustomRoles.Impostor,
             CustomRoles.Centralizer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
@@ -732,6 +734,8 @@ internal static class CustomRolesHelper
             CustomRoles.Psychopath or
             CustomRoles.Ambusher or
             CustomRoles.Kidnapper or
+            CustomRoles.Exclusionary or
+            CustomRoles.Catalyst or
             CustomRoles.Fabricator or
             CustomRoles.Centralizer or
             CustomRoles.Postponer or
@@ -1653,6 +1657,7 @@ internal static class CustomRolesHelper
             CustomRoles.Blackmailer => RoleOptionType.Impostor_Support,
             CustomRoles.Camouflager => RoleOptionType.Impostor_Support,
             CustomRoles.Capitalism => RoleOptionType.Impostor_Support,
+            CustomRoles.Catalyst => RoleOptionType.Impostor_Support,
             CustomRoles.Centralizer => RoleOptionType.Impostor_Support,
             CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
             CustomRoles.ClockBlocker => RoleOptionType.Impostor_Support,
@@ -1683,6 +1688,7 @@ internal static class CustomRolesHelper
             CustomRoles.Duellist => RoleOptionType.Impostor_Concealing,
             CustomRoles.Echo => RoleOptionType.Impostor_Concealing,
             CustomRoles.Escapee => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Exclusionary => RoleOptionType.Impostor_Concealing,
             CustomRoles.Fabricator => RoleOptionType.Impostor_Concealing,
             CustomRoles.Forger => RoleOptionType.Impostor_Concealing,
             CustomRoles.Hangman => RoleOptionType.Impostor_Concealing,

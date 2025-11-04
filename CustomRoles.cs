@@ -34,6 +34,7 @@ public enum CustomRoles
     Camouflager,
     Capitalism,
     Cantankerous,
+    Catalyst,
     Centralizer,
     Changeling,
     Chronomancer,
@@ -55,6 +56,7 @@ public enum CustomRoles
     Eraser,
     EvilGuesser,
     EvilTracker,
+    Exclusionary,
     Fabricator,
     Fireworker,
     Forger,
@@ -536,6 +538,7 @@ public enum CustomRoles
     Guesser,
     Haste,
     Haunter, // Ghost role
+    Hidden,
     Insane,
     Introvert,
     Knighted,

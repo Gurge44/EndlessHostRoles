@@ -56,7 +56,7 @@ public class CameraMan : RoleBase
             MapNames.Skeld => new(-13.5f, -5.5f),
             MapNames.MiraHQ => new(15.3f, 3.8f),
             MapNames.Polus => new(3.0f, -12.0f),
-            MapNames.Dleks => new(-13.5f, -5.5f),
+            MapNames.Dleks => new(13.5f, -5.5f),
             MapNames.Airship => new(5.8f, -10.8f),
             MapNames.Fungle => new(9.5f, 1.2f),
             (MapNames)6 => new(-4.23f, -33.38f),

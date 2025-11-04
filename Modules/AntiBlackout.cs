@@ -110,7 +110,8 @@ public static class AntiBlackout
                     if (pc.IsAlive())
                     {
                         // Due to the role base change, we need to reset the cooldowns for abilities.
-                        pc.RpcResetAbilityCooldown();
+                        if (!Utils.ShouldNotApplyAbilityCooldownAfterMeeting(pc))
+                            pc.RpcResetAbilityCooldown();
 
                         if (Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd))
                         {
