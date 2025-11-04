@@ -9259,7 +9259,7 @@
   "Exclusionary.CooldownAfterExclusion": "Cooldown After Exclusion",
   "Catalyst": "Catalyst",
   "CatalystInfo": "Give Helpful Add-ons to Your Team With Each Kill",
-  "CatalystInfoLong": "(Impostors):\\nAs the Catalyst, with each kill you make, every impostor-teamed players gains a new helpful add-on. Depending on the settings, they may lose these add-ons after you die.",
+  "CatalystInfoLong": "(Impostors):\\nAs the Catalyst, with each kill you make, every impostor-teamed player gains a new helpful add-on. Depending on the settings, they may lose these add-ons after you die.",
   "Catalyst.GiveAddonsToSelf": "<#ff1919>Catalyst</color> also receives helpful add-ons",
   "Catalyst.GiveOnlyEnabledAddons": "Only give enabled add-ons",
   "RemoveGivenAddonsAfterDeath": "Remove all given add-ons after the <#ff1919>Catalyst</color> dies",
