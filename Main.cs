@@ -747,11 +747,11 @@ public class Main : BasePlugin
                 { CustomRoles.Mare, "#ff1919" },
                 { CustomRoles.Underdog, "#ff1919" },
 
-                // SoloPVP
+                // Solo PVP
                 { CustomRoles.KB_Normal, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
-                // Move And Stop
+                // Stop And Go
                 { CustomRoles.Tasker, "#00ffa5" },
                 // Hot Potato
                 { CustomRoles.Potato, "#e8cd46" },
@@ -1198,3 +1198,4 @@ public enum TieMode
 
 
 public class Coroutines : MonoBehaviour { }
+
