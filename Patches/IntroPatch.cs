@@ -645,11 +645,13 @@ internal static class BeginCrewmatePatch
                     CustomRoles.TaskManager
                     => HudManager.Instance.TaskUpdateSound,
 
-                CustomRoles.Inhibitor or
+                CustomRoles.Doorjammer or
+                    CustomRoles.Inhibitor or
                     CustomRoles.Mechanic or
+                    CustomRoles.Provocateur or
                     CustomRoles.Saboteur or
                     CustomRoles.SecurityGuard or
-                    CustomRoles.Provocateur
+                    CustomRoles.Technician
                     => ShipStatus.Instance.SabotageSound,
 
                 CustomRoles.KillingMachine or
@@ -697,7 +699,8 @@ internal static class BeginCrewmatePatch
                     => GetIntroSound(RoleTypes.Crewmate),
 
                 CustomRoles.Curser or
-                    CustomRoles.Nightmare
+                    CustomRoles.Nightmare or
+                    CustomRoles.Thief
                     => GetIntroSound(RoleTypes.Impostor),
 
                 CustomRoles.Astral or
@@ -712,6 +715,8 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Engineer or
                     CustomRoles.EngineerEHR or
+                    CustomRoles.Adventurer or
+                    CustomRoles.Alchemist or
                     CustomRoles.Clerk or
                     CustomRoles.Dealer or
                     CustomRoles.Detour or
@@ -730,9 +735,12 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Tracker
                     or CustomRoles.TrackerEHR
-                    or CustomRoles.Coroner
                     or CustomRoles.Captain
+                    or CustomRoles.Catcher
+                    or CustomRoles.Coroner
+                    or CustomRoles.Druid
                     or CustomRoles.EvilTracker
+                    or CustomRoles.Hacker
                     or CustomRoles.Scout
                     or CustomRoles.Lookout
                     => GetIntroSound(RoleTypes.Tracker),
@@ -761,15 +769,17 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Leery
                     or CustomRoles.Mortician
                     or CustomRoles.Oracle
+                     or CustomRoles.Witness
                     => GetIntroSound(RoleTypes.Detective),
 
                 CustomRoles.Noisemaker
                     or CustomRoles.NoisemakerEHR
                     or CustomRoles.Markseeker
                     or CustomRoles.Soothsayer
-                    or CustomRoles.Phantasm
+                    or CustomRoles.Specter
                     or CustomRoles.SuperStar
                     or CustomRoles.Sunnyboy
+                    or CustomRoles.Vacuum
                     => GetIntroSound(RoleTypes.Noisemaker),
 
                 CustomRoles.Phantom
@@ -1335,12 +1345,13 @@ internal static class IntroCutsceneDestroyPatch
                 hud.ImpostorVentButton.graphic.sprite,
                 hud.SabotageButton.graphic.sprite,
                 hud.PetButton.graphic.sprite,
-                hud.ReportButton.graphic.sprite
+                hud.ReportButton.graphic.sprite,
+                hud.SecondaryAbilityButton.graphic.sprite
             ];
             
             hud.SetRolePanelOpen(true);
             
-            if (Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
+            if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
             
             if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool()) return;
@@ -1354,4 +1365,5 @@ internal static class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");
     }
+
 }
