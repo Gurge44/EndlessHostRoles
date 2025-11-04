@@ -2329,38 +2329,12 @@ internal static class PlayerControlSetRolePatch
 
         if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
         {
-            bool targetIsKiller = __instance.Is(CustomRoleTypes.Impostor) || __instance.HasDesyncRole();
-            Dictionary<PlayerControl, RoleTypes> ghostRoles = new();
-
-            foreach (PlayerControl seer in Main.AllPlayerControls)
-            {
-                bool self = seer.PlayerId == __instance.PlayerId;
-                bool seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || seer.HasDesyncRole();
-
-                if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
-                    ghostRoles[seer] = RoleTypes.GuardianAngel;
-                else if ((self && targetIsKiller) || (!seerIsKiller && __instance.Is(CustomRoleTypes.Impostor)))
-                    ghostRoles[seer] = RoleTypes.ImpostorGhost;
-                else
-                    ghostRoles[seer] = RoleTypes.CrewmateGhost;
-            }
-
             if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
-            else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.CrewmateGhost))
-                roleType = RoleTypes.CrewmateGhost;
-            else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.ImpostorGhost))
-                roleType = RoleTypes.ImpostorGhost;
+            else if (__instance.Is(CustomRoleTypes.Impostor))
+                roleType = RoleTypes.Impostor;
             else
-            {
-                foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
-                {
-                    Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    __instance.RpcSetRoleDesync(role, seer.OwnerId);
-                }
-
-                return false;
-            }
+                roleType = RoleTypes.CrewmateGhost;
         }
 
         return true;

@@ -16,6 +16,7 @@ public class Stasis : RoleBase
     private static OptionItem AffectsOtherImpostors;
     private static OptionItem CanVent;
     private static OptionItem KillCooldown;
+    private static OptionItem CanSabotage;
 
     private bool UsingAbility;
 
@@ -30,7 +31,8 @@ public class Stasis : RoleBase
             .AutoSetupOption(ref AbilityDuration, 10, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AffectsOtherImpostors, true)
             .AutoSetupOption(ref CanVent, false)
-            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 180f, 1f), OptionFormat.Seconds);
+            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 180f, 1f), OptionFormat.Seconds)
+            .AutoSetupOption(ref CanSabotage, false);
     }
 
     public override void Init()
@@ -59,6 +61,11 @@ public class Stasis : RoleBase
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
+
+    public override bool CanUseSabotage(PlayerControl pc)
+    {
+        return CanSabotage.GetBool();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

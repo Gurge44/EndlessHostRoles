@@ -77,8 +77,7 @@ internal static class ExternalRpcPetPatch
             && !physics.Animations.IsPlayingClimbAnimation()
             && !physics.Animations.IsPlayingAnyLadderAnimation()
             && !Pelican.IsEaten(pc.PlayerId)
-            && GameStates.IsInTask
-            && pc.GetCustomRole().PetActivatedAbility())
+            && GameStates.IsInTask)
         {
             CancelPet();
             LateTask.New(CancelPet, 0.4f, log: false);

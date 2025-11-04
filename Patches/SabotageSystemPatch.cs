@@ -446,6 +446,10 @@ public static class SabotageSystemTypeRepairDamagePatch
             }
         }
 
+        if (Stasis.IsTimeFrozen) return false;
+
+        if (Pelican.IsEaten(player.PlayerId)) return false;
+
         if (__instance != null && systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
             batteryState.Player.RpcRemoveAbilityUse();

@@ -49,6 +49,8 @@ public static class AntiBlackout
 
         dummyImp.RpcSetRoleGlobal(RoleTypes.Impostor);
         players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcSetRoleGlobal(RoleTypes.Crewmate));
+        
+        Main.AllPlayerControls.DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead, x => x.RpcSetRoleGlobal(x.HasGhostRole() ? RoleTypes.GuardianAngel : RoleTypes.CrewmateGhost));
     }
 
     // After the ejection screen, we revert the role types to their actual values.
@@ -89,7 +91,7 @@ public static class AntiBlackout
                 if (seer == null || target == null) continue;
 
                 if (target.IsAlive()) target.RpcSetRoleDesync(roleType, seer.OwnerId);
-                else target.RpcSetRoleDesync(target.HasGhostRole() ? RoleTypes.GuardianAngel : roleType is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
+                else target.RpcSetRoleDesync(target.HasGhostRole() ? RoleTypes.GuardianAngel : seer.PlayerId == target.PlayerId && target.Is(CustomRoleTypes.Impostor) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
