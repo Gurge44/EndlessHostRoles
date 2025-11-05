@@ -253,6 +253,7 @@ public enum CustomRoles
     Safeguard,
     Scout,
     SecurityGuard,
+    Sensor,
     Sentinel,
     Sentry,
     Sheriff,
