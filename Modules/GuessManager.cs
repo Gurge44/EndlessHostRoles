@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.Coven;
 using EHR.Crewmate;
@@ -94,7 +95,7 @@ public static class GuessManager
                     return true;
                 }
 
-                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Animating)
+                if (!Options.CanGuessDuringDiscussionTime.GetBool() && MeetingHud.Instance && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.Animating && Main.RealOptionsData.GetInt(Int32OptionNames.DiscussionTime) > 0)
                 {
                     ShowMessage("GuessDuringDiscussion");
                     return true;
