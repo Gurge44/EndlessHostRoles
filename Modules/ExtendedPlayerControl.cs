@@ -1421,11 +1421,11 @@ internal static class ExtendedPlayerControl
 
         return pc.GetCustomRole() switch
         {
-            // SoloPVP
+            // Solo PVP
             CustomRoles.KB_Normal => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
-            // Move And Stop
+            // Stop And Go
             CustomRoles.Tasker => false,
             // Hot Potato
             CustomRoles.Potato => HotPotato.CanPassViaKillButton && HotPotato.GetState().HolderID == pc.PlayerId,
@@ -2267,4 +2267,5 @@ internal static class ExtendedPlayerControl
         if (pc.IsModdedClient() || pc.IsTrusted() || pc.FriendCode.GetDevUser().HasTag()) return false;
         return !Main.GamesPlayed.TryGetValue(pc.FriendCode, out int gamesPlayed) || gamesPlayed < 4;
     }
+
 }

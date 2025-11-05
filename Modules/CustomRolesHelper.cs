@@ -404,7 +404,7 @@ internal static class CustomRolesHelper
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
 
-            // Move And Stop
+            // Stop And Go
             CustomRoles.Tasker => CustomRoles.Crewmate,
             // Hot Potato
             CustomRoles.Potato => CustomRoles.Crewmate,
@@ -458,7 +458,7 @@ internal static class CustomRolesHelper
         
         return role switch
         {
-            // SoloPVP
+            // Solo PVP
             CustomRoles.KB_Normal => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
@@ -2008,3 +2008,4 @@ public enum CountTypes
 
     Coven
 }
+

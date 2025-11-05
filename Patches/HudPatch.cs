@@ -13,7 +13,6 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR.Patches;
 
 //[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -1170,7 +1169,7 @@ internal static class TaskPanelBehaviourPatch
             if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.StopAndGo or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun)
             {
                 var tabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
-                bool fakeTasks = Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
+                bool fakeTasks = Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
                 string sideText = TranslationController.Instance.GetString(fakeTasks ? StringNames.FakeTasks : StringNames.Tasks);
                 if (fakeTasks) sideText = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ImpostorEHR), sideText.TrimEnd(':'));
                 tabText.SetText($"{sideText}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
@@ -1309,4 +1308,5 @@ internal static class RepairSender
     {
         return SystemType + "(" + (SystemTypes)SystemType + ")\r\n" + Amount;
     }
+
 }
