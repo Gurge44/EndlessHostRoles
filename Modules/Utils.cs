@@ -3341,6 +3341,16 @@ public static class Utils
         };
     }
 
+    public static bool IsTaskingGameMode()
+    {
+        return Options.CurrentGameMode switch
+        {
+            CustomGameMode.Standard or CustomGameMode.HideAndSeek => true,
+            CustomGameMode.StopAndGo or CustomGameMode.Speedrun when PlayerControl.LocalPlayer.IsAlive() => true,
+            _ => false
+        };
+    }
+
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
     {
         if (Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
@@ -3427,6 +3437,9 @@ public static class Utils
         if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic))
             cd = (int)Math.Round(cd * 0.75f);
 
+        if (!includeDuration && ExileControllerWrapUpPatch.Stopwatch?.IsRunning == true)
+            cd -= (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
+
         Main.AbilityCD[playerId] = (TimeStamp, cd);
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);
 
@@ -3443,7 +3456,7 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 1f, "Enable GameEndChecker");
+        LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 0.1f, "Enable GameEndChecker");
         
         if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
             Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));

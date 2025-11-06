@@ -160,7 +160,11 @@ internal static class ExileControllerWrapUpPatch
 
     public static void AfterMeetingTasks()
     {
-        if (GameStates.IsEnded) return;
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || GameStates.IsEnded)
+        {
+            Stopwatch.Reset();
+            return;
+        }
 
         Main.AfterMeetingDeathPlayers.Keys.ToValidPlayers().Do(x => x.RpcExileV2());
 
@@ -189,6 +193,8 @@ internal static class ExileControllerWrapUpPatch
         Utils.CheckAndSetVentInteractions();
 
         Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(speed: 5));
+        
+        Stopwatch.Reset();
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

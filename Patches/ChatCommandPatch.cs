@@ -226,6 +226,7 @@ internal static class ChatCommands
             new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
             new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new(["fabricate", "фабриковать", "伪造", "fabricar"], "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
+            new(["start"], "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
             
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
@@ -488,7 +489,18 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+    
+    private static void StartCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(StartCommand), text, modCommand: true);
+            return;
+        }
 
+        VotedToStart.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
+    }
+    
     private static void FabricateCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;

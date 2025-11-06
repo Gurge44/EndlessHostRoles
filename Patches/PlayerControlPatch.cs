@@ -2335,7 +2335,7 @@ internal static class PlayerControlSetRolePatch
         {
             if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
-            else if (__instance.Is(CustomRoleTypes.Impostor))
+            else if (!(__instance.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.Role.CanUseSabotage(__instance))
                 roleType = RoleTypes.Impostor;
             else
                 roleType = RoleTypes.CrewmateGhost;

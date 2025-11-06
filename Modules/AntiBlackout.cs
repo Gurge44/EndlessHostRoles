@@ -56,9 +56,7 @@ public static class AntiBlackout
     // After the ejection screen, we revert the role types to their actual values.
     public static void RevertToActualRoleTypes()
     {
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
-
-        if (CachedRoleMap.Count == 0)
+        if (CachedRoleMap.Count == 0 || CustomWinnerHolder.WinnerTeam != CustomWinner.Default || GameStates.IsEnded)
         {
             SkipTasks = false;
             ExileControllerWrapUpPatch.AfterMeetingTasks();
@@ -91,7 +89,7 @@ public static class AntiBlackout
                 if (seer == null || target == null) continue;
 
                 if (target.IsAlive()) target.RpcSetRoleDesync(roleType, seer.OwnerId);
-                else target.RpcSetRoleDesync(target.HasGhostRole() ? RoleTypes.GuardianAngel : seer.PlayerId == target.PlayerId && target.Is(CustomRoleTypes.Impostor) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
+                else target.RpcSetRoleDesync(target.HasGhostRole() ? RoleTypes.GuardianAngel : seer.PlayerId == target.PlayerId && !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && state.Role.CanUseSabotage(target) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
@@ -102,7 +100,6 @@ public static class AntiBlackout
 
         LateTask.New(() =>
         {
-            ExileControllerWrapUpPatch.Stopwatch.Stop();
             var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
             
             foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -135,8 +132,6 @@ public static class AntiBlackout
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
-            
-            ExileControllerWrapUpPatch.Stopwatch.Reset();
 
             // Only execute AfterMeetingTasks after everything is reset.
             LateTask.New(() =>
