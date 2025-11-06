@@ -2520,6 +2520,7 @@
   "CommandDescription.Select": "选择您的内鬼伙伴和他们的职业。",
   "CommandDescription.UIScale": "设置界面按钮的比例",
   "CommandDescription.Fabricate": "作为制造者，为你的下一次击杀设置一个虚假的死亡原因",
+  "CommandDescription.Start": "Starts the game",
   "CommandArgs.ChangeSetting.Name": "要更改的设置名称(留空可查看所有设置)",
   "CommandArgs.ChangeSetting.UnknownValue": "（留空可查看此处放置的内容）",
   "CommandArgs.Rename.Name": "你的新名字",
