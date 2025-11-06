@@ -2520,6 +2520,7 @@
   "CommandDescription.Select": "Select your impostor partner and their role.",
   "CommandDescription.UIScale": "Set the scale of the buttons in the UI",
   "CommandDescription.Fabricate": "Set a fake death reason for your next kill as the Fabricator",
+  "CommandDescription.Start": "Starts the game",
   "CommandArgs.ChangeSetting.Name": "変更する設定の名前 (すべての設定を見るには 空白のままにする)",
   "CommandArgs.ChangeSetting.UnknownValue": "(ここに何を入れるかを見るには 空白のままにする)",
   "CommandArgs.Rename.Name": "あなたの新しい名前",
