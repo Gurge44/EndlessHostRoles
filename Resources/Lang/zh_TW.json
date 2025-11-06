@@ -2520,6 +2520,7 @@
   "CommandDescription.Select": "選擇你的偽裝者夥伴和他的職業。",
   "CommandDescription.UIScale": "設定 UI 中按鈕的比例",
   "CommandDescription.Fabricate": "為你的下一次擊殺設定一個假的死亡原因(作為製造商)",
+  "CommandDescription.Start": "Starts the game",
   "CommandArgs.ChangeSetting.Name": "要變更的設定名稱 (留空以查看所有設定)",
   "CommandArgs.ChangeSetting.UnknownValue": "(留空以查看此處放置的內容)",
   "CommandArgs.Rename.Name": "你的新名字",
