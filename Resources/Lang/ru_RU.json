@@ -2520,7 +2520,7 @@
   "CommandDescription.Select": "Выбрать партнёра и его роль",
   "CommandDescription.UIScale": "Установить размер кнопок интерфейса",
   "CommandDescription.Fabricate": "Подменить причину смерти для следующего убийства, как Фабрикатор",
-  "CommandDescription.Start": "Starts the game",
+  "CommandDescription.Start": "Начать игру",
   "CommandArgs.ChangeSetting.Name": "Название настройки (оставьте пустым для просмотра всех названий)",
   "CommandArgs.ChangeSetting.UnknownValue": "(оставьте пустым для просмотра, что сюда вставить)",
   "CommandArgs.Rename.Name": "Новый никнейм",
