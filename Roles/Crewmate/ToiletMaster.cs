@@ -94,7 +94,7 @@ public class ToiletMaster : RoleBase
         AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.6f, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.1f, tab)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.1f, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
 
         poops.Do(x =>

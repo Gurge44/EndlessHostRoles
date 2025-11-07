@@ -62,7 +62,7 @@ public class Mechanic : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mechanic])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mechanic])
             .SetValueFormat(OptionFormat.Times);
 

@@ -59,7 +59,7 @@ public class Catcher : RoleBase
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, tab)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, tab)
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Times);
     }

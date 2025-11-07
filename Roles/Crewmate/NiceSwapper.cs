@@ -41,7 +41,7 @@ public class NiceSwapper : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 7, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
 
