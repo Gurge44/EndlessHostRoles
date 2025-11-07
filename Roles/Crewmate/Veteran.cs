@@ -33,7 +33,7 @@ internal class Veteran : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
 
-        VeteranAbilityChargesWhenFinishedTasks = new FloatOptionItem(id + 6, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        VeteranAbilityChargesWhenFinishedTasks = new FloatOptionItem(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
     }
