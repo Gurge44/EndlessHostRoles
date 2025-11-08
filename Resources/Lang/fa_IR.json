@@ -1904,7 +1904,7 @@
   "KickCommandKickHost": "You are not permitted to kick the host.",
   "KickCommandKickMod": "You are not permitted to kick other moderators.",
   "KickCommandKicked": "was kicked from the game.",
-  "KickCommandKickedRole": "Their role was",
+  "KickCommandKickedRole": "Their role was {0}",
   "KickCommandKickedReason": "Reason:",
   "ModeratorTag": "<#8000ff>Moderator</color>",
   "VIPTag": "<#ffff00>VIP</color>",
