@@ -193,7 +193,7 @@ internal class Revolutionist : RoleBase
             }
         }
 
-        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
+        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive() && !player.Data.IsDead)
         {
             if (RevolutionistStart.ContainsKey(playerId))
             {
@@ -240,5 +240,13 @@ internal class Revolutionist : RoleBase
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
             foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
         }
+    }
+
+    public override void OnRevived(PlayerControl pc)
+    {
+        RevolutionistTimer.Remove(pc.PlayerId);
+        RevolutionistStart.Remove(pc.PlayerId);
+        RevolutionistLastTime.Remove(pc.PlayerId);
+        RevolutionistCountdown.Remove(pc.PlayerId);
     }
 }

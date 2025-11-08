@@ -501,7 +501,7 @@ internal static class CustomRolesHelper
             CustomRoles.Hater => RoleTypes.Impostor,
             CustomRoles.Medic => UsePets && Medic.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Demon => RoleTypes.Impostor,
-            CustomRoles.HexMaster => RoleTypes.Impostor,
+            CustomRoles.HexMaster => (Witch.SwitchTrigger)HexMaster.ModeSwitchAction.GetValue() == Witch.SwitchTrigger.Vanish ? RoleTypes.Phantom : RoleTypes.Impostor,
             CustomRoles.Wraith => RoleTypes.Impostor,
             CustomRoles.Glitch => RoleTypes.Shapeshifter,
             CustomRoles.Jailor => UsePets && Jailor.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

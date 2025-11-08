@@ -115,7 +115,7 @@ public class EvilTracker : RoleBase
 
     public static void OnAnyoneMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanSeeKillFlash && killer != null && killer.Is(CustomRoleTypes.Impostor) && killer != target)
+        if (CanSeeKillFlash && killer != null && killer.Is(CustomRoleTypes.Impostor) && killer != target && !PlayerIdList.Contains(killer.PlayerId))
             PlayerIdList.ToValidPlayers().ForEach(x => x.KillFlash());
     }
 

@@ -159,9 +159,9 @@ public class Lawyer : RoleBase
     {
         if (!seer.Is(CustomRoles.Lawyer))
         {
-            if (!TargetKnowsLawyer.GetBool()) return string.Empty;
+            if (!TargetKnowsLawyer.GetBool() && seer.IsAlive()) return string.Empty;
 
-            return Target.TryGetValue(target.PlayerId, out byte x) && seer.PlayerId == x ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
+            return Target.TryGetValue(target.PlayerId, out byte x) && (seer.PlayerId == x || !seer.IsAlive()) ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
         }
 
         bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId);

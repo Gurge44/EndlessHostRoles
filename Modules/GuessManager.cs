@@ -147,7 +147,6 @@ public static class GuessManager
 
                 if (target != null)
                 {
-                    
                     Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
                     Main.GuesserGuessedMeeting.TryAdd(pc.PlayerId, 0);
 
@@ -213,7 +212,7 @@ public static class GuessManager
                         return true;
                     }
 
-                    if (Main.GuesserGuessed[pc.PlayerId] >= Options.GuesserMaxKillsPerGame.GetInt() || Main.GuesserGuessedMeeting[pc.PlayerId] >= Options.GuesserMaxKillsPerMeeting.GetInt())
+                    if (pc.GetCustomRole() is not (CustomRoles.Augur or CustomRoles.EvilGuesser or CustomRoles.NiceGuesser or CustomRoles.Doomsayer) && (Main.GuesserGuessed[pc.PlayerId] >= Options.GuesserMaxKillsPerGame.GetInt() || Main.GuesserGuessedMeeting[pc.PlayerId] >= Options.GuesserMaxKillsPerMeeting.GetInt()))
                     {
                         ShowMessage("GGGuessMax");
                         return true;
@@ -575,9 +574,9 @@ public static class GuessManager
         try
         {
             GameEndChecker.ShouldNotCheck = true;
+            Main.PlayerStates[pc.PlayerId].SetDead();
             pc.Data.IsDead = true;
             pc.RpcExileV2();
-            Main.PlayerStates[pc.PlayerId].SetDead();
 
             var meetingHud = MeetingHud.Instance;
             ProcessGuess(pc, meetingHud);
@@ -1104,14 +1103,14 @@ public static class GuessManager
                     InitializeGuesserPlayers();
 
                 HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => !x.IsModdedClient() && CanGuess(x, restrictions)).Select(x => x.PlayerId).ToHashSet();
-                //bool meetingSS = Options.UseMeetingShapeshift.GetBool() && Options.UseMeetingShapeshiftForGuessing.GetBool();
-                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString( /*meetingSS ? "YouCanGuessMeetingSS" : */"YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
+                bool meetingSS = Options.UseMeetingShapeshift.GetBool() && Options.UseMeetingShapeshiftForGuessing.GetBool();
+                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
 
-                /*if (meetingSS)
+                if (meetingSS)
                 {
                     LateTask.New(() => guessers.ToValidPlayers().DoIf(x => !x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(RoleTypes.Shapeshifter, x.OwnerId)), 8f, "Meeting Shapeshift Setup For Guessing");
                     Data = guessers.ToDictionary(x => x, x => new MeetingShapeshiftData(x));
-                }*/
+                }
             }
 
             PlayerControl lp = PlayerControl.LocalPlayer;
@@ -1193,7 +1192,7 @@ public static class GuessManager
         private List<CustomRoles> CurrentRoles;
         private CustomRoles SelectedRole;
         private readonly List<ShapeshiftMenuElement> ExistingCNOs = [];
-        private readonly Dictionary<byte, string> PlayerIdToRawDisplay = [];
+        private readonly Dictionary<uint, string> NetIdToRawDisplay = [];
 
         public void Reset()
         {
@@ -1203,13 +1202,15 @@ public static class GuessManager
             CurrentTeamType = default(CustomRoleTypes);
             ExistingCNOs.Do(x => x.Despawn());
             ExistingCNOs.Clear();
-            PlayerIdToRawDisplay.Clear();
+            NetIdToRawDisplay.Clear();
             Utils.SendGameDataTo(GuesserId.GetPlayer().OwnerId);
             Logger.Msg($"Reset Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")})", "Meeting Shapeshift For Guessing");
         }
 
         public void AdvanceStep(PlayerControl target)
         {
+            Logger.Info($"Advancing Step ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")}, from {CurrentState})", "Meeting Shapeshift For Guessing");
+            
             switch (CurrentState)
             {
                 case State.WaitingForTargetSelection:
@@ -1289,8 +1290,8 @@ public static class GuessManager
 
             bool TryGetDisplay(out string display)
             {
-                if (!PlayerIdToRawDisplay.TryGetValue(target.PlayerId, out display)) //TODO: ANY WAY TO FIND CNOS FROM PLAYERCONTROL?
-                    display = ExistingCNOs.FindFirst(x => x.playerControl.NetId == target.NetId, out ShapeshiftMenuElement cno) ? cno.playerControl.tag : string.Empty;
+                if (!NetIdToRawDisplay.TryGetValue(target.NetId, out display))
+                    display = string.Empty;
 
                 if (string.IsNullOrEmpty(display))
                 {
@@ -1298,6 +1299,7 @@ public static class GuessManager
                     return false;
                 }
 
+                Logger.Info($"Raw display choice: {display}", $"Meeting Shapeshift For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")})");
                 return true;
             }
         }
@@ -1339,6 +1341,7 @@ public static class GuessManager
             // The local player can't be used to show a choice (-1)
 
             StringBuilder sb = new();
+            int textIndex = 0;
 
             var skipped = false;
             PlayerControl guesser = GuesserId.GetPlayer();
@@ -1359,15 +1362,14 @@ public static class GuessManager
                     continue;
                 }
 
-                PlayerIdToRawDisplay[pc.PlayerId] = choice;
-
-                string originalNamePlateId = pc.Data.DefaultOutfit.NamePlateId;
-                string originalPlayerName = pc.Data.DefaultOutfit.PlayerName;
-                pc.Data.DefaultOutfit.NamePlateId = namePlateId;
-                pc.SetNamePlate(namePlateId);
-                pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
-                pc.Data.DefaultOutfit.PlayerName = GetString(choice).ToUpper();
-                sb.Append(pc.Data.DefaultOutfit.PlayerName.PadRightV2(10));
+                NetIdToRawDisplay[pc.NetId] = choice;
+                string playerName = CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper();
+                
+                sb.Append($"[{playerName}]");
+                textIndex++;
+                
+                if (textIndex % 3 == 0) sb.AppendLine();
+                else sb.Append(' ');
 
                 if (writer.Length > 500)
                 {
@@ -1378,10 +1380,13 @@ public static class GuessManager
                     writer.Write(AmongUsClient.Instance.GameId);
                     writer.WritePacked(guesser.OwnerId);
                 }
-
-                writer.StartMessage(1);
-                writer.WritePacked(pc.Data.NetId);
-                pc.Data.Serialize(writer, false);
+                
+                writer.StartMessage(2);
+                writer.WritePacked(pc.NetId);
+                writer.Write((byte)RpcCalls.SetName);
+                writer.Write(pc.Data.NetId);
+                writer.Write(playerName);
+                writer.Write(false);
                 writer.EndMessage();
 
                 writer.StartMessage(2);
@@ -1390,21 +1395,15 @@ public static class GuessManager
                 writer.Write(namePlateId);
                 writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr));
                 writer.EndMessage();
-
-                pc.Data.DefaultOutfit.NamePlateId = originalNamePlateId;
-                pc.Data.DefaultOutfit.PlayerName = originalPlayerName;
             }
 
             writer.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
 
-            ExistingCNOs.ForEach(x => x.Despawn());
-            ExistingCNOs.Clear();
-
             // If there aren't enough living players, spawn new CNOs to show the rest of choices
             
-            // Since CNOs use the local player's NetworkedPlayerInfo, add AU reads the player's name directly from it,
+            // Since CNOs use the local player's NetworkedPlayerInfo, and AU reads the player's name directly from it,
             // it's impossible to show vanilla players all choices accurately with CNOs.
             // No workaround found yet....
             // So we send the remaining choices in chat so the player can identify them
@@ -1415,11 +1414,42 @@ public static class GuessManager
                 {
                     string choice = data[i].choice;
                     string namePlateId = data[i].namePlateId;
+                    
+                    sb.Append($"[{(CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper())}]");
+                    textIndex++;
+                    
+                    if (textIndex % 3 == 0) sb.AppendLine();
+                    else sb.Append(' ');
+                    
+                    // If there's an existing CNO, reuse it
+                    ShapeshiftMenuElement cno;
 
-                    var cno = new ShapeshiftMenuElement(GuesserId);
-                    ExistingCNOs.Add(cno);
+                    if (ExistingCNOs.Count + alivePlayerControlsLength > i)
+                        cno = ExistingCNOs[i - alivePlayerControlsLength];
+                    else
+                    {
+                        cno = new ShapeshiftMenuElement(GuesserId);
+                        ExistingCNOs.Add(cno);
+                    }
+                    
+                    NetIdToRawDisplay[cno.playerControl.NetId] = choice;
                 }
+                
+                // Despawn unused CNOs
+                for (int i = data.Length - alivePlayerControlsLength; i < ExistingCNOs.Count; i++)
+                    ExistingCNOs[i].Despawn();
+                
+                ExistingCNOs.RemoveRange(data.Length - alivePlayerControlsLength, ExistingCNOs.Count - (data.Length - alivePlayerControlsLength));
+                
+                Logger.Info($"Sent {data.Length - alivePlayerControlsLength} CNOs, Reused {ExistingCNOs.Count} Existing CNOs", "Meeting Shapeshift For Guessing");
             }
+            else
+            {
+                ExistingCNOs.ForEach(x => x.Despawn());
+                ExistingCNOs.Clear();
+            }
+            
+            Utils.SendMessage(sb.ToString().Trim(), GuesserId, GetString($"ShapeshiftGuesserUITitle.{CurrentState}"));
 
             Logger.Info($"Spawned {ExistingCNOs.Count} CNOs, Used {alivePlayerControlsLength} Living Players, Showing {data.Length} Choices", "Meeting Shapeshift For Guessing");
         }

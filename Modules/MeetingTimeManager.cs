@@ -38,56 +38,60 @@ public static class MeetingTimeManager
 
     public static void OnReportDeadBody()
     {
-        if (Options.AllAliveMeeting.GetBool() && Utils.IsAllAlive)
+        try
         {
-            DiscussionTime = 0;
-            VotingTime = Options.AllAliveMeetingTime.GetInt();
-            Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
-            return;
-        }
-
-        ResetMeetingTime();
-        var BonusMeetingTime = 0;
-        var MeetingTimeMinTimeThief = 0;
-        var MeetingTimeMinTimeManager = 0;
-        var MeetingTimeMax = 300;
-
-        if (TimeThief.PlayerIdList.Count > 0)
-        {
-            MeetingTimeMinTimeThief = TimeThief.LowerLimitVotingTime.GetInt();
-            BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
-        }
-
-        if (Timelord.On)
-            BonusMeetingTime += -Timelord.GetTotalStolenTime();
-
-        if (TimeManager.PlayerIdList.Count > 0)
-        {
-            MeetingTimeMinTimeManager = TimeManager.MadMinMeetingTimeLimit.GetInt();
-            MeetingTimeMax = TimeManager.MeetingTimeLimit.GetInt();
-            BonusMeetingTime += TimeManager.TotalIncreasedMeetingTime();
-        }
-
-        int TotalMeetingTime = DiscussionTime + VotingTime;
-
-        if (TimeManager.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
-        if (TimeThief.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-        if (TimeManager.PlayerIdList.Count == 0 && TimeThief.PlayerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-
-        if (BonusMeetingTime >= 0)
-            VotingTime += BonusMeetingTime;
-        else
-        {
-            DiscussionTime += BonusMeetingTime;
-
-            if (DiscussionTime < 0)
+            if (Options.AllAliveMeeting.GetBool() && Utils.IsAllAlive)
             {
-                VotingTime += DiscussionTime;
                 DiscussionTime = 0;
+                VotingTime = Options.AllAliveMeetingTime.GetInt();
+                Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
+                return;
             }
-        }
 
-        Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
+            ResetMeetingTime();
+            var BonusMeetingTime = 0;
+            var MeetingTimeMinTimeThief = 0;
+            var MeetingTimeMinTimeManager = 0;
+            var MeetingTimeMax = 300;
+
+            if (TimeThief.PlayerIdList.Count > 0)
+            {
+                MeetingTimeMinTimeThief = TimeThief.LowerLimitVotingTime.GetInt();
+                BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
+            }
+
+            if (Timelord.On)
+                BonusMeetingTime += -Timelord.GetTotalStolenTime();
+
+            if (TimeManager.PlayerIdList.Count > 0)
+            {
+                MeetingTimeMinTimeManager = TimeManager.MadMinMeetingTimeLimit.GetInt();
+                MeetingTimeMax = TimeManager.MeetingTimeLimit.GetInt();
+                BonusMeetingTime += TimeManager.TotalIncreasedMeetingTime();
+            }
+
+            int TotalMeetingTime = DiscussionTime + VotingTime;
+
+            if (TimeManager.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
+            if (TimeThief.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
+            if (TimeManager.PlayerIdList.Count == 0 && TimeThief.PlayerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
+
+            if (BonusMeetingTime >= 0)
+                VotingTime += BonusMeetingTime;
+            else
+            {
+                DiscussionTime += BonusMeetingTime;
+
+                if (DiscussionTime < 0)
+                {
+                    VotingTime += DiscussionTime;
+                    DiscussionTime = 0;
+                }
+            }
+
+            Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }
 

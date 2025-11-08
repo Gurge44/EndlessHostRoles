@@ -156,7 +156,7 @@ public static class PhantomRolePatch
         
         RoleBase roleBase = Main.PlayerStates[phantom.PlayerId].Role;
 
-        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || !roleBase.OnVanish(phantom))
+        if ((phantom.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) || !Rhapsode.CheckAbilityUse(phantom) || Stasis.IsTimeFrozen || TimeMaster.Rewinding || IntroCutsceneDestroyPatch.PreventKill || !roleBase.OnVanish(phantom))
         {
             if (phantom.AmOwner)
             {

@@ -6,6 +6,7 @@ using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.AddOns.Common;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
@@ -334,6 +335,8 @@ internal static class SetUpRoleTextPatch
                 lp.SetName(Main.AllPlayerNames[lp.PlayerId]);
             }, 1f, "Reset Name For Modded Client");
         }
+        
+        ShowHostMeetingPatch.ShowRole_Postfix();
     }
 
     private static IEnumerator LogGameInfo()
@@ -1095,7 +1098,7 @@ internal static class IntroCutsceneDestroyPatch
 
         Main.IntroDestroyed = true;
         PreventKill = true;
-        LateTask.New(() => PreventKill = false, 5f, "PreventKillReset");
+        LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
 
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"

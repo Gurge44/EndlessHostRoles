@@ -1191,7 +1191,6 @@ internal static class RPCHandlerPatch
                 {
                     Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
                     if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
-
                     break;
                 }
                 case CustomRPC.SetCleanserCleanLimit:
