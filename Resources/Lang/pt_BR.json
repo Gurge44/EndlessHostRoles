@@ -1904,7 +1904,7 @@
   "KickCommandKickHost": "Você não pode expulsar o anfitrião.",
   "KickCommandKickMod": "Você não tem permissão para expulsar outros moderadores.",
   "KickCommandKicked": "foi expulso do jogo por",
-  "KickCommandKickedRole": "Sua função era",
+  "KickCommandKickedRole": "Their role was {0}",
   "KickCommandKickedReason": "Reason:",
   "ModeratorTag": "<color=#8000ff>Moderador</color>",
   "VIPTag": "<#ffff00>VIP</color>",
