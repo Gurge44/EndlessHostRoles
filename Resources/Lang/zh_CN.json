@@ -1904,7 +1904,7 @@
   "KickCommandKickHost": "你不能踢房主！",
   "KickCommandKickMod": "你不能踢协管！",
   "KickCommandKicked": "你被踢出游戏.",
-  "KickCommandKickedRole": "他们的身份是:",
+  "KickCommandKickedRole": "Their role was {0}",
   "KickCommandKickedReason": "原因：",
   "ModeratorTag": "<#8000ff>协管</color>",
   "VIPTag": "<#ffff00>VIP</color>",
