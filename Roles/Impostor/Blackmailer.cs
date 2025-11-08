@@ -75,14 +75,23 @@ internal class Blackmailer : RoleBase
             {
                 try
                 {
-                    if (state.MainRole != CustomRoles.Blackmailer || state.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0 || !states.FindFirst(x => x.VoterId == id, out MeetingHud.VoterState vs)) continue;
+                    if (state.MainRole != CustomRoles.Blackmailer || state.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0) continue;
+
+                    int idx = Array.FindIndex(states, s => s.VoterId == id);
+                    if (idx == -1) continue;
+                    ref var vs = ref states[idx];
 
                     foreach (byte targetId in bm.BlackmailedPlayerIds)
                     {
                         try
                         {
                             if (!Main.PlayerStates.TryGetValue(targetId, out PlayerState ps) || ps.IsDead) continue;
-                            if (!states.FindFirst(x => x.VoterId == targetId, out MeetingHud.VoterState targetVs) || vs.VotedForId == targetVs.VotedForId) continue;
+
+                            int targetIdx = Array.FindIndex(states, s => s.VoterId == targetId);
+                            if (targetIdx == -1) continue;
+                            ref var targetVs = ref states[targetIdx];
+
+                            if (vs.VotedForId == targetVs.VotedForId) continue;
 
                             byte vote;
 
@@ -93,7 +102,12 @@ internal class Blackmailer : RoleBase
                             else
                                 vote = vs.VotedForId;
 
-                            votingData[targetVs.VotedForId]--;
+                            if (votingData.TryGetValue(targetVs.VotedForId, out int oldCount))
+                            {
+                                if (oldCount <= 1) votingData.Remove(targetVs.VotedForId);
+                                else votingData[targetVs.VotedForId] = oldCount - 1;
+                            }
+
                             targetVs.VotedForId = vote;
 
                             if (vote <= 253 && !votingData.TryAdd(vote, 1))

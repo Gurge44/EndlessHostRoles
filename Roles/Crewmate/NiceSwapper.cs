@@ -202,11 +202,19 @@ public class NiceSwapper : RoleBase
             votingData[SwapTargets.Item2] = count1;
 
             // Swap the votes visually
-            List<MeetingHud.VoterState> votedFor1 = states.Where(x => x.VotedForId == SwapTargets.Item1).ToList();
-            List<MeetingHud.VoterState> votedFor2 = states.Where(x => x.VotedForId == SwapTargets.Item2).ToList();
-            votedFor1.ForEach(x => x.VotedForId = SwapTargets.Item2);
-            votedFor2.ForEach(x => x.VotedForId = SwapTargets.Item1);
-            
+            List<byte> votedFor1 = states.Where(x => x.VotedForId == SwapTargets.Item1).Select(x => x.VoterId).ToList();
+            List<byte> votedFor2 = states.Where(x => x.VotedForId == SwapTargets.Item2).Select(x => x.VoterId).ToList();
+
+            for (var index = 0; index < states.Length; index++)
+            {
+                ref MeetingHud.VoterState state = ref states[index];
+                
+                if (votedFor1.Contains(state.VoterId))
+                    state.VotedForId = SwapTargets.Item2;
+                else if (votedFor2.Contains(state.VoterId))
+                    state.VotedForId = SwapTargets.Item1;
+            }
+
             Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
         }
         catch (Exception e) { Utils.ThrowException(e); }
