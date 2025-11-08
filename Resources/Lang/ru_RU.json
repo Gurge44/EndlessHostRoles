@@ -1904,7 +1904,7 @@
   "KickCommandKickHost": "Кикнуть хоста и захватить власть. Гениальный план. Но неосуществимый ;)",
   "KickCommandKickMod": "Вы не можете кикать других модераторов.",
   "KickCommandKicked": "был кикнут из игры.",
-  "KickCommandKickedRole": "Его (её) роль был(-а)",
+  "KickCommandKickedRole": "Their role was {0}",
   "KickCommandKickedReason": "Причина:",
   "ModeratorTag": "<#8000ff>Модератор</color>",
   "VIPTag": "<#ffff00>VIP</color>",
