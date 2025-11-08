@@ -86,7 +86,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         if (!GameStates.IsInTask) return;
 
         foreach (PlayerControl pc in NearbyKillers)
-            pc.Suicide(realKiller: Sentinel);
+            pc.Suicide(PlayerState.DeathReason.Patrolled, Sentinel);
 
         Sentinel.MarkDirtySettings();
     }

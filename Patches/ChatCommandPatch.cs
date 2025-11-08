@@ -201,7 +201,7 @@ internal static class ChatCommands
             new(["w", "whisper", "шёпот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
             new(["hw", "hwhisper", "хш", "хшёпот"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, false, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
             new(["spectate", "наблюдатель", "спектатор", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
-            new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, AnagramCommand, true, false),
+            new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, AnagramCommand, true, false),
             new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
             new(["jt", "jailtalk", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
             new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
@@ -226,6 +226,7 @@ internal static class ChatCommands
             new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
             new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new(["fabricate", "фабриковать", "伪造", "fabricar"], "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
+            new(["start"], "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
             
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
@@ -488,7 +489,18 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+    
+    private static void StartCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(nameof(StartCommand), text, modCommand: true);
+            return;
+        }
 
+        VotedToStart.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
+    }
+    
     private static void FabricateCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
@@ -1276,6 +1288,9 @@ internal static class ChatCommands
         Utils.SendMessage(string.Format(GetString("DeathNoteCommand.SuccessForOthers"), coloredName));
 
         NoteKiller.Kills++;
+        
+        if (player.AmOwner && NoteKiller.Kills >= 3)
+            Achievements.Type.IKnowYourNames.CompleteAfterGameEnd();
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -2392,7 +2407,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (player.IsLocalPlayer())
+        if (player.AmOwner)
         {
             if (args.Length > 1)
                 TemplateManager.SendTemplate(args[1]);
@@ -2921,7 +2936,7 @@ internal static class ChatCommands
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {
-            if (player.IsLocalPlayer())
+            if (player.AmOwner)
                 Main.NickName = name;
             else
             {

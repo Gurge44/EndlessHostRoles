@@ -163,7 +163,7 @@ internal class Adventurer : RoleBase
                     Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, (int)resource, count);
                 }
 
-                if (pc.IsLocalPlayer())
+                if (pc.AmOwner)
                     Achievements.Type.HowDoICraftThisAgain.Complete();
 
                 break;

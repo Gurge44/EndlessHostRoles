@@ -143,7 +143,7 @@ internal static class CustomRolesHelper
             CustomRoles.Morphling => CustomRoles.Shapeshifter,
             CustomRoles.Warlock => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Mercenary => CustomRoles.Impostor,
-            CustomRoles.FireWorks => CustomRoles.Shapeshifter,
+            CustomRoles.Fireworker => CustomRoles.Shapeshifter,
             CustomRoles.SpeedBooster => CustomRoles.Crewmate,
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.DoubleAgent => CustomRoles.Crewmate,
@@ -155,6 +155,8 @@ internal static class CustomRolesHelper
             CustomRoles.Psychopath => CustomRoles.Impostor,
             CustomRoles.Loner => CustomRoles.Impostor,
             CustomRoles.Postponer => CustomRoles.Impostor,
+            CustomRoles.Catalyst => CustomRoles.Impostor,
+            CustomRoles.Exclusionary => CustomRoles.Impostor,
             CustomRoles.Centralizer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
@@ -241,6 +243,7 @@ internal static class CustomRolesHelper
             CustomRoles.Farmer => CustomRoles.Crewmate,
             CustomRoles.Captain => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Sensor => CustomRoles.Crewmate,
             CustomRoles.Doorjammer => CustomRoles.Crewmate,
             CustomRoles.Tree => CustomRoles.Crewmate,
             CustomRoles.Inquisitor => CustomRoles.Crewmate,
@@ -402,7 +405,7 @@ internal static class CustomRolesHelper
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
 
-            // Move And Stop
+            // Stop And Go
             CustomRoles.Tasker => CustomRoles.Crewmate,
             // Hot Potato
             CustomRoles.Potato => CustomRoles.Crewmate,
@@ -456,7 +459,7 @@ internal static class CustomRolesHelper
         
         return role switch
         {
-            // SoloKombat
+            // Solo PVP
             CustomRoles.KB_Normal => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
@@ -539,6 +542,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Curser => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
+            CustomRoles.Thief => RoleTypes.Impostor,
             CustomRoles.Dealer => RoleTypes.Impostor,
             CustomRoles.Auditor => RoleTypes.Impostor,
             CustomRoles.Seamstress => RoleTypes.Shapeshifter,
@@ -731,6 +735,8 @@ internal static class CustomRolesHelper
             CustomRoles.Psychopath or
             CustomRoles.Ambusher or
             CustomRoles.Kidnapper or
+            CustomRoles.Exclusionary or
+            CustomRoles.Catalyst or
             CustomRoles.Fabricator or
             CustomRoles.Centralizer or
             CustomRoles.Postponer or
@@ -774,7 +780,7 @@ internal static class CustomRolesHelper
             CustomRoles.Trickster or
             CustomRoles.Nemesis or
             CustomRoles.KillingMachine or
-            CustomRoles.FireWorks or
+            CustomRoles.Fireworker or
             CustomRoles.Sniper or
             CustomRoles.EvilTracker or
             CustomRoles.EvilGuesser or
@@ -1059,7 +1065,7 @@ internal static class CustomRolesHelper
             CustomRoles.Centralizer or
             CustomRoles.Disperser or
             CustomRoles.Escapee or
-            CustomRoles.FireWorks or
+            CustomRoles.Fireworker or
             CustomRoles.Hypnotist or
             CustomRoles.Librarian or
             CustomRoles.Miner or
@@ -1099,8 +1105,8 @@ internal static class CustomRolesHelper
     {
         return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
+            CustomRoles.Blind when pc.Is(CustomRoles.Sensor) => false,
             CustomRoles.Composter when float.IsNaN(pc.GetAbilityUseLimit()) => false,
-            CustomRoles.Fragile when pc.Is(CustomRoles.SchrodingersCat) => false,
             CustomRoles.TaskMaster when !pc.IsCrewmate() || !Utils.HasTasks(pc.Data, forRecompute: false) => false,
             CustomRoles.Commited when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Underdog when pc.Is(CustomRoles.Mare) => false,
@@ -1156,7 +1162,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mare when pc.Is(CustomRoles.Swift) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Nemesis) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Sniper) => false,
-            CustomRoles.Mare when pc.Is(CustomRoles.FireWorks) => false,
+            CustomRoles.Mare when pc.Is(CustomRoles.Fireworker) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Swooper) => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Vampire) => false,
             CustomRoles.Torch when pc.GetCustomRole() is CustomRoles.Lighter or CustomRoles.Ignitor or CustomRoles.Investigator or CustomRoles.Eclipse or CustomRoles.Decryptor => false,
@@ -1283,7 +1289,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Lightning or
                 CustomRoles.Blackmailer or
                 CustomRoles.Echo or
-                CustomRoles.FireWorks or
+                CustomRoles.Fireworker or
                 CustomRoles.Hangman or
                 CustomRoles.Mastermind or
                 CustomRoles.Ninja or
@@ -1594,6 +1600,7 @@ internal static class CustomRolesHelper
             CustomRoles.Doomsayer => RoleOptionType.Neutral_Evil,
             CustomRoles.Mario => RoleOptionType.Neutral_Evil,
             CustomRoles.Terrorist => RoleOptionType.Neutral_Evil,
+            CustomRoles.Thief => RoleOptionType.Neutral_Evil,
             CustomRoles.Collector => RoleOptionType.Neutral_Evil,
             CustomRoles.Vulture => RoleOptionType.Neutral_Evil,
             CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
@@ -1625,7 +1632,7 @@ internal static class CustomRolesHelper
             CustomRoles.Chronomancer => RoleOptionType.Impostor_Killing,
             CustomRoles.Councillor => RoleOptionType.Impostor_Killing,
             CustomRoles.EvilGuesser => RoleOptionType.Impostor_Killing,
-            CustomRoles.FireWorks => RoleOptionType.Impostor_Killing,
+            CustomRoles.Fireworker => RoleOptionType.Impostor_Killing,
             CustomRoles.Greedier => RoleOptionType.Impostor_Killing,
             CustomRoles.Hitman => RoleOptionType.Impostor_Killing,
             CustomRoles.Inhibitor => RoleOptionType.Impostor_Killing,
@@ -1652,6 +1659,7 @@ internal static class CustomRolesHelper
             CustomRoles.Blackmailer => RoleOptionType.Impostor_Support,
             CustomRoles.Camouflager => RoleOptionType.Impostor_Support,
             CustomRoles.Capitalism => RoleOptionType.Impostor_Support,
+            CustomRoles.Catalyst => RoleOptionType.Impostor_Support,
             CustomRoles.Centralizer => RoleOptionType.Impostor_Support,
             CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
             CustomRoles.ClockBlocker => RoleOptionType.Impostor_Support,
@@ -1682,6 +1690,7 @@ internal static class CustomRolesHelper
             CustomRoles.Duellist => RoleOptionType.Impostor_Concealing,
             CustomRoles.Echo => RoleOptionType.Impostor_Concealing,
             CustomRoles.Escapee => RoleOptionType.Impostor_Concealing,
+            CustomRoles.Exclusionary => RoleOptionType.Impostor_Concealing,
             CustomRoles.Fabricator => RoleOptionType.Impostor_Concealing,
             CustomRoles.Forger => RoleOptionType.Impostor_Concealing,
             CustomRoles.Hangman => RoleOptionType.Impostor_Concealing,
@@ -1797,6 +1806,7 @@ internal static class CustomRolesHelper
             CustomRoles.Psychic => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Rabbit => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Scout => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Sensor => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Sentry => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Shiftguard => RoleOptionType.Crewmate_Investigate,
             CustomRoles.Snitch => RoleOptionType.Crewmate_Investigate,
@@ -2001,3 +2011,4 @@ public enum CountTypes
 
     Coven
 }
+

@@ -131,7 +131,7 @@ public class Main : BasePlugin
 
     public static readonly Dictionary<CustomGameMode, HashSet<string>> HasPlayedGM = new()
     {
-        [CustomGameMode.SoloKombat] = [],
+        [CustomGameMode.SoloPVP] = [],
         [CustomGameMode.FFA] = [],
         [CustomGameMode.HotPotato] = [],
         [CustomGameMode.HideAndSeek] = [],
@@ -425,6 +425,7 @@ public class Main : BasePlugin
                 { CustomRoles.Farmer, "#FFDE59" },
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },
                 { CustomRoles.Captain, "#53B3EF" },
                 { CustomRoles.Tree, "#00ff00" },
@@ -583,6 +584,7 @@ public class Main : BasePlugin
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Curser, "#510c91" },
                 { CustomRoles.Postman, "#00b893" },
+                { CustomRoles.Thief, "#44AF84" },
                 { CustomRoles.Auditor, "#6BB626" },
                 { CustomRoles.Magistrate, "#E44CB8" },
                 { CustomRoles.Seamstress, "#BFE44C" },
@@ -658,6 +660,8 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Hidden, "#E2EAF4" },
+                { CustomRoles.Looter, "#F5D866" },
                 { CustomRoles.Tired, "#ff1919" },
                 { CustomRoles.Concealer, "#ff1919" },
                 { CustomRoles.Composter, "#8D6F64" },
@@ -744,11 +748,11 @@ public class Main : BasePlugin
                 { CustomRoles.Mare, "#ff1919" },
                 { CustomRoles.Underdog, "#ff1919" },
 
-                // SoloKombat
+                // Solo PVP
                 { CustomRoles.KB_Normal, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
-                // Move And Stop
+                // Stop And Go
                 { CustomRoles.Tasker, "#00ffa5" },
                 // Hot Potato
                 { CustomRoles.Potato, "#e8cd46" },
@@ -840,9 +844,9 @@ public class Main : BasePlugin
         GameModeColors = new()
         {
             [CustomGameMode.Standard] = Color.white,
-            [CustomGameMode.SoloKombat] = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : Color.white,
+            [CustomGameMode.SoloPVP] = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : Color.white,
             [CustomGameMode.FFA] = Color.cyan,
-            [CustomGameMode.MoveAndStop] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
+            [CustomGameMode.StopAndGo] = ColorUtility.TryParseHtmlString("#00ffa5", out c) ? c : Color.white,
             [CustomGameMode.HotPotato] = ColorUtility.TryParseHtmlString("#e8cd46", out c) ? c : Color.white,
             [CustomGameMode.HideAndSeek] = ColorUtility.TryParseHtmlString("#345eeb", out c) ? c : Color.white,
             [CustomGameMode.Speedrun] = Utils.GetRoleColor(CustomRoles.Speedrunner),
@@ -1195,3 +1199,4 @@ public enum TieMode
 
 
 public class Coroutines : MonoBehaviour { }
+

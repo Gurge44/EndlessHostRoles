@@ -116,7 +116,7 @@ public class Altruist : RoleBase
         ReviveStartTS = 0;
         ReviveTargetPos = Vector2.zero;
 
-        if (pc.IsLocalPlayer() && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
+        if (pc.AmOwner && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
             Achievements.Type.IWishIReported.Complete();
     }
 

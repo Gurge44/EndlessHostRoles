@@ -41,7 +41,7 @@ internal class Grenadier : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
             .SetValueFormat(OptionFormat.Times);
 
-        GrenadierAbilityChargesWhenFinishedTasks = new FloatOptionItem(6816, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        GrenadierAbilityChargesWhenFinishedTasks = new FloatOptionItem(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
             .SetValueFormat(OptionFormat.Times);
     }

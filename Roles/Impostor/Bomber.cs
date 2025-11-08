@@ -161,6 +161,9 @@ internal class Bomber : RoleBase
 
             tg.Suicide(PlayerState.DeathReason.Bombed, pc);
             murderCount++;
+            
+            if (pc.AmOwner && tg.IsImpostor())
+                Achievements.Type.FriendlyFire.Complete();
         }
 
         LateTask.New(() =>
@@ -170,7 +173,7 @@ internal class Bomber : RoleBase
             if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                 pc.Suicide(PlayerState.DeathReason.Bombed);
 
-            if (pc.IsLocalPlayer() && totalAlive <= murderCount)
+            if (pc.AmOwner && totalAlive <= murderCount)
                 Achievements.Type.ItsJustAPrankBro.Complete();
         }, 0.2f, "Bomber Suiscide");
 

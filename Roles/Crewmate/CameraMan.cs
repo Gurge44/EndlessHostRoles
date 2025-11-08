@@ -42,7 +42,7 @@ public class CameraMan : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -56,7 +56,7 @@ public class CameraMan : RoleBase
             MapNames.Skeld => new(-13.5f, -5.5f),
             MapNames.MiraHQ => new(15.3f, 3.8f),
             MapNames.Polus => new(3.0f, -12.0f),
-            MapNames.Dleks => new(-13.5f, -5.5f),
+            MapNames.Dleks => new(13.5f, -5.5f),
             MapNames.Airship => new(5.8f, -10.8f),
             MapNames.Fungle => new(9.5f, 1.2f),
             (MapNames)6 => new(-4.23f, -33.38f),

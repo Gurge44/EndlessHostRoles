@@ -48,7 +48,7 @@ public class Rhapsode : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rhapsode])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rhapsode])
             .SetValueFormat(OptionFormat.Times);
     }

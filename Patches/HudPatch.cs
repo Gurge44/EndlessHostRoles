@@ -13,7 +13,6 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR.Patches;
 
 //[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -281,9 +280,9 @@ internal static class HudManagerPatch
 
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
-                        CustomGameMode.SoloKombat => SoloPVP.GetHudText(),
+                        CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
                         CustomGameMode.FFA when player.IsHost() => FreeForAll.GetHudText(),
-                        CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStop.HUDText,
+                        CustomGameMode.StopAndGo when player.IsHost() => StopAndGo.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
@@ -356,7 +355,7 @@ internal static class HudManagerPatch
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
 
-                    __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
+                    __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
 
                     float abilityUseLimit = player.GetAbilityUseLimit();
 
@@ -597,8 +596,8 @@ internal static class SetHudActivePatch
                 return;
             case CustomGameMode.Quiz:
                 __instance.KillButton.ToggleVisible(Quiz.AllowKills);
-                goto case CustomGameMode.MoveAndStop;
-            case CustomGameMode.MoveAndStop:
+                goto case CustomGameMode.StopAndGo;
+            case CustomGameMode.StopAndGo:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
             case CustomGameMode.TheMindGame:
@@ -629,7 +628,7 @@ internal static class SetHudActivePatch
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 return;
-            case CustomGameMode.SoloKombat:
+            case CustomGameMode.SoloPVP:
                 __instance.ImpostorVentButton?.ToggleVisible(SoloPVP.CanVent);
                 __instance.KillButton?.ToggleVisible(true);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -680,7 +679,7 @@ internal static class SetHudActivePatch
 
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
-        __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter);
+        __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
 
         if (Options.UseMeetingShapeshift.GetBool() && PlayerControl.LocalPlayer.UsesMeetingShapeshift() && GameStates.IsMeeting)
         {
@@ -710,7 +709,7 @@ internal static class HudManagerStartPatch
         }
     }
 
-    public static IEnumerator CoResizeUI()
+    private static IEnumerator CoResizeUI()
     {
         while (!HudManager.Instance)
             yield return null;
@@ -719,7 +718,7 @@ internal static class HudManagerStartPatch
         ResizeUI(Main.UIScaleFactor.Value);
     }
 
-    public static void ResizeUI(float scaleFactor)
+    private static void ResizeUI(float scaleFactor)
     {
         foreach (AspectPosition aspect in HudManager.Instance.transform.FindChild("Buttons").GetComponentsInChildren<AspectPosition>(true))
         {
@@ -973,8 +972,9 @@ internal static class TaskPanelBehaviourPatch
         string panelName = GetString(Options.CurrentGameMode != CustomGameMode.Standard ? "GameInfo" : "RoleInfo");
         if (tabText.text != panelName) tabText.text = panelName;
 
+        bool taskingGm = Utils.IsTaskingGameMode();
+        
         float y = ogPanel.taskText.textBounds.size.y + 1;
-        bool taskingGm = Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun;
         float defaultPos = taskingGm ? 2f : 0.6f;
         Vector3 targetClosed = new Vector3(ogPanel.closedPosition.x, taskingGm && ogPanel.open ? y + 0.2f : defaultPos, ogPanel.closedPosition.z);
         Vector3 targetOpen   = new Vector3(ogPanel.openPosition.x,   taskingGm && ogPanel.open ? y        : defaultPos, ogPanel.openPosition.z);
@@ -1024,7 +1024,7 @@ internal static class TaskPanelBehaviourPatch
                 finalText += $"\r\n\r\n</color><size=90%>{GetString("PressF1ShowMainRoleDes")}";
                 break;
             }
-            case CustomGameMode.SoloKombat:
+            case CustomGameMode.SoloPVP:
             {
                 PlayerControl lpc = PlayerControl.LocalPlayer;
 
@@ -1046,7 +1046,7 @@ internal static class TaskPanelBehaviourPatch
                 break;
             }
 
-            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.StopAndGo:
             {
                 Dictionary<byte, string> SummaryText3 = [];
 
@@ -1060,7 +1060,7 @@ internal static class TaskPanelBehaviourPatch
                 }
 
                 List<(int, byte)> list3 = [];
-                foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStop.GetRankFromScore(id), id));
+                foreach (byte id in Main.PlayerStates.Keys) list3.Add((StopAndGo.GetRankFromScore(id), id));
 
                 list3.Sort();
                 list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
@@ -1167,10 +1167,10 @@ internal static class TaskPanelBehaviourPatch
     {
         if (__instance.gameObject.name != "RolePanel")
         {
-            if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun)
+            if (Utils.IsTaskingGameMode())
             {
                 var tabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
-                bool fakeTasks = Options.CurrentGameMode == CustomGameMode.Standard && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
+                bool fakeTasks = Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
                 string sideText = TranslationController.Instance.GetString(fakeTasks ? StringNames.FakeTasks : StringNames.Tasks);
                 if (fakeTasks) sideText = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ImpostorEHR), sideText.TrimEnd(':'));
                 tabText.SetText($"{sideText}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
@@ -1239,7 +1239,7 @@ internal static class TaskPanelBehaviourPatch
         NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
         if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {TranslationController.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);
 
-        if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun))
+        if (!Utils.IsTaskingGameMode())
             taskList = GetString("None");
 
         __instance.taskText.text = taskList;

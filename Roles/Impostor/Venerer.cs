@@ -99,7 +99,8 @@ public class Venerer : RoleBase
                     if (!ChangedSkin || pc == null || !pc.IsAlive()) return;
                     Utils.RpcChangeSkin(pc, outfit);
                     ChangedSkin = false;
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    Utils.NotifyRoles(SpecifyTarget: pc);
+                    pc.RpcResetAbilityCooldown();
                 }, AbilityDuration.GetInt(), log: false);
                 break;
             case 2:
@@ -170,6 +171,7 @@ public class Venerer : RoleBase
             PlayerControl pc = VenererId.GetPlayer();
             if (pc == null || !pc.IsAlive()) return;
             Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[VenererId]);
+            pc.RpcSetName(Main.AllPlayerNames.GetValueOrDefault(VenererId, pc.GetRealName(true)));
         }
     }
 

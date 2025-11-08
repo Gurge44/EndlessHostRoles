@@ -111,7 +111,7 @@ public class Agitater : RoleBase
             target.Kill(killer);
             ResetBomb();
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
                 Achievements.Type.YoureTooLate.Complete();
 
             return false;
@@ -143,7 +143,7 @@ public class Agitater : RoleBase
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
 
-                    if (pc.IsLocalPlayer())
+                    if (pc.AmOwner)
                         Achievements.Type.OutOfTime.Complete();
                 }
             }
@@ -222,7 +222,7 @@ public class Agitater : RoleBase
             target.Kill(player);
             ResetBomb();
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
                 Achievements.Type.YoureTooLate.Complete();
 
             return;

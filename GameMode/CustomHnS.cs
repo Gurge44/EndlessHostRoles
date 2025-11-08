@@ -122,7 +122,7 @@ internal static class CustomHnS
         Dictionary<PlayerControl, CustomRoles> result = [];
         List<PlayerControl> allPlayers = [.. Main.AllPlayerControls];
 
-        if (Main.GM.Value) allPlayers.RemoveAll(x => x.IsLocalPlayer());
+        if (Main.GM.Value) allPlayers.RemoveAll(x => x.AmOwner);
         allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         allPlayers.Shuffle();
@@ -281,7 +281,7 @@ internal static class CustomHnS
 
     public static bool HasTasks(NetworkedPlayerInfo playerInfo)
     {
-        if (!AmongUsClient.Instance.AmHost && playerInfo.IsLocalPlayer()) return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
+        if (!AmongUsClient.Instance.AmHost && playerInfo.Object.AmOwner) return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
 
         if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) role)) return false;
 

@@ -92,7 +92,7 @@ public class Duality : RoleBase
         if (now >= TimerEndTS)
         {
             pc.Suicide();
-            if (pc.IsLocalPlayer()) Achievements.Type.OutOfTime.Complete();
+            if (pc.AmOwner) Achievements.Type.OutOfTime.Complete();
             return;
         }
         

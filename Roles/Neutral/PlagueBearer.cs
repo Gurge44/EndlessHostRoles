@@ -202,7 +202,7 @@ public class Pestilence : RoleBase
         target.Kill(killer);
         target.SetKillCooldown(1f);
 
-        if (target.IsLocalPlayer())
+        if (target.AmOwner)
             Achievements.Type.YoureTooLate.Complete();
 
         return false;

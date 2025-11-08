@@ -51,7 +51,7 @@ internal class Electric : RoleBase
             target.MarkDirtySettings();
         }, FreezeDuration.GetFloat(), "Electric Freeze Reset");
 
-        if (target.IsLocalPlayer())
+        if (target.AmOwner)
             Achievements.Type.TooCold.CompleteAfterGameEnd();
     }
 }

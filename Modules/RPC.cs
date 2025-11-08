@@ -63,7 +63,7 @@ public enum CustomRPC
     RemoveExecutionerTarget,
     SetLawyerTarget,
     RemoveLawyerTarget,
-    SendFireWorksState,
+    SendFireworkerState,
     SetCurrentDousingTarget,
     SetEvilTrackerTarget,
     SetBountyTarget,
@@ -163,6 +163,7 @@ public enum CustomRPC
     ImitatorClick,
     Invisibility,
     ResetAbilityCooldown,
+    SyncCamouflage,
     SetChatVisible,
 
     // Game Modes
@@ -902,13 +903,13 @@ internal static class RPCHandlerPatch
                     Lawyer.ReceiveRPC(reader, false);
                     break;
                 }
-                case CustomRPC.SendFireWorksState:
+                case CustomRPC.SendFireworkerState:
                 {
                     byte id = reader.ReadByte();
                     int count = reader.ReadInt32();
                     int state = reader.ReadInt32();
-                    var newState = (FireWorks.FireWorksState)state;
-                    (Main.PlayerStates[id].Role as FireWorks)?.ReceiveRPC(count, newState);
+                    var newState = (Fireworker.FireworkerState)state;
+                    (Main.PlayerStates[id].Role as Fireworker)?.ReceiveRPC(count, newState);
                 }
 
                     break;
@@ -1343,6 +1344,11 @@ internal static class RPCHandlerPatch
                 case CustomRPC.ResetAbilityCooldown:
                 {
                     PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+                    break;
+                }
+                case CustomRPC.SyncCamouflage:
+                {
+                    Camouflage.IsCamouflage = reader.ReadBoolean();
                     break;
                 }
                 case CustomRPC.SetChatVisible:

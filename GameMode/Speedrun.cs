@@ -175,7 +175,7 @@ public static class Speedrun
             {
                 __instance.Suicide();
 
-                if (__instance.IsLocalPlayer())
+                if (__instance.AmOwner)
                     Achievements.Type.OutOfTime.Complete();
             }
 

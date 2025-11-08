@@ -129,7 +129,7 @@ public class DonutDelivery : RoleBase
             }, SEDelay.GetFloat(), log: false);
         }
 
-        if (target.IsLocalPlayer())
+        if (target.AmOwner)
             Achievements.Type.Delicious.Complete();
 
         return false;

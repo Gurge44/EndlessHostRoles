@@ -490,9 +490,9 @@ internal static class GameEndChecker
         Predicate = new NormalGameEndPredicate();
     }
 
-    public static void SetPredicateToSoloKombat()
+    public static void SetPredicateToSoloPVP()
     {
-        Predicate = new SoloKombatGameEndPredicate();
+        Predicate = new SoloPVPGameEndPredicate();
     }
 
     public static void SetPredicateToFFA()
@@ -500,9 +500,9 @@ internal static class GameEndChecker
         Predicate = new FFAGameEndPredicate();
     }
 
-    public static void SetPredicateToMoveAndStop()
+    public static void SetPredicateToStopAndGo()
     {
-        Predicate = new MoveAndStopGameEndPredicate();
+        Predicate = new StopAndGoGameEndPredicate();
     }
 
     public static void SetPredicateToHotPotato()
@@ -755,7 +755,7 @@ internal static class GameEndChecker
         }
     }
 
-    private class SoloKombatGameEndPredicate : GameEndPredicate
+    private class SoloPVPGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
         {
@@ -852,7 +852,7 @@ internal static class GameEndChecker
         }
     }
 
-    private class MoveAndStopGameEndPredicate : GameEndPredicate
+    private class StopAndGoGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
         {
@@ -864,10 +864,10 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
 
-            if (MoveAndStop.RoundTime <= 0)
+            if (StopAndGo.RoundTime <= 0)
             {
                 PlayerControl[] apc = Main.AllPlayerControls;
-                SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStop.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
+                SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => StopAndGo.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                 return true;
             }
 
@@ -885,8 +885,8 @@ internal static class GameEndChecker
                     SetWinner(aapc[0]);
                     return true;
                 case 0:
-                    MoveAndStop.RoundTime = 0;
-                    Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
+                    StopAndGo.RoundTime = 0;
+                    Logger.Warn("No players alive. Force ending the game", "StopAndGo");
                     break;
             }
 
@@ -894,7 +894,7 @@ internal static class GameEndChecker
 
             void SetWinner(PlayerControl winner)
             {
-                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "StopAndGo");
                 WinnerIds = [winner.PlayerId];
                 Main.DoBlockNameChange = true;
             }

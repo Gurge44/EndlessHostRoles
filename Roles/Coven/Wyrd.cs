@@ -143,6 +143,7 @@ public class Wyrd : Coven
             if (instance.Countdown > 0 || !instance.MarkedPlayers.Contains(pc.PlayerId)) continue;
 
             pc.Suicide(realKiller: instance.WyrdID.GetPlayer());
+            if (pc.AmOwner) Achievements.Type.DestinysChoice.Complete();
             return !BlockMeetingOnDeath.GetBool();
         }
 

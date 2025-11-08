@@ -72,10 +72,10 @@ public static class Statistics
                 case CustomGameMode.FFA when won:
                     Achievements.Type.SerialKiller.CompleteAfterGameEnd();
                     return;
-                case CustomGameMode.SoloKombat when won:
+                case CustomGameMode.SoloPVP when won:
                     Achievements.Type.PVPMaster.CompleteAfterGameEnd();
                     return;
-                case CustomGameMode.MoveAndStop when won:
+                case CustomGameMode.StopAndGo when won:
                     Achievements.Type.HarderThanDrivingThroughTrafficLightsRight.CompleteAfterGameEnd();
                     return;
                 case CustomGameMode.Speedrun when won:
@@ -102,6 +102,12 @@ public static class Statistics
                     return;
                 case CustomGameMode.RoomRush when won:
                     Achievements.Type.BestReactionTime.CompleteAfterGameEnd();
+                    return;
+                case CustomGameMode.Deathrace when won:
+                    Achievements.Type.FastestRunner.CompleteAfterGameEnd();
+                    return;
+                case CustomGameMode.Mingle when won:
+                    Achievements.Type.ThisAintSquidGames.CompleteAfterGameEnd();
                     return;
                 case CustomGameMode.Standard:
                     Reset();
@@ -183,7 +189,7 @@ public static class Statistics
                     break;
             }
 
-            int correctGuesses = Main.PlayerStates.Values.Count(x => !x.Player.IsLocalPlayer() && x.GetRealKiller() == lp.PlayerId && x.deathReason == PlayerState.DeathReason.Gambled);
+            int correctGuesses = Main.PlayerStates.Values.Count(x => !x.Player.AmOwner && x.GetRealKiller() == lp.PlayerId && x.deathReason == PlayerState.DeathReason.Gambled);
 
             if (correctGuesses >= 1) Achievements.Type.LuckOrObservation.CompleteAfterGameEnd();
             if (correctGuesses >= 2) Achievements.Type.BeginnerGuesser.CompleteAfterGameEnd();
@@ -291,7 +297,7 @@ public static class Statistics
         {
             if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Length <= MinPlayers) return;
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
             {
                 if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.AllAlivePlayerControls.Any(x => x.IsNeutralKiller()))
                     Achievements.Type.ImCrewISwear.Complete();
@@ -327,9 +333,12 @@ public static class Statistics
 
                 if (killerState.MainRole == targetState.MainRole)
                     Achievements.Type.ThereCanOnlyBeOne.CompleteAfterGameEnd();
+                
+                if (Medic.ProtectList.Contains(killer.PlayerId))
+                    Achievements.Type.YouUnderestimatedMe.CompleteAfterGameEnd();
             }
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
             {
                 PlayerState targetState = Main.PlayerStates[target.PlayerId];
 
@@ -346,7 +355,7 @@ public static class Statistics
         {
             if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Length <= MinPlayers) return;
 
-            if (shapeshifter.IsLocalPlayer() && shapeshifting && animated)
+            if (shapeshifter.AmOwner && shapeshifting && animated)
             {
                 Achievements.Type.ItsMorbinTime.Complete();
                 if (shapeshifter.Is(CustomRoles.Disco)) Achievements.Type.Prankster.Complete();

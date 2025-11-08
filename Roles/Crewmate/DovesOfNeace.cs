@@ -27,7 +27,7 @@ internal class DovesOfNeace : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Times);
 
-        DovesOfNeaceAbilityChargesWhenFinishedTasks = new FloatOptionItem(7713, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        DovesOfNeaceAbilityChargesWhenFinishedTasks = new FloatOptionItem(7713, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
             .SetValueFormat(OptionFormat.Times);
     }

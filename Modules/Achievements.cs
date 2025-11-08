@@ -106,7 +106,23 @@ public static class Achievements
         WhyJustWhy, // As Dictator, vote out the Jester
         CommonEnemyNo1, // Win as any NK
         CoordinatedAttack, // As Jester, Executioner or Innocent, win with any of the other 2 roles
-        ItsJustAPrankBro // As Bomber, Kill half the lobby in 1 bomb
+        ItsJustAPrankBro, // As Bomber, Kill half the lobby in 1 bomb
+        DrivingTestFailed, // Propel someone as the Car
+        MasterOfTheStones, // Get all infinity stones as Thanos
+        FastestRunner, // Win in Deathrace gamemode
+        CloseCall, // Survive russian roulette with 5 bullets as Roulette Grandeur
+        IKnowYourNames, // Get 3 peoples name guessed as Note Killer
+        ThisAintSquidGames, // Win in Mingle game mode
+        ItsGamblingTime, // As Sheriff, shoot a killer 10 seconds into the game
+        FriendlyFire, // Accidentally blow up your impostor partner as Sapper/Bomber/Fireworker
+        MyBad, // As Tree, kill everyone in ur radius by falling
+        MindReader, // As Perceiver, get all killers in your ability radius
+        OhNo, // Kill the Bait as your first kill
+        Why, // As Pawn, choose vanilla Crewmate after doing your tasks
+        GetMuted, // As Banshee, make everyone not have a chat button in a meeting
+        BadEncounter, // As Veteran, get killed while alerted (pestilence,pelican, bypass abilities, etc)
+        DestinysChoice, // Die to the Wyrd's fate countdown
+        YouUnderestimatedMe // Get shielded by the Medic then kill them
     }
 
     private static readonly string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";

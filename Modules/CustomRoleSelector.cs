@@ -23,9 +23,9 @@ internal static class CustomRoleSelector
 
     public static readonly Dictionary<CustomGameMode, CustomRoles> GameModeRoles = new()
     {
-        { CustomGameMode.SoloKombat, CustomRoles.KB_Normal },
+        { CustomGameMode.SoloPVP, CustomRoles.KB_Normal },
         { CustomGameMode.FFA, CustomRoles.Killer },
-        { CustomGameMode.MoveAndStop, CustomRoles.Tasker },
+        { CustomGameMode.StopAndGo, CustomRoles.Tasker },
         { CustomGameMode.HotPotato, CustomRoles.Potato },
         { CustomGameMode.Speedrun, CustomRoles.Runner },
         { CustomGameMode.CaptureTheFlag, CustomRoles.CTFPlayer },
@@ -995,7 +995,7 @@ internal static class CustomRoleSelector
 
             switch (role)
             {
-                case CustomRoles.Concealer when Options.AnonymousBodies.GetBool():
+                case CustomRoles.Concealer or CustomRoles.Hidden when Options.AnonymousBodies.GetBool():
                 case CustomRoles.Autopsy when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.Gravestone when Options.EveryoneSeesDeadPlayersRoles.GetBool():
                 case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:

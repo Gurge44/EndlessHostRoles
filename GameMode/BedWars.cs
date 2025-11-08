@@ -38,6 +38,8 @@ public static class BedWars
     private static float WoodenSwordDamageMultiplier = 2f;
     private static float IronSwordDamageMultiplier = 4f;
     private static float DiamondSwordDamageMultiplier = 7f;
+    private static bool SuddenDeath;
+    private static int AllBedsBrokenAfterTime = 300;
 
     private static OptionItem InventorySlotsOption;
     private static OptionItem SpeedPotionDurationOption;
@@ -66,6 +68,8 @@ public static class BedWars
     private static OptionItem WoodenSwordDamageMultiplierOption;
     private static OptionItem IronSwordDamageMultiplierOption;
     private static OptionItem DiamondSwordDamageMultiplierOption;
+    private static OptionItem SuddenDeathOption;
+    private static OptionItem AllBedsBrokenAfterTimeOption;
 
     public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
@@ -204,8 +208,17 @@ public static class BedWars
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        DiamondSwordDamageMultiplierOption = new FloatOptionItem(id, "BedWars.DiamondSwordDamageMultiplierOption", new(1f, 10f, 0.1f), 7f, tab)
+        DiamondSwordDamageMultiplierOption = new FloatOptionItem(id++, "BedWars.DiamondSwordDamageMultiplierOption", new(1f, 10f, 0.1f), 7f, tab)
             .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        SuddenDeathOption = new BooleanOptionItem(id++, "BedWars.SuddenDeathOption", false, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode);
+
+        AllBedsBrokenAfterTimeOption = new IntegerOptionItem(id, "BedWars.AllBedsBrokenAfterTimeOption", new(10, 900, 10), 300, tab)
+            .SetValueFormat(OptionFormat.Seconds)
             .SetColor(color)
             .SetGameMode(gameMode);
     }
@@ -392,6 +405,8 @@ public static class BedWars
         WoodenSwordDamageMultiplier = WoodenSwordDamageMultiplierOption.GetFloat();
         IronSwordDamageMultiplier = IronSwordDamageMultiplierOption.GetFloat();
         DiamondSwordDamageMultiplier = DiamondSwordDamageMultiplierOption.GetFloat();
+        SuddenDeath = SuddenDeathOption.GetBool();
+        AllBedsBrokenAfterTime = AllBedsBrokenAfterTimeOption.GetInt();
     }
 
     public static IEnumerator OnGameStart()
@@ -578,11 +593,17 @@ public static class BedWars
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.BedWars || !Main.IntroDestroyed || GameStates.IsEnded || __instance == null || __instance.PlayerId >= 254 || Utils.GameStartTimeStamp + 25 > Utils.TimeStamp) return;
 
-            if (__instance.IsHost()) ItemGenerators.ForEach(x => x.Update());
+            long now = Utils.TimeStamp;
+
+            if (__instance.AmOwner)
+            {
+                ItemGenerators.ForEach(x => x.Update());
+
+                if (SuddenDeath && now >= GracePeriodEnd + AllBedsBrokenAfterTime)
+                    AllNetObjects.Values.DoIf(x => !x.Bed.IsBroken, x => x.Bed.Broken());
+            }
 
             if (!Data.TryGetValue(__instance.PlayerId, out PlayerData data)) return;
-
-            long now = Utils.TimeStamp;
 
             if (!LastUpdate.TryGetValue(__instance.PlayerId, out long lastUpdate) || lastUpdate != now)
             {
@@ -622,7 +643,7 @@ public static class BedWars
                     shop.ExitShop(__instance);
                     InShop.Remove(__instance.PlayerId);
                     Logger.Info($"{__instance.GetRealName()} exited {shop.GetType().Name}", "BedWars");
-                    if (__instance.IsLocalPlayer()) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
+                    if (__instance.AmOwner) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                 }
 
                 if (!InShop.ContainsKey(__instance.PlayerId))
@@ -634,7 +655,7 @@ public static class BedWars
                         InShop[__instance.PlayerId] = nearestShop.shop;
                         nearestShop.shop.EnterShop(__instance);
                         Logger.Info($"{__instance.GetRealName()} entered {nearestShop.shop.GetType().Name}", "BedWars");
-                        if (__instance.IsLocalPlayer()) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
+                        if (__instance.AmOwner) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }
                 }
 
@@ -1764,6 +1785,8 @@ public static class BedWars
                     if (!pc.IsAlive() || Vector2.Distance(pc.Pos(), Position) > BedBreakAndProtectRange)
                     {
                         Breaking.Remove(pc.PlayerId);
+                        NameNotifyManager.Notifies.Remove(pc.PlayerId);
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                         yield break;
                     }
                 }
@@ -1778,7 +1801,7 @@ public static class BedWars
             }
         }
 
-        private void Broken()
+        public void Broken()
         {
             BedWarsTeam team = Team;
 

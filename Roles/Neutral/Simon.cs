@@ -230,7 +230,7 @@ public class Simon : RoleBase
                 simon.MarkedPlayers.Remove(pc.PlayerId);
                 Utils.SendRPC(CustomRPC.SyncRoleData, simon.SimonId, 4, pc.PlayerId);
 
-                if (pc.IsLocalPlayer())
+                if (pc.AmOwner)
                     Achievements.Type.SimonSays.Complete();
             }
         }

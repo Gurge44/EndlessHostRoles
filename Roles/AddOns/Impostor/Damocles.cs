@@ -78,7 +78,7 @@ public class Damocles : IAddon
             Timer[id] = 0;
             pc.Suicide();
 
-            if (pc.IsLocalPlayer())
+            if (pc.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }
 

@@ -88,7 +88,7 @@ internal class Crewpostor : RoleBase
                 target.SetRealKiller(player);
                 target.Kill(player);
 
-                if (target.IsLocalPlayer())
+                if (target.AmOwner)
                     Achievements.Type.YoureTooLate.Complete();
 
                 Logger.Info($"Crewpostor tried to kill Pestilence: {target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");

@@ -128,10 +128,14 @@ public class Thanos : RoleBase
     {
         if (PlayersWithStones.Contains(target.PlayerId))
         {
-            Stone stone = CollectedStones.Count == 0 && FirstKillAlwaysSoulStone.GetBool() ? Stone.Soul : Enum.GetValues<Stone>().Except(CollectedStones).RandomElement();
+            Stone[] stones = Enum.GetValues<Stone>();
+            Stone stone = CollectedStones.Count == 0 && FirstKillAlwaysSoulStone.GetBool() ? Stone.Soul : stones.Except(CollectedStones).RandomElement();
             CollectedStones.Add(stone);
             StonesWaitingForUse.Add(stone);
             Utils.SendRPC(CustomRPC.SyncRoleData, ThanosId, 1, (int)stone);
+            
+            if (killer.AmOwner && CollectedStones.Count == stones.Length)
+                Achievements.Type.MasterOfTheStones.Complete();
         }
     }
 

@@ -158,10 +158,10 @@ public static class FixedUpdateCaller
                             case CustomGameMode.HotPotato:
                                 HotPotato.FixedUpdatePatch.Postfix(pc);
                                 break;
-                            case CustomGameMode.MoveAndStop:
-                                MoveAndStop.FixedUpdatePatch.Postfix(pc);
+                            case CustomGameMode.StopAndGo:
+                                StopAndGo.FixedUpdatePatch.Postfix(pc);
                                 break;
-                            case CustomGameMode.SoloKombat:
+                            case CustomGameMode.SoloPVP:
                                 SoloPVP.FixedUpdatePatch.Postfix(pc);
                                 break;
                             case CustomGameMode.Speedrun:

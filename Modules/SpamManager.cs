@@ -82,7 +82,7 @@ public static class SpamManager
 
     public static bool CheckSpam(PlayerControl player, string text)
     {
-        if (player.IsLocalPlayer()) return false;
+        if (player.AmOwner) return false;
 
         string name = player.GetRealName();
         var kick = false;

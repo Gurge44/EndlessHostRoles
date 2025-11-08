@@ -247,7 +247,7 @@ public class Amnesiac : RoleBase
 
         if (Utils.HasTasks(amnesiac.Data, false)) amnesiac.GetTaskState().HasTasks = true;
 
-        if (!amnesiac.IsLocalPlayer()) return;
+        if (!amnesiac.AmOwner) return;
 
         switch (role)
         {
@@ -263,6 +263,11 @@ public class Amnesiac : RoleBase
     }
 
     public override void OnReportDeadBody()
+    {
+        LocateArrow.RemoveAllTarget(AmnesiacId);
+    }
+
+    public override void AfterMeetingTasks()
     {
         LocateArrow.RemoveAllTarget(AmnesiacId);
     }

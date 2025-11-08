@@ -77,8 +77,7 @@ internal static class ExternalRpcPetPatch
             && !physics.Animations.IsPlayingClimbAnimation()
             && !physics.Animations.IsPlayingAnyLadderAnimation()
             && !Pelican.IsEaten(pc.PlayerId)
-            && GameStates.IsInTask
-            && pc.GetCustomRole().PetActivatedAbility())
+            && GameStates.IsInTask)
         {
             CancelPet();
             LateTask.New(CancelPet, 0.4f, log: false);
@@ -201,7 +200,7 @@ internal static class ExternalRpcPetPatch
             target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
             Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-            if (tempTarget.IsLocalPlayer())
+            if (tempTarget.AmOwner)
             {
                 Detour.TotalRedirections++;
                 if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();

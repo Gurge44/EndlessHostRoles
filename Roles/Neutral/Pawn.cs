@@ -1,4 +1,6 @@
-﻿namespace EHR.Neutral;
+﻿using EHR.Modules;
+
+namespace EHR.Neutral;
 
 public class Pawn : RoleBase
 {
@@ -34,5 +36,8 @@ public class Pawn : RoleBase
 
         pc.RpcSetCustomRole(ChosenRole);
         pc.RpcChangeRoleBasis(ChosenRole);
+        
+        if (pc.AmOwner && ChosenRole is CustomRoles.Crewmate or CustomRoles.CrewmateEHR)
+            Achievements.Type.Why.Complete();
     }
 }

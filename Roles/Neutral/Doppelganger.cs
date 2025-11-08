@@ -209,7 +209,7 @@ public class Doppelganger : RoleBase
         sender.SendMessage();
         DoppelPresentSkin[pc.PlayerId] = newOutfit;
 
-        if (pc.IsLocalPlayer())
+        if (pc.AmOwner)
         {
             LocalPlayerChangeSkinTimes++;
             if (LocalPlayerChangeSkinTimes >= 2) Achievements.Type.Mimicry.Complete();
@@ -238,14 +238,14 @@ public class Doppelganger : RoleBase
 
         string kname;
 
-        if (killer.IsLocalPlayer() && Main.NickName.Length != 0)
+        if (killer.AmOwner && Main.NickName.Length != 0)
             kname = Main.NickName;
         else
             kname = killer.Data.PlayerName;
 
         string tname;
 
-        if (target.IsLocalPlayer() && Main.NickName.Length != 0)
+        if (target.AmOwner && Main.NickName.Length != 0)
             tname = Main.NickName;
         else
             tname = target.Data.PlayerName;

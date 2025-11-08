@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate;
 
@@ -34,7 +36,7 @@ internal class Perceiver : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
             .SetValueFormat(OptionFormat.Times);
 
-        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 6, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -77,6 +79,14 @@ internal class Perceiver : RoleBase
         pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
 
         pc.RpcRemoveAbilityUse();
+
+        if (pc.AmOwner)
+        {
+            HashSet<byte> allKillers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton()).Select(x => x.PlayerId).ToHashSet();
+            
+            if (allKillers.SetEquals(killers.Select(x => x.PlayerId)))
+                Achievements.Type.MindReader.CompleteAfterGameEnd();
+        }
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

@@ -98,7 +98,7 @@ public class Addict : RoleBase
             player.Suicide();
             SuicideTimer = -10f;
 
-            if (player.IsLocalPlayer())
+            if (player.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }
         else if (Mathf.Approximately(SuicideTimer + 8, TimeLimit.GetFloat()))

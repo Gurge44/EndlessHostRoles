@@ -446,6 +446,10 @@ public static class SabotageSystemTypeRepairDamagePatch
             }
         }
 
+        if (Stasis.IsTimeFrozen) return false;
+
+        if (Pelican.IsEaten(player.PlayerId)) return false;
+
         if (__instance != null && systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
             batteryState.Player.RpcRemoveAbilityUse();
@@ -498,10 +502,28 @@ public static class SabotageSystemTypeRepairDamagePatch
             allow = false;
         }
 
-        if (allow && QuizMaster.On) QuizMaster.Data.NumSabotages++;
+        if (allow)
+        {
+            if (QuizMaster.On) QuizMaster.Data.NumSabotages++;
 
-        if (allow && Main.CurrentMap == MapNames.Skeld)
-            LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
+            if (Main.CurrentMap == MapNames.Skeld)
+                LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
+
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                if (pc.Is(CustomRoles.Sensor) && pc.GetAbilityUseLimit() >= 1f)
+                {
+                    pc.RpcRemoveAbilityUse();
+                    TargetArrow.Add(pc.PlayerId, player.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    LateTask.New(() =>
+                    {
+                        TargetArrow.Remove(pc.PlayerId, player.PlayerId);
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    }, Sensor.ArrowDuration.GetInt(), "Sensor Arrow");
+                }
+            }
+        }
 
         return allow;
     }

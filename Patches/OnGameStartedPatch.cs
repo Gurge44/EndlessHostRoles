@@ -415,7 +415,7 @@ internal static class ChangeRoleSettings
             {
                 SoloPVP.Init();
                 FreeForAll.Init();
-                MoveAndStop.Init();
+                StopAndGo.Init();
                 HotPotato.Init();
                 CustomHnS.Init();
                 Speedrun.Init();
@@ -858,7 +858,7 @@ internal static class StartGameHostPatch
                         PlayerControl seer = Utils.GetPlayerById(seerId);
                         if (seer == null) continue;
 
-                        target.RpcSetRoleDesync(RoleTypes.Impostor, seer.OwnerId);
+                        target.RpcSetRoleDesync(RoleTypes.Impostor, seer.OwnerId, setRoleMap: true);
                     }
                 }
             }
@@ -1065,14 +1065,14 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Standard:
                     GameEndChecker.SetPredicateToNormal();
                     break;
-                case CustomGameMode.SoloKombat:
-                    GameEndChecker.SetPredicateToSoloKombat();
+                case CustomGameMode.SoloPVP:
+                    GameEndChecker.SetPredicateToSoloPVP();
                     break;
                 case CustomGameMode.FFA:
                     GameEndChecker.SetPredicateToFFA();
                     break;
-                case CustomGameMode.MoveAndStop:
-                    GameEndChecker.SetPredicateToMoveAndStop();
+                case CustomGameMode.StopAndGo:
+                    GameEndChecker.SetPredicateToStopAndGo();
                     break;
                 case CustomGameMode.HotPotato:
                     GameEndChecker.SetPredicateToHotPotato();
@@ -1240,7 +1240,7 @@ internal static class StartGameHostPatch
                 {
                     try
                     {
-                        if (seer.PlayerId == target.PlayerId || target.IsLocalPlayer()) continue;
+                        if (seer.PlayerId == target.PlayerId || target.AmOwner) continue;
 
                         if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                         {

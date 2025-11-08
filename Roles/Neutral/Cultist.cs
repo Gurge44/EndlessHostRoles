@@ -127,7 +127,7 @@ public class Cultist : RoleBase
 
             Logger.Info("SetRole:" + target?.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Charmed, "Assign " + CustomRoles.Charmed);
 
-            if (killer.IsLocalPlayer())
+            if (killer.AmOwner)
                 Achievements.Type.YoureMyFriendNow.Complete();
 
             return false;

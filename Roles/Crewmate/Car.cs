@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Crewmate;
@@ -76,6 +77,8 @@ public class Car : RoleBase
 
     private IEnumerator Propel(PlayerControl car, PlayerControl target, Direction direction)
     {
+        if (car.AmOwner) Achievements.Type.DrivingTestFailed.Complete();
+        
         float oldSpeed = Main.AllPlayerSpeed[target.PlayerId];
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();

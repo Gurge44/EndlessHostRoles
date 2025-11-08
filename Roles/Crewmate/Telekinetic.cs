@@ -125,7 +125,7 @@ public class Telekinetic : RoleBase
 
                 Timer += 35;
 
-                if (target.IsLocalPlayer())
+                if (target.AmOwner)
                     Achievements.Type.TooCold.CompleteAfterGameEnd();
 
                 break;

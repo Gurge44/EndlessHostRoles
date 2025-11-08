@@ -101,7 +101,7 @@ public class Mercenary : RoleBase
             SuicideTimer = float.NaN;
             Timer = TimeLimit.GetInt();
 
-            if (player.IsLocalPlayer())
+            if (player.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }
         else

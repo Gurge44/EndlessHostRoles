@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
@@ -133,6 +134,9 @@ public class Sapper : RoleBase
                 }
 
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
+                
+                if (pc.AmOwner && tg.IsImpostor())
+                    Achievements.Type.FriendlyFire.Complete();
             }
 
             Bombs.Remove(bomb.Key);

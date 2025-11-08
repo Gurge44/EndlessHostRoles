@@ -152,6 +152,9 @@ public class RouleteGrandeur : RoleBase
             KCD -= reduction;
             pc.ResetKillCooldown();
             pc.MarkDirtySettings();
+            
+            if (pc.AmOwner && Bullets == BulletCount)
+                Achievements.Type.CloseCall.Complete();
         }
 
         pc.Notify($"<size=80%>{str}</size>\n{result}", 15f);

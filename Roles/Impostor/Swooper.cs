@@ -118,7 +118,7 @@ public class Swooper : RoleBase
                 AURoleOptions.EngineerCooldown = Cooldown + 1f;
             else if (UsePhantomBasis.GetBool() && (UsedRole == CustomRoles.Swooper || UsePhantomBasisForNKs.GetBool()))
             {
-                AURoleOptions.PhantomCooldown = Cooldown;
+                AURoleOptions.PhantomCooldown = Cooldown + 1f;
                 AURoleOptions.PhantomDuration = 0.1f;
             }
         }
@@ -296,13 +296,16 @@ public class Swooper : RoleBase
             long remainTime = InvisTime + (long)Duration - Utils.TimeStamp;
             str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
         }
-        else if (lastTime != -10)
-        {
-            long cooldown = lastTime + (long)Cooldown - Utils.TimeStamp;
-            str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
-        }
         else if (!(UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
-            str.Append(GetString("SwooperCanVent"));
+        {
+            if (lastTime != -10)
+            {
+                long cooldown = lastTime + (long)Cooldown - Utils.TimeStamp;
+                str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
+            }
+            else
+                str.Append(GetString("SwooperCanVent"));
+        }
 
         return str.ToString();
     }

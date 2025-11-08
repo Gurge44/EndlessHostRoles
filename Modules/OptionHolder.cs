@@ -20,9 +20,9 @@ namespace EHR;
 public enum CustomGameMode
 {
     Standard = 0x01,
-    SoloKombat = 0x02,
+    SoloPVP = 0x02,
     FFA = 0x03,
-    MoveAndStop = 0x04,
+    StopAndGo = 0x04,
     HotPotato = 0x05,
     HideAndSeek = 0x06,
     Speedrun = 0x07,
@@ -74,9 +74,9 @@ public static class Options
     private static readonly string[] GameModes =
     [
         "Standard",
-        "SoloKombat",
+        "SoloPVP",
         "FFA",
-        "MoveAndStop",
+        "StopAndGo",
         "HotPotato",
         "HideAndSeek",
         "Speedrun",
@@ -613,6 +613,7 @@ public static class Options
     public static OptionItem CommsCamouflageLimitSetMaxTimes;
     public static OptionItem CommsCamouflageLimitMaxTimesPerGame;
     public static OptionItem CommsCamouflageLimitMaxTimesPerRound;
+    public static OptionItem CommsCamouflageSetSameSpeed;
     public static OptionItem DisableReportWhenCC;
     public static OptionItem SabotageTimeControl;
     public static OptionItem SkeldReactorTimeLimit;
@@ -901,9 +902,9 @@ public static class Options
 
     public static CustomGameMode CurrentGameMode => GameMode.GetInt() switch
     {
-        1 => CustomGameMode.SoloKombat,
+        1 => CustomGameMode.SoloPVP,
         2 => CustomGameMode.FFA,
-        3 => CustomGameMode.MoveAndStop,
+        3 => CustomGameMode.StopAndGo,
         4 => CustomGameMode.HotPotato,
         5 => CustomGameMode.HideAndSeek,
         6 => CustomGameMode.Speedrun,
@@ -1808,12 +1809,12 @@ public static class Options
 
         MainLoadingText = "Building Settings for Other Gamemodes";
 
-        // SoloKombat
+        // SoloPVP
         SoloPVP.SetupCustomOption();
         // FFA
         FreeForAll.SetupCustomOption();
         // Move And Stop
-        MoveAndStop.SetupCustomOption();
+        StopAndGo.SetupCustomOption();
         // Hot Potato
         HotPotato.SetupCustomOption();
         // Speedrun
@@ -2103,6 +2104,10 @@ public static class Options
         CommsCamouflageLimitMaxTimesPerRound = new IntegerOptionItem(22210, "CommsCamouflageLimitMaxTimesPerRound", new(1, 10, 1), 1, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(CommsCamouflageLimitSetMaxTimes)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+        
+        CommsCamouflageSetSameSpeed = new BooleanOptionItem(22211, "CommsCamouflageSetSameSpeed", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
 
         DisableReportWhenCC = new BooleanOptionItem(22300, "DisableReportWhenCC", false, TabGroup.GameSettings)
@@ -3255,9 +3260,9 @@ public static class Options
                 case AutoGMRoationSlotOptions.Explicit:
                     CustomGameMode gm = explicitChoice.GetInt() switch
                     {
-                        1 => CustomGameMode.SoloKombat,
+                        1 => CustomGameMode.SoloPVP,
                         2 => CustomGameMode.FFA,
-                        3 => CustomGameMode.MoveAndStop,
+                        3 => CustomGameMode.StopAndGo,
                         4 => CustomGameMode.HotPotato,
                         5 => CustomGameMode.HideAndSeek,
                         6 => CustomGameMode.Speedrun,

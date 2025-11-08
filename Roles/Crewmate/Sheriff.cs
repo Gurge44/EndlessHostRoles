@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate;
 
@@ -139,6 +140,9 @@ public class Sheriff : RoleBase
     {
         killer.RpcRemoveAbilityUse();
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
+        
+        if (killer.AmOwner && Utils.TimeStamp - Utils.GameStartTimeStamp < 40)
+            Achievements.Type.ItsGamblingTime.Complete();
     }
 
     private static bool CanBeKilledBySheriff(PlayerControl player)

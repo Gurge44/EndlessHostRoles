@@ -95,7 +95,7 @@ public class Echo : RoleBase
             target.MarkDirtySettings();
             shapeshifter.TP(pos);
 
-            if (target.IsLocalPlayer())
+            if (target.AmOwner)
                 Achievements.Type.TooCold.CompleteAfterGameEnd();
         }
         else

@@ -212,7 +212,7 @@ public class Deathpact : RoleBase
 
         target.Suicide(realKiller: deathpact);
 
-        if (target.IsLocalPlayer())
+        if (target.AmOwner)
             Achievements.Type.OutOfTime.Complete();
     }
 

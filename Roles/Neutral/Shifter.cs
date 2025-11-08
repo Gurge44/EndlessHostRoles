@@ -113,7 +113,7 @@ public class Shifter : RoleBase
 
         WasShifter.Add(killer.PlayerId);
 
-        if (killer.IsLocalPlayer() || target.IsLocalPlayer())
+        if (killer.AmOwner || target.AmOwner)
         {
             ShifterInteractionsCount++;
             if (ShifterInteractionsCount >= 3) Achievements.Type.TheresThisGameMyDadTaughtMeItsCalledSwitch.Complete();

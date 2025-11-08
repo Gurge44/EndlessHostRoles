@@ -149,7 +149,7 @@ internal static class HotPotato
                 SurvivalTimes[HotPotatoState.HolderID] = Time.GetInt() * (HotPotatoState.RoundNum - 1);
                 PassHotPotato();
 
-                if (holder.IsLocalPlayer())
+                if (holder.AmOwner)
                     Achievements.Type.OutOfTime.Complete();
 
                 return;

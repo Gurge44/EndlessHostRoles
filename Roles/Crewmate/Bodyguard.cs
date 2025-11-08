@@ -71,7 +71,7 @@ internal class Bodyguard : RoleBase
                     bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
                     Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {target.GetRealName()}", "Bodyguard");
 
-                    if (bodyguard.BodyguardPC.IsLocalPlayer() && target.Is(CustomRoles.President))
+                    if (bodyguard.BodyguardPC.AmOwner && target.Is(CustomRoles.President))
                         Achievements.Type.GetDownMrPresident.Complete();
 
                     return false;

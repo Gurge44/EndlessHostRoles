@@ -49,7 +49,7 @@ public static class NameColorManager
             case CustomGameMode.Mingle:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
-            case CustomGameMode.MoveAndStop:
+            case CustomGameMode.StopAndGo:
             case CustomGameMode.TheMindGame:
                 color = "#ffffff";
                 return true;
@@ -242,7 +242,7 @@ public static class NameColorManager
 
         return seer == target
                || (Main.GodMode.Value && seer.AmOwner)
-               || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop
+               || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo
                || (seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
                || (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
                || target.Is(CustomRoles.GM)

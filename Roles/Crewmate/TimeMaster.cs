@@ -51,7 +51,7 @@ internal class TimeMaster : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
 
-        TimeMasterAbilityChargesWhenFinishedTasks = new FloatOptionItem(652114, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        TimeMasterAbilityChargesWhenFinishedTasks = new FloatOptionItem(652114, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -93,7 +93,7 @@ internal class TimeMaster : RoleBase
 
         Main.Instance.StartCoroutine(Rewind());
         
-        if (pc.IsLocalPlayer())
+        if (pc.AmOwner)
             Achievements.Type.APerfectTimeToRewindIt.Complete();
     }
 
@@ -105,7 +105,7 @@ internal class TimeMaster : RoleBase
 
         Main.Instance.StartCoroutine(Rewind());
         
-        if (pc.IsLocalPlayer())
+        if (pc.AmOwner)
             Achievements.Type.APerfectTimeToRewindIt.Complete();
     }
 

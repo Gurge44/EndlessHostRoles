@@ -184,7 +184,7 @@ public class Jackal : RoleBase
 
         Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
 
-        if (killer.IsLocalPlayer())
+        if (killer.AmOwner)
             Achievements.Type.YoureMyFriendNow.Complete();
 
         return false;
