@@ -1904,7 +1904,7 @@
   "KickCommandKickHost": "<size=80%>あなたには ホストを追い出す権限がありません。</size>",
   "KickCommandKickMod": "<size=80%>あなたには 他のモデレーターを追い出す権限がありません。</size>",
   "KickCommandKicked": "ゲームから追い出された。",
-  "KickCommandKickedRole": "彼の役割は",
+  "KickCommandKickedRole": "Their role was {0}",
   "KickCommandKickedReason": "Reason:",
   "ModeratorTag": "<#8000ff>モデレーター</color>",
   "VIPTag": "<#ffff00>VIP</color>",
