@@ -306,7 +306,7 @@ internal static class CustomRolesHelper
             CustomRoles.Arrogance => CustomRoles.Impostor,
             CustomRoles.Bomber => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Nuker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
-            CustomRoles.Trapster => CustomRoles.Impostor,
+            CustomRoles.Trapster => Trapster.LegacyTrapster.GetBool() ? CustomRoles.Impostor : CustomRoles.Phantom,
             CustomRoles.Scavenger => CustomRoles.Impostor,
             CustomRoles.Transporter => CustomRoles.Crewmate,
             CustomRoles.Veteran => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
