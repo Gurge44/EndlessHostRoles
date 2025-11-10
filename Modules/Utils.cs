@@ -3501,6 +3501,7 @@ public static class Utils
                         if (GameStates.IsEnded) return;
                         string petId = PetsHelper.GetPetId();
                         PetsHelper.SetPet(pc, petId);
+                        pc.Data.DefaultOutfit.PetSequenceId += 10;
                         pc.RpcSetPet(petId);
                     }, 3f, "No Pet Reassign");
                 }

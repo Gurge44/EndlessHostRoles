@@ -26,7 +26,7 @@ internal class Ventguard : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
             .SetValueFormat(OptionFormat.Times);
 
-        VentguardAbilityChargesWhenFinishedTasks = new FloatOptionItem(5530, "InspectorChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        VentguardAbilityChargesWhenFinishedTasks = new FloatOptionItem(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
             .SetValueFormat(OptionFormat.Times);
 

@@ -106,7 +106,7 @@ public class Patroller : RoleBase
 
             pc.Notify(RoomBoosts.Any(x => x.Value == room)
                 ? string.Format(Translator.GetString("PatrollerNotify"), roomName, Translator.GetString($"PatrollerBoost.{RoomBoosts.First(x => x.Value == room).Key}"))
-                : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName), 300f, overrideAll: true);
+                : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName));
         }
 
         pc.MarkDirtySettings();

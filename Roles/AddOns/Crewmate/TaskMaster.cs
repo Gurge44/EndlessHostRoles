@@ -20,8 +20,12 @@ public class TaskMaster : IAddon
             TaskState ts = pc.GetTaskState();
             if (!ts.HasTasks || ts.IsTaskFinished || !Utils.HasTasks(pc.Data, forRecompute: false)) return;
             var incompleteTasks = pc.myTasks.FindAll((Predicate<PlayerTask>)(x => !x.IsComplete));
-            RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
-            pc.RpcCompleteTask(incompleteTasks[IRandom.Instance.Next(0, incompleteTasks.Count)].Id);
+            LateTask.New(() =>
+            {
+                if (GameStates.IsEnded) return;
+                RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
+                pc.RpcCompleteTask(incompleteTasks[IRandom.Instance.Next(0, incompleteTasks.Count)].Id);
+            }, 0.3f, log: false);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

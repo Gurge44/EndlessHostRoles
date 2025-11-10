@@ -2431,7 +2431,6 @@ public static class Options
             .SetColor(Palette.Orange);
 
         UseMeetingShapeshiftForGuessing = new BooleanOptionItem(23866, "UseMeetingShapeshiftForGuessing", false, TabGroup.TaskSettings)
-            .SetHidden(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UseMeetingShapeshift)
             .SetColor(Palette.Orange);

@@ -583,7 +583,7 @@ internal static class GameEndChecker
 
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
-            if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
+            if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1 && aapc.Any(x => x.CanUseKillButton() && !x.IsCrewmate())) return false;
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 

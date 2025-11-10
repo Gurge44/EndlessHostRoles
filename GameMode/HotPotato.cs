@@ -203,7 +203,7 @@ internal static class HotPotato
 
                 if (CanPassViaKillButton)
                 {
-                    target.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+                    target.RpcSetRoleDesync(RoleTypes.Impostor, target.OwnerId);
                     LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
                 }
 
@@ -220,7 +220,7 @@ internal static class HotPotato
 
                 if (lastHolder != null)
                 {
-                    if (CanPassViaKillButton) lastHolder.RpcChangeRoleBasis(CustomRoles.Potato);
+                    if (CanPassViaKillButton) lastHolder.RpcSetRoleGlobal(RoleTypes.Crewmate);
 
                     TargetArrow.RemoveAllTarget(HotPotatoState.LastHolderID);
 

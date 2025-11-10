@@ -425,6 +425,9 @@ internal static class ExtendedPlayerControl
             catch (Exception e) { ThrowException(e); }
         }
 
+        try { Logger.Info($" {player.GetNameWithRole()} => {role} - for {GetClientById(clientId)?.Character?.GetNameWithRole() ?? "Someone"}", "RpcSetRoleDesync"); }
+        catch (Exception e) { ThrowException(e); }
+
         if (AmongUsClient.Instance.ClientId == clientId)
         {
             player.SetRole(role);
@@ -435,8 +438,6 @@ internal static class ExtendedPlayerControl
         writer.Write((ushort)role);
         writer.Write(true);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-        
-        Logger.Info($" {player.GetNameWithRole()} => {role} - for {GetClientById(clientId)?.Character?.GetNameWithRole() ?? "Someone"}", "RpcSetRoleDesync");
     }
 
     public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(this PlayerControl player, byte targetId = byte.MaxValue)
@@ -459,7 +460,7 @@ internal static class ExtendedPlayerControl
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         TempExiled.Remove(player.PlayerId);
-        if (Options.CurrentGameMode == CustomGameMode.Standard) Main.PlayerStates[player.PlayerId].Role.AfterMeetingTasks();
+        if (Options.CurrentGameMode == CustomGameMode.Standard) Main.PlayerStates[player.PlayerId].Role.OnRevived(player);
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole);
         player.ResetKillCooldown();
@@ -794,13 +795,16 @@ internal static class ExtendedPlayerControl
         if (reactorCheck) duration += 0.2f; // Extend blackout during reactor
 
         // Execution
-        Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
-
-        LateTask.New(() =>
+        if (reactorCheck && !player.IsModdedClient())
         {
-            Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
-            player.MarkDirtySettings();
-        }, duration, "RemoveKillFlash");
+            Main.PlayerStates[player.PlayerId].IsBlackOut = true; // Blackout
+
+            LateTask.New(() =>
+            {
+                Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
+                player.MarkDirtySettings();
+            }, duration, "RemoveKillFlash");
+        }
 
         if (player.AmOwner)
         {

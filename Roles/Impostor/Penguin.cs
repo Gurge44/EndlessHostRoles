@@ -272,20 +272,12 @@ public class Penguin : RoleBase
 
         stopCount = true;
 
-        // If you meet a meeting with time running out, kill it even if you're on a ladder.
-        if (AbductVictim != null && AbductTimer <= 0f)
-        {
-            if (!IsGoose) Penguin_.Kill(AbductVictim);
-
-            RemoveVictim(false);
-        }
-
         if (!AmongUsClient.Instance.AmHost) return;
         if (AbductVictim == null) return;
 
         if (!IsGoose && MeetingKill) Penguin_.Kill(AbductVictim);
 
-        RemoveVictim();
+        RemoveVictim(false);
     }
 
     public override void AfterMeetingTasks()

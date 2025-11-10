@@ -164,7 +164,7 @@ public class Executioner : RoleBase
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId) || (!seer.IsAlive() && Target.ContainsValue(target.PlayerId));
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
+        return GetValue && (!seer.IsAlive() || targetId == target.PlayerId) ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
     }
 
     public static bool CheckExileTarget(NetworkedPlayerInfo exiled, bool Check = false)

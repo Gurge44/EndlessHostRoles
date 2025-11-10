@@ -139,7 +139,7 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (Options.UseMeetingShapeshiftForGuessing.GetBool())
+        if (Options.UseMeetingShapeshiftForGuessing.GetBool() && GuessManager.StartMeetingPatch.CanGuess(shapeshifter, Options.GuesserNumRestrictions.GetBool()))
             GuessManager.OnMeetingShapeshiftReceived(shapeshifter, target);
     }
 
@@ -166,6 +166,11 @@ public abstract class RoleBase : IComparable<RoleBase>
     }
 
     public virtual void AfterMeetingTasks() { }
+
+    public virtual void OnRevived(PlayerControl pc)
+    {
+        AfterMeetingTasks();
+    }
 
     public virtual string GetProgressText(byte playerId, bool comms)
     {

@@ -33,8 +33,8 @@ public static class ShowHostMeetingPatch
         catch { }
     }
 
-    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
-    [HarmonyPostfix]
+    // [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
+    // [HarmonyPostfix]
     public static void ShowRole_Postfix()
     {
         PlayerControl host = AmongUsClient.Instance.GetHost().Character;
