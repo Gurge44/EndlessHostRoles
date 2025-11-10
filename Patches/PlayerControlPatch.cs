@@ -119,8 +119,6 @@ internal static class RpcMurderPlayerPatch
             .EndRpc();
 
         sender.SendMessage();
-        
-        LateTask.New(target.RpcExileV2, 1f, log: false);
         return false;
     }
 }
@@ -2364,7 +2362,7 @@ internal static class PlayerControlSetRolePatch
             if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
             else if (!(__instance.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.Role.CanUseSabotage(__instance))
-                roleType = RoleTypes.Impostor;
+                roleType = RoleTypes.ImpostorGhost;
             else
                 roleType = RoleTypes.CrewmateGhost;
         }

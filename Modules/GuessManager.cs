@@ -521,9 +521,12 @@ public static class GuessManager
 
                     LateTask.New(() =>
                     {
-                        Main.PlayerStates[dp.PlayerId].deathReason = PlayerState.DeathReason.Gambled;
-                        dp.SetRealKiller(pc);
-                        dp.RpcGuesserMurderPlayer();
+                        if (Main.PlayerStates.TryGetValue(dp.PlayerId, out PlayerState state))
+                        {
+                            state.deathReason = PlayerState.DeathReason.Gambled;
+                            dp.SetRealKiller(pc);
+                            dp.RpcGuesserMurderPlayer();
+                        }
 
                         if (dp.Is(CustomRoles.Medic)) Medic.IsDead(dp);
 
