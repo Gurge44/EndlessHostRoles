@@ -143,6 +143,7 @@ public static class NameColorManager
         // Check if the seer can see the target's role color
         color = seerRole switch
         {
+            CustomRoles.Transporter when target.IsImpostor() => "ffffff",
             CustomRoles.Silencer when Silencer.ForSilencer.Contains(target.PlayerId) => "000000",
             CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId) => "000000",
             CustomRoles.Executioner when Executioner.Target.TryGetValue(seer.PlayerId, out byte exeTarget) && exeTarget == target.PlayerId => "000000",

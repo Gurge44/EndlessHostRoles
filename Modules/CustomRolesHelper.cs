@@ -939,7 +939,7 @@ internal static class CustomRolesHelper
 
     public static bool NeedUpdateOnLights(this CustomRoles role)
     {
-        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter or CustomRoles.Wiper;
+        return !role.UsesPetInsteadOfKill() && role is CustomRoles.Lighter or CustomRoles.Wiper or CustomRoles.Transporter;
     }
 
     public static bool IsBetrayalAddon(this CustomRoles role)
