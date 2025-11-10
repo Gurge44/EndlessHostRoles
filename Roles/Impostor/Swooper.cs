@@ -18,19 +18,20 @@ public class Swooper : RoleBase
     private static OptionItem SwooperCooldown;
     private static OptionItem SwooperDuration;
     private static OptionItem SwooperVentNormallyOnCooldown;
+    private static OptionItem SwooperCanVent;
     private static OptionItem SwooperLimitOpt;
     public static OptionItem SwooperAbilityUseGainWithEachKill;
 
     private int CD;
     private float Cooldown;
-
     private int Count;
     private float Duration;
-
     private long InvisTime;
-
+    private bool CanVent;
+    
     private long lastFixedTime;
     private long lastTime;
+    
     private byte SwooperId;
 
     private CustomRoles UsedRole;
@@ -55,6 +56,9 @@ public class Swooper : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
 
         SwooperVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
+        
+        SwooperCanVent = new BooleanOptionItem(Id + 7, "CanVent", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
 
         SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.ImpostorRoles)
@@ -90,17 +94,20 @@ public class Swooper : RoleBase
                 Cooldown = SwooperCooldown.GetFloat();
                 Duration = SwooperDuration.GetFloat();
                 VentNormallyOnCooldown = SwooperVentNormallyOnCooldown.GetBool();
+                CanVent = SwooperCanVent.GetBool();
                 break;
             case CustomRoles.Chameleon:
                 playerId.SetAbilityUseLimit(Chameleon.UseLimitOpt.GetFloat());
                 Cooldown = Chameleon.ChameleonCooldown.GetFloat();
                 Duration = Chameleon.ChameleonDuration.GetFloat();
                 VentNormallyOnCooldown = true;
+                CanVent = true;
                 break;
             case CustomRoles.Wraith:
                 Cooldown = Wraith.WraithCooldown.GetFloat();
                 Duration = Wraith.WraithDuration.GetFloat();
                 VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
+                CanVent = Wraith.WraithCanVent.GetBool();
                 break;
         }
     }
@@ -127,7 +134,7 @@ public class Swooper : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return UsedRole != CustomRoles.Chameleon;
+        return UsedRole != CustomRoles.Chameleon && CanVent;
     }
 
     private void SendRPC()

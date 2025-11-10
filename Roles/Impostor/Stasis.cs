@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -136,12 +137,16 @@ public class Stasis : RoleBase
 
             for (var i = 0; i < time; i++)
             {
-                imps.NotifyPlayers($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> {time - i}", overrideAll: true);
+                try { imps.NotifyPlayers($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> <#ffffff>{time - i}</color>", overrideAll: true); }
+                catch (Exception e) { Utils.ThrowException(e); }
+                
                 yield return new WaitForSeconds(1f);
             }
 
             UsingAbility = false;
-            imps.NotifyPlayers(Translator.GetString("Stasis.TimeFreezeEndNotify"), overrideAll: true);
+
+            try { imps.NotifyPlayers(Translator.GetString("Stasis.TimeFreezeEndNotify"), overrideAll: true); }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));

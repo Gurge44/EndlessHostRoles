@@ -86,6 +86,8 @@ internal static class CheckForEndVotingPatch
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
                     Logger.Info("Dictatorship vote, forced end of meeting", "Special Phase");
 
+                    MeetingHudRpcClosePatch.AllowClose = true;
+
                     return true;
                 }
 
@@ -334,6 +336,8 @@ internal static class CheckForEndVotingPatch
             Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer, ejection: true);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersVotedLastMeeting = __instance.playerStates.Count(x => x.DidVote);
+
+            MeetingHudRpcClosePatch.AllowClose = true;
 
             return false;
         }
@@ -1154,6 +1158,7 @@ internal static class MeetingHudUpdatePatch
 
         if (AmongUsClient.Instance.AmHost && num5 <= 0f)
         {
+            MeetingHudRpcClosePatch.AllowClose = true;
             __instance.state = MeetingHud.VoteStates.Proceeding;
             __instance.RpcClose();
         }
@@ -1378,9 +1383,20 @@ static class SendChatNotePatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.RpcClose))]
 internal static class MeetingHudRpcClosePatch
 {
+    public static bool AllowClose;
+    
     public static bool Prefix(MeetingHud __instance)
     {
         Logger.Info("MeetingHud.RpcClose is being called", "MeetingHudRpcClosePatch");
+        
+        if (!AllowClose) 
+        {
+            Logger.Fatal("MeetingHud.RpcClose called when AllowClose is false!", "MeetingHudRpcClosePatch");
+            EAC.WarnHost(4);
+            return false;
+        }
+        
+        AllowClose = false;
 
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
         {

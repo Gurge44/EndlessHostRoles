@@ -1946,7 +1946,10 @@ internal static class ChatCommands
         }
 
         if (GameStates.IsMeeting)
+        {
+            MeetingHudRpcClosePatch.AllowClose = true;
             MeetingHud.Instance.RpcClose();
+        }
         else
             player.NoCheckStartMeeting(null, true);
     }
@@ -2932,7 +2935,7 @@ internal static class ChatCommands
 
         string name = string.Join(' ', args[1..]);
 
-        if (name.Length is > 15 or < 1)
+        if (name.RemoveHtmlTags().Length is > 15 or < 1)
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {

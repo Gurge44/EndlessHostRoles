@@ -3621,8 +3621,16 @@ public static class Utils
                     NiceSwapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
                     break;
                 case CustomRoles.Silencer when disconnect:
-                    Silencer.ForSilencer = [];
+                    if (onMeeting) Main.Instance.StartCoroutine(CoRoutine());
+                    else Silencer.ForSilencer = [];
+
                     break;
+
+                    IEnumerator CoRoutine()
+                    {
+                        while (GameStates.IsMeeting || ExileController.Instance) yield return null;
+                        Silencer.ForSilencer = [];
+                    }
                 case CustomRoles.Hypnotist when disconnect && Hypnotist.DoReportAfterHypnosisEnds.GetBool():
                     ReportDeadBodyPatch.CanReport.SetAllValues(true);
                     break;

@@ -119,6 +119,8 @@ internal static class RpcMurderPlayerPatch
             .EndRpc();
 
         sender.SendMessage();
+        
+        LateTask.New(target.RpcExileV2, 1f, log: false);
         return false;
     }
 }

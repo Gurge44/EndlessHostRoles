@@ -569,6 +569,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             // ===================================================================================================================
 
+            if (state.IsBlackOut)
+                SetBlind();
+            
             AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown))

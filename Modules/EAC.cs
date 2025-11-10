@@ -236,8 +236,8 @@ internal static class EAC
                 }
                 case RpcCalls.MurderPlayer:
                 {
-                    var target = sr.ReadNetObject<PlayerControl>();
-                    var resultFlags = (MurderResultFlags)sr.ReadInt32();
+                    // var target = sr.ReadNetObject<PlayerControl>();
+                    // var resultFlags = (MurderResultFlags)sr.ReadInt32();
 
                     if (GameStates.IsLobby)
                     {
@@ -247,9 +247,6 @@ internal static class EAC
                         sr.Recycle();
                         return true;
                     }
-
-                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
-                        LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
 
                     Report(pc, "Directly Murder Player");
                     HandleCheat(pc, "Directly Murder Player");
