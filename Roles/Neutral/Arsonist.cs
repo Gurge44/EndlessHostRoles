@@ -181,9 +181,9 @@ internal class Arsonist : RoleBase
     {
         byte playerId = player.PlayerId;
 
-        if (GameStates.IsInTask && ArsonistTimer.ContainsKey(playerId))
+        if (GameStates.IsInTask && ArsonistTimer.TryGetValue(playerId, out var value))
         {
-            PlayerControl arTarget = ArsonistTimer[playerId].Player;
+            PlayerControl arTarget = value.Player;
 
             if (!player.IsAlive() || Pelican.IsEaten(playerId))
             {
@@ -193,7 +193,7 @@ internal class Arsonist : RoleBase
             }
             else
             {
-                float arTime = ArsonistTimer[playerId].Timer;
+                float arTime = value.Timer;
 
                 if (!arTarget.IsAlive())
                     ArsonistTimer.Remove(playerId);
