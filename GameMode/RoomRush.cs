@@ -408,11 +408,6 @@ public static class RoomRush
         }
     }
 
-    public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
-    {
-        return ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);
-    }
-
     public static string GetSuffix(PlayerControl seer)
     {
         if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
@@ -517,9 +512,9 @@ public static class RoomRush
 
             foreach (PlayerControl pc in aapc)
             {
-                PlainShipRoom room = pc.GetPlainShipRoom();
+                bool isInRoom = pc.IsInRoom(RoomGoal);
 
-                if (pc.IsAlive() && !pc.inMovingPlat && !pc.inVent && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
+                if (pc.IsAlive() && !pc.inMovingPlat && !pc.inVent && isInRoom && DonePlayers.Add(pc.PlayerId))
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
                     pc.Notify($"<size=100%>{DonePlayers.Count}.</size>", 2f);
@@ -554,7 +549,7 @@ public static class RoomRush
                         return;
                     }
                 }
-                else if ((room == null || room.RoomId != RoomGoal) && !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool() && DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
+                else if (!isInRoom && !DontKillPlayersOutsideRoomWhenTimeRunsOut.GetBool() && DonePlayers.Remove(pc.PlayerId) && WinByPointsInsteadOfDeaths.GetBool())
                     Points[pc.PlayerId] -= aapc.Length - DonePlayers.Count;
             }
 

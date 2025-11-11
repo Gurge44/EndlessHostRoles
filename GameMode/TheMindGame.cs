@@ -686,9 +686,8 @@ public static class TheMindGame
             {
                 Group group = Groups[pc.PlayerId];
                 SystemTypes groupRoom = GroupRooms[group];
-                PlainShipRoom room = pc.GetPlainShipRoom();
 
-                if (room == null || room.RoomId != groupRoom)
+                if (!pc.IsInRoom(groupRoom))
                     pc.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions[groupRoom]);
             }
 

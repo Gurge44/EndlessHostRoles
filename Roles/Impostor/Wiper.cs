@@ -114,7 +114,7 @@ public class Wiper : RoleBase
         PlainShipRoom room = pc.GetPlainShipRoom();
         if (IsInvalidRoom(room)) return;
 
-        Main.AllAlivePlayerControls.Without(pc).DoIf(x => x.GetPlainShipRoom() == room && pc.RpcCheckAndMurder(x, true), x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
+        Main.AllAlivePlayerControls.Without(pc).DoIf(x => x.IsInRoom(room) && pc.RpcCheckAndMurder(x, true), x => x.Suicide(PlayerState.DeathReason.WipedOut, pc));
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

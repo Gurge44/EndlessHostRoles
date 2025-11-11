@@ -1327,15 +1327,7 @@ internal static class IntroCutsceneDestroyPatch
             Main.GameTimer = 0f;
             
             if (AmongUsClient.Instance.AmHost && SubmergedCompatibility.IsSubmerged())
-            {
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
-                    PlainShipRoom room = pc.GetPlainShipRoom();
-
-                    if (room == null || room.RoomId is not ((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral or (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral))
-                        pc.TP(new Vector2(3.32f, -26.57f));
-                }
-            }
+                Main.AllAlivePlayerControls.DoIf(x => !x.IsInRoom((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral) && !x.IsInRoom((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral), x => x.TP(new Vector2(3.32f, -26.57f)));
             
             if (!HudManager.InstanceExists) return;
 

@@ -2149,6 +2149,24 @@ internal static class ExtendedPlayerControl
         Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
         return rooms.Where(room => room.roomArea).FirstOrDefault(room => pc.Collider.IsTouching(room.roomArea));
     }
+    
+    public static bool IsInRoom(this PlayerControl pc, PlainShipRoom room)
+    {
+        if (!room.roomArea) return false;
+        return pc.IsAlive() && pc.Collider.IsTouching(room.roomArea);
+    }
+    
+    public static bool IsInRoom(this PlayerControl pc, SystemTypes roomId)
+    {
+        if (!pc.IsAlive()) return false;
+        PlainShipRoom room = roomId.GetRoomClass();
+        return room.roomArea && pc.Collider.IsTouching(room.roomArea);
+    }
+
+    public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
+    {
+        return ShipStatus.Instance.FastRooms.TryGetValue(systemTypes, out var room) ? room : ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == systemTypes);
+    }
 
     public static bool IsImpostor(this PlayerControl pc)
     {
@@ -2271,5 +2289,4 @@ internal static class ExtendedPlayerControl
         if (pc.IsModdedClient() || pc.IsTrusted() || pc.FriendCode.GetDevUser().HasTag()) return false;
         return !Main.GamesPlayed.TryGetValue(pc.FriendCode, out int gamesPlayed) || gamesPlayed < 4;
     }
-
 }

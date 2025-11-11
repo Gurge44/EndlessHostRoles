@@ -461,7 +461,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         if (SecurityGuard.BlockSabo.Count > 0) return false;
 
-        if (Doorjammer.BlockSabotagesFromJammedRooms.GetBool())
+        if (Doorjammer.BlockSabotagesFromJammedRooms.GetBool() && Doorjammer.JammedRooms.Count > 0)
         {
             var room = player.GetPlainShipRoom();
             

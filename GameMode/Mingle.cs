@@ -312,7 +312,7 @@ public static class Mingle
         }
     }
     
-    private static int GetNumPlayersInRoom(SystemTypes room) => Main.AllAlivePlayerControls.Where(x => !x.inMovingPlat).Select(x => x.GetPlainShipRoom()).Count(x => x != null && x.RoomId == room);
+    private static int GetNumPlayersInRoom(SystemTypes room) => Main.AllAlivePlayerControls.Where(x => !x.inMovingPlat).Count(x => x.IsInRoom(room));
 
     public static void HandleDisconnect()
     {

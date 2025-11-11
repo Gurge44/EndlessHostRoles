@@ -276,12 +276,11 @@ public static class Deathrace
         if (!GameGoing || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
 
         StringBuilder sb = new("<#ffffff>");
-        PlainShipRoom room = seer.GetPlainShipRoom();
         
         sb.AppendLine($"<#888888>{string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin)}</color>");
 
-        if (room != null && room.RoomId == data.LastRoom)
-            sb.Append($"<u>{Translator.GetString(room.RoomId.ToString())}</u> ");
+        if (seer.IsInRoom(data.LastRoom))
+            sb.Append($"<u>{Translator.GetString(data.LastRoom.ToString())}</u> ");
         
         int index = Track.IndexOf(data.LastRoom);
         bool coordinateCheck = CoordinateChecks.TryGetValue((int)data.NextRoom, out var coordinates);

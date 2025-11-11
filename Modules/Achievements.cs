@@ -122,7 +122,21 @@ public static class Achievements
         GetMuted, // As Banshee, make everyone not have a chat button in a meeting
         BadEncounter, // As Veteran, get killed while alerted (pestilence,pelican, bypass abilities, etc)
         DestinysChoice, // Die to the Wyrd's fate countdown
-        YouUnderestimatedMe // Get shielded by the Medic then kill them
+        YouUnderestimatedMe, // Get shielded by the Medic then kill them
+        Abstain, // Don't vote any player for the entire game
+        Collapse, // With Fragile, get Ambushed by the Ambusher
+        YouCopiedMyWholeFlow, // As Pelican, Have your body Scavenged
+        Bloodthirsty, // As Juggernaut or Arrogance, reach your minimum kill cooldown
+        Lumberjack, // As Weapon Master, kill the Tree with your Axe
+        Massacre, // As Chronomancer, kill 4 or more people at once in a Slaughter
+        PayUp, // Kill a player as Clerk
+        AlarmClock, // Lose Sleepy from Glow getting near you
+        Eavesdropper, // Hear 3 or more messages with Listener in a single meeting
+        YouCopycat, // Have a Rift Maker go through your portal as Portal Maker
+        Easypeasy, // Correctly guess God as Decryptor
+        YourZoneIsMine, // Win in King Of The Zones game mode
+        Checkmate, // Change your role as Pawn, win as your new role
+        HeyRabek // Make H2SO4 as the Chemist
     }
 
     private static readonly string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";

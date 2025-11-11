@@ -61,17 +61,17 @@ public class Patroller : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).GetPlainShipRoom() == RoomBoosts[Boost.Cooldown] ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
+        Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsInRoom(RoomBoosts[Boost.Cooldown]) ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
+        return pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.IsInRoom(RoomBoosts[Boost.Vent]);
     }
 
     public override bool CanUseSabotage(PlayerControl pc)
     {
-        return base.CanUseSabotage(pc) || pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage];
+        return base.CanUseSabotage(pc) || pc.IsInRoom(RoomBoosts[Boost.Sabotage]);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -116,7 +116,7 @@ public class Patroller : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent]) return;
+        if (pc.IsInRoom(RoomBoosts[Boost.Vent])) return;
 
         pc.RpcRemoveAbilityUse();
     }

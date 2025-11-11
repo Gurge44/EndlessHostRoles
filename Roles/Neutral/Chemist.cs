@@ -103,7 +103,7 @@ internal class Chemist : RoleBase
         }
     };
 
-    private static Dictionary<string, Factory> FactoryLocations = [];
+    private static Dictionary<SystemTypes, Factory> FactoryLocations = [];
 
     private Dictionary<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> AcidPlayers;
     private HashSet<byte> BombedBodies;
@@ -196,7 +196,8 @@ internal class Chemist : RoleBase
         LateTask.New(() =>
         {
             FactoryLocations = ShipStatus.Instance.AllRooms
-                .Select(x => Translator.GetString($"{x.RoomId}"))
+                .Select(x => x.RoomId)
+                .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
                 .Distinct()
                 .Zip(Enum.GetValues<Factory>()[1..])
                 .ToDictionary(x => x.First, x => x.Second);
@@ -497,7 +498,7 @@ internal class Chemist : RoleBase
 
         if (room != null)
         {
-            CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
+            CurrentFactory = FactoryLocations.GetValueOrDefault(room.RoomId);
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3, (int)CurrentFactory);
 
             if (CurrentFactory != beforeFactory)
@@ -669,7 +670,7 @@ internal class Chemist : RoleBase
             sb.Append("<b>");
             sb.Append("<u>");
             sb.Append(factoryName);
-            if (FactoryLocations.ContainsValue(factory)) sb.Append($" ({FactoryLocations.GetKeyByValue(factory)})");
+            if (FactoryLocations.ContainsValue(factory)) sb.Append($" ({Translator.GetString(FactoryLocations.GetKeyByValue(factory).ToString())})");
             sb.Append(':');
             sb.Append("</u>");
             sb.Append("</b>");
