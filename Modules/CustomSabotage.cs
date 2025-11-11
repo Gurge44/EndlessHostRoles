@@ -67,7 +67,7 @@ public abstract class CustomSabotage
 
         var result = suffix.ToString();
 
-        if (seer.IsNonHostModdedClient())
+        if (seer.IsNonHostModdedClient() && suffix.Length > 0)
         {
             long now = Utils.TimeStamp;
             

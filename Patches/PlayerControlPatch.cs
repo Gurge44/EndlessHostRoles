@@ -2015,7 +2015,14 @@ internal static class FixedUpdatePatch
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
             List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
-            if (addSuff.Count > 0) Suffix.Append(string.Join('\n', addSuff));
+            
+            if (addSuff.Count > 0)
+            {
+                if (Suffix.Length > 0 && Suffix[^1] != '\n')
+                    Suffix.Append('\n');
+                
+                Suffix.Append(string.Join('\n', addSuff));
+            }
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
