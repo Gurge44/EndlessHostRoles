@@ -3409,6 +3409,7 @@ public static class Utils
             CustomRoles.Escapee => Escapee.EscapeeSSCD.GetInt(),
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
+            CustomRoles.Trapster => Trapster.AbilityCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Centralizer => Centralizer.AbilityCooldown.GetInt(),
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
@@ -4402,4 +4403,3 @@ public class Message(string text, byte sendTo = byte.MaxValue, string title = ""
     public byte SendTo { get; } = sendTo;
     public string Title { get; } = title;
 }
-
