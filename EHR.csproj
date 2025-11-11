@@ -15,6 +15,7 @@
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>
         <Configurations>Debug;Release;Android</Configurations>
         <Platforms>AnyCPU</Platforms>
+        <RepositoryUrl>https://github.com/Gurge44/EndlessHostRoles</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>

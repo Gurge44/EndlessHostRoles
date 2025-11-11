@@ -443,6 +443,9 @@ public static class GuessManager
                         Logger.Msg($"{guesserSuicide}", "guesserSuicide3");
                     }
 
+                    Main.GuesserGuessed[pc.PlayerId]++;
+                    Main.GuesserGuessedMeeting[pc.PlayerId]++;
+
                     if (guesserSuicide && Options.GuesserDoesntDieOnMisguess.GetBool())
                     {
                         if (!isUI) Utils.SendMessage(GetString("MisguessButNoSuicide"), pc.PlayerId, Utils.ColorString(Color.yellow, GetString("MessageFromGurge44")));
@@ -460,9 +463,6 @@ public static class GuessManager
                     target = dp;
 
                     Logger.Info($"Player: {target.GetRealName().RemoveHtmlTags()} was guessed by {pc.GetRealName().RemoveHtmlTags()}", "Guesser");
-
-                    Main.GuesserGuessed[pc.PlayerId]++;
-                    Main.GuesserGuessedMeeting[pc.PlayerId]++;
 
                     if (pc.IsHost()) Utils.FlashColor(guesserSuicide ? new(1f, 0f, 0f, 0.3f) : new(0f, 1f, 0f, 0.3f));
 
