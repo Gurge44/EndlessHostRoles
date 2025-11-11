@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
 
@@ -11,24 +12,33 @@ internal class Trapster : RoleBase
 
     public static bool On;
 
+    public static OptionItem LegacyTrapster;
     private static OptionItem TrapsterKillCooldown;
     private static OptionItem TrapOnlyWorksOnTheBodyTrapster;
     private static OptionItem TrapConsecutiveBodies;
+    private static OptionItem VanishCooldown;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.Trapster);
 
-        TrapsterKillCooldown = new FloatOptionItem(16510, "KillCooldown", new(2.5f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
+        VanishCooldown = new FloatOptionItem(16510, "VanishCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster])
             .SetValueFormat(OptionFormat.Seconds);
-
-        TrapOnlyWorksOnTheBodyTrapster = new BooleanOptionItem(16511, "TrapOnlyWorksOnTheBodyTrapster", true, TabGroup.ImpostorRoles)
+        
+        TrapsterKillCooldown = new FloatOptionItem(16511, "KillCooldown", new(2.5f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster])
+            .SetValueFormat(OptionFormat.Seconds);
+        
+        LegacyTrapster = new BooleanOptionItem(16512, "LegacyTrapster", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster]);
 
-        TrapConsecutiveBodies = new BooleanOptionItem(16512, "TrapConsecutiveBodies", true, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster]);
+        TrapOnlyWorksOnTheBodyTrapster = new BooleanOptionItem(16513, "TrapOnlyWorksOnTheBodyTrapster", true, TabGroup.ImpostorRoles)
+            .SetParent(LegacyTrapster);
+
+        TrapConsecutiveBodies = new BooleanOptionItem(16514, "TrapConsecutiveBodies", true, TabGroup.ImpostorRoles)
+            .SetParent(LegacyTrapster);
     }
 
     public override void Add(byte playerId)
@@ -48,9 +58,14 @@ internal class Trapster : RoleBase
         Main.AllPlayerKillCooldown[id] = TrapsterKillCooldown.GetFloat();
     }
 
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (!LegacyTrapster.GetBool()) AURoleOptions.PhantomCooldown = VanishCooldown.GetFloat();
+    }
+
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (TrapOnlyWorksOnTheBodyTrapster.GetBool() && !GameStates.IsMeeting)
+        if (TrapOnlyWorksOnTheBodyTrapster.GetBool() && !GameStates.IsMeeting && LegacyTrapster.GetBool())
             TrapsterBody.Add(target.PlayerId);
 
         return true;
@@ -58,7 +73,7 @@ internal class Trapster : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!TrapOnlyWorksOnTheBodyTrapster.GetBool() && killer != target)
+        if (!TrapOnlyWorksOnTheBodyTrapster.GetBool() && killer != target && LegacyTrapster.GetBool())
         {
             if (!TrapsterBody.Contains(target.PlayerId))
                 TrapsterBody.Add(target.PlayerId);
@@ -71,7 +86,7 @@ internal class Trapster : RoleBase
 
     public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
-        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Unreportable))
+        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Unreportable) && LegacyTrapster.GetBool())
         {
             if (!TrapOnlyWorksOnTheBodyTrapster.GetBool())
             {
@@ -93,7 +108,25 @@ internal class Trapster : RoleBase
             RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
             return false;
         }
-
+        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !LegacyTrapster.GetBool())
+        {
+            if (reporter.IsImpostor()) return true;
+            reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(target.PlayerId)); 
+            RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
+            return false;
+        }
         return true;
+    }
+    public override bool OnVanish(PlayerControl player)
+    {
+        if (!LegacyTrapster.GetBool())
+        {
+            Vector2 location = player.GetTruePosition();
+            TrapsterBody.Add(player.PlayerId);
+            Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(0, 17), player);
+            return false;
+        }
+
+        return base.OnVanish(player);
     }
 }
