@@ -2308,7 +2308,6 @@
   "BribedByMerchant2": "<size=80%>あなたは <#D27D2D>行商人</color>が あなたに賄賂を賄賂を渡した後なので 推測ができません。</size>",
   "MerchantKillAttemptBribed": "殺害未遂は 賄賂によって回避された",
   "TrapOnlyWorksOnTheBodyTrapster": "Trap only works on <color=#ff1919>Trapster</color>'s body",
-  "VanishCooldown": "Vanish cooldown",
   "LegacyTrapster": "Use legacy Trapster",
   "TrapConsecutiveBodies": "トラップは 死体で連鎖する",
   "HauntedByEvilSpirit": "悪霊によって 取り憑かれた",
