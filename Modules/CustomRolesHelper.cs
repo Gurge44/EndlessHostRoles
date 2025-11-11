@@ -1072,9 +1072,9 @@ internal static class CustomRolesHelper
             CustomRoles.RiftMaker or
             CustomRoles.Ninja or
             CustomRoles.QuickShooter or
-            CustomRoles.Trapster or
             CustomRoles.Sapper or
             CustomRoles.Sniper or
+            CustomRoles.Trapster or
             CustomRoles.Twister or
             CustomRoles.Swooper or
             CustomRoles.Venerer or
@@ -2010,3 +2010,4 @@ public enum CountTypes
 
     Coven
 }
+
