@@ -635,6 +635,7 @@ internal static class BeginCrewmatePatch
                     => HudManager.Instance.Chat.messageSound,
 
                 CustomRoles.AntiAdminer or
+                    CustomRoles.Sensor or
                     CustomRoles.Telecommunication
                     => HudManager.Instance.Chat.warningSound,
 
@@ -720,6 +721,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.EngineerEHR or
                     CustomRoles.Adventurer or
                     CustomRoles.Alchemist or
+                    CustomRoles.CameraMan or
                     CustomRoles.Clerk or
                     CustomRoles.Dealer or
                     CustomRoles.Detour or
@@ -788,6 +790,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Phantom
                     or CustomRoles.PhantomEHR
                     or CustomRoles.Ambusher
+                    or CustomRoles.Exclusionary
                     or CustomRoles.Stalker
                     or CustomRoles.SoulCatcher
                     or CustomRoles.SoulHunter
@@ -797,6 +800,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.ShapeshifterEHR
                     or CustomRoles.Gambler
                     or CustomRoles.Mastermind
+                    or CustomRoles.Morphling
                     or CustomRoles.Randomizer
                     or CustomRoles.Shiftguard
                     or CustomRoles.Wizard
@@ -858,7 +862,7 @@ internal static class BeginCrewmatePatch
                 __instance.TeamTitle.text = Utils.GetRoleName(role);
                 __instance.TeamTitle.color = Utils.GetRoleColor(role);
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("ModeSoloPVP");
+                __instance.ImpostorText.text = GetString("KB_NormalInfo");
                 __instance.BackgroundBar.material.color = color;
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 break;
