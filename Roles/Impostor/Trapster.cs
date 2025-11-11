@@ -23,14 +23,14 @@ internal class Trapster : RoleBase
     {
         SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.Trapster);
 
-        VanishCooldown = new FloatOptionItem(16510, "VanishCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
+        VanishCooldown = new FloatOptionItem(16510, "AbilityCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster])
             .SetValueFormat(OptionFormat.Seconds);
-        
+
         TrapsterKillCooldown = new FloatOptionItem(16511, "KillCooldown", new(2.5f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster])
             .SetValueFormat(OptionFormat.Seconds);
-        
+
         LegacyTrapster = new BooleanOptionItem(16512, "LegacyTrapster", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster]);
 
@@ -108,22 +108,25 @@ internal class Trapster : RoleBase
             RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
             return false;
         }
+
         if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !LegacyTrapster.GetBool())
         {
             if (reporter.IsImpostor()) return true;
-            reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(target.PlayerId)); 
+            reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(target.PlayerId));
             RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
             return false;
         }
+
         return true;
     }
+
     public override bool OnVanish(PlayerControl player)
     {
         if (!LegacyTrapster.GetBool())
         {
-            Vector2 location = player.GetTruePosition();
+            Vector2 location = player.Pos();
             TrapsterBody.Add(player.PlayerId);
-            Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(0, 17), player);
+            Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(17), player);
             return false;
         }
 
