@@ -858,13 +858,11 @@ internal static class BeginCrewmatePatch
         {
             case CustomGameMode.SoloPVP:
             {
-                Color color = ColorUtility.TryParseHtmlString("#f55252", out Color c) ? c : new(255, 255, 255, 255);
-                __instance.TeamTitle.text = Utils.GetRoleName(role);
-                __instance.TeamTitle.color = Utils.GetRoleColor(role);
+                __instance.TeamTitle.text = GetString("KB_Normal");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(245, 82, 82, byte.MaxValue;
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("KB_NormalInfo");
-                __instance.BackgroundBar.material.color = color;
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 break;
             }
             case CustomGameMode.FFA:
