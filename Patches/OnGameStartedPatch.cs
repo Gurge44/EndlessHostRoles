@@ -24,7 +24,6 @@ using static EHR.Translator;
 using DateTime = Il2CppSystem.DateTime;
 using Exception = System.Exception;
 
-
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGame))]
@@ -553,7 +552,7 @@ internal static class StartGameHostPatch
 
             if (loadingBarLogo)
             {
-                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 600f);
+                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 460f);
                 loadingBarLogo.SetNativeSize();
             }
 
