@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
+using EHR.Modules;
 using Hazel;
 
 namespace EHR.Neutral;
@@ -70,6 +71,8 @@ public class Clerk : RoleBase
             target.RpcExileV2();
             Utils.AfterPlayerDeathTasks(target, true);
             Utils.SendMessage(string.Format(Translator.GetString("Clerk.Killed"), target.PlayerId.ColoredPlayerName()), title: CustomRoles.Clerk.ToColoredString());
+            
+            if (voter.AmOwner) Achievements.Type.PayUp.Complete();
         }
 
         Main.DontCancelVoteList.Add(voter.PlayerId);

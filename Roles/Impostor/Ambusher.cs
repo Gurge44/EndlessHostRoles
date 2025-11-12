@@ -143,6 +143,10 @@ public class Ambusher : RoleBase
                     FragilePlayers[TargetId] = now + FragileDuration.GetInt();
                     Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, 3, TargetId);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: TargetId.GetPlayer());
+                    
+                    if (Main.PlayerStates.TryGetValue(TargetId, out var s) && s.Player != null && s.Player.AmOwner && s.SubRoles.Contains(CustomRoles.Fragile))
+                        Achievements.Type.Collapse.CompleteAfterGameEnd();
+                    
                     TargetId = byte.MaxValue;
                     TargetTimer = FollowDuration.GetFloat();
                 }

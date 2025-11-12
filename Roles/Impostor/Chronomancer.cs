@@ -13,11 +13,13 @@ public class Chronomancer : RoleBase
     private static OptionItem KCD;
     private static OptionItem ChargeInterval;
     private static OptionItem ChargeLossInterval;
+
+    private int RampageKills;
     private int ChargePercent;
     private byte ChronomancerId;
-
     private bool IsRampaging;
     private long LastUpdate;
+    
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -68,6 +70,7 @@ public class Chronomancer : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+        RampageKills = 0;
         IsRampaging = false;
         ChargePercent = 0;
         LastUpdate = Utils.TimeStamp + 10;
@@ -90,6 +93,7 @@ public class Chronomancer : RoleBase
 
         if (!IsRampaging)
         {
+            RampageKills = 0;
             IsRampaging = true;
             SendRPC();
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.ImpTransform);
@@ -98,6 +102,14 @@ public class Chronomancer : RoleBase
         }
 
         return base.OnCheckMurder(killer, target);
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (IsRampaging) RampageKills++;
+        
+        if (killer.AmOwner && RampageKills >= 4)
+            Achievements.Type.Massacre.Complete();
     }
 
     public override void OnFixedUpdate(PlayerControl pc)

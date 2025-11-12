@@ -1,5 +1,6 @@
 ﻿using EHR.Modules;
 using EHR.Neutral;
+using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -44,21 +45,31 @@ internal class Scavenger : RoleBase
             float dur = ScavengerKillDuration.GetFloat();
             killer.Notify("....", dur);
             killer.SetKillCooldown(dur + 0.5f);
+            Main.Instance.StartCoroutine(CoRoutine());
+            return false;
 
-            LateTask.New(() =>
+            System.Collections.IEnumerator CoRoutine()
             {
-                if (Vector2.Distance(killer.Pos(), target.Pos()) > 2f) return;
-
+                while (dur > 0)
+                {
+                    if (killer == null || target == null || Vector2.Distance(killer.Pos(), target.Pos()) > 2f) yield break;
+                    dur -= Time.fixedDeltaTime;
+                    yield return null;
+                }
+                
                 target.TP(Pelican.GetBlackRoomPS());
                 target.Suicide(PlayerState.DeathReason.Scavenged, killer);
-                if (target.Is(CustomRoles.Pelican)) Pelican.OnPelicanDied(target.PlayerId);
+                
+                if (target.Is(CustomRoles.Pelican))
+                {
+                    Pelican.OnPelicanDied(target.PlayerId);
+                    if (target.AmOwner) Achievements.Type.YouCopiedMyWholeFlow.Complete();
+                }
 
                 killer.SetKillCooldown();
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                 target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scavenger), Translator.GetString("KilledByScavenger")));
-            }, dur, "Scavenger Kill");
-
-            return false;
+            }
         }
 
         killer.Suicide(PlayerState.DeathReason.Kill, target);

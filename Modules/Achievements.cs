@@ -124,8 +124,8 @@ public static class Achievements
         DestinysChoice, // Die to the Wyrd's fate countdown
         YouUnderestimatedMe, // Get shielded by the Medic then kill them
         Abstain, // Don't vote any player for the entire game
-        Collapse, // With Fragile, get Ambushed by the Ambusher
-        YouCopiedMyWholeFlow, // As Pelican, Have your body Scavenged
+        Collapse, // With Fragile, get ambushed by the Ambusher
+        YouCopiedMyWholeFlow, // As Pelican, have your body scavenged
         Bloodthirsty, // As Juggernaut or Arrogance, reach your minimum kill cooldown
         Lumberjack, // As Weapon Master, kill the Tree with your Axe
         Massacre, // As Chronomancer, kill 4 or more people at once in a Slaughter

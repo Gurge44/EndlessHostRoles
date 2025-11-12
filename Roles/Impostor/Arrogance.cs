@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
+using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Impostor;
@@ -135,6 +136,9 @@ public class Arrogance : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, ArroganceID, NowCooldown);
         killer?.ResetKillCooldown();
         killer?.SyncSettings();
+        
+        if (killer?.AmOwner == true && Mathf.Approximately(NowCooldown, MinKCD))
+            Achievements.Type.Bloodthirsty.Complete();
     }
 
     public override void OnReportDeadBody()

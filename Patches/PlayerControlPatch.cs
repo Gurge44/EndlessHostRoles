@@ -1211,6 +1211,8 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
+        Listener.LocalPlayerHeardMessagesThisMeeting = 0;
+
         GameEndChecker.ShouldNotCheck = false;
 
         try

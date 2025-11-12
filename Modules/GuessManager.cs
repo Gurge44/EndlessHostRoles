@@ -542,6 +542,9 @@ public static class GuessManager
 
                         MeetingManager.OnGuess(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
+                        
+                        if (pc.AmOwner && pc.Is(CustomRoles.Decryptor) && dp.Is(CustomRoles.God))
+                            Achievements.Type.Easypeasy.Complete();
 
                         LateTask.New(() => Utils.SendMessage(string.Format(GetString("GuessKill"), Main.AllPlayerNames.GetValueOrDefault(dp.PlayerId, name)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))), 0.6f, "Guess Msg");
 

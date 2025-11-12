@@ -62,7 +62,7 @@ internal class Chemist : RoleBase
         {
             ["Cracking of Naphtha to Mineral Oil"] = ([(60, Item.Naphtha), (20, Item.ThermalWater), (20, Item.CarbonMonoxide)], [(100, Item.BaseMineralOil)]),
             ["Coal Cracking Fischer Tropsch Process"] = ([(5, Item.Coal), (50, Item.Steam), (50, Item.OxygenGas)], [(100, Item.SynthesisGas), (20, Item.CarbonDioxide), (30, Item.HydrogenSulfideGas)]),
-            ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(2, Item.Explosive)])
+            ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(3, Item.Explosive)])
         },
         [Factory.SteamCracker] = new()
         {
@@ -99,7 +99,7 @@ internal class Chemist : RoleBase
         },
         [Factory.AssemblingMachine] = new()
         {
-            ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(1, Item.Grenade)])
+            ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(2, Item.Grenade)])
         }
     };
 
@@ -180,8 +180,8 @@ internal class Chemist : RoleBase
             {
                 Item.Explosive => 1,
                 Item.Grenade => 1,
-                Item.SulfuricAcid => 30,
-                Item.MethylamineGas => 100,
+                Item.SulfuricAcid => 15,
+                Item.MethylamineGas => 50,
                 _ => 0
             };
     }
@@ -578,6 +578,9 @@ internal class Chemist : RoleBase
         });
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        
+        if (pc.AmOwner && Results.Exists(x => x.Item == Item.SulfuricAcid))
+            Achievements.Type.HeyRabek.Complete();
     }
 
     public void ReceiveRPC(MessageReader reader)

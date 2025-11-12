@@ -1222,6 +1222,9 @@ internal static class ChatCommands
             if (!listener.Is(CustomRoles.Listener) || IRandom.Instance.Next(100) >= Listener.WhisperHearChance.GetInt()) continue;
             string message = IRandom.Instance.Next(100) < Listener.FullMessageHearChance.GetInt() ? string.Format(GetString("Listener.FullMessage"), coloredRole, fromName, toName, msg) : string.Format(GetString("Listener.FromTo"), coloredRole, fromName, toName);
             Utils.SendMessage("\n", listener.PlayerId, message);
+            
+            if (listener.AmOwner && ++Listener.LocalPlayerHeardMessagesThisMeeting >= 3)
+                Achievements.Type.Eavesdropper.Complete();
         }
     }
 
