@@ -1292,7 +1292,6 @@ internal static class CustomRolesHelper
                 CustomRoles.Lightning or
                 CustomRoles.Echo or
                 CustomRoles.Fireworker or
-                CustomRoles.Hangman or
                 CustomRoles.Ninja or
                 CustomRoles.Butcher or
                 CustomRoles.Postponer or
@@ -2010,4 +2009,5 @@ public enum CountTypes
 
     Coven
 }
+
 
