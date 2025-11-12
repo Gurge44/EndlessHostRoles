@@ -24,7 +24,7 @@ internal static class HotPotato
     private static long LastPassTS;
 
     public static bool CanPassViaKillButton => HolderCanPassViaKillButton.GetBool();
-    public static int TimeBetweenPasses => Time.GetInt();
+
     public static (byte HolderID, byte LastHolderID) GetState()
     {
         return (HotPotatoState.HolderID, HotPotatoState.LastHolderID);
@@ -80,14 +80,7 @@ internal static class HotPotato
 
     public static void OnGameStart()
     {
-        int time = Time.GetInt();
-        time += Main.CurrentMap switch
-        {
-            MapNames.Airship => ExtraTimeOnAirship.GetInt(),
-            MapNames.Fungle => ExtraTimeOnFungle.GetInt(),
-            _ => 0
-        };
-        HotPotatoState = (byte.MaxValue, byte.MaxValue, time, 1);
+        HotPotatoState = (byte.MaxValue, byte.MaxValue, GetKillInterval(), 1);
         LastPassTS = Utils.TimeStamp;
     }
 
@@ -114,6 +107,16 @@ internal static class HotPotato
     {
         HotPotatoState.HolderID = reader.ReadByte();
         HotPotatoState.LastHolderID = reader.ReadByte();
+    }
+
+    public static int GetKillInterval()
+    {
+        return Time.GetInt() + Main.CurrentMap switch
+        {
+            MapNames.Airship => ExtraTimeOnAirship.GetInt(),
+            MapNames.Fungle => ExtraTimeOnFungle.GetInt(),
+            _ => 0
+        };
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -146,7 +149,7 @@ internal static class HotPotato
             if (HotPotatoState.TimeLeft <= 0)
             {
                 holder.Suicide();
-                SurvivalTimes[HotPotatoState.HolderID] = Time.GetInt() * (HotPotatoState.RoundNum - 1);
+                SurvivalTimes[HotPotatoState.HolderID] = (HotPotatoState.RoundNum - 1) * GetKillInterval();
                 PassHotPotato();
 
                 if (holder.AmOwner)
@@ -181,14 +184,7 @@ internal static class HotPotato
 
             if (resetTime)
             {
-                int time = Time.GetInt();
-                time += Main.CurrentMap switch
-                {
-                    MapNames.Airship => ExtraTimeOnAirship.GetInt(),
-                    MapNames.Fungle => ExtraTimeOnFungle.GetInt(),
-                    _ => 0
-                };
-                HotPotatoState.TimeLeft = time;
+                HotPotatoState.TimeLeft = GetKillInterval();
                 HotPotatoState.RoundNum++;
             }
 

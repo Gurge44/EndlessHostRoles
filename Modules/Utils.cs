@@ -1773,7 +1773,7 @@ public static class Utils
 
         TaskState taskState = GetPlayerById(terrorist.PlayerId).GetTaskState();
 
-        if (taskState.IsTaskFinished && (!Main.PlayerStates[terrorist.PlayerId].IsSuicide || Options.CanTerroristSuicideWin.GetBool()))
+        if (taskState.IsTaskFinished && (!Main.PlayerStates[terrorist.PlayerId].IsSuicide || Terrorist.CanTerroristSuicideWin.GetBool()))
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
@@ -3359,7 +3359,8 @@ public static class Utils
     {
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.Standard or CustomGameMode.HideAndSeek => true,
+            CustomGameMode.Standard when !PlayerControl.LocalPlayer.Is(CustomRoles.GM) => true,
+            CustomGameMode.HideAndSeek => true,
             CustomGameMode.StopAndGo or CustomGameMode.Speedrun when PlayerControl.LocalPlayer.IsAlive() => true,
             _ => false
         };
@@ -3440,7 +3441,6 @@ public static class Utils
             CustomRoles.Explosivist => Explosivist.AbilityCooldown.GetInt() + (includeDuration ? Explosivist.ExplosionDelay.GetInt() : 0),
             CustomRoles.Sharpshooter => Sharpshooter.AbilityCooldown.GetInt() + (includeDuration ? Sharpshooter.AbilityDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
-            CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
             CustomRoles.Weatherman => Weatherman.AbilityCooldown.GetInt(),
             _ => -1

@@ -127,7 +127,7 @@ internal static class CustomRolesHelper
             CustomRoles.Marshall => CustomRoles.Crewmate,
             CustomRoles.Mechanic => Mechanic.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Nemesis => Options.LegacyNemesis.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
-            CustomRoles.Terrorist => CustomRoles.Engineer,
+            CustomRoles.Terrorist => Terrorist.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Executioner => CustomRoles.Crewmate,
             CustomRoles.Lawyer => CustomRoles.Crewmate,
             CustomRoles.NiceSwapper => CustomRoles.Crewmate,

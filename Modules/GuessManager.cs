@@ -228,7 +228,7 @@ public static class GuessManager
                             return true;
                         case CustomRoles.Shifter when !Shifter.CanGuess.GetBool():
                         case CustomRoles.Specter when !Options.PhantomCanGuess.GetBool():
-                        case CustomRoles.Terrorist when !Options.TerroristCanGuess.GetBool():
+                        case CustomRoles.Terrorist when !Terrorist.TerroristCanGuess.GetBool():
                         case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
                         case CustomRoles.God when !God.GodCanGuess.GetBool():
                         case CustomRoles.Executioner when Executioner.Target[pc.PlayerId] == target.PlayerId && Executioner.KnowTargetRole.GetBool() && !Executioner.CanGuessTarget.GetBool():
