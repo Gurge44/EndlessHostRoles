@@ -406,7 +406,10 @@ internal class AntiAdminer : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.AbilityButton?.OverrideText(Translator.GetString("VeteranVentButtonText"));
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
+            hud.PetButton?.OverrideText(Translator.GetString("VeteranVentButtonText"));
+        else
+            hud.AbilityButton?.OverrideText(Translator.GetString("VeteranVentButtonText"));
     }
 
 }
