@@ -112,7 +112,7 @@ public class CopyCat : RoleBase
                 CustomRoles.Stealth or CustomRoles.Nonplus => CustomRoles.Grenadier,
                 CustomRoles.TimeThief => CustomRoles.TimeManager,
                 CustomRoles.Consigliere or CustomRoles.Ritualist or CustomRoles.PotionMaster => CustomRoles.Investigator,
-                CustomRoles.AntiAdminer => CustomRoles.Telecommunication,
+                CustomRoles.AntiAdminer => new[] {CustomRoles.Sensor, CustomRoles.Telecommunication}.RandomElement(),
                 CustomRoles.CursedWolf or CustomRoles.Jinx or CustomRoles.Goddess => CustomRoles.Veteran,
                 CustomRoles.EvilTracker => new[] {CustomRoles.Scout, CustomRoles.TrackerEHR}.RandomElement(),
                 CustomRoles.Mercenary => CustomRoles.Addict,
@@ -200,3 +200,4 @@ public class CopyCat : RoleBase
     }
 
 }
+
