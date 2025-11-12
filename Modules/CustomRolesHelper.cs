@@ -306,7 +306,7 @@ internal static class CustomRolesHelper
             CustomRoles.Arrogance => CustomRoles.Impostor,
             CustomRoles.Bomber => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Nuker => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
-            CustomRoles.Trapster => Trapster.LegacyTrapster.GetBool() ? CustomRoles.Impostor : CustomRoles.Phantom,
+            CustomRoles.Trapster => Trapster.LegacyTrapster.GetBool() || UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Scavenger => CustomRoles.Impostor,
             CustomRoles.Transporter => CustomRoles.Crewmate,
             CustomRoles.Veteran => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -1074,6 +1074,7 @@ internal static class CustomRolesHelper
             CustomRoles.QuickShooter or
             CustomRoles.Sapper or
             CustomRoles.Sniper or
+            CustomRoles.Trapster or
             CustomRoles.Twister or
             CustomRoles.Swooper or
             CustomRoles.Venerer or
@@ -1282,26 +1283,23 @@ internal static class CustomRolesHelper
             CustomRoles.Bomber when !Bomber.BomberCanKill.GetBool() => true,
             CustomRoles.Changeling when !Changeling.CanKillBeforeRoleChange.GetBool() => true,
             CustomRoles.Eraser when Eraser.EraseMethod.GetValue() == 0 => true,
+            CustomRoles.Puppeteer when !Puppeteer.PuppeteerCanKillNormally.GetBool() => true,
             CustomRoles.Silencer when Silencer.SilenceMode.GetValue() == 0 => true,
             CustomRoles.Sniper when !Sniper.CanKillWithBullets.GetBool() => true,
-            
+            CustomRoles.Vampire when !Vampire.OptionCanKillNormally.GetBool() => true,
+
             CustomRoles.Augmenter or
                 CustomRoles.Lightning or
-                CustomRoles.Blackmailer or
                 CustomRoles.Echo or
                 CustomRoles.Fireworker or
-                CustomRoles.Hangman or
-                CustomRoles.Mastermind or
                 CustomRoles.Ninja or
                 CustomRoles.Butcher or
-                CustomRoles.Penguin or
                 CustomRoles.Postponer or
-                CustomRoles.Puppeteer or
                 CustomRoles.Sapper or
                 CustomRoles.Scavenger or
+                CustomRoles.Swift or
                 CustomRoles.Swooper or
                 CustomRoles.Undertaker or
-                CustomRoles.Vampire or
                 CustomRoles.Warlock or
                 CustomRoles.Wasp or
                 CustomRoles.Wiper => true,
@@ -2011,4 +2009,3 @@ public enum CountTypes
 
     Coven
 }
-

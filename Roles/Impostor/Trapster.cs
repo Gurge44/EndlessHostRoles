@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
@@ -16,14 +16,15 @@ internal class Trapster : RoleBase
     private static OptionItem TrapsterKillCooldown;
     private static OptionItem TrapOnlyWorksOnTheBodyTrapster;
     private static OptionItem TrapConsecutiveBodies;
-    private static OptionItem VanishCooldown;
+    public static OptionItem AbilityCooldown;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.Trapster);
 
-        VanishCooldown = new FloatOptionItem(16510, "AbilityCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
+        AbilityCooldown = new FloatOptionItem(16510, "AbilityCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -31,7 +32,7 @@ internal class Trapster : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster])
             .SetValueFormat(OptionFormat.Seconds);
 
-        LegacyTrapster = new BooleanOptionItem(16512, "LegacyTrapster", false, TabGroup.ImpostorRoles)
+        LegacyTrapster = new BooleanOptionItem(16512, "UseLegacyVersion", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Trapster]);
 
         TrapOnlyWorksOnTheBodyTrapster = new BooleanOptionItem(16513, "TrapOnlyWorksOnTheBodyTrapster", true, TabGroup.ImpostorRoles)
@@ -60,7 +61,18 @@ internal class Trapster : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (!LegacyTrapster.GetBool()) AURoleOptions.PhantomCooldown = VanishCooldown.GetFloat();
+        if (!LegacyTrapster.GetBool())
+        {
+            if (UsePhantomBasis.GetBool())
+                AURoleOptions.PhantomCooldown = AbilityCooldown.GetFloat();
+            else
+            {
+                if (UsePets.GetBool()) return;
+
+                AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 0.1f;
+            }
+        }
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
@@ -129,7 +141,18 @@ internal class Trapster : RoleBase
             Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(17), player);
             return false;
         }
+         return base.OnVanish(player);
+    }
 
-        return base.OnVanish(player);
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting) return true;
+        OnVanish(shapeshifter);
+        return false;
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        OnVanish(pc);
     }
 }
