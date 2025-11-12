@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
@@ -17,7 +17,7 @@ internal class Trapster : RoleBase
     private static OptionItem TrapOnlyWorksOnTheBodyTrapster;
     private static OptionItem TrapConsecutiveBodies;
     public static OptionItem AbilityCooldown;
-    
+
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -141,7 +141,8 @@ internal class Trapster : RoleBase
             Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(17), player);
             return false;
         }
-         return base.OnVanish(player);
+
+        return base.OnVanish(player);
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
