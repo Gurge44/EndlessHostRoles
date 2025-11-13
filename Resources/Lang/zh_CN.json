@@ -4343,7 +4343,7 @@
   "Lance": "长枪",
   "Shield": "盾牌",
   "EveryoneCanVent": "所有人可使用通风管",
-  "OverrideScientistBasedRoles": "同时将基于科学家的职业覆盖为工程师",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "打地鼠",
   "SpawnAdditionalRefugeeOnImpsDead": "当所有<#ff1919>内鬼</color>死亡时随机一个<#8cffff>船员</color>变为<#ff1919>逃亡者</color>",
   "SpawnAdditionalRefugeeWhenNKAlive": "当<#ffab1b>邪恶中立</color>活着时也要生成",
