@@ -46,6 +46,8 @@ Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/d
 [![Github all releases](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Gurge44/badges/)
 
+![Discord Banner 3](https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3)
+
 ## Want to become a beta tester?
 
 Join our Discord server and download the latest test build from the #test-builds channel.
@@ -682,6 +684,7 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
 
 
 
