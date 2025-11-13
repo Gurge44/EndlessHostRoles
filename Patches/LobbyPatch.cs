@@ -29,6 +29,13 @@ public static class LobbyFixedUpdatePatch
                     renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
                 }
             }
+
+            var Engine1 = GameObject.Find("LeftEngine");
+            if (Engine1 != null) Engine1.GetComponent<SpriteRenderer>().color = Color.green;
+            else Logger.Info("LeftEngine is null", "LobbyPatch");
+            var Engine2 = GameObject.Find("RightEngine");
+            if (Engine2 != null) Engine2.GetComponent<SpriteRenderer>().color = Color.red;
+            else Logger.Info("RightEngine is null", "LobbyPatch");
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -94,4 +101,5 @@ internal static class LobbyBehaviourUpdatePatch
             SoundManager.Instance.CrossFadeSound("MapTheme", __instance.MapTheme, 0.5f);
         }
     }
+
 }
