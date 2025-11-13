@@ -4343,7 +4343,7 @@
   "Lance": "Lança",
   "Shield": "Escudo",
   "EveryoneCanVent": "Todos podem usar os dutos",
-  "OverrideScientistBasedRoles": "Também sobrescrever as funções baseadas no cientista para o engenheiro",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "Whack-A-Mole",
   "SpawnAdditionalRefugeeOnImpsDead": "Um Tripulante <#8cffff>Aleatório</color> se torna <#ff1919>Renegado</color> quando todos os <#ff1919>Impostores</color> morrem",
   "SpawnAdditionalRefugeeWhenNKAlive": "Fazer aparecer mesmo se um <#ffab1b>Neutro Assassino</color> estiver vivo",
