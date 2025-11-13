@@ -4343,7 +4343,7 @@
   "Lance": "槍",
   "Shield": "盾",
   "EveryoneCanVent": "全員が 通気口をできる",
-  "OverrideScientistBasedRoles": "また <#8cffff>科学者</color>ベースを エンジニアに上書きする",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "モグラ-を-叩く",
   "SpawnAdditionalRefugeeOnImpsDead": "すべての<#ff1919>インポスター</color>が死んだとき ランダムな<#8cffff>クルーメイト</color>が <#ff1919>反逆者</color>に変化する",
   "SpawnAdditionalRefugeeWhenNKAlive": "<#ffab1b>ニュートラル キラー</color>が生きている場合でも 出現する",
