@@ -4343,7 +4343,7 @@
   "Lance": "Lanza",
   "Shield": "Escudo",
   "EveryoneCanVent": "Todos Pueden Usar las Ventilas",
-  "OverrideScientistBasedRoles": "También Sobreescribir Roles Basados en Científico a Ingeniero",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "Aplasta un Topo",
   "SpawnAdditionalRefugeeOnImpsDead": "<#8cffff>Tripulante</color> Aleatorio Se Convierte En <#ff1919>Renegado</color> Cuando Todos Los <#ff1919>Impostores</color> Mueren",
   "SpawnAdditionalRefugeeWhenNKAlive": "Aparecer Incluso Si un <#ffab1b>Neutral Asesino</color> está Vivo",
