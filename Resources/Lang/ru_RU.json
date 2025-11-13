@@ -4343,7 +4343,7 @@
   "Lance": "Копьё",
   "Shield": "Щит",
   "EveryoneCanVent": "Все могут использовать люки",
-  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
+  "OverrideScientistBasedRoles": "Также изменять основу ролей с другими основами на Инженера (не только обычного <#8cffff>Члена Экипажа</color>) (например, <#80ffdd>Доктор</color> получит люк, но потеряет пульсы)",
   "WhackAMole": "Режим Крота",
   "SpawnAdditionalRefugeeOnImpsDead": "Случайный <#8cffff>Член Экипажа</color> превращается в <#ff1919>Отступника</color>, когда все <#ff1919>Предатели</color> умирают",
   "SpawnAdditionalRefugeeWhenNKAlive": "Превращать, даже если <#ffab1b>Нейтральный Убийца</color> ещё жив",
