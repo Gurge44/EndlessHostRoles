@@ -193,9 +193,16 @@ public static class Camouflage
             newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, "Banana"));
 
         SetPetForOutfitIfNecessary(newOutfit);
+        
+        if (!target.IsAlive())
+        {
+            var killer = target.GetRealKiller();
 
-        if (Options.RemovePetsAtDeadPlayers.GetBool() && !target.IsAlive())
-            newOutfit.PetId = string.Empty;
+            if (Options.AnonymousBodies.GetBool() || target.Is(CustomRoles.Hidden) || (killer != null && killer.Is(CustomRoles.Concealer)))
+                newOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set(Translator.GetString("Dead"), 15, "", "", "", "", "");
+            else if (Options.RemovePetsAtDeadPlayers.GetBool())
+                newOutfit.PetId = string.Empty;
+        }
 
         // if the current Outfit is the same, return
         if (newOutfit.Compare(target.Data.DefaultOutfit))

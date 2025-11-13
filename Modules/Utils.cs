@@ -2113,7 +2113,7 @@ public static class Utils
 
         void RestartMessageIfTooLong()
         {
-            if (writer.stream.Length > 400)
+            if (writer.stream.Length > 500)
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);

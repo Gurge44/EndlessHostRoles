@@ -3724,7 +3724,7 @@ internal static class ChatUpdatePatch
             .Write(player.Data.PlayerName)
             .EndRpc();
 
-        if (sender.stream.Length > 400)
+        if (sender.stream.Length > 500)
         {
             sender.SendMessage();
             sender = CustomRpcSender.Create(sender.name, sender.sendOption);
