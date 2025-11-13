@@ -4343,7 +4343,7 @@
   "Lance": "長矛",
   "Shield": "盾牌",
   "EveryoneCanVent": "所有人都可以使用通風口",
-  "OverrideScientistBasedRoles": "將基於科學家的職業覆蓋為工程師",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "打地鼠",
   "SpawnAdditionalRefugeeOnImpsDead": "當所有 <#ff1919>偽裝者</color> 死亡後隨機一個 <#8cffff>船員</color> 變為 <#ff1919>逃亡者</color>",
   "SpawnAdditionalRefugeeWhenNKAlive": "當 <#ffab1b>帶刀中立</color> 活著時也會生成",
