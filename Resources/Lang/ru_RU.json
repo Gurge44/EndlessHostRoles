@@ -4343,7 +4343,7 @@
   "Lance": "Копьё",
   "Shield": "Щит",
   "EveryoneCanVent": "Все могут использовать люки",
-  "OverrideScientistBasedRoles": "Также переделать роли, основанные на ванильных ролях, в Инженеров",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "Режим Крота",
   "SpawnAdditionalRefugeeOnImpsDead": "Случайный <#8cffff>Член Экипажа</color> превращается в <#ff1919>Отступника</color>, когда все <#ff1919>Предатели</color> умирают",
   "SpawnAdditionalRefugeeWhenNKAlive": "Превращать, даже если <#ffab1b>Нейтральный Убийца</color> ещё жив",
