@@ -4343,7 +4343,7 @@
   "Lance": "Lance",
   "Shield": "Shield",
   "EveryoneCanVent": "Everyone Can Vent",
-  "OverrideScientistBasedRoles": "Also Override Scientist Based Roles to Engineer",
+  "OverrideScientistBasedRoles": "Also Override Other Crew Role Bases to Engineer (not just regular Crewmate)",
   "WhackAMole": "Whack-A-Mole",
   "SpawnAdditionalRefugeeOnImpsDead": "Random <#8cffff>Crewmate</color> Turns To <#ff1919>Renegade</color> When All <#ff1919>Impostors</color> Die",
   "SpawnAdditionalRefugeeWhenNKAlive": "Spawn Even If a <#ffab1b>Neutral Killer</color> is Alive",
