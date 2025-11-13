@@ -11,6 +11,8 @@ namespace EHR;
 public static class LobbyFixedUpdatePatch
 {
     private static GameObject Paint;
+    private static SpriteRenderer LeftEngineSR;
+    private static SpriteRenderer RightEngineSR;
 
     public static void Postfix()
     {
@@ -30,12 +32,19 @@ public static class LobbyFixedUpdatePatch
                 }
             }
 
-            var Engine1 = GameObject.Find("LeftEngine");
-            if (Engine1 != null) Engine1.GetComponent<SpriteRenderer>().color = Color.green;
-            else Logger.Info("LeftEngine is null", "LobbyPatch");
-            var Engine2 = GameObject.Find("RightEngine");
-            if (Engine2 != null) Engine2.GetComponent<SpriteRenderer>().color = Color.red;
-            else Logger.Info("RightEngine is null", "LobbyPatch");
+            if (LeftEngineSR == null || RightEngineSR == null)
+            {
+                var leftEngine = GameObject.Find("LeftEngine");
+                if (leftEngine != null) LeftEngineSR = leftEngine.GetComponent<SpriteRenderer>();
+
+                var rightEngine = GameObject.Find("RightEngine");
+                if (rightEngine != null) RightEngineSR = rightEngine.GetComponent<SpriteRenderer>();
+            }
+            else
+            {
+                LeftEngineSR.color = Color.yellow;
+                RightEngineSR.color = Color.yellow;
+            }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

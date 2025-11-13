@@ -7,7 +7,7 @@
         <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
         <Description>EHR</Description>
         <Authors>Gurge44</Authors>
-        <langVersion>preview</langVersion>
+        <LangVersion>preview</LangVersion>
         <!--<AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>-->
         <AmongUs>C:\Program Files\Epic Games\AmongUs</AmongUs>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
