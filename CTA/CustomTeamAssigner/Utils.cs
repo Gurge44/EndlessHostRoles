@@ -24,16 +24,10 @@ namespace CustomTeamAssigner
         private static readonly Dictionary<CustomRoles, string> RoleNames = new()
         {
             { CustomRoles.Hacker, "Anonymous" },
-            { CustomRoles.OverKiller, "Butcher" },
-            { CustomRoles.BallLightning, "Lightning" },
             { CustomRoles.LovingCrewmate, "Lover" },
             { CustomRoles.LovingImpostor, "Loving Impostor" },
-            { CustomRoles.ImperiusCurse, "Soul Catcher" },
-            { CustomRoles.BoobyTrap, "Trapster" },
             { CustomRoles.Divinator, "Fortune Teller" },
-            { CustomRoles.ParityCop, "Inspector" },
             { CustomRoles.Needy, "Lazy Guy" },
-            { CustomRoles.SwordsMan, "Vigilante" },
             { CustomRoles.ToiletMaster, "Toilet Master" },
             { CustomRoles.Mediumshiper, "Medium" },
             { CustomRoles.PlagueDoctor, "Infection"}
