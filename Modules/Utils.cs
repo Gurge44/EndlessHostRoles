@@ -2609,7 +2609,7 @@ public static class Utils
                         additionalSuffixes.Add(StopAndGo.GetSuffixText(seer));
                         break;
                     case CustomGameMode.HotPotato:
-                        additionalSuffixes.Add(HotPotato.GetSuffixText(seer.PlayerId));
+                        additionalSuffixes.Add(HotPotato.GetSuffixText(seer.PlayerId, false));
                         break;
                     case CustomGameMode.Speedrun:
                         additionalSuffixes.Add(Speedrun.GetSuffixText(seer));
