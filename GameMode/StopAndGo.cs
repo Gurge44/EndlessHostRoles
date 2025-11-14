@@ -342,6 +342,7 @@ internal static class StopAndGo
         FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
         RoundTime = GameTime.GetInt() + 14;
+        Utils.SendRPC(CustomRPC.SAGSync, RoundTime);
 
         FixedUpdatePatch.DoChecks = false;
     }
@@ -568,6 +569,7 @@ internal static class StopAndGo
             LastFixedUpdate = now;
 
             RoundTime--;
+            Utils.SendRPC(CustomRPC.SAGSync, RoundTime);
 
             Utils.NotifyRoles();
         }
