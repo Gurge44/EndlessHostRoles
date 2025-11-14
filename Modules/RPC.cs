@@ -171,6 +171,7 @@ public enum CustomRPC
     FFAKill,
     FFASync,
     QuizSync,
+    SAGSync,
     HotPotatoSync,
     SoloPVPSync,
     CTFSync,
@@ -1249,12 +1250,28 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.FFASync:
                 {
-                    FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int roundTime = reader.ReadPackedInt32();
+                            FreeForAll.RoundTime = roundTime;
+                            break;
+                        case 2:
+                            FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    
                     break;
                 }
                 case CustomRPC.QuizSync:
                 {
                     Quiz.AllowKills = reader.ReadBoolean();
+                    break;
+                }
+                case CustomRPC.SAGSync:
+                {
+                    int roundTime = reader.ReadPackedInt32();
+                    MoveAndStop.RoundTime = roundTime;
                     break;
                 }
                 case CustomRPC.HotPotatoSync:
@@ -1264,7 +1281,17 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SoloPVPSync:
                 {
-                    SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int roundTime = reader.ReadPackedInt32();
+                            SoloPVP.RoundTime = roundTime;
+                            break;
+                        case 2:
+                            SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    
                     break;
                 }
                 case CustomRPC.CTFSync:
