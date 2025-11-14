@@ -2152,7 +2152,7 @@ internal static class ExtendedPlayerControl
     
     public static bool IsInRoom(this PlayerControl pc, PlainShipRoom room)
     {
-        if (!room.roomArea) return false;
+        if (room == null || !room.roomArea) return false;
         return pc.IsAlive() && pc.Collider.IsTouching(room.roomArea);
     }
     
@@ -2160,7 +2160,7 @@ internal static class ExtendedPlayerControl
     {
         if (!pc.IsAlive()) return false;
         PlainShipRoom room = roomId.GetRoomClass();
-        return room.roomArea && pc.Collider.IsTouching(room.roomArea);
+        return room != null && room.roomArea && pc.Collider.IsTouching(room.roomArea);
     }
 
     public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
