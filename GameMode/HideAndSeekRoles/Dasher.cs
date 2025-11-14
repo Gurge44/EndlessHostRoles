@@ -130,4 +130,12 @@ public class Dasher : RoleBase, IHideAndSeekRole
         pc.MarkDirtySettings();
         pc.RpcRemoveAbilityUse();
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (!Options.UsePhantomBasis.GetBool())
+            hud.PetButton?.OverrideText(Translator.GetString("SwiftclawAbilityButtonText"));
+        else
+            hud.AbilityButton?.OverrideText(Translator.GetString("SwiftclawAbilityButtonText"));
+    }
 }

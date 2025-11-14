@@ -405,6 +405,7 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Kill");
                     break;
                 }
+                case CustomRoles.Dasher:
                 case CustomRoles.Swiftclaw:
                 {
                     if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Dash");
