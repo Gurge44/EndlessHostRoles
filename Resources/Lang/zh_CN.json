@@ -9135,6 +9135,7 @@
   "ClockBlockerInfoLong": "(内鬼阵营):\\n时间干扰者每次击杀都会增加紧急会议的冷却时间。",
   "ClockBlocker.EmergencyCooldownIncreasePerKill": "每次击杀增加紧急会议冷却时间",
   "ClockBlocker.MaxEmergencyCooldown": "最大紧急会议冷却时间",
+  "ClockBlocker.CountAddedTimeAfterDeath": "Count Added Time After Death",
   "Spurt": "喷射",
   "Prefix.Spurt": "喷射",
   "SpurtInfo": "增强移动能力",
