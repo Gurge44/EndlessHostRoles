@@ -44,7 +44,8 @@ public class Catalyst : RoleBase
             if (pc.Is(Team.Impostor))
             {
                 if (!GiveAddonsToSelf.GetBool() && pc.PlayerId == killer.PlayerId) continue;
-                CustomRoles addon = Addons.FindAll(x => !pc.Is(x)).RandomElement();
+                CustomRoles addon = Addons.FindAll(x => !pc.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, pc)).RandomElement();
+                if (addon == default(CustomRoles)) continue;
                 pc.RpcSetCustomRole(addon);
                 pc.Notify(Translator.GetString("Catalyst.AddonGivenNotify"));
 

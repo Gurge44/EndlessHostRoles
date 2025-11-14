@@ -165,6 +165,7 @@ public enum CustomRPC
     ResetAbilityCooldown,
     SyncCamouflage,
     SetChatVisible,
+    Exclusionary,
 
     // Game Modes
     RoomRushDataSync,
@@ -1354,6 +1355,37 @@ internal static class RPCHandlerPatch
                 {
                     HudManager.Instance.Chat.SetVisible(reader.ReadBoolean());
                     HudManager.Instance.Chat.HideBanButton();
+                    break;
+                }
+                case CustomRPC.Exclusionary:
+                {
+                    if (reader.ReadBoolean())
+                    {
+                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        {
+                            if (player.AmOwner) continue;
+                            player.SetPet("");
+                            player.invisibilityAlpha = 0f;
+                            player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
+                            player.shouldAppearInvisible = true;
+                            player.Visible = false;
+                        }
+                    }
+                    else
+                    {
+                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        {
+                            if (player.AmOwner) continue;
+                            if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
+                            player.shouldAppearInvisible = false;
+                            player.Visible = true;
+                            player.invisibilityAlpha = 1f;
+                            player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
+                            player.shouldAppearInvisible = false;
+                            player.Visible = !player.inVent;
+                        }
+                    }
+                    
                     break;
                 }
             }

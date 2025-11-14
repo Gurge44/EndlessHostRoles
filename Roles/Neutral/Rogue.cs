@@ -133,7 +133,6 @@ public class Rogue : RoleBase
             case Objective.KillXTimes:
                 CurrentTask.Data = (int)CurrentTask.Data - 1;
                 if ((int)CurrentTask.Data <= 0) SetTaskCompleted();
-
                 break;
             case Objective.KillInSpecificRoom when Translator.GetString(target.GetPlainShipRoom().RoomId.ToString()) == (string)CurrentTask.Data:
                 SetTaskCompleted();

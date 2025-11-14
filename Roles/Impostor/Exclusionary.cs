@@ -49,7 +49,7 @@ public class Exclusionary : RoleBase
                 
                 ExcludedPlayers.Add((target.PlayerId, Utils.TimeStamp + ExclusionDuration.GetInt()));
                 
-                if (killer.AmOwner)
+                if (target.AmOwner)
                 {
                     foreach (PlayerControl player in Main.AllAlivePlayerControls)
                     {
@@ -64,25 +64,27 @@ public class Exclusionary : RoleBase
                     return;
                 }
 
-                if (killer.IsModdedClient())
+                if (target.IsModdedClient())
                 {
-                    Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1);
+                    var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.Exclusionary, SendOption.Reliable, target.OwnerId);
+                    writer.Write(true);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
                     return;
                 }
 
                 var sender = CustomRpcSender.Create("Exclusionary", SendOption.Reliable);
-                sender.StartMessage(killer.GetClientId());
+                sender.StartMessage(target.GetClientId());
 
                 foreach (PlayerControl player in Main.AllAlivePlayerControls)
                 {
-                    if (killer == player) continue;
+                    if (target == player) continue;
 
                     if (sender.stream.Length > 500)
                     {
                         Utils.NumSnapToCallsThisRound++;
                         sender.SendMessage();
                         sender = CustomRpcSender.Create("Exclusionary", SendOption.Reliable);
-                        sender.StartMessage(killer.GetClientId());
+                        sender.StartMessage(target.GetClientId());
                     }
 
                     sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
@@ -144,7 +146,9 @@ public class Exclusionary : RoleBase
 
         if (pc.IsModdedClient())
         {
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2);
+            var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.Exclusionary, SendOption.Reliable, pc.OwnerId);
+            writer.Write(false);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
             return;
         }
         
@@ -187,42 +191,5 @@ public class Exclusionary : RoleBase
         
         sender.SendMessage();
         Utils.NumSnapToCallsThisRound++;
-    }
-
-    public void ReceiveRPC(MessageReader reader)
-    {
-        switch (reader.ReadPackedInt32())
-        {
-            case 1:
-            {
-                foreach (PlayerControl player in Main.AllAlivePlayerControls)
-                {
-                    if (player.AmOwner) continue;
-                    player.SetPet("");
-                    player.invisibilityAlpha = 0f;
-                    player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
-                    player.shouldAppearInvisible = true;
-                    player.Visible = false;
-                }
-
-                break;
-            }
-            case 2:
-            {
-                foreach (PlayerControl player in Main.AllAlivePlayerControls)
-                {
-                    if (player.AmOwner) continue;
-                    if (Options.UsePets.GetBool()) player.SetPet(PetsHelper.GetPetId());
-                    player.shouldAppearInvisible = false;
-                    player.Visible = true;
-                    player.invisibilityAlpha = 1f;
-                    player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
-                    player.shouldAppearInvisible = false;
-                    player.Visible = !player.inVent;
-                }
-
-                break;
-            }
-        }
     }
 }

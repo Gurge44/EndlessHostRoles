@@ -135,8 +135,8 @@ public class Lawyer : RoleBase
         byte lawyerId = Target.GetKeyByValue(target.PlayerId);
         PlayerControl lawyer = Utils.GetPlayerById(lawyerId);
         CustomRoles newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
-        lawyer.RpcChangeRoleBasis(newRole);
         lawyer.RpcSetCustomRole(newRole);
+        lawyer.RpcChangeRoleBasis(newRole);
         Target.Remove(lawyerId);
         SendRPC(lawyerId);
         lawyer.Notify(Translator.GetString("LawyerChangeRole"));
@@ -171,8 +171,8 @@ public class Lawyer : RoleBase
     private static void ChangeRole(PlayerControl lawyer)
     {
         CustomRoles newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
-        lawyer.RpcChangeRoleBasis(newRole);
         lawyer.RpcSetCustomRole(newRole);
+        lawyer.RpcChangeRoleBasis(newRole);
         Target.Remove(lawyer.PlayerId);
         SendRPC(lawyer.PlayerId);
         lawyer.Notify(Translator.GetString("LawyerChangeRole"));

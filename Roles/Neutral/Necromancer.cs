@@ -91,8 +91,8 @@ internal class Necromancer : RoleBase
     {
         if (Deathknight.DeathknightId == byte.MaxValue && !target.Is(CustomRoles.Loyal) && !target.Is(CustomRoles.Curser) && !target.IsConverted())
         {
-            target.RpcChangeRoleBasis(CustomRoles.Deathknight);
             target.RpcSetCustomRole(CustomRoles.Deathknight);
+            target.RpcChangeRoleBasis(CustomRoles.Deathknight);
 
             killer.SetKillCooldown();
 

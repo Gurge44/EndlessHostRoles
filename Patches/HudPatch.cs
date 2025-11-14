@@ -44,18 +44,6 @@ internal static class HudManagerPatch
             PlayerControl player = PlayerControl.LocalPlayer;
             if (player == null) return;
 
-            if (Input.GetKeyDown(KeyCode.LeftControl))
-            {
-                if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
-                    player.Collider.offset = new(0f, 127f);
-            }
-
-            if (Math.Abs(player.Collider.offset.y - 127f) < 0.1f)
-            {
-                if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
-                    player.Collider.offset = new(0f, -0.3636f);
-            }
-
             if (__instance == null) return;
 
             if (GameStates.IsLobby)
