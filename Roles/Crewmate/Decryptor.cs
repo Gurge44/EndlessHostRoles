@@ -153,4 +153,10 @@ public class Decryptor : RoleBase
             _ => string.Empty
         };
     }
+
+    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = GuessMode.GetValue() == 2;
+        countsAs = 1;
+    }
 }

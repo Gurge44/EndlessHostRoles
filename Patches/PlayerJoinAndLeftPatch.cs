@@ -503,6 +503,8 @@ internal static class OnPlayerLeftPatch
         {
             if (GameStates.IsInGame && data != null && data.Character != null)
             {
+                ExtendedPlayerControl.TempExiled.Remove(data.Character.PlayerId);
+                
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.HideAndSeek:
@@ -510,6 +512,9 @@ internal static class OnPlayerLeftPatch
                         break;
                     case CustomGameMode.Mingle when data.Character.IsAlive():
                         Mingle.HandleDisconnect();
+                        break;
+                    case CustomGameMode.BedWars:
+                        BedWars.OnDisconnect(data.Character);
                         break;
                 }
 
