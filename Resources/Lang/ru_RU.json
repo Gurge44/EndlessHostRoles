@@ -9135,7 +9135,7 @@
   "ClockBlockerInfoLong": "(Предатель):\\nКак Часовщик, за каждое убийство кнопка собраний будет откатываться дольше.",
   "ClockBlocker.EmergencyCooldownIncreasePerKill": "За каждое убийство увеличить откат кнопки собраний на",
   "ClockBlocker.MaxEmergencyCooldown": "Макс. откат кнопки собраний",
-  "ClockBlocker.CountAddedTimeAfterDeath": "Count Added Time After Death",
+  "ClockBlocker.CountAddedTimeAfterDeath": "После смерти не сбросить накопленное время",
   "Spurt": "Рывковый",
   "Prefix.Spurt": "Рывковый",
   "SpurtInfo": "Двигайтесь рывками",
