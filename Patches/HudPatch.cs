@@ -281,9 +281,9 @@ internal static class HudManagerPatch
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
-                        CustomGameMode.FFA when player.IsHost() => FreeForAll.GetHudText(),
-                        CustomGameMode.StopAndGo when player.IsHost() => StopAndGo.HUDText,
-                        CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
+                        CustomGameMode.FFA => FreeForAll.GetHudText(),
+                        CustomGameMode.StopAndGo => StopAndGo.HUDText,
+                        CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
