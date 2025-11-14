@@ -84,6 +84,7 @@ public class Curser : RoleBase
             killer.RpcRemoveAbilityUse();
         }))
         {
+            Pick:
             int random = IRandom.Instance.Next(4);
 
             switch (random)
@@ -92,8 +93,9 @@ public class Curser : RoleBase
                     target.RpcRemoveAbilityUse();
                     break;
                 case 1:
-                    IEnumerable<CustomRoles> addons = Options.GroupedAddons[AddonTypes.Harmful].Where(x => x.IsAdditionRole() && !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target));
-                    target.RpcSetCustomRole(addons.RandomElement());
+                    CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Where(x => x.IsAdditionRole() && !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
+                    if (addon == default(CustomRoles)) goto Pick;
+                    target.RpcSetCustomRole(addon);
                     break;
                 case 2:
                     LowerVisionPlayers.Add(target.PlayerId);

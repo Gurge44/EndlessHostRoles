@@ -869,6 +869,8 @@ internal static class StartGameHostPatch
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
+                if (!Main.PlayerStates.ContainsKey(pc.PlayerId)) Main.PlayerStates[pc.PlayerId] = new PlayerState(pc.PlayerId);
+                
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
 
                 CustomRoles role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
@@ -880,6 +882,8 @@ internal static class StartGameHostPatch
             foreach (KeyValuePair<byte, CustomRoles> kv in RoleResult)
             {
                 if (kv.Value.IsDesyncRole() || IsBasisChangingPlayer(kv.Key, CustomRoles.Bloodlust)) continue;
+
+                if (!Main.PlayerStates.ContainsKey(kv.Key)) Main.PlayerStates[kv.Key] = new PlayerState(kv.Key);
 
                 Main.PlayerStates[kv.Key].SetMainRole(kv.Value);
             }
@@ -974,7 +978,7 @@ internal static class StartGameHostPatch
                 if (sb.Length > 0)
                 {
                     sb.Remove(sb.Length - 2, 2);
-                    Logger.Info($"{Main.AllPlayerNames[pair.Key]} has sub roles: {sb}", "SelectRolesPatch");
+                    Logger.Info($"{Main.AllPlayerNames.GetValueOrDefault(pair.Key, "Someone")} has sub roles: {sb}", "SelectRolesPatch");
                 }
             }
 

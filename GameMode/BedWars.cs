@@ -291,6 +291,15 @@ public static class BedWars
         return false;
     }
 
+    public static void OnDisconnect(PlayerControl pc)
+    {
+        Data.Remove(pc.PlayerId);
+        InShop.Remove(pc.PlayerId);
+        Suffix.Remove(pc.PlayerId);
+        Trapped.Remove(pc.PlayerId);
+        Reviving.Remove(pc.PlayerId);
+    }
+
     private static void SendRPC()
     {
         var w = Utils.CreateRPC(CustomRPC.BedWarsSync);
