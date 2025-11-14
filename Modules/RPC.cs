@@ -1272,7 +1272,7 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SAGSync:
                 {
                     int roundTime = reader.ReadPackedInt32();
-                    MoveAndStop.RoundTime = roundTime;
+                    StopAndGo.RoundTime = roundTime;
                     break;
                 }
                 case CustomRPC.HotPotatoSync:
