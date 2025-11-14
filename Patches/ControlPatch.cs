@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Patches;
 using HarmonyLib;
 using Rewired;
 using TMPro;
@@ -105,7 +106,10 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 if (GameStates.IsMeeting)
+                {
+                    MeetingHudRpcClosePatch.AllowClose = true;
                     MeetingHud.Instance.RpcClose();
+                }
                 else
                     PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
             }

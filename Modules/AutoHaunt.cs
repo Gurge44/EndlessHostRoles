@@ -15,7 +15,7 @@ public static class AutoHaunt
 
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.Standard => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Workaholic or CustomRoles.Snitch).ThenByDescending(x => x.Is(CustomRoleTypes.Coven)).ThenByDescending(x => x.IsNeutralKiller()).ThenByDescending(x => x.IsImpostor()).ThenByDescending(x => x.GetCustomRole().IsNeutral()).FirstOrDefault(),
+            CustomGameMode.Standard => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Workaholic or CustomRoles.Snitch && x.GetTaskState().RemainingTasksCount <= 2).ThenByDescending(x => x.Is(CustomRoleTypes.Coven)).ThenByDescending(x => x.IsNeutralKiller()).ThenByDescending(x => x.IsImpostor()).ThenByDescending(x => x.GetCustomRole().IsNeutral()).FirstOrDefault(),
             CustomGameMode.SoloPVP => validPCs.Where(x => x.SoloAlive()).MinBy(x => SoloPVP.GetRankFromScore(x.PlayerId)),
             CustomGameMode.FFA => validPCs.MaxBy(x => FreeForAll.KillCount.GetValueOrDefault(x.PlayerId, 0)),
             CustomGameMode.StopAndGo => validPCs.MaxBy(x => x.GetTaskState().CompletedTasksCount),

@@ -202,11 +202,6 @@ internal static class GameEndChecker
                             ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
-                            reason = GameOverReason.ImpostorsByKill;
-                            ResetAndSetWinner(CustomWinner.Specter);
-                            WinnerIds.Add(pc.PlayerId);
-                            break;
                         case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Specter);

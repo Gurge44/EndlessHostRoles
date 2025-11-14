@@ -90,6 +90,7 @@ internal class Haunter : IGhostRole
                 Team.Impostor when x.GetCustomRole().IsMadmate() || x.Is(CustomRoles.Madmate) => RevealMadmates.GetBool(),
                 Team.Impostor => true,
                 Team.Neutral when x.IsNeutralKiller() => RevealNeutralKillers.GetBool(),
+                Team.Coven => RevealCovenMembers.GetBool(),
                 _ => false
             };
         });

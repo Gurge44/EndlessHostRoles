@@ -14,6 +14,7 @@ public class ClockBlocker : RoleBase
     private static OptionItem KillCooldown;
     private static OptionItem EmergencyCooldownIncreasePerKill;
     private static OptionItem MaxEmergencyCooldown;
+    public static OptionItem CountAddedTimeAfterDeath;
 
     private byte ClockBlockerId;
 
@@ -22,7 +23,8 @@ public class ClockBlocker : RoleBase
         StartSetup(653300)
             .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0.5f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref EmergencyCooldownIncreasePerKill, 5, new IntegerValueRule(1, 30, 1), OptionFormat.Seconds)
-            .AutoSetupOption(ref MaxEmergencyCooldown, 90, new IntegerValueRule(5, 300, 5), OptionFormat.Seconds);
+            .AutoSetupOption(ref MaxEmergencyCooldown, 90, new IntegerValueRule(5, 300, 5), OptionFormat.Seconds)
+            .AutoSetupOption(ref CountAddedTimeAfterDeath, false);
     }
 
     public override void Init()
@@ -50,7 +52,7 @@ public class ClockBlocker : RoleBase
 
     private int GetAddedTime()
     {
-        return !Main.PlayerStates.TryGetValue(ClockBlockerId, out PlayerState state) ? 0 : EmergencyCooldownIncreasePerKill.GetInt() * state.GetKillCount(true);
+        return !Main.PlayerStates.TryGetValue(ClockBlockerId, out PlayerState state) || (state.IsDead && !CountAddedTimeAfterDeath.GetBool()) ? 0 : EmergencyCooldownIncreasePerKill.GetInt() * state.GetKillCount(true);
     }
 
     public static int GetTotalTime(int originalTime)

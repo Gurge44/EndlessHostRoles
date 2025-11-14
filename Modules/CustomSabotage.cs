@@ -67,7 +67,7 @@ public abstract class CustomSabotage
 
         var result = suffix.ToString();
 
-        if (seer.IsNonHostModdedClient())
+        if (seer.IsNonHostModdedClient() && suffix.Length > 0)
         {
             long now = Utils.TimeStamp;
             
@@ -145,7 +145,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
     protected override void Update()
     {
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        byte[] playersInRoom = aapc.Select(x => (id: x.PlayerId, room: x.GetPlainShipRoom())).Where(x => x.room != null && x.room.RoomId == TargetRoom).Select(x => x.id).ToArray();
+        byte[] playersInRoom = aapc.Where(x => x.IsInRoom(TargetRoom)).Select(x => x.PlayerId).ToArray();
         playersInRoom.Except(HasMask).ToValidPlayers().NotifyPlayers(Translator.GetString("CustomSabotage.GrabOxygenMask.Done"));
         playersInRoom.Except(HasMask).Do(x => LocateArrow.Remove(x, RoomPosition));
         HasMask.UnionWith(playersInRoom);

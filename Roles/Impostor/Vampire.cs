@@ -18,7 +18,7 @@ public class Vampire : RoleBase
 
     private static OptionItem Cooldown;
     private static OptionItem OptionKillDelay;
-    private static OptionItem OptionCanKillNormally;
+    public static OptionItem OptionCanKillNormally;
 
     private bool CanKillNormally;
     private bool CanVent;
@@ -188,4 +188,5 @@ public class Vampire : RoleBase
         public readonly byte VampireId = vampierId;
         public float KillTimer = killTimer;
     }
+
 }

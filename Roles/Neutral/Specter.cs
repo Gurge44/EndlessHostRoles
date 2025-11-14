@@ -28,7 +28,7 @@ internal class Specter : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (completedTaskCount + 1 >= totalTaskCount)
+        if (completedTaskCount + 1 >= totalTaskCount && !pc.IsAlive() && PhantomSnatchesWin.GetBool())
         {
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Specter);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);

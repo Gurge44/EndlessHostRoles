@@ -200,7 +200,7 @@ public class Whisperer : RoleBase
         }
 
         var room = target.GetPlainShipRoom();
-        DeathInfo[target.PlayerId] = (room == null ? [] : Main.AllAlivePlayerControls.Where(x => x.GetPlainShipRoom() == room).Select(x => x.PlayerId).ToArray(), new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
+        DeathInfo[target.PlayerId] = (room == null ? [] : Main.AllAlivePlayerControls.Where(x => x.IsInRoom(room)).Select(x => x.PlayerId).ToArray(), new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
     }
 
     public override void OnReportDeadBody()

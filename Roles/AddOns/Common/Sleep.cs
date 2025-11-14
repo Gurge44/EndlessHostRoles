@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using EHR.Modules;
 
 namespace EHR.AddOns.Common;
 
@@ -13,7 +14,7 @@ public class Sleep : IAddon
 
     public static void CheckGlowNearby(PlayerControl pc)
     {
-        if (!pc.IsAlive() || !GameStates.IsInTask) return;
+        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
         Vector2 pos = pc.Pos();
 
@@ -21,6 +22,8 @@ public class Sleep : IAddon
         {
             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Sleep);
             pc.MarkDirtySettings();
+            
+            if (pc.AmOwner) Achievements.Type.AlarmClock.Complete();
         }
     }
 }

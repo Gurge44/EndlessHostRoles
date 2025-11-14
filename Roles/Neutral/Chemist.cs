@@ -62,7 +62,7 @@ internal class Chemist : RoleBase
         {
             ["Cracking of Naphtha to Mineral Oil"] = ([(60, Item.Naphtha), (20, Item.ThermalWater), (20, Item.CarbonMonoxide)], [(100, Item.BaseMineralOil)]),
             ["Coal Cracking Fischer Tropsch Process"] = ([(5, Item.Coal), (50, Item.Steam), (50, Item.OxygenGas)], [(100, Item.SynthesisGas), (20, Item.CarbonDioxide), (30, Item.HydrogenSulfideGas)]),
-            ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(2, Item.Explosive)])
+            ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(3, Item.Explosive)])
         },
         [Factory.SteamCracker] = new()
         {
@@ -99,11 +99,11 @@ internal class Chemist : RoleBase
         },
         [Factory.AssemblingMachine] = new()
         {
-            ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(1, Item.Grenade)])
+            ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(2, Item.Grenade)])
         }
     };
 
-    private static Dictionary<string, Factory> FactoryLocations = [];
+    private static Dictionary<SystemTypes, Factory> FactoryLocations = [];
 
     private Dictionary<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> AcidPlayers;
     private HashSet<byte> BombedBodies;
@@ -180,8 +180,8 @@ internal class Chemist : RoleBase
             {
                 Item.Explosive => 1,
                 Item.Grenade => 1,
-                Item.SulfuricAcid => 30,
-                Item.MethylamineGas => 100,
+                Item.SulfuricAcid => 15,
+                Item.MethylamineGas => 50,
                 _ => 0
             };
     }
@@ -196,7 +196,8 @@ internal class Chemist : RoleBase
         LateTask.New(() =>
         {
             FactoryLocations = ShipStatus.Instance.AllRooms
-                .Select(x => Translator.GetString($"{x.RoomId}"))
+                .Select(x => x.RoomId)
+                .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
                 .Distinct()
                 .Zip(Enum.GetValues<Factory>()[1..])
                 .ToDictionary(x => x.First, x => x.Second);
@@ -497,7 +498,7 @@ internal class Chemist : RoleBase
 
         if (room != null)
         {
-            CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
+            CurrentFactory = FactoryLocations.GetValueOrDefault(room.RoomId);
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3, (int)CurrentFactory);
 
             if (CurrentFactory != beforeFactory)
@@ -577,6 +578,9 @@ internal class Chemist : RoleBase
         });
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        
+        if (pc.AmOwner && Results.Exists(x => x.Item == Item.SulfuricAcid))
+            Achievements.Type.HeyRabek.Complete();
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -669,7 +673,7 @@ internal class Chemist : RoleBase
             sb.Append("<b>");
             sb.Append("<u>");
             sb.Append(factoryName);
-            if (FactoryLocations.ContainsValue(factory)) sb.Append($" ({FactoryLocations.GetKeyByValue(factory)})");
+            if (FactoryLocations.ContainsValue(factory)) sb.Append($" ({Translator.GetString(FactoryLocations.GetKeyByValue(factory).ToString())})");
             sb.Append(':');
             sb.Append("</u>");
             sb.Append("</b>");

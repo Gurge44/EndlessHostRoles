@@ -938,7 +938,7 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetPlainShipRoom() == room)
+                if (pc.IsInRoom(room))
                     pc.Suicide(PlayerState.DeathReason.Collapsed);
             }
 

@@ -336,7 +336,6 @@ public static class Options
     public static OptionItem VindicatorHideVote;
     public static OptionItem DoctorTaskCompletedBatteryCharge;
     public static OptionItem TrapperBlockMoveTime;
-    public static OptionItem CanTerroristSuicideWin;
     public static OptionItem InnocentCanWinByImp;
     public static OptionItem BaitNotification;
     public static OptionItem DoctorVisibleToEveryone;
@@ -731,7 +730,6 @@ public static class Options
     public static OptionItem KPDCamouflageMode;
 
     // Guess Restrictions //
-    public static OptionItem TerroristCanGuess;
     public static OptionItem PhantomCanGuess;
 
     public static OptionItem PostLobbyCodeToEHRWebsite;

@@ -226,7 +226,7 @@ internal static class ChatCommands
             new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
             new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new(["fabricate", "фабриковать", "伪造", "fabricar"], "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
-            new(["start"], "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
+            new(["start", "старт", "开始"], "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
             
             new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
             
@@ -735,7 +735,7 @@ internal static class ChatCommands
             int playerCount = PlayerControl.AllPlayerControls.Count;
             var percentage = (int)Math.Round(voteCount / (float)playerCount * 100f);
             var required = (int)Math.Ceiling(playerCount / 2f);
-            Utils.SendMessage(string.Format(GetString("VotedToStart"), player.PlayerId.ColoredPlayerName(), voteCount, playerCount, percentage, required), title: GetString("VotedToStart.Title"));
+            Utils.SendMessage(string.Format(GetString("VotedToStart"), voteCount, playerCount, percentage, required), title: string.Format(GetString("VotedToStart.Title"), player.PlayerId.ColoredPlayerName()));
         }
     }
     
@@ -1222,6 +1222,9 @@ internal static class ChatCommands
             if (!listener.Is(CustomRoles.Listener) || IRandom.Instance.Next(100) >= Listener.WhisperHearChance.GetInt()) continue;
             string message = IRandom.Instance.Next(100) < Listener.FullMessageHearChance.GetInt() ? string.Format(GetString("Listener.FullMessage"), coloredRole, fromName, toName, msg) : string.Format(GetString("Listener.FromTo"), coloredRole, fromName, toName);
             Utils.SendMessage("\n", listener.PlayerId, message);
+            
+            if (listener.AmOwner && ++Listener.LocalPlayerHeardMessagesThisMeeting >= 3)
+                Achievements.Type.Eavesdropper.Complete();
         }
     }
 
@@ -1946,7 +1949,10 @@ internal static class ChatCommands
         }
 
         if (GameStates.IsMeeting)
+        {
+            MeetingHudRpcClosePatch.AllowClose = true;
             MeetingHud.Instance.RpcClose();
+        }
         else
             player.NoCheckStartMeeting(null, true);
     }
@@ -2932,7 +2938,7 @@ internal static class ChatCommands
 
         string name = string.Join(' ', args[1..]);
 
-        if (name.Length is > 15 or < 1)
+        if (name.RemoveHtmlTags().Length is > 15 or < 1)
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
         else
         {
@@ -3718,7 +3724,7 @@ internal static class ChatUpdatePatch
             .Write(player.Data.PlayerName)
             .EndRpc();
 
-        if (sender.stream.Length > 400)
+        if (sender.stream.Length > 500)
         {
             sender.SendMessage();
             sender = CustomRpcSender.Create(sender.name, sender.sendOption);

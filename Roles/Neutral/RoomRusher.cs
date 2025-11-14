@@ -183,9 +183,7 @@ public class RoomRusher : RoleBase
     {
         if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || !pc.IsAlive()) return;
 
-        PlainShipRoom room = pc.GetPlainShipRoom();
-
-        if (!pc.inMovingPlat && !pc.inVent && room != null && room.RoomId == RoomGoal)
+        if (!pc.inMovingPlat && !pc.inVent && pc.IsInRoom(RoomGoal))
         {
             Logger.Info($"{pc.GetRealName()} entered the correct room", "Room Rusher");
             StartNewRound();

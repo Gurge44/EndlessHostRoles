@@ -12,6 +12,7 @@ public class PortalMaker : RoleBase
 
     public override bool IsEnable => On;
 
+    private byte PortalMakerId;
     private List<Vector2> Marks;
     private Dictionary<byte, long> LastTP;
 
@@ -28,6 +29,7 @@ public class PortalMaker : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        PortalMakerId = playerId;
         Marks = new(2);
         LastTP = Main.PlayerStates.Keys.ToDictionary(x => x, _ => Utils.TimeStamp);
     }
@@ -62,6 +64,9 @@ public class PortalMaker : RoleBase
         Vector2 target = Marks[1 - index];
         pc.TP(target);
         LastTP[pc.PlayerId] = now;
+        
+        if (PortalMakerId == PlayerControl.LocalPlayer.PlayerId && pc.Is(CustomRoles.RiftMaker))
+            Achievements.Type.YouCopycat.CompleteAfterGameEnd();
     }
 
     public void ReceiveRPC(MessageReader reader)

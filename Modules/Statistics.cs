@@ -11,6 +11,7 @@ public static class Statistics
 {
     private const int MinPlayers = 3;
     private static bool OnlyVotingForKillersAsCrew = true;
+    private static bool HasVoted;
     private static bool VotedBySomeone;
     public static int VentTimes;
     public static bool HasUsedAnyCommand;
@@ -109,10 +110,16 @@ public static class Statistics
                 case CustomGameMode.Mingle when won:
                     Achievements.Type.ThisAintSquidGames.CompleteAfterGameEnd();
                     return;
+                case CustomGameMode.KingOfTheZones when won:
+                    Achievements.Type.YourZoneIsMine.CompleteAfterGameEnd();
+                    return;
                 case CustomGameMode.Standard:
                     Reset();
                     break;
             }
+            
+            if (won && Main.PlayerStates.TryGetValue(lp.PlayerId, out var lpState) && lpState.RoleHistory.Contains(CustomRoles.Pawn))
+                Achievements.Type.Checkmate.CompleteAfterGameEnd();
 
             if (won && addons.Contains(CustomRoles.Undead) && CustomWinnerHolder.WinnerIds.ToValidPlayers().Count(x => x.Is(CustomRoles.Necromancer)) >= 3)
                 Achievements.Type.IdeasLiveOn.CompleteAfterGameEnd();
@@ -200,6 +207,9 @@ public static class Statistics
             {
                 if (won && OnlyVotingForKillersAsCrew && lp.IsCrewmate() && !MeetingStates.FirstMeeting) Achievements.Type.MasterDetective.CompleteAfterGameEnd();
                 OnlyVotingForKillersAsCrew = true;
+                
+                if (!HasVoted && !MeetingStates.FirstMeeting) Achievements.Type.Abstain.CompleteAfterGameEnd();
+                HasVoted = false;
 
                 if (won && !VotedBySomeone && (lp.IsImpostor() || lp.IsNeutralKiller()) && !MeetingStates.FirstMeeting) Achievements.Type.Unsuspected.CompleteAfterGameEnd();
                 VotedBySomeone = false;
@@ -243,8 +253,13 @@ public static class Statistics
             {
                 PlayerControl voteTarget = lpVS.VotedForId.GetPlayer();
 
-                if (voteTarget != null && !voteTarget.IsCrewmate() && !voteTarget.IsConverted())
-                    OnlyVotingForKillersAsCrew = false;
+                if (voteTarget != null)
+                {
+                    HasVoted = true;
+                    
+                    if (!voteTarget.IsCrewmate() && !voteTarget.IsConverted())
+                        OnlyVotingForKillersAsCrew = false;
+                }
             }
 
             if (states.Any(x => x.VotedForId == lp.PlayerId))

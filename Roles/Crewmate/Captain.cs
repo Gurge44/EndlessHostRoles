@@ -95,7 +95,7 @@ public class Captain : RoleBase
             return;
         }
 
-        string notify = string.Join(", ", Main.AllAlivePlayerControls.Without(pc).Where(x => x.GetPlainShipRoom() == room).Select(x => x.PlayerId.ColoredPlayerName()));
+        string notify = string.Join(", ", Main.AllAlivePlayerControls.Without(pc).Where(x => x.IsInRoom(room)).Select(x => x.PlayerId.ColoredPlayerName()));
         if (notify == LastNotify) return;
         LastNotify = notify;
         Utils.SendRPC(CustomRPC.SyncRoleData, CaptainId, LastNotify);

@@ -52,7 +52,6 @@ public class Shifter : RoleBase
         PlayerControl pc = playerId.GetPlayer();
         if (pc == null) return;
 
-        pc.AddAbilityCD();
         pc.ResetKillCooldown();
         pc.SyncSettings();
         pc.SetKillCooldown();
@@ -94,7 +93,6 @@ public class Shifter : RoleBase
         TaskState taskState = target.GetTaskState();
         if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
 
-        killer.RemoveAbilityCD();
         killer.SyncSettings();
 
         // ------------------------------------------------------------------------------------------

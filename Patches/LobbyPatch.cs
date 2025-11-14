@@ -11,6 +11,8 @@ namespace EHR;
 public static class LobbyFixedUpdatePatch
 {
     private static GameObject Paint;
+    private static SpriteRenderer LeftEngineSR;
+    private static SpriteRenderer RightEngineSR;
 
     public static void Postfix()
     {
@@ -28,6 +30,20 @@ public static class LobbyFixedUpdatePatch
                     var renderer = Paint.GetComponent<SpriteRenderer>();
                     renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
                 }
+            }
+
+            if (LeftEngineSR == null || RightEngineSR == null)
+            {
+                var leftEngine = GameObject.Find("LeftEngine");
+                if (leftEngine != null) LeftEngineSR = leftEngine.GetComponent<SpriteRenderer>();
+
+                var rightEngine = GameObject.Find("RightEngine");
+                if (rightEngine != null) RightEngineSR = rightEngine.GetComponent<SpriteRenderer>();
+            }
+            else
+            {
+                LeftEngineSR.color = Color.yellow;
+                RightEngineSR.color = Color.yellow;
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -94,4 +110,5 @@ internal static class LobbyBehaviourUpdatePatch
             SoundManager.Instance.CrossFadeSound("MapTheme", __instance.MapTheme, 0.5f);
         }
     }
+
 }

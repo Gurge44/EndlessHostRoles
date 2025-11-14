@@ -403,4 +403,13 @@ internal class AntiAdminer : RoleBase
 
         return aa == null ? string.Empty : $"<#ffff00>\u26a0 {Delay.GetInt() - (Utils.TimeStamp - aa.ExtraAbilityStartTimeStamp):N0}</color>";
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
+            hud.PetButton?.OverrideText(Translator.GetString("VeteranVentButtonText"));
+        else
+            hud.AbilityButton?.OverrideText(Translator.GetString("VeteranVentButtonText"));
+    }
+
 }

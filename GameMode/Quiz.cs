@@ -183,8 +183,7 @@ public static class Quiz
                     char letter = (char)('A' + i);
                     SystemTypes room = UsedRooms[Main.CurrentMap][letter];
 
-                    PlainShipRoom psr = seer.GetPlainShipRoom();
-                    bool isInThisRoom = room == SystemTypes.Outside ? psr == null : psr != null && psr.RoomId == room;
+                    bool isInThisRoom = room == SystemTypes.Outside ? seer.GetPlainShipRoom() == null : seer.IsInRoom(room);
 
                     string prefix = isInThisRoom ? "\u27a1 <u>" : string.Empty;
                     string suffix = isInThisRoom ? "</u>" : string.Empty;

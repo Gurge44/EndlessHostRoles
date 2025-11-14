@@ -167,7 +167,7 @@ internal class Sentry : RoleBase
 
     private bool IsInMonitoredRoom(PlayerControl pc)
     {
-        return MonitoredRoom != null && SentryPC.IsAlive() && pc.GetPlainShipRoom() == MonitoredRoom;
+        return MonitoredRoom != null && SentryPC.IsAlive() && pc.IsInRoom(MonitoredRoom);
     }
 
     public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter, PlayerControl target)

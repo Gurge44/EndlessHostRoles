@@ -20,7 +20,7 @@ internal class Puppeteer : RoleBase
 
     private static OptionItem PuppeteerKCD;
     private static OptionItem PuppeteerCD;
-    private static OptionItem PuppeteerCanKillNormally;
+    public static OptionItem PuppeteerCanKillNormally;
     private static OptionItem PuppeteerManipulationBypassesLazy;
     private static OptionItem PuppeteerManipulationBypassesLazyGuy;
     private static OptionItem PuppeteerPuppetCanKillPuppeteer;
@@ -32,6 +32,7 @@ internal class Puppeteer : RoleBase
     private static OptionItem PuppeteerManipulationEndsAfterFixedTime;
     private static OptionItem PuppeteerManipulationEndsAfterTime;
     private static OptionItem PuppetDiesAlongWithVictim;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()

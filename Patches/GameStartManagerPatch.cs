@@ -180,7 +180,7 @@ public static class GameStartManagerPatch
 
             bool votedToStart = (int)Math.Round(ChatCommands.VotedToStart.Count / (float)PlayerControl.AllPlayerControls.Count * 100f) > 50;
 
-            if ((Main.AutoStart != null && Main.AutoStart.Value) || votedToStart)
+            if (((Main.AutoStart != null && Main.AutoStart.Value) || votedToStart) && GameSettingMenu.Instance == null)
             {
                 Main.UpdateTime++;
 
@@ -419,7 +419,7 @@ public static class GameStartManagerPatch
                     CustomGameMode.SoloPVP => SoloPVP.KB_GameTime.GetInt(),
                     CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt() + 5, FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
                     CustomGameMode.StopAndGo => ((Main.NormalOptions.NumShortTasks * 30) + (Main.NormalOptions.NumLongTasks * 60) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 40)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)),
-                    CustomGameMode.HotPotato => HotPotato.TimeBetweenPasses * (PlayerControl.AllPlayerControls.Count - 1),
+                    CustomGameMode.HotPotato => HotPotato.GetKillInterval() * (PlayerControl.AllPlayerControls.Count - 1),
                     CustomGameMode.HideAndSeek => Math.Min((Seeker.KillCooldown.GetInt() * (PlayerControl.AllPlayerControls.Count - Main.NormalOptions.NumImpostors) / Main.NormalOptions.NumImpostors) + Seeker.BlindTime.GetInt() + 15, Math.Min(CustomHnS.MaximumGameLength, ((Main.NormalOptions.NumShortTasks * 20) + (Main.NormalOptions.NumLongTasks * 30) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 20)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)))),
                     CustomGameMode.Speedrun => (Speedrun.TimeLimitValue * (Main.NormalOptions.NumShortTasks + Main.NormalOptions.NumLongTasks + Main.NormalOptions.NumCommonTasks)) + (Speedrun.KCD * (PlayerControl.AllPlayerControls.Count / (Speedrun.RestrictedKilling ? 2 : 3))),
                     CustomGameMode.CaptureTheFlag => CaptureTheFlag.GameEndCriteriaType == 2 ? CaptureTheFlag.MaxGameLength : CaptureTheFlag.IsDeathPossible ? 40 : Math.Max(30, 1500 / (int)Math.Pow(CaptureTheFlag.KCD + 0.5f, 2) * CaptureTheFlag.TotalRoundsToPlay),

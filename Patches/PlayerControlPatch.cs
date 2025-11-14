@@ -1211,6 +1211,8 @@ internal static class ReportDeadBodyPatch
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
+        Listener.LocalPlayerHeardMessagesThisMeeting = 0;
+
         GameEndChecker.ShouldNotCheck = false;
 
         try
@@ -2015,7 +2017,14 @@ internal static class FixedUpdatePatch
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
             List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
-            if (addSuff.Count > 0) Suffix.Append(string.Join('\n', addSuff));
+            
+            if (addSuff.Count > 0)
+            {
+                if (Suffix.Length > 0 && Suffix[^1] != '\n')
+                    Suffix.Append('\n');
+                
+                Suffix.Append(string.Join('\n', addSuff));
+            }
 
             if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
@@ -2362,7 +2371,7 @@ internal static class PlayerControlSetRolePatch
             if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
             else if (!(__instance.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.Role.CanUseSabotage(__instance))
-                roleType = RoleTypes.Impostor;
+                roleType = RoleTypes.ImpostorGhost;
             else
                 roleType = RoleTypes.CrewmateGhost;
         }

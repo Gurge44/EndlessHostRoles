@@ -569,6 +569,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             // ===================================================================================================================
 
+            if (state.IsBlackOut)
+                SetBlind();
+            
             AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown))
@@ -600,10 +603,16 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     Options.AdditionalEmergencyCooldownTime.GetInt());
             }
 
-            if (CustomRoles.ClockBlocker.RoleExist(true))
+            if (CustomRoles.ClockBlocker.RoleExist(ClockBlocker.CountAddedTimeAfterDeath.GetBool()))
             {
                 int originalTime = opt.GetInt(Int32OptionNames.EmergencyCooldown);
                 opt.SetInt(Int32OptionNames.EmergencyCooldown, ClockBlocker.GetTotalTime(originalTime));
+            }
+
+            if (MeetingStates.FirstMeeting)
+            {
+                int originalTime = opt.GetInt(Int32OptionNames.EmergencyCooldown);
+                opt.SetInt(Int32OptionNames.EmergencyCooldown, originalTime + 30);
             }
 
             if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)

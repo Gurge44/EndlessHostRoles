@@ -7,6 +7,8 @@ public class Listener : IAddon
     public static OptionItem WhisperHearChance;
     public static OptionItem FullMessageHearChance;
 
+    public static int LocalPlayerHeardMessagesThisMeeting;
+
     public void SetupCustomOption()
     {
         Options.SetupAdtRoleOptions(653800, CustomRoles.Listener, canSetNum: true, teamSpawnOptions: true);

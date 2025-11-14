@@ -7,14 +7,15 @@
         <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
         <Description>EHR</Description>
         <Authors>Gurge44</Authors>
-        <langVersion>preview</langVersion>
-        <AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>
-        <!--<AmongUs>C:\Program Files\Epic Games\AmongUs</AmongUs>-->
+        <LangVersion>preview</LangVersion>
+        <!--<AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>-->
+        <AmongUs>C:\Program Files\Epic Games\AmongUs</AmongUs>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Optimize>True</Optimize>
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>
         <Configurations>Debug;Release;Android</Configurations>
         <Platforms>AnyCPU</Platforms>
+        <RepositoryUrl>https://github.com/Gurge44/EndlessHostRoles</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>

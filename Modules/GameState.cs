@@ -506,7 +506,8 @@ public class TaskState
 
                 if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
                 {
-                    if (ghostRole is { Role: CustomRoles.Phantasm, Instance: Phantasm KARTOSHKA } && CompletedTasksCount + 1 >= AllTasksCount) KARTOSHKA.OnFinishedTasks(player);
+                    if (ghostRole is { Role: CustomRoles.Phantasm, Instance: Phantasm phantasm } && CompletedTasksCount + 1 >= AllTasksCount)
+                        phantasm.OnFinishedTasks(player);
 
                     if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
                     {

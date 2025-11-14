@@ -228,7 +228,7 @@ public static class GuessManager
                             return true;
                         case CustomRoles.Shifter when !Shifter.CanGuess.GetBool():
                         case CustomRoles.Specter when !Options.PhantomCanGuess.GetBool():
-                        case CustomRoles.Terrorist when !Options.TerroristCanGuess.GetBool():
+                        case CustomRoles.Terrorist when !Terrorist.TerroristCanGuess.GetBool():
                         case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
                         case CustomRoles.God when !God.GodCanGuess.GetBool():
                         case CustomRoles.Executioner when Executioner.Target[pc.PlayerId] == target.PlayerId && Executioner.KnowTargetRole.GetBool() && !Executioner.CanGuessTarget.GetBool():
@@ -443,6 +443,9 @@ public static class GuessManager
                         Logger.Msg($"{guesserSuicide}", "guesserSuicide3");
                     }
 
+                    Main.GuesserGuessed[pc.PlayerId]++;
+                    Main.GuesserGuessedMeeting[pc.PlayerId]++;
+
                     if (guesserSuicide && Options.GuesserDoesntDieOnMisguess.GetBool())
                     {
                         if (!isUI) Utils.SendMessage(GetString("MisguessButNoSuicide"), pc.PlayerId, Utils.ColorString(Color.yellow, GetString("MessageFromGurge44")));
@@ -460,9 +463,6 @@ public static class GuessManager
                     target = dp;
 
                     Logger.Info($"Player: {target.GetRealName().RemoveHtmlTags()} was guessed by {pc.GetRealName().RemoveHtmlTags()}", "Guesser");
-
-                    Main.GuesserGuessed[pc.PlayerId]++;
-                    Main.GuesserGuessedMeeting[pc.PlayerId]++;
 
                     if (pc.IsHost()) Utils.FlashColor(guesserSuicide ? new(1f, 0f, 0f, 0.3f) : new(0f, 1f, 0f, 0.3f));
 
@@ -521,9 +521,12 @@ public static class GuessManager
 
                     LateTask.New(() =>
                     {
-                        Main.PlayerStates[dp.PlayerId].deathReason = PlayerState.DeathReason.Gambled;
-                        dp.SetRealKiller(pc);
-                        dp.RpcGuesserMurderPlayer();
+                        if (Main.PlayerStates.TryGetValue(dp.PlayerId, out PlayerState state))
+                        {
+                            state.deathReason = PlayerState.DeathReason.Gambled;
+                            dp.SetRealKiller(pc);
+                            dp.RpcGuesserMurderPlayer();
+                        }
 
                         if (dp.Is(CustomRoles.Medic)) Medic.IsDead(dp);
 
@@ -539,6 +542,9 @@ public static class GuessManager
 
                         MeetingManager.OnGuess(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
+                        
+                        if (pc.AmOwner && pc.Is(CustomRoles.Decryptor) && dp.Is(CustomRoles.God))
+                            Achievements.Type.Easypeasy.Complete();
 
                         LateTask.New(() => Utils.SendMessage(string.Format(GetString("GuessKill"), Main.AllPlayerNames.GetValueOrDefault(dp.PlayerId, name)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))), 0.6f, "Guess Msg");
 

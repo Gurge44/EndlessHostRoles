@@ -1773,7 +1773,7 @@ public static class Utils
 
         TaskState taskState = GetPlayerById(terrorist.PlayerId).GetTaskState();
 
-        if (taskState.IsTaskFinished && (!Main.PlayerStates[terrorist.PlayerId].IsSuicide || Options.CanTerroristSuicideWin.GetBool()))
+        if (taskState.IsTaskFinished && (!Main.PlayerStates[terrorist.PlayerId].IsSuicide || Terrorist.CanTerroristSuicideWin.GetBool()))
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
@@ -2113,7 +2113,7 @@ public static class Utils
 
         void RestartMessageIfTooLong()
         {
-            if (writer.stream.Length > 400)
+            if (writer.stream.Length > 500)
             {
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
@@ -2647,7 +2647,14 @@ public static class Utils
                 }
 
                 List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
-                if (addSuff.Count > 0) SelfSuffix.Append(string.Join('\n', addSuff));
+                
+                if (addSuff.Count > 0)
+                {
+                    if (SelfSuffix.Length > 0 && SelfSuffix[^1] != '\n')
+                        SelfSuffix.Append('\n');
+                    
+                    SelfSuffix.Append(string.Join('\n', addSuff));
+                }
             }
 
             string seerRealName = seer.GetRealName(forMeeting);
@@ -2989,7 +2996,14 @@ public static class Utils
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
                                 List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
-                                if (addSuff.Count > 0) TargetSuffix.Append("\n" + string.Join('\n', addSuff));
+                                
+                                if (addSuff.Count > 0)
+                                {
+                                    if (TargetSuffix.Length > 0 && TargetSuffix[^1] != '\n')
+                                        TargetSuffix.Append('\n');
+                                    
+                                    TargetSuffix.Append(string.Join('\n', addSuff));
+                                }
                             }
 
                             var targetDeathReason = string.Empty;
@@ -3345,7 +3359,8 @@ public static class Utils
     {
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.Standard or CustomGameMode.HideAndSeek => true,
+            CustomGameMode.Standard when !PlayerControl.LocalPlayer.Is(CustomRoles.GM) => true,
+            CustomGameMode.HideAndSeek => true,
             CustomGameMode.StopAndGo or CustomGameMode.Speedrun when PlayerControl.LocalPlayer.IsAlive() => true,
             _ => false
         };
@@ -3409,6 +3424,7 @@ public static class Utils
             CustomRoles.Escapee => Escapee.EscapeeSSCD.GetInt(),
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
+            CustomRoles.Trapster => Trapster.AbilityCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Centralizer => Centralizer.AbilityCooldown.GetInt(),
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
@@ -3426,7 +3442,6 @@ public static class Utils
             CustomRoles.Explosivist => Explosivist.AbilityCooldown.GetInt() + (includeDuration ? Explosivist.ExplosionDelay.GetInt() : 0),
             CustomRoles.Sharpshooter => Sharpshooter.AbilityCooldown.GetInt() + (includeDuration ? Sharpshooter.AbilityDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
-            CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             CustomRoles.NoteKiller => NoteKiller.AbilityCooldown.GetInt(),
             CustomRoles.Weatherman => Weatherman.AbilityCooldown.GetInt(),
             _ => -1
@@ -3622,8 +3637,16 @@ public static class Utils
                     NiceSwapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
                     break;
                 case CustomRoles.Silencer when disconnect:
-                    Silencer.ForSilencer = [];
+                    if (onMeeting) Main.Instance.StartCoroutine(CoRoutine());
+                    else Silencer.ForSilencer = [];
+
                     break;
+
+                    IEnumerator CoRoutine()
+                    {
+                        while (GameStates.IsMeeting || ExileController.Instance) yield return null;
+                        Silencer.ForSilencer = [];
+                    }
                 case CustomRoles.Hypnotist when disconnect && Hypnotist.DoReportAfterHypnosisEnds.GetBool():
                     ReportDeadBodyPatch.CanReport.SetAllValues(true);
                     break;
@@ -4394,4 +4417,3 @@ public class Message(string text, byte sendTo = byte.MaxValue, string title = ""
     public byte SendTo { get; } = sendTo;
     public string Title { get; } = title;
 }
-

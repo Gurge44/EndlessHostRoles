@@ -7,6 +7,7 @@ public class Wraith : RoleBase
     public static OptionItem WraithCooldown;
     public static OptionItem WraithDuration;
     public static OptionItem WraithVentNormallyOnCooldown;
+    public static OptionItem WraithCanVent;
     private static OptionItem ImpostorVision;
 
     public override bool IsEnable => false;
@@ -17,6 +18,7 @@ public class Wraith : RoleBase
             .AutoSetupOption(ref WraithCooldown, 20f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref WraithDuration, 10f, new FloatValueRule(0f, 30f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref WraithVentNormallyOnCooldown, true)
+            .AutoSetupOption(ref WraithCanVent, true, overrideName: "CanVent")
             .AutoSetupOption(ref ImpostorVision, true);
     }
 

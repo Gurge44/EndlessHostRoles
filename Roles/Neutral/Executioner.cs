@@ -90,6 +90,7 @@ public class Executioner : RoleBase
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+        Target.Remove(playerId);
     }
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
