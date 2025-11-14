@@ -940,7 +940,7 @@
   "LadderDeathChance": "Fall To Death Chance",
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>Guesser Doesn't Die on Misguess</color>",
   "CanGuessDuringDiscussionTime": "<color=#f3e304>Guessers Can Guess During Discussion Time</color>",
-  "YouCanGuessTitle": "<#00ffff>You can guess!</color>",
+  "YouCanGuessTitle": "<#00ffff>You can Guess!</color>",
   "YouCanGuess": "Use the <b>/bt [player id] [role]</b> command to guess someone's role. You can see everyone's IDs next to their name, or type <b>/id</b>.",
   "YouCanGuessMeetingSS": "Use the <b>shapeshift menu</b> to guess someone's role. You can use the target buttons to select the player and role, or type the <b>command</b>.",
   "DisableTasks": "Disable Tasks",
