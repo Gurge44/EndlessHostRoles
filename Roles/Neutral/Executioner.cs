@@ -134,8 +134,8 @@ public class Executioner : RoleBase
         byte Executioner = Target.GetKeyByValue(target.PlayerId);
         PlayerControl ExePC = Utils.GetPlayerById(Executioner);
         CustomRoles newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
-        ExePC.RpcChangeRoleBasis(newRole);
         ExePC.RpcSetCustomRole(newRole);
+        ExePC.RpcChangeRoleBasis(newRole);
         Target.Remove(Executioner);
         SendRPC(Executioner);
         ExePC.Notify(Translator.GetString("ExecutionerRoleChanged"));
@@ -146,8 +146,8 @@ public class Executioner : RoleBase
     private static void ChangeRole(PlayerControl executioner)
     {
         CustomRoles newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
-        executioner.RpcChangeRoleBasis(newRole);
         executioner.RpcSetCustomRole(newRole);
+        executioner.RpcChangeRoleBasis(newRole);
         Target.Remove(executioner.PlayerId);
         SendRPC(executioner.PlayerId);
         executioner.Notify(Translator.GetString("ExecutionerRoleChanged"));

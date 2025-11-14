@@ -31,7 +31,7 @@ public class Sensor : RoleBase
     {
         On = true;
         SensorId = playerId;
-        playerId.SetAbilityUseLimit(playerId);
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

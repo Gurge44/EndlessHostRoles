@@ -165,12 +165,14 @@ public enum CustomRPC
     ResetAbilityCooldown,
     SyncCamouflage,
     SetChatVisible,
+    Exclusionary,
 
     // Game Modes
     RoomRushDataSync,
     FFAKill,
     FFASync,
     QuizSync,
+    SAGSync,
     HotPotatoSync,
     SoloPVPSync,
     CTFSync,
@@ -1249,12 +1251,28 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.FFASync:
                 {
-                    FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int roundTime = reader.ReadPackedInt32();
+                            FreeForAll.RoundTime = roundTime;
+                            break;
+                        case 2:
+                            FreeForAll.KillCount[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    
                     break;
                 }
                 case CustomRPC.QuizSync:
                 {
                     Quiz.AllowKills = reader.ReadBoolean();
+                    break;
+                }
+                case CustomRPC.SAGSync:
+                {
+                    int roundTime = reader.ReadPackedInt32();
+                    MoveAndStop.RoundTime = roundTime;
                     break;
                 }
                 case CustomRPC.HotPotatoSync:
@@ -1264,7 +1282,17 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SoloPVPSync:
                 {
-                    SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                    switch (reader.ReadPackedInt32())
+                    {
+                        case 1:
+                            int roundTime = reader.ReadPackedInt32();
+                            SoloPVP.RoundTime = roundTime;
+                            break;
+                        case 2:
+                            SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                            break;
+                    }
+                    
                     break;
                 }
                 case CustomRPC.CTFSync:
@@ -1354,6 +1382,37 @@ internal static class RPCHandlerPatch
                 {
                     HudManager.Instance.Chat.SetVisible(reader.ReadBoolean());
                     HudManager.Instance.Chat.HideBanButton();
+                    break;
+                }
+                case CustomRPC.Exclusionary:
+                {
+                    if (reader.ReadBoolean())
+                    {
+                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        {
+                            if (player.AmOwner) continue;
+                            player.SetPet("");
+                            player.invisibilityAlpha = 0f;
+                            player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
+                            player.shouldAppearInvisible = true;
+                            player.Visible = false;
+                        }
+                    }
+                    else
+                    {
+                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        {
+                            if (player.AmOwner) continue;
+                            if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
+                            player.shouldAppearInvisible = false;
+                            player.Visible = true;
+                            player.invisibilityAlpha = 1f;
+                            player.cosmetics.SetPhantomRoleAlpha(player.invisibilityAlpha);
+                            player.shouldAppearInvisible = false;
+                            player.Visible = !player.inVent;
+                        }
+                    }
+                    
                     break;
                 }
             }

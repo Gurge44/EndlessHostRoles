@@ -68,10 +68,13 @@ public class Duality : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        KillingPhase = false;
-        killer.RpcChangeRoleBasis(CanVent.GetBool() ? CustomRoles.EngineerEHR : CustomRoles.CrewmateEHR);
-        killer.RpcResetTasks();
-        ResetTimer();
+        LateTask.New(() =>
+        {
+            KillingPhase = false;
+            killer.RpcChangeRoleBasis(CanVent.GetBool() ? CustomRoles.EngineerEHR : CustomRoles.CrewmateEHR);
+            killer.RpcResetTasks();
+            ResetTimer();
+        }, 0.2f, log: false);
     }
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)

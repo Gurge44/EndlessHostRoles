@@ -1454,7 +1454,7 @@ internal static class StartGameHostPatch
                                 };
                             }
 
-                            if (Options.EveryoneCanVent.GetBool() && (roleType == RoleTypes.Crewmate || (Options.OverrideScientistBasedRoles.GetBool() && roleType is RoleTypes.Scientist or RoleTypes.Detective or RoleTypes.Noisemaker or RoleTypes.Tracker)))
+                            if (Options.EveryoneCanVent.GetBool() && (roleType == RoleTypes.Crewmate || (Options.OverrideOtherCrewBasedRoles.GetBool() && roleType is RoleTypes.Scientist or RoleTypes.Detective or RoleTypes.Noisemaker or RoleTypes.Tracker)))
                                 roleType = RoleTypes.Engineer;
 
                             StoragedData[playerId] = roleType;
@@ -1609,3 +1609,4 @@ internal static class StartGameHostPatch
         }
     }
 }
+

@@ -42,8 +42,8 @@ public static class LobbyFixedUpdatePatch
             }
             else
             {
-                LeftEngineSR.color = Color.yellow;
-                RightEngineSR.color = Color.yellow;
+                LeftEngineSR.color = Color.cyan;
+                RightEngineSR.color = Color.cyan;
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }

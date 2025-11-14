@@ -1289,7 +1289,7 @@ internal static class ReportDeadBodyPatch
                 }
             
                 if (player.Is(CustomRoles.Looter))
-                    tpc.GetCustomSubRoles().FindAll(x => !player.Is(x) && !x.IsGhostRole()).ForEach(x => player.RpcSetCustomRole(x));
+                    tpc.GetCustomSubRoles().FindAll(x => !player.Is(x) && !x.IsGhostRole() && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, player)).ForEach(x => player.RpcSetCustomRole(x));
             }
 
             if (QuizMaster.On)
@@ -2370,6 +2370,12 @@ internal static class PlayerControlSetRolePatch
                 roleType = RoleTypes.ImpostorGhost;
             else
                 roleType = RoleTypes.CrewmateGhost;
+        }
+
+        foreach (PlayerControl seer in Main.AllPlayerControls)
+        {
+            if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, __instance.PlayerId), out var tuple))
+                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, __instance.PlayerId)] = (roleType, tuple.CustomRole);
         }
 
         return true;

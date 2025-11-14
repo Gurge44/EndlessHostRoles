@@ -46,8 +46,8 @@ public class Imitator : RoleBase
             {
                 Main.AbilityUseLimit.Remove(pc.PlayerId);
                 Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, pc.PlayerId);
-                pc.RpcChangeRoleBasis(role);
                 pc.RpcSetCustomRole(role);
+                pc.RpcChangeRoleBasis(role);
             }
         }
     }

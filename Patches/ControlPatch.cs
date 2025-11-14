@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,18 +25,36 @@ internal static class ControllerManagerUpdatePatch
     {
         try
         {
-            if (GameStates.IsLobby && (HudManager.Instance.Chat == null || !HudManager.Instance.Chat.IsOpenOrOpening))
+            if (HudManager.InstanceExists)
             {
-                if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
-
-                for (var i = 0; i < 9; i++)
+                if (PlayerControl.LocalPlayer != null)
                 {
-                    if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
-                        OptionShower.CurrentPage = i;
-                }
+                    if (Input.GetKeyDown(KeyCode.LeftControl))
+                    {
+                        if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && PlayerControl.LocalPlayer.CanMove)
+                            PlayerControl.LocalPlayer.Collider.offset = new(0f, 127f);
+                    }
 
-                if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
-                    GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
+                    if (Math.Abs(PlayerControl.LocalPlayer.Collider.offset.y - 127f) < 0.1f)
+                    {
+                        if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
+                            PlayerControl.LocalPlayer.Collider.offset = new(0f, -0.3636f);
+                    }
+                }
+            
+                if (GameStates.IsLobby && (HudManager.Instance.Chat == null || !HudManager.Instance.Chat.IsOpenOrOpening))
+                {
+                    if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
+
+                    for (var i = 0; i < 9; i++)
+                    {
+                        if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
+                            OptionShower.CurrentPage = i;
+                    }
+
+                    if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
+                        GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
+                }
             }
 
             if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))

@@ -44,18 +44,6 @@ internal static class HudManagerPatch
             PlayerControl player = PlayerControl.LocalPlayer;
             if (player == null) return;
 
-            if (Input.GetKeyDown(KeyCode.LeftControl))
-            {
-                if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
-                    player.Collider.offset = new(0f, 127f);
-            }
-
-            if (Math.Abs(player.Collider.offset.y - 127f) < 0.1f)
-            {
-                if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
-                    player.Collider.offset = new(0f, -0.3636f);
-            }
-
             if (__instance == null) return;
 
             if (GameStates.IsLobby)
@@ -281,9 +269,9 @@ internal static class HudManagerPatch
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
-                        CustomGameMode.FFA when player.IsHost() => FreeForAll.GetHudText(),
-                        CustomGameMode.StopAndGo when player.IsHost() => StopAndGo.HUDText,
-                        CustomGameMode.HotPotato when player.IsHost() => HotPotato.GetSuffixText(player.PlayerId),
+                        CustomGameMode.FFA => FreeForAll.GetHudText(),
+                        CustomGameMode.StopAndGo => StopAndGo.HUDText,
+                        CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),

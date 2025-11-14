@@ -647,7 +647,7 @@ public static class Options
     public static OptionItem CrewCanGuessCrew;
 
     public static OptionItem EveryoneCanVent;
-    public static OptionItem OverrideScientistBasedRoles;
+    public static OptionItem OverrideOtherCrewBasedRoles;
     public static OptionItem WhackAMole;
 
     public static OptionItem SpawnAdditionalRefugeeOnImpsDead;
@@ -2438,7 +2438,7 @@ public static class Options
             .SetHeader(true)
             .SetColor(Color.green);
 
-        OverrideScientistBasedRoles = new BooleanOptionItem(23855, "OverrideScientistBasedRoles", false, TabGroup.TaskSettings)
+        OverrideOtherCrewBasedRoles = new BooleanOptionItem(23855, "OverrideOtherCrewBasedRoles", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(EveryoneCanVent);
 

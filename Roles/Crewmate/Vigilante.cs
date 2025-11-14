@@ -100,12 +100,15 @@ public class Vigilante : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        SendRPC(killer.PlayerId);
-        Killed.Add(killer.PlayerId);
-        SetKillCooldown(killer.PlayerId);
-        killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
-        killer.RpcResetTasks();
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
+        LateTask.New(() =>
+        {
+            SendRPC(killer.PlayerId);
+            Killed.Add(killer.PlayerId);
+            SetKillCooldown(killer.PlayerId);
+            killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+            killer.RpcResetTasks();
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
+        }, 0.2f, log: false);
     }
 
     public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
