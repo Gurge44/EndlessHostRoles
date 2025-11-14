@@ -1725,22 +1725,19 @@ internal static class FixedUpdatePatch
 
         if (self) LastSelfNameUpdateTS = now;
 
-        if (GameStates.IsLobby)
+        if (GameStates.IsLobby && !__instance.IsHost())
         {
-            if (!__instance.IsHost())
+            if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
             {
-                if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
-                {
-                    if (Main.ForkId != ver.forkId)
-                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
-                    else if (Main.Version.CompareTo(ver.version) == 0)
-                        __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? Main.ShowModdedClientText.Value ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{__instance.name}</color>" : $"<color=#00a5ff>{__instance.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{__instance.name}</color>";
-                    else
-                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{__instance.name}</color>";
-                }
+                if (Main.ForkId != ver.forkId)
+                    __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
+                else if (Main.Version.CompareTo(ver.version) == 0)
+                    __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? Main.ShowModdedClientText.Value ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{__instance.name}</color>" : $"<color=#00a5ff>{__instance.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{__instance.name}</color>";
                 else
-                    __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance.Data?.PlayerName}" : __instance.Data?.PlayerName;
+                    __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{__instance.name}</color>";
             }
+            else
+                __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance.Data?.PlayerName}" : __instance.Data?.PlayerName;
         }
 
         if (GameStates.IsInGame)
@@ -1768,13 +1765,6 @@ internal static class FixedUpdatePatch
             {
                 roleText = Investigator.RandomRole[lpId];
                 roleText += Investigator.GetTaskState();
-            }
-
-            if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
-            {
-                roleText = string.Empty;
-                hideRoleText = true;
-                if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
             }
 
             string progressText = GetProgressText(__instance);
@@ -1809,9 +1799,15 @@ internal static class FixedUpdatePatch
             Suffix.Clear();
 
             string realName = target.GetRealName();
+            
+            if (ApplySuffix(__instance, out var formattedName))
+                realName = formattedName;
 
             if (target.Is(CustomRoles.BananaMan))
                 realName = realName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
+            if (!self && Main.PlayerStates.TryGetValue(target.PlayerId, out var tState) && tState.Role is Venerer { ChangedSkin: true })
+                realName = string.Empty;
 
             if (target.AmOwner && inTask)
             {

@@ -942,6 +942,7 @@
   "CanGuessDuringDiscussionTime": "<color=#f3e304>Guessers Can Guess During Discussion Time</color>",
   "YouCanGuessTitle": "<#00ffff>You can guess!</color>",
   "YouCanGuess": "Use the <b>/bt [player id] [role]</b> command to guess someone's role. You can see everyone's IDs next to their name, or type <b>/id</b>.",
+  "YouCanGuessMeetingSS": "Use the shapeshift menu to select the player you want to guess, then follow the instructions in the chat for further selections.",
   "DisableTasks": "Disable Tasks",
   "DisableSwipeCardTask": "Disable Swipe Card Task",
   "DisableSubmitScanTask": "Disable Submit Scan Task",

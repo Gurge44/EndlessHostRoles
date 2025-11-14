@@ -156,4 +156,9 @@ internal class Trapster : RoleBase
     {
         OnVanish(pc);
     }
+
+    public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
+    {
+        return target == null || target.PlayerId != reporter.PlayerId;
+    }
 }

@@ -1042,64 +1042,67 @@ internal static class CustomRolesHelper
 
     public static bool SimpleAbilityTrigger(this CustomRoles role)
     {
-        if (role == CustomRoles.Stealth) return !Stealth.UseLegacyVersion.GetBool();
-        return role is
-            CustomRoles.Jet or
-            CustomRoles.Dasher or
-            CustomRoles.CTFPlayer or
-            CustomRoles.BedWarsPlayer or
-            CustomRoles.Racer or
-            CustomRoles.Wizard or
-            CustomRoles.AntiAdminer or
-            CustomRoles.Stasis or
-            CustomRoles.Occultist or
-            CustomRoles.Overheat or
-            CustomRoles.Warlock or
-            CustomRoles.Swiftclaw or
-            CustomRoles.Undertaker or
-            CustomRoles.Abyssbringer or
-            CustomRoles.Ambusher or
-            CustomRoles.Bomber or
-            CustomRoles.Nuker or
-            CustomRoles.Camouflager or
-            CustomRoles.Centralizer or
-            CustomRoles.Disperser or
-            CustomRoles.Escapee or
-            CustomRoles.Fireworker or
-            CustomRoles.Hypnotist or
-            CustomRoles.Librarian or
-            CustomRoles.Miner or
-            CustomRoles.RiftMaker or
-            CustomRoles.Ninja or
-            CustomRoles.QuickShooter or
-            CustomRoles.Sapper or
-            CustomRoles.Sniper or
-            CustomRoles.Trapster or
-            CustomRoles.Twister or
-            CustomRoles.Swooper or
-            CustomRoles.Venerer or
-            CustomRoles.Wraith or
-            CustomRoles.RouleteGrandeur or
-            CustomRoles.Enderman or
-            CustomRoles.Explosivist or
-            CustomRoles.Hookshot or
-            CustomRoles.Mycologist or
-            CustomRoles.Magician or
-            CustomRoles.Sprayer or
-            CustomRoles.Werewolf or
-            CustomRoles.WeaponMaster or
-            CustomRoles.Thanos or
-            CustomRoles.Tiger or
-            CustomRoles.Bargainer or
-            CustomRoles.Chemist or
-            CustomRoles.Simon or
-            CustomRoles.Sharpshooter or
-            CustomRoles.Patroller or
-            CustomRoles.Weatherman or
-            CustomRoles.NoteKiller or
-            CustomRoles.Amogus or
-            CustomRoles.Auditor or
-            CustomRoles.Magistrate;
+        return role switch
+        {
+            CustomRoles.Stealth => !Stealth.UseLegacyVersion.GetBool(),
+            CustomRoles.Trapster => !Trapster.LegacyTrapster.GetBool(),
+            _ => role is CustomRoles.Jet
+                         or CustomRoles.Dasher
+                         or CustomRoles.CTFPlayer
+                         or CustomRoles.BedWarsPlayer
+                         or CustomRoles.Racer
+                         or CustomRoles.Wizard
+                         or CustomRoles.AntiAdminer
+                         or CustomRoles.Stasis
+                         or CustomRoles.Occultist
+                         or CustomRoles.Overheat
+                         or CustomRoles.Warlock
+                         or CustomRoles.Swiftclaw
+                         or CustomRoles.Undertaker
+                         or CustomRoles.Abyssbringer
+                         or CustomRoles.Ambusher
+                         or CustomRoles.Bomber
+                         or CustomRoles.Nuker
+                         or CustomRoles.Camouflager
+                         or CustomRoles.Centralizer
+                         or CustomRoles.Disperser
+                         or CustomRoles.Escapee
+                         or CustomRoles.Fireworker
+                         or CustomRoles.Hypnotist
+                         or CustomRoles.Librarian
+                         or CustomRoles.Miner
+                         or CustomRoles.RiftMaker
+                         or CustomRoles.Ninja
+                         or CustomRoles.QuickShooter
+                         or CustomRoles.Sapper
+                         or CustomRoles.Sniper
+                         or CustomRoles.Trapster
+                         or CustomRoles.Twister
+                         or CustomRoles.Swooper
+                         or CustomRoles.Venerer
+                         or CustomRoles.Wraith
+                         or CustomRoles.RouleteGrandeur
+                         or CustomRoles.Enderman
+                         or CustomRoles.Explosivist
+                         or CustomRoles.Hookshot
+                         or CustomRoles.Mycologist
+                         or CustomRoles.Magician
+                         or CustomRoles.Sprayer
+                         or CustomRoles.Werewolf
+                         or CustomRoles.WeaponMaster
+                         or CustomRoles.Thanos
+                         or CustomRoles.Tiger
+                         or CustomRoles.Bargainer
+                         or CustomRoles.Chemist
+                         or CustomRoles.Simon
+                         or CustomRoles.Sharpshooter
+                         or CustomRoles.Patroller
+                         or CustomRoles.Weatherman
+                         or CustomRoles.NoteKiller
+                         or CustomRoles.Amogus
+                         or CustomRoles.Auditor
+                         or CustomRoles.Magistrate
+        };
     }
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)

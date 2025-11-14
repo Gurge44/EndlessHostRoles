@@ -1300,12 +1300,6 @@ internal static class ChatCommands
 
     private static void AchievementsCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(AchievementsCommand), text);
-            return;
-        }
-
         Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
 
         Achievements.Type[] allAchievements = Enum.GetValues<Achievements.Type>();

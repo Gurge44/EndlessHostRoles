@@ -102,7 +102,11 @@ internal static class ExileControllerWrapUpPatch
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
         
-        if (decidedWinner) GameEndChecker.CheckCustomEndCriteria();
+        if (decidedWinner)
+        {
+            GameEndChecker.ShouldNotCheck = false;
+            GameEndChecker.CheckCustomEndCriteria();
+        }
 
         if (exiled == null) return;
         byte id = exiled.PlayerId;
