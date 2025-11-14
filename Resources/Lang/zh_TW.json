@@ -9135,6 +9135,7 @@
   "ClockBlockerInfoLong": "(偽裝者陣營):\\n身為時間干擾者，你每次擊殺都會增加會議後的緊急會議冷卻時間。",
   "ClockBlocker.EmergencyCooldownIncreasePerKill": "擊殺增加緊急會議冷卻時間",
   "ClockBlocker.MaxEmergencyCooldown": "最大緊急會議冷卻時間",
+  "ClockBlocker.CountAddedTimeAfterDeath": "Count Added Time After Death",
   "Spurt": "衝刺者",
   "Prefix.Spurt": "衝刺",
   "SpurtInfo": "增強移動能力",
