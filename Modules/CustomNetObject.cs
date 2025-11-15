@@ -137,17 +137,20 @@ namespace EHR
                 return;
             }
 
-            LateTask.New(() =>
+            if (this is not ShapeshiftMenuElement)
             {
-                var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
+                LateTask.New(() =>
+                {
+                    var sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
 
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.OwnerId)
-                    .WriteNetObject(playerControl)
-                    .Write(false)
-                    .EndRpc();
+                    sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.OwnerId)
+                        .WriteNetObject(playerControl)
+                        .Write(false)
+                        .EndRpc();
 
-                sender.SendMessage();
-            }, 0.4f);
+                    sender.SendMessage();
+                }, 0.4f);
+            }
 
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(6);
@@ -330,6 +333,8 @@ namespace EHR
         
         public virtual void OnMeeting()
         {
+            if (!AmongUsClient.Instance.AmHost) return;
+            
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(5);
             writer.Write(AmongUsClient.Instance.GameId);
@@ -345,7 +350,7 @@ namespace EHR
 
             System.Collections.IEnumerator WaitForMeetingEnd()
             {
-                while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
+                while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
                 if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby) yield break;
                 
                 {

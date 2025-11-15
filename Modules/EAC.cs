@@ -239,16 +239,7 @@ internal static class EAC
                     var target = sr.ReadNetObject<PlayerControl>();
                     var resultFlags = (MurderResultFlags)sr.ReadInt32();
 
-                    if (GameStates.IsLobby)
-                    {
-                        Report(pc, "Directly Murder Player In Lobby");
-                        HandleCheat(pc, "Directly Murder Player In Lobby");
-                        Logger.Fatal($"Player [{pc.OwnerId}:{pc.GetRealName()}] was killed directly in the lobby, rejected", "EAC");
-                        sr.Recycle();
-                        return true;
-                    }
-
-                    if (!resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
+                    if (GameStates.IsInTask && !resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
                         LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
 
                     Report(pc, "Directly Murder Player");

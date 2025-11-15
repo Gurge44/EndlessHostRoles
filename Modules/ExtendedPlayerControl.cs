@@ -24,8 +24,6 @@ namespace EHR;
 
 internal static class ExtendedPlayerControl
 {
-    public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
-
     public static readonly HashSet<byte> BlackScreenWaitingPlayers = [];
     public static readonly HashSet<byte> CancelBlackScreenFix = [];
 
@@ -1918,7 +1916,7 @@ internal static class ExtendedPlayerControl
             return;
         }
         
-        if (Options.CurrentGameMode == CustomGameMode.SoloPVP) return;
+        if (Options.CurrentGameMode == CustomGameMode.SoloPVP || GameStates.IsLobby || !GameStates.InGame || !Main.IntroDestroyed) return;
 
         if (target == null) target = killer;
 
@@ -1995,7 +1993,40 @@ internal static class ExtendedPlayerControl
             if (!Vacuum.BeforeMurderCheck(target))
                 killer = target;
             
-            killer.RpcMurderPlayer(target, true);
+            if (AmongUsClient.Instance.AmClient)
+                killer.MurderPlayer(target, MurderResultFlags.Succeeded);
+
+            var sender = CustomRpcSender.Create("RpcMurderPlayer", SendOption.Reliable);
+            sender.StartMessage();
+
+            if (Main.Invisible.Contains(target.PlayerId))
+            {
+                sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                    .WriteVector2(new Vector2(50f, 50f))
+                    .Write((ushort)(target.NetTransform.lastSequenceId + 16383))
+                    .EndRpc();
+                sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                    .WriteVector2(new Vector2(50f, 50f))
+                    .Write((ushort)(target.NetTransform.lastSequenceId + 32767))
+                    .EndRpc();
+                sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                    .WriteVector2(new Vector2(50f, 50f))
+                    .Write((ushort)(target.NetTransform.lastSequenceId + 32767 + 16383))
+                    .EndRpc();
+                sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
+                    .WriteVector2(target.transform.position)
+                    .Write(target.NetTransform.lastSequenceId)
+                    .EndRpc();
+
+                NumSnapToCallsThisRound += 4;
+            }
+
+            sender.StartRpc(killer.NetId, RpcCalls.MurderPlayer)
+                .WriteNetObject(target)
+                .Write((int)MurderResultFlags.Succeeded)
+                .EndRpc();
+
+            sender.SendMessage();
 
             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var playerState) && !playerState.IsDead)
                 playerState.SetDead();

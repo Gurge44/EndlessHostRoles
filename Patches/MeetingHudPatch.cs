@@ -1054,9 +1054,6 @@ internal static class MeetingHudStartPatch
                 case CustomRoles.Arsonist when seer.IsDousedPlayer(target):
                     sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist), "▲"));
                     break;
-                case CustomRoles.Executioner:
-                    sb.Append(Executioner.TargetMark(seer, target));
-                    break;
                 case CustomRoles.EvilTracker:
                     sb.Append(EvilTracker.GetTargetMark(seer, target));
                     break;
@@ -1081,6 +1078,7 @@ internal static class MeetingHudStartPatch
             if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId) || seer.Data.IsDead))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
 
+            sb.Append(Executioner.TargetMark(seer, target));
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
             sb.Append(Wasp.GetStungMark(target.PlayerId));
             sb.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);

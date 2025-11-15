@@ -241,30 +241,34 @@ public static class NameColorManager
         // If the color was determined, return true, else, check if the seer can see the target's role color without knowing the color
         if (color != "") return true;
 
-        return seer == target
-               || (Main.GodMode.Value && seer.AmOwner)
-               || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo
-               || (seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
-               || (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
-               || target.Is(CustomRoles.GM)
-               || seer.Is(CustomRoles.GM)
-               || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
-               || (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
-               || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId))
-               || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
-               || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
-               || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick))
-               || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal))
-               || (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool())
-               || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool())
-               || (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool())
-               || (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
-               || (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool())
-               || (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool())
-               || (target.Is(CustomRoles.Gravestone) && Main.PlayerStates[target.Data.PlayerId].IsDead)
-               || (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished)
-               || (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
-               || Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target));
+        if (seer == target
+            || (Main.GodMode.Value && seer.AmOwner)
+            || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo
+            || (seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!Utils.IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(seer.PlayerId)))
+            || (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
+            || target.Is(CustomRoles.GM)
+            || seer.Is(CustomRoles.GM)
+            || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
+            || (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
+            || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId))
+            || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
+            || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
+            || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick))
+            || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal))
+            || (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool())
+            || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool())
+            || (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool())
+            || (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
+            || (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool())
+            || (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool())
+            || (target.Is(CustomRoles.Gravestone) && Main.PlayerStates[target.Data.PlayerId].IsDead)
+            || (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished)
+            || (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
+            || Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)))
+            return true;
+        
+        color = "#ffffff";
+        return true;
     }
 
     private static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
