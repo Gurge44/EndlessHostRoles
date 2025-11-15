@@ -942,7 +942,7 @@
   "CanGuessDuringDiscussionTime": "<color=#f3e304>赌怪可以在讨论时间内猜测</color>",
   "YouCanGuessTitle": "<#00ffff>你可以猜测！</color>",
   "YouCanGuess": "使用<b>/bt [玩家 id] [职业]</b>指令猜测别人的职业。你可以在别人名字旁边看到他们的id，或者使用<b>/id</b>。",
-  "YouCanGuessMeetingSS": "Use the shapeshift menu to select the player you want to guess, then follow the instructions in the chat for further selections.",
+  "YouCanGuessMeetingSS": "使用变形菜单选择你要猜测的玩家，然后按照聊天中的说明进行进一步选择。",
   "DisableTasks": "禁用某些任务",
   "DisableSwipeCardTask": "禁用刷卡任务",
   "DisableSubmitScanTask": "禁用扫描任务",
