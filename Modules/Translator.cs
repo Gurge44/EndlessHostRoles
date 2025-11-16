@@ -284,10 +284,7 @@ public static class Translator
 
     private static void CreateTemplateFile()
     {
-        var sb = new StringBuilder();
-        foreach (KeyValuePair<string, Dictionary<int, string>> title in TranslateMaps) sb.Append($"{title.Key}:\n");
-
-        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/template.dat", sb.ToString());
+        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/template.dat", string.Join('\n', TranslateMaps.Keys.Select(x => $"{x}:")));
     }
 
     public static void ExportCustomTranslation()

@@ -992,10 +992,12 @@ internal static class MeetingHudStartPatch
                     if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
 
                     PlayerControl[] aapc = Main.AllAlivePlayerControls;
+                    bool restrictions = Options.GuesserNumRestrictions.GetBool();
+                    bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
 
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.UsesMeetingShapeshift())
+                        if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
                         {
                             var sender = CustomRpcSender.Create($"RpcSetRoleDesync for meeting shapeshift ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Someone")})", SendOption.Reliable);
                             sender.RpcSetRole(pc, RoleTypes.Shapeshifter, pc.OwnerId);
@@ -1262,8 +1264,9 @@ internal static class MeetingHudOnDestroyPatch
             LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 15f, "Re-enable GameEndChecker after meeting");
             
             bool meetingSS = Options.UseMeetingShapeshift.GetBool();
+            bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
 
-            if (meetingSS && Options.UseMeetingShapeshiftForGuessing.GetBool())
+            if (meetingSS && meetingSSForGuessing)
             {
                 GuessManager.Data.Values.Do(x => x.Reset());
                 GuessManager.Data.Clear();
@@ -1277,7 +1280,8 @@ internal static class MeetingHudOnDestroyPatch
             if (meetingSS && !AntiBlackout.SkipTasks)
             {
                 PlayerControl[] aapc = Main.AllAlivePlayerControls;
-                aapc.DoIf(x => x.UsesMeetingShapeshift(), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
+                bool restrictions = Options.GuesserNumRestrictions.GetBool();
+                aapc.DoIf(x => x.UsesMeetingShapeshift() || (meetingSSForGuessing && !x.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(x, restrictions)), x => x.RpcSetRoleDesync(x.GetRoleTypes(), x.OwnerId));
                 aapc.DoIf(x => x.IsImpostor(), x => x.RpcSetRoleGlobal(x.GetRoleTypes()));
             }
         }
