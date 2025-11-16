@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "[ You turned into an Evil Spirit! ]",
   "SpiritcallerNoticeMessage": "The Spiritcaller has killed you and turned you into an Evil Spirit. Your task now is to help the Spiritcaller to victory by using your spook button to hinder other players or to protect the Spiritcaller. Use /m for more information.",
   "InvestigatorRevealCooldown": "<color=#BA55D3>Reveal</color> Cooldown",
-  "InvestigatorRevealTime": "<color=#BA55D3>Reveal</color> Time",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "<color=#BA55D3>Investigator</color> Vision",
   "MerchantMaxSell": "Max number of Add-ons to sell",
   "MerchantMoneyPerSell": "Amount of <color=#D27D2D>money</color> earned for selling an Add-on",
