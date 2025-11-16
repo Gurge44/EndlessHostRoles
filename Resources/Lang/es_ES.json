@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "[ ¡Te convertiste en un Espíritu Malvado! ]",
   "SpiritcallerNoticeMessage": "El Llamador de Espíritus te mató y convirtió en un Espíritu Malvado. Tu tarea ahora es ayudar al Llamador de Espíritus a la victoria usando tu botón de Perseguir para estorbar a otros jugadores o proteger al Llamador de Espíritus. Usa /m para más información.",
   "InvestigatorRevealCooldown": "Tiempo de reutilización de <color=#BA55D3>Revelar</color> ",
-  "InvestigatorRevealTime": "Tiempo para<color=#BA55D3>Revelación</color>",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "Visión del <color=#BA55D3>investigador</color>",
   "MerchantMaxSell": "Número máximo de Complementos para vender",
   "MerchantMoneyPerSell": "Cantidad de <color=#D27D2D>dinero</color> ganada por vender un Complemento",
