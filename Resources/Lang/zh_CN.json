@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "[你变成了恶灵!]",
   "SpiritcallerNoticeMessage": "灵魂召唤者杀死了你，把你变成了恶灵。你现在的任务是通过使用你的幽灵技能来阻碍其他玩家或保护灵魂召唤者，帮助灵魂召唤者取得胜利。使用/m获取更多信息",
   "InvestigatorRevealCooldown": "<color=#BA55D3>预言</color>冷却时间",
-  "InvestigatorRevealTime": "<color=#BA55D3>预言</color>需要的时间",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "<color=#BA55D3>预言家</color>的视野",
   "MerchantMaxSell": "最大出售附加职业数目",
   "MerchantMoneyPerSell": "出售附加职业赚取的<color=#D27D2D>金钱</color>",
