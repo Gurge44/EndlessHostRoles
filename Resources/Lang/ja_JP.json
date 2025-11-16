@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "[ あなたは 悪霊に変わった！ ]",
   "SpiritcallerNoticeMessage": "<size=80%><#003366>スピリットコーラー</color>が あなたを殺害し そして あなたを<#003366>悪霊</color>にしました。\\nあなたの任務は今 あなたの護衛ボタンを使用して 他のプレイヤーを妨害 または <#003366>スピリットコーラー</color>を保護することによって <#003366>スピリットコーラー</color>の勝利を助けましょう。\\n詳細は <b>/m</b> を使用してください。</size>",
   "InvestigatorRevealCooldown": "<color=#BA55D3>Reveal</color> Cooldown",
-  "InvestigatorRevealTime": "<color=#BA55D3>Reveal</color> Time",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "<color=#BA55D3>Investigator</color> Vision",
   "MerchantMaxSell": "最大の属性の販売の数",
   "MerchantMoneyPerSell": "属性の販売で稼げる <color=#D27D2D>金</color>額",
