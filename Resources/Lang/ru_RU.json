@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "[★ Вы стали Злым Духом! ★]",
   "SpiritcallerNoticeMessage": "Призыватель убил вас и превратил в Злого Духа! Теперь ваша цель - помочь Призывателю выиграть. Используй е команду /m, чтобы узнать о своих способностях.",
   "InvestigatorRevealCooldown": "Откат <color=#BA55D3>раскрытия</color>",
-  "InvestigatorRevealTime": "Время <color=#BA55D3>раскрытия</color>",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "Зрение <color=#BA55D3>Следователя</color>",
   "MerchantMaxSell": "Макс. кол-во атрибутов на продажу",
   "MerchantMoneyPerSell": "Сумма <color=#D27D2D>денег</color>, заработанных за продажу атрибута",
