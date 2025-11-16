@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "VOCÊ SE TRANSFORMOU EM UM ESPÍRITO MALIGNO",
   "SpiritcallerNoticeMessage": "O Caçador de Almas matou você e o transformou em um Espírito Maligno. Sua tarefa agora é ajudar o Caçador de Almas a vencer usando seu botão assustador para atrapalhar outros jogadores ou para proteger o Caçador de Almas. Use /m para obter mais informações.",
   "InvestigatorRevealCooldown": "<color=#BA55D3>Reveal</color> Cooldown",
-  "InvestigatorRevealTime": "<color=#BA55D3>Reveal</color> Time",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "<color=#BA55D3>Investigator</color> Vision",
   "MerchantMaxSell": "Número máximo de Atributos para vender",
   "MerchantMoneyPerSell": "Quantidade de <color=#D27D2D>dinheiro</color> ganho pela venda de um Atributo",
