@@ -2324,7 +2324,7 @@
   "SpiritcallerNoticeTitle": "你變成了惡靈!",
   "SpiritcallerNoticeMessage": "靈魂召喚者殺死了你，將你變成了惡靈。 你的任務是透過使用你的幽靈技能來阻礙其他玩家或保護靈魂召喚者，幫助靈魂召喚者獲勝。 使用 /m 取得更多訊息。",
   "InvestigatorRevealCooldown": "<color=#BA55D3>預言</color>冷卻時間",
-  "InvestigatorRevealTime": "<color=#BA55D3>預言</color>所需時間",
+  "InvestigatorTime": "<color=#BA55D3>Reveal</color> Time",
   "InvestigatorVision": "<color=#BA55D3>預言家</color>視野",
   "MerchantMaxSell": "出售附加職業的最大次數",
   "MerchantMoneyPerSell": "出售附加職業所賺取的<color=#D27D2D>金錢</color>",
