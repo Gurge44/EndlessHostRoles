@@ -846,7 +846,7 @@
   "AmnesiacInfoLong": "(Neutrals):\\nAs the Amnesiac, use your kill or report button (depends on the Host's settings) on a player/body to copy their role.\\nSettings may alter the role you get in a few specific scenarios.",
   "DoomsayerInfoLong": "(Semleges):\\nTalálgatnod kell a játékosok szerepét a megbeszélések alatt. Ha eltalálsz egy bizonyos számú szerepet (a számot a beállítások határozzák meg), akkor nyersz.\\n\\nA találgatás parancsa: /bt [játékos ID] [szerep]\\nA játékos ID-ját a neve előtt láthatod, vagy a /id paranccsal megtekintheted az összes játékos ID-ját.",
   "LastImpostorInfoLong": "(Bővítmények):\\nCsökkentett gyilkossági újratöltési idővel rendelkezik.",
-  "LoversInfoLong": "(Add-ons):\\nLovers win together and may die together if one is exiled or killed. They can see the ♥ mark next to each other's name. If one of the lovers wins at the end, the other wins too.",
+  "LoversInfoLong": "(Hozzáadás): \\nSzerelmesek együtt nyernek és együtt halnak meg ha az egyiküket kiszavazzák vagy megölik. Látnak egy ♥ szimbólum a nevük mellett. Ha az egyik szerelmes nyer a játék végen akkor a másik is nyer.",
   "MadmateInfoLong": "(Bővítmények):\\nSegítesz az Imposztoroknak a győzelemben. Csak Crewmate-ek lehetnek ilyenek, és attól függően, hogy a beállítások engedélyezik-e, ismerhetik az Imposztorokat. Egyes szerepek, mint a Seriff, a Nyomozó vagy a Polgármester, átalakulhatnak Madmate-té. Bizonyos szerepek képességei is megváltoznak, például a Vakító villanása most a Crewmate-ekre és Semlegesekre hat az Imposztorok helyett.",
   "WatcherInfoLong": "(Bővítmények):\\nA megbeszélések alatt látja, hogy ki kire szavazott.",
   "MagnetInfoLong": "(Bővítmények):\\nAmikor megölsz valakit, az áldozat hozzád ugrik, nem pedig te hozzá.",
