@@ -9982,7 +9982,7 @@
   "DreamweaverInfo": "Drive players insane with weaving",
   "DreamweaverInfoLong": "(Hexenzirkel):\\nVerwebe Spieler; verwobene Spieler werden nach dem nächsten Meeting wahnsinnig. Sobald sie wahnsinnig sind, setzen sie ihre Fähigkeit sofort ein, wenn sie sich jemandem nähern und ihre Abklingzeit abgelaufen ist. Nach deinem Tod werden alle wahnsinnigen Spieler befreit. Sobald du das Necronomicon erhalten hast, begehen wahnsinnige Spieler Selbstmord, nachdem sie mit einem anderen Spieler in Kontakt gekommen sind.",
   "Insane": "Verrückt",
-  "InsaneInfo": "You're insane",
+  "InsaneInfo": "Du bist wahnsinnig",
   "InsaneInfoLong": "(Add-ons):\\nInsane players were woven by the Dreamweaver. You are forced to use your ability on any player you touch as soon as your cooldown is up. If the Dreamweaver dies, you lose this add-on.",
   "Prefix.Insane": "Insane",
   "Banshee": "Todesfee",
