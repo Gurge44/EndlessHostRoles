@@ -2810,6 +2810,12 @@ public static class Utils
                                 sender.RpcSetName(target, Tree.Sprite, seer);
                                 continue;
                             }
+
+                            if (forMeeting && Magistrate.CallCourtNextMeeting)
+                            {
+                                sender.RpcSetName(target, GetString(target.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName"), seer);
+                                return true;
+                            }
                             
                             TargetMark.Clear();
 
