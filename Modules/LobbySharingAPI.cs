@@ -151,7 +151,7 @@ internal static class ExitGamePatch
 {
     public static void Prefix()
     {
-        Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
+        Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
         
         if (SetUpRoleTextPatch.IsInIntro)
         {

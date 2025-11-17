@@ -94,9 +94,9 @@ internal static class HotPotato
         return HotPotatoState.HolderID == id ? "  \u2668  " : string.Empty;
     }
 
-    public static string GetSuffixText(byte id)
+    public static string GetSuffixText(byte id, bool hud)
     {
-        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || state.IsDead) return string.Empty;
+        if (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || (id.IsPlayerModdedClient() && !hud) || state.IsDead) return string.Empty;
         string holding = HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty;
         string arrows = TargetArrow.GetAllArrows(id);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
@@ -105,8 +105,17 @@ internal static class HotPotato
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        HotPotatoState.HolderID = reader.ReadByte();
-        HotPotatoState.LastHolderID = reader.ReadByte();
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                int timeLeft = reader.ReadPackedInt32();
+                HotPotatoState.TimeLeft = timeLeft;
+                break;
+            case 2:
+                HotPotatoState.HolderID = reader.ReadByte();
+                HotPotatoState.LastHolderID = reader.ReadByte();
+                break;
+        }
     }
 
     public static int GetKillInterval()
@@ -142,6 +151,7 @@ internal static class HotPotato
             if (now > LastFixedUpdate)
             {
                 HotPotatoState.TimeLeft--;
+                Utils.SendRPC(CustomRPC.HotPotatoSync, 1, HotPotatoState.TimeLeft);
                 LastFixedUpdate = now;
                 Utils.NotifyRoles(SendOption: SendOption.None);
             }
@@ -195,7 +205,7 @@ internal static class HotPotato
                 HotPotatoState.LastHolderID = HotPotatoState.HolderID;
                 HotPotatoState.HolderID = target.PlayerId;
 
-                Utils.SendRPC(CustomRPC.HotPotatoSync, HotPotatoState.HolderID, HotPotatoState.LastHolderID);
+                Utils.SendRPC(CustomRPC.HotPotatoSync, 2, HotPotatoState.HolderID, HotPotatoState.LastHolderID);
 
                 if (CanPassViaKillButton)
                 {

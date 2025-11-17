@@ -275,7 +275,8 @@ public class Penguin : RoleBase
         if (!AmongUsClient.Instance.AmHost) return;
         if (AbductVictim == null) return;
 
-        if (!IsGoose && MeetingKill) Penguin_.Kill(AbductVictim);
+        if (!IsGoose && MeetingKill && AbductVictim.IsAlive())
+            Penguin_.Kill(AbductVictim);
 
         RemoveVictim(false);
     }
@@ -361,7 +362,7 @@ public class Penguin : RoleBase
 
                         int sId = abductVictim.NetTransform.lastSequenceId + 5;
                         abductVictim.NetTransform.SnapTo(Penguin_.Pos(), (ushort)sId);
-                        Penguin_.Kill(abductVictim);
+                        Penguin_.MurderPlayer(abductVictim, MurderResultFlags.Succeeded);
 
                         var sender = CustomRpcSender.Create("PenguinMurder", SendOption.Reliable);
                         {
@@ -375,6 +376,7 @@ public class Penguin : RoleBase
                             sender.AutoStartRpc(Penguin_.NetId, RpcCalls.MurderPlayer);
                             {
                                 sender.WriteNetObject(abductVictim);
+                                sender.Write((int)MurderResultFlags.Succeeded);
                             }
                             sender.EndRpc();
                         }

@@ -421,6 +421,9 @@ internal static class ChatCommands
             Statistics.HasUsedAnyCommand = true;
         }
 
+        if (!Main.IsChatCommand && Astral.On && !PlayerControl.LocalPlayer.Is(CustomRoles.Astral))
+            LateTask.New(() => Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { BackTS: > 0 } && x.Player != null, x => ChatManager.ClearChat(x.Player)), 0.2f, log: false);
+
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
             goto Canceled;
 
@@ -1300,12 +1303,6 @@ internal static class ChatCommands
 
     private static void AchievementsCommand(PlayerControl player, string text, string[] args)
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            RequestCommandProcessingFromHost(nameof(AchievementsCommand), text);
-            return;
-        }
-
         Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
 
         Achievements.Type[] allAchievements = Enum.GetValues<Achievements.Type>();
@@ -3637,6 +3634,9 @@ internal static class ChatCommands
                 break;
             }
         }
+
+        if (!commandEntered && Astral.On && !player.Is(CustomRoles.Astral))
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { BackTS: > 0 } && x.Player != null, x => ChatManager.ClearChat(x.Player));
 
         if (CheckMute(player.PlayerId))
         {

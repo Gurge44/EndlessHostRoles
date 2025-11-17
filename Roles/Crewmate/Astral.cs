@@ -17,7 +17,7 @@ public class Astral : RoleBase
     private static OptionItem AbilityChargesWhenFinishedTasks;
 
     private byte AstralId;
-    private long BackTS;
+    public long BackTS;
     private long LastNotifyTS;
 
     public override bool IsEnable => On;
@@ -89,9 +89,6 @@ public class Astral : RoleBase
             yield return new WaitForSeconds(0.2f);
             if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) yield break;
             pc.RpcResetAbilityCooldown();
-            yield return new WaitForSeconds(0.2f);
-            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) yield break;
-            pc.SetChatVisible(false);
         }
     }
 

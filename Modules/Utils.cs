@@ -2136,7 +2136,7 @@ public static class Utils
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
         bool hasTagInUserData = Main.UserData.TryGetValue(player.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0;
 
-        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag && !hasTagInUserData && !DirtyName.Contains(player.PlayerId)) return false;
+        if (!player.AmOwner && !hasTag && !mod && !vip && !hasPrivateTag && !hasTagInUserData && !DirtyName.Contains(player.PlayerId) && !(AmongUsClient.Instance.IsGameStarted && Options.FormatNameMode.GetInt() == 1 && Main.NickName == string.Empty)) return false;
 
         if (!Main.AllPlayerNames.TryGetValue(player.PlayerId, out name)) return false;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
@@ -2609,7 +2609,7 @@ public static class Utils
                         additionalSuffixes.Add(StopAndGo.GetSuffixText(seer));
                         break;
                     case CustomGameMode.HotPotato:
-                        additionalSuffixes.Add(HotPotato.GetSuffixText(seer.PlayerId));
+                        additionalSuffixes.Add(HotPotato.GetSuffixText(seer.PlayerId, false));
                         break;
                     case CustomGameMode.Speedrun:
                         additionalSuffixes.Add(Speedrun.GetSuffixText(seer));
@@ -2893,9 +2893,15 @@ public static class Utils
                                 targetRoleText = string.Empty;
 
                             string targetPlayerName = target.GetRealName(forMeeting);
+            
+                            if (ApplySuffix(target, out var formattedName))
+                                targetPlayerName = formattedName;
 
                             if (target.Is(CustomRoles.BananaMan))
                                 targetPlayerName = targetPlayerName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
+                            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var tState) && tState.Role is Venerer { ChangedSkin: true })
+                                targetPlayerName = string.Empty;
 
                             if (GameStates.IsLobby) goto End;
 

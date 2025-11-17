@@ -66,59 +66,11 @@ internal static class CheckProtectPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcMurderPlayer))]
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcMurderPlayer))] // never used by the mod
 internal static class RpcMurderPlayerPatch
 {
-    public static bool Prefix(PlayerControl __instance, PlayerControl target, bool didSucceed)
+    public static bool Prefix()
     {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            Logger.Error("Client is calling RpcMurderPlayer, are you hacking?", "RpcMurderPlayerPatch.Prefix");
-            return false;
-        }
-
-        if (GameStates.IsLobby)
-        {
-            Logger.Info("Murder triggered in lobby, so murder canceled", "RpcMurderPlayer.Prefix");
-            return false;
-        }
-
-        MurderResultFlags murderResultFlags = didSucceed ? MurderResultFlags.Succeeded : MurderResultFlags.FailedError | MurderResultFlags.DecisionByHost;
-
-        if (AmongUsClient.Instance.AmClient)
-            __instance.MurderPlayer(target, murderResultFlags);
-
-        var sender = CustomRpcSender.Create("RpcMurderPlayer", SendOption.Reliable);
-        sender.StartMessage();
-
-        if (Main.Invisible.Contains(target.PlayerId) && murderResultFlags == MurderResultFlags.Succeeded)
-        {
-            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
-                .WriteVector2(new Vector2(50f, 50f))
-                .Write((ushort)(target.NetTransform.lastSequenceId + 16383))
-                .EndRpc();
-            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
-                .WriteVector2(new Vector2(50f, 50f))
-                .Write((ushort)(target.NetTransform.lastSequenceId + 32767))
-                .EndRpc();
-            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
-                .WriteVector2(new Vector2(50f, 50f))
-                .Write((ushort)(target.NetTransform.lastSequenceId + 32767 + 16383))
-                .EndRpc();
-            sender.StartRpc(target.NetTransform.NetId, RpcCalls.SnapTo)
-                .WriteVector2(target.transform.position)
-                .Write(target.NetTransform.lastSequenceId)
-                .EndRpc();
-
-            NumSnapToCallsThisRound += 4;
-        }
-
-        sender.StartRpc(__instance.NetId, RpcCalls.MurderPlayer)
-            .WriteNetObject(target)
-            .Write((int)murderResultFlags)
-            .EndRpc();
-
-        sender.SendMessage();
         return false;
     }
 }
@@ -669,12 +621,14 @@ internal static class MurderPlayerPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags, ref bool __state)
     {
-        if (GameStates.IsLobby || AntiBlackout.SkipTasks) return false;
+        if (GameStates.IsLobby || AntiBlackout.SkipTasks || !GameStates.InGame || GameStates.IsMeeting || ExileController.Instance) return false;
 
         bool protectedByClient = resultFlags.HasFlag(MurderResultFlags.DecisionByHost) && target.IsProtected();
         bool protectedByHost = resultFlags.HasFlag(MurderResultFlags.FailedProtected);
         bool failed = resultFlags.HasFlag(MurderResultFlags.FailedError);
         __state = !protectedByClient && !protectedByHost && !failed;
+
+        if (__state && (!Main.IntroDestroyed || IntroCutsceneDestroyPatch.PreventKill)) return false;
 
         Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()} - {nameof(protectedByClient)}: {protectedByClient}, {nameof(protectedByHost)}: {protectedByHost}, {nameof(failed)}: {failed}", "MurderPlayer");
 
@@ -683,7 +637,7 @@ internal static class MurderPlayerPatch
         if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
         {
             Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
-            Camouflage.RpcSetSkin(target, true);
+            LateTask.New(() => Camouflage.RpcSetSkin(target, true), 0.2f, log: false);
         }
 
         return true;
@@ -1725,22 +1679,19 @@ internal static class FixedUpdatePatch
 
         if (self) LastSelfNameUpdateTS = now;
 
-        if (GameStates.IsLobby)
+        if (GameStates.IsLobby && !__instance.IsHost())
         {
-            if (!__instance.IsHost())
+            if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
             {
-                if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
-                {
-                    if (Main.ForkId != ver.forkId)
-                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
-                    else if (Main.Version.CompareTo(ver.version) == 0)
-                        __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? Main.ShowModdedClientText.Value ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{__instance.name}</color>" : $"<color=#00a5ff>{__instance.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{__instance.name}</color>";
-                    else
-                        __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{__instance.name}</color>";
-                }
+                if (Main.ForkId != ver.forkId)
+                    __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
+                else if (Main.Version.CompareTo(ver.version) == 0)
+                    __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? Main.ShowModdedClientText.Value ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{__instance.name}</color>" : $"<color=#00a5ff>{__instance.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{__instance.name}</color>";
                 else
-                    __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance.Data?.PlayerName}" : __instance.Data?.PlayerName;
+                    __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{__instance.name}</color>";
             }
+            else
+                __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance.Data?.PlayerName}" : __instance.Data?.PlayerName;
         }
 
         if (GameStates.IsInGame)
@@ -1768,13 +1719,6 @@ internal static class FixedUpdatePatch
             {
                 roleText = Investigator.RandomRole[lpId];
                 roleText += Investigator.GetTaskState();
-            }
-
-            if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
-            {
-                roleText = string.Empty;
-                hideRoleText = true;
-                if (!__instance.AmOwner) __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
             }
 
             string progressText = GetProgressText(__instance);
@@ -1809,9 +1753,15 @@ internal static class FixedUpdatePatch
             Suffix.Clear();
 
             string realName = target.GetRealName();
+            
+            if (ApplySuffix(__instance, out var formattedName))
+                realName = formattedName;
 
             if (target.Is(CustomRoles.BananaMan))
                 realName = realName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
+
+            if (!self && Main.PlayerStates.TryGetValue(target.PlayerId, out var tState) && tState.Role is Venerer { ChangedSkin: true })
+                realName = string.Empty;
 
             if (target.AmOwner && inTask)
             {
@@ -1929,14 +1879,12 @@ internal static class FixedUpdatePatch
                     if (AntiAdminer.IsDoorLogWatch) additionalSuffixes.Add(GetString("AntiAdminerDL"));
                     if (AntiAdminer.IsCameraWatch) additionalSuffixes.Add(GetString("AntiAdminerCA"));
                     break;
-                case CustomRoles.Executioner:
-                    Mark.Append(Executioner.TargetMark(seer, target));
-                    break;
                 case CustomRoles.Demon:
                     Mark.Append(Demon.TargetMark(seer, target));
                     break;
             }
 
+            Mark.Append(Executioner.TargetMark(seer, target));
             Mark.Append(Follower.TargetMark(seer, target));
             Mark.Append(Romantic.TargetMark(seer, target));
             Mark.Append(Lawyer.LawyerMark(seer, target));
