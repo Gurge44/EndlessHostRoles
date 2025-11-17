@@ -1044,7 +1044,6 @@ internal static class CustomRolesHelper
     {
         if (role == CustomRoles.Stealth) return !Stealth.UseLegacyVersion.GetBool();
         return role is
-            CustomRoles.Jet or
             CustomRoles.Dasher or
             CustomRoles.CTFPlayer or
             CustomRoles.BedWarsPlayer or
