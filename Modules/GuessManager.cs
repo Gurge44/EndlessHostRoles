@@ -1247,7 +1247,7 @@ public static class GuessManager
                         return;
                     }
 
-                    CurrentRoles = ShownRoles.Select(x => GetString(x.ToString())).Where(x => display.Split('-').Any(y => x.StartsWith(y.Trim(), StringComparison.InvariantCultureIgnoreCase))).Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
+                    CurrentRoles = ShownRoles.Select(x => (role: x, str: GetString(x.ToString()))).Where(x => display.Split('-').Any(y => x.str.StartsWith(y.Trim(), StringComparison.InvariantCultureIgnoreCase))).Select(x => x.role).ToList();
 
                     if (CurrentRoles.Count == 0)
                     {
