@@ -9191,7 +9191,7 @@
   "Postponer.BodyDelay": "屍體生成延遲",
   "Tree": "樹",
   "TreeInfo": "你是一棵樹",
-  "TreeInfoLong": "(船員陣營):\\n作為樹人，你可以撫摸它來讓自己變得像一棵樹一樣（變得匿名且隱身）。幾秒鐘後，你會倒下，殺死或擊暈附近的所有人，並再次顯形。",
+  "TreeInfoLong": "(船員陣營):\\n作為一棵樹，你可以撫摸它來讓自己變得像一棵樹一樣（變得匿名且隱身）。幾秒鐘後，你會倒下，殺死或擊暈附近的所有人，並再次顯形。",
   "Tree.TreeSpriteVisible": "樹精靈可見",
   "Tree.FallDelay": "倒下延遲",
   "Tree.FallRadius": "倒下效果範圍",
