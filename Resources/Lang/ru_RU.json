@@ -9429,6 +9429,7 @@
   "Bloodmoon.Suffix": "<{1}>Ты умрёшь через <{2}>{0}с</color></color>",
   "Bloodmoon.Speed": "Скорость <#ff1919>Кроволуния</color>",
   "Bloodmoon.DieOnMeetingCall": "Цели умирают при вызове собраний",
+  "BloodmoonNearYou": "<#ffff00>The {0} is near you! Stay away to avoid death!</color>",
   "Prefix.Bloodmoon": "Кроволуние",
   "GA": "Ангел-Хранитель",
   "GAInfo": "Защищайте экипаж",
