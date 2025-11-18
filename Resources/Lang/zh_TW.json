@@ -3469,6 +3469,8 @@
   "DleksChance": "<color=#66a186>dlekS ehT</color>地圖隨機到的機率",
   "AirshipChance": "<color=#ed0007>Airship</color>地圖隨機到的機率",
   "FungleChance": "<color=#ffa646>The Fungle</color>地圖隨機到的機率",
+  "MinPlayersForAirship": "Minimum Players for <color=#ed0007>Airship</color>",
+  "MinPlayersForFungle": "Minimum Players for <color=#ffa646>The Fungle</color>",
   "CamouflageMode.Default": "預設",
   "CamouflageMode.Host": "<color=#FFFF00>房主</color>",
   "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
