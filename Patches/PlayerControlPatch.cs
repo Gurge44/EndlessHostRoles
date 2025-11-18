@@ -2324,12 +2324,6 @@ internal static class PlayerControlSetRolePatch
                 roleType = RoleTypes.CrewmateGhost;
         }
 
-        foreach (PlayerControl seer in Main.AllPlayerControls)
-        {
-            if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, __instance.PlayerId), out var tuple))
-                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, __instance.PlayerId)] = (roleType, tuple.CustomRole);
-        }
-
         return true;
     }
 }
