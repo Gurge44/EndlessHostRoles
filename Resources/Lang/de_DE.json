@@ -3469,6 +3469,8 @@
   "DleksChance": "Chance that the map is <color=#66a186>dlekS ehT</color>",
   "AirshipChance": "Chance that the map is <color=#ed0007>Airship</color>",
   "FungleChance": "Chance that the map is <color=#ffa646>The Fungle</color>",
+  "MinPlayersForAirship": "Minimum Players for <color=#ed0007>Airship</color>",
+  "MinPlayersForFungle": "Minimum Players for <color=#ffa646>The Fungle</color>",
   "CamouflageMode.Default": "Standard",
   "CamouflageMode.Host": "<color=#FFFF00>Host</color>",
   "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
