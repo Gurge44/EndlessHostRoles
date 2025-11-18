@@ -9429,6 +9429,7 @@
   "Bloodmoon.Suffix": "<{1}>あなたは <{2}>{0}秒で 死亡します</color></color>",
   "Bloodmoon.Speed": "<#ff1919>ブラッドムーン</color>の速度",
   "Bloodmoon.DieOnMeetingCall": "ターゲットは 会議の招集で死ぬ",
+  "BloodmoonNearYou": "<#ffff00>The {0} is near you! Stay away to avoid death!</color>",
   "Prefix.Bloodmoon": "ブラッドムーン",
   "GA": "ガーディアンエンジェル",
   "GAInfo": "クルーメイトを保護しよう",
