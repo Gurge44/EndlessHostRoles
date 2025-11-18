@@ -9429,6 +9429,7 @@
   "Bloodmoon.Suffix": "<{1}>You will die in <{2}>{0}s</color></color>",
   "Bloodmoon.Speed": "<#ff1919>Bloodmoon</color> Speed",
   "Bloodmoon.DieOnMeetingCall": "Targets Die on Meeting Call",
+  "BloodmoonNearYou": "<#ffff00>The {0} is near you! Stay away to avoid death!</color>",
   "Prefix.Bloodmoon": "Bloodmoon",
   "GA": "가디언 엔젤",
   "GAInfo": "Protect Crewmates",
