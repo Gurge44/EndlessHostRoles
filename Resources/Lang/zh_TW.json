@@ -9429,6 +9429,7 @@
   "Bloodmoon.Suffix": "<{1}>你會在<{2}>{0}秒後死亡</color></color>",
   "Bloodmoon.Speed": "<#ff1919>嗜血之魂</color> 的移動速度",
   "Bloodmoon.DieOnMeetingCall": "目標會在會議上死亡",
+  "BloodmoonNearYou": "<#ffff00>The {0} is near you! Stay away to avoid death!</color>",
   "Prefix.Bloodmoon": "嗜血之魂",
   "GA": "守護天使",
   "GAInfo": "保護船員",
