@@ -9429,6 +9429,7 @@
   "Bloodmoon.Suffix": "<{1}>Morirás en <{2}>{0}s</color></color>",
   "Bloodmoon.Speed": "Velocidad de la <#ff1919>Luna de Sangre</color>",
   "Bloodmoon.DieOnMeetingCall": "Objetivo Muere al Llamar Reunión",
+  "BloodmoonNearYou": "<#ffff00>The {0} is near you! Stay away to avoid death!</color>",
   "Prefix.Bloodmoon": "Luna de Sangre",
   "GA": "Ángel Guardián",
   "GAInfo": "Protege Tripulantes",
