@@ -40,7 +40,7 @@ internal class Bloodmoon : IGhostRole
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Seconds);
 
-        Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 5f, 0.05f), 1f, TabGroup.OtherRoles)
+        Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 3f, 0.05f), 0.5f, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -69,6 +69,8 @@ internal class Bloodmoon : IGhostRole
 
             if (pc.RpcCheckAndMurder(player, true)) player.Suicide(realKiller: pc);
         }
+
+        Utils.GetPlayersInRadius(5f, pc.Pos()).DoIf(x => !x.Is(Team.Impostor), x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString())));
     }
 
     public static void OnMeetingStart()
