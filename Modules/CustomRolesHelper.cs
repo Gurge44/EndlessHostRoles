@@ -1046,8 +1046,7 @@ internal static class CustomRolesHelper
         {
             CustomRoles.Stealth => !Stealth.UseLegacyVersion.GetBool(),
             CustomRoles.Trapster => !Trapster.LegacyTrapster.GetBool(),
-            _ => role is CustomRoles.Jet
-                         or CustomRoles.Dasher
+            _ => role is CustomRoles.Dasher
                          or CustomRoles.CTFPlayer
                          or CustomRoles.BedWarsPlayer
                          or CustomRoles.Racer

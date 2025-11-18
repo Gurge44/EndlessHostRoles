@@ -87,6 +87,8 @@ namespace EHR
 
         public void TP(Vector2 position)
         {
+            if (!AmongUsClient.Instance.AmHost) return;
+            
             if (AmongUsClient.Instance.AmClient) playerControl.NetTransform.SnapTo(position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U));
             ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);

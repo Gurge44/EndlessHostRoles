@@ -123,7 +123,7 @@ internal static class EndGamePatch
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.Standard:
-                    Main.GamesPlayed.AddRange(Main.AllPlayerControls.ToDictionary(x => x.FriendCode, _ => 0), false);
+                    if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) Main.GamesPlayed.AddRange(Main.AllPlayerControls.ToDictionary(x => x.FriendCode, _ => 0), false);
                     Main.GamesPlayed.AdjustAllValues(x => ++x);
                     Main.GotShieldAnimationInfoThisGame.Clear();
                     if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].IsDead = false;

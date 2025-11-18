@@ -640,6 +640,8 @@ public static class CustomRpcSenderExtensions
 
     public static bool TP(this CustomRpcSender sender, PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
     {
+        if (!AmongUsClient.Instance.AmHost) return false;
+        
         CustomNetworkTransform nt = pc.NetTransform;
 
         if (!noCheckState)
@@ -659,15 +661,9 @@ public static class CustomRpcSenderExtensions
             }
         }
 
-        switch (AmongUsClient.Instance.AmHost)
-        {
-            case true:
-                nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
-                nt.SetDirtyBit(uint.MaxValue);
-                break;
-            case false when !nt.AmOwner:
-                return false;
-        }
+        
+        nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
+        nt.SetDirtyBit(uint.MaxValue);
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
 

@@ -156,6 +156,8 @@ public static class Utils
 
     public static bool TP(CustomNetworkTransform nt, Vector2 location, bool noCheckState = false, bool log = true)
     {
+        if (!AmongUsClient.Instance.AmHost) return false;
+        
         PlayerControl pc = nt.myPlayer;
         var sendOption = SendOption.Reliable;
         bool submerged = SubmergedCompatibility.IsSubmerged();
@@ -186,15 +188,8 @@ public static class Utils
             }
         }
 
-        switch (AmongUsClient.Instance.AmHost)
-        {
-            case true:
-                nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
-                nt.SetDirtyBit(uint.MaxValue);
-                break;
-            case false when !nt.AmOwner:
-                return false;
-        }
+        nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
+        nt.SetDirtyBit(uint.MaxValue);
 
         if (NumSnapToCallsThisRound > 80)
         {
@@ -2809,6 +2804,12 @@ public static class Utils
                             {
                                 sender.RpcSetName(target, Tree.Sprite, seer);
                                 continue;
+                            }
+
+                            if (forMeeting && Magistrate.CallCourtNextMeeting)
+                            {
+                                sender.RpcSetName(target, GetString(target.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName"), seer);
+                                return true;
                             }
                             
                             TargetMark.Clear();

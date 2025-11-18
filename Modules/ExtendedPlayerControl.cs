@@ -131,6 +131,7 @@ internal static class ExtendedPlayerControl
 
     public static void RevertFreeze(this PlayerControl pc, Vector2 realPosition)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         pc.NetTransform.SnapTo(realPosition, (ushort)(pc.NetTransform.lastSequenceId + 128));
         CustomRpcSender sender = CustomRpcSender.Create($"Revert SnapTo Freeze ({pc.GetNameWithRole()})", SendOption.Reliable);
         sender.StartMessage();
@@ -154,6 +155,8 @@ internal static class ExtendedPlayerControl
 
     public static void FreezeForOthers(this PlayerControl player)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
+        
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == player || pc.AmOwner) continue;
@@ -315,6 +318,7 @@ internal static class ExtendedPlayerControl
 
     public static void ExileTemporarily(this PlayerControl pc) // Only used in game modes
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         if (!TempExiled.Add(pc.PlayerId)) return;
         
         pc.Exiled();
@@ -351,6 +355,8 @@ internal static class ExtendedPlayerControl
     // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy
     public static void ReviveFromTemporaryExile(this PlayerControl player) // Only used in game modes
     {
+        if (!AmongUsClient.Instance.AmHost) return;
+        
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
             player.RpcRevive();
@@ -396,6 +402,7 @@ internal static class ExtendedPlayerControl
     // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
     public static void RpcSetRoleGlobal(this PlayerControl player, RoleTypes roleTypes)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         if (AmongUsClient.Instance.AmClient) player.StartCoroutine(player.CoSetRole(roleTypes, true));
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);
         writer.Write((ushort)roleTypes);
@@ -406,6 +413,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         if (player == null) return;
 
         if (setRoleMap)
@@ -1495,6 +1503,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcMakeInvisible(this PlayerControl player, bool phantom = false)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.Invisible.Add(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
         
@@ -1543,6 +1552,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcMakeVisible(this PlayerControl player, bool phantom = false)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.Invisible.Remove(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
         
@@ -1595,6 +1605,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcResetInvisibility(this PlayerControl player, bool phantom = false)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.Invisible.Contains(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
 
