@@ -424,6 +424,7 @@ public class Main : BasePlugin
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
                 { CustomRoles.Vacuum, "#E44CD6" },
+                { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },

@@ -25,6 +25,7 @@ public static class Mingle
     public static bool DisplayCurrentPlayerCountInEachRoom;
     public static int MinTime;
     public static int MaxRequiredPlayersPerRoom;
+    public static int MaxWinningPlayers;
     
     public static OptionItem TimeLimitOption;
     public static OptionItem TimeDecreaseOnNoDeathOption;
@@ -33,6 +34,7 @@ public static class Mingle
     public static OptionItem DisplayCurrentPlayerCountInEachRoomOption;
     public static OptionItem MinTimeOption;
     public static OptionItem MaxRequiredPlayersPerRoomOption;
+    public static OptionItem MaxWinningPlayersOption;
     
     public static void SetupCustomOption()
     {
@@ -71,7 +73,12 @@ public static class Mingle
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
         
-        MaxRequiredPlayersPerRoomOption = new IntegerOptionItem(id, "Mingle.MaxRequiredPlayersPerRoomOption", new(1, 30, 1), 10, tab)
+        MaxRequiredPlayersPerRoomOption = new IntegerOptionItem(id++, "Mingle.MaxRequiredPlayersPerRoomOption", new(1, 30, 1), 10, tab)
+            .SetColor(color)
+            .SetGameMode(gameMode)
+            .SetValueFormat(OptionFormat.Players);
+        
+        MaxWinningPlayersOption = new IntegerOptionItem(id, "Mingle.MaxWinningPlayersOption", new(1, 10, 1), 1, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Players);
@@ -96,7 +103,7 @@ public static class Mingle
     public static bool CheckGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        if (GameStates.IsEnded || !GameGoing) return false;
+        if (GameStates.IsEnded || !GameGoing || TimeEndTS > Utils.TimeStamp) return false;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
         switch (aapc.Length)
@@ -110,6 +117,11 @@ public static class Mingle
             case 0:
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                 Logger.Warn("No players alive. Force ending the game", "Mingle");
+                return true;
+            case var p when p <= MaxWinningPlayers:
+                CustomWinnerHolder.WinnerIds = aapc.Select(x => x.PlayerId).ToHashSet();
+                Logger.Info($"Winners: {string.Join(", ", aapc.Select(x => x.GetRealName().RemoveHtmlTags()))}", "Mingle");
+                Main.DoBlockNameChange = true;
                 return true;
             default:
                 return false;
@@ -202,6 +214,7 @@ public static class Mingle
         DisplayCurrentPlayerCountInEachRoom = DisplayCurrentPlayerCountInEachRoomOption.GetBool();
         MinTime = MinTimeOption.GetInt();
         MaxRequiredPlayersPerRoom = MaxRequiredPlayersPerRoomOption.GetInt();
+        MaxWinningPlayers = MaxWinningPlayersOption.GetInt();
 
         RequiredPlayerCount = [];
         int extraTime = Main.CurrentMap switch

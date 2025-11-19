@@ -40,6 +40,7 @@ internal static class CustomRolesHelper
         CustomRoles.Farmer,
         CustomRoles.Tree,
         CustomRoles.Doorjammer,
+        CustomRoles.Carrier,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -583,6 +584,7 @@ internal static class CustomRolesHelper
             CustomRoles.Doppelganger => RoleTypes.Impostor,
             CustomRoles.Investor => RoleTypes.Impostor,
             CustomRoles.Wizard => RoleTypes.Phantom,
+            CustomRoles.Carrier => RoleTypes.Shapeshifter,
 
             CustomRoles.CovenLeader => RoleTypes.Impostor,
             CustomRoles.SpellCaster => RoleTypes.Impostor,
@@ -1755,6 +1757,7 @@ internal static class CustomRolesHelper
             CustomRoles.DetectiveEHR => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Carrier => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Express => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Needy => RoleOptionType.Crewmate_Miscellaneous,

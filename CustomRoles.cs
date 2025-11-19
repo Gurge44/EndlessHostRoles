@@ -165,6 +165,7 @@ public enum CustomRoles
     CameraMan,
     Captain,
     Car,
+    Carrier,
     Catcher,
     Chameleon,
     Chef,

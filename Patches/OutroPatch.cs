@@ -325,10 +325,21 @@ internal static class SetEverythingUpPatch
                 }
                 case CustomGameMode.Mingle:
                 {
-                    byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
-                    winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
-                    winnerText.color = Main.PlayerColors[winnerId];
+                    if (CustomWinnerHolder.WinnerIds.Count <= 1)
+                    {
+                        byte winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                        __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
+                        winnerText.text = Main.AllPlayerNames[winnerId] + GetString("Win");
+                        winnerText.color = Main.PlayerColors[winnerId];
+                    }
+                    else
+                    {
+                        Color color = Utils.GetRoleColor(CustomRoles.MinglePlayer);
+                        __instance.BackgroundBar.material.color = color;
+                        winnerText.text = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
+                        winnerText.color = color;
+                    }
+                    
                     goto EndOfText;
                 }
             }
