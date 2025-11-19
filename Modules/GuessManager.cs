@@ -237,6 +237,9 @@ public static class GuessManager
                         case CustomRoles.Monarch when role == CustomRoles.Knighted:
                             ShowMessage("GuessKnighted");
                             return true;
+                        case CustomRoles.Berserker when ((Berserker)Main.PlayerStates[pc.PlayerId].Role).Form >= 4:
+                            ShowMessage("GuessBerserker");
+                            return true;
                         case CustomRoles.Doomsayer:
                             if (Doomsayer.CantGuess)
                             {

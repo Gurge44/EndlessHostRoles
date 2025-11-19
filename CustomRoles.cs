@@ -298,6 +298,7 @@ public enum CustomRoles
     Bandit,
     Bargainer,
     Beehive,
+    Berserker,
     BloodKnight,
     Bubble,
     Chemist,
