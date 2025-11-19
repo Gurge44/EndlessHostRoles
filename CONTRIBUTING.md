@@ -8,7 +8,7 @@ Please read through these guidelines before submitting your contributions.
 
 ## 1. Getting in Touch
 
-If you have questions, ideas, or want to discuss changes before submitting them, reach out through the **[EHR Discord server](https://discord.gg/yourserverlink)**.  
+If you have questions, ideas, or want to discuss changes before submitting them, reach out through the **[EHR Discord server](https://discord.gg/ehr)**.  
 
 You don’t need to get approval for every small fix or improvement, as long as the changes are sensible and helpful to the project.
 
