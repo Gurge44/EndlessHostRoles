@@ -287,9 +287,7 @@ internal static class FriendsListUIOpenPatch
 internal static class TitleLogoPatch
 {
     private static GameObject ModStamp;
-
     private static GameObject Ambience;
-
     private static GameObject CustomBG;
     private static GameObject SpecialMessage;
     private static GameObject LeftPanel;
