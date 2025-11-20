@@ -19,20 +19,36 @@
 </p>
 <p align="center">
 
-<a href="https://ehr-wiki.netlify.app" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
-<a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
-<a href="https://github.com/Gurge44/EndlessHostRoles/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
+<a href="https://ehr-wiki.gurge44.eu" target="_blank">
+  <img src="https://img.shields.io/badge/Wiki%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/>
+</a>
 
+<a href="https://translate.gurge44.eu" target="_blank">
+  <img src="https://img.shields.io/badge/Translate%20-%231DA1F2.svg?&style=for-the-badge&logo=crowdin&logoColor=white&color=18a303"/>
+</a>
+
+<a href="https://discord.gg/m3ayxfumC8" target="_blank">
+  <img src="https://img.shields.io/badge/Join%20Discord-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/>
+</a>
+
+<a href="https://github.com/Gurge44/EndlessHostRoles/releases/latest" target="_blank">
+  <img src="https://img.shields.io/badge/Latest%20Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/>
+</a>
+</p>
+
+<p align="center">
+  <img src="https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3" alt="Discord Banner"/>
 </p>
 
 <p align="left" style="font-size: 10px"><i>Image by oCelestino & Seleneous on Discord</i></p>
+
 ---
 
 <br>
 
 # Installation
 
-- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.netlify.app/guides/installation/)
+- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/guides/installation/)
 - Or watch the tutorial by AnonWorks: [YouTube](https://youtu.be/AOLqWCbbrHM?si=nRRsNgz5-Z8XvFrs)
 
 <br>
@@ -45,8 +61,6 @@ Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/d
 [![GitHub latest commit](https://badgen.net/github/last-commit/Gurge44/EndlessHostRoles)](https://GitHub.com/Gurge44/EndlessHostRoles/commit/)
 [![Github all releases](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Gurge44/badges/)
-
-![Discord Banner 3](https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3)
 
 ## Want to become a beta tester?
 
@@ -243,13 +257,16 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ## Want to translate the mod to your language?
 
-Click this badge to view our translation project on Crowdin:
-[![Crowdin](https://badges.crowdin.net/ehr/localized.svg)](https://crowdin.com/project/ehr)
+Click this badge to view our translation project:
+<a href="https://translate.gurge44.eu" target="_blank">
+  <img src="https://img.shields.io/badge/Translate%20on%20Crowdin-%2318a303.svg?&style=for-the-badge&logo=crowdin&logoColor=white"/>
+</a>
 <br>
-Source language: English
 
-[![Crowdin](https://badges.awesome-crowdin.com/translation-15788979-676754.png)](https://crowdin.com/project/ehr)
-
+**Source language:** English
+<a href="https://translate.gurge44.eu" target="_blank">
+  <img src="https://badges.crowdin.net/ehr/localized.svg" />
+</a>
 <br>
 
 ## Should I switch from TOHE to EHR?
@@ -686,10 +703,3 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
-
-
-
-
-
-
-
