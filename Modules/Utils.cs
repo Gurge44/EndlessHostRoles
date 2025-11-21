@@ -979,6 +979,7 @@ public static class Utils
                 if (forRecompute && !p.IsDead) hasTasks = false;
                 if (p.IsDead) hasTasks = false;
                 break;
+            case CustomRoles.Carrier:
             case CustomRoles.Wizard:
                 hasTasks = true;
                 break;

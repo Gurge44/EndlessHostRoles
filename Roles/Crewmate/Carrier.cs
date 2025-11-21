@@ -36,6 +36,7 @@ public class Carrier : RoleBase
         On = true;
         Location = null;
         TaskMode = false;
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

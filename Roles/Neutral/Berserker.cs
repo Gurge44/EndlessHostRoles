@@ -71,6 +71,7 @@ public class Berserker : RoleBase
             if (instance.BerserkerId == killer.PlayerId) instance.Form--;
             else instance.Form++;
             
+            if (instance.Form < 0) instance.Form = 0;
             Utils.SendRPC(CustomRPC.SyncRoleData, instance.BerserkerId, instance.Form);
             PlayerControl berserker = instance.BerserkerId.GetPlayer();
 
