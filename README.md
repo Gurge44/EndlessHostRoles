@@ -258,6 +258,10 @@ Click this badge to view our translation project:
 </a>
 <br>
 
+### Translation progress
+[![Crowdin](https://badges.awesome-crowdin.com/translation-15788979-676754.png)](https://crowdin.com/project/ehr)
+<br>
+
 ## Should I switch from TOHE to EHR?
 
 - In comparison, both mods are great, but EHR has more roles, features, game modes, and settings.
@@ -694,4 +698,5 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
 
