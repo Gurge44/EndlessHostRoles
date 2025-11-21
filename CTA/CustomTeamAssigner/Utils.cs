@@ -23,7 +23,6 @@ namespace CustomTeamAssigner
 
         private static readonly Dictionary<CustomRoles, string> RoleNames = new()
         {
-            { CustomRoles.Hacker, "Anonymous" },
             { CustomRoles.LovingCrewmate, "Lover" },
             { CustomRoles.LovingImpostor, "Loving Impostor" },
             { CustomRoles.Divinator, "Fortune Teller" },
