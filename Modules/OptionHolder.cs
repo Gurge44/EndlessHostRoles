@@ -384,6 +384,8 @@ public static class Options
     public static OptionItem DleksChance;
     public static OptionItem AirshipChance;
     public static OptionItem FungleChance;
+    public static OptionItem MinPlayersForAirship;
+    public static OptionItem MinPlayersForFungle;
 
     public static OptionItem GodfatherCancelVote;
 
@@ -1925,6 +1927,14 @@ public static class Options
         FungleChance = new IntegerOptionItem(19922, "FungleChance", new(0, 100, 5), 0, TabGroup.GameSettings)
             .SetParent(RandomMapsMode)
             .SetValueFormat(OptionFormat.Percent);
+        
+        MinPlayersForAirship = new IntegerOptionItem(19915, "MinPlayersForAirship", new(1, 15, 1), 10, TabGroup.GameSettings)
+            .SetParent(AirshipChance)
+            .SetValueFormat(OptionFormat.Players);
+        
+        MinPlayersForFungle = new IntegerOptionItem(19923, "MinPlayersForFungle", new(1, 15, 1), 8, TabGroup.GameSettings)
+            .SetParent(FungleChance)
+            .SetValueFormat(OptionFormat.Players);
 
         LoadingPercentage = 69;
 

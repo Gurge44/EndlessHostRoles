@@ -654,22 +654,26 @@ internal static class MurderPlayerPatch
 
         PlayerControl killer = __instance; // Alternative variable
 
-        PlagueDoctor.OnAnyMurder();
-
-        // Replacement process when the actual killer and killer are different
-        if (Sniper.TryGetSniper(target.PlayerId, ref killer)) Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sniped;
-
-        if (killer.Is(CustomRoles.Sniper))
+        try
         {
-            if (!Options.UsePets.GetBool())
-                killer.RpcResetAbilityCooldown();
-            else
+            PlagueDoctor.OnAnyMurder();
+
+            // Replacement process when the actual killer and killer are different
+            if (Sniper.TryGetSniper(target.PlayerId, ref killer)) Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sniped;
+
+            if (killer.Is(CustomRoles.Sniper))
             {
-                int cd = Options.DefaultShapeshiftCooldown.GetInt();
-                Main.AbilityCD[killer.PlayerId] = (TimeStamp, cd);
-                SendRPC(CustomRPC.SyncAbilityCD, 1, killer.PlayerId, cd);
+                if (!Options.UsePets.GetBool())
+                    killer.RpcResetAbilityCooldown();
+                else
+                {
+                    int cd = Options.DefaultShapeshiftCooldown.GetInt();
+                    Main.AbilityCD[killer.PlayerId] = (TimeStamp, cd);
+                    SendRPC(CustomRPC.SyncAbilityCD, 1, killer.PlayerId, cd);
+                }
             }
         }
+        catch (Exception e) { ThrowException(e); }
 
         if (killer != __instance) Logger.Info($"Real Killer = {killer.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
@@ -687,93 +691,105 @@ internal static class MurderPlayerPatch
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
         }
 
-        Postman.CheckAndResetTargets(target, true);
-
-        if (target.Is(CustomRoles.Trapper) && killer != target) killer.TrapperKilled(target);
-
-        if (target.Is(CustomRoles.Stained)) Stained.OnDeath(target, killer);
-
-        Witness.AllKillers[killer.PlayerId] = TimeStamp;
-
-        killer.AddKillTimerToDict();
-
-        switch (target.GetCustomRole())
+        try
         {
-            case CustomRoles.Lightning when killer != target:
-                Impostor.Lightning.MurderPlayer(killer, target);
-                break;
-            case CustomRoles.Bane when killer != target:
-                Bane.OnKilled(killer);
-                break;
-            case CustomRoles.Markseeker:
-                Markseeker.OnDeath(target);
-                break;
-        }
+            Postman.CheckAndResetTargets(target, true);
 
-        Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
-        
-        Tired.OnMurder(killer.PlayerId);
+            if (target.Is(CustomRoles.Trapper) && killer != target) killer.TrapperKilled(target);
 
-        Chef.SpitOutFood(killer);
-        
-        EvilTracker.OnAnyoneMurder(killer, target);
+            if (target.Is(CustomRoles.Stained)) Stained.OnDeath(target, killer);
 
-        if (Options.CurrentGameMode == CustomGameMode.Speedrun)
-            Speedrun.ResetTimer(killer);
+            Witness.AllKillers[killer.PlayerId] = TimeStamp;
 
-        if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
-            killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
+            killer.AddKillTimerToDict();
 
-        if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
-            killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
-
-        if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
-
-        if (target.Is(CustomRoles.Avanger))
-        {
-            PlayerControl[] pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray();
-            PlayerControl rp = pcList.RandomElement();
-            if (!rp.Is(CustomRoles.Pestilence)) rp.Suicide(PlayerState.DeathReason.Revenge, target);
-        }
-
-        if (target.Is(CustomRoles.Bait))
-        {
-            var realKiller = target.GetRealKiller();
-            if (realKiller != null) killer = realKiller;
-            
-            if (killer.AmOwner && Main.PlayerStates.TryGetValue(killer.PlayerId, out var ks) && ks.GetKillCount() <= 1)
-                Achievements.Type.OhNo.CompleteAfterGameEnd();
-            
-            if (target != killer && !killer.Is(CustomRoles.KillingMachine) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
+            switch (target.GetCustomRole())
             {
-                killer.RPCPlayCustomSound("Congrats");
-                target.RPCPlayCustomSound("Congrats");
-                float delay;
-
-                if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat())
-                    delay = 0f;
-                else
-                    delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
-
-                delay = Math.Max(delay, 0.15f);
-                if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
-
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
-
-                LateTask.New(() =>
-                {
-                    if (GameStates.IsInTask)
-                    {
-                        if (!Options.ReportBaitAtAllCost.GetBool())
-                            killer.CmdReportDeadBody(target.Data);
-                        else
-                            killer.NoCheckStartMeeting(target.Data, true);
-                    }
-                }, delay, "Bait Self Report");
+                case CustomRoles.Lightning when killer != target:
+                    Impostor.Lightning.MurderPlayer(killer, target);
+                    break;
+                case CustomRoles.Bane when killer != target:
+                    Bane.OnKilled(killer);
+                    break;
+                case CustomRoles.Markseeker:
+                    Markseeker.OnDeath(target);
+                    break;
             }
         }
+        catch (Exception e) { ThrowException(e); }
 
-        AfterPlayerDeathTasks(target);
+        try { Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target); }
+        catch (Exception e) { ThrowException(e); }
+
+        try
+        {
+            Tired.OnMurder(killer.PlayerId);
+
+            Chef.SpitOutFood(killer);
+        
+            EvilTracker.OnAnyoneMurder(killer, target);
+            
+            Berserker.OnAnyoneMurder(killer);
+
+            if (Options.CurrentGameMode == CustomGameMode.Speedrun)
+                Speedrun.ResetTimer(killer);
+
+            if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
+                killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
+
+            if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
+                killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
+
+            if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
+
+            if (target.Is(CustomRoles.Avanger))
+            {
+                PlayerControl[] pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray();
+                PlayerControl rp = pcList.RandomElement();
+                if (!rp.Is(CustomRoles.Pestilence)) rp.Suicide(PlayerState.DeathReason.Revenge, target);
+            }
+
+            if (target.Is(CustomRoles.Bait))
+            {
+                var realKiller = target.GetRealKiller();
+                if (realKiller != null) killer = realKiller;
+            
+                if (killer.AmOwner && Main.PlayerStates.TryGetValue(killer.PlayerId, out var ks) && ks.GetKillCount() <= 1)
+                    Achievements.Type.OhNo.CompleteAfterGameEnd();
+            
+                if (target != killer && !killer.Is(CustomRoles.KillingMachine) && (killer.PlayerId != target.PlayerId || target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
+                {
+                    killer.RPCPlayCustomSound("Congrats");
+                    target.RPCPlayCustomSound("Congrats");
+                    float delay;
+
+                    if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat())
+                        delay = 0f;
+                    else
+                        delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
+
+                    delay = Math.Max(delay, 0.15f);
+                    if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
+
+                    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+
+                    LateTask.New(() =>
+                    {
+                        if (GameStates.IsInTask)
+                        {
+                            if (!Options.ReportBaitAtAllCost.GetBool())
+                                killer.CmdReportDeadBody(target.Data);
+                            else
+                                killer.NoCheckStartMeeting(target.Data, true);
+                        }
+                    }, delay, "Bait Self Report");
+                }
+            }
+        }
+        catch (Exception e) { ThrowException(e); }
+
+        try { AfterPlayerDeathTasks(target); }
+        catch (Exception e) { ThrowException(e); }
 
         Main.PlayerStates[target.PlayerId].SetDead();
         target.SetRealKiller(killer, true);
@@ -2322,12 +2338,6 @@ internal static class PlayerControlSetRolePatch
                 roleType = RoleTypes.ImpostorGhost;
             else
                 roleType = RoleTypes.CrewmateGhost;
-        }
-
-        foreach (PlayerControl seer in Main.AllPlayerControls)
-        {
-            if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, __instance.PlayerId), out var tuple))
-                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, __instance.PlayerId)] = (roleType, tuple.CustomRole);
         }
 
         return true;

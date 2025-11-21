@@ -226,12 +226,12 @@ internal static class HotPotato
 
                 if (lastHolder != null)
                 {
-                    if (CanPassViaKillButton) lastHolder.RpcSetRoleGlobal(RoleTypes.Crewmate);
+                    if (CanPassViaKillButton && lastHolder.IsAlive()) lastHolder.RpcSetRoleGlobal(RoleTypes.Crewmate);
 
                     TargetArrow.RemoveAllTarget(HotPotatoState.LastHolderID);
 
                     Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
-                    lastHolder.MarkDirtySettings();
+                    PlayerGameOptionsSender.SetDirty(HotPotatoState.LastHolderID);
                     Utils.NotifyRoles(SpecifyTarget: lastHolder);
 
                     Logger.Info($"Hot Potato Passed: {lastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");

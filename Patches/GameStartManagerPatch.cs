@@ -589,6 +589,11 @@ public static class GameStartRandomMap
             5 => Options.FungleChance.GetInt(),
             _ => 0
         });
+        
+        int playerCount = Main.AllPlayerControls.Length;
+        if (playerCount < Options.MinPlayersForAirship.GetInt()) chance.Remove(4);
+        if (playerCount < Options.MinPlayersForFungle.GetInt()) chance.Remove(5);
+        
         byte[] pool = chance.SelectMany(x => Enumerable.Repeat(x.Key, x.Value / 5)).ToArray();
         return pool.Length == 0 ? chance.Keys.RandomElement() : pool.RandomElement();
     }

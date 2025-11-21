@@ -1,38 +1,44 @@
-<h1 align="center">Endless Host Roles</h1>
-<h4 align="center">The largest Among Us mod.<br>Completely free.<br>Host-Only.<br>Fully customizable.<br>100% transparency.<br>No accounts or logins required.</h4>
+<div align="center">
 
-<br>
+# Endless Host Roles
 
-<img align="left" alt="Cover" src="Resources/Images/EHR-Icon.png" width="50%" height="250" />
+### The largest Among Us mod
+**Completely free • Host-Only • Fully customizable • 100% transparency • No accounts or logins required**
 
-<p align="right">
+[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5662f6?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/m3ayxfumC8)
+[![Wiki](https://img.shields.io/badge/Wiki-Documentation-3aa675?style=for-the-badge&logo=vuedotjs&logoColor=white)](https://ehr-wiki.gurge44.eu)
+[![Download](https://img.shields.io/badge/Download-Latest-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Gurge44/EndlessHostRoles/releases/latest)
+[![Translate](https://img.shields.io/badge/Translate-Crowdin-18a303?style=for-the-badge&logo=crowdin&logoColor=white)](https://translate.gurge44.eu)
 
-> ### Regarding this mod
->
-> This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or
-> otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are the property of Innersloth LLC.
-> <br>
-> This is not a cheat, it's a mod that adds new roles and features to the game. If you have questions, ask in our
-> Discord server.
-<br>
+![GitHub release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg?style=flat-square)
+![GitHub downloads](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg?style=flat-square)
+![Last commit](https://img.shields.io/github/last-commit/Gurge44/EndlessHostRoles?style=flat-square)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Yes!-success?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles)
 
-</p>
+<img src="Resources/Images/EHR-Icon.png" alt="EHR Icon" width="400"/>
 <p align="center">
-
-<a href="https://ehr-wiki.netlify.app" target="_blank"><img src="https://img.shields.io/badge/Website%20-%231DA1F2.svg?&style=for-the-badge&logo=vuedotjs&logoColor=white&color=3aa675"/></a>
-<a href="https://discord.gg/m3ayxfumC8" target="_blank"><img src="https://img.shields.io/badge/Discord%20-%231DA1F2.svg?&style=for-the-badge&logo=discord&logoColor=white&color=5662f6"/></a>
-<a href="https://github.com/Gurge44/EndlessHostRoles/releases/latest" target="_blank"><img src="https://img.shields.io/badge/Latest Version%20-%231DA1F2.svg?&style=for-the-badge&logo=github&logoColor=white&color=181717"/></a>
-
+  <img src="https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3" alt="Discord Banner"/>
 </p>
-
 <p align="left" style="font-size: 10px"><i>Image by oCelestino & Seleneous on Discord</i></p>
+</div>
+
 ---
 
-<br>
+### Regarding this mod
+
+<div align="left">
+  
+> This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC.  
+> Portions of the materials contained herein are the property of Innersloth LLC.  
+>  
+> This is **not a cheat**, it's a mod that adds new roles and features to the game.  
+> If you have questions, ask in our Discord server.
+
+</div>
 
 # Installation
 
-- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.netlify.app/guides/installation/)
+- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/guides/installation/)
 - Or watch the tutorial by AnonWorks: [YouTube](https://youtu.be/AOLqWCbbrHM?si=nRRsNgz5-Z8XvFrs)
 
 <br>
@@ -40,13 +46,6 @@
 Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/downloadehr)
 
 <br>
-
-[![GitHub release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
-[![GitHub latest commit](https://badgen.net/github/last-commit/Gurge44/EndlessHostRoles)](https://GitHub.com/Gurge44/EndlessHostRoles/commit/)
-[![Github all releases](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
-[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Gurge44/badges/)
-
-![Discord Banner 3](https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3)
 
 ## Want to become a beta tester?
 
@@ -243,11 +242,16 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ## Want to translate the mod to your language?
 
-Click this badge to view our translation project on Crowdin:
-[![Crowdin](https://badges.crowdin.net/ehr/localized.svg)](https://crowdin.com/project/ehr)
+Click this badge to view our translation project:
+<a href="https://translate.gurge44.eu" target="_blank">
+  <img src="https://img.shields.io/badge/Translate%20on%20Crowdin-%2318a303.svg?&style=for-the-badge&logo=crowdin&logoColor=white"/>
+</a>
 <br>
-Source language: English
 
+**Source language:** English
+<a href="https://translate.gurge44.eu" target="_blank">
+  <img src="https://badges.crowdin.net/ehr/localized.svg" />
+</a>
 <br>
 
 ## Should I switch from TOHE to EHR?
@@ -276,7 +280,7 @@ Source language: English
 - If this wasn't convincing enough, you can always try EHR and see if you like it better than TOHE.
 - In the end, it's your choice, and I respect it.
 
-#### There are more game changing features, which you can find on our website: [EHR Wiki](https://ehr-wiki.netlify.app/)
+#### There are more game changing features, which you can find on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/)
 
 <br>
 
@@ -684,9 +688,4 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
-
-
-
-
-
 

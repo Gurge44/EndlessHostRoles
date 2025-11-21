@@ -163,7 +163,7 @@ public static class UpdateFriendCodeUIPatch
         if (newRequest != null)
         {
             newRequest.transform.localPosition -= new Vector3(0f, 0f, 10f);
-            newRequest.transform.localScale = new(0.8f, 1f, 1f);
+            newRequest.transform.localScale = new(0f, 0f, 0f);
         }
 
         GameObject friendsButton = GameObject.Find("FriendsButton");
@@ -287,10 +287,9 @@ internal static class FriendsListUIOpenPatch
 internal static class TitleLogoPatch
 {
     private static GameObject ModStamp;
-
     private static GameObject Ambience;
-
-    // public static GameObject LoadingHint;
+    private static GameObject CustomBG;
+    private static GameObject SpecialMessage;
     private static GameObject LeftPanel;
     public static GameObject RightPanel;
     private static GameObject CloseRightButton;
@@ -298,10 +297,75 @@ internal static class TitleLogoPatch
     private static GameObject BottomButtonBounds;
 
     public static Vector3 RightPanelOp;
+    
+    private static bool IsEasterPeriod(int daysBefore = 2, int daysAfter = 1)
+    {
+        DateTime today = DateTime.Today;
+        DateTime easter = GetEasterSunday(today.Year);
+
+        DateTime start = easter.AddDays(-daysBefore);
+        DateTime end = easter.AddDays(daysAfter);
+
+        return today >= start && today <= end;
+    }
+
+    private static DateTime GetEasterSunday(int year)
+    {
+        int a = year % 19;
+        int b = year / 100;
+        int c = year % 100;
+        int d = b / 4;
+        int e = b % 4;
+        int f = (b + 8) / 25;
+        int g = (b - f + 1) / 3;
+        int h = (19 * a + b - d - g + 15) % 30;
+        int i = c / 4;
+        int j = c % 4;
+        int k = (32 + 2 * e + 2 * i - h - j) % 7;
+        int l = (a + 11 * h + 22 * k) / 451;
+
+        int month = (h + k - 7 * l + 114) / 31;
+        int day = ((h + k - 7 * l + 114) % 31) + 1;
+
+        return new DateTime(year, month, day);
+    }
 
     private static void Postfix(MainMenuManager __instance)
     {
         GameObject.Find("BackgroundTexture")?.SetActive(!MainMenuManagerPatch.ShowedBak);
+
+        DateTime now = DateTime.Now;
+        bool holidays = now is { Month: 12, Day: < 24 };
+        bool christmas = now is { Month: 12, Day: >= 24 and <= 26 };
+        bool newYear = now is { Month: 1, Day: <= 6 };
+        bool easter = IsEasterPeriod();
+
+        if (SpecialMessage == null && (holidays || christmas || newYear || easter))
+        {
+            SpecialMessage = new GameObject("SpecialMessage");
+            SpecialMessage.transform.SetParent(__instance.transform);
+            SpecialMessage.transform.position = new Vector3(0f, -2.5f, 0f);
+            var text = SpecialMessage.AddComponent<TextMeshPro>();
+            text.alignment = TextAlignmentOptions.Center;
+            text.fontSize = 3f;
+            text.color = Color.white;
+            text.outlineColor = Color.black;
+            text.outlineWidth = 0.2f;
+            text.enableWordWrapping = false;
+            text.fontWeight = FontWeight.Black;
+            text.text = $"<b>{GetString(holidays ? "HolidayGreeting" : christmas ? "ChristmasGreeting" : newYear ? "NewYearGreeting" : "EasterGreeting")}</b>";
+        }
+
+        if (CustomBG == null && (holidays || christmas || newYear || easter))
+        {
+            CustomBG = new GameObject("CustomBG");
+            CustomBG.transform.SetParent(__instance.transform);
+            CustomBG.transform.position = new(0f, 0f, 520f);
+            var sr = CustomBG.AddComponent<SpriteRenderer>();
+            sr.sprite = Utils.LoadSprite(easter ? "EHR.Resources.Images.EasterBG.jpg" : "EHR.Resources.Images.WinterBG.jpg", 180f);
+            PlayerParticles pp = Object.FindObjectOfType<PlayerParticles>();
+            if (pp != null) pp.gameObject.SetActive(false);
+        }
 
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
 
@@ -328,8 +392,8 @@ internal static class TitleLogoPatch
         Dictionary<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> mainButtons = new()
         {
             { [__instance.playButton, __instance.inventoryButton, __instance.shopButton], (standardActiveSprite, new(0f, 0.647f, 1f, 0.8f), shade, Color.white, Color.white) },
-            { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(0.825f, 0.825f, 0.286f, 0.8f), shade, Color.white, Color.white) },
-            { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.226f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) }
+            { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(0f, 0.9f, 0.9f, 0.8f), shade, Color.white, Color.white) },
+            { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.825f, 0.825f, 0.286f, 0.8f), shade, Color.white, Color.white) }
         };
 
         foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)

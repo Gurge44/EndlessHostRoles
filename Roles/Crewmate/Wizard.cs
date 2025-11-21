@@ -124,7 +124,7 @@ public class Wizard : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return pc.IsAlive() && !TaskMode;
     }
 
     public override void SetKillCooldown(byte id)
@@ -230,7 +230,7 @@ public class Wizard : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance) return;
+        if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
         if (Count++ < 40) return;
 
@@ -243,11 +243,11 @@ public class Wizard : RoleBase
                 TaskMode = false;
                 break;
             case false when !pc.IsAlive():
-                pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.OwnerId);
+                pc.RpcSetRoleGlobal(RoleTypes.CrewmateGhost);
                 TaskMode = true;
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
-                pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+                pc.RpcSetRoleGlobal(RoleTypes.Crewmate);
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 TaskMode = true;
                 break;

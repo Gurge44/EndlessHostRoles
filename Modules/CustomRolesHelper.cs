@@ -40,6 +40,7 @@ internal static class CustomRolesHelper
         CustomRoles.Farmer,
         CustomRoles.Tree,
         CustomRoles.Doorjammer,
+        CustomRoles.Carrier,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -512,6 +513,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.Duality => RoleTypes.Impostor,
+            CustomRoles.Berserker => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
             CustomRoles.Explosivist => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Sharpshooter => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
@@ -583,6 +585,7 @@ internal static class CustomRolesHelper
             CustomRoles.Doppelganger => RoleTypes.Impostor,
             CustomRoles.Investor => RoleTypes.Impostor,
             CustomRoles.Wizard => RoleTypes.Phantom,
+            CustomRoles.Carrier => RoleTypes.Shapeshifter,
 
             CustomRoles.CovenLeader => RoleTypes.Impostor,
             CustomRoles.SpellCaster => RoleTypes.Impostor,
@@ -644,6 +647,7 @@ internal static class CustomRolesHelper
             CustomRoles.Patroller or
             CustomRoles.Rogue or
             CustomRoles.Parasite or
+            CustomRoles.Berserker or
             CustomRoles.SerialKiller or
             CustomRoles.Sharpshooter or
             CustomRoles.Explosivist or
@@ -1197,7 +1201,7 @@ internal static class CustomRolesHelper
             CustomRoles.Swift when pc.Is(CustomRoles.Consigliere) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Witch) => false,
             CustomRoles.Swift when pc.Is(CustomRoles.Nemesis) => false,
-            CustomRoles.Reach when pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver => false,
+            CustomRoles.Reach when pc.GetCustomRole() is CustomRoles.Mafioso or CustomRoles.Evolver or CustomRoles.Berserker => false,
             CustomRoles.Trapper when pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Reach when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Magnet when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
@@ -1755,6 +1759,7 @@ internal static class CustomRolesHelper
             CustomRoles.DetectiveEHR => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Carrier => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Express => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Needy => RoleOptionType.Crewmate_Miscellaneous,
@@ -1953,6 +1958,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    Berserker,
     Sharpshooter,
     Explosivist,
     Thanos,
