@@ -241,15 +241,18 @@ public class Wizard : RoleBase
             case true when (pc.GetAbilityUseLimit() >= 1 || pc.GetTaskState().IsTaskFinished) && pc.IsAlive():
                 pc.RpcChangeRoleBasis(CustomRoles.Wizard);
                 TaskMode = false;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, TaskMode);
                 break;
             case false when !pc.IsAlive():
                 pc.RpcSetRoleGlobal(RoleTypes.CrewmateGhost);
                 TaskMode = true;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, TaskMode);
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
                 pc.RpcSetRoleGlobal(RoleTypes.Crewmate);
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 TaskMode = true;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, TaskMode);
                 break;
         }
     }
@@ -274,6 +277,9 @@ public class Wizard : RoleBase
                 else
                     buffs[SelectedBuff] = value;
 
+                break;
+            case 4:
+                TaskMode = reader.ReadBoolean();
                 break;
         }
     }

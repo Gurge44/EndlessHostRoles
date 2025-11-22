@@ -19,13 +19,13 @@ internal static class CanUsePatch
 
         return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && lp.GetCustomRole() switch
         {
-            CustomRoles.Wizard => HasTasksAsWizard(),
+            CustomRoles.Wizard or CustomRoles.Carrier => HasTasksAsDynamicTaskingRole(),
             CustomRoles.Medic => (Options.UsePets.GetBool() && Medic.UsePet.GetBool()) || lp.GetAbilityUseLimit() < 1f,
             CustomRoles.Duality => !((Duality)Main.PlayerStates[lp.PlayerId].Role).KillingPhase,
             _ => true
         });
 
-        bool HasTasksAsWizard()
+        bool HasTasksAsDynamicTaskingRole()
         {
             if (lp.GetTaskState().IsTaskFinished) return false;
             if (!lp.IsAlive()) return true;
