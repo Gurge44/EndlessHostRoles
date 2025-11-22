@@ -5466,6 +5466,8 @@
   "Deathrace.PowerUpInfo.More": "+{0} More Power-Ups Stored",
   "Deathrace.CoordinateCheck": "[Position Check]",
   "Deathrace.CoordinateCheckInfo.100": "Exit this room on the left side",
+  "Deathrace.CoordinateCheckInfo.101": "Target the bottom entrance of Cafeteria",
+  "Deathrace.CoordinateCheckInfo.102": "Choose the right-side hallway",
   "Racer": "DEATHRACE",
   "RacerInfo": "COMPLETE ALL LAPS FIRST TO WIN",
   "RacerInfoLong": "COMPLETE ALL LAPS FIRST TO WIN",
