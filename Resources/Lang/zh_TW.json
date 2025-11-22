@@ -5466,6 +5466,8 @@
   "Deathrace.PowerUpInfo.More": "+{0} 更多強化道具已存儲",
   "Deathrace.CoordinateCheck": "[檢查點]",
   "Deathrace.CoordinateCheckInfo.100": "從左側離開這個房間",
+  "Deathrace.CoordinateCheckInfo.101": "Target the bottom entrance of Cafeteria",
+  "Deathrace.CoordinateCheckInfo.102": "Choose the right-side hallway",
   "Racer": "死亡競速",
   "RacerInfo": "率先完成所有圈數獲勝",
   "RacerInfoLong": "率先完成所有圈數獲勝",
