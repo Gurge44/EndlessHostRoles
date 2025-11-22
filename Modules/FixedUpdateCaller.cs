@@ -24,6 +24,11 @@ public static class FixedUpdateCaller
         {
             InnerNetClientFixedUpdatePatch.Postfix();
 
+            var amongUsClient = AmongUsClient.Instance;
+
+            if (amongUsClient)
+                amongUsClient.MinSendInterval = 0.034f;
+
             var shipStatus = ShipStatus.Instance;
 
             if (shipStatus)
@@ -81,14 +86,14 @@ public static class FixedUpdateCaller
 
             if (!PlayerControl.LocalPlayer) return;
 
-            if (AmongUsClient.Instance.IsGameStarted)
+            if (amongUsClient.IsGameStarted)
                 Utils.CountAlivePlayers();
 
             try
             {
                 if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
                 {
-                    Predicate<PlayerControl> predicate = AmongUsClient.Instance.AmHost
+                    Predicate<PlayerControl> predicate = amongUsClient.AmHost
                         ? Options.CurrentGameMode switch
                         {
                             CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
@@ -216,7 +221,7 @@ public static class FixedUpdateCaller
 
                 try
                 {
-                    if (AmongUsClient.Instance.AmHost && Options.EnableGameTimeLimit.GetBool())
+                    if (amongUsClient.AmHost && Options.EnableGameTimeLimit.GetBool())
                     {
                         Main.GameTimer += Time.fixedDeltaTime;
                         
