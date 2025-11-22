@@ -5466,6 +5466,8 @@
   "Deathrace.PowerUpInfo.More": "+{0} больше сохранённых усилений",
   "Deathrace.CoordinateCheck": "[Проверка позиции]",
   "Deathrace.CoordinateCheckInfo.100": "Выход из этой комнаты слева",
+  "Deathrace.CoordinateCheckInfo.101": "Target the bottom entrance of Cafeteria",
+  "Deathrace.CoordinateCheckInfo.102": "Choose the right-side hallway",
   "Racer": "Забег На Смерть",
   "RacerInfo": "Пройдите все круги, чтобы победить",
   "RacerInfoLong": "Пройдите все круги, чтобы победить",
