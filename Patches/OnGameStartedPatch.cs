@@ -218,7 +218,7 @@ internal static class ChangeRoleSettings
             Main.MadmateNum = 0;
 
             Mayor.MayorUsedButtonCount = [];
-            Paranoia.ParaUsedButtonCount = [];
+            Paranoid.ParaUsedButtonCount = [];
             Mario.MarioVentCount = [];
             Cleaner.CleanerBodies = [];
             Virus.InfectedBodies = [];

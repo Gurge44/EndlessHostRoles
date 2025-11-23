@@ -33,7 +33,7 @@ public class Scout : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
 
-        TrackLimitOpt = new IntegerOptionItem(Id + 5, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+        TrackLimitOpt = new IntegerOptionItem(Id + 5, "FortuneTellerSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
             .SetValueFormat(OptionFormat.Times);
 

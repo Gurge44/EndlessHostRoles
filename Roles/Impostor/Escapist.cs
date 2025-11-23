@@ -3,38 +3,38 @@ using EHR.Modules;
 
 namespace EHR.Impostor;
 
-internal class Escapee : RoleBase
+internal class Escapist : RoleBase
 {
     public static bool On;
 
-    public static OptionItem EscapeeSSCD;
+    public static OptionItem EscapistSSCD;
     public static OptionItem CanVent;
 
-    public Vector2? EscapeeLocation;
+    public Vector2? EscapistLocation;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapee);
+        Options.SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapist);
 
-        EscapeeSSCD = new FloatOptionItem(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapee])
+        EscapistSSCD = new FloatOptionItem(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapist])
             .SetValueFormat(OptionFormat.Seconds);
 
         CanVent = new BooleanOptionItem(3612, "CanVent", false, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapee]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapist]);
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        EscapeeLocation = null;
+        EscapistLocation = null;
     }
 
     public override void Init()
     {
         On = false;
-        EscapeeLocation = null;
+        EscapistLocation = null;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -45,20 +45,20 @@ internal class Escapee : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
-            hud.PetButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            hud.PetButton?.OverrideText(Translator.GetString("EscapistAbilityButtonText"));
         else
-            hud.AbilityButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            hud.AbilityButton?.OverrideText(Translator.GetString("EscapistAbilityButtonText"));
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         if (Options.UsePhantomBasis.GetBool())
-            AURoleOptions.PhantomCooldown = EscapeeSSCD.GetFloat();
+            AURoleOptions.PhantomCooldown = EscapistSSCD.GetFloat();
         else
         {
             if (Options.UsePets.GetBool()) return;
 
-            AURoleOptions.ShapeshifterCooldown = EscapeeSSCD.GetFloat();
+            AURoleOptions.ShapeshifterCooldown = EscapistSSCD.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
     }
@@ -76,15 +76,15 @@ internal class Escapee : RoleBase
 
     private void TeleportOrMark(PlayerControl pc)
     {
-        if (EscapeeLocation != null)
+        if (EscapistLocation != null)
         {
-            var position = (Vector2)EscapeeLocation;
-            EscapeeLocation = null;
+            var position = (Vector2)EscapistLocation;
+            EscapistLocation = null;
             pc.TP(position);
             pc.RPCPlayCustomSound("Teleport");
         }
         else
-            EscapeeLocation = pc.Pos();
+            EscapistLocation = pc.Pos();
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

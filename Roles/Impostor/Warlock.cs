@@ -135,7 +135,7 @@ internal class Warlock : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy) || Thanos.IsImmune(target)) return false;
+        if (target.Is(CustomRoles.LazyGuy) || target.Is(CustomRoles.Lazy) || Thanos.IsImmune(target)) return false;
         
         if (killer.IsShifted()) return false;
 
@@ -147,7 +147,7 @@ internal class Warlock : RoleBase
 
             if (!killer.IsShifted() && !IsCurseAndKill[killer.PlayerId])
             {
-                if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return;
+                if (target.Is(CustomRoles.LazyGuy) || target.Is(CustomRoles.Lazy)) return;
 
                 IsCursed = true;
                 killer.SetKillCooldown();

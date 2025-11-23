@@ -98,7 +98,7 @@ internal class Trapster : RoleBase
 
     public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
-        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Unreportable) && LegacyTrapster.GetBool())
+        if (TrapsterBody.Contains(target.PlayerId) && reporter.IsAlive() && !target.Object.Is(CustomRoles.Disregarded) && LegacyTrapster.GetBool())
         {
             if (!TrapOnlyWorksOnTheBodyTrapster.GetBool())
             {
