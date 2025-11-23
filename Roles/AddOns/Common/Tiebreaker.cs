@@ -2,12 +2,12 @@
 
 namespace EHR.AddOns.Common;
 
-internal class Brakar : IAddon
+internal class Tiebreaker : IAddon
 {
     public AddonTypes Type => AddonTypes.Mixed;
 
     public void SetupCustomOption()
     {
-        SetupAdtRoleOptions(14900, CustomRoles.Brakar, canSetNum: true, teamSpawnOptions: true);
+        SetupAdtRoleOptions(14900, CustomRoles.Tiebreaker, canSetNum: true, teamSpawnOptions: true);
     }
 }

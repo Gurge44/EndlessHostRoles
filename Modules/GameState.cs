@@ -118,7 +118,7 @@ public class PlayerState(byte playerId)
         if (Main.IntroDestroyed && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))
             RoleHistory.Add(MainRole);
 
-        Divinator.OnRoleChange(PlayerId, MainRole, role);
+        FortuneTeller.OnRoleChange(PlayerId, MainRole, role);
 
         bool previousHasTasks = Utils.HasTasks(Player.Data, false);
 

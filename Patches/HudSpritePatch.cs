@@ -284,7 +284,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("Hangman");
                     break;
                 }
-                case CustomRoles.Paranoia:
+                case CustomRoles.Paranoid:
                 {
                     if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Paranoid");
                     else newAbilityButton = CustomButton.Get("Paranoid");
@@ -425,7 +425,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("prophecies");
                     break;
                 }
-                case CustomRoles.Escapee:
+                case CustomRoles.Escapist:
                 {
                     if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("abscond");
                     else newAbilityButton = CustomButton.Get("abscond");

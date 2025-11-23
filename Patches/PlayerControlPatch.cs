@@ -656,7 +656,7 @@ internal static class MurderPlayerPatch
 
         try
         {
-            PlagueDoctor.OnAnyMurder();
+            Infection.OnAnyMurder();
 
             // Replacement process when the actual killer and killer are different
             if (Sniper.TryGetSniper(target.PlayerId, ref killer)) Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sniped;
@@ -734,8 +734,8 @@ internal static class MurderPlayerPatch
             if (Options.CurrentGameMode == CustomGameMode.Speedrun)
                 Speedrun.ResetTimer(killer);
 
-            if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
-                killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
+            if (killer.Is(CustomRoles.Stealer) && killer.PlayerId != target.PlayerId)
+                killer.Notify(string.Format(GetString("StealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
             if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
                 killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
@@ -1106,7 +1106,7 @@ internal static class ReportDeadBodyPatch
                     }
                 }
 
-                if (tpc.Is(CustomRoles.Unreportable))
+                if (tpc.Is(CustomRoles.Disregarded))
                 {
                     Notify("TargetDisregarded");
                     return false;
@@ -1327,7 +1327,7 @@ internal static class ReportDeadBodyPatch
         Grenadier.GrenadierBlinding.Clear();
         SecurityGuard.BlockSabo.Clear();
         Grenadier.MadGrenadierBlinding.Clear();
-        Divinator.DidVote.Clear();
+        FortuneTeller.DidVote.Clear();
         Oracle.DidVote.Clear();
 
         Imitator.ImitatingRole.SetAllValues(CustomRoles.Imitator);
@@ -1829,8 +1829,8 @@ internal static class FixedUpdatePatch
                 case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
                     Mark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
                     break;
-                case CustomRoles.PlagueDoctor:
-                    Mark.Append(PlagueDoctor.GetMarkOthers(seer, target));
+                case CustomRoles.Infection:
+                    Mark.Append(Infection.GetMarkOthers(seer, target));
                     break;
             }
 

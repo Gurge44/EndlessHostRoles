@@ -633,11 +633,11 @@ internal static class GameEndChecker
                 roleCounts[(keyRole, keyWinner)] = value;
             }
 
-            if (CustomRoles.DualPersonality.IsEnable())
+            if (CustomRoles.Schizophrenic.IsEnable())
             {
                 foreach (PlayerControl x in aapc)
                 {
-                    if (!x.Is(CustomRoles.DualPersonality)) continue;
+                    if (!x.Is(CustomRoles.Schizophrenic)) continue;
 
                     if (x.Is(Team.Impostor)) imp++;
                     else if (x.Is(Team.Crewmate)) crew++;

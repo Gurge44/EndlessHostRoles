@@ -93,7 +93,7 @@ public class Coroner : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (killer != null && !target.Object.Is(CustomRoles.Unreportable))
+        if (killer != null && !target.Object.Is(CustomRoles.Disregarded))
         {
             if (CoronerTargets.Contains(killer.PlayerId)) return false;
 

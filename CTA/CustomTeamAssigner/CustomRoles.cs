@@ -242,7 +242,6 @@ public enum CustomRoles
     Oxyman,
     Paranoia,
     Perceiver,
-    Philantropist,
     PortalMaker,
     President,
     Psychic,
@@ -326,7 +325,7 @@ public enum CustomRoles
     HexMaster,
     Hookshot,
     Impartial,
-    PlagueDoctor, // Infection
+    PlagueDoctor,
     Innocent,
     Investor,
     Jackal,
