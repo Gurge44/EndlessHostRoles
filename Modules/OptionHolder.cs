@@ -390,8 +390,8 @@ public static class Options
     public static OptionItem GodfatherCancelVote;
 
     public static OptionItem GuardSpellTimes;
-    public static OptionItem CapitalismSkillCooldown;
-    public static OptionItem CapitalismKillCooldown;
+    public static OptionItem CapitalistSkillCooldown;
+    public static OptionItem CapitalistKillCooldown;
     public static OptionItem GrenadierSkillCooldown;
     public static OptionItem GrenadierSkillDuration;
     public static OptionItem GrenadierCauseVision;

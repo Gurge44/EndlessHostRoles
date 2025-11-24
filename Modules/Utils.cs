@@ -1032,7 +1032,7 @@ public static class Utils
                    (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Investigator) && !Options.InvestigatorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
-                   pc.Is(CustomRoles.NiceSwapper) ||
+                   pc.Is(CustomRoles.Swapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
                    pc.Is(CustomRoles.LazyGuy) ||
                    pc.Is(CustomRoles.Loyal) ||
@@ -3642,8 +3642,8 @@ public static class Utils
                     }
 
                     break;
-                case CustomRoles.NiceSwapper when disconnect:
-                    NiceSwapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
+                case CustomRoles.Swapper when disconnect:
+                    Swapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
                     break;
                 case CustomRoles.Silencer when disconnect:
                     if (onMeeting) Main.Instance.StartCoroutine(CoRoutine());

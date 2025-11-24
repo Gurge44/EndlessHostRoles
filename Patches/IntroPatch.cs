@@ -631,7 +631,7 @@ internal static class BeginCrewmatePatch
 
                 CustomRoles.Dictator or
                     CustomRoles.Mayor or
-                    CustomRoles.NiceSwapper
+                    CustomRoles.Swapper
                     => HudManager.Instance.Chat.messageSound,
 
                 CustomRoles.AntiAdminer or

@@ -131,7 +131,7 @@ internal static class CustomRolesHelper
             CustomRoles.Terrorist => Terrorist.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Executioner => CustomRoles.Crewmate,
             CustomRoles.Lawyer => CustomRoles.Crewmate,
-            CustomRoles.NiceSwapper => CustomRoles.Crewmate,
+            CustomRoles.Swapper => CustomRoles.Crewmate,
             CustomRoles.Ignitor => CustomRoles.Crewmate,
             CustomRoles.Jailor => UsePets && Jailor.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Vampire => CustomRoles.Impostor,
@@ -310,7 +310,7 @@ internal static class CustomRolesHelper
             CustomRoles.Scavenger => CustomRoles.Impostor,
             CustomRoles.Transporter => CustomRoles.Crewmate,
             CustomRoles.Veteran => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
-            CustomRoles.Capitalism => CustomRoles.Impostor,
+            CustomRoles.Capitalist => CustomRoles.Impostor,
             CustomRoles.Bodyguard => CustomRoles.Crewmate,
             CustomRoles.Grenadier => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Lighter => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -792,7 +792,7 @@ internal static class CustomRolesHelper
             CustomRoles.Nuker or
             CustomRoles.Scavenger or
             CustomRoles.Trapster or
-            CustomRoles.Capitalism or
+            CustomRoles.Capitalist or
             CustomRoles.Gangster or
             CustomRoles.Cleaner or
             CustomRoles.Lightning or
@@ -1141,7 +1141,7 @@ internal static class CustomRolesHelper
             CustomRoles.Lazy when pc.Is(CustomRoles.LazyGuy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
             CustomRoles.Tiebreaker when pc.Is(CustomRoles.Dictator) => false,
             CustomRoles.Stressed when !pc.IsCrewmate() || pc.GetCustomRole().IsTasklessCrewmate() => false,
-            CustomRoles.Stealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.Trapster) || pc.Is(CustomRoles.Capitalism) => false,
+            CustomRoles.Stealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.Trapster) || pc.Is(CustomRoles.Capitalist) => false,
             CustomRoles.Torch when !pc.IsCrewmate() || pc.Is(CustomRoles.Bewilder) || pc.Is(CustomRoles.Sunglasses) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
             CustomRoles.Bewilder when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Sunglasses) => false,
             CustomRoles.Dynamo when pc.Is(CustomRoles.Spurt) || pc.GetCustomRole() is CustomRoles.Tank or CustomRoles.Ankylosaurus => false,
@@ -1424,7 +1424,7 @@ internal static class CustomRolesHelper
 
     public static bool IsDevFavoriteRole(this CustomRoles role)
     {
-        return role is CustomRoles.Adventurer or CustomRoles.Chef or CustomRoles.Detour or CustomRoles.Hacker or CustomRoles.NiceSwapper or CustomRoles.Sentinel or CustomRoles.Sentry or CustomRoles.Tornado or CustomRoles.Tunneler or CustomRoles.Whisperer or CustomRoles.Wizard or
+        return role is CustomRoles.Adventurer or CustomRoles.Chef or CustomRoles.Detour or CustomRoles.Hacker or CustomRoles.Swapper or CustomRoles.Sentinel or CustomRoles.Sentry or CustomRoles.Tornado or CustomRoles.Tunneler or CustomRoles.Whisperer or CustomRoles.Wizard or
                        CustomRoles.Abyssbringer or CustomRoles.Assumer or CustomRoles.Chronomancer or CustomRoles.Echo or CustomRoles.Escapist or CustomRoles.Hypnotist or CustomRoles.Librarian or CustomRoles.Mafioso or CustomRoles.Mastermind or CustomRoles.Mercenary or CustomRoles.Penguin or CustomRoles.RiftMaker or CustomRoles.Sapper or CustomRoles.Wiper or
                        CustomRoles.Bargainer or CustomRoles.Bubble or CustomRoles.Doomsayer or CustomRoles.Enderman or CustomRoles.Evolver or CustomRoles.HeadHunter or CustomRoles.Impartial or CustomRoles.Patroller or CustomRoles.Pawn or CustomRoles.Infection or CustomRoles.Postman or CustomRoles.Pyromaniac or CustomRoles.Revolutionist or CustomRoles.Rogue or CustomRoles.Romantic or CustomRoles.RoomRusher or CustomRoles.RouleteGrandeur or CustomRoles.Simon or CustomRoles.SoulHunter or CustomRoles.Sprayer or CustomRoles.Technician or CustomRoles.Tank or CustomRoles.Tiger or CustomRoles.Tremor or CustomRoles.Vengeance or CustomRoles.Vortex or CustomRoles.Werewolf or CustomRoles.WeaponMaster or
                        CustomRoles.Reaper or CustomRoles.VoodooMaster or CustomRoles.Dreamweaver or CustomRoles.Banshee or
@@ -1660,7 +1660,7 @@ internal static class CustomRolesHelper
             CustomRoles.Bard => RoleOptionType.Impostor_Support,
             CustomRoles.Blackmailer => RoleOptionType.Impostor_Support,
             CustomRoles.Camouflager => RoleOptionType.Impostor_Support,
-            CustomRoles.Capitalism => RoleOptionType.Impostor_Support,
+            CustomRoles.Capitalist => RoleOptionType.Impostor_Support,
             CustomRoles.Catalyst => RoleOptionType.Impostor_Support,
             CustomRoles.Centralizer => RoleOptionType.Impostor_Support,
             CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
@@ -1879,7 +1879,7 @@ internal static class CustomRolesHelper
             CustomRoles.Marshall => RoleOptionType.Crewmate_Power,
             CustomRoles.Mayor => RoleOptionType.Crewmate_Power,
             CustomRoles.NiceEraser => RoleOptionType.Crewmate_Power,
-            CustomRoles.NiceSwapper => RoleOptionType.Crewmate_Power,
+            CustomRoles.Swapper => RoleOptionType.Crewmate_Power,
             CustomRoles.Oxyman => RoleOptionType.Crewmate_Power,
             CustomRoles.President => RoleOptionType.Crewmate_Power,
             CustomRoles.Speedrunner => RoleOptionType.Crewmate_Power,
