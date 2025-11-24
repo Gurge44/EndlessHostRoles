@@ -9319,7 +9319,7 @@
   "Agitater": "Agitator",
   "AgitaterInfo": "Pass a Bomb onto others",
   "AgitaterInfoLong": "(Neutrals):\\nAs the Agitator, your premise is essentially Hot Potato.\\n\\nUse your kill button on a player to pass the bomb.\\nThis can only be done once per round.\\n\\nThe player who receives the bomb will be notified when receiving said bomb, in which they need to pass it to another player by getting near a player.\\n\\nWhen a meeting is called, the player with the bomb dies.\\n\\nIf trying to pass to Pestilence or a Veteran on alert, the bombed player dies instead.\\nOptionally, the Agitator cannot receive the bomb.",
-  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb coolodown",
+  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb cooldown",
   "AgitaterPassCooldown": "Bomb pass cooldown",
   "BombExplodeCooldown": "Bomb explode cooldown",
   "AgitaterPassNotify": "Bomb successfully passed",
