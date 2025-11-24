@@ -44,6 +44,11 @@ public class Berserker : RoleBase
         Instances.Add(this);
     }
 
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
+    }
+
     public override void SetKillCooldown(byte id)
     {
         if (Form < 2) base.SetKillCooldown(id);

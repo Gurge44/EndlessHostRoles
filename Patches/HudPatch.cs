@@ -193,9 +193,6 @@ internal static class HudManagerPatch
                             button.cooldownTimerText.gameObject.SetActive(true);
                         }
                     }
-                    
-                    if (player.Is(CustomRoles.NotAssigned) && player.IsHost() && Main.GM.Value)
-                        player.RpcSetCustomRole(CustomRoles.GM);
 
                     CustomRoles role = player.GetCustomRole();
 

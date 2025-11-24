@@ -1443,14 +1443,14 @@ public static class Utils
 
         new List<Message>
         {
-            new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("GMRoles")),
-            new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
-            new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
-            new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("NeutralRoles")),
-            new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("CovenRoles")),
-            new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("GhostRoles")),
-            new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("AddonRoles"))
-        }.SendMultipleMessages();
+            new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GMRoles")),
+            new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
+            new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
+            new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("NeutralRoles")),
+            new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("CovenRoles")),
+            new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GhostRoles")),
+            new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("AddonRoles"))
+        }.FindAll(x => x.Text.Length > 18).SendMultipleMessages();
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -3023,14 +3023,14 @@ public static class Utils
                             if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)) && !camouflageIsForMeeting)
                                 targetPlayerName = GetString("DevouredName");
 
-                            // Camouflage
-                            if (Camouflage.IsCamouflage && !camouflageIsForMeeting) targetPlayerName = $"<size=0>{targetPlayerName}</size>";
-
                             if (Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                                 targetPlayerName = EmptyMessage;
 
                             var targetName = $"{targetRoleText}{targetPlayerName}{targetDeathReason}{TargetMark}";
                             targetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"{newLineBeforeSuffix}{TargetSuffix}";
+
+                            // Camouflage
+                            if (Camouflage.IsCamouflage && !camouflageIsForMeeting) targetName = $"<size=0>{targetName}</size>";
 
                             targetName = targetName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
                             if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);

@@ -1106,12 +1106,14 @@ internal static class IntroCutsceneDestroyPatch
         // for vanilla clients we use "Data.Disconnected"
         Main.AllPlayerControls.Do(x => x.roleAssigned = false);
 
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
-
-        Utils.NumSnapToCallsThisRound = aapc.Length;
-
         if (AmongUsClient.Instance.AmHost)
         {
+            Main.AllPlayerControls.DoIf(x => x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM));
+            
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            Utils.NumSnapToCallsThisRound = aapc.Length;
+            
             if (Main.NormalOptions.MapId != 4)
             {
                 foreach (PlayerControl pc in aapc)

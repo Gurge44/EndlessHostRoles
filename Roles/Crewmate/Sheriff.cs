@@ -104,7 +104,7 @@ public class Sheriff : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? KillCooldown.GetFloat() : 15f;
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

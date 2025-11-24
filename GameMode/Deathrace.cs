@@ -54,9 +54,9 @@ public static class Deathrace
 
     public static readonly Dictionary<int, Vector2> CoordinateChecks = new()
     {
-        [100] = new Vector2(-22f, 1.82f), // Left side of Cafeteria <-> Splash Zone passthrough
-        [101] = new Vector2(-8.15f, 19.12f), // Upper Deck: Central <-> Cafeteria hallway
-        [102] = new Vector2(10.43f, 14.74f) // Upper Deck: Lobby <-> Central hallway, right side
+        [100] = new Vector2(-22f, 1.82f), // (Fungle) Left side of Cafeteria <-> Splash Zone passthrough
+        [101] = new Vector2(-8.15f, 19.12f), // (Submerged) Upper Deck: Central <-> Cafeteria hallway
+        [102] = new Vector2(10.43f, 14.74f) // (Submerged) Upper Deck: Lobby <-> Central hallway, right side
     };
 
     public static readonly Dictionary<MapNames, Dictionary<SystemTypes, List<int>>> UsableVentIDs = new()

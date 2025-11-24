@@ -241,6 +241,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 }
                 case CustomGameMode.Standard:
                 {
+                    President.OnAnyoneApplyGameOptions(opt);
+            
                     foreach (CustomRoles subRole in state.SubRoles)
                     {
                         if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
@@ -466,7 +468,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             Farmer.OnAnyoneApplyGameOptions(opt, player);
             Siren.ApplyGameOptionsForOthers(opt, player.PlayerId);
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
-            President.OnAnyoneApplyGameOptions(opt);
             Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Curser.OnAnyoneApplyGameOptions(opt, player.PlayerId);

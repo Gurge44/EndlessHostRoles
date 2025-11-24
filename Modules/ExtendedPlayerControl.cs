@@ -323,33 +323,10 @@ internal static class ExtendedPlayerControl
         
         pc.Exiled();
         Main.PlayerStates[pc.PlayerId].SetDead();
-
-        CustomRpcSender.Create("Temporary Death", SendOption.Reliable)
-            .AutoStartRpc(pc.NetId, RpcCalls.Exiled)
-            .EndRpc()
-            .SendMessage();
-
-        pc.SyncSettings();
-
-        if (!pc.AmOwner)
-        {
-            var sender = CustomRpcSender.Create("Temporary Death (2)", SendOption.Reliable);
-            sender.StartMessage(pc.OwnerId);
-            sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                .Write((ushort)RoleTypes.GuardianAngel)
-                .Write(true)
-                .EndRpc();
-            sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
-                .WriteNetObject(pc)
-                .Write(0)
-                .EndRpc();
-            sender.SendMessage();
-        }
-        else
-        {
-            pc.SetRole(RoleTypes.GuardianAngel);
-            pc.Data.Role.SetCooldown();
-        }
+        
+        pc.RpcSetRoleGlobal(RoleTypes.GuardianAngel);
+        LateTask.New(pc.SyncSettings, 0.1f, log: false);
+        LateTask.New(pc.RpcResetAbilityCooldown, 0.2f, log: false);
     }
 
     // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy

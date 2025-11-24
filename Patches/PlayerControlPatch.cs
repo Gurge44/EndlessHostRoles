@@ -1997,9 +1997,6 @@ internal static class FixedUpdatePatch
             if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)))
                 realName = GetString("DevouredName");
 
-            // Camouflage
-            if (Camouflage.IsCamouflage) realName = $"<size=0>{realName}</size> ";
-
             if (!self && Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                 realName = EmptyMessage;
 
@@ -2017,6 +2014,9 @@ internal static class FixedUpdatePatch
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
             target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
+
+            // Camouflage
+            if (Camouflage.IsCamouflage) target.cosmetics.nameText.text = $"<size=0>{target.cosmetics.nameText.text}</size>";
         }
     }
 
