@@ -128,7 +128,7 @@ public class Gangster : RoleBase
                    pc.Is(CustomRoles.Swapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
                    pc.Is(CustomRoles.Snitch) ||
-                   pc.Is(CustomRoles.LazyGuy) ||
+                   pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Lazy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.Egoist)

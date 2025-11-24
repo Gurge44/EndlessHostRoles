@@ -55,7 +55,7 @@ internal class Butcher : RoleBase
                 if (!ButcherDeadPlayerList.Contains(target.PlayerId))
                     ButcherDeadPlayerList.Add(target.PlayerId);
 
-                if (target.Is(CustomRoles.Avanger))
+                if (target.Is(CustomRoles.Avenger))
                 {
                     target.Suicide(PlayerState.DeathReason.Dismembered, killer);
 

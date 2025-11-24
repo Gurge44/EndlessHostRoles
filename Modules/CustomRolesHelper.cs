@@ -86,7 +86,7 @@ internal static class CustomRolesHelper
             CustomRoles.Chameleon => new Swooper(),
             CustomRoles.BloodKnight => new Wildling(),
             CustomRoles.HexMaster => new Witch(),
-            CustomRoles.Pulse => new Greedier(),
+            CustomRoles.Pulse => new Greedy(),
             CustomRoles.Jinx => new CursedWolf(),
             CustomRoles.Juggernaut => new Arrogance(),
             CustomRoles.Medusa => new Cleaner(),
@@ -207,7 +207,7 @@ internal static class CustomRolesHelper
             CustomRoles.Cleanser => CustomRoles.Crewmate,
             CustomRoles.Miner => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Psychic => CustomRoles.Crewmate,
-            CustomRoles.LazyGuy => CustomRoles.Crewmate,
+            CustomRoles.Needy => CustomRoles.Crewmate,
             CustomRoles.Twister => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.SuperStar => CustomRoles.Crewmate,
             CustomRoles.Anonymous => CustomRoles.Shapeshifter,
@@ -321,7 +321,7 @@ internal static class CustomRolesHelper
             CustomRoles.FortuneTeller => CustomRoles.Crewmate,
             CustomRoles.Oracle => CustomRoles.Crewmate,
             CustomRoles.Lightning => CustomRoles.Impostor,
-            CustomRoles.Greedier => CustomRoles.Impostor,
+            CustomRoles.Greedy => CustomRoles.Impostor,
             CustomRoles.Workaholic => CustomRoles.Engineer,
             CustomRoles.Amnesiac => Amnesiac.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Speedrunner => CustomRoles.Crewmate,
@@ -347,7 +347,7 @@ internal static class CustomRolesHelper
             CustomRoles.Cherokious => CustomRoles.Engineer,
             CustomRoles.Pawn => CustomRoles.Crewmate,
             CustomRoles.Observer => CustomRoles.Crewmate,
-            CustomRoles.DovesOfNeace => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+            CustomRoles.Pacifist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Disperser => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Camouflager => CustomRoles.Shapeshifter,
             CustomRoles.Dazzler => CustomRoles.Shapeshifter,
@@ -796,7 +796,7 @@ internal static class CustomRolesHelper
             CustomRoles.Gangster or
             CustomRoles.Cleaner or
             CustomRoles.Lightning or
-            CustomRoles.Greedier or
+            CustomRoles.Greedy or
             CustomRoles.CursedWolf or
             CustomRoles.SoulCatcher or
             CustomRoles.QuickShooter or
@@ -916,7 +916,7 @@ internal static class CustomRolesHelper
             CustomRoles.FortuneTeller when FortuneTeller.CancelVote.GetBool() => true,
             CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool() => true,
             CustomRoles.Oracle when Oracle.CancelVote.GetBool() => true,
-            CustomRoles.Eraser when Eraser.CancelVote.GetBool() => true,
+            CustomRoles.Eraser when EvilEraser.CancelVote.GetBool() => true,
             CustomRoles.Tether when Tether.CancelVote.GetBool() => true,
             CustomRoles.Ricochet when Ricochet.CancelVote.GetBool() => true,
             CustomRoles.Cleanser when Cleanser.CancelVote.GetBool() => true,
@@ -1108,7 +1108,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
     {
-        return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.LazyGuy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
+        return role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
             CustomRoles.Blind when pc.Is(CustomRoles.Sensor) => false,
             CustomRoles.Composter when float.IsNaN(pc.GetAbilityUseLimit()) => false,
@@ -1138,7 +1138,7 @@ internal static class CustomRolesHelper
             CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
             CustomRoles.Mischievous when pc.Is(Team.Impostor) || (!pc.GetCustomRole().IsDesyncRole() && !pc.Is(CustomRoles.Bloodlust)) || !pc.IsNeutralKiller() || Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc) => false,
             CustomRoles.Loyal when pc.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
-            CustomRoles.Lazy when pc.Is(CustomRoles.LazyGuy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
+            CustomRoles.Lazy when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
             CustomRoles.Tiebreaker when pc.Is(CustomRoles.Dictator) => false,
             CustomRoles.Stressed when !pc.IsCrewmate() || pc.GetCustomRole().IsTasklessCrewmate() => false,
             CustomRoles.Stealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.Trapster) || pc.Is(CustomRoles.Capitalist) => false,
@@ -1159,7 +1159,7 @@ internal static class CustomRolesHelper
             CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
             CustomRoles.Mimic when pc.Is(CustomRoles.Nemesis) => false,
             CustomRoles.Rascal when !pc.IsCrewmate() => false,
-            CustomRoles.LazyGuy when pc.GetCustomRole().IsAdditionRole() => false,
+            CustomRoles.Needy when pc.GetCustomRole().IsAdditionRole() => false,
             CustomRoles.Stealer when pc.Is(CustomRoles.Vindicator) => false,
             CustomRoles.Bloodlust when !pc.GetCustomRole().IsCrewmate() || pc.GetCustomRole().IsTaskBasedCrewmate() || pc.GetCustomRole() is CustomRoles.Medic => false,
             CustomRoles.Mare when pc.Is(CustomRoles.Inhibitor) => false,
@@ -1286,7 +1286,7 @@ internal static class CustomRolesHelper
         {
             CustomRoles.Bomber when !Bomber.BomberCanKill.GetBool() => true,
             CustomRoles.Changeling when !Changeling.CanKillBeforeRoleChange.GetBool() => true,
-            CustomRoles.Eraser when Eraser.EraseMethod.GetValue() == 0 => true,
+            CustomRoles.Eraser when EvilEraser.EraseMethod.GetValue() == 0 => true,
             CustomRoles.Puppeteer when !Puppeteer.PuppeteerCanKillNormally.GetBool() => true,
             CustomRoles.Silencer when Silencer.SilenceMode.GetValue() == 0 => true,
             CustomRoles.Sniper when !Sniper.CanKillWithBullets.GetBool() => true,
@@ -1635,7 +1635,7 @@ internal static class CustomRolesHelper
             CustomRoles.Councillor => RoleOptionType.Impostor_Killing,
             CustomRoles.EvilGuesser => RoleOptionType.Impostor_Killing,
             CustomRoles.Fireworker => RoleOptionType.Impostor_Killing,
-            CustomRoles.Greedier => RoleOptionType.Impostor_Killing,
+            CustomRoles.Greedy => RoleOptionType.Impostor_Killing,
             CustomRoles.Hitman => RoleOptionType.Impostor_Killing,
             CustomRoles.Inhibitor => RoleOptionType.Impostor_Killing,
             CustomRoles.Kamikaze => RoleOptionType.Impostor_Killing,
@@ -1760,7 +1760,7 @@ internal static class CustomRolesHelper
             CustomRoles.Carrier => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Express => RoleOptionType.Crewmate_Miscellaneous,
-            CustomRoles.LazyGuy => RoleOptionType.Crewmate_Miscellaneous,
+            CustomRoles.Needy => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Journalist => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Luckey => RoleOptionType.Crewmate_Miscellaneous,
             CustomRoles.Mole => RoleOptionType.Crewmate_Miscellaneous,
@@ -1835,7 +1835,7 @@ internal static class CustomRolesHelper
             CustomRoles.Deputy => RoleOptionType.Crewmate_Support,
             CustomRoles.DonutDelivery => RoleOptionType.Crewmate_Support,
             CustomRoles.Doorjammer => RoleOptionType.Crewmate_Support,
-            CustomRoles.DovesOfNeace => RoleOptionType.Crewmate_Support,
+            CustomRoles.Pacifist => RoleOptionType.Crewmate_Support,
             CustomRoles.Electric => RoleOptionType.Crewmate_Support,
             CustomRoles.Escort => RoleOptionType.Crewmate_Support,
             CustomRoles.Farmer => RoleOptionType.Crewmate_Support,

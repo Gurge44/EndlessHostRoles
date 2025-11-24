@@ -83,7 +83,7 @@ public class Medium : RoleBase
         if (pc.IsAlive()) return false;
 
         msg = msg.ToLower().Trim();
-        if (!CheckCommand(ref msg, "通灵|ms|mediumship|medium", false)) return false;
+        if (!CheckCommand(ref msg, "通灵|ms|Medium|medium", false)) return false;
 
         bool ans;
 
@@ -93,12 +93,12 @@ public class Medium : RoleBase
             ans = true;
         else
         {
-            Utils.SendMessage(GetString("MediumshipHelp"), pc.PlayerId);
+            Utils.SendMessage(GetString("MediumHelp"), pc.PlayerId);
             return true;
         }
 
-        Utils.SendMessage(GetString("Mediumship" + (ans ? "Yes" : "No")), ContactPlayer[pc.PlayerId], Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumshipTitle")));
-        Utils.SendMessage(GetString("MediumshipDone"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumshipTitle")));
+        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), ContactPlayer[pc.PlayerId], Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")));
+        Utils.SendMessage(GetString("MediumDone"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")));
 
         ContactPlayer.Remove(pc.PlayerId);
 

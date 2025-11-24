@@ -235,7 +235,7 @@ internal static class ChatCommands
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
             new(["sw", "swap", "st", "свап", "свапнуть", "换票", "trocar"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Swap.Id")]),
             new(["compare", "cp", "cmp", "сравнить", "ср", "检查", "comparar"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
-            new(["ms", "mediumship", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
+            new(["ms", "Medium", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
             new(["rv", "месть", "отомстить", "复仇"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _) => { }, true, false, [GetString("CommandArgs.Revenge.Id")])
         ];
     }

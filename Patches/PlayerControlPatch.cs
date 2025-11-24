@@ -735,14 +735,14 @@ internal static class MurderPlayerPatch
                 Speedrun.ResetTimer(killer);
 
             if (killer.Is(CustomRoles.Stealer) && killer.PlayerId != target.PlayerId)
-                killer.Notify(string.Format(GetString("StealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.VotesPerKill.GetFloat()).ToString("0.0#####")));
+                killer.Notify(string.Format(GetString("StealerGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
             if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
                 killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
             if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
 
-            if (target.Is(CustomRoles.Avanger))
+            if (target.Is(CustomRoles.Avenger))
             {
                 PlayerControl[] pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray();
                 PlayerControl rp = pcList.RandomElement();
