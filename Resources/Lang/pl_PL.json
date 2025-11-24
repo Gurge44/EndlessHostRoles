@@ -9319,7 +9319,7 @@
   "Agitater": "Agitator",
   "AgitaterInfo": "Przekazuj innym bomby",
   "AgitaterInfoLong": "(Neutrals):\\nTwoim zadaniem jest przekazywanie bomb.\\n\\nBomby przekazujesz przyciskiem kill.\\nMozesz to zrobic tylko raz na runde.\\n\\nGracz, ktory otrzyma bombe zostanie o tym poinformowany i musi ja przekazac innej osobie, inaczej zginie na meetingu.\\n\\nJesli sprobujesz przekaza bombe Pestilence albo Veteranowi w trybie czuwania wtedy Ty zginiesz.\\nW zaleznosci od ustawien moze nie byc mozliwe oddanie bomby Agitatorowi",
-  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb coolodown",
+  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb cooldown",
   "AgitaterPassCooldown": "Bomb pass cooldown",
   "BombExplodeCooldown": "Bomb explode cooldown",
   "AgitaterPassNotify": "Bomba przekazana",
