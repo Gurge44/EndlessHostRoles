@@ -874,7 +874,7 @@ public static class Utils
             case CustomRoles.Sprayer:
             case CustomRoles.Doppelganger:
             case CustomRoles.NecroGuesser:
-            case CustomRoles.PlagueDoctor:
+            case CustomRoles.Infection:
             case CustomRoles.Thief:
             case CustomRoles.Postman:
             case CustomRoles.Dealer:
@@ -1034,11 +1034,11 @@ public static class Utils
                    (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
                    pc.Is(CustomRoles.NiceSwapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
-                   pc.Is(CustomRoles.Needy) ||
+                   pc.Is(CustomRoles.LazyGuy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
                    pc.Is(CustomRoles.Egoist) ||
-                   pc.Is(CustomRoles.DualPersonality)
+                   pc.Is(CustomRoles.Schizophrenic)
                );
     }
 
@@ -2961,7 +2961,7 @@ public static class Utils
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
                             TargetMark.Append(Deathpact.GetDeathpactMark(seer, target));
-                            TargetMark.Append(PlagueDoctor.GetMarkOthers(seer, target));
+                            TargetMark.Append(Infection.GetMarkOthers(seer, target));
 
                             End:
 
@@ -3349,7 +3349,7 @@ public static class Utils
         {
             Sniper { IsAim: true } => true,
             Centralizer { MarkedPosition: not null } => true,
-            Escapee { EscapeeLocation: null } => true,
+            Escapist { EscapistLocation: null } => true,
             Silencer when Silencer.ForSilencer.Count == 0 => true,
             _ => false
         };
@@ -3359,7 +3359,7 @@ public static class Utils
     {
         return pc.GetCustomRole() switch
         {
-            CustomRoles.Escapee => true,
+            CustomRoles.Escapist => true,
             _ => false
         };
     }
@@ -3398,7 +3398,7 @@ public static class Utils
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
             CustomRoles.Doorjammer => Doorjammer.AbilityCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
-            CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
+            CustomRoles.Paranoid => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Tree => 5 + (includeDuration ? Tree.FallDelay.GetInt() + Tree.FallStunDuration.GetInt() : 0),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
@@ -3430,7 +3430,7 @@ public static class Utils
             CustomRoles.Nuker => Bomber.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
             CustomRoles.Miner => Miner.MinerSSCD.GetInt(),
-            CustomRoles.Escapee => Escapee.EscapeeSSCD.GetInt(),
+            CustomRoles.Escapist => Escapist.EscapistSSCD.GetInt(),
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Trapster => Trapster.AbilityCooldown.GetInt(),
@@ -3675,8 +3675,8 @@ public static class Utils
                 case CustomRoles.Lawyer when Lawyer.Target.Remove(target.PlayerId):
                     Lawyer.SendRPC(target.PlayerId);
                     break;
-                case CustomRoles.PlagueDoctor when !disconnect && !onMeeting:
-                    PlagueDoctor.OnPDdeath(targetRealKiller, target);
+                case CustomRoles.Infection when !disconnect && !onMeeting:
+                    Infection.OnPDdeath(targetRealKiller, target);
                     break;
                 case CustomRoles.SuperStar when !disconnect:
                     if (onMeeting)

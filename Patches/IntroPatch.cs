@@ -764,7 +764,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Detective
                     or CustomRoles.DetectiveEHR
                     or CustomRoles.Analyst
-                    or CustomRoles.Divinator
+                    or CustomRoles.FortuneTeller
                     or CustomRoles.Enigma
                     or CustomRoles.Investigator
                     or CustomRoles.Forensic

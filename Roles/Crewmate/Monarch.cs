@@ -72,7 +72,7 @@ public class Monarch : RoleBase
     {
         if (killer.GetAbilityUseLimit() < 1) return false;
 
-        if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.TicketsStealer))
+        if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.Stealer))
         {
             killer.RpcRemoveAbilityUse();
             target.RpcSetCustomRole(CustomRoles.Knighted);

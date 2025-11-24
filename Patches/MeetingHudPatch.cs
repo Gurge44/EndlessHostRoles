@@ -166,7 +166,7 @@ internal static class CheckForEndVotingPatch
                 if (ps.VotedFor == 254 && !voter.Data.IsDead && voter.Is(CustomRoles.Compelled))
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Divinator) && Divinator.HideVote.GetBool()) continue;
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.FortuneTeller) && FortuneTeller.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && Eraser.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.NiceEraser) && NiceEraser.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Scout) && Scout.HideVote.GetBool()) continue;
@@ -200,15 +200,15 @@ internal static class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool()) Loop.Times(Options.VindicatorAdditionalVote.GetInt(), _ => AddVote());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) AddVote();
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality) && Options.DualVotes.GetBool())
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Schizophrenic) && Options.DualVotes.GetBool())
                 {
                     int count = statesList.Count(x => x.VoterId == ps.TargetPlayerId && x.VotedForId == ps.VotedFor);
                     Loop.Times(count, _ => AddVote());
                 }
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer))
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Stealer))
                 {
-                    var count = (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
+                    var count = (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.VotesPerKill.GetFloat());
                     Loop.Times(count, _ => AddVote());
                 }
 
@@ -276,7 +276,7 @@ internal static class CheckForEndVotingPatch
 
                 foreach (KeyValuePair<byte, int> data in votingData.Where(x => x.Key < playerNum && x.Value == max))
                 {
-                    if (Main.BrakarVoteFor.Contains(data.Key))
+                    if (Main.TiebreakerVoteFor.Contains(data.Key))
                     {
                         if (target != byte.MaxValue)
                         {
@@ -290,7 +290,7 @@ internal static class CheckForEndVotingPatch
 
                 if (target != byte.MaxValue)
                 {
-                    Logger.Info("Tiebreaker overrides evicted players", "Brakar Vote");
+                    Logger.Info("Tiebreaker overrides evicted players", "Tiebreaker Vote");
                     exiledPlayer = Utils.GetPlayerInfoById(target);
                     tie = false;
                     braked = true;
@@ -477,7 +477,7 @@ internal static class CheckForEndVotingPatch
             }
         }
 
-        if (tiebreaker) name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
+        if (tiebreaker) name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tiebreaker), GetString("Tiebreaker"))})";
 
         if (!decidedWinner)
         {
@@ -596,7 +596,7 @@ internal static class ExtendedMeetingHud
     {
         Logger.Info("===The vote counting process begins===", "Vote");
         Dictionary<byte, int> dic = [];
-        Main.BrakarVoteFor = [];
+        Main.TiebreakerVoteFor = [];
         Collector.CollectorVoteFor = [];
 
         foreach (PlayerVoteArea ps in __instance.playerStates)
@@ -614,10 +614,10 @@ internal static class ExtendedMeetingHud
                     if (target.Is(CustomRoles.Zombie) || (target.Is(CustomRoles.Shifter) && !Shifter.CanBeVoted.GetBool()))
                         voteNum = 0;
 
-                    if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Brakar))
+                    if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Tiebreaker))
                     {
-                        if (!Main.BrakarVoteFor.Contains(target.PlayerId))
-                            Main.BrakarVoteFor.Add(target.PlayerId);
+                        if (!Main.TiebreakerVoteFor.Contains(target.PlayerId))
+                            Main.TiebreakerVoteFor.Add(target.PlayerId);
                     }
 
                     Collector.CollectorVotes(target, ps);
@@ -630,8 +630,8 @@ internal static class ExtendedMeetingHud
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool()) voteNum = 0;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) voteNum = 0;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator)) voteNum += Options.VindicatorAdditionalVote.GetInt();
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality) && Options.DualVotes.GetBool()) voteNum += voteNum;
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer)) voteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Schizophrenic) && Options.DualVotes.GetBool()) voteNum += voteNum;
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Stealer)) voteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.VotesPerKill.GetFloat());
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) voteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
@@ -1104,7 +1104,7 @@ internal static class MeetingHudStartPatch
             sb.Append(Follower.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
-            sb.Append(PlagueDoctor.GetMarkOthers(seer, target));
+            sb.Append(Infection.GetMarkOthers(seer, target));
             sb.Append(Gaslighter.GetMark(seer, target, true));
 
             pva.NameText.text += sb.ToString();

@@ -2,12 +2,12 @@
 
 namespace EHR.AddOns.Common;
 
-internal class Unreportable : IAddon
+internal class Disregarded : IAddon
 {
     public AddonTypes Type => AddonTypes.Harmful;
 
     public void SetupCustomOption()
     {
-        SetupAdtRoleOptions(15300, CustomRoles.Unreportable, canSetNum: true, teamSpawnOptions: true);
+        SetupAdtRoleOptions(15300, CustomRoles.Disregarded, canSetNum: true, teamSpawnOptions: true);
     }
 }

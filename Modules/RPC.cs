@@ -94,7 +94,7 @@ public enum CustomRPC
 
     SyncChronomancer,
     PenguinSync,
-    SyncPlagueDoctor,
+    SyncInfection,
     SetAlchemistPotion,
     SetRicochetTarget,
     SetTetherTarget,
@@ -946,9 +946,9 @@ internal static class RPCHandlerPatch
                     EvilTracker.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SyncPlagueDoctor:
+                case CustomRPC.SyncInfection:
                 {
-                    PlagueDoctor.ReceiveRPC(reader);
+                    Infection.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.PenguinSync:

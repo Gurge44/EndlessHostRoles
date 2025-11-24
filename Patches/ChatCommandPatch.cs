@@ -1392,7 +1392,7 @@ internal static class ChatCommands
         DraftResult = [];
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
-        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToList();
+        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM).ToList();
 
         if (allRoles.Count < allPlayerIds.Length)
         {

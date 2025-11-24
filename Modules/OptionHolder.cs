@@ -355,8 +355,8 @@ public static class Options
     public static OptionItem WitnessTime;
     public static OptionItem WitnessUsePet;
     public static OptionItem DQNumOfKillsNeeded;
-    public static OptionItem ParanoiaNumOfUseButton;
-    public static OptionItem ParanoiaVentCooldown;
+    public static OptionItem ParanoidNumOfUseButton;
+    public static OptionItem ParanoidVentCooldown;
     public static OptionItem ImpKnowSuperStarDead;
     public static OptionItem NeutralKnowSuperStarDead;
     public static OptionItem CovenKnowSuperStarDead;
@@ -831,7 +831,7 @@ public static class Options
     public static OptionItem FlashmanSpeed;
     public static OptionItem GiantSpeed;
     public static OptionItem ImpEgoistVisibalToAllies;
-    public static OptionItem TicketsPerKill;
+    public static OptionItem VotesPerKill;
     public static OptionItem DualVotes;
     public static OptionItem ImpCanBeLoyal;
     public static OptionItem CrewCanBeLoyal;
@@ -979,7 +979,7 @@ public static class Options
 
             var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
                 if (x == CustomRoles.DoubleAgent) return 2;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;

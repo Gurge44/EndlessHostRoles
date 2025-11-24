@@ -68,7 +68,7 @@ public class Altruist : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (!RevivingMode || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Unreportable)) return true;
+        if (!RevivingMode || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Disregarded)) return true;
 
         PlayerState state = Main.PlayerStates[reporter.PlayerId];
         state.deathReason = PlayerState.DeathReason.Sacrifice;
