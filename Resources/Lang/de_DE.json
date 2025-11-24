@@ -2059,7 +2059,7 @@
   "Gaslighter.Shield": "In dieser Runde kannst du <#00ff97>Spieler mit Schilden schützen</color>",
   "Technician": "Techniker",
   "TechnicianInfo": "Repariere Sabotagen",
-  "TechnicianInfoLong": "(Neutrals):\\nAs the Technician, you must fix a certain number of sabotages to win. Depending on settings, you may be a able to vent, and you may win alone or with the winning team if your objective is completed. You may get fewer or more points for certain sabotages.",
+  "TechnicianInfoLong": "(Neutral):\\nAls Techniker musst du eine bestimmte Anzahl an Sabotagen reparieren, um zu gewinnen.\\nJe nach Einstellungen kannst du vielleicht Lüftungsschächte benutzen, und du kannst entweder allein gewinnen oder mit dem Siegerteam, wenn du dein Ziel erfüllt hast.\\nFür manche Sabotagen bekommst du mehr oder weniger Punkte.",
   "Technician.WinsAlone": "Gewinnt allein",
   "Technician.RequiredPoints": "Benötigte Punkte um zu gewinnen",
   "Technician.PointGain.Electrical": "Erhält Punkte für das Reparieren der Lichter",
