@@ -9319,7 +9319,7 @@
   "Agitater": "Demolidor",
   "AgitaterInfo": "Passe a bomba para os outros",
   "AgitaterInfoLong": "(Neutros):\\nComo Demolidor, sua premissa é basicamente Batata Quente.\\n\\nUse o botão de matar em um jogador para passar a bomba.\\nIsso só pode ser feito uma vez por rodada.\\n\\nO jogador que receber a bomba será notificado quando receber essa bomba, a qual ele deve passar para outro jogador chegando perto de um jogador.\\n\\nQuando uma reunião é chamada, o jogador com a bomba morre.\\n\\nCaso tentar passar para uma Peste, ou Veterano em alerta, o jogador com a bomba morre ao inves disso.\\nOpcionalmente, o Demolidor não poderá receber a bomba.",
-  "AgitaterBombCooldown": "Recarga da bomba do <color=#F4A460>Demolidor</color>",
+  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb cooldown",
   "AgitaterPassCooldown": "Recarga para passar a bomba",
   "BombExplodeCooldown": "Tempo para a bomba explodir",
   "AgitaterPassNotify": "Bomba foi passada",
