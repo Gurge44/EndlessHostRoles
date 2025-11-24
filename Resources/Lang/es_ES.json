@@ -9319,7 +9319,7 @@
   "Agitater": "Agitador",
   "AgitaterInfo": "Pasa una Bomba a otros",
   "AgitaterInfoLong": "(Neutrales):\\nComo el Agitador, tu premisa es esencialmente Papa Caliente.\\n\\nUsa tu botón de matar en un jugador para pasar la bomba.\\nEsto solo puede ser hecho una vez por ronda.\\n\\nEl jugador que recibe la bomba será notificado cuando reciba dicha bomba, la cual deberá debe pasar a otro jugador acercándose a un jugador.\\n\\nCuando una reunión es llamada, el jugador con la bomba muere.\\n\\nSi se trata de pasar a Pestilencia o a Veterano alerta, el jugador con la bomba muere en su lugar.\\nOpcionalmente, el Agitador no puede recibir la bomba.",
-  "AgitaterBombCooldown": "Tiempo de reutilización bomba del <color=#F4A460>Agitador</color>",
+  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb cooldown",
   "AgitaterPassCooldown": "Tiempo de reutilización pasar bomba",
   "BombExplodeCooldown": "Bomb explode cooldown",
   "AgitaterPassNotify": "Bomba pasada exitosamente",
