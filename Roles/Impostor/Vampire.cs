@@ -152,7 +152,7 @@ public class Vampire : RoleBase
 
             if (!meeting && vampire.IsAlive())
             {
-                if (target.Is(CustomRoles.Trapper)) vampire.TrapperKilled(target);
+                if (target.Is(CustomRoles.Beartrap)) vampire.BeartrapKilled(target);
                 vampire.Notify(GetString("VampireTargetDead"));
             }
         }

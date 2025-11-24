@@ -297,10 +297,10 @@ public class Romantic : RoleBase
 
             Logger.Info($"Converting Romantic Partner Died ({Partner.GetNameWithRole()}) => Romantic becomes their ally ({RomanticPC.GetNameWithRole()})", "Romantic");
         }
-        else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins the imp team as Refugee
+        else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins the imp team as Renegade
         {
-            Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Refugee", "Romantic");
-            RomanticPC.RpcSetCustomRole(CustomRoles.Refugee);
+            Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Renegade", "Romantic");
+            RomanticPC.RpcSetCustomRole(CustomRoles.Renegade);
         }
         else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.GetDYRole() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
         {

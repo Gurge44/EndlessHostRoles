@@ -710,7 +710,7 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Astral or
                     CustomRoles.Beacon or
                     CustomRoles.DovesOfNeace or
-                    CustomRoles.Mediumshiper or
+                    CustomRoles.Medium or
                     CustomRoles.Observer or
                     CustomRoles.Spiritcaller or
                     CustomRoles.Spiritualist or

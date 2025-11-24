@@ -467,9 +467,9 @@ internal static class CheckMurderPatch
             return false;
         }
 
-        if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor))
+        if (killer.Is(CustomRoles.Renegade) && target.Is(CustomRoleTypes.Impostor))
         {
-            Notify("RefugeeKillImpostor");
+            Notify("RenegadeKillImpostor");
             return false;
         }
 
@@ -695,7 +695,7 @@ internal static class MurderPlayerPatch
         {
             Postman.CheckAndResetTargets(target, true);
 
-            if (target.Is(CustomRoles.Trapper) && killer != target) killer.TrapperKilled(target);
+            if (target.Is(CustomRoles.Beartrap) && killer != target) killer.BeartrapKilled(target);
 
             if (target.Is(CustomRoles.Stained)) Stained.OnDeath(target, killer);
 
@@ -1308,7 +1308,7 @@ internal static class ReportDeadBodyPatch
         try
         {
             Enigma.OnReportDeadBody(player, target);
-            Mediumshiper.OnReportDeadBody(target);
+            Medium.OnReportDeadBody(target);
             Mortician.OnReportDeadBody(player, target);
             Spiritualist.OnReportDeadBody(target);
 
@@ -1592,7 +1592,7 @@ internal static class FixedUpdatePatch
 
                     var state = Main.PlayerStates[player.PlayerId];
                     state.SubRoles
-                        .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Trapper or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
+                        .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Beartrap or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
                         .ForEach(x => state.RemoveSubRole(x));
 
                     if (!PlagueBearer.PestilenceList.Contains(playerId))

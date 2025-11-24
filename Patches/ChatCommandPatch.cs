@@ -394,7 +394,7 @@ internal static class ChatCommands
             if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Inspector.InspectorCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Medium.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Nemesis.NemesisMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
         }
 
@@ -3604,7 +3604,7 @@ internal static class ChatCommands
                 return;
             }
 
-            if (Mediumshiper.MsMsg(player, text) || Nemesis.NemesisMsgCheck(player, text))
+            if (Medium.MsMsg(player, text) || Nemesis.NemesisMsgCheck(player, text))
             {
                 LastSentCommand[player.PlayerId] = now;
                 return;

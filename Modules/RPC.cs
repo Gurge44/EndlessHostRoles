@@ -799,7 +799,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.RpcPassBomb:
                 {
-                    Agitater.ReceiveRPC(reader);
+                    Agitator.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.DoSpell:
