@@ -9319,7 +9319,7 @@
   "Agitater": "アジテーター",
   "AgitaterInfo": "他人に爆弾を渡そう",
   "AgitaterInfoLong": "(<#ff1919>殺害する</color> <#ffab1b>ニュートラル</color>):\\n<size=65%>アジテーターとして、あなたの前提は 本質的に <#e8cd46>Hot Potato</color>です。\\n爆弾を渡すのに 1人のプレイヤーに あなたのキルボタンを使用します。\\nこれは ラウンドごとに 1度のみ 行うことができます。\\n\\n1人のプレイヤーに近づくことにより 他のプレイヤーに それを渡す必要があり、その人が その爆弾を受け取ったとき 爆弾を受け取ったプレイヤーに 通知されます。\\n\\n会議が呼び出されたとき、爆弾のプレイヤーは 死亡します。\\n\\nもし <#343136>ペスティレンス</color> または 警戒の<#a77738>ベテラン</color>に 渡すのを試みたとき、爆弾のプレイヤーが 代わりに死亡します。\\nオプション次第で、アジテーターは 爆弾を受け取ることができません。</size>",
-  "AgitaterBombCooldown": "<color=#F4A460>アジテーター</color>の爆弾のクールダウン",
+  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb cooldown",
   "AgitaterPassCooldown": "爆弾の渡すクールダウン",
   "BombExplodeCooldown": "爆弾の爆発のクールダウン",
   "AgitaterPassNotify": "爆弾は 正常に渡された",
