@@ -138,7 +138,7 @@ public class Hater : RoleBase
             CustomRoles.Cultist or
             CustomRoles.Deathknight or
             CustomRoles.Necromancer or
-            CustomRoles.Refugee or
+            CustomRoles.Renegade or
             CustomRoles.Romantic or
             CustomRoles.RuthlessRomantic or
             CustomRoles.VengefulRomantic or

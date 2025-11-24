@@ -97,7 +97,7 @@ public enum CustomRoles
     Psychopath,
     Puppeteer,
     QuickShooter,
-    Refugee,
+    Renegade,
     RiftMaker,
     Saboteur,
     Sapper,
@@ -226,7 +226,7 @@ public enum CustomRoles
     Mayor,
     Mechanic,
     Medic,
-    Mediumshiper,
+    Medium,
     Merchant,
     Telecommunication,
     Mole,
@@ -288,7 +288,7 @@ public enum CustomRoles
 
     // Neutrals
 
-    Agitater,
+    Agitator,
     Amnesiac,
     Amogus,
     Arsonist,
@@ -498,7 +498,7 @@ public enum CustomRoles
     Avanger,
     Bait,
     BananaMan,
-    Trapper, // Beartrap
+    Beartrap,
     Bewilder,
     Blind,
     Blocked,

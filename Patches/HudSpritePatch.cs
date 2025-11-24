@@ -244,7 +244,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("Camo");
                     break;
                 }
-                case CustomRoles.Agitater:
+                case CustomRoles.Agitator:
                 case CustomRoles.Potato:
                 {
                     newKillButton = CustomButton.Get("bombshell");

@@ -931,7 +931,7 @@ internal static class ExtendedPlayerControl
             else
                 player.AddAbilityCD((int)Math.Round(time));
 
-            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return;
+            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Renegade and not CustomRoles.Sidekick) return;
         }
 
         if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return;
@@ -1426,7 +1426,7 @@ internal static class ExtendedPlayerControl
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
             CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
-            CustomGameMode.Standard when pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee) => true,
+            CustomGameMode.Standard when pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Renegade) => true,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out PlayerState state) && state.Role.CanUseImpostorVentButton(pc)
         };
@@ -1769,9 +1769,9 @@ internal static class ExtendedPlayerControl
         if (sync) player.SyncSettings();
     }
 
-    public static void TrapperKilled(this PlayerControl killer, PlayerControl target)
+    public static void BeartrapKilled(this PlayerControl killer, PlayerControl target)
     {
-        Logger.Info($"{target?.Data?.PlayerName} was Trapper", "Trapper");
+        Logger.Info($"{target?.Data?.PlayerName} was Beartrap", "Beartrap");
         float tmpSpeed = Main.AllPlayerSpeed[killer.PlayerId];
         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
         ReportDeadBodyPatch.CanReport[killer.PlayerId] = false;
@@ -1783,7 +1783,7 @@ internal static class ExtendedPlayerControl
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
             killer.MarkDirtySettings();
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
-        }, Options.TrapperBlockMoveTime.GetFloat(), "Trapper BlockMove");
+        }, Options.BeartrapBlockMoveTime.GetFloat(), "Beartrap BlockMove");
 
         if (killer.AmOwner)
             Achievements.Type.TooCold.CompleteAfterGameEnd();
@@ -1873,7 +1873,7 @@ internal static class ExtendedPlayerControl
 
         if (target == null) target = killer;
 
-        CheckAndSpawnAdditionalRefugee(target.Data);
+        CheckAndSpawnAdditionalRenegade(target.Data);
 
         if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
 
@@ -1894,7 +1894,7 @@ internal static class ExtendedPlayerControl
         if (realKiller == null) realKiller = killer;
 
         if (target.PlayerId == Godfather.GodfatherTarget)
-            realKiller.RpcSetCustomRole(CustomRoles.Refugee);
+            realKiller.RpcSetCustomRole(CustomRoles.Renegade);
 
         if (target.Is(CustomRoles.Jackal)) Jackal.Instances.Do(x => x.PromoteSidekick());
 

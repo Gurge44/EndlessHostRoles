@@ -335,7 +335,7 @@ public static class Options
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
     public static OptionItem DoctorTaskCompletedBatteryCharge;
-    public static OptionItem TrapperBlockMoveTime;
+    public static OptionItem BeartrapBlockMoveTime;
     public static OptionItem InnocentCanWinByImp;
     public static OptionItem BaitNotification;
     public static OptionItem DoctorVisibleToEveryone;
@@ -376,7 +376,7 @@ public static class Options
     public static OptionItem GuesserNumRestrictions;
     public static Dictionary<Team, (OptionItem MinSetting, OptionItem MaxSetting)> NumGuessersOnEachTeam = [];
 
-    public static OptionItem RefugeeKillCD;
+    public static OptionItem RenegadeKillCD;
 
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
@@ -652,9 +652,9 @@ public static class Options
     public static OptionItem OverrideOtherCrewBasedRoles;
     public static OptionItem WhackAMole;
 
-    public static OptionItem SpawnAdditionalRefugeeOnImpsDead;
-    public static OptionItem SpawnAdditionalRefugeeWhenNKAlive;
-    public static OptionItem SpawnAdditionalRefugeeMinAlivePlayers;
+    public static OptionItem SpawnAdditionalRenegadeOnImpsDead;
+    public static OptionItem SpawnAdditionalRenegadeWhenNKAlive;
+    public static OptionItem SpawnAdditionalRenegadeMinAlivePlayers;
 
     public static OptionItem AprilFoolsMode;
 
@@ -1410,7 +1410,7 @@ public static class Options
         MadmateHasImpostorVision = new BooleanOptionItem(156, "MadmateHasImpostorVision", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard);
 
-        RefugeeKillCD = new FloatOptionItem(157, "RefugeeKillCD", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
+        RenegadeKillCD = new FloatOptionItem(157, "RenegadeKillCD", new(0f, 180f, 0.5f), 25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -2456,20 +2456,20 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(EveryoneCanVent);
 
-        SpawnAdditionalRefugeeOnImpsDead = new BooleanOptionItem(23857, "SpawnAdditionalRefugeeOnImpsDead", false, TabGroup.TaskSettings)
+        SpawnAdditionalRenegadeOnImpsDead = new BooleanOptionItem(23857, "SpawnAdditionalRenegadeOnImpsDead", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.magenta)
             .SetHeader(true);
 
-        SpawnAdditionalRefugeeWhenNKAlive = new BooleanOptionItem(23858, "SpawnAdditionalRefugeeWhenNKAlive", false, TabGroup.TaskSettings)
+        SpawnAdditionalRenegadeWhenNKAlive = new BooleanOptionItem(23858, "SpawnAdditionalRenegadeWhenNKAlive", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.magenta)
-            .SetParent(SpawnAdditionalRefugeeOnImpsDead);
+            .SetParent(SpawnAdditionalRenegadeOnImpsDead);
 
-        SpawnAdditionalRefugeeMinAlivePlayers = new IntegerOptionItem(23859, "SpawnAdditionalRefugeeMinAlivePlayers", new(1, 14, 1), 7, TabGroup.TaskSettings)
+        SpawnAdditionalRenegadeMinAlivePlayers = new IntegerOptionItem(23859, "SpawnAdditionalRenegadeMinAlivePlayers", new(1, 14, 1), 7, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(Color.magenta)
-            .SetParent(SpawnAdditionalRefugeeOnImpsDead);
+            .SetParent(SpawnAdditionalRenegadeOnImpsDead);
 
         AprilFoolsMode = new BooleanOptionItem(23860, "AprilFoolsMode", Main.IsAprilFools, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)

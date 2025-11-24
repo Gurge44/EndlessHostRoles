@@ -60,7 +60,7 @@ public class Thief : RoleBase
             
             if (target.Is(CustomRoles.Trickster)) role = CustomRoles.DoubleAgent;
             else if (target.Is(CustomRoles.Maverick)) role = CustomRoles.SerialKiller;
-            else if (target.IsMadmate()) role = CustomRoles.Refugee;
+            else if (target.IsMadmate()) role = CustomRoles.Renegade;
             else if (target.IsImpostor() || target.IsNeutralKiller()) role = target.GetCustomRole();
             else if (CanStealCovenRoles.GetBool() && target.Is(CustomRoleTypes.Coven)) role = CustomRoles.CovenMember;
     

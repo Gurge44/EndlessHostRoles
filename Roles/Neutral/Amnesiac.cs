@@ -186,14 +186,14 @@ public class Amnesiac : RoleBase
                 amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
                 break;
             case CustomRoles.LovingImpostor:
-                RememberedRole = CustomRoles.Refugee;
+                RememberedRole = CustomRoles.Renegade;
                 amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                 break;
             default:
                 switch (target.GetTeam())
                 {
                     case Team.Impostor:
-                        RememberedRole = SingleRoles.Contains(targetRole) ? CustomRoles.Refugee : targetRole;
+                        RememberedRole = SingleRoles.Contains(targetRole) ? CustomRoles.Renegade : targetRole;
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                         break;
                     case Team.Crewmate:

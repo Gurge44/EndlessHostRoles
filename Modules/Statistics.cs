@@ -334,7 +334,7 @@ public static class Statistics
 
                 switch (killerState.MainRole)
                 {
-                    case CustomRoles.Traitor when targetState.MainRole == CustomRoles.Refugee:
+                    case CustomRoles.Traitor when targetState.MainRole == CustomRoles.Renegade:
                         Achievements.Type.TheRealTraitor.CompleteAfterGameEnd();
                         break;
                     case CustomRoles.Bargainer when targetState.MainRole == CustomRoles.Merchant:

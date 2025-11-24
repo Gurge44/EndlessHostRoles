@@ -139,8 +139,8 @@ public class PlayerState(byte playerId)
 
         SubRoles.ForEach(SetAddonCountTypes);
 
-        if (!Player.HasKillButton() && role == CustomRoles.Refugee)
-            Player.RpcChangeRoleBasis(CustomRoles.Refugee);
+        if (!Player.HasKillButton() && role == CustomRoles.Renegade)
+            Player.RpcChangeRoleBasis(CustomRoles.Renegade);
 
         Role = role.GetRoleClass();
 
@@ -182,7 +182,7 @@ public class PlayerState(byte playerId)
             if (!role.Is(Team.Impostor) && !(role == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                 SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
 
-            if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee)
+            if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade)
                 SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
 
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
@@ -389,7 +389,7 @@ public class PlayerState(byte playerId)
                 deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason);
-            Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
+            Utils.CheckAndSpawnAdditionalRenegade(Utils.GetPlayerInfoById(PlayerId));
         }
     }
 

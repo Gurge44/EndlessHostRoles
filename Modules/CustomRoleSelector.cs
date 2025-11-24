@@ -116,7 +116,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.RuthlessRomantic:
                 case CustomRoles.Deathknight:
                 case CustomRoles.Convict:
-                case CustomRoles.Refugee:
+                case CustomRoles.Renegade:
                 case CustomRoles.CovenMember:
                 case CustomRoles.CovenLeader:
                 case CustomRoles.Death:

@@ -36,7 +36,7 @@ internal class SchrodingersCat : RoleBase
     {
         CustomRoles killerRole = killer.GetCustomRole();
 
-        if (!StealsExactImpostorRole.GetBool() && (killerRole.IsImpostor() || killerRole.IsMadmate())) killerRole = CustomRoles.Refugee;
+        if (!StealsExactImpostorRole.GetBool() && (killerRole.IsImpostor() || killerRole.IsMadmate())) killerRole = CustomRoles.Renegade;
         if (killerRole == CustomRoles.Jackal) killerRole = CustomRoles.Sidekick;
         if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
