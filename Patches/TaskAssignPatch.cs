@@ -187,11 +187,11 @@ internal static class RpcSetTasksPatch
         // Workhorse task assignment
         if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, numLongTasks, numShortTasks) = Workhorse.TaskData;
 
-        // Capitalism is going to harm people~
-        if (Capitalism.CapitalismAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
+        // Capitalist is going to harm people~
+        if (Capitalist.CapitalistAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
         {
             numShortTasks += extraTasksNum;
-            Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
+            Capitalist.CapitalistAssignTask.Remove(pc.PlayerId);
         }
 
         if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks

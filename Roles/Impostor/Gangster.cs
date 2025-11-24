@@ -125,7 +125,7 @@ public class Gangster : RoleBase
                    (pc.Is(CustomRoles.Marshall) && !MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Investigator) && !InvestigatorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.President) && !PresidentCanBeMadmate.GetBool()) ||
-                   pc.Is(CustomRoles.NiceSwapper) ||
+                   pc.Is(CustomRoles.Swapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
                    pc.Is(CustomRoles.Snitch) ||
                    pc.Is(CustomRoles.LazyGuy) ||

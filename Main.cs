@@ -503,7 +503,7 @@ public class Main : BasePlugin
                 { CustomRoles.Deputy, "#df9026" },
                 { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
-                { CustomRoles.NiceSwapper, "#922348" },
+                { CustomRoles.Swapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
                 { CustomRoles.Guardian, "#2E8B57" },
                 { CustomRoles.Addict, "#008000" },

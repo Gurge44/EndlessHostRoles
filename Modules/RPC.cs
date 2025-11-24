@@ -123,7 +123,7 @@ public enum CustomRPC
     SetDoppelgangerStealLimit,
     SetJailorExeLimit,
     SetWwTimer,
-    SetNiceSwapperVotes,
+    SetSwapperVotes,
     Judge,
     Guess,
     MeetingKill,
@@ -247,7 +247,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -1217,9 +1217,9 @@ internal static class RPCHandlerPatch
                 }
 
                     break;
-                case CustomRPC.SetNiceSwapperVotes:
+                case CustomRPC.SetSwapperVotes:
                 {
-                    NiceSwapper.ReceiveRPC(reader, __instance);
+                    Swapper.ReceiveRPC(reader, __instance);
                     break;
                 }
                 case CustomRPC.SetTrackerTarget:

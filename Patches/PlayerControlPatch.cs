@@ -1034,9 +1034,9 @@ internal static class ReportDeadBodyPatch
                     return false;
                 }
 
-                if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool())
+                if (__instance.Is(CustomRoles.Swapper) && !Swapper.CanStartMeeting.GetBool())
                 {
-                    Notify("NiceSwapperCannotCallEmergencyMeeting");
+                    Notify("SwapperCannotCallEmergencyMeeting");
                     return false;
                 }
 
@@ -2234,7 +2234,7 @@ internal static class PlayerControlCompleteTaskPatch
     public static bool Prefix(PlayerControl __instance)
     {
         if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return false;
-        return !Workhorse.OnCompleteTask(__instance) && Capitalism.AddTaskForPlayer(__instance); // Cancel task win
+        return !Workhorse.OnCompleteTask(__instance) && Capitalist.AddTaskForPlayer(__instance); // Cancel task win
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)

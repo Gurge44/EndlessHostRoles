@@ -235,7 +235,7 @@ internal static class CheckForEndVotingPatch
             Dictionary<byte, int> votingData = __instance.CustomCalculateVotes();
 
             Blackmailer.ManipulateVotingResult(votingData, states);
-            NiceSwapper.ManipulateVotingResult(votingData, states);
+            Swapper.ManipulateVotingResult(votingData, states);
             Assumer.OnVotingEnd(votingData);
             
             var exileId = byte.MaxValue;
@@ -1123,7 +1123,7 @@ internal static class MeetingHudStartPatch
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);
-        NiceSwapper.StartMeetingPatch.Postfix(__instance);
+        Swapper.StartMeetingPatch.Postfix(__instance);
         Councillor.StartMeetingPatch.Postfix(__instance);
         Nemesis.StartMeetingPatch.Postfix(__instance);
         Imitator.StartMeetingPatch.Postfix(__instance);
@@ -1211,7 +1211,7 @@ internal static class MeetingHudUpdatePatch
 
                 switch (myRole)
                 {
-                    case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.NiceSwapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
+                    case CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Judge or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.Guesser when !PlayerControl.LocalPlayer.IsAlive():
                         ClearShootButton(__instance, true);
                         break;
                     case CustomRoles.Nemesis when !PlayerControl.LocalPlayer.IsAlive() && GameObject.Find("ShootButton") == null:

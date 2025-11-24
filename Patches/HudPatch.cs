@@ -352,7 +352,7 @@ internal static class HudManagerPatch
                         ActionButton button;
                         Type type = state.Role.GetType();
 
-                        if (type.GetMethod("OnVote").DeclaringType == type || role is CustomRoles.Adrenaline or CustomRoles.Battery or CustomRoles.Dad or CustomRoles.Grappler or CustomRoles.Inquirer or CustomRoles.Judge or CustomRoles.Mechanic or CustomRoles.Medium or CustomRoles.NiceSwapper or CustomRoles.Inspector or CustomRoles.Spy or CustomRoles.Councillor or CustomRoles.CursedWolf or CustomRoles.Forger or CustomRoles.Generator or CustomRoles.Ventriloquist or CustomRoles.Bargainer or CustomRoles.Technician or CustomRoles.Virus)
+                        if (type.GetMethod("OnVote").DeclaringType == type || role is CustomRoles.Adrenaline or CustomRoles.Battery or CustomRoles.Dad or CustomRoles.Grappler or CustomRoles.Inquirer or CustomRoles.Judge or CustomRoles.Mechanic or CustomRoles.Medium or CustomRoles.Swapper or CustomRoles.Inspector or CustomRoles.Spy or CustomRoles.Councillor or CustomRoles.CursedWolf or CustomRoles.Forger or CustomRoles.Generator or CustomRoles.Ventriloquist or CustomRoles.Bargainer or CustomRoles.Technician or CustomRoles.Virus)
                             button = null;
                         else if (role is CustomRoles.Coroner or CustomRoles.Occultist or CustomRoles.Vulture)
                             button = __instance.ReportButton;
