@@ -9319,7 +9319,7 @@
   "Agitater": "Agitator",
   "AgitaterInfo": "Pass a Bomb onto others",
   "AgitaterInfoLong": "(Neutral):\\nAls anstifter ist Ihre Prämisse im Wesentlichen Heiße Kartoffel.\\n\\nBenutze deinen Kill Button um die Bombe zu passieren.\\nDies kann nur einmal pro Runde geschehen.\\n\\nDer Spieler, der die Bombe erhält, wird benachrichtigt, wenn er eine solche Bombe erhält, in dem sie es einem anderen Spieler übergeben müssen, indem sie sich in der Nähe eines Spielers befinden.\\n\\nWenn ein Meeting aufgerufen wird, stirbt der Spieler mit der Bombe.\\n\\nWenn man versucht, bei Alarmmeldungen zu Pest oder Veteran zu gelangen, stirbt stattdessen der bombardierte Spieler.\\nOptional kann der Agitator die Bombe nicht empfangen.",
-  "AgitaterBombCooldown": "",
+  "AgitaterBombCooldown": "<color=#F4A460>Agitator</color> bomb cooldown",
   "AgitaterPassCooldown": "Bomb pass cooldown",
   "BombExplodeCooldown": "Bomb explode cooldown",
   "AgitaterPassNotify": "Bomb successfully passed",
