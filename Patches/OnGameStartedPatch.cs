@@ -219,7 +219,7 @@ internal static class ChangeRoleSettings
 
             Mayor.MayorUsedButtonCount = [];
             Paranoid.ParaUsedButtonCount = [];
-            Mario.MarioVentCount = [];
+            Vector.VectorVentCount = [];
             Cleaner.CleanerBodies = [];
             Virus.InfectedBodies = [];
             Workaholic.WorkaholicAlive = [];

@@ -335,7 +335,7 @@ public enum CustomRoles
     Lawyer,
     Magician,
     Magistrate,
-    Mario, // Vector
+    Vector,
     Maverick,
     Medusa,
     Mycologist,

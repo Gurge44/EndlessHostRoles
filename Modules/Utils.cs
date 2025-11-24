@@ -913,7 +913,7 @@ public static class Utils
             case CustomRoles.Crusader when !Options.UsePets.GetBool() || !Crusader.UsePet.GetBool():
             case CustomRoles.Renegade:
             case CustomRoles.Jester:
-            case CustomRoles.Mario:
+            case CustomRoles.Vector:
             case CustomRoles.Vulture:
             case CustomRoles.God:
             case CustomRoles.Innocent:
