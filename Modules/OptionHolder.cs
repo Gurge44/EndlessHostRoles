@@ -458,8 +458,8 @@ public static class Options
     public static OptionItem BaitDelayNotify;
     public static OptionItem TorchVision;
     public static OptionItem TorchAffectedByLights;
-    public static OptionItem DovesOfNeaceCooldown;
-    public static OptionItem DovesOfNeaceMaxOfUseage;
+    public static OptionItem PacifistCooldown;
+    public static OptionItem PacifistMaxOfUsage;
     public static OptionItem killAttacker;
     public static OptionItem MimicCanSeeDeadRoles;
     public static OptionItem ResetDoorsEveryTurns;
@@ -3478,13 +3478,13 @@ public static class Options
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
-    public static OptionItem DovesOfNeaceAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem PacifistAbilityUseGainWithEachTaskCompleted;
 
     // Ability Use Gain every 5 seconds
     public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
-    public static OptionItem DovesOfNeaceAbilityChargesWhenFinishedTasks;
+    public static OptionItem PacifistAbilityChargesWhenFinishedTasks;
     public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
 
     // ReSharper restore NotAccessedField.Global

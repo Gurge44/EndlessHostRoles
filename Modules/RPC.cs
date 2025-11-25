@@ -111,7 +111,7 @@ public enum CustomRPC
     SetGhostPlayer,
     SetStalkerKillCount,
     SetConsigliere,
-    SetGreedierOe,
+    SetGreedyOe,
     SetCollectorVotes,
     SetQuickShooterShotLimit,
     GuessKill,
@@ -1024,11 +1024,11 @@ internal static class RPCHandlerPatch
                     Stalker.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SetGreedierOe:
+                case CustomRPC.SetGreedyOe:
                 {
                     byte id = reader.ReadByte();
                     bool isOdd = reader.ReadBoolean();
-                    (Main.PlayerStates[id].Role as Greedier)?.ReceiveRPC(isOdd);
+                    (Main.PlayerStates[id].Role as Greedy)?.ReceiveRPC(isOdd);
                 }
 
                     break;

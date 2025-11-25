@@ -53,7 +53,7 @@ public enum CustomRoles
     Dazzler,
     Echo,
     Escapee, // Escapist
-    Eraser,
+    EvilEraser, // Eraser
     EvilGuesser,
     EvilTracker,
     Exclusionary,
@@ -66,7 +66,7 @@ public enum CustomRoles
     Gangster,
     Generator,
     Godfather,
-    Greedier,
+    Greedy,   // Greedier
     Hangman,
     Hitman,
     Hypnotist,
@@ -184,7 +184,6 @@ public enum CustomRoles
     DonutDelivery,
     Doorjammer,
     DoubleAgent,
-    DovesOfNeace,
     Drainer,
     Druid,
     Electric,
@@ -193,7 +192,7 @@ public enum CustomRoles
     Express,
     Farmer,
     Forensic,
-    Divinator, // Fortune Teller
+    FortuneTeller , // Divinator
     Gardener,
     Gaulois,
     Goose,
@@ -213,7 +212,7 @@ public enum CustomRoles
     Jailor,
     Journalist,
     Judge,
-    Needy, // Lazy Guy
+    LazyGuy,   // Needy     
     Leery,
     Lighter,
     Lookout,
@@ -226,7 +225,7 @@ public enum CustomRoles
     Mayor,
     Mechanic,
     Medic,
-    Mediumshiper,
+    Medium,
     Merchant,
     Telecommunication,
     Mole,
@@ -234,12 +233,12 @@ public enum CustomRoles
     Mortician,
     NiceEraser,
     NiceGuesser,
-    NiceSwapper,
     Nightmare,
     Negotiator,
     Observer,
     Oracle,
     Oxyman,
+    Pacifist,   // DovesOfNeace
     Paranoia,
     Perceiver,
     PortalMaker,
@@ -266,6 +265,7 @@ public enum CustomRoles
     SpeedBooster,
     Spy,
     SuperStar,
+    Swapper,
     TaskManager,
     Telekinetic,
     Tether,
@@ -336,7 +336,6 @@ public enum CustomRoles
     Lawyer,
     Magician,
     Magistrate,
-    Mario,
     Maverick,
     Medusa,
     Mycologist,
@@ -393,6 +392,7 @@ public enum CustomRoles
     Tiger,
     Traitor,
     Tremor,
+    Vector,
     Vengeance,
     VengefulRomantic,
     Virus,
@@ -496,7 +496,7 @@ public enum CustomRoles
     AntiTP,
     Asthmatic,
     Autopsy,
-    Avanger,
+    Avenger,
     Bait,
     BananaMan,
     Trapper, // Beartrap
