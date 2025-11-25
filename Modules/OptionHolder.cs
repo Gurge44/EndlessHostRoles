@@ -1870,6 +1870,11 @@ public static class Options
         ShowCovenRemainOnEject = new BooleanOptionItem(19816, "ShowCovenRemainOnEject", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+        
+        AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
+            .SetParent(EnableKillerLeftCommand)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         LoadingPercentage = 66;
 
@@ -2874,11 +2879,6 @@ public static class Options
             .SetParent(EnableKillerLeftCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Players)
-            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
-        
-        AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
-            .SetParent(EnableKillerLeftCommand)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         SeeEjectedRolesInMeeting = new BooleanOptionItem(44439, "SeeEjectedRolesInMeeting", true, TabGroup.GameSettings)

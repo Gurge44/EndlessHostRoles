@@ -3288,18 +3288,21 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (pc.IsMadmate())
-                nums[Options.GameStateInfo.MadmateCount]++;
-            else if (pc.IsNeutralKiller())
-                nums[Options.GameStateInfo.NKCount]++;
-            else if (pc.IsCrewmate())
-                nums[Options.GameStateInfo.CrewCount]++;
-            else if (pc.Is(Team.Impostor))
-                nums[Options.GameStateInfo.ImpCount]++;
-            else if (pc.Is(Team.Neutral))
-                nums[Options.GameStateInfo.NNKCount]++;
-            else if (pc.Is(Team.Coven))
-                nums[Options.GameStateInfo.CovenCount]++;
+            if (!Forger.Forges.ContainsKey(pc.PlayerId))
+            {
+                if (pc.IsMadmate())
+                    nums[Options.GameStateInfo.MadmateCount]++;
+                else if (pc.IsNeutralKiller())
+                    nums[Options.GameStateInfo.NKCount]++;
+                else if (pc.IsCrewmate())
+                    nums[Options.GameStateInfo.CrewCount]++;
+                else if (pc.Is(Team.Impostor))
+                    nums[Options.GameStateInfo.ImpCount]++;
+                else if (pc.Is(Team.Neutral))
+                    nums[Options.GameStateInfo.NNKCount]++;
+                else if (pc.Is(Team.Coven))
+                    nums[Options.GameStateInfo.CovenCount]++;
+            }
 
             if (pc.IsConverted()) nums[Options.GameStateInfo.ConvertedCount]++;
             if (Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
@@ -3309,20 +3312,20 @@ public static class Utils
 
         foreach ((byte id, CustomRoles role) in Forger.Forges)
         {
-            if (!Main.PlayerStates.TryGetValue(id, out var state) || state.IsDead)
+            if (Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
             {
                 if (role.IsMadmate())
-                    nums[Options.GameStateInfo.MadmateCount]--;
+                    nums[Options.GameStateInfo.MadmateCount]++;
                 else if (role.IsNK())
-                    nums[Options.GameStateInfo.NKCount]--;
+                    nums[Options.GameStateInfo.NKCount]++;
                 else if (role.IsCrewmate())
-                    nums[Options.GameStateInfo.CrewCount]--;
+                    nums[Options.GameStateInfo.CrewCount]++;
                 else if (role.Is(Team.Impostor))
-                    nums[Options.GameStateInfo.ImpCount]--;
+                    nums[Options.GameStateInfo.ImpCount]++;
                 else if (role.Is(Team.Neutral))
-                    nums[Options.GameStateInfo.NNKCount]--;
+                    nums[Options.GameStateInfo.NNKCount]++;
                 else if (role.Is(Team.Coven))
-                    nums[Options.GameStateInfo.CovenCount]--;
+                    nums[Options.GameStateInfo.CovenCount]++;
             }
         }
 
