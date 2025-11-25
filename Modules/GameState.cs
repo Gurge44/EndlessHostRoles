@@ -73,6 +73,7 @@ public class PlayerState(byte playerId)
         SkippedVote,
         Deafened,
         Patrolled,
+        Misguess,
 
         // Natural Disasters
         Meteor,

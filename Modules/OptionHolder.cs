@@ -371,6 +371,7 @@ public static class Options
 
     public static OptionItem GuesserDoesntDieOnMisguess;
     public static OptionItem CanGuessDuringDiscussionTime;
+    public static OptionItem MisguessDeathReason;
 
     public static OptionItem GuesserMaxKillsPerMeeting;
     public static OptionItem GuesserMaxKillsPerGame;
@@ -2826,6 +2827,9 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
 
         CanGuessDuringDiscussionTime = new BooleanOptionItem(19799, "CanGuessDuringDiscussionTime", true, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard);
+        
+        MisguessDeathReason = new BooleanOptionItem(44444, "MisguessDeathReason", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 92;

@@ -526,7 +526,7 @@ public static class GuessManager
                     {
                         if (Main.PlayerStates.TryGetValue(dp.PlayerId, out PlayerState state))
                         {
-                            state.deathReason = PlayerState.DeathReason.Gambled;
+                            state.deathReason = dp.PlayerId == pc.PlayerId && Options.MisguessDeathReason.GetBool() ? PlayerState.DeathReason.Misguess : PlayerState.DeathReason.Gambled;
                             dp.SetRealKiller(pc);
                             dp.RpcGuesserMurderPlayer();
                         }
