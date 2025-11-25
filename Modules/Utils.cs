@@ -4022,13 +4022,13 @@ public static class Utils
 
             if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (exclude || ExileController.Instance || !pc.IsAlive()))
             {
-                if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
+                if (impShow && (forgedRole.Is(Team.Impostor) || forgedRole == CustomRoles.DoubleAgent)) impnum--;
                 else if (nkShow && forgedRole.IsNK()) neutralnum--;
                 else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
             }
             else if (pc.IsAlive() && !exclude)
             {
-                if (impShow && pc.Is(Team.Impostor)) impnum++;
+                if (impShow && (pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent))) impnum++;
                 else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
                 else if (covenShow && pc.Is(Team.Coven)) covenNum++;
             }
@@ -4045,7 +4045,7 @@ public static class Utils
         sb.Append(notify ? "<#777777>" : string.Empty);
 
         int numberToUse = impShow ? impnum : nkShow ? neutralnum : covenNum;
-        sb.Append(numberToUse == 1 ? GetString("RemainingText.Prefix.Single") : GetString("RemainingText.Prefix.Plural"));
+        sb.Append(GetString(numberToUse == 1 ? "RemainingText.Prefix.Single" : "RemainingText.Prefix.Plural").Replace("​", string.Empty));
         sb.Append(notify ? " " : "\n");
 
         if (impShow)
