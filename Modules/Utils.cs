@@ -3288,18 +3288,21 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (pc.IsMadmate())
-                nums[Options.GameStateInfo.MadmateCount]++;
-            else if (pc.IsNeutralKiller())
-                nums[Options.GameStateInfo.NKCount]++;
-            else if (pc.IsCrewmate())
-                nums[Options.GameStateInfo.CrewCount]++;
-            else if (pc.Is(Team.Impostor))
-                nums[Options.GameStateInfo.ImpCount]++;
-            else if (pc.Is(Team.Neutral))
-                nums[Options.GameStateInfo.NNKCount]++;
-            else if (pc.Is(Team.Coven))
-                nums[Options.GameStateInfo.CovenCount]++;
+            if (!Forger.Forges.ContainsKey(pc.PlayerId))
+            {
+                if (pc.IsMadmate())
+                    nums[Options.GameStateInfo.MadmateCount]++;
+                else if (pc.IsNeutralKiller())
+                    nums[Options.GameStateInfo.NKCount]++;
+                else if (pc.IsCrewmate())
+                    nums[Options.GameStateInfo.CrewCount]++;
+                else if (pc.Is(Team.Impostor))
+                    nums[Options.GameStateInfo.ImpCount]++;
+                else if (pc.Is(Team.Neutral))
+                    nums[Options.GameStateInfo.NNKCount]++;
+                else if (pc.Is(Team.Coven))
+                    nums[Options.GameStateInfo.CovenCount]++;
+            }
 
             if (pc.IsConverted()) nums[Options.GameStateInfo.ConvertedCount]++;
             if (Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
@@ -3309,20 +3312,20 @@ public static class Utils
 
         foreach ((byte id, CustomRoles role) in Forger.Forges)
         {
-            if (!Main.PlayerStates.TryGetValue(id, out var state) || state.IsDead)
+            if (Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
             {
                 if (role.IsMadmate())
-                    nums[Options.GameStateInfo.MadmateCount]--;
+                    nums[Options.GameStateInfo.MadmateCount]++;
                 else if (role.IsNK())
-                    nums[Options.GameStateInfo.NKCount]--;
+                    nums[Options.GameStateInfo.NKCount]++;
                 else if (role.IsCrewmate())
-                    nums[Options.GameStateInfo.CrewCount]--;
+                    nums[Options.GameStateInfo.CrewCount]++;
                 else if (role.Is(Team.Impostor))
-                    nums[Options.GameStateInfo.ImpCount]--;
+                    nums[Options.GameStateInfo.ImpCount]++;
                 else if (role.Is(Team.Neutral))
-                    nums[Options.GameStateInfo.NNKCount]--;
+                    nums[Options.GameStateInfo.NNKCount]++;
                 else if (role.Is(Team.Coven))
-                    nums[Options.GameStateInfo.CovenCount]--;
+                    nums[Options.GameStateInfo.CovenCount]++;
             }
         }
 
@@ -4006,6 +4009,9 @@ public static class Utils
 
     public static string GetRemainingKillers(bool notify = false, bool showAll = false, byte excludeId = byte.MaxValue)
     {
+        bool anonymousCount = !showAll && Options.AnonymousKillerCount.GetBool();
+        var evilnum = 0;
+        
         var impnum = 0;
         var neutralnum = 0;
         var covenNum = 0;
@@ -4014,7 +4020,7 @@ public static class Utils
         bool nkShow = showAll || Options.ShowNKRemainOnEject.GetBool();
         bool covenShow = showAll || Options.ShowCovenRemainOnEject.GetBool();
 
-        if (!impShow && !nkShow && !covenShow) return string.Empty;
+        if (!impShow && !nkShow && !covenShow && !anonymousCount) return string.Empty;
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -4022,16 +4028,51 @@ public static class Utils
 
             if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (exclude || ExileController.Instance || !pc.IsAlive()))
             {
-                if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
-                else if (nkShow && forgedRole.IsNK()) neutralnum--;
-                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
+                if (anonymousCount)
+                {
+                    if (forgedRole.Is(Team.Impostor) || forgedRole == CustomRoles.DoubleAgent || forgedRole.IsNK() || forgedRole.Is(Team.Coven))
+                        evilnum--;
+                }
+                else
+                {
+                    if (impShow && (forgedRole.Is(Team.Impostor) || forgedRole == CustomRoles.DoubleAgent)) impnum--;
+                    else if (nkShow && forgedRole.IsNK()) neutralnum--;
+                    else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
+                }
             }
             else if (pc.IsAlive() && !exclude)
             {
-                if (impShow && pc.Is(Team.Impostor)) impnum++;
-                else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
-                else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+                if (anonymousCount)
+                {
+                    if ((pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent) || pc.IsNeutralKiller() || pc.Is(Team.Coven)))
+                        evilnum++;
+                }
+                else
+                {
+                    if (impShow && (pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent))) impnum++;
+                    else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+                    else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+                }
             }
+        }
+        
+        StringBuilder sb = new();
+
+        if (anonymousCount)
+        {
+            sb.Append(notify ? "<#777777>" : string.Empty);
+            sb.Append(GetString(evilnum == 1 ? "RemainingText.Prefix.Single" : "RemainingText.Prefix.Plural").Replace("​", string.Empty));
+            sb.Append(notify ? " " : "\n");
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(evilnum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ffff00>{(evilnum == 1 ? GetString("RemainingText.AnonymousEvilCount.Single") : GetString("RemainingText.AnonymousEvilCount.Plural"))}</color>");
+            sb.Append(GetString("RemainingText.Suffix"));
+            sb.Append('.');
+            sb.Append(notify ? "</color>" : string.Empty);
+
+            return sb.ToString();
         }
 
         impShow &= impnum > 0;
@@ -4040,12 +4081,10 @@ public static class Utils
 
         if (!impShow && !nkShow && !covenShow) return string.Empty;
 
-        StringBuilder sb = new();
-
         sb.Append(notify ? "<#777777>" : string.Empty);
 
         int numberToUse = impShow ? impnum : nkShow ? neutralnum : covenNum;
-        sb.Append(numberToUse == 1 ? GetString("RemainingText.Prefix.Single") : GetString("RemainingText.Prefix.Plural"));
+        sb.Append(GetString(numberToUse == 1 ? "RemainingText.Prefix.Single" : "RemainingText.Prefix.Plural").Replace("​", string.Empty));
         sb.Append(notify ? " " : "\n");
 
         if (impShow)

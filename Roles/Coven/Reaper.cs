@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using Hazel;
 
@@ -83,20 +84,26 @@ public class Reaper : Coven
 
     public static void OnAnyoneDead(PlayerControl target)
     {
-        Instances.DoIf(x => x.CursedPlayers.Contains(target.PlayerId) && ++x.Souls >= SoulsRequired.GetInt(), x =>
-        {
-            PlayerControl reaperPc = x.ReaperId.GetPlayer();
-            if (reaperPc == null) return;
-
-            reaperPc.RpcSetCustomRole(CustomRoles.Death);
-            reaperPc.SetKillCooldown(KillCooldown.GetFloat());
-            reaperPc.ResetKillCooldown();
-
-            Utils.NotifyRoles(SpecifySeer: reaperPc);
-            Utils.NotifyRoles(SpecifyTarget: reaperPc);
-        });
-
+        Instances.DoIf(x => x.CursedPlayers.Contains(target.PlayerId) && ++x.Souls >= SoulsRequired.GetInt(), x => x.BecomeDeath());
         Instances.RemoveAll(x => x.Souls >= SoulsRequired.GetInt());
+
+        if (Instances.Count > 0 && Main.AllAlivePlayerControls.All(x => x.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None or CountTypes.Crew || x.Is(CustomRoles.Reaper)))
+            Instances.RandomElement().BecomeDeath(true);
+    }
+
+    void BecomeDeath(bool removeInstance = false)
+    {
+        PlayerControl reaperPc = ReaperId.GetPlayer();
+        if (reaperPc == null) return;
+
+        reaperPc.RpcSetCustomRole(CustomRoles.Death);
+        reaperPc.SetKillCooldown(KillCooldown.GetFloat());
+        reaperPc.ResetKillCooldown();
+
+        Utils.NotifyRoles(SpecifySeer: reaperPc);
+        Utils.NotifyRoles(SpecifyTarget: reaperPc);
+
+        if (removeInstance) Instances.Remove(this);
     }
 }
 
