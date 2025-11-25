@@ -83,7 +83,7 @@ public class Medium : RoleBase
         if (pc.IsAlive()) return false;
 
         msg = msg.ToLower().Trim();
-        if (!CheckCommand(ref msg, "通灵|ms|Medium|medium", false)) return false;
+        if (!CheckCommand(ref msg, "通灵|ms|medium", false)) return false;
 
         bool ans;
 
