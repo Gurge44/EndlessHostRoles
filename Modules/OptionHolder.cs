@@ -241,6 +241,7 @@ public static class Options
 
     public static readonly Dictionary<GameStateInfo, OptionItem> GameStateSettings = [];
     public static OptionItem MinPlayersForGameStateCommand;
+    public static OptionItem AnonymousKillerCount;
 
     public static OptionItem DisableMeeting;
     public static OptionItem DisableCloseDoor;
@@ -2873,6 +2874,11 @@ public static class Options
             .SetParent(EnableKillerLeftCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Players)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+        
+        AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
+            .SetParent(EnableKillerLeftCommand)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         SeeEjectedRolesInMeeting = new BooleanOptionItem(44439, "SeeEjectedRolesInMeeting", true, TabGroup.GameSettings)
