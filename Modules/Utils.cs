@@ -1034,7 +1034,7 @@ public static class Utils
                    (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
                    pc.Is(CustomRoles.Swapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
-                   pc.Is(CustomRoles.Needy) ||
+                   pc.Is(CustomRoles.LazyGuy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
                    pc.Is(CustomRoles.Egoist) ||

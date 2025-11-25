@@ -212,6 +212,7 @@ public enum CustomRoles
     Jailor,
     Journalist,
     Judge,
+    LazyGuy,   // Needy     
     Leery,
     Lighter,
     Lookout,
@@ -230,8 +231,6 @@ public enum CustomRoles
     Mole,
     Monarch,
     Mortician,
-    Needy, // Lazy Guy
-
     NiceEraser,
     NiceGuesser,
     Nightmare,

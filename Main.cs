@@ -377,7 +377,7 @@ public class Main : BasePlugin
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
-                { CustomRoles.Needy, "#a4dffe" },
+                { CustomRoles.LazyGuy, "#a4dffe" },
                 { CustomRoles.Mechanic, "#3333ff" },
                 { CustomRoles.Snitch, "#b8fb4f" },
                 { CustomRoles.Marshall, "#5573aa" },

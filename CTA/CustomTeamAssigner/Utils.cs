@@ -26,7 +26,7 @@ namespace CustomTeamAssigner
             { CustomRoles.LovingCrewmate, "Lover" },
             { CustomRoles.LovingImpostor, "Loving Impostor" },
             { CustomRoles.FortuneTeller, "Fortune Teller" },
-            { CustomRoles.Needy, "Needy" },
+            { CustomRoles.LazyGuy, "Lazy Guy" },
             { CustomRoles.ToiletMaster, "Toilet Master" },
             { CustomRoles.Medium, "Medium" },
             { CustomRoles.PlagueDoctor, "Infection"}
