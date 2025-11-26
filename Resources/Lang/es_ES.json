@@ -2665,7 +2665,7 @@
   "Poll.YouVoted": "Has votado por {0}, así que ahora tiene {1} votos.",
   "PollUsage": "Formato:\\n<size=80%><b>/encuesta {Question}? <size=55%>{Answer A} {Answer B}[Respuesta C] [Respuesta D] [Respuesta E]</size></b></size><size=50%>Nota: ¡La pregunta siempre debe terminar con un signo de interrogación (?)!</size>\n",
   "VotedToStart.Title": "<#00a5ff>➡️ VOTA PARA INICIAR ⬅️</color>",
-  "VotedToStart": "¡{0} ha votado para iniciar la partida!\\n<size=80%>Si también quieres que comience el juego, usa <#00a5ff>/votestart</color>\\nSi más del 50% del lobby usa este comando, comenzará la cuenta regresiva inicial.\\nActualmente, los jugadores {1}/{2} ({3}%) lo han usado. Los usuarios {4} son requeridos.</size>",
+  "VotedToStart": "<size=80%>If more than 50% of the lobby uses it, the starting countdown begins.\\nCurrently, {0}/{1} ({2}%) players have used it. {3} uses are required.</size>",
   "PlayerMuted": "Has silenciado a {0} exitosamente por <#00ffa5>{1}</color> segundos.",
   "YouMuted": "<#ffff00>Has sido silenciado por <u>{0}</u> durante <#ff0000>{1}</color> segundos.",
   "ModeratorMuted": "Moderador {0} ha silenciado a {1} por <#00ffa5>{2}</color> segundos.",
