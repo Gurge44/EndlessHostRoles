@@ -31,8 +31,6 @@ internal static class OnGameJoinedPatch
     {
         JoiningGame = true;
 
-        while (!Options.IsLoaded) Task.Delay(1);
-
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
 
         SetUpRoleTextPatch.IsInIntro = false;
@@ -501,7 +499,7 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            if (GameStates.IsInGame && data != null && data.Character != null)
+            if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character != null)
             {
                 ExtendedPlayerControl.TempExiled.Remove(data.Character.PlayerId);
                 

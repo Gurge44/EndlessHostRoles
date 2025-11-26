@@ -1873,7 +1873,6 @@ public static class Options
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
         
         AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
-            .SetParent(EnableKillerLeftCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
