@@ -120,7 +120,7 @@ public class CopyCat : RoleBase
                 CustomRoles.Escapist or CustomRoles.Enderman => CustomRoles.Tunneler,
                 CustomRoles.Twister => CustomRoles.TimeMaster,
                 CustomRoles.Disperser => CustomRoles.Transporter,
-                CustomRoles.Eraser => CustomRoles.NiceEraser,
+                CustomRoles.EvilEraser => CustomRoles.NiceEraser,
                 CustomRoles.Visionary => CustomRoles.Oracle,
                 CustomRoles.Workaholic or CustomRoles.Pawn => CustomRoles.Snitch,
                 CustomRoles.Sunnyboy or CustomRoles.Fabricator => new[] {CustomRoles.Doctor, CustomRoles.ScientistEHR}.RandomElement(),

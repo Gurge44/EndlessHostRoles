@@ -153,7 +153,7 @@ public static class Statistics
 
             switch (CustomWinnerHolder.WinnerTeam)
             {
-                case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avanger), out PlayerState state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.Butcher):
+                case CustomWinner.None when Main.PlayerStates.Values.FindFirst(x => x.SubRoles.Contains(CustomRoles.Avenger), out PlayerState state) && state.GetRealKiller().GetPlayer().Is(CustomRoles.Butcher):
                     Achievements.Type.FuriousAvenger.CompleteAfterGameEnd();
                     break;
                 case CustomWinner.Crewmate when won && apc.Count(x => x.IsImpostor() || x.IsNeutralKiller()) >= 2 && MeetingStates.MeetingNum < 3:
