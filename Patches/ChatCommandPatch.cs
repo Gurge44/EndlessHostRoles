@@ -912,7 +912,6 @@ internal static class ChatCommands
         sp.HasUsedDayBreak = true;
 
         player.RPCPlayCustomSound("Line");
-
         Utils.SendMessage("\n", title: string.Format(GetString("StarspawnUsedDayBreak"), CustomRoles.Starspawn.ToColoredString()));
     }
 
