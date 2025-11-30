@@ -161,6 +161,8 @@ public enum CustomRPC
     SyncAsthmatic,
     InspectorCommand,
     ImitatorClick,
+    RetributionistClick,
+    StarspawnClick,
     Invisibility,
     ResetAbilityCooldown,
     SyncCamouflage,
@@ -247,7 +249,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick or CustomRPC.RetributionistClick or CustomRPC.StarspawnClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -1342,6 +1344,19 @@ internal static class RPCHandlerPatch
                 case CustomRPC.ImitatorClick:
                 {
                     Imitator.ReceiveRPC(reader, __instance);
+                    break;
+                }
+                case CustomRPC.RetributionistClick:
+                {
+                    int playerId = reader.ReadByte();
+                    var command = $"/retribute {playerId}";
+                    ChatCommands.RetributeCommand(__instance, command, command.Split(' '));
+                    break;
+                }
+                case CustomRPC.StarspawnClick:
+                {
+                    var command = $"/daybreak";
+                    ChatCommands.DayBreakCommand(__instance, command, command.Split(' '));
                     break;
                 }
                 case CustomRPC.Invisibility:
