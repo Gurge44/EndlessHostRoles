@@ -294,6 +294,12 @@ public class Councillor : RoleBase
         return false;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return;
+        MurderMsg(shapeshifter, $"/tl {target.PlayerId}");
+    }
+
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MeetingKill, SendOption.Reliable, AmongUsClient.Instance.HostId);
@@ -331,7 +337,7 @@ public class Councillor : RoleBase
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
-            renderer.sprite = CustomButton.Get("MeetingKillButton");
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 150f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.TargetPlayerId /*, __instance*/)));
@@ -349,4 +355,3 @@ public class Councillor : RoleBase
     }
 
 }
-
