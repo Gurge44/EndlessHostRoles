@@ -107,9 +107,7 @@ public class Starspawn : RoleBase
 
     public static void CreateStarspawnButton(MeetingHud __instance)
     {
-        if (GameObject.Find("StarspawnButton") != null)
-            GameObject.Find("StarspawnButton");
-            
+        if (GameObject.Find("StarspawnButton") != null) Object.Destroy(GameObject.Find("StarspawnButton").gameObject);
         if (PlayerControl.LocalPlayer == null || !PlayerControl.LocalPlayer.IsAlive()) return;
         
         GameObject parent = GameObject.Find("Main Camera").transform.Find("Hud").Find("ChatUi").Find("ChatScreenRoot").Find("ChatScreenContainer").gameObject;
