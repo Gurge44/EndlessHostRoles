@@ -960,6 +960,9 @@ internal static class StartGameHostPatch
 
                 if (state.SubRoles.Contains(CustomRoles.BananaMan))
                     Utils.RpcChangeSkin(state.Player, new());
+                
+                if (state.SubRoles.Contains(CustomRoles.Venom))
+                    state.SubRoles.FindAll(x => x.IncompatibleWithVenom()).ForEach(state.RemoveSubRole);
             }
 
             foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)

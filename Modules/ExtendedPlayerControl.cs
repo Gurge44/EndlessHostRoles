@@ -438,12 +438,15 @@ internal static class ExtendedPlayerControl
             Logger.Warn($"Invalid Revive for {player.GetRealName()} / Player was already alive? {!player.Data.IsDead}", "RpcRevive");
             return;
         }
+        
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
 
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
-        Main.PlayerStates[player.PlayerId].IsDead = false;
-        Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
+        state.RealKiller = (DateTime.MinValue, byte.MaxValue);
+        state.IsDead = false;
+        state.deathReason = PlayerState.DeathReason.etc;
         TempExiled.Remove(player.PlayerId);
-        if (Options.CurrentGameMode == CustomGameMode.Standard) Main.PlayerStates[player.PlayerId].Role.OnRevived(player);
+        if (Options.CurrentGameMode == CustomGameMode.Standard) state.Role.OnRevived(player);
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
         player.RpcChangeRoleBasis(player.GetCustomRole());
         player.ResetKillCooldown();

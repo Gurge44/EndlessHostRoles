@@ -3675,9 +3675,6 @@ public static class Utils
                 case CustomRoles.Executioner when Executioner.Target.Remove(target.PlayerId):
                     Executioner.SendRPC(target.PlayerId);
                     break;
-                case CustomRoles.Lawyer when Lawyer.Target.Remove(target.PlayerId):
-                    Lawyer.SendRPC(target.PlayerId);
-                    break;
                 case CustomRoles.Infection when !disconnect && !onMeeting:
                     Infection.OnPDdeath(targetRealKiller, target);
                     break;

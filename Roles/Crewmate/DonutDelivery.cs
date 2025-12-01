@@ -84,7 +84,7 @@ public class DonutDelivery : RoleBase
 
     public override void SetKillCooldown(byte playerId)
     {
-        Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
+        Main.AllPlayerKillCooldown[playerId] = CD.GetFloat();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

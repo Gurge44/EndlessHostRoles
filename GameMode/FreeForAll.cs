@@ -227,6 +227,12 @@ internal static class FreeForAll
                 }
 
                 Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
+
+                if (FFADisableVentingWhenTwoPlayersAlive.GetBool())
+                {
+                    if (killer.inVent) killer.MyPhysics?.RpcExitVent(killer.GetClosestVent().Id);
+                    if (otherPC != null && otherPC.inVent) otherPC.MyPhysics?.RpcExitVent(otherPC.GetClosestVent().Id);
+                }
             }
 
             if (FFAEnableRandomAbilities.GetBool())

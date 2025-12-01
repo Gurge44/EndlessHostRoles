@@ -65,29 +65,32 @@ public class Lawyer : RoleBase
         PlayerIdList.Add(playerId);
         LawyerId = playerId;
 
-        try
+        LateTask.New(() =>
         {
-            if (AmongUsClient.Instance.AmHost)
+            try
             {
-                List<PlayerControl> targetList = [];
-                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar or CustomRoles.Curser) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
-
-                if (targetList.Count == 0)
+                if (AmongUsClient.Instance.AmHost)
                 {
-                    ChangeRole(Utils.GetPlayerById(playerId));
-                    return;
+                    List<PlayerControl> targetList = [];
+                    targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetCoven.GetBool() || !target.Is(CustomRoleTypes.Coven) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar or CustomRoles.Curser) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+
+                    if (targetList.Count == 0)
+                    {
+                        ChangeRole(Utils.GetPlayerById(playerId));
+                        return;
+                    }
+
+                    PlayerControl selectedTarget = targetList.RandomElement();
+                    Target[playerId] = selectedTarget.PlayerId;
+                    SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
+                    Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
+
+                    if (!TargetKnowsLawyer.GetBool()) return;
+                    LateTask.New(() => selectedTarget.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
                 }
-
-                PlayerControl selectedTarget = targetList.RandomElement();
-                Target[playerId] = selectedTarget.PlayerId;
-                SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
-                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
-
-                if (!TargetKnowsLawyer.GetBool()) return;
-                LateTask.New(() => selectedTarget.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
             }
-        }
-        catch (Exception ex) { Utils.ThrowException(ex); }
+            catch (Exception ex) { Utils.ThrowException(ex); }
+        }, 0.5f, log: false);
     }
 
     public override void Remove(byte playerId)
@@ -96,7 +99,7 @@ public class Lawyer : RoleBase
         Target.Remove(playerId);
     }
 
-    public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
+    private static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
         MessageWriter writer;
 
@@ -110,7 +113,6 @@ public class Lawyer : RoleBase
                 break;
             case "":
                 if (!AmongUsClient.Instance.AmHost) return;
-
                 writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveLawyerTarget, SendOption.Reliable);
                 writer.Write(lawyerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);

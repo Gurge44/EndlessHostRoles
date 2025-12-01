@@ -105,12 +105,7 @@ public class Follower : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        if (BetTimes < 1)
-        {
-            Main.AllPlayerKillCooldown[id] = 300f;
-            return;
-        }
-
+        if (BetTimes < 1) return;
         float cd = BetCooldown.GetFloat();
         cd += (MaxBetTimes.GetInt() - BetTimes) * BetCooldownIncrese.GetFloat();
         cd = Math.Min(cd, MaxBetCooldown.GetFloat());

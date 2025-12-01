@@ -1272,7 +1272,7 @@ internal static class MeetingHudOnDestroyPatch
                 GuessManager.Data.Clear();
             }
 
-            AntiBlackout.SetOptimalRoleTypesToPreventBlackScreen();
+            AntiBlackout.SetOptimalRoleTypes();
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;

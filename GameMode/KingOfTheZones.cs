@@ -286,7 +286,6 @@ public static class KingOfTheZones
             .SelectMany(x => x)
             .ToDictionary(x => x.Key, x => x.Value);
 
-        Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
         float normalSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         if (Main.GM.Value) Main.AllPlayerSpeed[0] = normalSpeed;
         ChatCommands.Spectators.Do(x => Main.AllPlayerSpeed[x] = normalSpeed);
@@ -336,14 +335,19 @@ public static class KingOfTheZones
                 hasData |= writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
 
-                try
+                if (!player.AmOwner)
                 {
-                    int targetClientId = player.OwnerId;
-                    PlayerTeams.DoIf(
-                        x => x.Key != id && x.Value == team,
-                        x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId, changeRoleMap: true));
+                    try
+                    {
+                        int targetClientId = player.OwnerId;
+                        PlayerTeams.DoIf(
+                            x => x.Key != id && x.Value == team,
+                            x => writer.RpcSetRole(x.Key.GetPlayer(), RoleTypes.Impostor, targetClientId, changeRoleMap: true));
+
+                        hasData = true;
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
                 }
-                catch (Exception e) { Utils.ThrowException(e); }
 
                 writer.SendMessage(!hasData);
             }

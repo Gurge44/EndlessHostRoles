@@ -2043,6 +2043,11 @@ internal static class FixedUpdatePatch
         if (partnerPlayer == null) return;
 
         Main.IsLoversDead = true;
+        
+        if (Main.PlayerStates.TryGetValue(deathId, out var deadState) && deadState.deathReason == PlayerState.DeathReason.Disconnected) return;
+
+        var deadPlayer = deathId.GetPlayer();
+        if (deadPlayer == null || deadPlayer.Data == null || deadPlayer.Data.Disconnected) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {
