@@ -740,7 +740,7 @@ public static class GuessManager
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
-            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.TargetIcon.png", 130f);
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.TargetIcon.png", 150f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             PlayerVoteArea pva1 = pva;
@@ -1632,3 +1632,4 @@ public static class GuessManager
     }
 
 }
+
