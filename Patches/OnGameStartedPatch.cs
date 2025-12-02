@@ -552,7 +552,7 @@ internal static class StartGameHostPatch
 
             if (loadingBarLogo)
             {
-                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 460f);
+                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 390f);
                 loadingBarLogo.SetNativeSize();
             }
 
@@ -1609,4 +1609,3 @@ internal static class StartGameHostPatch
         }
     }
 }
-
