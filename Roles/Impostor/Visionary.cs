@@ -69,10 +69,16 @@ internal class Visionary : RoleBase
         if (RevealedPlayerIds.Contains(target.PlayerId) || shapeshifter.GetAbilityUseLimit() < 1) return false;
 
         RevealedPlayerIds.Add(target.PlayerId);
+        Utils.SendRPC(CustomRPC.SyncRoleData, shapeshifter.PlayerId, target.PlayerId);
         shapeshifter.RpcRemoveAbilityUse();
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
 
         return false;
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        RevealedPlayerIds.Add(reader.ReadByte());
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

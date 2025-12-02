@@ -8,7 +8,6 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-
 namespace EHR.Impostor;
 
 internal class Nemesis : RoleBase
@@ -212,7 +211,7 @@ internal class Nemesis : RoleBase
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
-            renderer.sprite = CustomButton.Get("MeetingKillButton");
+            renderer.sprite =  Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 140f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => NemesisOnClick(pva.TargetPlayerId)));
