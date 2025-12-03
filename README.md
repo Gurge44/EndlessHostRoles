@@ -67,7 +67,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 450+ roles and add-ons, 15 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 450+ roles and add-ons, 16 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide And Seek roles and Vanilla roles)</span>
 
@@ -282,7 +282,7 @@ Click this badge to view our translation project:
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
-- EHR has 15 unique custom game modes, which can be played with any number of players, some even alone.
+- EHR has 16 unique custom game modes, which can be played with any number of players, some even alone.
 - You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the
   player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
@@ -700,3 +700,4 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
