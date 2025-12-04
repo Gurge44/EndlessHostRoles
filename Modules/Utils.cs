@@ -1857,7 +1857,7 @@ public static class Utils
                 return writer;
             }
 
-            if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
+            if (title == "") title = GetString("DefaultSystemMessageTitle");
 
             if (title.Count(x => x == '\u2605') == 2 && !title.Contains('\n'))
             {
