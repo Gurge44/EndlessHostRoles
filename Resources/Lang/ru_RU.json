@@ -3044,7 +3044,7 @@
   "EveryoneDrafted": "<#00ff00>Все выбрали себе роль!</color>",
   "DeathCommand": "<#ffffff>Ты был убит игроком </color>{0}<#ffffff>\\nРоль этого игрока - </color>{1}",
   "DeathCommandFail": "<#ff0000>Игра не смогла определить вашего реального убийцу.</color>\\nПричина вашей смерти: <#00ffa5>{0}</color>.",
-  "DefaultSystemMessageTitle": "<#eb0c38>СИСТЕМА</color>",
+  "DefaultSystemMessageTitle": "<#00ffa5>∞ <#00a5ff>EHR <#00ffff>SYSTEM MESSAGE <#00ffa5>∞",
   "MessageFromTheHost": "★[ Сообщение от хоста ]★",
   "SayTitle": "★[ Сообщение от модератора ]★",
   "MessageFromEAC": "★[ EAC ]★",
