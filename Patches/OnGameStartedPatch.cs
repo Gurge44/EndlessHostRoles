@@ -184,7 +184,14 @@ internal static class ChangeRoleSettings
 
             Main.GameEndDueToTimer = false;
 
-            try { Main.AllRoleClasses.Do(x => x.Init()); }
+            try
+            {
+                Main.AllRoleClasses.ForEach(x =>
+                {
+                    try { x.Init(); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                });
+            }
             catch (Exception e) { Utils.ThrowException(e); }
 
             Main.PlayerStates = [];

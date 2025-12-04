@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
 
@@ -121,8 +122,13 @@ internal class Changeling : RoleBase
         return false;
     }
 
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        AURoleOptions.PhantomCooldown = 0.1f;
+    }
+
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
+        return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId || (seer.IsModdedClient() && !hud) || meeting ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
     }
 }
