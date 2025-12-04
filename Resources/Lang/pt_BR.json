@@ -2180,7 +2180,7 @@
   "LaughToWhoGuessSelf": "Tentei adivinhar, quem tentou adivinhar é... É você! Ah...",
   "GuessSameCTAPlayer": "Você tentou adivinhar um jogador do seu time.... Você não é muito inteligente, não é?",
   "GuessDisabledAddonOverride": "Desculpe, este atributo em específico não pode ser adivinhado devido as configurações do Anfitrião.",
-  "GuessDisabled": "Desculpe, o anfitrião restringiu a adivinhação para sua função.",
+  "GuessDisabled": "Sorry, this guess is prohibited.",
   "GuessWorkaholic": "Desculpe, você não pode adivinhar um Trabalhador revelado, pois isso seria injusto.",
   "GuessDoctor": "Desculpe, você não pode adivinhar um Doutor revelado, pois isso seria injusto.",
   "GuessMayor": "Desculpe, você não pode adivinhar um Prefeito revelado, pois isso seria injusto.",
