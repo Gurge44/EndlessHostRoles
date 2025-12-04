@@ -2180,7 +2180,7 @@
   "LaughToWhoGuessSelf": "¡Trata de adivinar, quien intento autoadivinarse! ¡Eres tú! ¡Ajaja!",
   "GuessSameCTAPlayer": "Trataste de adivinar a un jugador que está en tu equipo.... No eres muy inteligente, ¿verdad?",
   "GuessDisabledAddonOverride": "Lo siento, este complemento en específico no puede ser adivinado debido a las configuraciones del Host.",
-  "GuessDisabled": "Lo siento, el host restringió adivinar para tu rol.",
+  "GuessDisabled": "Sorry, this guess is prohibited.",
   "GuessWorkaholic": "Lo siento, no puedes adivinar a un Chambeador revelado pues eso sería injusto.",
   "GuessDoctor": "Lo siento, no puedes adivinar a un Doctor revelado pues eso sería injusto.",
   "GuessMayor": "Lo siento, no puedes adivinar a un Alcalde revelado, ya que eso sería injusto.",
