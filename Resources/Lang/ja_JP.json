@@ -3044,7 +3044,7 @@
   "EveryoneDrafted": "<size=80%><#00ffa5>✓</color> <#00ff00>全員が 彼らの役割をドラフトしました！</color></size>",
   "DeathCommand": "<size=80%><#ffffff>あなたは </color>{0}<#ffffff> によって殺害された</color><#ffffff>\\n彼の役割は </color>{1} <#ffffff>です</color></size>",
   "DeathCommandFail": "<size=80%><#ff0000>ゲームで あなたの本当の殺人鬼を 判断できませんでした。</color>\\nあなたの死因は <#00ffa5>{0}</color> です。</size>",
-  "DefaultSystemMessageTitle": "➡ システム メッセージ ⬅",
+  "DefaultSystemMessageTitle": "<#00ffa5>∞ <#00a5ff>EHR <#00ffff>SYSTEM MESSAGE <#00ffa5>∞",
   "MessageFromTheHost": "★[ Host message ]★",
   "SayTitle": "★[ Moderator message ]★",
   "MessageFromEAC": "★[ EAC ]★",
