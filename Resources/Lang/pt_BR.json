@@ -3044,7 +3044,7 @@
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Todos escolheram sua função!</color>",
   "DeathCommand": "<#ffffff>Você foi Morto por </color>{0}<#ffffff>\nA função dele é </color>{1}",
   "DeathCommandFail": "<#ff0000>O jogo não pode determinar quem te matou.</color>\\nO motivo da sua morte é <#00ffa5>{0}</color>.",
-  "DefaultSystemMessageTitle": "【★ Sistema ★】",
+  "DefaultSystemMessageTitle": "<#00ffa5>∞ <#00a5ff>EHR <#00ffff>SYSTEM MESSAGE <#00ffa5>∞",
   "MessageFromTheHost": "★[ Host message ]★",
   "SayTitle": "★[ Moderator message ]★",
   "MessageFromEAC": "★[ EAC ]★",
