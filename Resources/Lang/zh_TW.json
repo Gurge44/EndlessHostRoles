@@ -3044,7 +3044,7 @@
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>所有人都選擇了職業！</color>",
   "DeathCommand": "<#ffffff>殺害你的人是 </color>{0}<#ffffff>\\n他們的職業是 </color>{1}",
   "DeathCommandFail": "<#ff0000>遊戲不知道誰擊殺了您。</color>\\n您的死因是<#00ffa5>{0}</color>。",
-  "DefaultSystemMessageTitle": "➡ 系統信息 ⬅",
+  "DefaultSystemMessageTitle": "<#00ffa5>∞ <#00a5ff>EHR <#00ffff>SYSTEM MESSAGE <#00ffa5>∞",
   "MessageFromTheHost": "★[ 房主訊息 ]★",
   "SayTitle": "★[ 協館訊息 ]★",
   "MessageFromEAC": "★[ EAC ]★",
