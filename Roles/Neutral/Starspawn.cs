@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
+using TMPro;
+using UnityEngine;
 
 namespace EHR.Neutral;
 
@@ -80,6 +83,59 @@ public class Starspawn : RoleBase
     public void ReceiveRPC(MessageReader reader)
     {
         IsolatedPlayers.Add(reader.ReadByte());
+    }
+
+    private static void StarspawnOnClick(GameObject starspawnButton)
+    {
+        Logger.Msg($"Starspawn Click: ID {PlayerControl.LocalPlayer.PlayerId}", "Starspawn UI");
+        if (PlayerControl.LocalPlayer == null || !PlayerControl.LocalPlayer.IsAlive() || !GameStates.IsVoting) return;
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            var command = $"/daybreak";
+            ChatCommands.DayBreakCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.StarspawnClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+
+        starspawnButton.SetActive(false);
+        LateTask.New(() => starspawnButton.SetActive(true), 1f, "StarspawnButton");
+    }
+
+    public static void CreateStarspawnButton(MeetingHud __instance)
+    {
+        if (GameObject.Find("StarspawnButton") != null) Object.Destroy(GameObject.Find("StarspawnButton").gameObject);
+        if (PlayerControl.LocalPlayer == null || !PlayerControl.LocalPlayer.IsAlive()) return;
+        
+        GameObject parent = GameObject.Find("Main Camera").transform.Find("Hud").Find("ChatUi").Find("ChatScreenRoot").Find("ChatScreenContainer").gameObject;
+        GameObject template = __instance.transform.Find("MeetingContents").Find("ButtonStuff").Find("button_skipVoting").gameObject;
+        GameObject starspawnButton = Object.Instantiate(template, parent.transform);
+        starspawnButton.name = "StarspawnButton";
+        starspawnButton.transform.localPosition = new(3.46f, 0f, 45f);
+        starspawnButton.SetActive(true);
+        var renderer = starspawnButton.GetComponent<SpriteRenderer>();
+        renderer.sprite = CustomButton.Get("StarlightIcon");
+        renderer.color = Color.white;
+        GameObject Text_TMP = starspawnButton.GetComponentInChildren<TextMeshPro>().gameObject;
+        Text_TMP.SetActive(false);
+        var button = starspawnButton.GetComponent<PassiveButton>();
+        button.OnClick.RemoveAllListeners();
+        button.OnClick.AddListener((Action)(() => StarspawnOnClick(starspawnButton)));
+        GameObject ControllerHighlight = starspawnButton.transform.Find("ControllerHighlight").gameObject;
+        ControllerHighlight.transform.localScale = new (0.5f, 2f, 0.5f);
+    }
+
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Starspawn) && PlayerControl.LocalPlayer.IsAlive())
+                CreateStarspawnButton(__instance);
+        }
     }
 
     public static bool CheckInteraction(PlayerControl killer, PlayerControl target)

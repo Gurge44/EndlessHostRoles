@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.Crewmate;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -14,14 +15,15 @@ public class Councillor : RoleBase
 {
     private const int Id = 900;
     private static List<byte> PlayerIdList = [];
+
+    private static OptionItem KillCooldown;
     private static OptionItem AbilityUseLimit;
     private static OptionItem MurderLimitPerGame;
     private static OptionItem MurderLimitPerMeeting;
     private static OptionItem MakeEvilJudgeClear;
-    private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
-    private static OptionItem KillCooldown;
+    private static OptionItem TryHideMsg;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
     
     private static Dictionary<byte, int> MeetingKillLimit = [];
@@ -294,6 +296,12 @@ public class Councillor : RoleBase
         return false;
     }
 
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        if (Starspawn.IsDayBreak) return;
+        MurderMsg(shapeshifter, $"/tl {target.PlayerId}");
+    }
+
     private static void SendRPC(byte playerId)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.MeetingKill, SendOption.Reliable, AmongUsClient.Instance.HostId);
@@ -331,7 +339,7 @@ public class Councillor : RoleBase
             targetBox.name = "ShootButton";
             targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
-            renderer.sprite = CustomButton.Get("MeetingKillButton");
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.MeetingKillButton.png", 140f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => CouncillorOnClick(pva.TargetPlayerId /*, __instance*/)));
@@ -349,4 +357,3 @@ public class Councillor : RoleBase
     }
 
 }
-

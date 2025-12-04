@@ -1642,4 +1642,5 @@ public static class GuessManager
         if (Data.TryGetValue(shapeshifter.PlayerId, out MeetingShapeshiftData msd))
             msd.AdvanceStep(target);
     }
+
 }

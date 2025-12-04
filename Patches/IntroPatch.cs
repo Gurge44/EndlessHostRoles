@@ -649,8 +649,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Telecommunication
                     => HudManager.Instance.Chat.warningSound,
 
-                CustomRoles.GM or
-                    CustomRoles.Snitch or
+                CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
                     CustomRoles.Workaholic
                     => HudManager.Instance.TaskCompleteSound,
@@ -828,8 +827,8 @@ internal static class BeginCrewmatePatch
         if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {
             __instance.TeamTitle.text = Utils.GetRoleName(role);
-            __instance.TeamTitle.color = Utils.GetRoleColor(role);
-            __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = HudManager.Instance.TaskCompleteSound;
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.GM");
         }

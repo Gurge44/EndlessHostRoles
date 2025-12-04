@@ -1127,6 +1127,8 @@ internal static class MeetingHudStartPatch
         Councillor.StartMeetingPatch.Postfix(__instance);
         Nemesis.StartMeetingPatch.Postfix(__instance);
         Imitator.StartMeetingPatch.Postfix(__instance);
+        Retributionist.StartMeetingPatch.Postfix(__instance);
+        Starspawn.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
         Crowded.MeetingHudStartPatch.Postfix(__instance);
