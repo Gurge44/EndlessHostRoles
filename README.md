@@ -10,10 +10,10 @@
 [![Download](https://img.shields.io/badge/Download-Latest-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Gurge44/EndlessHostRoles/releases/latest)
 [![Translate](https://img.shields.io/badge/Translate-Crowdin-18a303?style=for-the-badge&logo=crowdin&logoColor=white)](https://translate.gurge44.eu)
 
-[![GitHub release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
-[![GitHub latest commit](https://badgen.net/github/last-commit/Gurge44/EndlessHostRoles)](https://GitHub.com/Gurge44/EndlessHostRoles/commit/)
-[![Github all releases](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg)](https://GitHub.com/Gurge44/EndlessHostRoles/releases/)
-[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Gurge44/badges/)
+[![GitHub Release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles/releases/latest)
+[![GitHub Downloads](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/Gurge44/EndlessHostRoles?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles/commits)
+[![Open Source? Yes!](https://img.shields.io/badge/Open%20Source-Yes!-success?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles)
 
 <img src="Resources/Images/EHR-Icon.png" alt="EHR Icon" width="400"/>
 <p align="center">
@@ -700,4 +700,5 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
 
