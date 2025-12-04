@@ -2180,7 +2180,7 @@
   "LaughToWhoGuessSelf": "<size=80%>推測を試しました、だれが自己推測を試したのでしょう！\\nそれは あなたでした！ あはは！</size>",
   "GuessSameCTAPlayer": "<size=80%>あなたは あなたのチームにいるプレイヤーの推測を試しました.... あなたは賢くないですね、あなたは？</size>",
   "GuessDisabledAddonOverride": "<size=80%>申し訳ありませんが、この特定の属性は ホストの設定により 推測ができません。</size>",
-  "GuessDisabled": "<size=80%>申し訳ありませんが、ホストに あなたの役割の推測を制限されています。</size>",
+  "GuessDisabled": "Sorry, this guess is prohibited.",
   "GuessWorkaholic": "<size=80%>申し訳ありませんが、あなたは 明らかになった<#008b8b>ワーカホリック</color>として 推測することは不公平なのでできません。</size>",
   "GuessDoctor": "<size=80%>申し訳ありませんが、あなたは 明らかになった<#80ffdd>ドクター</color>として 推測することは不公平なのでできません。</size>",
   "GuessMayor": "<size=80%>申し訳ありませんが、あなたは 明らかになった<#204d42>メイヤー</color>として 推測することは不公平なのでできません。</size>",
