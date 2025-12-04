@@ -1167,6 +1167,7 @@ public static class GameSettingMenuPatch
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
         CustomGameMode[] gms = Enum.GetValues<CustomGameMode>()[..^1];
+        gms = gms.Without(CustomGameMode.TheMindGame).ToArray();
         if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6) gms = gms.Where(SubmergedCompatibility.IsSupported).ToArray();
         int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 7f));
 

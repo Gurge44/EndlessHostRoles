@@ -560,6 +560,11 @@ internal static class GameEndChecker
         Predicate = new MingleGameEndPredicate();
     }
 
+    public static void SetPredicateToSnowdown()
+    {
+        Predicate = new SnowdownGameEndPredicate();
+    }
+
     private class NormalGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
@@ -1131,6 +1136,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return Mingle.CheckGameEnd(out reason);
+        }
+    }
+    
+    private class SnowdownGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Snowdown.CheckGameEnd(out reason);
         }
     }
 

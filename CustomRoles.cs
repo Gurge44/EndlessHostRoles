@@ -478,6 +478,9 @@ public enum CustomRoles
     
     // Mingle
     MinglePlayer,
+    
+    // Snowdown
+    SnowdownPlayer,
 
     // GM
     GM,

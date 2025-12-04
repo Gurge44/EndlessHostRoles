@@ -49,6 +49,11 @@ public static class HudSpritePatch
 
             switch (player.GetCustomRole())
             {
+                case CustomRoles.SnowdownPlayer when Snowdown.Data.TryGetValue(player.PlayerId, out Snowdown.PlayerData snowdownData) && !snowdownData.InShop:
+                {
+                    newAbilityButton = CustomButton.Get("Snowdown");
+                    break;
+                }
                 case CustomRoles.CTFPlayer:
                 {
                     newAbilityButton = CustomButton.Get("Tag");

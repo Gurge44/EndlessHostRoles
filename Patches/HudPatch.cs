@@ -250,6 +250,9 @@ internal static class HudManagerPatch
                         case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ventLimit):
                             __instance.AbilityButton.SetUsesRemaining(ventLimit);
                             break;
+                        case CustomRoles.SnowdownPlayer:
+                            __instance.AbilityButton?.OverrideText(GetString("SnowdownButtonText"));
+                            break;
                     }
 
                     if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()))
@@ -275,6 +278,7 @@ internal static class HudManagerPatch
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
+                        CustomGameMode.Snowdown => Snowdown.GetHudText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
@@ -575,6 +579,14 @@ internal static class SetHudActivePatch
 
         switch (Options.CurrentGameMode)
         {
+            case CustomGameMode.Snowdown:
+                __instance.AbilityButton?.ToggleVisible(true);
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.KillButton?.ToggleVisible(true);
+                __instance.ImpostorVentButton?.ToggleVisible(true);
+                __instance.SabotageButton?.ToggleVisible(true);
+                __instance.PetButton?.ToggleVisible(true);
+                return;
             case CustomGameMode.BedWars:
                 __instance.AbilityButton?.ToggleVisible(true);
                 __instance.ReportButton?.ToggleVisible(false);

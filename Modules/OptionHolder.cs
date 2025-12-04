@@ -35,6 +35,7 @@ public enum CustomGameMode
     BedWars = 0x0E,
     Deathrace = 0x0F,
     Mingle = 0x10,
+    Snowdown = 0x11,
     All = int.MaxValue
 }
 
@@ -88,7 +89,8 @@ public static class Options
         "TheMindGame",
         "BedWars",
         "Deathrace",
-        "Mingle"
+        "Mingle",
+        "Snowdown"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -919,6 +921,7 @@ public static class Options
         13 => CustomGameMode.BedWars,
         14 => CustomGameMode.Deathrace,
         15 => CustomGameMode.Mingle,
+        16 => CustomGameMode.Snowdown,
         _ => CustomGameMode.Standard
     };
 
@@ -1841,6 +1844,8 @@ public static class Options
         Deathrace.SetupCustomOption();
         // Mingle
         Mingle.SetupCustomOption();
+        // Snowdown
+        Snowdown.SetupCustomOption();
 
         yield return null;
 
@@ -3205,10 +3210,11 @@ public static class Options
 
             foreach (CustomGameMode customGameMode in Enum.GetValues<CustomGameMode>()[..^1])
             {
-                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance.{customGameMode}", new(0, 100, 5), 50, TabGroup.SystemSettings)
+                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance", new(0, 100, 5), 50, TabGroup.SystemSettings)
                     .SetParent(EnableAutoGMRotation)
                     .SetValueFormat(OptionFormat.Percent)
-                    .SetColor(Main.GameModeColors[customGameMode]);
+                    .SetColor(Main.GameModeColors[customGameMode])
+                    .AddReplacement(("{gm}", Translator.GetString($"{customGameMode}")));
 
                 dict[customGameMode] = chanceToSelectGMInGroup;
             }
@@ -3291,6 +3297,7 @@ public static class Options
                         13 => CustomGameMode.BedWars,
                         14 => CustomGameMode.Deathrace,
                         15 => CustomGameMode.Mingle,
+                        16 => CustomGameMode.Snowdown,
                         _ => CustomGameMode.Standard
                     };
                     AutoGMRotationCompiled.AddRange(Enumerable.Repeat(gm, times));

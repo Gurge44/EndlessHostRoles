@@ -73,7 +73,8 @@ internal static class CustomRolesHelper
             CustomRoles.TMGPlayer or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Racer or
-            CustomRoles.MinglePlayer;
+            CustomRoles.MinglePlayer or
+            CustomRoles.SnowdownPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -470,6 +471,8 @@ internal static class CustomRolesHelper
             CustomRoles.BedWarsPlayer => RoleTypes.Phantom,
             // Deathrace
             CustomRoles.Racer => RoleTypes.Phantom,
+            // Snowdown
+            CustomRoles.SnowdownPlayer => RoleTypes.Phantom,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -1052,6 +1055,7 @@ internal static class CustomRolesHelper
                          or CustomRoles.CTFPlayer
                          or CustomRoles.BedWarsPlayer
                          or CustomRoles.Racer
+                         or CustomRoles.SnowdownPlayer
                          or CustomRoles.Wizard
                          or CustomRoles.AntiAdminer
                          or CustomRoles.Stasis

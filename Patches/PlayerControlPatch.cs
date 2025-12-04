@@ -259,6 +259,9 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Deathrace:
                     Deathrace.OnCheckMurder(killer, target);
                     return false;
+                case CustomGameMode.Snowdown:
+                    Snowdown.OnCheckMurder(killer, target);
+                    return false;
             }
             
             PlagueBearer.CheckAndSpreadInfection(killer, target);
@@ -1514,7 +1517,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 44 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.Snowdown && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1975,6 +1978,9 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.Mingle when self:
                     additionalSuffixes.Add(Mingle.GetSuffix(seer));
                     break;
+                case CustomGameMode.Snowdown:
+                    additionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
+                    break;
             }
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
@@ -1984,7 +1990,7 @@ internal static class FixedUpdatePatch
             
             if (addSuff.Count > 0)
             {
-                if (Suffix.Length > 0 && Suffix[^1] != '\n')
+                if (Suffix.ToString().RemoveHtmlTags().Length > 0 && Suffix[^1] != '\n')
                     Suffix.Append('\n');
                 
                 Suffix.Append(string.Join('\n', addSuff));
@@ -2010,10 +2016,11 @@ internal static class FixedUpdatePatch
             else
                 roleText = string.Empty;
             
-            string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\r\n" : " - ";
+            string suffix = Suffix.ToString().Trim();
+            string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\n" : " - ";
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
-            target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
+            target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{suffix}";
 
             // Camouflage
             if (Camouflage.IsCamouflage) target.cosmetics.nameText.text = $"<size=0>{target.cosmetics.nameText.text}</size>";

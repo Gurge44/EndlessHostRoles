@@ -36,7 +36,8 @@ internal static class CustomRoleSelector
         { CustomGameMode.TheMindGame, CustomRoles.TMGPlayer },
         { CustomGameMode.BedWars, CustomRoles.BedWarsPlayer },
         { CustomGameMode.Deathrace, CustomRoles.Racer },
-        { CustomGameMode.Mingle, CustomRoles.MinglePlayer }
+        { CustomGameMode.Mingle, CustomRoles.MinglePlayer },
+        { CustomGameMode.Snowdown, CustomRoles.SnowdownPlayer }
     };
 
     public static void SelectCustomRoles()

@@ -1047,6 +1047,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Deathrace:
                     Deathrace.Init();
                     goto default;
+                case CustomGameMode.Snowdown:
+                    Snowdown.Init();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -1115,6 +1118,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.Mingle:
                     GameEndChecker.SetPredicateToMingle();
+                    break;
+                case CustomGameMode.Snowdown:
+                    GameEndChecker.SetPredicateToSnowdown();
                     break;
             }
 

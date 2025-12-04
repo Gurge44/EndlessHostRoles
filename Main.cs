@@ -137,7 +137,8 @@ public class Main : BasePlugin
         [CustomGameMode.HideAndSeek] = [],
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
-        [CustomGameMode.NaturalDisasters] = []
+        [CustomGameMode.NaturalDisasters] = [],
+        [CustomGameMode.Snowdown] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -258,7 +259,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId) || pc.Is(CustomRoles.GM)) continue;
 
                 result[i++] = pc;
             }
@@ -776,6 +777,8 @@ public class Main : BasePlugin
                 { CustomRoles.Racer, "#AFAFAF" },
                 // Mingle
                 { CustomRoles.MinglePlayer, "#FE9900" },
+                // Snowdown
+                { CustomRoles.SnowdownPlayer, "#e4fdff" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -858,7 +861,8 @@ public class Main : BasePlugin
             [CustomGameMode.TheMindGame] = Color.yellow,
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
-            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer)
+            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
+            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
