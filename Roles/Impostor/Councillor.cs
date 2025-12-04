@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.Crewmate;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -14,14 +15,15 @@ public class Councillor : RoleBase
 {
     private const int Id = 900;
     private static List<byte> PlayerIdList = [];
+
+    private static OptionItem KillCooldown;
     private static OptionItem AbilityUseLimit;
     private static OptionItem MurderLimitPerGame;
     private static OptionItem MurderLimitPerMeeting;
     private static OptionItem MakeEvilJudgeClear;
-    private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
-    private static OptionItem KillCooldown;
+    private static OptionItem TryHideMsg;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
     
     private static Dictionary<byte, int> MeetingKillLimit = [];

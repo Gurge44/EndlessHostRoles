@@ -140,7 +140,7 @@ public class CopyCat : RoleBase
                 CustomRoles.PlagueBearer => CustomRoles.Socialite,
                 CustomRoles.Demon => CustomRoles.Spy,
                 CustomRoles.Undertaker or CustomRoles.Vortex => CustomRoles.Vacuum,
-                CustomRoles.Kidnapper => CustomRoles.Autocrat,
+                CustomRoles.Kidnapper => new[] {CustomRoles.Autocrat, CustomRoles.Carrier}.RandomElement(),
                 CustomRoles.Capitalist => CustomRoles.Helper,
                 CustomRoles.Technician or CustomRoles.Saboteur => CustomRoles.Mechanic,
                 CustomRoles.Inhibitor => new[] {CustomRoles.Doorjammer, CustomRoles.SecurityGuard}.RandomElement(),

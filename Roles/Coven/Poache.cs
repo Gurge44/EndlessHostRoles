@@ -71,7 +71,7 @@ public class Poache : Coven
     {
         if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !KillDelays.FindFirst(x => x.ID == pc.PlayerId, out (byte ID, long KillTimeStamp) killData) || Utils.TimeStamp < killData.KillTimeStamp) return;
 
-        pc.Suicide(realKiller: PoacheId.GetPlayer());
+        pc.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer());
         KillDelays.Remove(killData);
     }
 
@@ -83,7 +83,7 @@ public class Poache : Coven
 
     public override void OnReportDeadBody()
     {
-        KillDelays.ForEach(x => x.ID.GetPlayer()?.Suicide(realKiller: PoacheId.GetPlayer()));
+        KillDelays.ForEach(x => x.ID.GetPlayer()?.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer()));
         KillDelays.Clear();
     }
 

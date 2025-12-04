@@ -10,10 +10,10 @@
 [![Download](https://img.shields.io/badge/Download-Latest-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Gurge44/EndlessHostRoles/releases/latest)
 [![Translate](https://img.shields.io/badge/Translate-Crowdin-18a303?style=for-the-badge&logo=crowdin&logoColor=white)](https://translate.gurge44.eu)
 
-![GitHub release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg?style=flat-square)
-![GitHub downloads](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg?style=flat-square)
-![Last commit](https://img.shields.io/github/last-commit/Gurge44/EndlessHostRoles?style=flat-square)
-[![Open Source](https://img.shields.io/badge/Open%20Source-Yes!-success?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles)
+[![GitHub Release](https://img.shields.io/github/release/Gurge44/EndlessHostRoles.svg?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles/releases/latest)
+[![GitHub Downloads](https://img.shields.io/github/downloads/Gurge44/EndlessHostRoles/total.svg?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/Gurge44/EndlessHostRoles?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles/commits)
+[![Open Source? Yes!](https://img.shields.io/badge/Open%20Source-Yes!-success?style=flat-square)](https://github.com/Gurge44/EndlessHostRoles)
 
 <img src="Resources/Images/EHR-Icon.png" alt="EHR Icon" width="400"/>
 <p align="center">
@@ -67,7 +67,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400+ roles and add-ons, 15 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 450+ roles and add-ons, 16 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding (Custom) Hide And Seek roles and Vanilla roles)</span>
 
@@ -228,9 +228,11 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | /kick       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /ban        | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /say        | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /start      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /poll       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /mute       | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /ds         | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| /mpoll      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /gmpoll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /fix        | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | /exe        | :x:             | :x:                | :x:                | :heavy_check_mark: | :heavy_check_mark: |
@@ -280,7 +282,7 @@ Click this badge to view our translation project:
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
-- EHR has 15 unique custom game modes, which can be played with any number of players, some even alone.
+- EHR has 16 unique custom game modes, which can be played with any number of players, some even alone.
 - You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the
   player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
@@ -398,7 +400,7 @@ Click this badge to view our translation project:
 | /tl<br>/sp<br>/jj<br>/trial                    | Trial a player as the Judge or Councillor                                                     | &#x1F538; **id** – The player's ID to trial or kill<br>                                                                                                                                                                                                                                                                      | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
 | /sw<br>/swap<br>/st                            | Set a (vote-) swap target as the Swapper                                                      | &#x1F538; **id** – The player's ID whose vote will be swapped with the other player you set<br>                                                                                                                                                                                                                              | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
 | /compare<br>/cp<br>/cmp                        | Compare two players' teams as the Inspector                                                   | &#x1F538; **id1** – The first player's ID to compare<br>&#x1F538; **id2** – The second player's ID to compare<br>                                                                                                                                                                                                            | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
-| /ms<br>/medium<br>/medium                  | Answer the Medium's question                                                                  | &#x1F538; **answer** – yes/no<br>                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
+| /ms<br>/mediumship<br>/medium                  | Answer the Medium's question                                                                  | &#x1F538; **answer** – yes/no<br>                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :x:                |
 | /rv                                            | Take revenge on (kill) a player as the Nemesis                                                | &#x1F538; **id** – The player's ID to take revenge on (kill)<br>                                                                                                                                                                                                                                                             | :purple_circle: Everyone                  | :red_square: After Death                | :x:                |
 |                                                |                                                                                               |                                                                                                                                                                                                                                                                                                                              |                                           |                                         |                    |
 | 104                                            |                                                                                               |                                                                                                                                                                                                                                                                                                                              |                                           |                                         |                    |
