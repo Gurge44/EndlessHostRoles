@@ -3044,7 +3044,7 @@
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Tout le monde a choisi son rôle !</color>",
   "DeathCommand": "<#ffffff>Vous avez été tué par </color>{0}<#ffffff>\\nSon rôle est </color>{1}",
   "DeathCommandFail": "<#ff0000>Le jeu n'a pas pu déterminer votre véritable tueur.</color>\\nVotre raison de mort est <#00ffa5>{0}</color>.",
-  "DefaultSystemMessageTitle": "➡ MEESAGE DU SYSTEME ⬅",
+  "DefaultSystemMessageTitle": "<#00ffa5>∞ <#00a5ff>EHR <#00ffff>SYSTEM MESSAGE <#00ffa5>∞",
   "MessageFromTheHost": "★ [ Message de l'hôte ]★",
   "SayTitle": "★ [ Message des modérateurs ]★",
   "MessageFromEAC": "★ [ EAC ]★",
