@@ -2180,7 +2180,7 @@
   "LaughToWhoGuessSelf": "Tried to guess, who tried to self-guess! It's you! Ahah!",
   "GuessSameCTAPlayer": "You tried to guess a player who is in your team.... You're not that smart, are you?",
   "GuessDisabledAddonOverride": "Sorry, this specific add-on cannot be guessed due to the Host's settings.",
-  "GuessDisabled": "Sorry, the host restricted guessing for your role.",
+  "GuessDisabled": "Sorry, this guess is prohibited.",
   "GuessWorkaholic": "Désolé, vous ne pouvez pas Deviner un Travailleur révélé, ce serait injuste.",
   "GuessDoctor": "Désolé, tu ne peux pas Deviner un Docteur Révélé, ce serait injuste.",
   "GuessMayor": "Sorry, you can't guess a revealed Mayor as that would be unfair.",
