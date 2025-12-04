@@ -2180,7 +2180,7 @@
   "LaughToWhoGuessSelf": "猜猜看？谁在试图赌自己？哈哈哈！",
   "GuessSameCTAPlayer": "你想要猜测与你一个阵营的玩家，不愧是高玩！",
   "GuessDisabledAddonOverride": "抱歉,由于房主设置,无法猜测此附加职业.",
-  "GuessDisabled": "很抱歉，房主限制了对您身份的猜测",
+  "GuessDisabled": "Sorry, this guess is prohibited.",
   "GuessWorkaholic": "对不起，你猜测不到一个已经暴露的工作狂，因为这不公平",
   "GuessDoctor": "对不起，你不能赌一个已经暴露的法医，因为这不公平",
   "GuessMayor": "对不起，你不能赌一个已经暴露的市长，因为这不公平",
