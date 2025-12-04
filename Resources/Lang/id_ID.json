@@ -3044,7 +3044,7 @@
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>Kamu terbunuh oleh </color>{0}<#ffffff>\\nPerannya adalah </color>{1}",
   "DeathCommandFail": "<#ff0000>The game could not determine your real killer.</color>\\nYour death reason is <#00ffa5>{0}</color>.",
-  "DefaultSystemMessageTitle": "➡ SYSTEM MESSAGE ⬅",
+  "DefaultSystemMessageTitle": "<#00ffa5>∞ <#00a5ff>EHR <#00ffff>SYSTEM MESSAGE <#00ffa5>∞",
   "MessageFromTheHost": "★[ Host message ]★",
   "SayTitle": "★[ Moderator message ]★",
   "MessageFromEAC": "★[ EAC ]★",
