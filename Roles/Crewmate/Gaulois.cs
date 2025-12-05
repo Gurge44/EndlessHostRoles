@@ -58,7 +58,7 @@ public class Gaulois : RoleBase
     {
         if (!IsEnable) return;
 
-        Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
+        Main.AllPlayerKillCooldown[playerId] = CD.GetFloat();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

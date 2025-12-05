@@ -822,6 +822,7 @@ public static class Utils
             case CustomGameMode.BedWars:
             case CustomGameMode.Deathrace:
             case CustomGameMode.Mingle:
+            case CustomGameMode.Snowdown:
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
@@ -874,7 +875,7 @@ public static class Utils
             case CustomRoles.Sprayer:
             case CustomRoles.Doppelganger:
             case CustomRoles.NecroGuesser:
-            case CustomRoles.PlagueDoctor:
+            case CustomRoles.Infection:
             case CustomRoles.Thief:
             case CustomRoles.Postman:
             case CustomRoles.Dealer:
@@ -909,11 +910,11 @@ public static class Utils
             case CustomRoles.Maverick:
             case CustomRoles.Jinx:
             case CustomRoles.Parasite:
-            case CustomRoles.Agitater:
+            case CustomRoles.Agitator:
             case CustomRoles.Crusader when !Options.UsePets.GetBool() || !Crusader.UsePet.GetBool():
-            case CustomRoles.Refugee:
+            case CustomRoles.Renegade:
             case CustomRoles.Jester:
-            case CustomRoles.Mario:
+            case CustomRoles.Vector:
             case CustomRoles.Vulture:
             case CustomRoles.God:
             case CustomRoles.Innocent:
@@ -991,7 +992,7 @@ public static class Utils
         }
 
         hasTasks &= !(CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && forRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool()));
-        hasTasks |= p.Object.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
+        hasTasks |= p.Object.UsesPetInsteadOfKill() && role is not (CustomRoles.Renegade or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
 
         foreach (CustomRoles subRole in state.SubRoles)
         {
@@ -1032,13 +1033,13 @@ public static class Utils
                    (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Investigator) && !Options.InvestigatorCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
-                   pc.Is(CustomRoles.NiceSwapper) ||
+                   pc.Is(CustomRoles.Swapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
-                   pc.Is(CustomRoles.Needy) ||
+                   pc.Is(CustomRoles.LazyGuy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
                    pc.Is(CustomRoles.Egoist) ||
-                   pc.Is(CustomRoles.DualPersonality)
+                   pc.Is(CustomRoles.Schizophrenic)
                );
     }
 
@@ -1046,7 +1047,7 @@ public static class Utils
     {
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle:
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown:
             case CustomGameMode.Standard when IsRevivingRoleAlive() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
                 return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
             case CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
@@ -1443,14 +1444,14 @@ public static class Utils
 
         new List<Message>
         {
-            new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("GMRoles")),
-            new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
-            new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
-            new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("NeutralRoles")),
-            new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("CovenRoles")),
-            new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("GhostRoles")),
-            new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags()}</size>", playerId, GetString("AddonRoles"))
-        }.SendMultipleMessages();
+            new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GMRoles")),
+            new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
+            new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
+            new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("NeutralRoles")),
+            new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("CovenRoles")),
+            new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GhostRoles")),
+            new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("AddonRoles"))
+        }.FindAll(x => x.Text.Length > 18).SendMultipleMessages();
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -1551,6 +1552,7 @@ public static class Utils
                 }
 
                 break;
+            case CustomGameMode.Snowdown:
             case CustomGameMode.Mingle:
             case CustomGameMode.Deathrace:
             case CustomGameMode.BedWars:
@@ -1784,22 +1786,22 @@ public static class Utils
         }
     }
 
-    public static void CheckAndSpawnAdditionalRefugee(NetworkedPlayerInfo deadPlayer, bool ejection = false)
+    public static void CheckAndSpawnAdditionalRenegade(NetworkedPlayerInfo deadPlayer, bool ejection = false)
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || CustomRoles.Renegade.RoleExist(true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool())))) return;
 
             PlayerControl[] listToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
             if (listToChooseFrom.Length > 0)
             {
                 PlayerControl pc = listToChooseFrom.RandomElement();
-                pc.RpcSetCustomRole(CustomRoles.Refugee);
+                pc.RpcSetCustomRole(CustomRoles.Renegade);
 
                 if (!ejection && !AntiBlackout.SkipTasks)
                 {
-                    pc.RpcChangeRoleBasis(CustomRoles.Refugee);
+                    pc.RpcChangeRoleBasis(CustomRoles.Renegade);
                     pc.SetKillCooldown();
                 }
                 else
@@ -1811,17 +1813,17 @@ public static class Utils
                     {
                         while (AntiBlackout.SkipTasks || GameStates.IsMeeting || ExileController.Instance) yield return null;
                         if (GameStates.IsEnded || GameStates.IsLobby) yield break;
-                        pc.RpcChangeRoleBasis(CustomRoles.Refugee);
+                        pc.RpcChangeRoleBasis(CustomRoles.Renegade);
                         pc.ResetKillCooldown();
                         pc.SetKillCooldown();
                     }
                 }
                 
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Madmate);
-                Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+                Logger.Warn($"{pc.GetRealName()} is now a Renegade since all Impostors are dead", "Add Renegade");
             }
             else
-                Logger.Msg("No Player to change to Refugee.", "Add Refugee");
+                Logger.Msg("No Player to change to Renegade.", "Add Renegade");
         }
         catch (Exception e) { ThrowException(e); }
     }
@@ -1855,7 +1857,7 @@ public static class Utils
                 return writer;
             }
 
-            if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
+            if (title == "") title = GetString("DefaultSystemMessageTitle");
 
             if (title.Count(x => x == '\u2605') == 2 && !title.Contains('\n'))
             {
@@ -2176,6 +2178,7 @@ public static class Utils
                     CustomGameMode.BedWars => ColorString(GetRoleColor(CustomRoles.BedWarsPlayer), $"{modeText}\r\n") + name,
                     CustomGameMode.Deathrace => ColorString(GetRoleColor(CustomRoles.Racer), $"{modeText}\r\n") + name,
                     CustomGameMode.Mingle => ColorString(GetRoleColor(CustomRoles.MinglePlayer), $"{modeText}\r\n") + name,
+                    CustomGameMode.Snowdown => ColorString(GetRoleColor(CustomRoles.SnowdownPlayer), $"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -2641,13 +2644,16 @@ public static class Utils
                     case CustomGameMode.Mingle:
                         additionalSuffixes.Add(Mingle.GetSuffix(seer));
                         break;
+                    case CustomGameMode.Snowdown:
+                        additionalSuffixes.Add(Snowdown.GetSuffix(seer, seer));
+                        break;
                 }
 
                 List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
                 
                 if (addSuff.Count > 0)
                 {
-                    if (SelfSuffix.Length > 0 && SelfSuffix[^1] != '\n')
+                    if (SelfSuffix.ToString().RemoveHtmlTags().Length > 0 && SelfSuffix[^1] != '\n')
                         SelfSuffix.Append('\n');
                     
                     SelfSuffix.Append(string.Join('\n', addSuff));
@@ -2664,7 +2670,7 @@ public static class Utils
                 if ((Options.CurrentGameMode == CustomGameMode.FFA && FreeForAll.FFATeamMode.GetBool()) || Options.CurrentGameMode == CustomGameMode.HotPotato)
                     seerRealName = seerRealName.ApplyNameColorData(seer, seer, forMeeting);
 
-                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle)
+                if (!forMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown)
                 {
                     CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
 
@@ -2702,7 +2708,7 @@ public static class Utils
                     SelfSuffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
             }
 
-            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle;
+            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown;
 
             // Combine the seer's job title and SelfTaskText with the seer's player name and SelfMark
             string selfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{selfTaskText}</size>";
@@ -2756,7 +2762,7 @@ public static class Utils
                         break;
                 }
 
-                selfName += SelfSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{SelfSuffix}";
+                selfName += SelfSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{SelfSuffix.ToString().Trim()}";
                 if (!forMeeting) selfName += "\r\n";
             }
 
@@ -2879,7 +2885,7 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 targetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle)
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown)
                                 targetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
@@ -2961,7 +2967,7 @@ public static class Utils
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
                             TargetMark.Append(Deathpact.GetDeathpactMark(seer, target));
-                            TargetMark.Append(PlagueDoctor.GetMarkOthers(seer, target));
+                            TargetMark.Append(Infection.GetMarkOthers(seer, target));
 
                             End:
 
@@ -2991,6 +2997,9 @@ public static class Utils
                                     case CustomGameMode.Deathrace:
                                         additionalSuffixes.Add(Deathrace.GetSuffix(seer, target, false));
                                         break;
+                                    case CustomGameMode.Snowdown:
+                                        additionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
+                                        break;
                                 }
 
                                 if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.Speedrun)
@@ -3008,7 +3017,7 @@ public static class Utils
                                 
                                 if (addSuff.Count > 0)
                                 {
-                                    if (TargetSuffix.Length > 0 && TargetSuffix[^1] != '\n')
+                                    if (TargetSuffix.ToString().RemoveHtmlTags().Length > 0 && TargetSuffix[^1] != '\n')
                                         TargetSuffix.Append('\n');
                                     
                                     TargetSuffix.Append(string.Join('\n', addSuff));
@@ -3023,14 +3032,14 @@ public static class Utils
                             if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(target.PlayerId)) && !camouflageIsForMeeting)
                                 targetPlayerName = GetString("DevouredName");
 
-                            // Camouflage
-                            if (Camouflage.IsCamouflage && !camouflageIsForMeeting) targetPlayerName = $"<size=0>{targetPlayerName}</size>";
-
                             if (Options.CurrentGameMode == CustomGameMode.KingOfTheZones && Main.IntroDestroyed && !KingOfTheZones.GameGoing)
                                 targetPlayerName = EmptyMessage;
 
                             var targetName = $"{targetRoleText}{targetPlayerName}{targetDeathReason}{TargetMark}";
-                            targetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"{newLineBeforeSuffix}{TargetSuffix}";
+                            targetName += GameStates.IsLobby || TargetSuffix.ToString() == string.Empty ? string.Empty : $"{newLineBeforeSuffix}{TargetSuffix.ToString().Trim()}";
+
+                            // Camouflage
+                            if (Camouflage.IsCamouflage && !camouflageIsForMeeting) targetName = $"<size=0>{targetName}</size>";
 
                             targetName = targetName.Trim().Replace("color=", "").Replace("<#ffffff><#ffffff>", "<#ffffff>");
                             if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);
@@ -3288,18 +3297,21 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (pc.IsMadmate())
-                nums[Options.GameStateInfo.MadmateCount]++;
-            else if (pc.IsNeutralKiller())
-                nums[Options.GameStateInfo.NKCount]++;
-            else if (pc.IsCrewmate())
-                nums[Options.GameStateInfo.CrewCount]++;
-            else if (pc.Is(Team.Impostor))
-                nums[Options.GameStateInfo.ImpCount]++;
-            else if (pc.Is(Team.Neutral))
-                nums[Options.GameStateInfo.NNKCount]++;
-            else if (pc.Is(Team.Coven))
-                nums[Options.GameStateInfo.CovenCount]++;
+            if (!Forger.Forges.ContainsKey(pc.PlayerId))
+            {
+                if (pc.IsMadmate())
+                    nums[Options.GameStateInfo.MadmateCount]++;
+                else if (pc.IsNeutralKiller())
+                    nums[Options.GameStateInfo.NKCount]++;
+                else if (pc.IsCrewmate())
+                    nums[Options.GameStateInfo.CrewCount]++;
+                else if (pc.Is(Team.Impostor))
+                    nums[Options.GameStateInfo.ImpCount]++;
+                else if (pc.Is(Team.Neutral))
+                    nums[Options.GameStateInfo.NNKCount]++;
+                else if (pc.Is(Team.Coven))
+                    nums[Options.GameStateInfo.CovenCount]++;
+            }
 
             if (pc.IsConverted()) nums[Options.GameStateInfo.ConvertedCount]++;
             if (Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
@@ -3309,20 +3321,20 @@ public static class Utils
 
         foreach ((byte id, CustomRoles role) in Forger.Forges)
         {
-            if (!Main.PlayerStates.TryGetValue(id, out var state) || state.IsDead)
+            if (Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
             {
                 if (role.IsMadmate())
-                    nums[Options.GameStateInfo.MadmateCount]--;
+                    nums[Options.GameStateInfo.MadmateCount]++;
                 else if (role.IsNK())
-                    nums[Options.GameStateInfo.NKCount]--;
+                    nums[Options.GameStateInfo.NKCount]++;
                 else if (role.IsCrewmate())
-                    nums[Options.GameStateInfo.CrewCount]--;
+                    nums[Options.GameStateInfo.CrewCount]++;
                 else if (role.Is(Team.Impostor))
-                    nums[Options.GameStateInfo.ImpCount]--;
+                    nums[Options.GameStateInfo.ImpCount]++;
                 else if (role.Is(Team.Neutral))
-                    nums[Options.GameStateInfo.NNKCount]--;
+                    nums[Options.GameStateInfo.NNKCount]++;
                 else if (role.Is(Team.Coven))
-                    nums[Options.GameStateInfo.CovenCount]--;
+                    nums[Options.GameStateInfo.CovenCount]++;
             }
         }
 
@@ -3349,7 +3361,7 @@ public static class Utils
         {
             Sniper { IsAim: true } => true,
             Centralizer { MarkedPosition: not null } => true,
-            Escapee { EscapeeLocation: null } => true,
+            Escapist { EscapistLocation: null } => true,
             Silencer when Silencer.ForSilencer.Count == 0 => true,
             _ => false
         };
@@ -3359,7 +3371,7 @@ public static class Utils
     {
         return pc.GetCustomRole() switch
         {
-            CustomRoles.Escapee => true,
+            CustomRoles.Escapist => true,
             _ => false
         };
     }
@@ -3398,7 +3410,7 @@ public static class Utils
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
             CustomRoles.Doorjammer => Doorjammer.AbilityCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
-            CustomRoles.Paranoia => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
+            CustomRoles.Paranoid => (int)Math.Round(Options.AdjustedDefaultKillCooldown),
             CustomRoles.Tree => 5 + (includeDuration ? Tree.FallDelay.GetInt() + Tree.FallStunDuration.GetInt() : 0),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
@@ -3411,7 +3423,7 @@ public static class Utils
             CustomRoles.TimeMaster => TimeMaster.TimeMasterSkillCooldown.GetInt(),
             CustomRoles.Perceiver => Perceiver.CD.GetInt(),
             CustomRoles.Convener => Convener.CD.GetInt(),
-            CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
+            CustomRoles.Pacifist => Options.PacifistCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
             CustomRoles.Hacker => playerId.IsPlayerModdedClient() ? -1 : Hacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
@@ -3430,7 +3442,7 @@ public static class Utils
             CustomRoles.Nuker => Bomber.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
             CustomRoles.Miner => Miner.MinerSSCD.GetInt(),
-            CustomRoles.Escapee => Escapee.EscapeeSSCD.GetInt(),
+            CustomRoles.Escapist => Escapist.EscapistSSCD.GetInt(),
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Trapster => Trapster.AbilityCooldown.GetInt(),
@@ -3642,8 +3654,8 @@ public static class Utils
                     }
 
                     break;
-                case CustomRoles.NiceSwapper when disconnect:
-                    NiceSwapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
+                case CustomRoles.Swapper when disconnect:
+                    Swapper.SwapTargets = (byte.MaxValue, byte.MaxValue);
                     break;
                 case CustomRoles.Silencer when disconnect:
                     if (onMeeting) Main.Instance.StartCoroutine(CoRoutine());
@@ -3672,11 +3684,8 @@ public static class Utils
                 case CustomRoles.Executioner when Executioner.Target.Remove(target.PlayerId):
                     Executioner.SendRPC(target.PlayerId);
                     break;
-                case CustomRoles.Lawyer when Lawyer.Target.Remove(target.PlayerId):
-                    Lawyer.SendRPC(target.PlayerId);
-                    break;
-                case CustomRoles.PlagueDoctor when !disconnect && !onMeeting:
-                    PlagueDoctor.OnPDdeath(targetRealKiller, target);
+                case CustomRoles.Infection when !disconnect && !onMeeting:
+                    Infection.OnPDdeath(targetRealKiller, target);
                     break;
                 case CustomRoles.SuperStar when !disconnect:
                     if (onMeeting)
@@ -3989,6 +3998,9 @@ public static class Utils
                     int time3 = Mingle.GetSurvivalTime(id);
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
+                case CustomGameMode.Snowdown:
+                    summary = $"{ColorString(Main.PlayerColors[id], name)} - {Snowdown.GetStatistics(id)}";
+                    break;
             }
 
             return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
@@ -4006,6 +4018,9 @@ public static class Utils
 
     public static string GetRemainingKillers(bool notify = false, bool showAll = false, byte excludeId = byte.MaxValue)
     {
+        bool anonymousCount = !showAll && Options.AnonymousKillerCount.GetBool();
+        var evilnum = 0;
+        
         var impnum = 0;
         var neutralnum = 0;
         var covenNum = 0;
@@ -4014,7 +4029,7 @@ public static class Utils
         bool nkShow = showAll || Options.ShowNKRemainOnEject.GetBool();
         bool covenShow = showAll || Options.ShowCovenRemainOnEject.GetBool();
 
-        if (!impShow && !nkShow && !covenShow) return string.Empty;
+        if (!impShow && !nkShow && !covenShow && !anonymousCount) return string.Empty;
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -4022,16 +4037,51 @@ public static class Utils
 
             if (Forger.Forges.TryGetValue(pc.PlayerId, out var forgedRole) && (exclude || ExileController.Instance || !pc.IsAlive()))
             {
-                if (impShow && forgedRole.Is(Team.Impostor)) impnum--;
-                else if (nkShow && forgedRole.IsNK()) neutralnum--;
-                else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
+                if (anonymousCount)
+                {
+                    if (forgedRole.Is(Team.Impostor) || forgedRole == CustomRoles.DoubleAgent || forgedRole.IsNK() || forgedRole.Is(Team.Coven))
+                        evilnum--;
+                }
+                else
+                {
+                    if (impShow && (forgedRole.Is(Team.Impostor) || forgedRole == CustomRoles.DoubleAgent)) impnum--;
+                    else if (nkShow && forgedRole.IsNK()) neutralnum--;
+                    else if (covenShow && forgedRole.Is(Team.Coven)) covenNum--;
+                }
             }
             else if (pc.IsAlive() && !exclude)
             {
-                if (impShow && pc.Is(Team.Impostor)) impnum++;
-                else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
-                else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+                if (anonymousCount)
+                {
+                    if ((pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent) || pc.IsNeutralKiller() || pc.Is(Team.Coven)))
+                        evilnum++;
+                }
+                else
+                {
+                    if (impShow && (pc.Is(Team.Impostor) || pc.Is(CustomRoles.DoubleAgent))) impnum++;
+                    else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+                    else if (covenShow && pc.Is(Team.Coven)) covenNum++;
+                }
             }
+        }
+        
+        StringBuilder sb = new();
+
+        if (anonymousCount)
+        {
+            sb.Append(notify ? "<#777777>" : string.Empty);
+            sb.Append(GetString(evilnum == 1 ? "RemainingText.Prefix.Single" : "RemainingText.Prefix.Plural").Replace("​", string.Empty));
+            sb.Append(notify ? " " : "\n");
+            sb.Append(notify ? "<#ffffff>" : "<b>");
+            sb.Append(evilnum);
+            sb.Append(notify ? "</color>" : "</b>");
+            sb.Append(' ');
+            sb.Append($"<#ffff00>{(evilnum == 1 ? GetString("RemainingText.AnonymousEvilCount.Single") : GetString("RemainingText.AnonymousEvilCount.Plural"))}</color>");
+            sb.Append(GetString("RemainingText.Suffix"));
+            sb.Append('.');
+            sb.Append(notify ? "</color>" : string.Empty);
+
+            return sb.ToString();
         }
 
         impShow &= impnum > 0;
@@ -4040,12 +4090,10 @@ public static class Utils
 
         if (!impShow && !nkShow && !covenShow) return string.Empty;
 
-        StringBuilder sb = new();
-
         sb.Append(notify ? "<#777777>" : string.Empty);
 
         int numberToUse = impShow ? impnum : nkShow ? neutralnum : covenNum;
-        sb.Append(numberToUse == 1 ? GetString("RemainingText.Prefix.Single") : GetString("RemainingText.Prefix.Plural"));
+        sb.Append(GetString(numberToUse == 1 ? "RemainingText.Prefix.Single" : "RemainingText.Prefix.Plural").Replace("​", string.Empty));
         sb.Append(notify ? " " : "\n");
 
         if (impShow)

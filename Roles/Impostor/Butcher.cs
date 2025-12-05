@@ -46,7 +46,7 @@ internal class Butcher : RoleBase
     {
         if (!killer.RpcCheckAndMurder(target, true)) return false;
 
-        if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Unreportable) && Main.IntroDestroyed && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
+        if (killer.PlayerId != target.PlayerId && !target.Is(CustomRoles.Disregarded) && Main.IntroDestroyed && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
         {
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
 
@@ -55,7 +55,7 @@ internal class Butcher : RoleBase
                 if (!ButcherDeadPlayerList.Contains(target.PlayerId))
                     ButcherDeadPlayerList.Add(target.PlayerId);
 
-                if (target.Is(CustomRoles.Avanger))
+                if (target.Is(CustomRoles.Avenger))
                 {
                     target.Suicide(PlayerState.DeathReason.Dismembered, killer);
 

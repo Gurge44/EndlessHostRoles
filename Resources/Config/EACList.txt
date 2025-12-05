@@ -1,4 +1,6 @@
 ## Hackers and cheaters
+flowerfit#4735,422cfefe8
+wideink#3618,677db6a5c, Fastpathos // Hacking streamer's lobby
 wiggreeny#9194,91f48d4e0
 wreckastir#1163,c4088d65
 ourregion#2992,米娜桑
@@ -89,6 +91,7 @@ goldapex#3225,a89e4420e,BoomplayYT
 woveelixir#4088,42044d211,DMD 3CD //hacker and probably BoomplayYT's alt
 tenpalace#1924,6a259fcd9,Goaty
 cat#2761,f70d4ddb1,ULC
+pinbrittle#1538,4955c179f,Moralmaser // Cheating and disrupting lobbies
 
 ## Griefers, toxic, harrasing, morons
 setmolar#4374,藏族顶针
@@ -125,6 +128,7 @@ fileslucky#0247,Ducky // Racism and Teaming with next 3
 motelduble#6447,Restart
 deltamalty#8755,Nggeereee
 polarsail#2468,hatenggers
+primesnow#4272,65b98a6de, HiverXM // the n word
 
 
 ## Other

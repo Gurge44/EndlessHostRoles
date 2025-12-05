@@ -177,7 +177,7 @@ internal static class RpcSetTasksPatch
         }
 
         // GM and Lazy Guy have no tasks
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle)
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.LazyGuy) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown)
         {
             hasCommonTasks = false;
             numShortTasks = 0;
@@ -187,11 +187,11 @@ internal static class RpcSetTasksPatch
         // Workhorse task assignment
         if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, numLongTasks, numShortTasks) = Workhorse.TaskData;
 
-        // Capitalism is going to harm people~
-        if (Capitalism.CapitalismAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
+        // Capitalist is going to harm people~
+        if (Capitalist.CapitalistAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
         {
             numShortTasks += extraTasksNum;
-            Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
+            Capitalist.CapitalistAssignTask.Remove(pc.PlayerId);
         }
 
         if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks

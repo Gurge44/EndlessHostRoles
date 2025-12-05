@@ -44,7 +44,7 @@ public class Vigilante : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : KCD.GetFloat();
+        Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

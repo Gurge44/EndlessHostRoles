@@ -372,7 +372,7 @@ public static class SabotageSystemTypeRepairDamagePatch
     public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         Instance = __instance;
-        if (Options.CurrentGameMode != CustomGameMode.Standard || __instance.Timer > 0f) return false;
+        if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.Snowdown) || __instance.Timer > 0f) return false;
 
         SystemTypes systemTypes;
         {
@@ -492,7 +492,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
             CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
             CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
-            CustomRoles.Parasite or CustomRoles.Refugee when player.IsAlive() => true,
+            CustomRoles.Parasite or CustomRoles.Renegade when player.IsAlive() => true,
             _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player) && Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
         };
 

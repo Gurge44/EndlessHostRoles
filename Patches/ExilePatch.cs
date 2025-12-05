@@ -78,7 +78,7 @@ internal static class ExileControllerWrapUpPatch
 
         Witch.RemoveSpelledPlayer();
 
-        NiceSwapper.OnExileFinish();
+        Swapper.OnExileFinish();
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {

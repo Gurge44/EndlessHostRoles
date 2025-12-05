@@ -14,9 +14,9 @@ namespace EHR.Impostor;
 public class Deathpact : RoleBase
 {
     private const int Id = 1100;
-    public static List<byte> PlayerIdList = [];
+    private static List<Deathpact> Instances = [];
 
-    public static List<byte> ActiveDeathpacts = [];
+    private static List<byte> ActiveDeathpacts = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem ShapeshiftCooldown;
@@ -26,12 +26,12 @@ public class Deathpact : RoleBase
     private static OptionItem ReduceVisionWhileInPact;
     private static OptionItem VisionWhileInPact;
     private static OptionItem KillDeathpactPlayersOnMeeting;
+
     private byte DeathPactId;
-    public long DeathpactTime;
+    private long DeathpactTime;
+    private List<PlayerControl> PlayersInDeathpact = [];
 
-    public List<PlayerControl> PlayersInDeathpact = [];
-
-    public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
+    public override bool IsEnable => Instances.Count > 0 || Randomizer.Exists;
 
     public override void SetupCustomOption()
     {
@@ -69,7 +69,7 @@ public class Deathpact : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        Instances = [];
         PlayersInDeathpact = [];
         DeathpactTime = 0;
         ActiveDeathpacts = [];
@@ -78,7 +78,7 @@ public class Deathpact : RoleBase
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        Instances.Add(this);
         PlayersInDeathpact = [];
         DeathpactTime = 0;
         DeathPactId = playerId;
@@ -86,7 +86,7 @@ public class Deathpact : RoleBase
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        Instances.Remove(this);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -149,9 +149,7 @@ public class Deathpact : RoleBase
     {
         if (!ReduceVisionWhileInPact.GetBool()) return;
 
-        if (Main.PlayerStates[player.PlayerId].Role is not Deathpact { IsEnable: true } dp) return;
-
-        if (dp.PlayersInDeathpact.Any(b => b.PlayerId == player.PlayerId) && dp.PlayersInDeathpact.Count == NumberOfPlayersInPact.GetInt())
+        if (Instances.Exists(x => x.PlayersInDeathpact.Exists(b => b.PlayerId == player.PlayerId) && x.PlayersInDeathpact.Count == NumberOfPlayersInPact.GetInt()))
         {
             opt.SetVision(false);
             opt.SetFloat(FloatOptionNames.CrewLightMod, VisionWhileInPact.GetFloat());

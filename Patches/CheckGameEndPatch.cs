@@ -202,7 +202,7 @@ internal static class GameEndChecker
                             ResetAndSetWinner(CustomWinner.Stalker);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Specter when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && WinnerTeam != CustomWinner.Specter:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
                             break;
@@ -560,6 +560,11 @@ internal static class GameEndChecker
         Predicate = new MingleGameEndPredicate();
     }
 
+    public static void SetPredicateToSnowdown()
+    {
+        Predicate = new SnowdownGameEndPredicate();
+    }
+
     private class NormalGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
@@ -633,11 +638,11 @@ internal static class GameEndChecker
                 roleCounts[(keyRole, keyWinner)] = value;
             }
 
-            if (CustomRoles.DualPersonality.IsEnable())
+            if (CustomRoles.Schizophrenic.IsEnable())
             {
                 foreach (PlayerControl x in aapc)
                 {
-                    if (!x.Is(CustomRoles.DualPersonality)) continue;
+                    if (!x.Is(CustomRoles.Schizophrenic)) continue;
 
                     if (x.Is(Team.Impostor)) imp++;
                     else if (x.Is(Team.Crewmate)) crew++;
@@ -1131,6 +1136,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return Mingle.CheckGameEnd(out reason);
+        }
+    }
+    
+    private class SnowdownGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Snowdown.CheckGameEnd(out reason);
         }
     }
 

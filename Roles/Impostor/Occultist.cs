@@ -89,7 +89,7 @@ public class Occultist : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (!InRevivingMode || reporter.GetAbilityUseLimit() < 1 || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Unreportable) || (target.Object.Is(Team.Impostor) && !CanReviveImpostorsAndMadmates.GetBool())) return true;
+        if (!InRevivingMode || reporter.GetAbilityUseLimit() < 1 || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Disregarded) || (target.Object.Is(Team.Impostor) && !CanReviveImpostorsAndMadmates.GetBool())) return true;
 
         InRevivingMode = false;
         Revives[target.PlayerId] = new(Utils.TimeStamp, reporter.Pos(), false);
@@ -129,7 +129,7 @@ public class Occultist : RoleBase
                 switch (player.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon))
                 {
                     case false when !player.Is(Team.Impostor):
-                        player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Refugee : CustomRoles.Madmate);
+                        player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Renegade : CustomRoles.Madmate);
                         break;
                     case true:
                         player.RpcSetCustomRole(convertedAddon);

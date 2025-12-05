@@ -82,7 +82,7 @@ public class Anonymous : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
     {
-        if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy) || Thanos.IsImmune(ssTarget)) return false;
+        if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.LazyGuy) || ssTarget.Is(CustomRoles.Lazy) || Thanos.IsImmune(ssTarget)) return false;
 
         pc.RpcRemoveAbilityUse();
 

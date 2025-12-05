@@ -68,7 +68,7 @@ public class Sheriff : RoleBase
     {
         foreach (CustomRoles neutral in Enum.GetValues<CustomRoles>())
         {
-            if (neutral.IsNeutral() && neutral is not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.GM and not CustomRoles.Convict && !neutral.IsForOtherGameMode())
+            if (neutral.IsNeutral() && neutral is not CustomRoles.Pestilence and not CustomRoles.GM and not CustomRoles.Convict && !neutral.IsForOtherGameMode())
             {
                 SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
                 id++;
@@ -104,7 +104,7 @@ public class Sheriff : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? KillCooldown.GetFloat() : 15f;
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

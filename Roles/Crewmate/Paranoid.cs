@@ -4,12 +4,12 @@ using static EHR.Options;
 
 namespace EHR.Crewmate;
 
-internal class Paranoia : RoleBase
+internal class Paranoid : RoleBase
 {
     public static Dictionary<byte, int> ParaUsedButtonCount = [];
 
     
-    public static OptionItem ParanoiaAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem ParanoidAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
     
     public static bool On;
@@ -17,22 +17,22 @@ internal class Paranoia : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(7800, TabGroup.CrewmateRoles, CustomRoles.Paranoia);
+        SetupRoleOptions(7800, TabGroup.CrewmateRoles, CustomRoles.Paranoid);
 
-        ParanoiaNumOfUseButton = new FloatOptionItem(7810, "ParanoiaNumOfUseButton", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
+        ParanoidNumOfUseButton = new FloatOptionItem(7810, "ParanoidNumOfUseButton", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoid])
             .SetValueFormat(OptionFormat.Times);
 
-        ParanoiaVentCooldown = new FloatOptionItem(7811, "ParanoiaVentCooldown", new(0, 180, 1), 10, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
+        ParanoidVentCooldown = new FloatOptionItem(7811, "ParanoidVentCooldown", new(0, 180, 1), 10, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoid])
             .SetValueFormat(OptionFormat.Seconds);
         
-        ParanoiaAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(7812, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
+        ParanoidAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(7812, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoid])
             .SetValueFormat(OptionFormat.Times);
         
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(7813, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoia])
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Paranoid])
             .SetValueFormat(OptionFormat.Times);
     }
 
@@ -40,7 +40,7 @@ internal class Paranoia : RoleBase
     {
         On = true;
         ParaUsedButtonCount[playerId] = 0;
-        playerId.SetAbilityUseLimit(ParanoiaNumOfUseButton.GetFloat());
+        playerId.SetAbilityUseLimit(ParanoidNumOfUseButton.GetFloat());
     }
 
     public override void Init()
@@ -58,8 +58,8 @@ internal class Paranoia : RoleBase
         if (UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown =
-            !ParaUsedButtonCount.TryGetValue(playerId, out int count2) || count2 < ParanoiaNumOfUseButton.GetInt()
-                ? ParanoiaVentCooldown.GetFloat()
+            !ParaUsedButtonCount.TryGetValue(playerId, out int count2) || count2 < ParanoidNumOfUseButton.GetInt()
+                ? ParanoidVentCooldown.GetFloat()
                 : 300f;
 
         AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -68,9 +68,9 @@ internal class Paranoia : RoleBase
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (UsePets.GetBool())
-            hud.PetButton.buttonLabelText.text = Translator.GetString("ParanoiaVentButtonText");
+            hud.PetButton.buttonLabelText.text = Translator.GetString("ParanoidVentButtonText");
         else
-            hud.AbilityButton.buttonLabelText.text = Translator.GetString("ParanoiaVentButtonText");
+            hud.AbilityButton.buttonLabelText.text = Translator.GetString("ParanoidVentButtonText");
     }
 
     public override void OnPet(PlayerControl pc)
@@ -90,7 +90,7 @@ internal class Paranoia : RoleBase
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
-            if (AmongUsClient.Instance.AmHost) LateTask.New(() => Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoiaNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId), 4f, "Paranoia Skill Remain Message");
+            if (AmongUsClient.Instance.AmHost) LateTask.New(() => Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoidNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId), 4f, "Paranoid Skill Remain Message");
             pc.NoCheckStartMeeting(pc.Data);
         }
     }

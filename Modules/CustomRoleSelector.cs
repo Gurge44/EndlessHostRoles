@@ -36,7 +36,8 @@ internal static class CustomRoleSelector
         { CustomGameMode.TheMindGame, CustomRoles.TMGPlayer },
         { CustomGameMode.BedWars, CustomRoles.BedWarsPlayer },
         { CustomGameMode.Deathrace, CustomRoles.Racer },
-        { CustomGameMode.Mingle, CustomRoles.MinglePlayer }
+        { CustomGameMode.Mingle, CustomRoles.MinglePlayer },
+        { CustomGameMode.Snowdown, CustomRoles.SnowdownPlayer }
     };
 
     public static void SelectCustomRoles()
@@ -116,7 +117,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.RuthlessRomantic:
                 case CustomRoles.Deathknight:
                 case CustomRoles.Convict:
-                case CustomRoles.Refugee:
+                case CustomRoles.Renegade:
                 case CustomRoles.CovenMember:
                 case CustomRoles.CovenLeader:
                 case CustomRoles.Death:

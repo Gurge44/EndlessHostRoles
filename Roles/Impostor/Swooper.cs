@@ -122,10 +122,10 @@ public class Swooper : RoleBase
         try
         {
             if (UsedRole == CustomRoles.Chameleon)
-                AURoleOptions.EngineerCooldown = Cooldown + 1f;
+                AURoleOptions.EngineerCooldown = Cooldown + 2f;
             else if (UsePhantomBasis.GetBool() && (UsedRole == CustomRoles.Swooper || UsePhantomBasisForNKs.GetBool()))
             {
-                AURoleOptions.PhantomCooldown = Cooldown + 1f;
+                AURoleOptions.PhantomCooldown = Cooldown + 2f;
                 AURoleOptions.PhantomDuration = 0.1f;
             }
         }

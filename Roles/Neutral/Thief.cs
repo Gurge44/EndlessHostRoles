@@ -1,17 +1,21 @@
-﻿namespace EHR.Neutral;
+﻿using AmongUs.GameOptions;
+
+namespace EHR.Neutral;
 
 public class Thief : RoleBase
 {
     public static bool On;
 
     private static OptionItem CanStealCovenRoles;
+    private static OptionItem ImpostorVision;
 
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         StartSetup(656400)
-            .AutoSetupOption(ref CanStealCovenRoles, false);
+            .AutoSetupOption(ref CanStealCovenRoles, false)
+            .AutoSetupOption(ref ImpostorVision, false);
     }
 
     public override void Init()
@@ -27,6 +31,11 @@ public class Thief : RoleBase
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return pc.IsAlive();
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(ImpostorVision.GetBool());
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -51,7 +60,7 @@ public class Thief : RoleBase
             
             if (target.Is(CustomRoles.Trickster)) role = CustomRoles.DoubleAgent;
             else if (target.Is(CustomRoles.Maverick)) role = CustomRoles.SerialKiller;
-            else if (target.IsMadmate()) role = CustomRoles.Refugee;
+            else if (target.IsMadmate()) role = CustomRoles.Renegade;
             else if (target.IsImpostor() || target.IsNeutralKiller()) role = target.GetCustomRole();
             else if (CanStealCovenRoles.GetBool() && target.Is(CustomRoleTypes.Coven)) role = CustomRoles.CovenMember;
     

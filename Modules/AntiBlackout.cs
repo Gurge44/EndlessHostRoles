@@ -14,7 +14,7 @@ public static class AntiBlackout
 
     // Optimally, there's 1 living impostor and at least 2 living crewmates in everyone's POV.
     // We force this to prevent black screens after meetings.
-    public static void SetOptimalRoleTypesToPreventBlackScreen()
+    public static void SetOptimalRoleTypes()
     {
         // If there are only 2 or fewer players in the game in total, there's nothing we can do.
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || PlayerControl.AllPlayerControls.Count <= 2) return;
@@ -126,7 +126,6 @@ public static class AntiBlackout
                         pc.Exiled();
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, 4, SendOption.Reliable);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
-                        if (pc.HasDesyncRole()) pc.FixBlackScreen();
                         if (pc.HasGhostRole()) pc.RpcResetAbilityCooldown();
                     }
                 }

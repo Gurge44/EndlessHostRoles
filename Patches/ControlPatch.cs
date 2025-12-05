@@ -139,10 +139,16 @@ internal static class ControllerManagerUpdatePatch
                 GameStartManager.Instance.countDownTimer = 0;
             }
 
-            if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby)
+            if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby && !HudManager.Instance.Chat.IsOpenOrOpening)
             {
                 GameStartManager.Instance.ResetStartState();
                 Logger.SendInGame(GetString("CancelStartCountDown"));
+            }
+
+            if (Input.GetKeyDown(KeyCode.Return) && GameStates.IsLobby && GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting && !HudManager.Instance.Chat.IsOpenOrOpening && !OnGameJoinedPatch.JoiningGame)
+            {
+                Logger.Info("ENTER pressed: Starting game by host", "KeyCommand");
+                GameStartManager.Instance.BeginGame();
             }
 
             if (KeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
@@ -205,7 +211,7 @@ internal static class ControllerManagerUpdatePatch
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
                 PlayerControl.LocalPlayer.RpcExileV2();
                 Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
-                Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer);
+                Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, GameStates.IsMeeting);
                 Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
             }
 

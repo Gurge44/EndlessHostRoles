@@ -3,19 +3,19 @@ using static EHR.Options;
 
 namespace EHR.Impostor;
 
-internal class Capitalism : RoleBase
+internal class Capitalist : RoleBase
 {
-    private static readonly Dictionary<byte, int> CapitalismAddTask = [];
-    public static readonly Dictionary<byte, int> CapitalismAssignTask = [];
+    private static readonly Dictionary<byte, int> CapitalistAddTask = [];
+    public static readonly Dictionary<byte, int> CapitalistAssignTask = [];
     public static bool On;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(16600, TabGroup.ImpostorRoles, CustomRoles.Capitalism);
+        SetupRoleOptions(16600, TabGroup.ImpostorRoles, CustomRoles.Capitalist);
 
-        CapitalismKillCooldown = new FloatOptionItem(16611, "KillCooldown", new(2.5f, 60f, 0.5f), 25f, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalism])
+        CapitalistKillCooldown = new FloatOptionItem(16611, "KillCooldown", new(2.5f, 60f, 0.5f), 25f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Capitalist])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -31,33 +31,33 @@ internal class Capitalism : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton?.OverrideText(Translator.GetString("CapitalismButtonText"));
+        hud.KillButton?.OverrideText(Translator.GetString("CapitalistButtonText"));
     }
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CapitalismKillCooldown.GetFloat();
+        Main.AllPlayerKillCooldown[id] = CapitalistKillCooldown.GetFloat();
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         return killer.CheckDoubleTrigger(target, () =>
         {
-            CapitalismAddTask.TryAdd(target.PlayerId, 0);
-            CapitalismAddTask[target.PlayerId]++;
-            CapitalismAssignTask.TryAdd(target.PlayerId, 0);
-            CapitalismAssignTask[target.PlayerId]++;
-            Logger.Info($"{killer.GetRealName()} added a task for: {target.GetRealName()}", "Capitalism Add Task");
+            CapitalistAddTask.TryAdd(target.PlayerId, 0);
+            CapitalistAddTask[target.PlayerId]++;
+            CapitalistAssignTask.TryAdd(target.PlayerId, 0);
+            CapitalistAssignTask[target.PlayerId]++;
+            Logger.Info($"{killer.GetRealName()} added a task for: {target.GetRealName()}", "Capitalist Add Task");
         });
     }
 
     public static bool AddTaskForPlayer(PlayerControl player)
     {
-        if (CapitalismAddTask.TryGetValue(player.PlayerId, out int amount))
+        if (CapitalistAddTask.TryGetValue(player.PlayerId, out int amount))
         {
             TaskState taskState = player.GetTaskState();
             taskState.AllTasksCount += amount;
-            CapitalismAddTask.Remove(player.PlayerId);
+            CapitalistAddTask.Remove(player.PlayerId);
             taskState.CompletedTasksCount++;
             player.RpcResetTasks(false);
             player.SyncSettings();

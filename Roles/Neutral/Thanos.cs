@@ -289,7 +289,7 @@ public class Thanos : RoleBase
         
         if (StonesWaitingForUse.Count > 0)
         {
-            string action = Translator.GetString(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? "AbilityButtonText.Specter" : Options.UsePets.GetBool() ? "PetButtonText" : "Shapeshift");
+            string action = Translator.GetString(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? "AbilityButtonText.Phantom" : Options.UsePets.GetBool() ? "PetButtonText" : "Shapeshift");
             sb.AppendLine(string.Format(Translator.GetString("Thanos.StoneWaitingForUse"), action, Translator.GetString($"Thanos.Stone.{StonesWaitingForUse[0]}")));
         }
 

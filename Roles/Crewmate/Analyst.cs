@@ -119,7 +119,7 @@ internal class Analyst : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
+        Main.AllPlayerKillCooldown[id] = CD.GetFloat();
     }
 
     public static void OnAnyoneEnterVent(PlayerControl pc)

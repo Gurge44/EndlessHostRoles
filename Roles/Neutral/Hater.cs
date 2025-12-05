@@ -123,10 +123,10 @@ public class Hater : RoleBase
             target.SetRealKiller(killer);
             killer.Kill(target);
             target.Data.IsDead = true;
-            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
         }
 
-        killer.Suicide(PlayerState.DeathReason.Sacrifice);
+        killer.Suicide(PlayerState.DeathReason.Misfire);
         Logger.Info($"{killer.GetRealName()} killed incorrect target => misfire", "Hater");
         return false;
     }
@@ -138,7 +138,7 @@ public class Hater : RoleBase
             CustomRoles.Cultist or
             CustomRoles.Deathknight or
             CustomRoles.Necromancer or
-            CustomRoles.Refugee or
+            CustomRoles.Renegade or
             CustomRoles.Romantic or
             CustomRoles.RuthlessRomantic or
             CustomRoles.VengefulRomantic or

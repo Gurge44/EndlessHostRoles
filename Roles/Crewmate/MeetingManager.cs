@@ -50,7 +50,7 @@ public class MeetingManager : RoleBase
     public static void OnSwap(PlayerControl tg1, PlayerControl tg2)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutSwap"), CustomRoles.NiceSwapper.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutSwap"), CustomRoles.Swapper.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
     }
 
     public static void OnCompare(PlayerControl tg1, PlayerControl tg2)

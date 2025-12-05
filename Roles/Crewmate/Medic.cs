@@ -142,7 +142,7 @@ public class Medic : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? CD.GetFloat() : 300f;
+        Main.AllPlayerKillCooldown[id] = CD.GetFloat();
     }
 
     public static bool InProtect(byte id)

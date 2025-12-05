@@ -26,6 +26,7 @@ public static class AutoHaunt
             CustomGameMode.RoomRush => RoomRush.PointsSystem ? validPCs.MaxBy(x => RoomRush.GetPoints(x.PlayerId)) : validPCs.RandomElement(),
             CustomGameMode.KingOfTheZones => validPCs.MaxBy(x => KingOfTheZones.GetZoneTime(x.PlayerId)),
             CustomGameMode.Deathrace => validPCs.MaxBy(x => Deathrace.Data.TryGetValue(x.PlayerId, out var drData) ? drData.Lap : 0),
+            CustomGameMode.Snowdown => validPCs.Where(x => Snowdown.Data.ContainsKey(x.PlayerId)).Select(x => (pc: x, data: Snowdown.Data[x.PlayerId])).OrderByDescending(x => x.data.Points).ThenBy(x => x.data.SnowballGainInterval).ThenByDescending(x => x.data.Coins).ThenByDescending(x => x.data.SnowballsReady).Select(x => x.pc).FirstOrDefault(),
             _ => validPCs.RandomElement()
         };
     }

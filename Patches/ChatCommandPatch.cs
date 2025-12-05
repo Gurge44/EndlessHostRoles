@@ -391,10 +391,10 @@ internal static class ChatCommands
         {
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Swapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Inspector.InspectorCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
-            if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
+            if (Medium.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
             if (Nemesis.NemesisMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
         }
 
@@ -679,6 +679,7 @@ internal static class ChatCommands
                 Medic.IsDead(killer);
                 killer.RpcExileV2();
                 Utils.AfterPlayerDeathTasks(killer, true);
+                killer.RpcGuesserMurderPlayer();
                 Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
             }
@@ -910,6 +911,7 @@ internal static class ChatCommands
         Starspawn.IsDayBreak = true;
         sp.HasUsedDayBreak = true;
 
+        player.RPCPlayCustomSound("Line");
         Utils.SendMessage("\n", title: string.Format(GetString("StarspawnUsedDayBreak"), CustomRoles.Starspawn.ToColoredString()));
     }
 
@@ -1392,7 +1394,7 @@ internal static class ChatCommands
         DraftResult = [];
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
-        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToList();
+        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM).ToList();
 
         if (allRoles.Count < allPlayerIds.Length)
         {
@@ -3595,7 +3597,7 @@ internal static class ChatCommands
         {
             if (GuessManager.GuesserMsg(player, text) ||
                 Judge.TrialMsg(player, text) ||
-                NiceSwapper.SwapMsg(player, text) ||
+                Swapper.SwapMsg(player, text) ||
                 Inspector.InspectorCheckMsg(player, text) ||
                 Councillor.MurderMsg(player, text))
             {
@@ -3604,7 +3606,7 @@ internal static class ChatCommands
                 return;
             }
 
-            if (Mediumshiper.MsMsg(player, text) || Nemesis.NemesisMsgCheck(player, text))
+            if (Medium.MsMsg(player, text) || Nemesis.NemesisMsgCheck(player, text))
             {
                 LastSentCommand[player.PlayerId] = now;
                 return;

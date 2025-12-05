@@ -16,7 +16,7 @@ internal class Mycologist : RoleBase
         "VentButtonText", // 0
         "SabotageButtonText", // 1
         "PetButtonText", // 2
-        "AbilityButtonText.Specter", // 3
+        "AbilityButtonText.Phantom", // 3
         "AbilityButtonText.Shapeshifter" // 4
     ];
 

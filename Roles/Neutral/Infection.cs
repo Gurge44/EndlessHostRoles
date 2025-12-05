@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace EHR.Neutral;
 
-public class PlagueDoctor : RoleBase
+public class Infection : RoleBase
 {
     private const int Id = 641700;
     private static List<byte> PlayerIdList = [];
@@ -37,31 +37,31 @@ public class PlagueDoctor : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueDoctor);
+        Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Infection);
 
-        OptionInfectLimit = new IntegerOptionItem(Id + 10, "PlagueDoctorInfectLimit", new(1, 3, 1), 1, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
+        OptionInfectLimit = new IntegerOptionItem(Id + 10, "InfectionInfectLimit", new(1, 3, 1), 1, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection])
             .SetValueFormat(OptionFormat.Times);
 
-        OptionInfectWhenKilled = new BooleanOptionItem(Id + 11, "PlagueDoctorInfectWhenKilled", false, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
+        OptionInfectWhenKilled = new BooleanOptionItem(Id + 11, "InfectionInfectWhenKilled", false, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection]);
 
-        OptionInfectTime = new FloatOptionItem(Id + 12, "PlagueDoctorInfectTime", new(3f, 20f, 1f), 8f, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
+        OptionInfectTime = new FloatOptionItem(Id + 12, "InfectionInfectTime", new(3f, 20f, 1f), 8f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OptionInfectDistance = new FloatOptionItem(Id + 13, "PlagueDoctorInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
+        OptionInfectDistance = new FloatOptionItem(Id + 13, "InfectionInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection]);
 
-        OptionInfectInactiveTime = new FloatOptionItem(Id + 14, "PlagueDoctorInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
+        OptionInfectInactiveTime = new FloatOptionItem(Id + 14, "InfectionInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OptionInfectCanInfectSelf = new BooleanOptionItem(Id + 15, "PlagueDoctorCanInfectSelf", false, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
+        OptionInfectCanInfectSelf = new BooleanOptionItem(Id + 15, "InfectionCanInfectSelf", false, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection]);
 
-        OptionInfectCanInfectVent = new BooleanOptionItem(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
+        OptionInfectCanInfectVent = new BooleanOptionItem(Id + 16, "InfectionCanInfectVent", false, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Infection]);
     }
 
     public override void Init()
@@ -114,7 +114,7 @@ public class PlagueDoctor : RoleBase
 
     public override string GetProgressText(byte id, bool comms)
     {
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor).ShadeColor(0.25f), $"({id.GetAbilityUseLimit()})");
+        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infection).ShadeColor(0.25f), $"({id.GetAbilityUseLimit()})");
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -134,7 +134,7 @@ public class PlagueDoctor : RoleBase
     {
         if (!IsEnable || !Utils.DoRPC) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPlagueDoctor, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncInfection, SendOption.Reliable);
         writer.Write(targetId);
         writer.Write(rate);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -161,7 +161,7 @@ public class PlagueDoctor : RoleBase
 
     public static void OnPDdeath(PlayerControl killer, PlayerControl target)
     {
-        if (Main.PlayerStates[target.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return;
+        if (Main.PlayerStates[target.PlayerId].Role is not Infection { IsEnable: true } pd) return;
 
         if (InfectWhenKilled && target.GetAbilityUseLimit() > 0)
         {
@@ -227,7 +227,7 @@ public class PlagueDoctor : RoleBase
                 {
                     changed = true;
                     updates.Add(target);
-                    Logger.Info($"InfectRate [{target.GetNameWithRole()}]: {newRate}%", "PlagueDoctor");
+                    Logger.Info($"InfectRate [{target.GetNameWithRole()}]: {newRate}%", "Infection");
                     SendRPC(target.PlayerId, newRate);
                 }
             }
@@ -248,34 +248,34 @@ public class PlagueDoctor : RoleBase
 
         LateTask.New(() =>
         {
-            Logger.Info("Infect Active", "PlagueDoctor");
+            Logger.Info("Infect Active", "Infection");
             InfectActive = true;
         }, InfectInactiveTime, "ResetInfectInactiveTime");
     }
 
     public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null)
     {
-        if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;
+        if (Main.PlayerStates[seer.PlayerId].Role is not Infection { IsEnable: true } pd) return string.Empty;
 
         seen ??= seer;
-        if (!pd.CanInfect(seen) || !seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
+        if (!pd.CanInfect(seen) || !seer.Is(CustomRoles.Infection) && seer.IsAlive()) return string.Empty;
 
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen, pd));
+        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infection), GetInfectRateCharactor(seen, pd));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId && seer.IsAlive() || !seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive() || !hud && seer.IsModdedClient() || Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;
+        if (seer.PlayerId != target.PlayerId && seer.IsAlive() || !seer.Is(CustomRoles.Infection) && seer.IsAlive() || !hud && seer.IsModdedClient() || Main.PlayerStates[seer.PlayerId].Role is not Infection { IsEnable: true } pd) return string.Empty;
 
         var str = new StringBuilder(40);
 
         foreach (PlayerControl player in Main.AllAlivePlayerControls)
         {
-            if (!player.Is(CustomRoles.PlagueDoctor))
+            if (!player.Is(CustomRoles.Infection))
                 str.Append(GetInfectRateCharactor(player, pd));
         }
 
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), str.ToString());
+        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infection), str.ToString());
     }
 
     public static bool IsInfected(byte playerId)
@@ -284,7 +284,7 @@ public class PlagueDoctor : RoleBase
         return rate >= 100;
     }
 
-    private static string GetInfectRateCharactor(PlayerControl player, PlagueDoctor pd)
+    private static string GetInfectRateCharactor(PlayerControl player, Infection pd)
     {
         if (!pd.IsEnable || !pd.CanInfect(player) || !player.IsAlive() || !InfectInfos.TryGetValue(player.PlayerId, out float rate)) return string.Empty;
 
@@ -301,7 +301,7 @@ public class PlagueDoctor : RoleBase
     {
         if (PlayerIdList.Count == 0 || player == null) return;
 
-        Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "PlagueDoctor");
+        Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "Infection");
         InfectInfos[player.PlayerId] = 100;
         SendRPC(player.PlayerId, 100);
         Utils.NotifyRoles(SpecifySeer: player);
@@ -318,24 +318,24 @@ public class PlagueDoctor : RoleBase
         // Invalid if someone's victory is being processed
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
 
-        if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId)))
+        if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Infection) || IsInfected(p.PlayerId)))
         {
             InfectActive = false;
 
-            PlayerControl pd = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.PlagueDoctor));
+            PlayerControl pd = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.Infection));
 
             foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {
-                if (player.Is(CustomRoles.PlagueDoctor)) continue;
+                if (player.Is(CustomRoles.Infection)) continue;
                 player.Suicide(PlayerState.DeathReason.Curse, pd);
             }
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Infection);
 
-            foreach (PlayerControl plagueDoctor in Main.AllPlayerControls)
+            foreach (PlayerControl infection in Main.AllPlayerControls)
             {
-                if (plagueDoctor.Is(CustomRoles.PlagueDoctor))
-                    CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
+                if (infection.Is(CustomRoles.Infection))
+                    CustomWinnerHolder.WinnerIds.Add(infection.PlayerId);
             }
         }
     }
