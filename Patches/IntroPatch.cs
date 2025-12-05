@@ -690,7 +690,8 @@ internal static class BeginCrewmatePatch
                     CustomRoles.TimeManager
                     => MeetingHud.Instance.VoteLockinSound,
 
-                CustomRoles.Demolitionist or
+                CustomRoles.Altruist or
+                    CustomRoles.Demolitionist or
                     CustomRoles.Disperser or
                     CustomRoles.Grenadier or
                     CustomRoles.Miner or
