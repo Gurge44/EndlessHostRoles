@@ -3616,7 +3616,6 @@
   "Thanos.ActiveStone": "<size=80%><#00ffa5>擁有保石：</color> <b>{0}</b></size>",
   "Thanos.MindStoneUsed": "<size=80%><#00ff00>心靈寶石激活</color>",
   "Thanos.StoneWaitingForUse": "<#00a5ff>{0}</color> 啟動/切換到 <#00ffff>{1} 寶石</color>",
-  "AbilityButtonText.Thanos": "切換",
   "Swapster": "換位者",
   "SwapsterInfo": "交換兩名玩家的位置",
   "SwapsterInfoLong": "(偽裝者陣營):\\n換位者可以在變形菜單中選擇兩名玩家來讓他們交換位置。",
