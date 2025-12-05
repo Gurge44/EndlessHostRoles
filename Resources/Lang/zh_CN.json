@@ -3616,7 +3616,6 @@
   "Thanos.ActiveStone": "<size=80%><#00ffa5>选中的宝石:</color> <b>{0}</b></size>",
   "Thanos.MindStoneUsed": "<size=80%><#00ff00>灵魂宝石生效中</color>",
   "Thanos.StoneWaitingForUse": "<#00a5ff>{0}</color> 以激活/切换到 <#00ff>{1} </color>",
-  "AbilityButtonText.Thanos": "切换",
   "Swapster": "邪恶传送师",
   "SwapsterInfo": "交换玩家",
   "SwapsterInfoLong": "(内鬼职业):\\n邪恶传送师可以在变形菜单中选择两个玩家交换他们的位置。",
