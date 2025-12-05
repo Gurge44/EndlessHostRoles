@@ -673,13 +673,10 @@ internal static class ChatCommands
             else if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(player);
-                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
-                killerState.deathReason = PlayerState.DeathReason.Retribution;
-                killerState.SetDead();
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Retribution;
                 Medic.IsDead(killer);
-                killer.RpcExileV2();
-                Utils.AfterPlayerDeathTasks(killer, true);
                 killer.RpcGuesserMurderPlayer();
+                Utils.AfterPlayerDeathTasks(killer, true);
                 Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
             }
