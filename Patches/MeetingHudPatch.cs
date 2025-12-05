@@ -457,7 +457,14 @@ internal static class CheckForEndVotingPatch
 
         if (Executioner.CheckExileTarget(exiledPlayer, true))
         {
-            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool()) name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
+            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool())
+            {
+                if (decidedWinner)
+                    name += string.Format(GetString("ExiledExeTargetAddBelow"));
+                else
+                    name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
+            }
+
             decidedWinner = true;
         }
 

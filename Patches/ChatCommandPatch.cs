@@ -1728,6 +1728,8 @@ internal static class ChatCommands
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
+        
+        if (gmPoll && GMPollGameModes.Count > 6) msg += "<size=70%>";
 
         PollTimer = gmPoll ? 60f : 45f;
         Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
