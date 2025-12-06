@@ -237,7 +237,7 @@ public class RoomRusher : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != RoomRusherId || seer.PlayerId != target.PlayerId || meeting || hud || !seer.IsAlive()) return string.Empty;
+        if (seer.PlayerId != RoomRusherId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud || meeting || !seer.IsAlive()) return string.Empty;
 
         StringBuilder sb = new();
         bool done = Won;
