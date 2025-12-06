@@ -3616,7 +3616,6 @@
   "Thanos.ActiveStone": "<size=80%><#00ffa5>Активный камень:</color> <b>{0}</b></size>",
   "Thanos.MindStoneUsed": "<size=80%><#00ff00>Камень Разума активен</color>",
   "Thanos.StoneWaitingForUse": "<#00a5ff>{0}</color>, чтобы активировать/переключиться на <#00ffff>{1} Камень</color>",
-  "AbilityButtonText.Thanos": "Переключатель",
   "Swapster": "Менятель",
   "SwapsterInfo": "Меняйте игроков местами",
   "SwapsterInfoLong": "(Предатель):\\nМенятель может выбрать двух игроков в меню морфа, чтобы поменять их местами.",

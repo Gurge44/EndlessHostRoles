@@ -3616,7 +3616,6 @@
   "Thanos.ActiveStone": "<size=80%> <#00ffa5>Gema activa</color><b>{0}</b></size>",
   "Thanos.MindStoneUsed": "<size=80%><#00ff00>Gema de la mente Activa</color>",
   "Thanos.StoneWaitingForUse": "<#00a5ff>{0}</color> para activar/cambiar a <#00ffff>La gema de {1} </color>",
-  "AbilityButtonText.Thanos": "Switch",
   "Swapster": "Cambiador",
   "SwapsterInfo": "Cambia Jugadores",
   "SwapsterInfoLong": "(Impostores):\\nComo el Cambiador, puedes elegir 2 jugadores usando tu menú de cambio de forma para cambiarlos.",
