@@ -184,7 +184,7 @@ public enum CustomRPC
     TMGSync,
     BedWarsSync,
     DeathraceSync,
-    SnowdownSync,
+    SnowdownSync
 }
 
 public enum Sounds
