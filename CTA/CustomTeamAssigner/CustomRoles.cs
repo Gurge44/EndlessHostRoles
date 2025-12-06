@@ -32,7 +32,7 @@ public enum CustomRoles
     BountyHunter,
     Butcher,
     Camouflager,
-    Capitalism,
+    Capitalist,
     Cantankerous,
     Catalyst,
     Centralizer,
@@ -52,8 +52,8 @@ public enum CustomRoles
     Duellist,
     Dazzler,
     Echo,
-    Escapee, // Escapist
-    EvilEraser, // Eraser
+    Escapist,
+    EvilEraser,
     EvilGuesser,
     EvilTracker,
     Exclusionary,
@@ -66,7 +66,7 @@ public enum CustomRoles
     Gangster,
     Generator,
     Godfather,
-    Greedy,   // Greedier
+    Greedy,
     Hangman,
     Hitman,
     Hypnotist,
@@ -97,7 +97,7 @@ public enum CustomRoles
     Psychopath,
     Puppeteer,
     QuickShooter,
-    Refugee,
+    Renegade,
     RiftMaker,
     Saboteur,
     Sapper,
@@ -176,6 +176,7 @@ public enum CustomRoles
     Coroner,
     Crusader,
     Dad,
+    Decryptor,
     Demolitionist,
     Deputy,
     Detour,
@@ -192,7 +193,7 @@ public enum CustomRoles
     Express,
     Farmer,
     Forensic,
-    FortuneTeller , // Divinator
+    FortuneTeller,
     Gardener,
     Gaulois,
     Goose,
@@ -212,13 +213,12 @@ public enum CustomRoles
     Jailor,
     Journalist,
     Judge,
-    LazyGuy,   // Needy     
+    LazyGuy,
     Leery,
     Lighter,
     Lookout,
     LovingCrewmate,
     Luckey,
-    Decryptor,
     Markseeker,
     Marshall,
     Mathematician,
@@ -238,8 +238,8 @@ public enum CustomRoles
     Observer,
     Oracle,
     Oxyman,
-    Pacifist,   // DovesOfNeace
-    Paranoia,
+    Pacifist,
+    Paranoid,
     Perceiver,
     PortalMaker,
     President,
@@ -288,7 +288,7 @@ public enum CustomRoles
 
     // Neutrals
 
-    Agitater,
+    Agitator,
     Amnesiac,
     Amogus,
     Arsonist,
@@ -325,14 +325,13 @@ public enum CustomRoles
     HexMaster,
     Hookshot,
     Impartial,
-    PlagueDoctor,
+    Infection,
     Innocent,
     Investor,
     Jackal,
     Jester,
     Jinx,
     Juggernaut,
-    Konan,
     Lawyer,
     Magician,
     Magistrate,
@@ -479,6 +478,9 @@ public enum CustomRoles
     
     // Mingle
     MinglePlayer,
+    
+    // Snowdown
+    SnowdownPlayer,
 
     // GM
     GM,
@@ -499,7 +501,7 @@ public enum CustomRoles
     Avenger,
     Bait,
     BananaMan,
-    Trapper, // Beartrap
+    Beartrap,
     Bewilder,
     Blind,
     Blocked,
@@ -520,8 +522,8 @@ public enum CustomRoles
     DeadlyQuota,
     Disco,
     Diseased,
+    Disregarded,
     Dynamo,
-    Unreportable, // Disregarded
     DoubleShot,
     Egoist,
     Energetic,
@@ -572,20 +574,20 @@ public enum CustomRoles
     Recruit,
     Rookie,
     Trainee,
-    DualPersonality, // Schizophrenic
+    Schizophrenic,
     Seer,
     Shade, // Ghost role
     Shy,
     Sleuth,
     Sonar,
     Stained,
-    TicketsStealer, // Stealer
+    Stealer,
     Stressed,
     Swift,
     Sunglasses,
     Taskcounter,
     TaskMaster,
-    Brakar, // Tiebreaker
+    Tiebreaker,
     Tired,
     Torch,
     Truant,

@@ -72,11 +72,6 @@ public class Sapper : RoleBase
         }
     }
 
-    public override void SetKillCooldown(byte id)
-    {
-        Main.AllPlayerKillCooldown[id] = 300f;
-    }
-
     public override bool CanUseSabotage(PlayerControl pc)
     {
         return CanSabotage.GetBool();

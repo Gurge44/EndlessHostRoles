@@ -36,22 +36,22 @@ internal class EvilEraser : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Eraser);
+        Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilEraser);
 
         EraseMethod = new StringOptionItem(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.EvilEraser]);
 
         WhenTargetIsNeutral = new StringOptionItem(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.EvilEraser]);
 
         EraseLimitOpt = new IntegerOptionItem(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.EvilEraser])
             .SetValueFormat(OptionFormat.Times);
 
         HideVote = new BooleanOptionItem(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.EvilEraser]);
 
-        CancelVote = Options.CreateVoteCancellingUseSetting(Id + 14, CustomRoles.Eraser, TabGroup.ImpostorRoles);
+        CancelVote = Options.CreateVoteCancellingUseSetting(Id + 14, CustomRoles.EvilEraser, TabGroup.ImpostorRoles);
     }
 
     public override void Init()
@@ -113,13 +113,13 @@ internal class EvilEraser : RoleBase
 
         if (target.PlayerId == player.PlayerId)
         {
-            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")), sendOption: SendOption.None);
+            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.EvilEraser), GetString("EraserEraseMsgTitle")), sendOption: SendOption.None);
             return false;
         }
 
         if (target.GetCustomRole().IsNeutral())
         {
-            Utils.SendMessage(string.Format(GetString("EraserEraseNeutralNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")));
+            Utils.SendMessage(string.Format(GetString("EraserEraseNeutralNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.EvilEraser), GetString("EraserEraseMsgTitle")));
             return false;
         }
 
@@ -127,7 +127,7 @@ internal class EvilEraser : RoleBase
 
         if (!PlayerToErase.Contains(target.PlayerId)) PlayerToErase.Add(target.PlayerId);
 
-        Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")));
+        Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.EvilEraser), GetString("EraserEraseMsgTitle")));
 
         if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
 

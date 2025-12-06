@@ -78,7 +78,7 @@ public class Silencer : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (SilenceMode.GetValue() == 1 || ForSilencer.Count >= 1) return true;
+        if (SilenceMode.GetValue() >= 1 || ForSilencer.Count >= 1) return true;
 
         return killer.CheckDoubleTrigger(target, () =>
         {

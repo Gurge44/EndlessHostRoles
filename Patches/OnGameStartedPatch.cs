@@ -184,7 +184,14 @@ internal static class ChangeRoleSettings
 
             Main.GameEndDueToTimer = false;
 
-            try { Main.AllRoleClasses.Do(x => x.Init()); }
+            try
+            {
+                Main.AllRoleClasses.ForEach(x =>
+                {
+                    try { x.Init(); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                });
+            }
             catch (Exception e) { Utils.ThrowException(e); }
 
             Main.PlayerStates = [];
@@ -552,7 +559,7 @@ internal static class StartGameHostPatch
 
             if (loadingBarLogo)
             {
-                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 460f);
+                loadingBarLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 390f);
                 loadingBarLogo.SetNativeSize();
             }
 
@@ -960,6 +967,9 @@ internal static class StartGameHostPatch
 
                 if (state.SubRoles.Contains(CustomRoles.BananaMan))
                     Utils.RpcChangeSkin(state.Player, new());
+                
+                if (state.SubRoles.Contains(CustomRoles.Venom))
+                    state.SubRoles.FindAll(x => x.IncompatibleWithVenom()).ForEach(state.RemoveSubRole);
             }
 
             foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
@@ -1044,6 +1054,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Deathrace:
                     Deathrace.Init();
                     goto default;
+                case CustomGameMode.Snowdown:
+                    Snowdown.Init();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -1112,6 +1125,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.Mingle:
                     GameEndChecker.SetPredicateToMingle();
+                    break;
+                case CustomGameMode.Snowdown:
+                    GameEndChecker.SetPredicateToSnowdown();
                     break;
             }
 
@@ -1609,4 +1625,3 @@ internal static class StartGameHostPatch
         }
     }
 }
-

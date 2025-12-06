@@ -175,6 +175,9 @@ public static class FixedUpdateCaller
                             case CustomGameMode.BedWars:
                                 BedWars.FixedUpdatePatch.Postfix(pc);
                                 break;
+                            case CustomGameMode.Snowdown:
+                                Snowdown.FixedUpdatePatch.Postfix(pc);
+                                break;
                         }
 
                         CheckInvalidMovementPatch.Postfix(pc);

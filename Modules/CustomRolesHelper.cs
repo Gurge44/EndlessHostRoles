@@ -73,7 +73,8 @@ internal static class CustomRolesHelper
             CustomRoles.TMGPlayer or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Racer or
-            CustomRoles.MinglePlayer;
+            CustomRoles.MinglePlayer or
+            CustomRoles.SnowdownPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -331,7 +332,7 @@ internal static class CustomRolesHelper
             CustomRoles.SchrodingersCat => CustomRoles.Crewmate,
             CustomRoles.SoulCatcher => CustomRoles.Shapeshifter,
             CustomRoles.QuickShooter => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
-            CustomRoles.Eraser => CustomRoles.Impostor,
+            CustomRoles.EvilEraser => CustomRoles.Impostor,
             CustomRoles.Butcher => CustomRoles.Impostor,
             CustomRoles.Hangman => CustomRoles.Shapeshifter,
             CustomRoles.Sunnyboy => CustomRoles.Scientist,
@@ -470,6 +471,8 @@ internal static class CustomRolesHelper
             CustomRoles.BedWarsPlayer => RoleTypes.Phantom,
             // Deathrace
             CustomRoles.Racer => RoleTypes.Phantom,
+            // Snowdown
+            CustomRoles.SnowdownPlayer => RoleTypes.Phantom,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -800,7 +803,7 @@ internal static class CustomRolesHelper
             CustomRoles.CursedWolf or
             CustomRoles.SoulCatcher or
             CustomRoles.QuickShooter or
-            CustomRoles.Eraser or
+            CustomRoles.EvilEraser or
             CustomRoles.Butcher or
             CustomRoles.Hangman or
             CustomRoles.Bard or
@@ -916,7 +919,7 @@ internal static class CustomRolesHelper
             CustomRoles.FortuneTeller when FortuneTeller.CancelVote.GetBool() => true,
             CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool() => true,
             CustomRoles.Oracle when Oracle.CancelVote.GetBool() => true,
-            CustomRoles.Eraser when EvilEraser.CancelVote.GetBool() => true,
+            CustomRoles.EvilEraser when EvilEraser.CancelVote.GetBool() => true,
             CustomRoles.Tether when Tether.CancelVote.GetBool() => true,
             CustomRoles.Ricochet when Ricochet.CancelVote.GetBool() => true,
             CustomRoles.Cleanser when Cleanser.CancelVote.GetBool() => true,
@@ -1052,6 +1055,7 @@ internal static class CustomRolesHelper
                          or CustomRoles.CTFPlayer
                          or CustomRoles.BedWarsPlayer
                          or CustomRoles.Racer
+                         or CustomRoles.SnowdownPlayer
                          or CustomRoles.Wizard
                          or CustomRoles.AntiAdminer
                          or CustomRoles.Stasis
@@ -1286,7 +1290,7 @@ internal static class CustomRolesHelper
         {
             CustomRoles.Bomber when !Bomber.BomberCanKill.GetBool() => true,
             CustomRoles.Changeling when !Changeling.CanKillBeforeRoleChange.GetBool() => true,
-            CustomRoles.Eraser when EvilEraser.EraseMethod.GetValue() == 0 => true,
+            CustomRoles.EvilEraser when EvilEraser.EraseMethod.GetValue() == 0 => true,
             CustomRoles.Puppeteer when !Puppeteer.PuppeteerCanKillNormally.GetBool() => true,
             CustomRoles.Silencer when Silencer.SilenceMode.GetValue() == 0 => true,
             CustomRoles.Sniper when !Sniper.CanKillWithBullets.GetBool() => true,
@@ -1672,7 +1676,7 @@ internal static class CustomRolesHelper
             CustomRoles.Devourer => RoleOptionType.Impostor_Support,
             CustomRoles.Disperser => RoleOptionType.Impostor_Support,
             CustomRoles.Dazzler => RoleOptionType.Impostor_Support,
-            CustomRoles.Eraser => RoleOptionType.Impostor_Support,
+            CustomRoles.EvilEraser => RoleOptionType.Impostor_Support,
             CustomRoles.Freezer => RoleOptionType.Impostor_Support,
             CustomRoles.Gangster => RoleOptionType.Impostor_Support,
             CustomRoles.Godfather => RoleOptionType.Impostor_Support,

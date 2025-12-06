@@ -91,7 +91,7 @@ internal static class RepairSystemPatch
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
-        if ((Options.CurrentGameMode != CustomGameMode.Standard || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
+        if ((Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.Snowdown) || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
         if (player.Is(CustomRoles.Fool) && systemType is SystemTypes.Comms or SystemTypes.Electrical) return false;
 
         if (SubmergedCompatibility.IsSubmerged() && systemType is not (SystemTypes.Electrical or SystemTypes.Comms)) return true;
@@ -253,7 +253,7 @@ internal static class CloseDoorsPatch
 {
     public static bool Prefix([HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
+        bool allow = !Options.DisableSabotage.GetBool() && !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
 
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;

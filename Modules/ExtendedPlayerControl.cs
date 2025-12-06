@@ -66,7 +66,7 @@ internal static class ExtendedPlayerControl
     public static bool UsesMeetingShapeshift(this PlayerControl player)
     {
         CustomRoles role = player.GetCustomRole();
-        if (player.IsModdedClient() && role is CustomRoles.Judge or CustomRoles.Swapper or CustomRoles.Nemesis) return false;
+        if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Judge or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Retributionist) return false;
         return role.UsesMeetingShapeshift();
     }
 
@@ -355,7 +355,7 @@ internal static class ExtendedPlayerControl
 
             RoleTypes newRoleType = state.MainRole.GetRoleTypes();
 
-            if (Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars)
+            if (Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars or CustomGameMode.Snowdown)
                 hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
 
             player.ResetKillCooldown();
@@ -438,12 +438,15 @@ internal static class ExtendedPlayerControl
             Logger.Warn($"Invalid Revive for {player.GetRealName()} / Player was already alive? {!player.Data.IsDead}", "RpcRevive");
             return;
         }
+        
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
 
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
-        Main.PlayerStates[player.PlayerId].IsDead = false;
-        Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
+        state.RealKiller = (DateTime.MinValue, byte.MaxValue);
+        state.IsDead = false;
+        state.deathReason = PlayerState.DeathReason.etc;
         TempExiled.Remove(player.PlayerId);
-        if (Options.CurrentGameMode == CustomGameMode.Standard) Main.PlayerStates[player.PlayerId].Role.OnRevived(player);
+        if (Options.CurrentGameMode == CustomGameMode.Standard) state.Role.OnRevived(player);
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);
         player.RpcChangeRoleBasis(player.GetCustomRole());
         player.ResetKillCooldown();
@@ -1078,7 +1081,7 @@ internal static class ExtendedPlayerControl
     {
         try
         {
-            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
             return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
         catch (Exception e)
@@ -1362,6 +1365,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.BedWars:
             case CustomGameMode.Deathrace:
+            case CustomGameMode.Snowdown:
                 return true;
         }
 
@@ -1422,6 +1426,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.Quiz => false,
             CustomGameMode.TheMindGame => false,
             CustomGameMode.Mingle => false,
+            CustomGameMode.Snowdown => true,
             CustomGameMode.Deathrace => Deathrace.CanUseVent(pc, pc.GetClosestVent().Id),
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
@@ -1732,6 +1737,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.QuizPlayer => 3f,
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,
+            CustomRoles.SnowdownPlayer => 1f,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

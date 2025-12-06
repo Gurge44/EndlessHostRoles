@@ -66,7 +66,7 @@ internal static class EndGamePatch
 
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -342,6 +342,14 @@ internal static class SetEverythingUpPatch
                     
                     goto EndOfText;
                 }
+                case CustomGameMode.Snowdown:
+                {
+                    Color color = Utils.GetRoleColor(CustomRoles.SnowdownPlayer);
+                    __instance.BackgroundBar.material.color = color;
+                    winnerText.text = (CustomWinnerHolder.WinnerIds.Count <= 1 ? CustomWinnerHolder.WinnerIds.FirstOrDefault().ColoredPlayerName() : CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join()) + GetString("Win");
+                    winnerText.color = color;
+                    goto EndOfText;
+                }
             }
         }
 
@@ -550,6 +558,7 @@ internal static class SetEverythingUpPatch
 
                     break;
                 }
+                case CustomGameMode.Snowdown:
                 case CustomGameMode.Mingle:
                 case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:

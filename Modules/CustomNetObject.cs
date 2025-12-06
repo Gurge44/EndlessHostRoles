@@ -24,7 +24,6 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
 
-        private static List<CustomNetObject> TempDespawnedObjects = [];
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
@@ -240,7 +239,9 @@ namespace EHR
                         catch (Exception exception) { Utils.ThrowException(exception); }
                     }
 
-                    playerControl.RawSetName(sprite);
+                    try { playerControl.RawSetName("<size=14><br></size>" + sprite); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                     int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
                     string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
@@ -286,6 +287,8 @@ namespace EHR
                 }, 0.6f);
             }
 
+            playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+            playerControl.cosmetics.colorBlindText.color = Color.clear;
             Position = position;
             Sprite = sprite;
             ++MaxId;
@@ -869,7 +872,7 @@ namespace EHR
 
     public sealed class DeathracePowerUp : CustomNetObject
     {
-        public Deathrace.PowerUp PowerUp;
+        public readonly Deathrace.PowerUp PowerUp;
         
         public DeathracePowerUp(Vector2 position, Deathrace.PowerUp powerUp)
         {
@@ -896,6 +899,33 @@ namespace EHR
             };
             
             CreateNetObject(Utils.ColorString(color, $"{icon}\n<size=80%>{Translator.GetString($"Deathrace.PowerUpDisplay.{powerUp}").ToUpper()}</size>"), position);
+        }
+    }
+    
+    internal sealed class Snowball : CustomNetObject
+    {
+        public PlayerControl Thrower;
+        public Vector2 Direction;
+
+        public Snowball(Vector2 from, Vector2 direction, PlayerControl thrower)
+        {
+            Thrower = thrower;
+            Direction = direction;
+            CreateNetObject("<line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
+        }
+
+        protected override void OnFixedUpdate()
+        {
+            Vector2 newPos = Position + Direction * Time.fixedDeltaTime * Snowdown.SnowballThrowSpeed;
+            
+            if ((PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false)) ||
+                newPos.x < Snowdown.MapBounds.X.Left || newPos.x > Snowdown.MapBounds.X.Right || newPos.y < Snowdown.MapBounds.Y.Bottom || newPos.y > Snowdown.MapBounds.Y.Top)
+            {
+                Despawn();
+                return;
+            }
+            
+            TP(newPos);
         }
     }
 }

@@ -83,7 +83,7 @@ internal class Bomber : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = !IsNuker && BomberCanKill.GetBool() ? BomberKillCD.GetFloat() : 300f;
+        Main.AllPlayerKillCooldown[id] = BomberKillCD.GetFloat();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

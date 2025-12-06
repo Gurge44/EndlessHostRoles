@@ -167,7 +167,7 @@ internal static class CheckForEndVotingPatch
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.FortuneTeller) && FortuneTeller.HideVote.GetBool()) continue;
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && EvilEraser.HideVote.GetBool()) continue;
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.EvilEraser) && EvilEraser.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.NiceEraser) && NiceEraser.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Scout) && Scout.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Oracle) && Oracle.HideVote.GetBool()) continue;
@@ -457,7 +457,14 @@ internal static class CheckForEndVotingPatch
 
         if (Executioner.CheckExileTarget(exiledPlayer, true))
         {
-            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool()) name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
+            if (Options.ShowDifferentEjectionMessageForSomeRoles.GetBool())
+            {
+                if (decidedWinner)
+                    name += string.Format(GetString("ExiledExeTargetAddBelow"));
+                else
+                    name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
+            }
+
             decidedWinner = true;
         }
 
@@ -929,6 +936,15 @@ internal static class MeetingHudStartPatch
                 roleTextMeeting.text += $"<#ffffff>{suffix}</color>";
                 roleTextMeeting.enabled = true;
             }
+            
+            TextMeshPro deathReasonTextMeeting = Object.Instantiate(pva.NameText, pva.NameText.transform, true);
+            deathReasonTextMeeting.transform.localPosition = new(0f, 0.18f, 0f);
+            deathReasonTextMeeting.fontSize = 1.4f;
+            deathReasonTextMeeting.text = Utils.GetVitalText(target.PlayerId);
+            deathReasonTextMeeting.color = Utils.GetRoleColor(CustomRoles.Doctor);
+            deathReasonTextMeeting.gameObject.name = "DeathReasonTextMeeting";
+            deathReasonTextMeeting.enableWordWrapping = false;
+            deathReasonTextMeeting.enabled = seer.KnowDeathReason(target);
 
             // Thanks BAU (By D1GQ) - are you happy now?
             Transform playerLevel = pva.transform.Find("PlayerLevel");
@@ -1029,8 +1045,6 @@ internal static class MeetingHudStartPatch
 
             CustomRoles seerRole = seer.GetCustomRole();
 
-            if (seer.KnowDeathReason(target)) sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})");
-
             switch (seer.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Impostor:
@@ -1127,6 +1141,8 @@ internal static class MeetingHudStartPatch
         Councillor.StartMeetingPatch.Postfix(__instance);
         Nemesis.StartMeetingPatch.Postfix(__instance);
         Imitator.StartMeetingPatch.Postfix(__instance);
+        Retributionist.StartMeetingPatch.Postfix(__instance);
+        Starspawn.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
         Crowded.MeetingHudStartPatch.Postfix(__instance);
@@ -1272,7 +1288,7 @@ internal static class MeetingHudOnDestroyPatch
                 GuessManager.Data.Clear();
             }
 
-            AntiBlackout.SetOptimalRoleTypesToPreventBlackScreen();
+            AntiBlackout.SetOptimalRoleTypes();
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;

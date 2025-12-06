@@ -171,6 +171,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     CaptureTheFlag.ApplyGameOptions();
                     goto case CustomGameMode.RoomRush;
                 }
+                case CustomGameMode.Snowdown:
+                {
+                    Snowdown.ApplyGameOptions(opt, player);
+                    goto case CustomGameMode.RoomRush;
+                }
                 case CustomGameMode.NaturalDisasters:
                 {
                     SetMaxVision();

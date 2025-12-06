@@ -62,7 +62,7 @@ public static class GuessManager
         return false;
     }
 
-    public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
+    public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false, bool ssMenu = false)
     {
         string originMsg = msg;
 
@@ -122,13 +122,13 @@ public static class GuessManager
 
                 SkipCheck:
 
-                if (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
-                    (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool()))
+                if (!isUI && !ssMenu && (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
+                     (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
+                     (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
+                     (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
+                     (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())))
                     ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
+                else if (pc.AmOwner && !isUI && !ssMenu) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
                 {
@@ -162,7 +162,7 @@ public static class GuessManager
                             return true;
                     }
 
-                    if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId))
+                    if (!pc.Is(CustomRoles.Guesser) && CopyCat.Instances.Exists(x => x.CopyCatPC == pc))
                     {
                         ShowMessage("GuessDisabled");
                         return true;
@@ -319,7 +319,7 @@ public static class GuessManager
                         case CustomRoles.President when Main.PlayerStates[target.PlayerId].Role is President { IsRevealed: true }:
                             ShowMessage("GuessPresident");
                             return true;
-                        case CustomRoles.Eraser when EvilEraser.ErasedPlayers.Contains(target.PlayerId) && pc.Is(CustomRoles.Eraser):
+                        case CustomRoles.EvilEraser when EvilEraser.ErasedPlayers.Contains(target.PlayerId) && pc.Is(CustomRoles.EvilEraser):
                         case CustomRoles.NiceEraser when NiceEraser.ErasedPlayers.Contains(target.PlayerId) && pc.Is(CustomRoles.NiceEraser):
                             ShowMessage("GuessErased");
                             return true;
@@ -801,7 +801,10 @@ public static class GuessManager
             Transform maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
             Transform smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
             TextTemplate.enabled = true;
-            if (TextTemplate.transform.FindChild("RoleTextMeeting") != null) Object.Destroy(TextTemplate.transform.FindChild("RoleTextMeeting").gameObject);
+            Transform roleTextMeeting = TextTemplate.transform.FindChild("RoleTextMeeting");
+            if (roleTextMeeting != null) Object.Destroy(roleTextMeeting.gameObject);
+            Transform deathReasonTextMeeting = TextTemplate.transform.FindChild("DeathReasonTextMeeting");
+            if (deathReasonTextMeeting != null) Object.Destroy(deathReasonTextMeeting.gameObject);
 
             Transform exitButtonParent = new GameObject().transform;
             exitButtonParent.SetParent(container);
@@ -959,7 +962,8 @@ public static class GuessManager
 
             void CreateRole(CustomRoles role)
             {
-                var customRoleTypesInt = (int)role.GetCustomRoleTypes();
+                CustomRoleTypes customRoleTypes = role.GetCustomRoleTypes();
+                var customRoleTypesInt = (int)customRoleTypes;
                 if (40 <= i[customRoleTypesInt]) i[customRoleTypesInt] = 0;
                 Transform buttonParent = new GameObject().transform;
                 buttonParent.SetParent(container);
@@ -970,10 +974,10 @@ public static class GuessManager
 
                 button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
 
-                if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes()))
-                    RoleButtons.Add(role.GetCustomRoleTypes(), []);
+                if (!RoleButtons.ContainsKey(customRoleTypes))
+                    RoleButtons.Add(customRoleTypes, []);
 
-                RoleButtons[role.GetCustomRoleTypes()].Add(button);
+                RoleButtons[customRoleTypes].Add(button);
                 buttons.Add(button);
                 int row = i[customRoleTypesInt] / 5;
                 int col = i[customRoleTypesInt] % 5;
@@ -1188,9 +1192,8 @@ public static class GuessManager
         }
 
         private State CurrentState = State.WaitingForTargetSelection;
-        private readonly byte GuesserId = guesserId;
         private PlayerControl Target;
-        private CustomRoleTypes CurrentTeamType;
+        private CustomRoleTypes CurrentTeam;
         private CustomRoles[] ShownRoles;
         private List<CustomRoles> CurrentRoles;
         private CustomRoles SelectedRole;
@@ -1199,78 +1202,38 @@ public static class GuessManager
 
         public void Reset()
         {
-            if (CurrentState == State.WaitingForTargetSelection) return;
-            CurrentState = State.WaitingForTargetSelection;
-            Target = null;
-            CurrentTeamType = default(CustomRoleTypes);
-            ExistingCNOs.Do(x => x.Despawn());
-            ExistingCNOs.Clear();
-            NetIdToRawDisplay.Clear();
-            Utils.SendGameDataTo(GuesserId.GetPlayer().OwnerId);
-            Logger.Msg($"Reset Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")})", "Meeting Shapeshift For Guessing");
+            try
+            {
+                if (CurrentState == State.WaitingForTargetSelection) return;
+                CurrentState = State.WaitingForTargetSelection;
+                Target = null;
+                CurrentTeam = default(CustomRoleTypes);
+                ExistingCNOs.Do(x => x.Despawn());
+                ExistingCNOs.Clear();
+                NetIdToRawDisplay.Clear();
+                PlayerControl pc = guesserId.GetPlayer();
+                if (pc != null) Utils.SendGameDataTo(pc.OwnerId);
+                Logger.Msg($"Reset Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")})", "Meeting Shapeshift For Guessing");
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         public void AdvanceStep(PlayerControl target)
         {
-            Logger.Info($"Advancing Step ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")}, from {CurrentState})", "Meeting Shapeshift For Guessing");
-            
-            switch (CurrentState)
+            try
             {
-                case State.WaitingForTargetSelection:
+                Logger.Info($"Advancing Step ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")}, from {CurrentState})", "Meeting Shapeshift For Guessing");
+            
+                switch (CurrentState)
                 {
-                    Target = target;
-                    CurrentState = State.TeamSelection;
-                    SpawnCNOs();
-                    break;
-                }
-                case State.TeamSelection:
-                {
-                    if (!TryGetDisplay(out string display)) return;
-
-                    if (display == "Cancel")
+                    case State.WaitingForTargetSelection:
                     {
-                        Reset();
-                        return;
+                        Target = target;
+                        CurrentState = State.TeamSelection;
+                        SpawnCNOs();
+                        break;
                     }
-
-                    CurrentTeamType = Enum.Parse<CustomRoleTypes>(display, true);
-                    ShownRoles = Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CurrentTeamType && ShowRoleOnUI(x)).ToArray();
-                    CurrentState = State.FirstLetterSelection;
-                    SpawnCNOs();
-                    break;
-                }
-                case State.FirstLetterSelection:
-                {
-                    if (!TryGetDisplay(out string display)) return;
-
-                    if (display == "Cancel")
-                    {
-                        Reset();
-                        return;
-                    }
-
-                    CurrentRoles = ShownRoles.Select(x => (role: x, str: GetString(x.ToString()))).Where(x => display.Split('-').Any(y => x.str.StartsWith(y.Trim(), StringComparison.InvariantCultureIgnoreCase))).Select(x => x.role).ToList();
-
-                    if (CurrentRoles.Count == 0)
-                    {
-                        Reset();
-                        return;
-                    }
-
-                    if (CurrentRoles.Count == 1)
-                    {
-                        // Directly select if there's only one role
-                        SelectedRole = CurrentRoles[0];
-                        goto case State.RoleSelection;
-                    }
-
-                    CurrentState = State.RoleSelection;
-                    SpawnCNOs();
-                    break;
-                }
-                case State.RoleSelection:
-                {
-                    if (SelectedRole == default(CustomRoles))
+                    case State.TeamSelection:
                     {
                         if (!TryGetDisplay(out string display)) return;
 
@@ -1280,14 +1243,63 @@ public static class GuessManager
                             return;
                         }
 
-                        SelectedRole = Enum.Parse<CustomRoles>(display, true);
+                        CurrentTeam = Enum.Parse<CustomRoleTypes>(display, true);
+                        ShownRoles = Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CurrentTeam && ShowRoleOnUI(x)).ToArray();
+                        CurrentState = State.FirstLetterSelection;
+                        SpawnCNOs();
+                        break;
                     }
+                    case State.FirstLetterSelection:
+                    {
+                        if (!TryGetDisplay(out string display)) return;
 
-                    GuesserMsg(GuesserId.GetPlayer(), $"/bt {Target.PlayerId} {GetString(SelectedRole.ToString())}");
-                    Reset();
-                    break;
+                        if (display == "Cancel")
+                        {
+                            Reset();
+                            return;
+                        }
+
+                        CurrentRoles = ShownRoles.Select(x => (role: x, str: GetString(x.ToString()))).Where(x => display.Split('-').Any(y => x.str.StartsWith(y.Trim(), StringComparison.InvariantCultureIgnoreCase))).Select(x => x.role).ToList();
+
+                        if (CurrentRoles.Count == 0)
+                        {
+                            Reset();
+                            return;
+                        }
+
+                        if (CurrentRoles.Count == 1)
+                        {
+                            // Directly select if there's only one role
+                            SelectedRole = CurrentRoles[0];
+                            goto case State.RoleSelection;
+                        }
+
+                        CurrentState = State.RoleSelection;
+                        SpawnCNOs();
+                        break;
+                    }
+                    case State.RoleSelection:
+                    {
+                        if (SelectedRole == default(CustomRoles))
+                        {
+                            if (!TryGetDisplay(out string display)) return;
+
+                            if (display == "Cancel")
+                            {
+                                Reset();
+                                return;
+                            }
+
+                            SelectedRole = Enum.Parse<CustomRoles>(display, true);
+                        }
+
+                        GuesserMsg(guesserId.GetPlayer(), $"/bt {Target.PlayerId} {GetString(SelectedRole.ToString())}", ssMenu: true);
+                        Reset();
+                        break;
+                    }
                 }
             }
+            catch (Exception e) { Utils.ThrowException(e); }
 
             return;
 
@@ -1302,159 +1314,163 @@ public static class GuessManager
                     return false;
                 }
 
-                Logger.Info($"Raw display choice: {display}", $"Meeting Shapeshift For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")})");
+                Logger.Info($"Raw display choice: {display}", $"Meeting Shapeshift For Guessing ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")})");
                 return true;
             }
         }
 
         public void SpawnCNOs()
         {
-            IEnumerable<string> choices = CurrentState switch
+            try
             {
-                State.TeamSelection => Enum.GetNames<CustomRoleTypes>(),
-                State.FirstLetterSelection => BuildLetterGroups(ShownRoles.Select(x => GetString(x.ToString())).OrderBy(x => x)),
-                State.RoleSelection => CurrentRoles.Select(x => x.ToString()),
-                _ => []
-            };
-
-            IEnumerable<string> namePlateIds = CurrentState switch
-            {
-                State.TeamSelection => ["nameplate_ripple", "nameplate_seeker", "nameplate_Polus_Lava", "nameplate_Celeste", "nameplate0001"],
-                _ => Enumerable.Repeat(CurrentTeamType switch
+                IEnumerable<string> choices = CurrentState switch
                 {
-                    CustomRoleTypes.Impostor => "nameplate_seeker",
-                    CustomRoleTypes.Crewmate => "nameplate_ripple",
-                    CustomRoleTypes.Neutral => "nameplate_Polus_Lava",
-                    CustomRoleTypes.Coven => "nameplate_Celeste",
-                    CustomRoleTypes.Addon => "nameplate0001",
-                    _ => ""
-                }, 14)
-            };
+                    State.TeamSelection => Enum.GetNames<CustomRoleTypes>(),
+                    State.FirstLetterSelection => BuildLetterGroups(ShownRoles.Select(x => GetString(x.ToString())).OrderBy(x => x)),
+                    State.RoleSelection => CurrentRoles.Select(x => x.ToString()),
+                    _ => []
+                };
 
-            choices = choices.Prepend("Cancel");
-            namePlateIds = namePlateIds.Prepend("nameplate_candyCanePlate");
-
-            (string choice, string namePlateId)[] data = choices.Zip(namePlateIds, (choice, namePlateId) => (choice, namePlateId)).ToArray();
-            PlayerControl[] alivePlayerControls = Main.AllAlivePlayerControls;
-            int alivePlayerControlsLength = alivePlayerControls.Length - 1;
-
-            Logger.Info($"Set Up Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(GuesserId, "Someone")}, {CurrentState})", "Meeting Shapeshift For Guessing");
-
-            // First, use living players to show choices by changing their names
-            // The local player can't be used to show a choice (-1)
-
-            StringBuilder sb = new();
-            int textIndex = 0;
-
-            var skipped = false;
-            PlayerControl guesser = GuesserId.GetPlayer();
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(6);
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(guesser.OwnerId);
-
-            for (var i = 0; i < alivePlayerControls.Length && (skipped ? i - 1 : i) < data.Length; i++)
-            {
-                string choice = data[skipped ? i - 1 : i].choice;
-                string namePlateId = data[skipped ? i - 1 : i].namePlateId;
-                PlayerControl pc = alivePlayerControls[i];
-
-                if (pc.PlayerId == GuesserId)
+                IEnumerable<string> namePlateIds = CurrentState switch
                 {
-                    skipped = true;
-                    continue;
-                }
+                    State.TeamSelection => ["nameplate_ripple", "nameplate_seeker", "nameplate_Polus_Lava", "nameplate_Celeste", "nameplate0001"],
+                    _ => Enumerable.Repeat(CurrentTeam switch
+                    {
+                        CustomRoleTypes.Impostor => "nameplate_seeker",
+                        CustomRoleTypes.Crewmate => "nameplate_ripple",
+                        CustomRoleTypes.Neutral => "nameplate_Polus_Lava",
+                        CustomRoleTypes.Coven => "nameplate_Celeste",
+                        CustomRoleTypes.Addon => "nameplate0001",
+                        _ => ""
+                    }, 14)
+                };
 
-                NetIdToRawDisplay[pc.NetId] = choice;
-                string playerName = CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper();
+                choices = choices.Prepend("Cancel");
+                namePlateIds = namePlateIds.Prepend("nameplate_candyCanePlate");
+
+                (string choice, string namePlateId)[] data = choices.Zip(namePlateIds, (choice, namePlateId) => (choice, namePlateId)).ToArray();
+                PlayerControl[] alivePlayerControls = Main.AllAlivePlayerControls;
+                int alivePlayerControlsLength = alivePlayerControls.Length - 1;
+
+                Logger.Info($"Set Up Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")}, {CurrentState})", "Meeting Shapeshift For Guessing");
+
+                // First, use living players to show choices by changing their names
+                // The local player can't be used to show a choice (-1)
+
+                StringBuilder sb = new();
+                int textIndex = 0;
+
+                var skipped = false;
+                PlayerControl guesser = guesserId.GetPlayer();
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(guesser.OwnerId);
+
+                for (var i = 0; i < alivePlayerControls.Length && (skipped ? i - 1 : i) < data.Length; i++)
+                {
+                    string choice = data[skipped ? i - 1 : i].choice;
+                    string namePlateId = data[skipped ? i - 1 : i].namePlateId;
+                    PlayerControl pc = alivePlayerControls[i];
+
+                    if (pc.PlayerId == guesserId)
+                    {
+                        skipped = true;
+                        continue;
+                    }
+
+                    NetIdToRawDisplay[pc.NetId] = choice;
+                    string playerName = CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper();
                 
-                sb.Append($"[{playerName}]");
-                textIndex++;
-                
-                if (textIndex % 3 == 0) sb.AppendLine();
-                else sb.Append(' ');
-
-                if (writer.Length > 500)
-                {
-                    writer.EndMessage();
-                    AmongUsClient.Instance.SendOrDisconnect(writer);
-                    writer.Clear(SendOption.Reliable);
-                    writer.StartMessage(6);
-                    writer.Write(AmongUsClient.Instance.GameId);
-                    writer.WritePacked(guesser.OwnerId);
-                }
-                
-                writer.StartMessage(2);
-                writer.WritePacked(pc.NetId);
-                writer.Write((byte)RpcCalls.SetName);
-                writer.Write(pc.Data.NetId);
-                writer.Write(playerName);
-                writer.Write(false);
-                writer.EndMessage();
-
-                writer.StartMessage(2);
-                writer.WritePacked(pc.NetId);
-                writer.Write((byte)RpcCalls.SetNamePlateStr);
-                writer.Write(namePlateId);
-                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr));
-                writer.EndMessage();
-            }
-
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            // If there aren't enough living players, spawn new CNOs to show the rest of choices
-            
-            // Since CNOs use the local player's NetworkedPlayerInfo, and AU reads the player's name directly from it,
-            // it's impossible to show vanilla players all choices accurately with CNOs.
-            // No workaround found yet....
-            // So we send the remaining choices in chat so the player can identify them
-
-            if (data.Length >= alivePlayerControlsLength)
-            {
-                for (int i = alivePlayerControlsLength; i < data.Length; i++)
-                {
-                    string choice = data[i].choice;
-                    string namePlateId = data[i].namePlateId;
-                    
-                    sb.Append($"[{(CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper())}]");
+                    sb.Append($"[{playerName}]");
                     textIndex++;
-                    
+                
                     if (textIndex % 3 == 0) sb.AppendLine();
                     else sb.Append(' ');
-                    
-                    // If there's an existing CNO, reuse it
-                    ShapeshiftMenuElement cno;
 
-                    if (ExistingCNOs.Count + alivePlayerControlsLength > i)
-                        cno = ExistingCNOs[i - alivePlayerControlsLength];
-                    else
+                    if (writer.Length > 500)
                     {
-                        cno = new ShapeshiftMenuElement(GuesserId);
-                        ExistingCNOs.Add(cno);
+                        writer.EndMessage();
+                        AmongUsClient.Instance.SendOrDisconnect(writer);
+                        writer.Clear(SendOption.Reliable);
+                        writer.StartMessage(6);
+                        writer.Write(AmongUsClient.Instance.GameId);
+                        writer.WritePacked(guesser.OwnerId);
                     }
-                    
-                    NetIdToRawDisplay[cno.playerControl.NetId] = choice;
-                }
                 
-                // Despawn unused CNOs
-                for (int i = data.Length - alivePlayerControlsLength; i < ExistingCNOs.Count; i++)
-                    ExistingCNOs[i].Despawn();
-                
-                ExistingCNOs.RemoveRange(data.Length - alivePlayerControlsLength, ExistingCNOs.Count - (data.Length - alivePlayerControlsLength));
-                
-                Logger.Info($"Sent {data.Length - alivePlayerControlsLength} CNOs, Reused {ExistingCNOs.Count} Existing CNOs", "Meeting Shapeshift For Guessing");
-            }
-            else
-            {
-                ExistingCNOs.ForEach(x => x.Despawn());
-                ExistingCNOs.Clear();
-            }
-            
-            Utils.SendMessage(sb.ToString().Trim(), GuesserId, GetString($"ShapeshiftGuesserUITitle.{CurrentState}"));
+                    writer.StartMessage(2);
+                    writer.WritePacked(pc.NetId);
+                    writer.Write((byte)RpcCalls.SetName);
+                    writer.Write(pc.Data.NetId);
+                    writer.Write(playerName);
+                    writer.Write(false);
+                    writer.EndMessage();
 
-            Logger.Info($"Spawned {ExistingCNOs.Count} CNOs, Used {alivePlayerControlsLength} Living Players, Showing {data.Length} Choices", "Meeting Shapeshift For Guessing");
+                    writer.StartMessage(2);
+                    writer.WritePacked(pc.NetId);
+                    writer.Write((byte)RpcCalls.SetNamePlateStr);
+                    writer.Write(namePlateId);
+                    writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr));
+                    writer.EndMessage();
+                }
+
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+
+                // If there aren't enough living players, spawn new CNOs to show the rest of choices
+            
+                // Since CNOs use the local player's NetworkedPlayerInfo, and AU reads the player's name directly from it,
+                // it's impossible to show vanilla players all choices accurately with CNOs.
+                // No workaround found yet....
+                // So we send the remaining choices in chat so the player can identify them
+
+                if (data.Length >= alivePlayerControlsLength)
+                {
+                    for (int i = alivePlayerControlsLength; i < data.Length; i++)
+                    {
+                        string choice = data[i].choice;
+                        string namePlateId = data[i].namePlateId;
+                    
+                        sb.Append($"[{(CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper())}]");
+                        textIndex++;
+                    
+                        if (textIndex % 3 == 0) sb.AppendLine();
+                        else sb.Append(' ');
+                    
+                        // If there's an existing CNO, reuse it
+                        ShapeshiftMenuElement cno;
+
+                        if (ExistingCNOs.Count + alivePlayerControlsLength > i)
+                            cno = ExistingCNOs[i - alivePlayerControlsLength];
+                        else
+                        {
+                            cno = new ShapeshiftMenuElement(guesserId);
+                            ExistingCNOs.Add(cno);
+                        }
+                    
+                        NetIdToRawDisplay[cno.playerControl.NetId] = choice;
+                    }
+                
+                    // Despawn unused CNOs
+                    for (int i = data.Length - alivePlayerControlsLength; i < ExistingCNOs.Count; i++)
+                        ExistingCNOs[i].Despawn();
+                
+                    ExistingCNOs.RemoveRange(data.Length - alivePlayerControlsLength, ExistingCNOs.Count - (data.Length - alivePlayerControlsLength));
+                
+                    Logger.Info($"Sent {data.Length - alivePlayerControlsLength} CNOs, Reused {ExistingCNOs.Count} Existing CNOs", "Meeting Shapeshift For Guessing");
+                }
+                else
+                {
+                    ExistingCNOs.ForEach(x => x.Despawn());
+                    ExistingCNOs.Clear();
+                }
+            
+                Utils.SendMessage(sb.ToString().Trim(), guesserId, GetString($"ShapeshiftGuesserUITitle.{CurrentState}"));
+
+                Logger.Info($"Spawned {ExistingCNOs.Count} CNOs, Used {alivePlayerControlsLength} Living Players, Showing {data.Length} Choices", "Meeting Shapeshift For Guessing");
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         // This problem goes beyond my ability to solve it perfectly, so I used AI
@@ -1630,4 +1646,5 @@ public static class GuessManager
         if (Data.TryGetValue(shapeshifter.PlayerId, out MeetingShapeshiftData msd))
             msd.AdvanceStep(target);
     }
+
 }

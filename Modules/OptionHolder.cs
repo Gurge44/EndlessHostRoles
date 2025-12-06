@@ -35,6 +35,7 @@ public enum CustomGameMode
     BedWars = 0x0E,
     Deathrace = 0x0F,
     Mingle = 0x10,
+    Snowdown = 0x11,
     All = int.MaxValue
 }
 
@@ -88,7 +89,8 @@ public static class Options
         "TheMindGame",
         "BedWars",
         "Deathrace",
-        "Mingle"
+        "Mingle",
+        "Snowdown"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -919,6 +921,7 @@ public static class Options
         13 => CustomGameMode.BedWars,
         14 => CustomGameMode.Deathrace,
         15 => CustomGameMode.Mingle,
+        16 => CustomGameMode.Snowdown,
         _ => CustomGameMode.Standard
     };
 
@@ -1841,6 +1844,8 @@ public static class Options
         Deathrace.SetupCustomOption();
         // Mingle
         Mingle.SetupCustomOption();
+        // Snowdown
+        Snowdown.SetupCustomOption();
 
         yield return null;
 
@@ -1873,7 +1878,6 @@ public static class Options
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
         
         AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
-            .SetParent(EnableKillerLeftCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
@@ -1901,7 +1905,6 @@ public static class Options
 
         // Map Settings
         new TextOptionItem(100024, "MenuTitle.MapsSettings", TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Random Maps Mode
@@ -1955,7 +1958,6 @@ public static class Options
 
         // Airship Variable Electrical
         AirshipVariableElectrical = new BooleanOptionItem(22100, "AirshipVariableElectrical", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Disable Airship Moving Platform
@@ -2238,11 +2240,9 @@ public static class Options
 
 
         new TextOptionItem(100026, "MenuTitle.Disable", TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableShieldAnimations = new BooleanOptionItem(22601, "DisableShieldAnimations", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
@@ -2278,6 +2278,7 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableSabotage = new BooleanOptionItem(22800, "DisableSabotage", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableReactorOnSkeldAndMira = new BooleanOptionItem(22801, "DisableReactorOnSkeldAndMira", false, TabGroup.GameSettings)
@@ -2313,6 +2314,7 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableSpectateCommand = new BooleanOptionItem(22812, "DisableSpectateCommand", false, TabGroup.GameSettings)
@@ -2421,7 +2423,6 @@ public static class Options
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
 
         AnonymousBodies = new BooleanOptionItem(23852, "AnonymousBodies", false, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(0, 165, 255, byte.MaxValue));
 
@@ -2431,12 +2432,10 @@ public static class Options
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
 
         UsePhantomBasis = new BooleanOptionItem(23851, "UsePhantomBasis", true, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
         UsePhantomBasisForNKs = new BooleanOptionItem(23864, "UsePhantomBasisForNKs", true, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetParent(UsePhantomBasis)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
@@ -2865,6 +2864,7 @@ public static class Options
             .SetValueFormat(OptionFormat.Seconds);
 
         EnableKillerLeftCommand = new BooleanOptionItem(44428, "EnableKillerLeftCommand", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         var i = 0;
@@ -2886,12 +2886,15 @@ public static class Options
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         SeeEjectedRolesInMeeting = new BooleanOptionItem(44439, "SeeEjectedRolesInMeeting", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         EveryoneSeesDeathReasons = new BooleanOptionItem(44440, "EveryoneSeesDeathReasons", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         HostSeesCommandsEnteredByOthers = new BooleanOptionItem(44441, "HostSeesCommandsEnteredByOthers", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         LoadingPercentage = 94;
@@ -2949,7 +2952,6 @@ public static class Options
 
 
         new TextOptionItem(100028, "MenuTitle.Other", TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
@@ -2964,7 +2966,6 @@ public static class Options
 
 
         FixFirstKillCooldown = new BooleanOptionItem(23900, "FixFirstKillCooldown", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         StartingKillCooldown = new FloatOptionItem(23950, "StartingKillCooldown", new(1, 60, 1), 10, TabGroup.GameSettings)
@@ -2983,8 +2984,7 @@ public static class Options
 
         KillFlashDuration = new FloatOptionItem(24100, "KillFlashDuration", new(0.1f, 0.45f, 0.05f), 0.3f, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .SetValueFormat(OptionFormat.Seconds)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetValueFormat(OptionFormat.Seconds);
 
         UniqueNeutralRevealScreen = new BooleanOptionItem(24450, "UniqueNeutralRevealScreen", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -2995,19 +2995,15 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         LargerRoleTextSize = new BooleanOptionItem(24451, "LargerRoleTextSize", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
         
         DynamicTaskCountColor = new BooleanOptionItem(24557, "DynamicTaskCountColor", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         ShowTaskCountWhenAlive = new BooleanOptionItem(24452, "ShowTaskCountWhenAlive", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         ShowTaskCountWhenDead = new BooleanOptionItem(24453, "ShowTaskCountWhenDead", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
@@ -3206,10 +3202,11 @@ public static class Options
 
             foreach (CustomGameMode customGameMode in Enum.GetValues<CustomGameMode>()[..^1])
             {
-                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance.{customGameMode}", new(0, 100, 5), 50, TabGroup.SystemSettings)
+                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance", new(0, 100, 5), 50, TabGroup.SystemSettings)
                     .SetParent(EnableAutoGMRotation)
                     .SetValueFormat(OptionFormat.Percent)
-                    .SetColor(Main.GameModeColors[customGameMode]);
+                    .SetColor(Main.GameModeColors[customGameMode])
+                    .AddReplacement(("{gm}", Translator.GetString($"{customGameMode}")));
 
                 dict[customGameMode] = chanceToSelectGMInGroup;
             }
@@ -3292,6 +3289,7 @@ public static class Options
                         13 => CustomGameMode.BedWars,
                         14 => CustomGameMode.Deathrace,
                         15 => CustomGameMode.Mingle,
+                        16 => CustomGameMode.Snowdown,
                         _ => CustomGameMode.Standard
                     };
                     AutoGMRotationCompiled.AddRange(Enumerable.Repeat(gm, times));

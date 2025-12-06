@@ -235,7 +235,7 @@ internal static class ChatCommands
             new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
             new(["sw", "swap", "st", "свап", "свапнуть", "换票", "trocar"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Swap.Id")]),
             new(["compare", "cp", "cmp", "сравнить", "ср", "检查", "comparar"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
-            new(["ms", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
+            new(["ms", "mediumship", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
             new(["rv", "месть", "отомстить", "复仇"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _) => { }, true, false, [GetString("CommandArgs.Revenge.Id")])
         ];
     }
@@ -673,11 +673,9 @@ internal static class ChatCommands
             else if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(player);
-                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
-                killerState.deathReason = PlayerState.DeathReason.Retribution;
-                killerState.SetDead();
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Retribution;
                 Medic.IsDead(killer);
-                killer.RpcExileV2();
+                killer.RpcGuesserMurderPlayer();
                 Utils.AfterPlayerDeathTasks(killer, true);
                 Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
@@ -910,6 +908,7 @@ internal static class ChatCommands
         Starspawn.IsDayBreak = true;
         sp.HasUsedDayBreak = true;
 
+        player.RPCPlayCustomSound("Line");
         Utils.SendMessage("\n", title: string.Format(GetString("StarspawnUsedDayBreak"), CustomRoles.Starspawn.ToColoredString()));
     }
 
@@ -1726,6 +1725,8 @@ internal static class ChatCommands
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
+        
+        if (gmPoll && GMPollGameModes.Count > 6) msg += "<size=70%>";
 
         PollTimer = gmPoll ? 60f : 45f;
         Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
