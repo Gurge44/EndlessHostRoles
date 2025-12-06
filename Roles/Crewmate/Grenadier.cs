@@ -33,7 +33,7 @@ internal class Grenadier : RoleBase
         GrenadierCanAffectNeutral = new BooleanOptionItem(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier]);
 
-        GrenadierSkillMaxOfUseage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUseage", new(0, 30, 1), 2, TabGroup.CrewmateRoles)
+        GrenadierSkillMaxOfUsage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUsage", new(0, 30, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
             .SetValueFormat(OptionFormat.Times);
 
@@ -49,7 +49,7 @@ internal class Grenadier : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUseage.GetFloat());
+        playerId.SetAbilityUseLimit(GrenadierSkillMaxOfUsage.GetFloat());
     }
 
     public override void Init()
