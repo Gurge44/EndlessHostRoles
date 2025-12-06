@@ -183,7 +183,8 @@ public enum CustomRPC
     NaturalDisastersSync,
     TMGSync,
     BedWarsSync,
-    DeathraceSync
+    DeathraceSync,
+    SnowdownSync
 }
 
 public enum Sounds
@@ -1334,6 +1335,12 @@ internal static class RPCHandlerPatch
                     if (Deathrace.Data.TryGetValue(reader.ReadByte(), out Deathrace.PlayerData data))
                         data.Lap = reader.ReadPackedInt32();
                     
+                    break;
+                }
+                case CustomRPC.SnowdownSync:
+                {
+                    int gameEndTime = reader.ReadPackedInt32();
+                    Snowdown.GameEndTime = gameEndTime;
                     break;
                 }
                 case CustomRPC.InspectorCommand:
