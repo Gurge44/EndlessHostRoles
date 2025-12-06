@@ -19,7 +19,7 @@ internal class Pacifist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Pacifist])
             .SetValueFormat(OptionFormat.Seconds);
 
-        PacifistMaxOfUsage = new IntegerOptionItem(7711, "PacifistMaxOfUseage", new(0, 30, 1), 0, TabGroup.CrewmateRoles)
+        PacifistMaxOfUsage = new IntegerOptionItem(7711, "PacifistMaxOfUsage", new(0, 30, 1), 0, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Pacifist])
             .SetValueFormat(OptionFormat.Times);
 
