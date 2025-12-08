@@ -273,7 +273,7 @@ internal static class HudManagerPatch
                     {
                         CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
                         CustomGameMode.FFA => FreeForAll.GetHudText(),
-                        CustomGameMode.StopAndGo => StopAndGo.HUDText,
+                        CustomGameMode.StopAndGo => StopAndGo.GetHudText(),
                         CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),

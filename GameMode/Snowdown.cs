@@ -82,6 +82,7 @@ public static class Snowdown
         GameEndTimeOption = new IntegerOptionItem(id++, "Snowdown.GameEndTimeOption", new(15, 1800, 15), 300, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
+            .SetParent(GameEndsAfterTimeOption)
             .SetValueFormat(OptionFormat.Seconds);
         
         GameEndsWhenPointsReachedOption = new BooleanOptionItem(id++, "Snowdown.GameEndsWhenPointsReachedOption", true, tab)
@@ -91,6 +92,7 @@ public static class Snowdown
         PointsToReachOption = new IntegerOptionItem(id++, "Snowdown.PointsToReachOption", new(1, 100, 1), 5, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
+            .SetParent(GameEndsWhenPointsReachedOption)
             .SetValueFormat(OptionFormat.Pieces);
 
         PowerUpPriceOptions = Enum.GetValues<PowerUp>().ToDictionary(x => x, x => new IntegerOptionItem(id++, "Snowdown.PowerUpPriceOption", new(1, 20, 1), PowerUpPrices[x], tab)
@@ -154,6 +156,11 @@ public static class Snowdown
     {
         if (!GameEndsAfterTime) return string.Empty;
         long timeLeft = GameEndTime - (Utils.TimeStamp - GameStartTS);
+        if (timeLeft == 60)
+        {
+            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
+        }
         return $"{timeLeft / 60:00}:{timeLeft % 60:00}";
     }
 
@@ -211,6 +218,7 @@ public static class Snowdown
         MaxCoinsInHand = MaxCoinsInHandOption.GetInt();
         GameEndsAfterTime = GameEndsAfterTimeOption.GetBool();
         GameEndTime = GameEndTimeOption.GetInt();
+        Utils.SendRPC(CustomRPC.SnowdownSync, GameEndTime);
         GameEndsWhenPointsReached = GameEndsWhenPointsReachedOption.GetBool();
         PointsToReach = PointsToReachOption.GetInt();
         PowerUpPrices = PowerUpPriceOptions.ToDictionary(x => x.Key, x => x.Value.GetInt());

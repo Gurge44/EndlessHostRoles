@@ -14,7 +14,6 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
-
 namespace EHR;
 
 [HarmonyPatch]
@@ -469,7 +468,7 @@ public static class GameStartManagerPatch
                         LobbyTimerExtensionUI lobbyTimerExtensionUI = HudManager.Instance.LobbyTimerExtensionUI;
                         lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
                         SoundManager.Instance.PlaySound(lobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-                        Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 2f);
+                        Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
                     }
                 }
             }
@@ -661,4 +660,5 @@ public static class GameStartManagerFinallyBeginPatch
     {
         SoundManager.Instance.StopSound(__instance.gameStartSound);
     }
+
 }
