@@ -660,7 +660,7 @@ internal static class BeginCrewmatePatch
 
                     CustomRoles.ClockBlocker or
                         CustomRoles.TimeThief
-                        => HudManager.Instance.LobbyTimerExtensionUI.LobbyTimerPopUpSound,
+                        => HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound,
 
                 CustomRoles.Doorjammer or
                     CustomRoles.Inhibitor or

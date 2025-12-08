@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
+using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
