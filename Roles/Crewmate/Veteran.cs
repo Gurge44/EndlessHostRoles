@@ -25,7 +25,7 @@ internal class Veteran : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Seconds);
 
-        VeteranSkillMaxOfUseage = new IntegerOptionItem(id + 4, "VeteranSkillMaxOfUseage", new(0, 30, 1), 1, TabGroup.CrewmateRoles)
+        VeteranSkillMaxOfUsage = new IntegerOptionItem(id + 4, "VeteranSkillMaxOfUsage", new(0, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
 
@@ -41,7 +41,7 @@ internal class Veteran : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(VeteranSkillMaxOfUseage.GetFloat());
+        playerId.SetAbilityUseLimit(VeteranSkillMaxOfUsage.GetFloat());
     }
 
     public override void Init()

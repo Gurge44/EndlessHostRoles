@@ -30,7 +30,7 @@ internal class Lighter : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        LighterSkillMaxOfUseage = new IntegerOptionItem(6856, "AbilityUseLimit", new(0, 30, 1), 2, TabGroup.CrewmateRoles)
+        LighterSkillMaxOfUsage = new IntegerOptionItem(6856, "AbilityUseLimit", new(0, 30, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
             .SetValueFormat(OptionFormat.Times);
 
@@ -46,7 +46,7 @@ internal class Lighter : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(LighterSkillMaxOfUseage.GetFloat());
+        playerId.SetAbilityUseLimit(LighterSkillMaxOfUsage.GetFloat());
         IsAbilityActive = false;
         ActivateTimeStamp = 0;
     }
