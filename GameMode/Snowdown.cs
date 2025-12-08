@@ -231,6 +231,7 @@ public static class Snowdown
     public static void GameStart() // Called as non-host client too!
     {
         GameStartTS = Utils.TimeStamp;
+        if (!AmongUsClient.Instance.AmHost) GameEndTime = GameEndTimeOption.GetInt();
     }
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
