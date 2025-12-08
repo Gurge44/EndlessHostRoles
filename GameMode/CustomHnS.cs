@@ -310,6 +310,12 @@ internal static class CustomHnS
             dangerMeter += TargetArrow.GetArrows(seer, agent);
         }
 
+        if (TimeLeft == 60)
+        {
+            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
+        }
+
         if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
 
         int minutes = TimeLeft / 60;
@@ -435,6 +441,7 @@ internal static class CustomHnS
         // If the Troll is killed, they win
         if (target.Is(CustomRoles.Troll))
         {
+            CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Troll);
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
             AddFoxesToWinners();
