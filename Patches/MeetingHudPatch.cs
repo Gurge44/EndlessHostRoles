@@ -938,6 +938,8 @@ internal static class MeetingHudStartPatch
             deathReasonTextMeeting.gameObject.name = "DeathReasonTextMeeting";
             deathReasonTextMeeting.enableWordWrapping = false;
             deathReasonTextMeeting.enabled = seer.KnowDeathReason(target);
+            Transform child = deathReasonTextMeeting.transform.FindChild("RoleTextMeeting");
+            if (child != null) Object.Destroy(child.gameObject);
 
             // Thanks BAU (By D1GQ) - are you happy now?
             Transform playerLevel = pva.transform.Find("PlayerLevel");

@@ -331,12 +331,9 @@ internal static class CheckMurderPatch
 
             if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
             {
-                if (killer.RpcCheckAndMurder(target, true))
-                {
-                    target.Suicide(PlayerState.DeathReason.Kill, killer);
-                    killer.SetKillCooldown();
-                }
-
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
+                killer.SetKillCooldown();
+                Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                 return false;
             }
@@ -2052,9 +2049,6 @@ internal static class FixedUpdatePatch
         Main.IsLoversDead = true;
         
         if (Main.PlayerStates.TryGetValue(deathId, out var deadState) && deadState.deathReason == PlayerState.DeathReason.Disconnected) return;
-
-        var deadPlayer = deathId.GetPlayer();
-        if (deadPlayer == null || deadPlayer.Data == null || deadPlayer.Data.Disconnected) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {
