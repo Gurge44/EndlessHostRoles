@@ -1638,11 +1638,21 @@ internal static class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out (long StartTimeStamp, int TotalCooldown) timer))
                     {
+                        SendOption sendOption = SendOption.None;
+                        
                         if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
+                        {
                             player.RemoveAbilityCD();
+                            sendOption = SendOption.Reliable;
+                        }
 
-                        if (!player.IsModdedClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
-                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        long remaining = timer.TotalCooldown - (now - timer.StartTimeStamp);
+                        
+                        if (!player.IsModdedClient() && remaining <= 30)
+                        {
+                            if (remaining % 5 == 0) sendOption = SendOption.Reliable;
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: sendOption);
+                        }
 
                         LastUpdate[playerId] = now;
                     }

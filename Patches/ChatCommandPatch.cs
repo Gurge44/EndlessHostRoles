@@ -1424,7 +1424,7 @@ internal static class ChatCommands
 
         IEnumerator RepeatedlySendMessage()
         {
-            for (var index = 0; index < 4; index++)
+            for (var index = 0; index < 3; index++)
             {
                 List<Message> messages = [];
 
@@ -1763,7 +1763,7 @@ internal static class ChatCommands
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
-                if (resendTimer >= 15f)
+                if (resendTimer > 23f)
                 {
                     resendTimer = 0f;
                     Utils.SendMessage(msg + $"{string.Format(GetString("Poll.TimeInfo"), (int)Math.Round(PollTimer))}</i></size>", title: title, sendOption: SendOption.None);

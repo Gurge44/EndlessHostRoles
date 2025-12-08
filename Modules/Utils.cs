@@ -2557,7 +2557,7 @@ public static class Utils
                     if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out (long StartTimeStamp, int TotalCooldown) time))
                     {
                         long remainingCD = time.TotalCooldown - (now - time.StartTimeStamp) + 1;
-                        SelfSuffix.Append("\n" + string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60" : remainingCD));
+                        SelfSuffix.Append("\n" + string.Format(GetString("CDPT"), remainingCD > 30 ? "> 30" : remainingCD));
                     }
 
                     if (seer.Is(CustomRoles.Asthmatic)) additionalSuffixes.Add(Asthmatic.GetSuffixText(seer.PlayerId));
