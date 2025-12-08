@@ -218,7 +218,6 @@ public static class Snowdown
         MaxCoinsInHand = MaxCoinsInHandOption.GetInt();
         GameEndsAfterTime = GameEndsAfterTimeOption.GetBool();
         GameEndTime = GameEndTimeOption.GetInt();
-        Utils.SendRPC(CustomRPC.SnowdownSync, GameEndTime);
         GameEndsWhenPointsReached = GameEndsWhenPointsReachedOption.GetBool();
         PointsToReach = PointsToReachOption.GetInt();
         PowerUpPrices = PowerUpPriceOptions.ToDictionary(x => x.Key, x => x.Value.GetInt());
