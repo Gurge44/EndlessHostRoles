@@ -141,8 +141,10 @@ internal static class CustomRoleSelector
         if (optImpNum >= 2 && roles[RoleAssignType.Impostor].FindFirst(x => x.Role == CustomRoles.Loner, out var lonerInfo) && lonerInfo.SpawnChance > rd.Next(100))
         {
             finalRolesList.Add(CustomRoles.Loner);
-            readyImpNum += 2;
+            readyImpNum++;
             readyRoleNum++;
+            optImpNum--;
+            Logger.Info("Loner selected as Impostor", "CustomRoleSelector");
         }
         else
             roles[RoleAssignType.Impostor].RemoveAll(x => x.Role == CustomRoles.Loner);
@@ -883,7 +885,7 @@ internal static class CustomRoleSelector
         if (rd.Next(0, 100) < Arrogance.BardChance.GetInt() && finalRolesList.Remove(CustomRoles.Arrogance)) finalRolesList.Add(CustomRoles.Bard);
         if (rd.Next(0, 100) < Bomber.NukerChance.GetInt() && finalRolesList.Remove(CustomRoles.Bomber)) finalRolesList.Add(CustomRoles.Nuker);
 
-        RoleResult.AddRange(allPlayers.Zip(finalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), false);
+        RoleResult.AddRange(allPlayers.Shuffle().Zip(finalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second), false);
         Logger.Info(string.Join(", ", RoleResult.Values.Select(x => x.ToString())), "RoleResults");
 
         if (RoleResult.Count < allPlayers.Count) Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");

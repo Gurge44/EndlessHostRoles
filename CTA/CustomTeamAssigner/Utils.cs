@@ -27,9 +27,7 @@ namespace CustomTeamAssigner
             { CustomRoles.LovingImpostor, "Loving Impostor" },
             { CustomRoles.FortuneTeller, "Fortune Teller" },
             { CustomRoles.LazyGuy, "Lazy Guy" },
-            { CustomRoles.ToiletMaster, "Toilet Master" },
-            { CustomRoles.Medium, "Medium" },
-            { CustomRoles.PlagueDoctor, "Infection"}
+            { CustomRoles.ToiletMaster, "Toilet Master" }
         };
 
         public static void SetMainWindowContents(Visibility visibility)

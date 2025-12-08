@@ -145,7 +145,7 @@ internal static class ControllerManagerUpdatePatch
                 Logger.SendInGame(GetString("CancelStartCountDown"));
             }
 
-            if (Input.GetKeyDown(KeyCode.Return) && GameStates.IsLobby && GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting && !HudManager.Instance.Chat.IsOpenOrOpening && !OnGameJoinedPatch.JoiningGame)
+            if (Input.GetKeyDown(KeyCode.Return) && GameStates.IsLobby && GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting && !HudManager.Instance.Chat.IsOpenOrOpening && !OnGameJoinedPatch.JoiningGame && GameSettingMenu.Instance == null)
             {
                 Logger.Info("ENTER pressed: Starting game by host", "KeyCommand");
                 GameStartManager.Instance.BeginGame();

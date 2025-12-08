@@ -673,13 +673,10 @@ internal static class ChatCommands
             else if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(player);
-                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
-                killerState.deathReason = PlayerState.DeathReason.Retribution;
-                killerState.SetDead();
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Retribution;
                 Medic.IsDead(killer);
-                killer.RpcExileV2();
-                Utils.AfterPlayerDeathTasks(killer, true);
                 killer.RpcGuesserMurderPlayer();
+                Utils.AfterPlayerDeathTasks(killer, true);
                 Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
             }
@@ -1728,6 +1725,8 @@ internal static class ChatCommands
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
+        
+        if (gmPoll && GMPollGameModes.Count > 6) msg += "<size=70%>";
 
         PollTimer = gmPoll ? 60f : 45f;
         Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
