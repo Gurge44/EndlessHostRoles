@@ -2406,7 +2406,7 @@
   "Message.YTPlanSelectFailed": "Você não pode ser designado como {0}.\nIsso pode acontecer porque você não possui essa função habilitada ou porque essa função não suporta ser atribuída.",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "Não foi possível encontrar a função que você está procurando.\nUse o comando /r para mostrar a lista de funções disponíveis.",
   "Message.YTPlanNotice": "Observação: o [Plano YouTuber] está habilitado neste lobby, o que significa que o anfitrião pode especificar sua função no próximo jogo para facilitar a obtenção de conteúdo. Caso o anfitrião abuse deste recurso, saia do jogo ou denuncie.\nJogador:",
-  "Warning.InvalidRpc": "Kicked <b>{0}</b> because an invalid RPC was received. Please check that no mods other than EHR are installed.",
+  "Warning.InvalidRpc": "Kicked <b>{0}</b> because they sent an RPC not in the base game nor EHR (using a different mod?)",
   "Warning.TooManyRPCs": "<b>{0}</b> foi expulso porque muitos RPCs foram recebidos dele.",
   "Warning.NoModHost": "Mod EHR não está instalado no anfitrião.",
   "Warning.MismatchedVersion": "<b>{0}</b> tem uma versão diferente de <b>{1}</b>",
