@@ -2406,7 +2406,7 @@
   "Message.YTPlanSelectFailed": "No puedes ser asignado como <b>{0}</b>.\\nPuede ser debido a que no tienes este rol activado, o este rol no soporta ser asignado.",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "No se pudo encontrar el rol que estás buscando\\nUsa el comando /r para mostrar lista de roles",
   "Message.YTPlanNotice": "Nota: El [Plan de Youtuber] está activado en este lobby, lo que significa que el Host puede especificar su rol en el próximo juego lo que hace más fácil conseguir contenido. En caso de que el Host abuse esta característica, por favor sal del juego o repórtalo.\\nCredenciales de Creador Actuales:",
-  "Warning.InvalidRpc": "Kicked <b>{0}</b> because an invalid RPC was received. Please check that no mods other than EHR are installed.",
+  "Warning.InvalidRpc": "Kicked <b>{0}</b> because they sent an RPC not in the base game nor EHR (using a different mod?)",
   "Warning.TooManyRPCs": "<b>{0}</b>Fue expulsado por demasiados RPC recibidos del usuario",
   "Warning.NoModHost": "EHR no está instalado en el host",
   "Warning.MismatchedVersion": "<b>{0}</b> tiene una versión diferente que <b>{1}</b>",
