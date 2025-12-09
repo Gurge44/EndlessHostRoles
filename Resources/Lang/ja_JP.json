@@ -2406,7 +2406,7 @@
   "Message.YTPlanSelectFailed": "<size=80%>あなたは <b>{0}</b>として 割り当てられません。\\nこの役割を有効にしていない、または この役割の割り当てがサポートされていないかもしれません。</size>",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "<size=80%>あなたの探している役割が見つかりませんでした\\nコマンド <b>/r</b> を使用して 役割のリストを表示します</size>",
   "Message.YTPlanNotice": "<size=80%>注意: [YouTube プラン]が このロビーでは有効になっており、これはホストが 次のゲームで特定の彼らの役割を より簡単にコンテンツを取得できます。\\nホストが この機能を悪用したとき、ゲームを退出する か これを報告してください。\\n現在の作成者の資格:",
-  "Warning.InvalidRpc": "Kicked <b>{0}</b> because an invalid RPC was received. Please check that no mods other than EHR are installed.",
+  "Warning.InvalidRpc": "Kicked <b>{0}</b> because they sent an RPC not in the base game nor EHR (using a different mod?)",
   "Warning.TooManyRPCs": "<b>{0}</b>は 彼らからの RPCを受信が 多すぎたため 追い出されました。",
   "Warning.NoModHost": "EHRが ホストにインストールされていません",
   "Warning.MismatchedVersion": "<size=80%><b>{0}</b>は <b>{1}</b>と 異なるバージョンがあります</size>",
