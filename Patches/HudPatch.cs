@@ -248,14 +248,14 @@ internal static class HudManagerPatch
                             __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                             break;
                         case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ventLimit):
-                            __instance.AbilityButton.SetUsesRemaining(ventLimit);
+                            __instance.AbilityButton?.SetUsesRemaining(ventLimit);
                             break;
                         case CustomRoles.SnowdownPlayer:
                             __instance.AbilityButton?.OverrideText(GetString("SnowdownButtonText"));
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()))
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality and not CustomRoles.Witch and not CustomRoles.Silencer && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()) && !role.ToString().EndsWith("EHR") && !role.IsVanilla())
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -345,9 +345,9 @@ internal static class HudManagerPatch
                     player.Data.Role.CanVent = player.CanUseVent();
 
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
-                        __instance.AbilityButton.SetEnabled();
+                        __instance.AbilityButton?.SetEnabled();
 
-                    __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
+                    __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
 
                     float abilityUseLimit = player.GetAbilityUseLimit();
 

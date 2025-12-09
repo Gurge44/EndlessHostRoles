@@ -27,6 +27,8 @@ public class Swapper : RoleBase
     public override bool IsEnable => SwapperId != byte.MaxValue;
     public static bool On => SwapperId != byte.MaxValue;
 
+    private ShapeshiftMenuElement CNO;
+
     public override void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Swapper);
@@ -58,6 +60,7 @@ public class Swapper : RoleBase
     {
         SwapperId = playerId;
         playerId.SetAbilityUseLimit(SwapMax.GetFloat());
+        CNO = null;
     }
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -246,7 +249,17 @@ public class Swapper : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;
+
+        if (CNO == null) CNO = new ShapeshiftMenuElement(shapeshifter.PlayerId);
+        else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
+        
         SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
+    }
+
+    public override void OnReportDeadBody()
+    {
+        CNO?.Despawn();
+        CNO = null;
     }
 
     private static void SendRPC(byte playerId)
