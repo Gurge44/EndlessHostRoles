@@ -250,7 +250,7 @@ public class Swapper : RoleBase
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (CNO == null) CNO = new ShapeshiftMenuElement(shapeshifter.PlayerId);
+        if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
         else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
         
         SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
