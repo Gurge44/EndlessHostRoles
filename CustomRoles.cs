@@ -375,6 +375,7 @@ public enum CustomRoles
     Sidekick,
     Simon,
     Slenderman,
+    SoulCollector,
     SoulHunter,
     Spirit,
     Spiritcaller,

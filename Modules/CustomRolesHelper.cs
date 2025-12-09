@@ -516,6 +516,7 @@ internal static class CustomRolesHelper
             CustomRoles.Duality => RoleTypes.Impostor,
             CustomRoles.Berserker => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
+            CustomRoles.SoulCollector => RoleTypes.Impostor,
             CustomRoles.Explosivist => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Sharpshooter => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Thanos => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
@@ -650,6 +651,7 @@ internal static class CustomRolesHelper
             CustomRoles.Parasite or
             CustomRoles.Berserker or
             CustomRoles.SerialKiller or
+            CustomRoles.SoulCollector or
             CustomRoles.Sharpshooter or
             CustomRoles.Explosivist or
             CustomRoles.Thanos or
@@ -1960,6 +1962,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    SoulCollector,
     Berserker,
     Sharpshooter,
     Explosivist,

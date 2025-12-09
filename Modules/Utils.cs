@@ -845,6 +845,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.SoulCollector:
             case CustomRoles.Berserker:
             case CustomRoles.Sharpshooter:
             case CustomRoles.Explosivist:
@@ -3511,7 +3512,7 @@ public static class Utils
             {
                 if (pc.Is(CustomRoles.Bloodlust))
                 {
-                    pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+                    pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
                     LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
                 }
 
