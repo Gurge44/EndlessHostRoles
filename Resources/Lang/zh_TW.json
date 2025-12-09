@@ -2406,7 +2406,7 @@
   "Message.YTPlanSelectFailed": "無法將您分配為<b>{0}</b>\\n可能是因為您沒有啟用該職業或該職業不支援被指定",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "請正確拼寫您要指定的職業喔~\\n查看所有職業請直接輸入/r",
   "Message.YTPlanNotice": "提醒: 該房間已啟用【創作者素材保護計畫】，房主可以指定自己的職業。\\n該功能只允許創作者錄製影片素材，如有濫用情況，請退出遊戲或舉報。\\n目前創作者認證:",
-  "Warning.InvalidRpc": "<b>{0}</b> 被踢出，因其 RPC 無效。請確保沒有 EHR 以外的模組。",
+  "Warning.InvalidRpc": "Kicked <b>{0}</b> because they sent an RPC not in the base game nor EHR (using a different mod?)",
   "Warning.TooManyRPCs": "踢出<b>{0}</b>因為他們發送太多RPC",
   "Warning.NoModHost": "非EHR房",
   "Warning.MismatchedVersion": "<b>{0}</b> 安裝了其他版本的 <b>{1}</b>",
