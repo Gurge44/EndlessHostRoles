@@ -40,7 +40,6 @@ public class CopyCat : RoleBase
         
         CopyCrewVarEvenIfDisabled = new BooleanOptionItem(Id + 15, "CopyCrewVarEvenIfDisabled", true, TabGroup.CrewmateRoles)
             .SetParent(CopyCrewVar)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
 
         MiscopyLimitOpt = new IntegerOptionItem(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CanKill)
@@ -200,3 +199,4 @@ public class CopyCat : RoleBase
     }
 
 }
+
