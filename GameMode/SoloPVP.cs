@@ -16,7 +16,7 @@ internal static class SoloPVP
     public static Dictionary<byte, float> PlayerATK = [];
     public static Dictionary<byte, float> PlayerDF = [];
 
-    public static Dictionary<byte, int> KBScore = [];
+    public static Dictionary<byte, int> PlayerScore = [];
     public static int RoundTime;
 
     private static readonly Dictionary<byte, (string Text, long RemoveTimeStamp)> NameNotify = [];
@@ -93,7 +93,7 @@ internal static class SoloPVP
         LastHurt = [];
         LastCountdownTime = [];
         BackCountdown = [];
-        KBScore = [];
+        PlayerScore = [];
         RoundTime = SoloPVP_GameTime.GetInt() + 8;
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
 
@@ -105,7 +105,7 @@ internal static class SoloPVP
             PlayerATK.TryAdd(pc.PlayerId, SoloPVP_ATK.GetFloat());
             PlayerDF.TryAdd(pc.PlayerId, 0f);
 
-            KBScore.TryAdd(pc.PlayerId, 0);
+            PlayerScore.TryAdd(pc.PlayerId, 0);
             Utils.SendRPC(CustomRPC.SoloPVPSync, 2, pc.PlayerId, 0);
 
             LastHurt.TryAdd(pc.PlayerId, Utils.TimeStamp);
@@ -154,17 +154,17 @@ internal static class SoloPVP
         if (rank != 1)
         {
             byte first = Main.PlayerStates.Keys.MinBy(GetRankFromScore);
-            finalText += $"\n1. {first.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), KBScore.GetValueOrDefault(first, 0))}";
+            finalText += $"\n1. {first.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), PlayerScore.GetValueOrDefault(first, 0))}";
         }
 
-        finalText += $"\n{rank}. {pc.PlayerId.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), KBScore.GetValueOrDefault(pc.PlayerId, 0))}";
+        finalText += $"\n{rank}. {pc.PlayerId.ColoredPlayerName()} - {string.Format(Translator.GetString("KillCount").TrimStart(' '), PlayerScore.GetValueOrDefault(pc.PlayerId, 0))}";
         return $"<#ffffff>{finalText}</color>";
     }
 
     public static string GetSummaryStatistics(byte id)
     {
         int rank = GetRankFromScore(id);
-        int score = KBScore.GetValueOrDefault(id, 0);
+        int score = PlayerScore.GetValueOrDefault(id, 0);
         return string.Format(Translator.GetString("SoloPVP.Summary"), rank, score);
     }
 
@@ -174,7 +174,7 @@ internal static class SoloPVP
 
         if (BackCountdown.TryGetValue(player.PlayerId, out int value))
         {
-            name = string.Format(Translator.GetString("KBBackCountDown"), value);
+            name = string.Format(Translator.GetString("SoloPVP_BackCountDown"), value);
             NameNotify.Remove(player.PlayerId);
             return;
         }
@@ -187,9 +187,9 @@ internal static class SoloPVP
     {
         try
         {
-            int ms = KBScore[playerId];
-            int rank = 1 + KBScore.Values.Count(x => x > ms);
-            rank += KBScore.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId);
+            int ms = PlayerScore[playerId];
+            int rank = 1 + PlayerScore.Values.Count(x => x > ms);
+            rank += PlayerScore.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId);
             return rank;
         }
         catch { return Main.AllPlayerControls.Length; }
@@ -258,8 +258,8 @@ internal static class SoloPVP
         if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
         ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
 
-        KBScore[killer.PlayerId]++;
-        Utils.SendRPC(CustomRPC.SoloPVPSync, 2, killer.PlayerId, KBScore[killer.PlayerId]);
+        PlayerScore[killer.PlayerId]++;
+        Utils.SendRPC(CustomRPC.SoloPVPSync, 2, killer.PlayerId, PlayerScore[killer.PlayerId]);
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
         addRate *= SoloPVP_KillBonusMultiplier.GetFloat();
