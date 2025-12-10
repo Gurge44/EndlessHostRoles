@@ -55,6 +55,7 @@ public class SoulCollector : RoleBase
         if (!killer.RpcCheckAndMurder(target, check: true)) return false;
         
         ToExile.Add(target.PlayerId);
+        Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         
         if (Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state))
         {
@@ -97,6 +98,7 @@ public class SoulCollector : RoleBase
             sender.SendMessage();
         }
 
+        target.MarkDirtySettings();
         return false;
     }
 
@@ -106,7 +108,12 @@ public class SoulCollector : RoleBase
         {
             var sender = CustomRpcSender.Create("SoulCollector Post Exile", SendOption.Reliable);
             sender.StartMessage();
-            ToExile.ToValidPlayers().ForEach(x => sender.StartRpc(x.NetId, RpcCalls.Exiled).EndRpc());
+            ToExile.ToValidPlayers().ForEach(x =>
+            {
+                Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                sender.StartRpc(x.NetId, RpcCalls.Exiled)
+                    .EndRpc();
+            });
             sender.SendMessage();
             ToExile = [];
         }
