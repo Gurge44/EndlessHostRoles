@@ -424,7 +424,7 @@ public enum CustomRoles
     Wyrd,
 
     // Solo Kombat
-    KB_Normal,
+    SoloPVP_Player,
 
     // FFA
     Killer,

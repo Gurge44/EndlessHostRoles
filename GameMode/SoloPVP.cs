@@ -25,7 +25,7 @@ internal static class SoloPVP
     private static Dictionary<byte, long> LastHurt = [];
     private static Dictionary<byte, long> LastCountdownTime = [];
 
-    public static bool CanVent => KB_CanVent.GetBool();
+    public static bool CanVent => SoloPVP_CanVent.GetBool();
 
     public static bool SoloAlive(this PlayerControl pc)
     {
@@ -34,48 +34,48 @@ internal static class SoloPVP
 
     public static void SetupCustomOption()
     {
-        KB_GameTime = new IntegerOptionItem(66_233_001, "KB_GameTime", new(30, 300, 5), 180, TabGroup.GameSettings)
+        SoloPVP_GameTime = new IntegerOptionItem(66_233_001, "SoloPVP_GameTime", new(30, 300, 5), 180, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
 
-        KB_ATKCooldown = new FloatOptionItem(66_223_008, "KB_ATKCooldown", new(1f, 10f, 0.1f), 1f, TabGroup.GameSettings)
+        SoloPVP_ATKCooldown = new FloatOptionItem(66_223_008, "SoloPVP_ATKCooldown", new(1f, 10f, 0.1f), 1f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        KB_HPMax = new FloatOptionItem(66_233_002, "KB_HPMax", new(10f, 990f, 5f), 100f, TabGroup.GameSettings)
+        SoloPVP_HPMax = new FloatOptionItem(66_233_002, "SoloPVP_HPMax", new(10f, 990f, 5f), 100f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
 
-        KB_ATK = new FloatOptionItem(66_233_003, "KB_ATK", new(1f, 100f, 1f), 8f, TabGroup.GameSettings)
+        SoloPVP_ATK = new FloatOptionItem(66_233_003, "SoloPVP_ATK", new(1f, 100f, 1f), 8f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
 
-        KB_RecoverPerSecond = new FloatOptionItem(66_233_005, "KB_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
+        SoloPVP_RecoverPerSecond = new FloatOptionItem(66_233_005, "SoloPVP_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
 
-        KB_RecoverAfterSecond = new IntegerOptionItem(66_233_004, "KB_RecoverAfterSecond", new(0, 60, 1), 8, TabGroup.GameSettings)
+        SoloPVP_RecoverAfterSecond = new IntegerOptionItem(66_233_004, "SoloPVP_RecoverAfterSecond", new(0, 60, 1), 8, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        KB_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "KB_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
+        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        KB_KillBonusMultiplier = new FloatOptionItem(66_233_007, "KB_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
+        SoloPVP_KillBonusMultiplier = new FloatOptionItem(66_233_007, "SoloPVP_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
 
-        KB_CanVent = new BooleanOptionItem(66_233_009, "KB_CanVent", true, TabGroup.GameSettings)
+        SoloPVP_CanVent = new BooleanOptionItem(66_233_009, "SoloPVP_CanVent", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue));
     }
@@ -94,15 +94,15 @@ internal static class SoloPVP
         LastCountdownTime = [];
         BackCountdown = [];
         KBScore = [];
-        RoundTime = KB_GameTime.GetInt() + 8;
+        RoundTime = SoloPVP_GameTime.GetInt() + 8;
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerHPMax.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
-            PlayerHP.TryAdd(pc.PlayerId, KB_HPMax.GetFloat());
-            PlayerHPReco.TryAdd(pc.PlayerId, KB_RecoverPerSecond.GetFloat());
-            PlayerATK.TryAdd(pc.PlayerId, KB_ATK.GetFloat());
+            PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
+            PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
+            PlayerHPReco.TryAdd(pc.PlayerId, SoloPVP_RecoverPerSecond.GetFloat());
+            PlayerATK.TryAdd(pc.PlayerId, SoloPVP_ATK.GetFloat());
             PlayerDF.TryAdd(pc.PlayerId, 0f);
 
             KBScore.TryAdd(pc.PlayerId, 0);
@@ -222,7 +222,7 @@ internal static class SoloPVP
 
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
-        float kcd = KB_ATKCooldown.GetFloat();
+        float kcd = SoloPVP_ATKCooldown.GetFloat();
         if (killer.IsHost()) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
         killer.SetKillCooldown(kcd, target);
 
@@ -246,7 +246,7 @@ internal static class SoloPVP
 
     private static System.Collections.IEnumerator OnPlayerDead(PlayerControl target)
     {
-        BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
+        BackCountdown.TryAdd(target.PlayerId, SoloPVP_ResurrectionWaitingTime.GetInt());
         if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
         while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) yield return null;
         if (BackCountdown.ContainsKey(target.PlayerId)) target.ExileTemporarily();
@@ -262,7 +262,7 @@ internal static class SoloPVP
         Utils.SendRPC(CustomRPC.SoloPVPSync, 2, killer.PlayerId, KBScore[killer.PlayerId]);
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
-        addRate *= KB_KillBonusMultiplier.GetFloat();
+        addRate *= SoloPVP_KillBonusMultiplier.GetFloat();
         if (killer.IsHost()) addRate /= 2f;
 
         var text = string.Empty;
@@ -273,22 +273,22 @@ internal static class SoloPVP
             case 0:
                 addin = PlayerHPMax[killer.PlayerId] * addRate;
                 PlayerHPMax[killer.PlayerId] += addin;
-                text = string.Format(Translator.GetString("KB_Buff_HPMax"), addin.ToString("0.0#####"));
+                text = string.Format(Translator.GetString("SoloPVP_Buff_HPMax"), addin.ToString("0.0#####"));
                 break;
             case 1:
                 addin = PlayerHPReco[killer.PlayerId] * addRate * 2;
                 PlayerHPReco[killer.PlayerId] += addin;
-                text = string.Format(Translator.GetString("KB_Buff_HPReco"), addin.ToString("0.0#####"));
+                text = string.Format(Translator.GetString("SoloPVP_Buff_HPReco"), addin.ToString("0.0#####"));
                 break;
             case 2:
                 addin = PlayerATK[killer.PlayerId] * addRate;
                 PlayerATK[killer.PlayerId] += addin;
-                text = string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####"));
+                text = string.Format(Translator.GetString("SoloPVP_Buff_ATK"), addin.ToString("0.0#####"));
                 break;
             case 3:
                 addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 8;
                 PlayerDF[killer.PlayerId] += addin;
-                text = string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####"));
+                text = string.Format(Translator.GetString("SoloPVP_Buff_DF"), addin.ToString("0.0#####"));
                 break;
         }
 
@@ -309,7 +309,7 @@ internal static class SoloPVP
             if (LastCountdownTime[id] == now) return;
             LastCountdownTime[id] = now;
 
-            if (LastHurt[id] + KB_RecoverAfterSecond.GetInt() < now && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
+            if (LastHurt[id] + SoloPVP_RecoverAfterSecond.GetInt() < now && PlayerHP[id] < PlayerHPMax[id] && __instance.SoloAlive() && !__instance.inVent)
             {
                 PlayerHP[id] += PlayerHPReco[id];
                 PlayerHP[id] = Math.Min(PlayerHPMax[id], PlayerHP[id]);
@@ -337,15 +337,15 @@ internal static class SoloPVP
 
     // Options
     // ReSharper disable InconsistentNaming
-    public static OptionItem KB_GameTime;
-    public static OptionItem KB_ATKCooldown;
-    private static OptionItem KB_HPMax;
-    private static OptionItem KB_ATK;
-    private static OptionItem KB_RecoverAfterSecond;
-    private static OptionItem KB_RecoverPerSecond;
-    private static OptionItem KB_ResurrectionWaitingTime;
-    private static OptionItem KB_KillBonusMultiplier;
-    private static OptionItem KB_CanVent;
+    public static OptionItem SoloPVP_GameTime;
+    public static OptionItem SoloPVP_ATKCooldown;
+    private static OptionItem SoloPVP_HPMax;
+    private static OptionItem SoloPVP_ATK;
+    private static OptionItem SoloPVP_RecoverAfterSecond;
+    private static OptionItem SoloPVP_RecoverPerSecond;
+    private static OptionItem SoloPVP_ResurrectionWaitingTime;
+    private static OptionItem SoloPVP_KillBonusMultiplier;
+    private static OptionItem SoloPVP_CanVent;
 
     // ReSharper restore InconsistentNaming
 }
