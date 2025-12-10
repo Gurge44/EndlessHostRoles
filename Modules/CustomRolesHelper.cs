@@ -60,7 +60,7 @@ internal static class CustomRolesHelper
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
         return CustomHnS.AllHnSRoles.Contains(role) || role is
-            CustomRoles.KB_Normal or
+            CustomRoles.SoloPVP_Player or
             CustomRoles.Killer or
             CustomRoles.Tasker or
             CustomRoles.Potato or
@@ -460,7 +460,7 @@ internal static class CustomRolesHelper
         return role switch
         {
             // Solo PVP
-            CustomRoles.KB_Normal => RoleTypes.Impostor,
+            CustomRoles.SoloPVP_Player => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
             // Capture The Flag
@@ -972,7 +972,7 @@ internal static class CustomRolesHelper
         return role is
             CustomRoles.KOTZPlayer or
             CustomRoles.CTFPlayer or
-            CustomRoles.KB_Normal or
+            CustomRoles.SoloPVP_Player or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Weatherman or
             CustomRoles.Altruist or

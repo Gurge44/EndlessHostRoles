@@ -413,7 +413,7 @@ public static class GameStartManagerPatch
                 
                 int estimatedGameLength = Options.CurrentGameMode switch
                 {
-                    CustomGameMode.SoloPVP => SoloPVP.KB_GameTime.GetInt(),
+                    CustomGameMode.SoloPVP => SoloPVP.SoloPVP_GameTime.GetInt(),
                     CustomGameMode.FFA => Math.Clamp((FreeForAll.FFAKcd.GetInt() * (PlayerControl.AllPlayerControls.Count / 2)) + FreeForAll.FFAKcd.GetInt() + 5, FreeForAll.FFAKcd.GetInt(), FreeForAll.FFAGameTime.GetInt()),
                     CustomGameMode.StopAndGo => ((Main.NormalOptions.NumShortTasks * 30) + (Main.NormalOptions.NumLongTasks * 60) + (Math.Min(3, Main.NormalOptions.NumCommonTasks) * 40)) / (int)(Main.NormalOptions.PlayerSpeedMod - ((Main.NormalOptions.PlayerSpeedMod - 1) / 2)),
                     CustomGameMode.HotPotato => HotPotato.GetKillInterval() * (PlayerControl.AllPlayerControls.Count - 1),

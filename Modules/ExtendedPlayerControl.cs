@@ -1378,7 +1378,7 @@ internal static class ExtendedPlayerControl
         return pc.GetCustomRole() switch
         {
             // Solo PVP
-            CustomRoles.KB_Normal => pc.SoloAlive(),
+            CustomRoles.SoloPVP_Player => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
             // Stop And Go
@@ -1729,7 +1729,7 @@ internal static class ExtendedPlayerControl
 
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
-            CustomRoles.KB_Normal => SoloPVP.KB_ATKCooldown.GetFloat(),
+            CustomRoles.SoloPVP_Player => SoloPVP.SoloPVP_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
             CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
