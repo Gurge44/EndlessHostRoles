@@ -214,7 +214,7 @@ internal static class SetEverythingUpPatch
                     __instance.BackgroundBar.material.color = new Color32(245, 82, 82, 255);
                     customWinnerText = CustomWinnerHolder.WinnerIds.Select(x => x.ColoredPlayerName()).Join() + GetString("Win");
                     customWinnerColor = "#f55252";
-                    additionalWinnerText = "\n" + string.Format(GetString("SoloPVP.WinnersKillCount"), SoloPVP.KBScore[CustomWinnerHolder.WinnerIds.First()]);
+                    additionalWinnerText = "\n" + string.Format(GetString("SoloPVP.WinnersKillCount"), SoloPVP.PlayerScore[CustomWinnerHolder.WinnerIds.First()]);
                     goto Skip;
                 }
                 case CustomGameMode.FFA:

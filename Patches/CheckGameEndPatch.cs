@@ -770,8 +770,8 @@ internal static class GameEndChecker
             if (SoloPVP.RoundTime > 0) return false;
 
             HashSet<byte> winners = [Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloPVP.GetRankFromScore(x.PlayerId) == 1)?.PlayerId ?? Main.AllAlivePlayerControls[0].PlayerId];
-            int kills = SoloPVP.KBScore[winners.First()];
-            winners.UnionWith(SoloPVP.KBScore.Where(x => x.Value == kills).Select(x => x.Key));
+            int kills = SoloPVP.PlayerScore[winners.First()];
+            winners.UnionWith(SoloPVP.PlayerScore.Where(x => x.Value == kills).Select(x => x.Key));
 
             WinnerIds = winners;
 

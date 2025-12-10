@@ -1034,7 +1034,7 @@ internal static class TaskPanelBehaviourPatch
                 finalText += $"\r\n{GetString("PVP.RCO")}: {SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}";
                 finalText += "\r\n";
 
-                finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=80%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.KBScore.GetValueOrDefault(x, 0))}");
+                finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=80%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.PlayerScore.GetValueOrDefault(x, 0))}");
 
                 finalText += "</size>";
                 break;
