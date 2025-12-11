@@ -1291,7 +1291,7 @@ internal static class RPCHandlerPatch
                             SoloPVP.RoundTime = roundTime;
                             break;
                         case 2:
-                            SoloPVP.KBScore[reader.ReadByte()] = reader.ReadPackedInt32();
+                            SoloPVP.PlayerScore[reader.ReadByte()] = reader.ReadPackedInt32();
                             break;
                     }
                     
