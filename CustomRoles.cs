@@ -161,6 +161,7 @@ public enum CustomRoles
     Battery,
     Beacon,
     Benefactor,
+    Bestower,
     Bodyguard,
     CameraMan,
     Captain,

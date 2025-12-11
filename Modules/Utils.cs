@@ -944,6 +944,7 @@ public static class Utils
             case CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 1:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
+            case CustomRoles.Bestower when !Options.UsePets.GetBool() || !Bestower.UsePet.GetBool():
             case CustomRoles.Virus:
             case CustomRoles.Investigator when !Options.UsePets.GetBool() || !Investigator.UsePet.GetBool():
             case CustomRoles.Aid when !Options.UsePets.GetBool() || !Aid.UsePet.GetBool():

@@ -502,6 +502,7 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Telecommunication, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
