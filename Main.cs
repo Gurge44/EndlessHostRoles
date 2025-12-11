@@ -751,7 +751,7 @@ public class Main : BasePlugin
                 { CustomRoles.Underdog, "#ff1919" },
 
                 // Solo PVP
-                { CustomRoles.KB_Normal, "#f55252" },
+                { CustomRoles.SoloPVP_Player, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
                 // Stop And Go

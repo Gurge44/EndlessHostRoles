@@ -1044,7 +1044,7 @@ public static class GuessManager
                 CustomRoles.Disco or
                 CustomRoles.Giant or
                 CustomRoles.NotAssigned or
-                CustomRoles.KB_Normal or
+                CustomRoles.SoloPVP_Player or
                 CustomRoles.Paranoid or
                 CustomRoles.SuperStar or
                 CustomRoles.GuardianAngelEHR
