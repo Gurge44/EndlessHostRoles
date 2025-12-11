@@ -372,7 +372,7 @@ public static class SabotageSystemTypeRepairDamagePatch
     public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         Instance = __instance;
-        if (Options.CurrentGameMode != CustomGameMode.Standard || __instance.Timer > 0f) return false;
+        if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.Snowdown) || __instance.Timer > 0f) return false;
 
         SystemTypes systemTypes;
         {

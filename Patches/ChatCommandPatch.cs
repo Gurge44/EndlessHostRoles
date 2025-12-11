@@ -673,13 +673,10 @@ internal static class ChatCommands
             else if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(player);
-                PlayerState killerState = Main.PlayerStates[killer.PlayerId];
-                killerState.deathReason = PlayerState.DeathReason.Retribution;
-                killerState.SetDead();
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Retribution;
                 Medic.IsDead(killer);
-                killer.RpcExileV2();
-                Utils.AfterPlayerDeathTasks(killer, true);
                 killer.RpcGuesserMurderPlayer();
+                Utils.AfterPlayerDeathTasks(killer, true);
                 Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())));
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
             }
@@ -1427,7 +1424,7 @@ internal static class ChatCommands
 
         IEnumerator RepeatedlySendMessage()
         {
-            for (var index = 0; index < 4; index++)
+            for (var index = 0; index < 3; index++)
             {
                 List<Message> messages = [];
 
@@ -1728,6 +1725,8 @@ internal static class ChatCommands
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
+        
+        if (gmPoll && GMPollGameModes.Count > 6) msg += "<size=70%>";
 
         PollTimer = gmPoll ? 60f : 45f;
         Color[] gmPollColors = gmPoll ? Main.GameModeColors.Where(x => GMPollGameModes.Contains(x.Key)).Select(x => x.Value).ToArray() : [];
@@ -1764,7 +1763,7 @@ internal static class ChatCommands
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
-                if (resendTimer >= 15f)
+                if (resendTimer > 23f)
                 {
                     resendTimer = 0f;
                     Utils.SendMessage(msg + $"{string.Format(GetString("Poll.TimeInfo"), (int)Math.Round(PollTimer))}</i></size>", title: title, sendOption: SendOption.None);
@@ -3448,13 +3447,14 @@ internal static class ChatCommands
         }
         else
             name = name.Trim().ToLower();
+        
+        string nameWithoutId = Regex.Replace(name.Replace(" ", string.Empty), @"^\d+", string.Empty);
 
         foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
         {
             if (rl.IsVanilla()) continue;
-
-            string roleName = GetString(rl.ToString()).ToLower().Trim().Replace(" ", string.Empty);
-            string nameWithoutId = Regex.Replace(name.Replace(" ", string.Empty), @"^\d+", string.Empty);
+            
+            string roleName = Regex.Replace(GetString(rl.ToString()).RemoveHtmlTags().ToLower(), @"[^\p{L}-]+", string.Empty);
 
             if (nameWithoutId == roleName)
             {
@@ -3493,9 +3493,9 @@ internal static class ChatCommands
         {
             if (rl.IsVanilla()) continue;
 
-            string roleName = GetString(rl.ToString());
+            string roleName = Regex.Replace(GetString(rl.ToString()).RemoveHtmlTags().ToLower().Trim().TrimStart('*'), @"[^\p{L}-]+", string.Empty);
 
-            if (role == roleName.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty))
+            if (role == roleName)
             {
                 if ((isDev || isUp) && GameStates.IsLobby)
                 {
@@ -3517,7 +3517,7 @@ internal static class ChatCommands
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
-                string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
+                string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString, StringComparison.OrdinalIgnoreCase);
                 sb.Clear().Append(txt);
 
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
@@ -3531,7 +3531,7 @@ internal static class ChatCommands
 
                 void AddSettings(StringOptionItem stringOptionItem)
                 {
-                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[rl]}>{roleName}</color>:</u>");
+                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} {rl.ToColoredString()}:</u>");
                     Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
                     settings.Append("</size>");
                 }

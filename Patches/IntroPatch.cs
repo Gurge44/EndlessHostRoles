@@ -301,6 +301,16 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleBlurbText.text = GetString("MinglePlayerInfo");
                 break;
             }
+            case CustomGameMode.Snowdown:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.SnowdownPlayer);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("SnowdownPlayer");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("SnowdownPlayerInfo");
+                break;
+            }
             default:
             {
                 CustomRoles role = lp.GetCustomRole();
@@ -639,8 +649,7 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Telecommunication
                     => HudManager.Instance.Chat.warningSound,
 
-                CustomRoles.GM or
-                    CustomRoles.Snitch or
+                CustomRoles.Snitch or
                     CustomRoles.Speedrunner or
                     CustomRoles.Workaholic
                     => HudManager.Instance.TaskCompleteSound,
@@ -648,6 +657,10 @@ internal static class BeginCrewmatePatch
                 CustomRoles.Helper or
                     CustomRoles.TaskManager
                     => HudManager.Instance.TaskUpdateSound,
+
+                CustomRoles.ClockBlocker or
+                    CustomRoles.TimeThief
+                    => HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound,
 
                 CustomRoles.Doorjammer or
                     CustomRoles.Inhibitor or
@@ -681,7 +694,8 @@ internal static class BeginCrewmatePatch
                     CustomRoles.TimeManager
                     => MeetingHud.Instance.VoteLockinSound,
 
-                CustomRoles.Demolitionist or
+                CustomRoles.Altruist or
+                    CustomRoles.Demolitionist or
                     CustomRoles.Disperser or
                     CustomRoles.Grenadier or
                     CustomRoles.Miner or
@@ -818,8 +832,8 @@ internal static class BeginCrewmatePatch
         if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {
             __instance.TeamTitle.text = Utils.GetRoleName(role);
-            __instance.TeamTitle.color = Utils.GetRoleColor(role);
-            __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = HudManager.Instance.TaskCompleteSound;
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.GM");
         }
@@ -858,11 +872,11 @@ internal static class BeginCrewmatePatch
         {
             case CustomGameMode.SoloPVP:
             {
-                __instance.TeamTitle.text = GetString("KB_Normal");
+                __instance.TeamTitle.text = GetString("SoloPVP_Player");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(245, 82, 82, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("KB_NormalInfo");
+                __instance.ImpostorText.text = GetString("SoloPVP_PlayerInfo");
                 break;
             }
             case CustomGameMode.FFA:
@@ -992,6 +1006,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("MinglePlayerInfo");
                 break;
             }
+            case CustomGameMode.Snowdown:
+            {
+                __instance.TeamTitle.text = GetString("SnowdownPlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.SnowdownPlayer);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Detective);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("SnowdownPlayerInfo");
+                break;
+            }
         }
 
         return;
@@ -1116,16 +1139,6 @@ internal static class IntroCutsceneDestroyPatch
             
             if (Main.NormalOptions.MapId != 4)
             {
-                foreach (PlayerControl pc in aapc)
-                {
-                    pc.RpcResetAbilityCooldown();
-
-                    if (pc.GetCustomRole().UsesPetInsteadOfKill())
-                        pc.AddAbilityCD(10);
-                    else
-                        pc.AddAbilityCD(false);
-                }
-
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
                     if (Options.FixFirstKillCooldown.GetBool())
@@ -1167,8 +1180,17 @@ internal static class IntroCutsceneDestroyPatch
 
                 LateTask.New(() =>
                 {
-                    lp.RpcResetAbilityCooldown();
                     lp.SetKillCooldown(10f);
+                    
+                    foreach (PlayerControl pc in aapc)
+                    {
+                        pc.RpcResetAbilityCooldown();
+
+                        if (pc.GetCustomRole().UsesPetInsteadOfKill())
+                            pc.AddAbilityCD(10);
+                        else
+                            pc.AddAbilityCD(false);
+                    }
                 }, 0.8f, log: false);
 
                 StartGameHostPatch.RpcSetRoleReplacer.SetActualSelfRolesAfterOverride();
@@ -1186,7 +1208,7 @@ internal static class IntroCutsceneDestroyPatch
                 }
             }, 0.1f, log: false);
 
-            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.BedWars)
+            if (Options.UsePets.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek or CustomGameMode.CaptureTheFlag or CustomGameMode.BedWars or CustomGameMode.Snowdown)
             {
                 void GrantPetForEveryone()
                 {
@@ -1309,6 +1331,9 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Mingle:
                     Main.Instance.StartCoroutine(Mingle.GameStart());
                     break;
+                case CustomGameMode.Snowdown:
+                    Snowdown.GameStart();
+                    break;
             }
 
             Utils.CheckAndSetVentInteractions();
@@ -1322,6 +1347,9 @@ internal static class IntroCutsceneDestroyPatch
         {
             foreach (PlayerControl player in Main.AllPlayerControls)
                 Main.PlayerStates[player.PlayerId].InitTask(player);
+            
+            if (Options.CurrentGameMode == CustomGameMode.Snowdown)
+                Snowdown.GameStart();
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");

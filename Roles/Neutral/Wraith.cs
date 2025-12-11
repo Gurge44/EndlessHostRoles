@@ -1,5 +1,3 @@
-using AmongUs.GameOptions;
-
 namespace EHR.Neutral;
 
 public class Wraith : RoleBase
@@ -8,7 +6,8 @@ public class Wraith : RoleBase
     public static OptionItem WraithDuration;
     public static OptionItem WraithVentNormallyOnCooldown;
     public static OptionItem WraithCanVent;
-    private static OptionItem ImpostorVision;
+    public static OptionItem ImpostorVision;
+    public static OptionItem KillCooldown;
 
     public override bool IsEnable => false;
 
@@ -19,15 +18,11 @@ public class Wraith : RoleBase
             .AutoSetupOption(ref WraithDuration, 10f, new FloatValueRule(0f, 30f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref WraithVentNormallyOnCooldown, true)
             .AutoSetupOption(ref WraithCanVent, true, overrideName: "CanVent")
-            .AutoSetupOption(ref ImpostorVision, true);
+            .AutoSetupOption(ref ImpostorVision, true)
+            .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0.5f, 120f, 0.5f), OptionFormat.Seconds);
     }
 
     public override void Init() { }
 
     public override void Add(byte playerId) { }
-
-    public override void ApplyGameOptions(IGameOptions opt, byte id)
-    {
-        opt.SetVision(ImpostorVision.GetBool());
-    }
 }

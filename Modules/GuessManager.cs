@@ -62,7 +62,7 @@ public static class GuessManager
         return false;
     }
 
-    public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
+    public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false, bool ssMenu = false)
     {
         string originMsg = msg;
 
@@ -122,13 +122,13 @@ public static class GuessManager
 
                 SkipCheck:
 
-                if (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
-                    (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
-                    (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool()))
+                if (!isUI && !ssMenu && (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
+                     (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
+                     (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
+                     (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
+                     (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())))
                     ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
+                else if (pc.AmOwner && !isUI && !ssMenu) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
                 {
@@ -162,7 +162,7 @@ public static class GuessManager
                             return true;
                     }
 
-                    if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId))
+                    if (!pc.Is(CustomRoles.Guesser) && CopyCat.Instances.Exists(x => x.CopyCatPC == pc))
                     {
                         ShowMessage("GuessDisabled");
                         return true;
@@ -801,7 +801,10 @@ public static class GuessManager
             Transform maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
             Transform smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
             TextTemplate.enabled = true;
-            if (TextTemplate.transform.FindChild("RoleTextMeeting") != null) Object.Destroy(TextTemplate.transform.FindChild("RoleTextMeeting").gameObject);
+            Transform roleTextMeeting = TextTemplate.transform.FindChild("RoleTextMeeting");
+            if (roleTextMeeting != null) Object.Destroy(roleTextMeeting.gameObject);
+            Transform deathReasonTextMeeting = TextTemplate.transform.FindChild("DeathReasonTextMeeting");
+            if (deathReasonTextMeeting != null) Object.Destroy(deathReasonTextMeeting.gameObject);
 
             Transform exitButtonParent = new GameObject().transform;
             exitButtonParent.SetParent(container);
@@ -959,7 +962,8 @@ public static class GuessManager
 
             void CreateRole(CustomRoles role)
             {
-                var customRoleTypesInt = (int)role.GetCustomRoleTypes();
+                CustomRoleTypes customRoleTypes = role.GetCustomRoleTypes();
+                var customRoleTypesInt = (int)customRoleTypes;
                 if (40 <= i[customRoleTypesInt]) i[customRoleTypesInt] = 0;
                 Transform buttonParent = new GameObject().transform;
                 buttonParent.SetParent(container);
@@ -970,10 +974,10 @@ public static class GuessManager
 
                 button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
 
-                if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes()))
-                    RoleButtons.Add(role.GetCustomRoleTypes(), []);
+                if (!RoleButtons.ContainsKey(customRoleTypes))
+                    RoleButtons.Add(customRoleTypes, []);
 
-                RoleButtons[role.GetCustomRoleTypes()].Add(button);
+                RoleButtons[customRoleTypes].Add(button);
                 buttons.Add(button);
                 int row = i[customRoleTypesInt] / 5;
                 int col = i[customRoleTypesInt] % 5;
@@ -1040,7 +1044,7 @@ public static class GuessManager
                 CustomRoles.Disco or
                 CustomRoles.Giant or
                 CustomRoles.NotAssigned or
-                CustomRoles.KB_Normal or
+                CustomRoles.SoloPVP_Player or
                 CustomRoles.Paranoid or
                 CustomRoles.SuperStar or
                 CustomRoles.GuardianAngelEHR
@@ -1289,7 +1293,7 @@ public static class GuessManager
                             SelectedRole = Enum.Parse<CustomRoles>(display, true);
                         }
 
-                        GuesserMsg(guesserId.GetPlayer(), $"/bt {Target.PlayerId} {GetString(SelectedRole.ToString())}");
+                        GuesserMsg(guesserId.GetPlayer(), $"/bt {Target.PlayerId} {GetString(SelectedRole.ToString())}", ssMenu: true);
                         Reset();
                         break;
                     }
@@ -1644,4 +1648,3 @@ public static class GuessManager
     }
 
 }
-

@@ -60,7 +60,7 @@ internal static class CustomRolesHelper
     public static bool IsForOtherGameMode(this CustomRoles role)
     {
         return CustomHnS.AllHnSRoles.Contains(role) || role is
-            CustomRoles.KB_Normal or
+            CustomRoles.SoloPVP_Player or
             CustomRoles.Killer or
             CustomRoles.Tasker or
             CustomRoles.Potato or
@@ -73,7 +73,8 @@ internal static class CustomRolesHelper
             CustomRoles.TMGPlayer or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Racer or
-            CustomRoles.MinglePlayer;
+            CustomRoles.MinglePlayer or
+            CustomRoles.SnowdownPlayer;
     }
 
     public static RoleBase GetRoleClass(this CustomRoles role)
@@ -118,7 +119,7 @@ internal static class CustomRolesHelper
         {
             CustomRoles.Sniper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Jester => Jester.JesterCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
-            CustomRoles.Mayor => Mayor.MayorHasPortableButton.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Mayor => Mayor.MayorHasPortableButton.GetBool() && !UsePets ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Telecommunication => Telecommunication.CanVent.GetBool() || !UsePets ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Vulture => Vulture.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Opportunist => Opportunist.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
@@ -459,7 +460,7 @@ internal static class CustomRolesHelper
         return role switch
         {
             // Solo PVP
-            CustomRoles.KB_Normal => RoleTypes.Impostor,
+            CustomRoles.SoloPVP_Player => RoleTypes.Impostor,
             // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
             // Capture The Flag
@@ -470,6 +471,8 @@ internal static class CustomRolesHelper
             CustomRoles.BedWarsPlayer => RoleTypes.Phantom,
             // Deathrace
             CustomRoles.Racer => RoleTypes.Phantom,
+            // Snowdown
+            CustomRoles.SnowdownPlayer => RoleTypes.Phantom,
             // Standard
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -478,6 +481,7 @@ internal static class CustomRolesHelper
             CustomRoles.Agitator => RoleTypes.Impostor,
             CustomRoles.Monarch => UsePets && Monarch.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Deputy => UsePets && Deputy.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Bestower => UsePets && Bestower.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Retributionist => UsePets && Retributionist.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Arsonist => RoleTypes.Impostor,
             CustomRoles.Jackal => RoleTypes.Impostor,
@@ -513,6 +517,7 @@ internal static class CustomRolesHelper
             CustomRoles.Duality => RoleTypes.Impostor,
             CustomRoles.Berserker => RoleTypes.Impostor,
             CustomRoles.SerialKiller => RoleTypes.Impostor,
+            CustomRoles.SoulCollector => RoleTypes.Impostor,
             CustomRoles.Explosivist => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Sharpshooter => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoles.Thanos => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
@@ -647,6 +652,7 @@ internal static class CustomRolesHelper
             CustomRoles.Parasite or
             CustomRoles.Berserker or
             CustomRoles.SerialKiller or
+            CustomRoles.SoulCollector or
             CustomRoles.Sharpshooter or
             CustomRoles.Explosivist or
             CustomRoles.Thanos or
@@ -901,6 +907,7 @@ internal static class CustomRolesHelper
             CustomRoles.CopyCat when CopyCat.UsePet.GetBool() => true,
             CustomRoles.Investigator when Investigator.UsePet.GetBool() => true,
             CustomRoles.Deputy when Deputy.UsePet.GetBool() => true,
+            CustomRoles.Bestower when Bestower.UsePet.GetBool() => true,
             CustomRoles.Retributionist when Retributionist.UsePet.GetBool() => true,
             CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
             CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
@@ -967,7 +974,7 @@ internal static class CustomRolesHelper
         return role is
             CustomRoles.KOTZPlayer or
             CustomRoles.CTFPlayer or
-            CustomRoles.KB_Normal or
+            CustomRoles.SoloPVP_Player or
             CustomRoles.BedWarsPlayer or
             CustomRoles.Weatherman or
             CustomRoles.Altruist or
@@ -1052,6 +1059,7 @@ internal static class CustomRolesHelper
                          or CustomRoles.CTFPlayer
                          or CustomRoles.BedWarsPlayer
                          or CustomRoles.Racer
+                         or CustomRoles.SnowdownPlayer
                          or CustomRoles.Wizard
                          or CustomRoles.AntiAdminer
                          or CustomRoles.Stasis
@@ -1827,6 +1835,7 @@ internal static class CustomRolesHelper
             CustomRoles.Battery => RoleOptionType.Crewmate_Support,
             CustomRoles.Beacon => RoleOptionType.Crewmate_Support,
             CustomRoles.Benefactor => RoleOptionType.Crewmate_Support,
+            CustomRoles.Bestower => RoleOptionType.Crewmate_Support,
             CustomRoles.Bodyguard => RoleOptionType.Crewmate_Support,
             CustomRoles.Chef => RoleOptionType.Crewmate_Support,
             CustomRoles.Cleanser => RoleOptionType.Crewmate_Support,
@@ -1956,6 +1965,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    SoulCollector,
     Berserker,
     Sharpshooter,
     Explosivist,

@@ -175,6 +175,11 @@ internal static class FreeForAll
 
     public static string GetHudText()
     {
+        if (RoundTime == 60)
+        {
+            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
+        }
         return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
     }
 

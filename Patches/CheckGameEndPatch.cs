@@ -560,6 +560,11 @@ internal static class GameEndChecker
         Predicate = new MingleGameEndPredicate();
     }
 
+    public static void SetPredicateToSnowdown()
+    {
+        Predicate = new SnowdownGameEndPredicate();
+    }
+
     private class NormalGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
@@ -765,8 +770,8 @@ internal static class GameEndChecker
             if (SoloPVP.RoundTime > 0) return false;
 
             HashSet<byte> winners = [Main.AllPlayerControls.FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloPVP.GetRankFromScore(x.PlayerId) == 1)?.PlayerId ?? Main.AllAlivePlayerControls[0].PlayerId];
-            int kills = SoloPVP.KBScore[winners.First()];
-            winners.UnionWith(SoloPVP.KBScore.Where(x => x.Value == kills).Select(x => x.Key));
+            int kills = SoloPVP.PlayerScore[winners.First()];
+            winners.UnionWith(SoloPVP.PlayerScore.Where(x => x.Value == kills).Select(x => x.Key));
 
             WinnerIds = winners;
 
@@ -1131,6 +1136,20 @@ internal static class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return Mingle.CheckGameEnd(out reason);
+        }
+    }
+    
+    private class SnowdownGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForGameEnd(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return Snowdown.CheckGameEnd(out reason);
         }
     }
 

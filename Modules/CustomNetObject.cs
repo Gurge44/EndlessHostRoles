@@ -239,7 +239,9 @@ namespace EHR
                         catch (Exception exception) { Utils.ThrowException(exception); }
                     }
 
-                    playerControl.RawSetName(sprite);
+                    try { playerControl.RawSetName("<size=14><br></size>" + sprite); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                     int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
                     string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
@@ -285,6 +287,8 @@ namespace EHR
                 }, 0.6f);
             }
 
+            playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+            playerControl.cosmetics.colorBlindText.color = Color.clear;
             Position = position;
             Sprite = sprite;
             ++MaxId;
@@ -352,8 +356,11 @@ namespace EHR
             System.Collections.IEnumerator WaitForMeetingEnd()
             {
                 while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
+                yield return new WaitForSeconds(1f);
+                while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
                 if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby) yield break;
-                
+
+                try
                 {
                     AmongUsClient.Instance.RemoveNetObject(playerControl);
                     Object.Destroy(playerControl.gameObject);
@@ -370,6 +377,7 @@ namespace EHR
                     SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
                     item.SerializeValues(msg);
                     msg.EndMessage();
+
                     if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                     {
                         for (uint i = 1; i <= 3; ++i)
@@ -385,6 +393,7 @@ namespace EHR
                             msg.EndMessage();
                         }
                     }
+
                     msg.EndMessage();
                     AmongUsClient.Instance.SendOrDisconnect(msg);
                     msg.Recycle();
@@ -393,40 +402,48 @@ namespace EHR
                     playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
                     playerControl.cosmetics.colorBlindText.color = Color.clear;
                 }
+                catch (Exception e) { Utils.ThrowException(e); }
 
                 yield return new WaitForSeconds(0.1f);
 
+                try
                 {
                     foreach (var pc in PlayerControl.AllPlayerControls)
                     {
-                        if (pc.AmOwner) continue;
-                        CustomRpcSender sender = CustomRpcSender.Create("CustomNetObject.OnMeeting", SendOption.Reliable);
-                        MessageWriter writer2 = sender.stream;
-                        sender.StartMessage(pc.GetClientId());
-                        writer2.StartMessage(1);
+                        try
                         {
-                            writer2.WritePacked(playerControl.NetId);
-                            writer2.Write(pc.PlayerId);
+                            if (pc.AmOwner) continue;
+                            CustomRpcSender sender = CustomRpcSender.Create("CustomNetObject.OnMeeting", SendOption.Reliable);
+                            MessageWriter writer2 = sender.stream;
+                            sender.StartMessage(pc.GetClientId());
+                            writer2.StartMessage(1);
+                            {
+                                writer2.WritePacked(playerControl.NetId);
+                                writer2.Write(pc.PlayerId);
+                            }
+                            writer2.EndMessage();
+                            sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+                                .WriteNetObject(playerControl)
+                                .Write((int)MurderResultFlags.FailedError)
+                                .EndRpc();
+                            writer2.StartMessage(1);
+                            {
+                                writer2.WritePacked(playerControl.NetId);
+                                writer2.Write((byte)254);
+                            }
+                            writer2.EndMessage();
+                            sender.EndMessage();
+                            sender.SendMessage();
                         }
-                        writer2.EndMessage();
-                        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
-                            .WriteNetObject(playerControl)
-                            .Write((int)MurderResultFlags.FailedError)
-                            .EndRpc();
-                        writer2.StartMessage(1);
-                        {
-                            writer2.WritePacked(playerControl.NetId);
-                            writer2.Write((byte)254);
-                        }
-                        writer2.EndMessage();
-                        sender.EndMessage();
-                        sender.SendMessage();
+                        catch (Exception e) { Utils.ThrowException(e); }
                     }
                     playerControl.CachedPlayerData = PlayerControl.LocalPlayer.Data;
                 }
+                catch (Exception e) { Utils.ThrowException(e); }
 
                 yield return new WaitForSeconds(0.5f);
 
+                try
                 {
                     try { playerControl.NetTransform.RpcSnapTo(Position); }
                     catch (Exception e)
@@ -437,7 +454,9 @@ namespace EHR
                         catch (Exception exception) { Utils.ThrowException(exception); }
                     }
 
-                    playerControl.RawSetName(Sprite);
+                    try { playerControl.RawSetName("<size=14><br></size>" + Sprite); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                     int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
                     string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
@@ -481,6 +500,7 @@ namespace EHR
                     sender.EndMessage();
                     sender.SendMessage();
                 }
+                catch (Exception e) { Utils.ThrowException(e); }
             }
         }
 
@@ -868,7 +888,7 @@ namespace EHR
 
     public sealed class DeathracePowerUp : CustomNetObject
     {
-        public Deathrace.PowerUp PowerUp;
+        public readonly Deathrace.PowerUp PowerUp;
         
         public DeathracePowerUp(Vector2 position, Deathrace.PowerUp powerUp)
         {
@@ -895,6 +915,38 @@ namespace EHR
             };
             
             CreateNetObject(Utils.ColorString(color, $"{icon}\n<size=80%>{Translator.GetString($"Deathrace.PowerUpDisplay.{powerUp}").ToUpper()}</size>"), position);
+        }
+    }
+    
+    internal sealed class Snowball : CustomNetObject
+    {
+        public PlayerControl Thrower;
+        public Vector2 Direction;
+
+        public Snowball(Vector2 from, Vector2 direction, PlayerControl thrower)
+        {
+            Thrower = thrower;
+            Direction = direction;
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
+            CreateNetObject("<line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
+        }
+
+        protected override void OnFixedUpdate()
+        {
+            Vector2 newPos = Position + Direction * Time.fixedDeltaTime * Snowdown.SnowballThrowSpeed;
+            bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+            
+            if ((PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false)) ||
+                newPos.x < Snowdown.MapBounds.X.Left || newPos.x > Snowdown.MapBounds.X.Right || newPos.y < Snowdown.MapBounds.Y.Bottom || newPos.y > Snowdown.MapBounds.Y.Top)
+            {
+                if (vanilla) AllObjects.Remove(this);
+                else Despawn();
+                
+                return;
+            }
+
+            if (vanilla) Position = newPos;
+            else TP(newPos);
         }
     }
 }

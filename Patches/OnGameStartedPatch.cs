@@ -184,7 +184,14 @@ internal static class ChangeRoleSettings
 
             Main.GameEndDueToTimer = false;
 
-            try { Main.AllRoleClasses.Do(x => x.Init()); }
+            try
+            {
+                Main.AllRoleClasses.ForEach(x =>
+                {
+                    try { x.Init(); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                });
+            }
             catch (Exception e) { Utils.ThrowException(e); }
 
             Main.PlayerStates = [];
@@ -1047,6 +1054,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Deathrace:
                     Deathrace.Init();
                     goto default;
+                case CustomGameMode.Snowdown:
+                    Snowdown.Init();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -1115,6 +1125,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.Mingle:
                     GameEndChecker.SetPredicateToMingle();
+                    break;
+                case CustomGameMode.Snowdown:
+                    GameEndChecker.SetPredicateToSnowdown();
                     break;
             }
 

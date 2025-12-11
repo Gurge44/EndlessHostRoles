@@ -122,14 +122,23 @@ public class Swooper : RoleBase
         try
         {
             if (UsedRole == CustomRoles.Chameleon)
-                AURoleOptions.EngineerCooldown = Cooldown + 1f;
+                AURoleOptions.EngineerCooldown = Cooldown + 2f;
             else if (UsePhantomBasis.GetBool() && (UsedRole == CustomRoles.Swooper || UsePhantomBasisForNKs.GetBool()))
             {
-                AURoleOptions.PhantomCooldown = Cooldown + 1f;
+                AURoleOptions.PhantomCooldown = Cooldown + 2f;
                 AURoleOptions.PhantomDuration = 0.1f;
             }
+            
+            if (UsedRole == CustomRoles.Wraith)
+                opt.SetVision(Wraith.ImpostorVision.GetBool());
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        if (UsedRole != CustomRoles.Wraith) base.SetKillCooldown(id);
+        else Main.AllPlayerKillCooldown[id] = Wraith.KillCooldown.GetFloat();
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

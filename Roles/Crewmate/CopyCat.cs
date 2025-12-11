@@ -39,8 +39,7 @@ public class CopyCat : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
         
         CopyCrewVarEvenIfDisabled = new BooleanOptionItem(Id + 15, "CopyCrewVarEvenIfDisabled", true, TabGroup.CrewmateRoles)
-            .SetParent(CopyCrewVar)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+            .SetParent(CopyCrewVar);
 
         MiscopyLimitOpt = new IntegerOptionItem(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CanKill)
@@ -140,7 +139,7 @@ public class CopyCat : RoleBase
                 CustomRoles.PlagueBearer => CustomRoles.Socialite,
                 CustomRoles.Demon => CustomRoles.Spy,
                 CustomRoles.Undertaker or CustomRoles.Vortex => CustomRoles.Vacuum,
-                CustomRoles.Kidnapper => CustomRoles.Autocrat,
+                CustomRoles.Kidnapper => new[] {CustomRoles.Autocrat, CustomRoles.Carrier}.RandomElement(),
                 CustomRoles.Capitalist => CustomRoles.Helper,
                 CustomRoles.Technician or CustomRoles.Saboteur => CustomRoles.Mechanic,
                 CustomRoles.Inhibitor => new[] {CustomRoles.Doorjammer, CustomRoles.SecurityGuard}.RandomElement(),
@@ -200,3 +199,4 @@ public class CopyCat : RoleBase
     }
 
 }
+

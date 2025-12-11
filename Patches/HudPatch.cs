@@ -215,7 +215,7 @@ internal static class HudManagerPatch
                     __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{roleTypes}"));
                     __instance.SecondaryAbilityButton?.OverrideText(GetString($"SecondaryAbilityButtonText.{roleTypes}"));
 
-                    PlayerState state = Main.PlayerStates[player.PlayerId];
+                    if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
 
                     state.Role.SetButtonTexts(__instance, player.PlayerId);
 
@@ -237,7 +237,7 @@ internal static class HudManagerPatch
                         case CustomRoles.Medic:
                             usedButton?.OverrideText(GetString("MedicalerButtonText"));
                             break;
-                        case CustomRoles.KB_Normal:
+                        case CustomRoles.SoloPVP_Player:
                         case CustomRoles.BedWarsPlayer:
                             __instance.KillButton?.OverrideText(GetString("DemonButtonText"));
                             break;
@@ -248,11 +248,14 @@ internal static class HudManagerPatch
                             __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                             break;
                         case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ventLimit):
-                            __instance.AbilityButton.SetUsesRemaining(ventLimit);
+                            __instance.AbilityButton?.SetUsesRemaining(ventLimit);
+                            break;
+                        case CustomRoles.SnowdownPlayer:
+                            __instance.AbilityButton?.OverrideText(GetString("SnowdownButtonText"));
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()))
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality and not CustomRoles.Witch and not CustomRoles.Silencer && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()) && !role.ToString().EndsWith("EHR") && !role.IsVanilla())
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
@@ -270,11 +273,12 @@ internal static class HudManagerPatch
                     {
                         CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
                         CustomGameMode.FFA => FreeForAll.GetHudText(),
-                        CustomGameMode.StopAndGo => StopAndGo.HUDText,
+                        CustomGameMode.StopAndGo => StopAndGo.GetHudText(),
                         CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
                         CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
+                        CustomGameMode.Snowdown => Snowdown.GetHudText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
@@ -341,9 +345,9 @@ internal static class HudManagerPatch
                     player.Data.Role.CanVent = player.CanUseVent();
 
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
-                        __instance.AbilityButton.SetEnabled();
+                        __instance.AbilityButton?.SetEnabled();
 
-                    __instance.SabotageButton.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
+                    __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
 
                     float abilityUseLimit = player.GetAbilityUseLimit();
 
@@ -575,6 +579,14 @@ internal static class SetHudActivePatch
 
         switch (Options.CurrentGameMode)
         {
+            case CustomGameMode.Snowdown:
+                __instance.AbilityButton?.ToggleVisible(true);
+                __instance.ReportButton?.ToggleVisible(false);
+                __instance.KillButton?.ToggleVisible(true);
+                __instance.ImpostorVentButton?.ToggleVisible(true);
+                __instance.SabotageButton?.ToggleVisible(true);
+                __instance.PetButton?.ToggleVisible(true);
+                return;
             case CustomGameMode.BedWars:
                 __instance.AbilityButton?.ToggleVisible(true);
                 __instance.ReportButton?.ToggleVisible(false);
@@ -635,6 +647,7 @@ internal static class SetHudActivePatch
             case CustomRoles.Arsonist:
             case CustomRoles.Vigilante:
             case CustomRoles.Deputy:
+            case CustomRoles.Bestower:
             case CustomRoles.Monarch:
             case CustomRoles.Pelican:
             case CustomRoles.Hater:
@@ -647,7 +660,7 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 
-            case CustomRoles.KB_Normal:
+            case CustomRoles.SoloPVP_Player:
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ReportButton?.ToggleVisible(false);
@@ -1022,7 +1035,7 @@ internal static class TaskPanelBehaviourPatch
                 finalText += $"\r\n{GetString("PVP.RCO")}: {SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}";
                 finalText += "\r\n";
 
-                finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=80%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.KBScore.GetValueOrDefault(x, 0))}");
+                finalText += Main.PlayerStates.Keys.OrderBy(SoloPVP.GetRankFromScore).Aggregate("<size=80%>", (s, x) => $"{s}\r\n{SoloPVP.GetRankFromScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.PlayerScore.GetValueOrDefault(x, 0))}");
 
                 finalText += "</size>";
                 break;

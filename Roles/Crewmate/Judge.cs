@@ -18,17 +18,14 @@ public class Judge : RoleBase
     private static OptionItem TrialLimitPerMeeting;
     private static OptionItem TrialLimitPerGame;
     private static OptionItem AbilityUseLimit;
-
-    private static OptionItem TryHideMsg;
     private static OptionItem CanTrialMadmate;
-
     private static OptionItem CanTrialConverted;
-
     private static OptionItem CanTrialCrewKilling;
     private static OptionItem CanTrialNeutralB;
-    private static OptionItem CanTrialNeutralK;
     private static OptionItem CanTrialNeutralE;
+    private static OptionItem CanTrialNeutralK;
     private static OptionItem CanTrialCoven;
+    private static OptionItem TryHideMsg;
     public static OptionItem JudgeAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 

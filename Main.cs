@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.8.4";
-    public const string PluginDisplayVersion = "6.8.4";
+    public const string PluginVersion = "6.9.1";
+    public const string PluginDisplayVersion = "6.9.1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -137,7 +137,8 @@ public class Main : BasePlugin
         [CustomGameMode.HideAndSeek] = [],
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
-        [CustomGameMode.NaturalDisasters] = []
+        [CustomGameMode.NaturalDisasters] = [],
+        [CustomGameMode.Snowdown] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -258,7 +259,7 @@ public class Main : BasePlugin
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId) || pc.Is(CustomRoles.GM)) continue;
 
                 result[i++] = pc;
             }
@@ -300,7 +301,7 @@ public class Main : BasePlugin
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
         LongMode = Config.Bind("Client Options", "LongMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
-        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
+        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", true);
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
         AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
@@ -501,6 +502,7 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Telecommunication, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
@@ -555,6 +557,7 @@ public class Main : BasePlugin
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.Berserker, "#50538F" },
                 { CustomRoles.SerialKiller, "#233fcc" },
+                { CustomRoles.SoulCollector, "#6021A0" },
                 { CustomRoles.Sharpshooter, "#5901D4" },
                 { CustomRoles.Explosivist, "#ff5900" },
                 { CustomRoles.Slenderman, "#2c2e00" },
@@ -749,7 +752,7 @@ public class Main : BasePlugin
                 { CustomRoles.Underdog, "#ff1919" },
 
                 // Solo PVP
-                { CustomRoles.KB_Normal, "#f55252" },
+                { CustomRoles.SoloPVP_Player, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
                 // Stop And Go
@@ -776,6 +779,8 @@ public class Main : BasePlugin
                 { CustomRoles.Racer, "#AFAFAF" },
                 // Mingle
                 { CustomRoles.MinglePlayer, "#FE9900" },
+                // Snowdown
+                { CustomRoles.SnowdownPlayer, "#e4fdff" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -858,7 +863,8 @@ public class Main : BasePlugin
             [CustomGameMode.TheMindGame] = Color.yellow,
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
-            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer)
+            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
+            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
@@ -1056,6 +1062,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.SerialKiller,
+    SoulCollector = CustomRoles.SoulCollector,
     Berserker = CustomRoles.Berserker,
     Sharpshooter = CustomRoles.Sharpshooter,
     Explosivist = CustomRoles.Explosivist,

@@ -26,9 +26,6 @@ public static class FixedUpdateCaller
 
             var amongUsClient = AmongUsClient.Instance;
 
-            if (amongUsClient)
-                amongUsClient.MinSendInterval = 0.034f;
-
             var shipStatus = ShipStatus.Instance;
 
             if (shipStatus)
@@ -174,6 +171,9 @@ public static class FixedUpdateCaller
                                 break;
                             case CustomGameMode.BedWars:
                                 BedWars.FixedUpdatePatch.Postfix(pc);
+                                break;
+                            case CustomGameMode.Snowdown:
+                                Snowdown.FixedUpdatePatch.Postfix(pc);
                                 break;
                         }
 

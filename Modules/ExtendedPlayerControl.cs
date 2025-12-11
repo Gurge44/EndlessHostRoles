@@ -355,7 +355,7 @@ internal static class ExtendedPlayerControl
 
             RoleTypes newRoleType = state.MainRole.GetRoleTypes();
 
-            if (Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars)
+            if (Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars or CustomGameMode.Snowdown)
                 hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
 
             player.ResetKillCooldown();
@@ -1081,7 +1081,7 @@ internal static class ExtendedPlayerControl
     {
         try
         {
-            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle;
+            bool addRoleName = GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
             return $"{player?.Data?.PlayerName}" + (addRoleName ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
         }
         catch (Exception e)
@@ -1365,6 +1365,7 @@ internal static class ExtendedPlayerControl
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.BedWars:
             case CustomGameMode.Deathrace:
+            case CustomGameMode.Snowdown:
                 return true;
         }
 
@@ -1377,7 +1378,7 @@ internal static class ExtendedPlayerControl
         return pc.GetCustomRole() switch
         {
             // Solo PVP
-            CustomRoles.KB_Normal => pc.SoloAlive(),
+            CustomRoles.SoloPVP_Player => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
             // Stop And Go
@@ -1425,6 +1426,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.Quiz => false,
             CustomGameMode.TheMindGame => false,
             CustomGameMode.Mingle => false,
+            CustomGameMode.Snowdown => true,
             CustomGameMode.Deathrace => Deathrace.CanUseVent(pc, pc.GetClosestVent().Id),
 
             CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
@@ -1727,7 +1729,7 @@ internal static class ExtendedPlayerControl
 
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
-            CustomRoles.KB_Normal => SoloPVP.KB_ATKCooldown.GetFloat(),
+            CustomRoles.SoloPVP_Player => SoloPVP.SoloPVP_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
             CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
@@ -1735,6 +1737,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.QuizPlayer => 3f,
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,
+            CustomRoles.SnowdownPlayer => 1f,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

@@ -123,10 +123,10 @@ public class Hater : RoleBase
             target.SetRealKiller(killer);
             killer.Kill(target);
             target.Data.IsDead = true;
-            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
         }
 
-        killer.Suicide(PlayerState.DeathReason.Sacrifice);
+        killer.Suicide(PlayerState.DeathReason.Misfire);
         Logger.Info($"{killer.GetRealName()} killed incorrect target => misfire", "Hater");
         return false;
     }

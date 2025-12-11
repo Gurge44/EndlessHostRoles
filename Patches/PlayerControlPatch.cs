@@ -259,6 +259,9 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Deathrace:
                     Deathrace.OnCheckMurder(killer, target);
                     return false;
+                case CustomGameMode.Snowdown:
+                    Snowdown.OnCheckMurder(killer, target);
+                    return false;
             }
             
             PlagueBearer.CheckAndSpreadInfection(killer, target);
@@ -328,12 +331,9 @@ internal static class CheckMurderPatch
 
             if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
             {
-                if (killer.RpcCheckAndMurder(target, true))
-                {
-                    target.Suicide(PlayerState.DeathReason.Kill, killer);
-                    killer.SetKillCooldown();
-                }
-
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
+                killer.SetKillCooldown();
+                Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                 return false;
             }
@@ -1514,7 +1514,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters && GameStartTimeStamp + 44 == TimeStamp)
+                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.Snowdown && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1638,11 +1638,21 @@ internal static class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out (long StartTimeStamp, int TotalCooldown) timer))
                     {
+                        SendOption sendOption = SendOption.None;
+                        
                         if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
+                        {
                             player.RemoveAbilityCD();
+                            sendOption = SendOption.Reliable;
+                        }
 
-                        if (!player.IsModdedClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
-                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        long remaining = timer.TotalCooldown - (now - timer.StartTimeStamp);
+                        
+                        if (!player.IsModdedClient() && remaining <= 30)
+                        {
+                            if (remaining % 5 == 0) sendOption = SendOption.Reliable;
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: sendOption);
+                        }
 
                         LastUpdate[playerId] = now;
                     }
@@ -1975,6 +1985,9 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.Mingle when self:
                     additionalSuffixes.Add(Mingle.GetSuffix(seer));
                     break;
+                case CustomGameMode.Snowdown:
+                    additionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
+                    break;
             }
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
@@ -1984,7 +1997,7 @@ internal static class FixedUpdatePatch
             
             if (addSuff.Count > 0)
             {
-                if (Suffix.Length > 0 && Suffix[^1] != '\n')
+                if (Suffix.ToString().RemoveHtmlTags().Length > 0 && Suffix[^1] != '\n')
                     Suffix.Append('\n');
                 
                 Suffix.Append(string.Join('\n', addSuff));
@@ -2010,10 +2023,11 @@ internal static class FixedUpdatePatch
             else
                 roleText = string.Empty;
             
-            string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\r\n" : " - ";
+            string suffix = Suffix.ToString().Trim();
+            string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\n" : " - ";
             string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
-            target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{Suffix}";
+            target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{suffix}";
 
             // Camouflage
             if (Camouflage.IsCamouflage) target.cosmetics.nameText.text = $"<size=0>{target.cosmetics.nameText.text}</size>";
@@ -2045,9 +2059,6 @@ internal static class FixedUpdatePatch
         Main.IsLoversDead = true;
         
         if (Main.PlayerStates.TryGetValue(deathId, out var deadState) && deadState.deathReason == PlayerState.DeathReason.Disconnected) return;
-
-        var deadPlayer = deathId.GetPlayer();
-        if (deadPlayer == null || deadPlayer.Data == null || deadPlayer.Data.Disconnected) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {
