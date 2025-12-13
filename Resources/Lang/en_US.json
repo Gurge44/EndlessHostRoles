@@ -1768,6 +1768,7 @@
   "JudgeCanTrialMadmate": "Can trial <color=#ff1919>Madmates</color>",
   "JudgeCanTrialConverted": "Can trial <#ffab1b>Converted</color> players",
   "VeteranSkillMaxOfUsage": "(Initial) Max number of Alerts",
+  "VeteranAlertActivatesOnNonKillingInteractions": "Kill Killer on Non-Killing Interactions (e.g., douse, shield, etc.)",
   "SwooperCooldown": "Swoop Cooldown",
   "SwooperDuration": "Swoop Duration",
   "SwooperVentNormallyOnCooldown": "<color=#ff1919>Swooper</color> vents normally when swooping is on cooldown",

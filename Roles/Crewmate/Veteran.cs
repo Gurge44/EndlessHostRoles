@@ -11,6 +11,13 @@ internal class Veteran : RoleBase
 
     public static bool On;
     public override bool IsEnable => On;
+    
+    public static OptionItem VeteranSkillCooldown;
+    public static OptionItem VeteranSkillDuration;
+    public static OptionItem VeteranSkillMaxOfUsage;
+    public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
+    public static OptionItem VeteranAlertActivatesOnNonKillingInteractions;
 
     public override void SetupCustomOption()
     {
@@ -36,6 +43,9 @@ internal class Veteran : RoleBase
         VeteranAbilityChargesWhenFinishedTasks = new FloatOptionItem(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
             .SetValueFormat(OptionFormat.Times);
+        
+        VeteranAlertActivatesOnNonKillingInteractions = new BooleanOptionItem(id + 7, "VeteranAlertActivatesOnNonKillingInteractions", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran]);
     }
 
     public override void Add(byte playerId)
@@ -106,9 +116,7 @@ internal class Veteran : RoleBase
     {
         if (!killer.IsAlive()) return false;
         
-        if (VeteranInProtect.ContainsKey(target.PlayerId)
-            && killer.PlayerId != target.PlayerId
-            && VeteranInProtect[target.PlayerId] + VeteranSkillDuration.GetInt() >= Utils.TimeStamp)
+        if (VeteranInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId)
         {
             if (!killer.Is(CustomRoles.Pestilence))
             {

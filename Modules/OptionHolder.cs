@@ -349,9 +349,6 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyNemesis;
-    public static OptionItem VeteranSkillCooldown;
-    public static OptionItem VeteranSkillDuration;
-    public static OptionItem VeteranSkillMaxOfUsage;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
@@ -3476,7 +3473,6 @@ public static class Options
     // ReSharper disable NotAccessedField.Global
 
     // Ability Use Gain With Each Task Completed
-    public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
@@ -3487,7 +3483,6 @@ public static class Options
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
     public static OptionItem PacifistAbilityChargesWhenFinishedTasks;
-    public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
 
     // ReSharper restore NotAccessedField.Global
 }
