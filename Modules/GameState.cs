@@ -74,6 +74,7 @@ public class PlayerState(byte playerId)
         Deafened,
         Patrolled,
         Misguess,
+        LossOfBlood,
 
         // Natural Disasters
         Meteor,

@@ -416,6 +416,7 @@ public enum CustomRoles
     Enchanter,
     Goddess,
     Illusionist,
+    MoonDancer,
     Poache,
     PotionMaster,
     Reaper,
