@@ -156,7 +156,7 @@ internal static class ChatCommands
             new(["tpin", "тпин", "传送进"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true, false),
             new(["t", "template", "т", "темплейт", "模板"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, false, [GetString("CommandArgs.Template.Tag")]),
             new(["mw", "messagewait", "мв", "медленныйрежим", "消息冷却", "espera-mensagens"], "{duration}", GetString("CommandDescription.MessageWait"), Command.UsageLevels.Host, Command.UsageTimes.Always, MessageWaitCommand, true, false, [GetString("CommandArgs.MessageWait.Duration")]),
-            new(["death", "d", "д", "смерть", "死亡原因", "abate"], "", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true, false),
+            new(["death", "d", "д", "смерть", "死亡原因", "abate"], "[id]", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true, false, [GetString("CommandArgs.Death.Id")]),
             new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, false, [GetString("CommandArgs.Say.Message")]),
             new(["vote", "голос", "投票给", "votar"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, true, [GetString("CommandArgs.Vote.Id")]),
             new(["ask", "спр", "спросить", "数学家提问", "perguntar"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
@@ -2381,11 +2381,14 @@ internal static class ChatCommands
         if (!GameStates.IsInGame) return;
         if (Main.DiedThisRound.Contains(player.PlayerId) && Utils.IsRevivingRoleAlive()) return;
 
-        PlayerControl killer = player.GetRealKiller();
+        PlayerControl target = args.Length < 2 || !byte.TryParse(args[1], out byte targetId) ? player : targetId.GetPlayer();
+        if (target == null) return;
+
+        PlayerControl killer = target.GetRealKiller();
 
         if (killer == null)
         {
-            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommandFail"), GetString($"DeathReason.{Main.PlayerStates[player.PlayerId].deathReason}")), sendOption: SendOption.None);
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommandFail"), GetString($"DeathReason.{Main.PlayerStates[target.PlayerId].deathReason}")), sendOption: SendOption.None);
             return;
         }
 
