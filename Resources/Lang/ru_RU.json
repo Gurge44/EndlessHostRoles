@@ -1093,7 +1093,7 @@
   "AutoMPollCommandCooldown": "Столько секунд ждать перед запуском опроса после захода в лобби",
   "AutoDraftStartCommandAfterJoin": "Автоматически запускать драфтинг (/draft) при заходе в лобби",
   "AutoDraftStartCommandCooldown": "Столько секунд ждать перед запуском драфтинга после захода в лобби",
-  "EnterKeyToStartGame": "Begin the starting countdown by pressing the Enter key",
+  "EnterKeyToStartGame": "Начинать обратный отсчёт по нажатии кнопки Enter",
   "RemovePetsAtDeadPlayers": "Убрать питомцев у мёртвых игроков",
   "SeeEjectedRolesInMeeting": "Показ выброшенных ролей на собраниях",
   "EnableKillerLeftCommand": "Включить команду /gs (ранее /kcount)",
