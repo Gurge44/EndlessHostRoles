@@ -442,6 +442,8 @@ public static class Options
     public static OptionItem AutoPlayAgain;
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
+    
+    public static OptionItem EnterKeyToStartGame;
 
     public static OptionItem SaboteurCD;
     public static OptionItem SaboteurCDAfterMeetings;
@@ -1696,6 +1698,8 @@ public static class Options
         AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 150, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
+        
+        EnterKeyToStartGame = new BooleanOptionItem(19432, "EnterKeyToStartGame", false, TabGroup.SystemSettings);
 
         LowLoadMode = new BooleanOptionItem(19317, "LowLoadMode", true, TabGroup.SystemSettings)
             .SetHeader(true)
