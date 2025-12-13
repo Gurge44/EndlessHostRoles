@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static EHR.Options;
 
 namespace EHR.Crewmate;
 
 public class DoubleAgent : RoleBase
 {
+    private const int Id = 645175;
     public static bool On;
 
     public static Dictionary<byte, CustomRoles> ShownRoles = [];
@@ -14,7 +16,7 @@ public class DoubleAgent : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(645175);
+        SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.DoubleAgent);
     }
 
     public override void Init()

@@ -26,9 +26,6 @@ public static class FixedUpdateCaller
 
             var amongUsClient = AmongUsClient.Instance;
 
-            if (amongUsClient)
-                amongUsClient.MinSendInterval = 0.034f;
-
             var shipStatus = ShipStatus.Instance;
 
             if (shipStatus)

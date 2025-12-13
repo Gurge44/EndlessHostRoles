@@ -331,12 +331,9 @@ internal static class CheckMurderPatch
 
             if (!DoubleTrigger.FirstTriggerTimer.ContainsKey(killer.PlayerId) && killer.Is(CustomRoles.Swift) && !target.Is(CustomRoles.Pestilence))
             {
-                if (killer.RpcCheckAndMurder(target, true))
-                {
-                    target.Suicide(PlayerState.DeathReason.Kill, killer);
-                    killer.SetKillCooldown();
-                }
-
+                target.Suicide(PlayerState.DeathReason.Kill, killer);
+                killer.SetKillCooldown();
+                Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                 return false;
             }
@@ -1641,11 +1638,21 @@ internal static class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out (long StartTimeStamp, int TotalCooldown) timer))
                     {
+                        SendOption sendOption = SendOption.None;
+                        
                         if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
+                        {
                             player.RemoveAbilityCD();
+                            sendOption = SendOption.Reliable;
+                        }
 
-                        if (!player.IsModdedClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60)
-                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        long remaining = timer.TotalCooldown - (now - timer.StartTimeStamp);
+                        
+                        if (!player.IsModdedClient() && remaining <= 30)
+                        {
+                            if (remaining % 5 == 0) sendOption = SendOption.Reliable;
+                            NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: sendOption);
+                        }
 
                         LastUpdate[playerId] = now;
                     }
@@ -2052,9 +2059,6 @@ internal static class FixedUpdatePatch
         Main.IsLoversDead = true;
         
         if (Main.PlayerStates.TryGetValue(deathId, out var deadState) && deadState.deathReason == PlayerState.DeathReason.Disconnected) return;
-
-        var deadPlayer = deathId.GetPlayer();
-        if (deadPlayer == null || deadPlayer.Data == null || deadPlayer.Data.Disconnected) return;
 
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {

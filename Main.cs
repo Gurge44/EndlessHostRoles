@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.9.0";
-    public const string PluginDisplayVersion = "6.9.0";
+    public const string PluginVersion = "6.9.1";
+    public const string PluginDisplayVersion = "6.9.1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -301,7 +301,7 @@ public class Main : BasePlugin
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
         LongMode = Config.Bind("Client Options", "LongMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
-        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
+        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", true);
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
         AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
@@ -502,6 +502,7 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Telecommunication, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
@@ -556,6 +557,7 @@ public class Main : BasePlugin
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.Berserker, "#50538F" },
                 { CustomRoles.SerialKiller, "#233fcc" },
+                { CustomRoles.SoulCollector, "#6021A0" },
                 { CustomRoles.Sharpshooter, "#5901D4" },
                 { CustomRoles.Explosivist, "#ff5900" },
                 { CustomRoles.Slenderman, "#2c2e00" },
@@ -750,7 +752,7 @@ public class Main : BasePlugin
                 { CustomRoles.Underdog, "#ff1919" },
 
                 // Solo PVP
-                { CustomRoles.KB_Normal, "#f55252" },
+                { CustomRoles.SoloPVP_Player, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
                 // Stop And Go
@@ -1060,6 +1062,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.SerialKiller,
+    SoulCollector = CustomRoles.SoulCollector,
     Berserker = CustomRoles.Berserker,
     Sharpshooter = CustomRoles.Sharpshooter,
     Explosivist = CustomRoles.Explosivist,

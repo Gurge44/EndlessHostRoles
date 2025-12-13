@@ -23,7 +23,7 @@ internal class SecurityGuard : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Seconds);
 
-        SecurityGuardSkillMaxOfUseage = new IntegerOptionItem(6866, "AbilityUseLimit", new(0, 30, 1), 1, TabGroup.CrewmateRoles)
+        SecurityGuardSkillMaxOfUsage = new IntegerOptionItem(6866, "AbilityUseLimit", new(0, 30, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
             .SetValueFormat(OptionFormat.Times);
 
@@ -39,7 +39,7 @@ internal class SecurityGuard : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        playerId.SetAbilityUseLimit(SecurityGuardSkillMaxOfUseage.GetFloat());
+        playerId.SetAbilityUseLimit(SecurityGuardSkillMaxOfUsage.GetFloat());
     }
 
     public override void Init()

@@ -845,6 +845,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.SoulCollector:
             case CustomRoles.Berserker:
             case CustomRoles.Sharpshooter:
             case CustomRoles.Explosivist:
@@ -943,6 +944,7 @@ public static class Utils
             case CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 1:
             case CustomRoles.Monarch when !Options.UsePets.GetBool() || !Monarch.UsePet.GetBool():
             case CustomRoles.Deputy when !Options.UsePets.GetBool() || !Deputy.UsePet.GetBool():
+            case CustomRoles.Bestower when !Options.UsePets.GetBool() || !Bestower.UsePet.GetBool():
             case CustomRoles.Virus:
             case CustomRoles.Investigator when !Options.UsePets.GetBool() || !Investigator.UsePet.GetBool():
             case CustomRoles.Aid when !Options.UsePets.GetBool() || !Aid.UsePet.GetBool():
@@ -2557,7 +2559,7 @@ public static class Utils
                     if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out (long StartTimeStamp, int TotalCooldown) time))
                     {
                         long remainingCD = time.TotalCooldown - (now - time.StartTimeStamp) + 1;
-                        SelfSuffix.Append("\n" + string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60" : remainingCD));
+                        SelfSuffix.Append("\n" + string.Format(GetString("CDPT"), remainingCD > 30 ? "> 30" : remainingCD));
                     }
 
                     if (seer.Is(CustomRoles.Asthmatic)) additionalSuffixes.Add(Asthmatic.GetSuffixText(seer.PlayerId));
@@ -3511,7 +3513,7 @@ public static class Utils
             {
                 if (pc.Is(CustomRoles.Bloodlust))
                 {
-                    pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+                    pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
                     LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
                 }
 

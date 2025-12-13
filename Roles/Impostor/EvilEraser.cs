@@ -48,7 +48,7 @@ internal class EvilEraser : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.EvilEraser])
             .SetValueFormat(OptionFormat.Times);
 
-        HideVote = new BooleanOptionItem(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles)
+        HideVote = new BooleanOptionItem(Id + 13, "EvilEraserHideVote", false, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.EvilEraser]);
 
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 14, CustomRoles.EvilEraser, TabGroup.ImpostorRoles);

@@ -161,6 +161,7 @@ public enum CustomRoles
     Battery,
     Beacon,
     Benefactor,
+    Bestower,
     Bodyguard,
     CameraMan,
     Captain,
@@ -375,6 +376,7 @@ public enum CustomRoles
     Sidekick,
     Simon,
     Slenderman,
+    SoulCollector,
     SoulHunter,
     Spirit,
     Spiritcaller,
@@ -424,7 +426,7 @@ public enum CustomRoles
     Wyrd,
 
     // Solo Kombat
-    KB_Normal,
+    SoloPVP_Player,
 
     // FFA
     Killer,

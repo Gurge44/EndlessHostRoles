@@ -351,7 +351,7 @@ public static class Options
     public static OptionItem LegacyNemesis;
     public static OptionItem VeteranSkillCooldown;
     public static OptionItem VeteranSkillDuration;
-    public static OptionItem VeteranSkillMaxOfUseage;
+    public static OptionItem VeteranSkillMaxOfUsage;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
@@ -400,15 +400,15 @@ public static class Options
     public static OptionItem GrenadierSkillDuration;
     public static OptionItem GrenadierCauseVision;
     public static OptionItem GrenadierCanAffectNeutral;
-    public static OptionItem GrenadierSkillMaxOfUseage;
+    public static OptionItem GrenadierSkillMaxOfUsage;
     public static OptionItem LighterVisionNormal;
     public static OptionItem LighterVisionOnLightsOut;
     public static OptionItem LighterSkillCooldown;
     public static OptionItem LighterSkillDuration;
-    public static OptionItem LighterSkillMaxOfUseage;
+    public static OptionItem LighterSkillMaxOfUsage;
     public static OptionItem SecurityGuardSkillCooldown;
     public static OptionItem SecurityGuardSkillDuration;
-    public static OptionItem SecurityGuardSkillMaxOfUseage;
+    public static OptionItem SecurityGuardSkillMaxOfUsage;
     public static OptionItem ShapeSoulCatcherShapeshiftDuration;
     public static OptionItem SoulCatcherShapeshiftCooldown;
     public static OptionItem CrewpostorCanKillAllies;

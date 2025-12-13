@@ -185,7 +185,15 @@ internal static class StopAndGo
     private static int DefaultMinValue => 5;
     private static int DefaultMaxValue => 30;
 
-    public static string HUDText => $"{RoundTime / 60:00}:{RoundTime % 60:00}";
+    public static string GetHudText()
+    {
+        if (RoundTime == 60)
+        {
+            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
+        }
+        return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
+    }
     public static bool IsEventActive => Event.Duration + Event.StartTimeStamp > Utils.TimeStamp;
 
     private static int StartingGreenTime(PlayerControl pc)
