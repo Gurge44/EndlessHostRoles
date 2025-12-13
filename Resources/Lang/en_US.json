@@ -10084,7 +10084,7 @@
   "Wyrd.Suffix.SuicideWarnings": "<#ffff00><size=80%>⚠ The following actions will cause you to suicide: ⚠\\n{0}</size></color>",
   "MoonDancer": "Moon Dancer",
   "MoonDancerInfo": "Give and Steal Add-ons",
-  "MoonDancerInfoLong": "(Coven):\\nAs the Moon Dancer, you can assign yourself a random add-on. You can also use your kill button on someone,\\n- once to give them an add-on, that is: helpful if they're a coven member, otherwise harmful (assigned after the next meeting)\\n- twice to steal all add-ons from them<sup>*</sup>\\n\\nWith the Necronomicon, double clicks kill the target, while also stealing all add-ons from them<sup>*</sup>.\\n\\n<sup>*</sup>If settings allow",
+  "MoonDancerInfoLong": "(Coven):\\nAs the Moon Dancer, you can vanish to assign yourself a random add-on. You can also use your kill button on someone,\\n- once to give them an add-on, that is: helpful if they're a coven member, otherwise harmful (assigned after the next meeting)\\n- twice to steal all add-ons from them<sup>*</sup>\\n\\nWith the Necronomicon, double clicks kill the target, while also stealing all add-ons from them<sup>*</sup>.\\n\\n<sup>*</sup>If settings allow",
   "MoonDancer.SelfAssignAddonCooldown": "Self-Assign Add-on Cooldown",
   "MoonDancer.OthersAssignAddonCooldown": "Cooldown for Assigning Add-ons to Others",
   "MoonDancer.StealAddonCooldown": "Add-on Stealing Cooldown",
