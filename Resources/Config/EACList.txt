@@ -93,6 +93,7 @@ woveelixir#4088,42044d211,DMD 3CD //hacker and probably BoomplayYT's alt
 tenpalace#1924,6a259fcd9,Goaty
 cat#2761,f70d4ddb1,ULC
 pinbrittle#1538,4955c179f,Moralmaser // Cheating and disrupting lobbies
+dollfly#4791,5ba449454,Mari // Spamming RPCs to crash lobbies
 
 ## Griefers, toxic, harrasing, morons
 setmolar#4374,藏族顶针
