@@ -378,6 +378,7 @@ public enum CustomRoles
     Slenderman,
     SoulCollector,
     SoulHunter,
+    Spider,
     Spirit,
     Spiritcaller,
     Sprayer,
