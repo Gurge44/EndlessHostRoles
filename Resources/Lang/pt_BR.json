@@ -2676,6 +2676,7 @@
   "XORSameRole": "<#ff0000>X</color> Combinações XOR devem ter 2 funções diferentes.",
   "XORAdditionRole": "<#ff0000>X</color> Combinações XOR não suportam atributos. Use <#ffff00>/combo</color> para isso.",
   "XORAdded": "<#00ffa5>✓</color> Combinação XOR removida com sucesso.",
+  "XORListTitle": "<#00a5ff>➡ XOR Combinations ⬅</color>",
   "ForgeSuccess": "<#00ffa5>✓</color> Forjou com sucesso {1} como {2}.\\n<size=80%>Você tem {0} usos de habilidades sobrando.</size>",
   "ThankYouForUsingEHR": "Obrigado por usar o EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Funções ★ 】</color>",
