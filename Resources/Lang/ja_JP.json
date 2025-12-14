@@ -2676,6 +2676,7 @@
   "XORSameRole": "<size=80%><#ff0000>X</color> XORの組み合わせは 2つの異なる役割でなければならない。</size>",
   "XORAdditionRole": "<size=80%><#ff0000>X</color> XORの組み合わせは <#ff9ace>属性</color>を サポートしていません。\\nそのため <#ffff00>/combo</color> を使用しましょう</size>",
   "XORAdded": "<size=80%><#00ffa5>✓</color> XORの組み合わせは 正常に追加されました。</size>",
+  "XORListTitle": "<#00a5ff>➡ XOR Combinations ⬅</color>",
   "ForgeSuccess": "<#00ffa5>✓</color> {1} を {2}として 構築した。\\n<size=80%>あなたは 残りの使用能力が {0} あります。</size>",
   "ThankYouForUsingEHR": "EHR をご利用いただき ありがとうございます！",
   "GMRoles": "<color=#ff5b70>【 ★ 役割 ★ 】</color>",
