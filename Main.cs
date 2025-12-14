@@ -557,7 +557,7 @@ public class Main : BasePlugin
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.Berserker, "#50538F" },
                 { CustomRoles.SerialKiller, "#233fcc" },
-                { CustomRoles.Spider, "#f54251" },
+                { CustomRoles.Spider, "#0B0B0F" },
                 { CustomRoles.SoulCollector, "#6021A0" },
                 { CustomRoles.Sharpshooter, "#5901D4" },
                 { CustomRoles.Explosivist, "#ff5900" },
@@ -1209,4 +1209,5 @@ public enum TieMode
 
 
 public class Coroutines : MonoBehaviour { }
+
 
