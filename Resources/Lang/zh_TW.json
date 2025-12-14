@@ -2676,6 +2676,7 @@
   "XORSameRole": "<#ff0000>X</color> XOR 組合必須有兩種不同的職業。",
   "XORAdditionRole": "<#ff0000>X</color> XOR 組合不支援附加職業。為此請使用<#ffff00>/combo</color>。",
   "XORAdded": "<#00ffa5>✓</color>XOR組合成功添加。",
+  "XORListTitle": "<#00a5ff>➡ XOR Combinations ⬅</color>",
   "ForgeSuccess": "<#00ffa5>✓</color> 成功將 {1} 偽造成 {2}。\\n<size=80%>你還能使用 {0} 次技能。</size>",
   "ThankYouForUsingEHR": "感謝你使用EHR模組!",
   "GMRoles": "<color=#ff5b70>【 ★ 職業列表 ★ 】</color>",
