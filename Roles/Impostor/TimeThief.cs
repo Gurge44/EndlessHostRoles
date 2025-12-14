@@ -57,7 +57,7 @@ public class TimeThief : RoleBase
     private static int StolenTime(byte id)
     {
         return PlayerIdList.Contains(id) && (Utils.GetPlayerById(id).IsAlive() || !ReturnStolenTimeUponDeath.GetBool())
-            ? DecreaseMeetingTime.GetInt() * Main.PlayerStates[id].GetKillCount(true)
+            ? DecreaseMeetingTime.GetInt() * Main.PlayerStates[id].GetKillCount()
             : 0;
     }
 
