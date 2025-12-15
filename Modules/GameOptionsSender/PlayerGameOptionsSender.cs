@@ -173,7 +173,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 }
                 case CustomGameMode.Snowdown:
                 {
-                    Snowdown.ApplyGameOptions(opt, player);
+                    Snowdown.ApplyGameOptions();
                     goto case CustomGameMode.RoomRush;
                 }
                 case CustomGameMode.NaturalDisasters:
@@ -478,6 +478,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             Curser.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Auditor.OnAnyoneApplyGameOptions(opt, player.PlayerId);
             Clerk.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+            Spider.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {

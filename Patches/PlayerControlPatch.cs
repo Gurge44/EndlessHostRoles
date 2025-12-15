@@ -295,6 +295,9 @@ internal static class CheckMurderPatch
 
             if (Pursuer.OnClientMurder(killer)) return false;
 
+            if (Main.PlayerStates[target.PlayerId].Role is Veteran veteran && Veteran.VeteranAlertActivatesOnNonKillingInteractions.GetBool() && !veteran.OnCheckMurderAsTarget(killer, target))
+                return false;
+
             Seamstress.OnAnyoneCheckMurder(killer, target);
 
             if (killer.PlayerId != target.PlayerId)
@@ -878,18 +881,15 @@ internal static class ShapeshiftPatch
             PlagueBearer.CheckAndSpreadInfection(target, shapeshifter);
         }
 
-        var isSSneeded = true;
+        if (Main.PlayerStates[target.PlayerId].Role is Veteran veteran && Veteran.VeteranAlertActivatesOnNonKillingInteractions.GetBool())
+            veteran.OnCheckMurderAsTarget(shapeshifter, target);
 
-        if (!Pelican.IsEaten(shapeshifter.PlayerId) && !GameStates.IsVoting)
+        var isSSneeded = shapeshifter.IsAlive();
+
+        if (!Pelican.IsEaten(shapeshifter.PlayerId) && !GameStates.IsVoting && isSSneeded)
             isSSneeded = Main.PlayerStates[shapeshifter.PlayerId].Role.OnShapeshift(shapeshifter, target, shapeshifting);
 
-        if (shapeshifter.Is(CustomRoles.Hangman) && shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting)
-        {
-            shapeshifter.SetKillCooldown(Hangman.ShapeshiftDuration.GetFloat() + 1f);
-            isSSneeded = false;
-        }
-
-        bool forceCancel = role.ForceCancelShapeshift();
+        bool forceCancel = role.ForceCancelShapeshift() || !shapeshifter.IsAlive();
 
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out bool changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
         {

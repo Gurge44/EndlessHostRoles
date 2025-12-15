@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR;
@@ -60,7 +59,7 @@ public static class Snowdown
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        SnowballGainFrequencyOption = new IntegerOptionItem(id++, "Snowdown.SnowballGainFrequencyOption", new(1, 30, 1), 5, tab)
+        SnowballGainFrequencyOption = new IntegerOptionItem(id++, "Snowdown.SnowballGainFrequencyOption", new(1, 30, 1), 10, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
@@ -102,9 +101,9 @@ public static class Snowdown
             .AddReplacement(("{powerup}", Translator.GetString($"Snowdown.PowerUp.{x}"))));
     }
 
-    public static void ApplyGameOptions(IGameOptions opt, PlayerControl player)
+    public static void ApplyGameOptions()
     {
-        AURoleOptions.PhantomCooldown = 0.1f;
+        AURoleOptions.PhantomCooldown = 2f;
         AURoleOptions.PhantomDuration = 0.1f;
     }
 

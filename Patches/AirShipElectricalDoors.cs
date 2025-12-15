@@ -5,28 +5,26 @@ namespace EHR;
 
 public static class AirshipElectricalDoors
 {
-    private static ElectricalDoors Instance
-        => ShipStatus.Instance.Systems[SystemTypes.Decontamination].CastFast<ElectricalDoors>();
+    private static ElectricalDoors Instance => ShipStatus.Instance.Systems[SystemTypes.Decontamination].CastFast<ElectricalDoors>();
 
     public static void Initialize()
     {
         if (Main.NormalOptions.MapId != 4) return;
-
         Instance.Initialize();
     }
 
-    public static byte[] GetClosedDoors()
+    public static IEnumerable<byte> GetClosedDoors()
     {
-        List<byte> DoorsArray = [];
-        if (Instance.Doors == null || Instance.Doors.Length == 0) return [.. DoorsArray];
+        List<byte> doorsArray = [];
+        if (Instance.Doors == null || Instance.Doors.Length == 0) return doorsArray;
 
         for (byte i = 0; i < Instance.Doors.Count; i++)
         {
             StaticDoor door = Instance.Doors[i];
-            if (door != null && !door.IsOpen) DoorsArray.Add(i);
+            if (door != null && !door.IsOpen) doorsArray.Add(i);
         }
 
-        return DoorsArray?.ToArray();
+        return doorsArray;
     }
     // 0: BottomRightHort
     // 1: BottomHort
@@ -48,22 +46,6 @@ internal static class ElectricalDoorsInitializePatch
     public static void Postfix( /*ElectricalDoors __instance*/)
     {
         if (!GameStates.IsInGame) return;
-
-        var closedoors = string.Empty;
-        var isFirst = true;
-        byte[] array = AirshipElectricalDoors.GetClosedDoors();
-
-        foreach (byte num in array)
-        {
-            if (isFirst)
-            {
-                isFirst = false;
-                closedoors += num.ToString();
-            }
-            else
-                closedoors += $", {num}";
-        }
-
-        Logger.Info($"Closed Doors: {closedoors}", "ElectricalDoors Initialize");
+        Logger.Info($"Closed Doors: {string.Join(", ", AirshipElectricalDoors.GetClosedDoors())}", "ElectricalDoors Initialize");
     }
 }

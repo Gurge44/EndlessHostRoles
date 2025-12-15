@@ -114,8 +114,8 @@ internal class Adventurer : RoleBase
         ShieldedPlayers = [];
         RevealedPlayers = [];
 
-        LastRandomResourceTimeStamp = Utils.TimeStamp + 8;
-        LastGroupingResourceTimeStamp = Utils.TimeStamp + 20;
+        LastRandomResourceTimeStamp = Utils.TimeStamp + 30;
+        LastGroupingResourceTimeStamp = Utils.TimeStamp + 30;
         ResourceLocations = [];
 
         foreach (Resource resource in Enum.GetValues<Resource>()) ResourceCounts[resource] = 0;

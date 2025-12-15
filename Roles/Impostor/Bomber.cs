@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -148,22 +149,26 @@ internal class Bomber : RoleBase
 
         foreach (PlayerControl tg in Main.AllPlayerControls)
         {
-            if (!tg.IsModdedClient()) tg.KillFlash();
+            try
+            {
+                if (!tg.IsModdedClient()) tg.KillFlash();
 
-            Vector2 pos = pc.Pos();
-            float dis = Vector2.Distance(pos, tg.Pos());
+                Vector2 pos = pc.Pos();
+                float dis = Vector2.Distance(pos, tg.Pos());
 
-            if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
 
-            if (dis > radius) continue;
+                if (dis > radius) continue;
 
-            if (tg.PlayerId == pc.PlayerId) continue;
+                if (tg.PlayerId == pc.PlayerId) continue;
 
-            tg.Suicide(PlayerState.DeathReason.Bombed, pc);
-            murderCount++;
+                tg.Suicide(PlayerState.DeathReason.Bombed, pc);
+                murderCount++;
             
-            if (pc.AmOwner && tg.IsImpostor())
-                Achievements.Type.FriendlyFire.Complete();
+                if (pc.AmOwner && tg.IsImpostor())
+                    Achievements.Type.FriendlyFire.Complete();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         LateTask.New(() =>

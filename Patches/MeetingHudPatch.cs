@@ -484,7 +484,7 @@ internal static class CheckForEndVotingPatch
             }
         }
 
-        if (tiebreaker) name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tiebreaker), GetString("Tiebreaker"))})";
+        if (tiebreaker) name += $" ({CustomRoles.Tiebreaker.ToColoredString()})";
 
         if (!decidedWinner)
         {
@@ -502,11 +502,20 @@ internal static class CheckForEndVotingPatch
 
                 name += (impnum, neutralnum, covennum) switch
                 {
-                    (0, 0, 0) when sum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) => "\n" + GetString("GG"),
+                    (0, 0, 0) when sum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()) && !(Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() && (Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool() || neutralnum == 0) && Main.AllAlivePlayerControls.Length >= Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt()) => "\n" + GetString("GG"),
                     (0, 0, 0) when sum > 0 => string.Empty,
                     _ => "\n" + Utils.GetRemainingKillers(true, excludeId: exileId)
                 };
             }
+        }
+
+        if (Swapper.On && Swapper.SwapTargets != (byte.MaxValue, byte.MaxValue))
+        {
+            var p1 = Swapper.SwapTargets.Item1.GetPlayer();
+            var p2 = Swapper.SwapTargets.Item2.GetPlayer();
+            
+            if (p1 != null && p2 != null && p1.IsAlive() && p2.IsAlive() && (p1.PlayerId == exileId || p2.PlayerId == exileId))
+                name += $"\n{string.Format(GetString("SwapperManipulatedEjection"), CustomRoles.Swapper.ToColoredString())}";
         }
 
         EndOfSession:
@@ -1395,6 +1404,37 @@ static class SendChatNotePatch
     public static bool Prefix()
     {
         return !Options.DisablePlayerVotedMessage.GetBool();
+    }
+}
+
+// Next 2 are from: https://github.com/xChipseq/VanillaEnhancements/blob/main/VanillaEnhancements/Patches/MeetingPatches.cs
+
+[HarmonyPatch(typeof(PlayerVoteArea), nameof(PlayerVoteArea.SetCosmetics))]
+[HarmonyPriority(Priority.First)]
+static class NamePlateDarkThemePatch
+{
+    public static void Postfix(PlayerVoteArea __instance)
+    {
+        if (Main.DarkTheme.Value)
+            __instance.Background.color = new Color(0.1f, 0.1f, 0.1f);
+    }
+}
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+static class MeetingHud_Start
+{
+    public static void Postfix(MeetingHud __instance)
+    {
+        if (!Main.DarkTheme.Value) return;
+        __instance.meetingContents.transform.FindChild("PhoneUI").FindChild("baseColor").GetComponent<SpriteRenderer>().color = new Color(0.01f, 0.01f, 0.01f);
+        __instance.Glass.color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
+        __instance.SkipVoteButton.GetComponent<SpriteRenderer>().color = new Color(0.4f, 0.4f, 0.4f);
+
+        foreach (SpriteRenderer playerMaterialColors in __instance.PlayerColoredParts)
+        {
+            playerMaterialColors.color = new Color(0.25f, 0.25f, 0.25f);
+            PlayerMaterial.SetColors(7, playerMaterialColors);
+        }
     }
 }
 

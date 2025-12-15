@@ -1,4 +1,5 @@
 ## Hackers and cheaters
+chancygrid#7957,1466867f1
 flowerfit#4735,422cfefe8
 wideink#3618,677db6a5c, Fastpathos // Hacking streamer's lobby
 wiggreeny#9194,91f48d4e0
@@ -92,6 +93,7 @@ woveelixir#4088,42044d211,DMD 3CD //hacker and probably BoomplayYT's alt
 tenpalace#1924,6a259fcd9,Goaty
 cat#2761,f70d4ddb1,ULC
 pinbrittle#1538,4955c179f,Moralmaser // Cheating and disrupting lobbies
+dollfly#4791,5ba449454,Mari // Spamming RPCs to crash lobbies
 
 ## Griefers, toxic, harrasing, morons
 setmolar#4374,藏族顶针
