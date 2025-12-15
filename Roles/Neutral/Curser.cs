@@ -93,7 +93,7 @@ public class Curser : RoleBase
                     target.RpcRemoveAbilityUse();
                     break;
                 case 1:
-                    CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Where(x => x.IsAdditionRole() && !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
+                    CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
                     if (addon == default(CustomRoles)) goto Pick;
                     target.RpcSetCustomRole(addon);
                     break;

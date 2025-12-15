@@ -63,7 +63,7 @@ public class Mercenary : RoleBase
 
     private static bool HasKilled(PlayerControl pc)
     {
-        return pc != null && pc.Is(CustomRoles.Mercenary) && pc.IsAlive() && (Main.PlayerStates[pc.PlayerId].GetKillCount(true) > 0 || !WaitFor1Kill.GetBool());
+        return pc != null && pc.Is(CustomRoles.Mercenary) && pc.IsAlive() && (Main.PlayerStates[pc.PlayerId].GetKillCount() > 0 || !WaitFor1Kill.GetBool());
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

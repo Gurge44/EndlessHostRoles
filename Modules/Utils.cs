@@ -845,6 +845,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.Spider:
             case CustomRoles.SoulCollector:
             case CustomRoles.Berserker:
             case CustomRoles.Sharpshooter:
@@ -3417,7 +3418,7 @@ public static class Utils
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
             CustomRoles.SecurityGuard => Options.SecurityGuardSkillCooldown.GetInt() + (includeDuration ? Options.SecurityGuardSkillDuration.GetInt() : 0),
-            CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
+            CustomRoles.Veteran => Veteran.VeteranSkillCooldown.GetInt() + (includeDuration ? Veteran.VeteranSkillDuration.GetInt() : 0),
             CustomRoles.Rhapsode => Rhapsode.AbilityCooldown.GetInt() + (includeDuration ? Rhapsode.AbilityDuration.GetInt() : 0),
             CustomRoles.Whisperer => Whisperer.Cooldown.GetInt() + (includeDuration ? Whisperer.Duration.GetInt() : 0),
             CustomRoles.Astral => Astral.AbilityCooldown.GetInt() + (includeDuration ? Astral.AbilityDuration.GetInt() : 0),
@@ -3453,6 +3454,7 @@ public static class Utils
             CustomRoles.Abyssbringer => Abyssbringer.BlackHolePlaceCooldown.GetInt(),
             CustomRoles.Venerer => Venerer.AbilityCooldown.GetInt(),
             CustomRoles.Wiper => Wiper.AbilityCooldown.GetInt(),
+            CustomRoles.Spider => Spider.AbilityCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
             CustomRoles.Stealth => Stealth.AbilityCooldown.GetInt() + (includeDuration ? Stealth.OptionDarkenDuration.GetInt() : 0),
             CustomRoles.Stasis => Stasis.AbilityCooldown.GetInt() + (includeDuration ? Stasis.AbilityDuration.GetInt() : 0),
@@ -3495,79 +3497,95 @@ public static class Utils
     public static void AfterMeetingTasks()
     {
         LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 0.1f, "Enable GameEndChecker");
-        
-        if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
-            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
 
-        AFKDetector.NumAFK = 0;
-        AFKDetector.PlayerData.Clear();
+        try
+        {
+            if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
+                Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
+        }
+        catch (System.Exception e) { ThrowException(e); }
 
-        Camouflage.CheckCamouflage();
+        try
+        {
+            AFKDetector.NumAFK = 0;
+            AFKDetector.PlayerData.Clear();
 
-        CopyCat.ResetRoles();
-        Imitator.SetRoles();
+            Camouflage.CheckCamouflage();
+
+            CopyCat.ResetRoles();
+            Imitator.SetRoles();
+        }
+        catch (System.Exception e) { ThrowException(e); }
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            if (pc.IsAlive())
+            try
             {
-                if (pc.Is(CustomRoles.Bloodlust))
+                if (pc.IsAlive())
                 {
-                    pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
-                    LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
-                }
-
-                if (pc.Is(CustomRoles.Truant))
-                {
-                    float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
-                    Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
-                    pc.MarkDirtySettings();
-
-                    LateTask.New(() =>
+                    try
                     {
-                        Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
-                        pc.MarkDirtySettings();
-                    }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
-                }
+                        if (pc.Is(CustomRoles.Bloodlust))
+                        {
+                            pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
+                            LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
+                        }
 
-                if (Options.UsePets.GetBool())
-                {
-                    pc.AddAbilityCD(false);
+                        if (pc.Is(CustomRoles.Truant))
+                        {
+                            float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
+                            Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                            pc.MarkDirtySettings();
 
-                    LateTask.New(() =>
+                            LateTask.New(() =>
+                                {
+                                    Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
+                                    pc.MarkDirtySettings();
+                                }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                        }
+                    }
+                    catch (Exception e) { ThrowException(e); }
+
+                    if (Options.UsePets.GetBool())
                     {
-                        if (GameStates.IsEnded) return;
-                        string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
-                        pc.Data.DefaultOutfit.PetSequenceId += 10;
-                        pc.RpcSetPet(petId);
-                    }, 3f, "No Pet Reassign");
+                        pc.AddAbilityCD(false);
+
+                        LateTask.New(() =>
+                        {
+                            if (GameStates.IsEnded) return;
+                            string petId = PetsHelper.GetPetId();
+                            PetsHelper.SetPet(pc, petId);
+                            pc.Data.DefaultOutfit.PetSequenceId += 10;
+                            pc.RpcSetPet(petId);
+                        }, 3f, "No Pet Reassign");
+                    }
+
+                    AFKDetector.RecordPosition(pc);
+
+                    if (Camouflage.IsCamouflage)
+                        Camouflage.RpcSetSkin(pc);
+                }
+                else
+                {
+                    TaskState taskState = pc.GetTaskState();
+
+                    if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks)
+                        pc.Notify(GetString("DoYourTasksPlease"), 8f);
+
+                    GhostRolesManager.NotifyAboutGhostRole(pc);
                 }
 
-                AFKDetector.RecordPosition(pc);
+                Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
 
-                if (Camouflage.IsCamouflage)
-                    Camouflage.RpcSetSkin(pc);
-            }
-            else
-            {
-                TaskState taskState = pc.GetTaskState();
-
-                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks)
-                    pc.Notify(GetString("DoYourTasksPlease"), 8f);
-
-                GhostRolesManager.NotifyAboutGhostRole(pc);
-            }
-
-            Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
-
-            if (pc.Is(CustomRoles.Phantasm) || pc.Is(CustomRoles.Haunter))
-                pc.RpcResetAbilityCooldown();
+                if (pc.Is(CustomRoles.Phantasm) || pc.Is(CustomRoles.Haunter))
+                    pc.RpcResetAbilityCooldown();
             
-            if (pc.Is(CustomRoles.TaskMaster))
-                TaskMaster.AfterMeetingTasks(pc);
+                if (pc.Is(CustomRoles.TaskMaster))
+                    TaskMaster.AfterMeetingTasks(pc);
 
-            Main.CheckShapeshift[pc.PlayerId] = false;
+                Main.CheckShapeshift[pc.PlayerId] = false;
+            }
+            catch (System.Exception e) { ThrowException(e); }
         }
 
         LateTask.New(() => Main.ProcessShapeshifts = true, 1f, log: false);
@@ -3575,22 +3593,26 @@ public static class Utils
         if (Options.DiseasedCDReset.GetBool())
         {
             Main.KilledDiseased.SetAllValues(0);
-            Main.KilledDiseased.Keys.ToValidPlayers().Do(x => x?.ResetKillCooldown());
+            Main.KilledDiseased.Keys.ToValidPlayers().Do(x => x.ResetKillCooldown());
             Main.KilledDiseased.Clear();
         }
 
         if (Options.AntidoteCDReset.GetBool())
         {
             Main.KilledAntidote.SetAllValues(0);
-            Main.KilledAntidote.Keys.ToValidPlayers().Do(x => x?.ResetKillCooldown());
+            Main.KilledAntidote.Keys.ToValidPlayers().Do(x => x.ResetKillCooldown());
             Main.KilledAntidote.Clear();
         }
 
-        Damocles.AfterMeetingTasks();
-        Stressed.AfterMeetingTasks();
-        Circumvent.AfterMeetingTasks();
-        Deadlined.AfterMeetingTasks();
-        Tired.Reset();
+        try
+        {
+            Damocles.AfterMeetingTasks();
+            Stressed.AfterMeetingTasks();
+            Circumvent.AfterMeetingTasks();
+            Deadlined.AfterMeetingTasks();
+            Tired.Reset();
+        }
+        catch (System.Exception e) { ThrowException(e); }
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();

@@ -96,6 +96,17 @@ public class Hangman : RoleBase
         return true;
     }
 
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (shapeshifter.GetAbilityUseLimit() < 1 && shapeshifting)
+        {
+            shapeshifter.SetKillCooldown(ShapeshiftDuration.GetFloat() + 1f);
+            return false;
+        }
+        
+        return true;
+    }
+
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (id.IsPlayerShifted()) hud.KillButton?.OverrideText(Translator.GetString("HangmanKillButtonTextDuringSS"));
