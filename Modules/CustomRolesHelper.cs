@@ -708,7 +708,7 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role)
     {
-        return (!Options.IsLoaded || !Main.IntroDestroyed) && (role.IsMadmate() || role is
+        return (!Options.IsLoaded || !Main.IntroDestroyed) && role is
             CustomRoles.Impostor or
             CustomRoles.ImpostorEHR or
             CustomRoles.Phantom or
@@ -821,8 +821,7 @@ internal static class CustomRolesHelper
             CustomRoles.Camouflager or
             CustomRoles.Twister or
             CustomRoles.Lurker or
-            CustomRoles.DoubleAgent
-        );
+            CustomRoles.DoubleAgent;
     }
 
     public static bool IsNeutral(this CustomRoles role, bool check = false)
@@ -1513,7 +1512,7 @@ internal static class CustomRolesHelper
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
         if (role.IsCoven()) return RoleOptionType.Coven_Miscellaneous;
-        if (role.IsImpostor()) return role.GetImpostorRoleCategory();
+        if (role.IsImpostor() || role.IsMadmate()) return role.GetImpostorRoleCategory();
         if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
         if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
 
