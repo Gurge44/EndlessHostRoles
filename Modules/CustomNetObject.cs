@@ -2,16 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.InnerNet.GameDataMessages;
-using EHR;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using InnerNet;
-using TMPro;
 using UnityEngine;
-using GameStates = EHR.GameStates;
 using Tree = EHR.Crewmate.Tree;
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
@@ -918,8 +914,8 @@ namespace EHR
     
     internal sealed class Snowball : CustomNetObject
     {
-        public PlayerControl Thrower;
-        public Vector2 Direction;
+        public readonly PlayerControl Thrower;
+        private readonly Vector2 Direction;
 
         public Snowball(Vector2 from, Vector2 direction, PlayerControl thrower)
         {
