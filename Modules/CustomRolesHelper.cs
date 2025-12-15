@@ -1526,6 +1526,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Impostor_Support => Utils.GetRoleColor(CustomRoles.Bubble),
             RoleOptionType.Impostor_Concealing => Utils.GetRoleColor(CustomRoles.CopyCat),
             RoleOptionType.Impostor_Miscellaneous => Palette.ImpostorRed,
+            RoleOptionType.Madmate => Palette.ImpostorRed,
             RoleOptionType.Crewmate_Miscellaneous => Palette.CrewmateBlue,
             RoleOptionType.Crewmate_Investigate => Utils.GetRoleColor(CustomRoles.Forensic),
             RoleOptionType.Crewmate_Support => Utils.GetRoleColor(CustomRoles.NiceEraser),
@@ -1549,6 +1550,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Impostor_Support => TabGroup.ImpostorRoles,
             RoleOptionType.Impostor_Concealing => TabGroup.ImpostorRoles,
             RoleOptionType.Impostor_Miscellaneous => TabGroup.ImpostorRoles,
+            RoleOptionType.Madmate => TabGroup.ImpostorRoles,
             RoleOptionType.Crewmate_Miscellaneous => TabGroup.CrewmateRoles,
             RoleOptionType.Crewmate_Investigate => TabGroup.CrewmateRoles,
             RoleOptionType.Crewmate_Support => TabGroup.CrewmateRoles,
@@ -1747,6 +1749,10 @@ internal static class CustomRolesHelper
             CustomRoles.PhantomEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Viper => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.ViperEHR => RoleOptionType.Impostor_Miscellaneous,
+            CustomRoles.Parasite => RoleOptionType.Madmate,
+            CustomRoles.Hypocrite => RoleOptionType.Madmate,
+            CustomRoles.Crewpostor => RoleOptionType.Madmate,
+            CustomRoles.Renegade => RoleOptionType.Madmate,
             _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }
@@ -1919,6 +1925,7 @@ public enum RoleOptionType
     Impostor_Support,
     Impostor_Concealing,
     Impostor_Miscellaneous,
+    Madmate,
     Crewmate_Miscellaneous,
     Crewmate_Investigate,
     Crewmate_Support,
