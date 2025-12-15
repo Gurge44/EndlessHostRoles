@@ -58,7 +58,9 @@ namespace EHR
             }
             writer.EndMessage();
 
-            playerControl.Shapeshift(PlayerControl.LocalPlayer, false);
+            try { playerControl.Shapeshift(PlayerControl.LocalPlayer, false); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
                 .WriteNetObject(PlayerControl.LocalPlayer)
                 .Write(false)
@@ -251,7 +253,9 @@ namespace EHR
                     }
                     writer.EndMessage();
 
-                    playerControl.Shapeshift(PlayerControl.LocalPlayer, false);
+                    try { playerControl.Shapeshift(PlayerControl.LocalPlayer, false); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
                         .WriteNetObject(PlayerControl.LocalPlayer)
                         .Write(false)
@@ -462,7 +466,9 @@ namespace EHR
                     }
                     writer2.EndMessage();
 
-                    playerControl.Shapeshift(PlayerControl.LocalPlayer, false);
+                    try { playerControl.Shapeshift(PlayerControl.LocalPlayer, false); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+
                     sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
                         .WriteNetObject(PlayerControl.LocalPlayer)
                         .Write(false)
