@@ -342,12 +342,6 @@ public static class Options
     public static OptionItem InnocentCanWinByImp;
     public static OptionItem BaitNotification;
     public static OptionItem DoctorVisibleToEveryone;
-    public static OptionItem ArsonistDouseTime;
-    public static OptionItem ArsonistCooldown;
-    public static OptionItem ArsonistKeepsGameGoing;
-    public static OptionItem ArsonistCanIgniteAnytime;
-    public static OptionItem ArsonistMinPlayersToIgnite;
-    public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyNemesis;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;

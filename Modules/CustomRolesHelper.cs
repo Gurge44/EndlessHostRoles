@@ -619,12 +619,12 @@ internal static class CustomRolesHelper
 
     public static bool IsNonNK(this CustomRoles role, bool check = false)
     {
-        return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistKeepsGameGoing != null && !Options.ArsonistKeepsGameGoing.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
+        return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Arsonist.ArsonistKeepsGameGoing != null && !Arsonist.ArsonistKeepsGameGoing.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
     }
 
     public static bool IsNK(this CustomRoles role, bool check = false)
     {
-        return (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Options.ArsonistKeepsGameGoing == null || Options.ArsonistKeepsGameGoing.GetBool())) || role is
+        return (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Arsonist.ArsonistKeepsGameGoing == null || Arsonist.ArsonistKeepsGameGoing.GetBool())) || role is
             CustomRoles.Jackal or
             CustomRoles.Glitch or
             CustomRoles.Sidekick or
@@ -1460,7 +1460,7 @@ internal static class CustomRolesHelper
             CustomRoles.Stalker when Stalker.SnatchesWin.GetBool() => CountTypes.Crew,
             CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
             CustomRoles.Stalker => !Stalker.SnatchesWin.GetBool() ? CountTypes.Stalker : CountTypes.Crew,
-            CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
+            CustomRoles.Arsonist => Arsonist.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
             CustomRoles.Shifter => CountTypes.OutOfGame,
             CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller => CountTypes.Crew,
             CustomRoles.DoubleAgent => CountTypes.Crew,

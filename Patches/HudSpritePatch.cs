@@ -259,7 +259,7 @@ public static class HudSpritePatch
                 {
                     newKillButton = CustomButton.Get("Douse");
 
-                    if (player.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt()))
+                    if (player.IsDouseDone() || (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt()))
                     {
                         if (Options.UsePets.GetBool())
                             newPetButton = CustomButton.Get("Ignite");
