@@ -454,9 +454,9 @@ internal static class CustomRolesHelper
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
         if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
-        
+
         bool UsePets = !load && Options.UsePets.GetBool();
-        
+
         return role switch
         {
             // Solo PVP
@@ -704,7 +704,7 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role)
     {
-        return (role == CustomRoles.DoubleAgent && (!Options.IsLoaded || !Main.IntroDestroyed)) || role is
+        return (!Options.IsLoaded || !Main.IntroDestroyed) && (role.IsMadmate() || role is
             CustomRoles.Impostor or
             CustomRoles.ImpostorEHR or
             CustomRoles.Phantom or
@@ -816,7 +816,9 @@ internal static class CustomRolesHelper
             CustomRoles.Devourer or
             CustomRoles.Camouflager or
             CustomRoles.Twister or
-            CustomRoles.Lurker;
+            CustomRoles.Lurker or
+            CustomRoles.DoubleAgent
+        );
     }
 
     public static bool IsNeutral(this CustomRoles role, bool check = false)
@@ -1313,7 +1315,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Warlock or
                 CustomRoles.Wasp or
                 CustomRoles.Wiper => true,
-            
+
             _ => false
         };
     }
@@ -1740,7 +1742,6 @@ internal static class CustomRolesHelper
             CustomRoles.PhantomEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Viper => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.ViperEHR => RoleOptionType.Impostor_Miscellaneous,
-            CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
             _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }
