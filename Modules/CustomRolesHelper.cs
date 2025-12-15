@@ -708,7 +708,7 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role)
     {
-        return (!Options.IsLoaded || !Main.IntroDestroyed) && role is
+        return (role == CustomRoles.DoubleAgent && (!Options.IsLoaded || !Main.IntroDestroyed)) || role is
             CustomRoles.Impostor or
             CustomRoles.ImpostorEHR or
             CustomRoles.Phantom or
@@ -820,8 +820,7 @@ internal static class CustomRolesHelper
             CustomRoles.Devourer or
             CustomRoles.Camouflager or
             CustomRoles.Twister or
-            CustomRoles.Lurker or
-            CustomRoles.DoubleAgent;
+            CustomRoles.Lurker;
     }
 
     public static bool IsNeutral(this CustomRoles role, bool check = false)
