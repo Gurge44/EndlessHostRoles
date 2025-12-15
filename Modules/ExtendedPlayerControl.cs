@@ -891,10 +891,14 @@ internal static class ExtendedPlayerControl
 
         PlayerState state = Main.PlayerStates[pc.PlayerId];
 
-        if (realKiller != null && state.Role is SchrodingersCat cat)
+        switch (state.Role)
         {
-            cat.OnCheckMurderAsTarget(realKiller, pc);
-            return;
+            case SchrodingersCat cat when realKiller != null:
+                cat.OnCheckMurderAsTarget(realKiller, pc);
+                return;
+            case Veteran when Veteran.VeteranInProtect.ContainsKey(pc.PlayerId):
+            case Pestilence:
+                return;
         }
 
         state.deathReason = deathReason;

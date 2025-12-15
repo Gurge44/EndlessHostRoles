@@ -74,6 +74,7 @@ public class PlayerState(byte playerId)
         Deafened,
         Patrolled,
         Misguess,
+        LossOfBlood,
 
         // Natural Disasters
         Meteor,
@@ -409,9 +410,9 @@ public class PlayerState(byte playerId)
         return IsDead && RealKiller.TimeStamp != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     }
 
-    public int GetKillCount(bool excludeSelfKill = false)
+    public int GetKillCount()
     {
-        return Main.PlayerStates.Values.Count(state => !(excludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId);
+        return Main.PlayerStates.Values.Count(state => state.PlayerId != PlayerId && state.GetRealKiller() == PlayerId);
     }
 }
 

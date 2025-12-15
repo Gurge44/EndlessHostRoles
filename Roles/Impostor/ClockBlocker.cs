@@ -52,7 +52,7 @@ public class ClockBlocker : RoleBase
 
     private int GetAddedTime()
     {
-        return !Main.PlayerStates.TryGetValue(ClockBlockerId, out PlayerState state) || (state.IsDead && !CountAddedTimeAfterDeath.GetBool()) ? 0 : EmergencyCooldownIncreasePerKill.GetInt() * state.GetKillCount(true);
+        return !Main.PlayerStates.TryGetValue(ClockBlockerId, out PlayerState state) || (state.IsDead && !CountAddedTimeAfterDeath.GetBool()) ? 0 : EmergencyCooldownIncreasePerKill.GetInt() * state.GetKillCount();
     }
 
     public static int GetTotalTime(int originalTime)

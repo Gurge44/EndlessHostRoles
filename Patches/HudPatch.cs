@@ -647,6 +647,7 @@ internal static class SetHudActivePatch
             case CustomRoles.Arsonist:
             case CustomRoles.Vigilante:
             case CustomRoles.Deputy:
+            case CustomRoles.Bestower:
             case CustomRoles.Monarch:
             case CustomRoles.Pelican:
             case CustomRoles.Hater:

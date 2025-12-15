@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -298,7 +299,7 @@ public static class RoomRush
         }
 
         if (ventLimit > 0)
-            aapc.Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            aapc.Do(x => x.RpcSetRoleGlobal(RoleTypes.Engineer));
 
         Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
@@ -385,7 +386,7 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
-        LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), Math.Min(0.5f, Utils.CalculatePingDelay()), log: false);
+        Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
 
         if (WinByPointsInsteadOfDeaths.GetBool())
         {
@@ -491,7 +492,7 @@ public static class RoomRush
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || GameStates.IsEnded || !Main.IntroDestroyed) return;
 
             long now = Utils.TimeStamp;
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -514,7 +515,7 @@ public static class RoomRush
             {
                 bool isInRoom = pc.IsInRoom(RoomGoal);
 
-                if (pc.IsAlive() && !pc.inMovingPlat && !pc.inVent && isInRoom && DonePlayers.Add(pc.PlayerId))
+                if (!pc.inMovingPlat && !pc.inVent && isInRoom && RegisterHost(pc) && DonePlayers.Add(pc.PlayerId))
                 {
                     Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
                     pc.Notify($"<size=100%>{DonePlayers.Count}.</size>", 2f);
@@ -582,6 +583,23 @@ public static class RoomRush
             if (playersOutsideRoom.Any(x => x.AmOwner))
                 Achievements.Type.OutOfTime.Complete();
         }
+
+        private static readonly Stopwatch HostRegisterTimer = new();
+
+        private static bool RegisterHost(PlayerControl pc)
+        {
+            if (!pc.AmOwner) return true;
+
+            if (HostRegisterTimer.IsRunning)
+            {
+                bool registerHost = HostRegisterTimer.ElapsedMilliseconds > AmongUsClient.Instance.Ping * 2;
+                if (registerHost) HostRegisterTimer.Reset();
+                return registerHost;
+            }
+
+            HostRegisterTimer.Restart();
+            return false;
+        }
     }
 }
 
@@ -600,6 +618,6 @@ public class RRPlayer : RoleBase
         RoomRush.VentLimit[pc.PlayerId]--;
         int newLimit = RoomRush.VentLimit[pc.PlayerId];
         Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, newLimit, pc.PlayerId);
-        if (newLimit <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
+        if (newLimit <= 0) pc.RpcSetRoleGlobal(RoleTypes.Crewmate);
     }
 }

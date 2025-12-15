@@ -342,16 +342,7 @@ public static class Options
     public static OptionItem InnocentCanWinByImp;
     public static OptionItem BaitNotification;
     public static OptionItem DoctorVisibleToEveryone;
-    public static OptionItem ArsonistDouseTime;
-    public static OptionItem ArsonistCooldown;
-    public static OptionItem ArsonistKeepsGameGoing;
-    public static OptionItem ArsonistCanIgniteAnytime;
-    public static OptionItem ArsonistMinPlayersToIgnite;
-    public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyNemesis;
-    public static OptionItem VeteranSkillCooldown;
-    public static OptionItem VeteranSkillDuration;
-    public static OptionItem VeteranSkillMaxOfUsage;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
@@ -442,6 +433,8 @@ public static class Options
     public static OptionItem AutoPlayAgain;
     public static OptionItem AutoPlayAgainCountdown;
     public static OptionItem AutoStartTimer;
+    
+    public static OptionItem EnterKeyToStartGame;
 
     public static OptionItem SaboteurCD;
     public static OptionItem SaboteurCDAfterMeetings;
@@ -1696,6 +1689,8 @@ public static class Options
         AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 150, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
+        
+        EnterKeyToStartGame = new BooleanOptionItem(19432, "EnterKeyToStartGame", false, TabGroup.SystemSettings);
 
         LowLoadMode = new BooleanOptionItem(19317, "LowLoadMode", true, TabGroup.SystemSettings)
             .SetHeader(true)
@@ -3472,7 +3467,6 @@ public static class Options
     // ReSharper disable NotAccessedField.Global
 
     // Ability Use Gain With Each Task Completed
-    public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
@@ -3483,7 +3477,6 @@ public static class Options
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
     public static OptionItem PacifistAbilityChargesWhenFinishedTasks;
-    public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
 
     // ReSharper restore NotAccessedField.Global
 }
