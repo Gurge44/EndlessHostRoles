@@ -801,7 +801,7 @@ public static class StringOptionPatch
         }));
 
         gameOptionButton.interactableColor = Color.black;
-        gameOptionButton.interactableHoveredColor = Color.blue;
+        gameOptionButton.interactableHoveredColor = new Color32(0, 165, 255, 255);
         icon.localPosition += new Vector3(-0.8f, 0f, 0f);
         icon.SetAsLastSibling();
     }
