@@ -70,17 +70,17 @@ public class Altruist : RoleBase
     {
         if (!RevivingMode || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Disregarded)) return true;
 
+        RevivingMode = false;
+        ReviveTarget = target.PlayerId;
+        ReviveStartTS = Utils.TimeStamp;
+        ReviveTargetPos = reporter.Pos();
+
         PlayerState state = Main.PlayerStates[reporter.PlayerId];
         state.deathReason = PlayerState.DeathReason.Sacrifice;
         state.RealKiller = (DateTime.Now, target.PlayerId);
         state.SetDead();
         reporter.RpcExileV2();
         Utils.AfterPlayerDeathTasks(reporter);
-
-        RevivingMode = false;
-        ReviveTarget = target.PlayerId;
-        ReviveStartTS = Utils.TimeStamp;
-        ReviveTargetPos = reporter.Pos();
 
         return false;
     }
@@ -165,5 +165,11 @@ public class Altruist : RoleBase
     public override bool CanUseVent(PlayerControl pc, int ventId)
     {
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
+    }
+
+    public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
+    {
+        keepGameGoing = ReviveStartTS != 0;
+        countsAs = 1;
     }
 }

@@ -617,7 +617,7 @@ internal static class GameEndChecker
             foreach (PlayerState playerState in statesCoutingAsCrew)
             {
                 if (playerState.IsDead || !Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool()) continue;
-                playerState.Role.ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs);
+                playerState.Role.ManipulateGameEndCheckCrew(playerState, out bool keepGameGoing, out int countsAs);
                 crewKeepsGameGoing |= keepGameGoing;
                 crew += countsAs - 1;
             }

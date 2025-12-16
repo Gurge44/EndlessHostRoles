@@ -121,6 +121,8 @@ public class PlagueBearer : RoleBase
     {
         if (IsPlagued(killer.PlayerId, target.PlayerId))
         {
+            killer.ResetKillCooldown();
+            killer.SetKillCooldown(PlagueBearerCDOpt.GetFloat());
             killer.Notify(GetString("PlagueBearerAlreadyPlagued"));
             return false;
         }

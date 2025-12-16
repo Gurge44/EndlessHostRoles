@@ -196,7 +196,7 @@ public abstract class RoleBase : IComparable<RoleBase>
         return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
     }
 
-    public virtual void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    public virtual void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
     {
         keepGameGoing = false;
         countsAs = 1;

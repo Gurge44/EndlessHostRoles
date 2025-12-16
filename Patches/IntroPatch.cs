@@ -1117,9 +1117,13 @@ internal static class BeginImpostorPatch
 internal static class IntroCutsceneDestroyPatch
 {
     public static bool PreventKill;
+    public static long IntroDestroyTS;
+    
     public static void Postfix( /*IntroCutscene __instance*/)
     {
         if (!GameStates.IsInGame) return;
+
+        IntroDestroyTS = Utils.TimeStamp;
 
         Main.IntroDestroyed = true;
         PreventKill = true;

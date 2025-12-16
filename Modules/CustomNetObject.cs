@@ -166,18 +166,18 @@ namespace EHR
         {
             if (GameStates.IsEnded || !AmongUsClient.Instance.AmHost) return;
             
-            Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position} - Time since game start: {Utils.TimeStamp - Utils.GameStartTimeStamp}s", "CNO.CreateNetObject");
+            Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position} - Time since game start: {Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS}s", "CNO.CreateNetObject");
 
-            if (!GameStates.InGame || !Main.IntroDestroyed || Utils.TimeStamp - Utils.GameStartTimeStamp < 40)
+            if (!GameStates.InGame || !Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10)
             {
-                if (GameStates.InGame && (!Main.IntroDestroyed || Utils.TimeStamp - Utils.GameStartTimeStamp < 40))
+                if (GameStates.InGame && (!Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10))
                 {
                     Main.Instance.StartCoroutine(CoRoutine());
                     
                     System.Collections.IEnumerator CoRoutine()
                     {
                         Logger.Info("Delaying CNO Spawn", "CustomNetObject.CreateNetObject");
-                        while (GameStates.InGame && !GameStates.IsEnded && (!Main.IntroDestroyed || Utils.TimeStamp - Utils.GameStartTimeStamp < 40)) yield return null;
+                        while (GameStates.InGame && !GameStates.IsEnded && (!Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10)) yield return null;
                         yield return new WaitForSeconds(3f);
                         if (!GameStates.InGame || GameStates.IsEnded || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield break;
                         CreateNetObject(sprite, position);
