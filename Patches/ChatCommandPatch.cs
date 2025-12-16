@@ -3598,6 +3598,15 @@ internal static class ChatCommands
 
         CheckAnagramGuess(player.PlayerId, text.ToLower());
 
+        foreach (PlayerState state in Main.PlayerStates.Values)
+        {
+            if (state.Role is Astral astral && astral.BackTS != 0 && state.Player != null && state.Player.PlayerId != player.PlayerId)
+            {
+                if (state.Player.AmOwner) canceled = true;
+                else ChatManager.ClearChat(state.Player);
+            }
+        }
+
         string[] args = text.Split(' ');
 
         if (!Starspawn.IsDayBreak)
