@@ -658,7 +658,7 @@ internal static class InnerNetClientSpawnPatch
             Logger.Warn("client is null or client have invalid color", "TrySyncAndSendMessage");
         else
         {
-            LateTask.New(() => OptionItem.SyncAllOptions(client.Id), 3f, "Sync All Options For New Player");
+            LateTask.New(() => OptionItem.SyncAllOptions(client.Id, SendOption.Reliable), 3f, "Sync All Options For New Player");
 
             LateTask.New(() =>
             {

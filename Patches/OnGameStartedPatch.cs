@@ -394,7 +394,7 @@ internal static class ChangeRoleSettings
 
             if (__instance.AmHost)
             {
-                RPC.SyncCustomSettingsRPC();
+                RPC.SyncCustomSettingsRPC(sendOption: SendOption.Reliable);
                 Main.RefixCooldownDelay = 0;
             }
 

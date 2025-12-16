@@ -380,12 +380,7 @@ internal static class RPCHandlerPatch
                     }
                     case 80:
                     {
-                        reader.ReadString();
-                        reader.ReadString();
-
-                        if (reader.ReadString() != Main.ForkId)
-                            Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.red);
-
+                        Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.red);
                         break;
                     }
                     case 62 when GameStates.IsInTask && Main.IntroDestroyed && !ExileController.Instance && !AntiBlackout.SkipTasks:
@@ -463,21 +458,17 @@ internal static class RPCHandlerPatch
                 {
                     if (AmongUsClient.Instance.AmHost) break;
 
-                    int startIndex = reader.ReadPackedInt32();
-                    
-                    if (startIndex == 2)
+                    if (reader.ReadBoolean())
                     {
                         Options.Preset.SetValue(9, false, false);
                         Options.GameMode.SetValue(reader.ReadPackedInt32(), false, false);
                     }
 
-                    for (int i = startIndex; i < OptionItem.AllOptions.Count; i++)
+                    while (reader.BytesRemaining > 0)
                     {
-                        if (reader.BytesRemaining == 0) break;
-                        var option = OptionItem.AllOptions[i];
-                        if (option is TextOptionItem || option.Id >= 660000) continue;
-                        
-                        option.SetValue(reader.ReadPackedInt32(), false, false);
+                        int id = reader.ReadPackedInt32();
+                        int value = reader.ReadPackedInt32();
+                        OptionItem.FastOptions[id].SetValue(value, false, false);
                     }
 
                     OptionSaver.Save();
@@ -1438,7 +1429,7 @@ internal static class RPCHandlerPatch
 
 internal static class RPC
 {
-    public static void SyncCustomSettingsRPC(int targetId = -1)
+    public static void SyncCustomSettingsRPC(int targetId = -1, SendOption sendOption = SendOption.None)
     {
         if (targetId != -1)
         {
@@ -1448,24 +1439,23 @@ internal static class RPC
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
 
-        Logger.Msg(" Starting from 2", "SyncCustomSettings");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-        writer.WritePacked(2);
+        Logger.Msg(" Starting", "SyncCustomSettings");
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, sendOption, targetId);
+        writer.Write(true);
         writer.WritePacked(Options.GameMode.GetValue());
         
-        for (int i = 2; i < OptionItem.AllOptions.Count; i++)
+        foreach (var option in OptionItem.AllOptions)
         {
-            var option = OptionItem.AllOptions[i];
-            if (option is TextOptionItem || option.Id >= 660000) continue;
+            if (option is TextOptionItem || option.Id >= 660000 || option.Name == "Preset") continue;
             
             if (writer.Length > 500)
             {
-                Logger.Msg($" Starting from {i}", "SyncCustomSettings");
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-                writer.WritePacked(i);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, sendOption, targetId);
+                writer.Write(false);
             }
             
+            writer.WritePacked(option.Id);
             writer.WritePacked(option.GetValue());
         }
 

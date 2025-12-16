@@ -6,6 +6,7 @@ using EHR.AddOns.GhostRoles;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
+using Hazel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -1456,6 +1457,8 @@ public static class GameSettingMenuPatch
         GMButtons = [];
 
         Main.Instance.StartCoroutine(OptionShower.GetText());
+        
+        OptionItem.SyncAllOptions(sendOption: SendOption.Reliable);
     }
 }
 
