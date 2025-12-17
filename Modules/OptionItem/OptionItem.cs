@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using EHR.Modules;
-using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -316,10 +315,10 @@ public abstract class OptionItem
         foreach (OptionItem op in AllOptions)
             op.Refresh();
 
-        SyncAllOptions(sendOption: SendOption.Reliable);
+        SyncAllOptions();
     }
 
-    public static void SyncAllOptions(int targetId = -1, SendOption sendOption = SendOption.None)
+    public static void SyncAllOptions(int targetId = -1)
     {
         if (
                 Main.AllPlayerControls.Length <= 1

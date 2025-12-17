@@ -5,7 +5,6 @@ using System.Linq;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
-using Hazel;
 using Rewired;
 using TMPro;
 using UnityEngine;
@@ -198,7 +197,7 @@ internal static class ControllerManagerUpdatePatch
                         hudManager.Dialogue.BackButton.gameObject.SetActive(true);
                         hudManager.Dialogue.Hide();
 
-                        OptionItem.SyncAllOptions(sendOption: SendOption.Reliable);
+                        OptionItem.SyncAllOptions();
                         OptionSaver.Save();
                         
                         IsResetting = false;

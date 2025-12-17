@@ -803,7 +803,7 @@ internal static class ChatCommands
                 optionItem.AllValues[targetPreset] = optionItem.AllValues[sourcePresetId];
             }
 
-            OptionItem.SyncAllOptions(sendOption: SendOption.Reliable);
+            OptionItem.SyncAllOptions();
             OptionSaver.Save();
         }
     }

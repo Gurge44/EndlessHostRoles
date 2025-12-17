@@ -1457,8 +1457,6 @@ public static class GameSettingMenuPatch
         GMButtons = [];
 
         Main.Instance.StartCoroutine(OptionShower.GetText());
-        
-        OptionItem.SyncAllOptions(sendOption: SendOption.Reliable);
     }
 }
 
