@@ -2325,9 +2325,11 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         
         DisableVentingOn1v1 = new BooleanOptionItem(22815, "DisableVentingOn1v1", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         
         DisableSabotagingOn1v1 = new BooleanOptionItem(22816, "DisableSabotagingOn1v1", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 75;
