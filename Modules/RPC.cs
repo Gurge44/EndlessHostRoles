@@ -473,7 +473,7 @@ internal static class RPCHandlerPatch
                     // Sync Settings
                     foreach (OptionItem option in listOptions)
                     {
-                        try { option.SetValue(reader.ReadPackedInt32()); }
+                        try { option.SetValue(reader.ReadPackedInt32(), false, false); }
                         catch { }
 
                         try
