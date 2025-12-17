@@ -9,6 +9,7 @@ internal class Escapist : RoleBase
 
     public static OptionItem EscapistSSCD;
     public static OptionItem CanVent;
+    public static OptionItem OneMarkPerRound;
 
     public Vector2? EscapistLocation;
     public override bool IsEnable => On;
@@ -22,6 +23,9 @@ internal class Escapist : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
 
         CanVent = new BooleanOptionItem(3612, "CanVent", false, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapist]);
+        
+        OneMarkPerRound = new BooleanOptionItem(3613, "Escapist.OneMarkPerRound", false, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escapist]);
     }
 
@@ -76,12 +80,11 @@ internal class Escapist : RoleBase
 
     private void TeleportOrMark(PlayerControl pc)
     {
-        if (EscapistLocation != null)
+        if (EscapistLocation.HasValue)
         {
-            var position = (Vector2)EscapistLocation;
-            EscapistLocation = null;
-            pc.TP(position);
+            pc.TP(EscapistLocation.Value);
             pc.RPCPlayCustomSound("Teleport");
+            if (!OneMarkPerRound.GetBool()) EscapistLocation = null;
         }
         else
             EscapistLocation = pc.Pos();
@@ -90,7 +93,11 @@ internal class Escapist : RoleBase
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (shapeshifting) TeleportOrMark(shapeshifter);
-
         return false;
+    }
+
+    public override void OnReportDeadBody()
+    {
+        EscapistLocation = null;
     }
 }
