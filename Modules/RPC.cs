@@ -1457,7 +1457,7 @@ internal static class RPC
         int divideBy = amount / 10;
         for (var i = 0; i <= 10; i++) SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, targetId);
     }
-    
+
     private static void SyncOptionsBetween(int startAmount, int lastAmount, int targetId = -1)
     {
         if (targetId != -1)
@@ -1489,7 +1489,7 @@ internal static class RPC
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Logger.Msg(" Finished", "SyncCustomSettings");
     }
-    
+
     public static void PlaySoundRPC(byte playerID, Sounds sound)
     {
         if (AmongUsClient.Instance.AmHost) PlaySound(playerID, sound);
