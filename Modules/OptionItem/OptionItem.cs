@@ -328,7 +328,7 @@ public abstract class OptionItem
             )
             return;
 
-        RPC.SyncCustomSettingsRPC(targetId, sendOption);
+        RPC.SyncCustomSettingsRPC(targetId);
     }
     
     public void CallUpdateValueEvent(int beforeValue, int currentValue)
