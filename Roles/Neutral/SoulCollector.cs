@@ -18,7 +18,7 @@ public class SoulCollector : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(12800)
+        StartSetup(657400)
             .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref CanVent, true)
             .AutoSetupOption(ref ImpostorVision, true);
