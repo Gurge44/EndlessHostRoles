@@ -81,15 +81,6 @@ namespace EHR
 
         public void TP(Vector2 position)
         {
-            if (!AmongUsClient.Instance.AmHost) return;
-            
-            if (AmongUsClient.Instance.AmClient) playerControl.NetTransform.SnapTo(position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U));
-            ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
-            NetHelpers.WriteVector2(position, messageWriter);
-            messageWriter.Write(num);
-            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-
             Position = position;
         }
 
@@ -160,7 +151,16 @@ namespace EHR
             writer.Recycle();
         }
 
-        protected virtual void OnFixedUpdate() { }
+        protected virtual void OnFixedUpdate()
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+            if (AmongUsClient.Instance.AmClient) playerControl.NetTransform.SnapTo(Position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U));
+            ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
+            NetHelpers.WriteVector2(Position, messageWriter);
+            messageWriter.Write(num);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        }
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
@@ -191,6 +191,10 @@ namespace EHR
             playerControl.PlayerId = 254;
             playerControl.isNew = false;
             playerControl.notRealPlayer = true;
+
+            try { playerControl.NetTransform.SnapTo(new Vector2(50f, 50f)); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             AmongUsClient.Instance.NetIdCnt += 1U;
             MessageWriter msg = MessageWriter.Get(SendOption.Reliable);
             msg.StartMessage(5);
@@ -364,6 +368,10 @@ namespace EHR
                     playerControl.PlayerId = 254;
                     playerControl.isNew = false;
                     playerControl.notRealPlayer = true;
+
+                    try { playerControl.NetTransform.SnapTo(new Vector2(50f, 50f)); }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     AmongUsClient.Instance.NetIdCnt += 1U;
                     MessageWriter msg = MessageWriter.Get(SendOption.Reliable);
                     msg.StartMessage(5);
@@ -914,33 +922,48 @@ namespace EHR
     
     internal sealed class Snowball : CustomNetObject
     {
-        public readonly PlayerControl Thrower;
-        private readonly Vector2 Direction;
+        public PlayerControl Thrower;
+        private Vector2 Direction;
+        public bool Active;
 
         public Snowball(Vector2 from, Vector2 direction, PlayerControl thrower)
         {
             Thrower = thrower;
             Direction = direction;
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
             CreateNetObject("<line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
+            Active = true;
         }
 
         protected override void OnFixedUpdate()
         {
+            base.OnFixedUpdate();
+            
+            if (!Active) return;
+            
             Vector2 newPos = Position + Direction * Time.fixedDeltaTime * Snowdown.SnowballThrowSpeed;
-            bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
             
             if ((PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false)) ||
                 newPos.x < Snowdown.MapBounds.X.Left || newPos.x > Snowdown.MapBounds.X.Right || newPos.y < Snowdown.MapBounds.Y.Bottom || newPos.y > Snowdown.MapBounds.Y.Top)
             {
-                if (vanilla) AllObjects.Remove(this);
-                else Despawn();
-                
+                SetInactive();
                 return;
             }
 
-            if (vanilla) Position = newPos;
-            else TP(newPos);
+            TP(newPos);
+        }
+
+        public void SetInactive()
+        {
+            TP(new(50f, 50f));
+            Active = false;
+        }
+
+        public void Reuse(Vector2 from, Vector2 direction, PlayerControl thrower)
+        {
+            TP(from);
+            Thrower = thrower;
+            Direction = direction;
+            Active = true;
         }
     }
 }

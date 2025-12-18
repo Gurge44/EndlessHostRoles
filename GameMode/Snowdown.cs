@@ -59,7 +59,7 @@ public static class Snowdown
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Multiplier);
         
-        SnowballGainFrequencyOption = new IntegerOptionItem(id++, "Snowdown.SnowballGainFrequencyOption", new(1, 30, 1), 10, tab)
+        SnowballGainFrequencyOption = new IntegerOptionItem(id++, "Snowdown.SnowballGainFrequencyOption", new(1, 30, 1), 5, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Seconds);
@@ -255,13 +255,13 @@ public static class Snowdown
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Options.CurrentGameMode != CustomGameMode.Snowdown || !Main.IntroDestroyed) return;
             if (!__instance.IsAlive() || !Data.TryGetValue(__instance.PlayerId, out PlayerData data)) return;
 
-            var now = Utils.TimeStamp;
-            var pos = __instance.Pos();
-            var touchingSnowball = Snowballs.Find(x => x.Thrower != __instance && Vector2.Distance(x.Position, pos) < 1.5f);
+            long now = Utils.TimeStamp;
+            Vector2 pos = __instance.Pos();
+            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && Vector2.Distance(x.Position, pos) < 1.5f);
 
             if (touchingSnowball != null)
             {
-                touchingSnowball.Despawn();
+                touchingSnowball.SetInactive();
                 
                 if (touchingSnowball.Thrower != null && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
                     throwerData.Coins++;
@@ -391,7 +391,14 @@ public static class Snowdown
             {
                 if (SnowballsReady <= 0) return;
                 SnowballsReady--;
-                Snowballs.Add(new Snowball(pc.Pos(), (LastPosition - LastLastPosition).normalized, pc));
+                
+                Vector2 from = pc.Pos();
+                Vector2 direction = (LastPosition - LastLastPosition).normalized;
+
+                Snowball inactive = Snowballs.Find(x => !x.Active);
+                
+                if (inactive != null) inactive.Reuse(from, direction, pc);
+                else Snowballs.Add(new Snowball(from, direction, pc));
             }
         }
 
