@@ -4819,7 +4819,7 @@
   "SilencerKillTitle": "<color=#ffff00>ПРЕДУПРЕЖДЕНИЕ</color>",
   "SilencerShutUp": "Тссс! Если будешь говорить - умрёшь.",
   "SilencerMax": "Макс. кол-во сообщение от игроков без голоса",
-  "MaxPlayersAliveForSilencedToVote": "Max Players Alive for Silenced Players to be able to Vote",
+  "MaxPlayersAliveForSilencedToVote": "Макс. кол-во живых игроков, при которых игроки без голоса могут голосовать",
   "Doppelganger": "Двойник",
   "DoppelgangerInfo": "Крадите внешность ваших жертв",
   "DoppelgangerInfoLong": "(Нейтральный Убийца):\\nКак Двойник, когда вы убиваете, вы перевоплощаетесь в свою жертву. Перевоплощение будет сбрасываться при определённом событие, в зависимости от настроек.\\n\\nПримечание: Во время камуфляжа вы не сможете украсть скин.",
