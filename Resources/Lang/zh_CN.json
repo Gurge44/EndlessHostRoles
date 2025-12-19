@@ -801,7 +801,7 @@
   "InspectorInfoLong": "(船员职业):\\n检查员可以使用/cp [玩家1的id] [玩家2的id]检查两名玩家是否阵营相同。带刀中立互为同阵营，不带刀中立互为不同阵营，骗术师被记作船员，叛徒被记作伪装者，律师被记作与客户同阵营。使用指令后，检查员会收到一条包含结果的信息。",
   "TimeMasterInfoLong": "(船员阵营):\\n时间之主可以进入通风口/抚摸宠物将时间倒退到几秒钟之前。 玩家会被传送到几秒前的位置。在此期间死亡的玩家将被复活。",
   "CrusaderInfoLong": "(船员职业):\\n十字军可以使用击杀来给予玩家护盾。若护盾生效期间该玩家受到了攻击，则十字军会反杀攻击者。",
-  "ArsonistInfoLong": "(中立职业):\\n纵火犯通过对玩家使用击杀并跟随其数秒来完成涂油，开始涂油以及涂油成功时会显示护盾破碎的动画作为提示（仅自己可见）。当所有存活玩家都被纵火犯涂油后，纵火犯可以通过跳通风管来点火，并单独获得胜利。\\n\\n玩家名显示「△」表示涂油中\\n玩家名显示「▲」表示已涂油",
+  "ArsonistInfoLong": "(Neutrals):\\nArsonist can douse by clicking the kill button on a player and following them for a few seconds. When dousing starts, successful dousing is indicated by a shield animation (only visible to themselves). When the Arsonist douses all surviving players, they can vent/pet their pet to start a fire and win alone. If player name shows 「△」, they're being doused; if it shows 「▲」, they're completely doused. Note that if 'Can Ignite Anytime' is enabled, the Arsonist needs to use their kill button on a fully doused player to ignite.",
   "JesterInfoLong": "(中立职业):\\n小丑被票出则小丑单独游戏胜利。游戏结束时若小丑仍存活则小丑输掉游戏。",
   "TerroristInfoLong": "(中立职业):\\n恐怖分子在完成所有任务后死亡，则恐怖分子单独获得胜利。",
   "ExecutionerInfoLong": "(中立职业):\\n游戏开始时处刑人会被分配到一个处刑目标，并在其昵称旁用「♦」表示。若处刑目标被击杀，则处刑者的职业会根据设置转换职业。如果处刑目标在会议中被票出则处刑人胜利。",
