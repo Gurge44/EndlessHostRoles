@@ -163,6 +163,7 @@ public enum CustomRPC
     ImitatorClick,
     RetributionistClick,
     StarspawnClick,
+    VentriloquistClick,
     Invisibility,
     ResetAbilityCooldown,
     SyncCamouflage,
@@ -191,7 +192,11 @@ public enum Sounds
     KillSound,
     TaskComplete,
     TaskUpdateSound,
-    ImpTransform
+    SabotageSound,
+    LobbyTimerPopUp,
+    SpawnSound,
+    ImpTransform,
+    YeehawTransform
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
@@ -249,7 +254,7 @@ internal static class RPCHandlerPatch
     private static bool TrustedRpc(byte id)
     {
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick or CustomRPC.RetributionistClick or CustomRPC.StarspawnClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick or CustomRPC.RetributionistClick or CustomRPC.StarspawnClick or CustomRPC.VentriloquistClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -1363,6 +1368,11 @@ internal static class RPCHandlerPatch
                     ChatCommands.DayBreakCommand(__instance, command, command.Split(' '));
                     break;
                 }
+                case CustomRPC.VentriloquistClick:
+                {
+                    Ventriloquist.ReceiveRPC(reader, __instance);
+                    break;
+                }
                 case CustomRPC.Invisibility:
                 {
                     int num = reader.ReadPackedInt32();
@@ -1635,8 +1645,20 @@ internal static class RPC
                 case Sounds.TaskUpdateSound when HudManager.InstanceExists:
                     SoundManager.Instance.PlaySound(HudManager.Instance.TaskUpdateSound, false);
                     break;
+                case Sounds.SabotageSound:
+                    SoundManager.Instance.PlaySound(ShipStatus.Instance.SabotageSound, false);
+                    break;
+                case Sounds.LobbyTimerPopUp when HudManager.InstanceExists:
+                    SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
+                    break;
+                case Sounds.SpawnSound:
+                    SoundManager.Instance.PlaySound(LobbyBehaviour.Instance.SpawnSound, false);
+                    break;
                 case Sounds.ImpTransform:
                     SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx, false, 0.8f);
+                    break;
+                case Sounds.YeehawSound:
+                    SoundManager.Instance.PlaySound(DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherYeehawSfx, false, 0.8f);
                     break;
             }
         }
