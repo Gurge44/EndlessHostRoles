@@ -68,6 +68,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual bool CanUseSabotage(PlayerControl pc)
     {
         if (pc.Is(CustomRoles.Aide)) return false;
+        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Length == 2) return false;
         return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
     }
 
@@ -196,7 +197,7 @@ public abstract class RoleBase : IComparable<RoleBase>
         return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
     }
 
-    public virtual void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    public virtual void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
     {
         keepGameGoing = false;
         countsAs = 1;

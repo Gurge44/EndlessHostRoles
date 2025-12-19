@@ -3011,7 +3011,7 @@ public static class Utils
                                 if (!forMeeting)
                                     additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
 
-                                if (!forMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId))
+                                if (!forMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && target.GetCustomRole() is not (CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon))
                                     additionalSuffixes.Add(ColorString(Palette.White_75Alpha, "\n" + GetString("Invisible")));
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));

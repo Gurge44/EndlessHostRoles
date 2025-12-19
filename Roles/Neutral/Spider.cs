@@ -29,7 +29,7 @@ public class Spider : RoleBase
 
     public override void SetupCustomOption()
     {
-        StartSetup(12800)
+        StartSetup(657500)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref WebTrapRange, 2f, new FloatValueRule(0.05f, 10f, 0.05f), OptionFormat.Multiplier)
             .AutoSetupOption(ref LowerVisionBy, 0.5f, new FloatValueRule(0f, 3f, 0.05f), OptionFormat.Multiplier)

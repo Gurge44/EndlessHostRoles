@@ -174,8 +174,14 @@ internal class Tornado : RoleBase
         return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }
 
-    public override void ManipulateGameEndCheckCrew(out bool keepGameGoing, out int countsAs)
+    public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
     {
+        if (playerState.IsDead)
+        {
+            base.ManipulateGameEndCheckCrew(playerState, out keepGameGoing, out countsAs);
+            return;
+        }
+
         keepGameGoing = true;
         countsAs = 1;
     }

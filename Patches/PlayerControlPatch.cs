@@ -1487,17 +1487,16 @@ internal static class FixedUpdatePatch
         }
     }
 
-    private static void DoPostfix(PlayerControl __instance, bool lowLoad)
+    private static void DoPostfix(PlayerControl player, bool lowLoad)
     {
-        PlayerControl player = __instance;
         byte playerId = player.PlayerId;
         byte lpId = PlayerControl.LocalPlayer.PlayerId;
-        bool localPlayer = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
+        bool self = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
 
         bool inTask = GameStates.IsInTask;
         bool alive = player.IsAlive();
 
-        if (localPlayer)
+        if (self)
         {
             CustomSabotage.UpdateAll();
             Zoom.OnFixedUpdate();
@@ -1515,7 +1514,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (localPlayer && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.Snowdown && GameStartTimeStamp + 44 == TimeStamp)
+                if (self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.Snowdown && GameStartTimeStamp + 44 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1568,7 +1567,7 @@ internal static class FixedUpdatePatch
                 if (!Main.KillTimers.TryAdd(playerId, 10f) && (!player.inVent || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
                     Main.KillTimers[playerId] -= Time.fixedDeltaTime;
 
-                if (localPlayer)
+                if (self)
                 {
                     if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
                         QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
@@ -1591,7 +1590,7 @@ internal static class FixedUpdatePatch
                     player.Notify(GetString("PlagueBearerToPestilence"));
                     player.RpcGuardAndKill(player);
 
-                    var state = Main.PlayerStates[player.PlayerId];
+                    var state = Main.PlayerStates[playerId];
                     state.SubRoles
                         .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Beartrap or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
                         .ForEach(x => state.RemoveSubRole(x));
@@ -1677,13 +1676,13 @@ internal static class FixedUpdatePatch
             if (AmongUsClient.Instance.AmHost && inTask && alive && Options.LadderDeath.GetBool())
                 FallFromLadder.FixedUpdate(player);
 
-            if (localPlayer && GameStates.IsInGame)
+            if (self && GameStates.IsInGame)
                 LoversSuicide();
 
-            if (inTask && localPlayer && Options.DisableDevices.GetBool())
+            if (inTask && self && Options.DisableDevices.GetBool())
                 DisableDevice.FixedUpdate();
 
-            if (localPlayer && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
+            if (self && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
@@ -1692,46 +1691,44 @@ internal static class FixedUpdatePatch
                 }
             }
 
-            if (!Main.DoBlockNameChange && ApplySuffix(__instance, out var name))
+            if (!Main.DoBlockNameChange && ApplySuffix(player, out var name))
                 player.RpcSetName(name);
         }
 
         if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
-        bool self = lpId == __instance.PlayerId;
-
         bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
-        if (__instance == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
+        if (player == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
 
         if (self) LastSelfNameUpdateTS = now;
 
-        if (GameStates.IsLobby && !__instance.IsHost())
+        if (GameStates.IsLobby && !player.IsHost())
         {
             if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
             {
                 if (Main.ForkId != ver.forkId)
-                    __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{__instance.name}</color>";
+                    player.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>{ver.forkId}</size>\n{player.name}</color>";
                 else if (Main.Version.CompareTo(ver.version) == 0)
-                    __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? Main.ShowModdedClientText.Value ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{__instance.name}</color>" : $"<color=#00a5ff>{__instance.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{__instance.name}</color>";
+                    player.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? Main.ShowModdedClientText.Value ? $"<color=#00a5ff><size=1.4>{GetString("ModdedClient")}</size>\n{player.name}</color>" : $"<color=#00a5ff>{player.name}</color>" : $"<color=#ffff00><size=1.4>{ver.tag}</size>\n{player.name}</color>";
                 else
-                    __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{__instance.name}</color>";
+                    player.cosmetics.nameText.text = $"<color=#ff0000><size=1.4>v{ver.version}</size>\n{player.name}</color>";
             }
             else
-                __instance.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !__instance.AmOwner ? $"<#888888><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance.Data?.PlayerName}" : __instance.Data?.PlayerName;
+                player.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !player.AmOwner ? $"<#888888><size=1.2>{player.GetClient().PlatformData.Platform} | {player.FriendCode} | {player.GetClient().GetHashedPuid()}</size></color>\n{player.Data?.PlayerName}" : player.Data?.PlayerName;
         }
 
         if (GameStates.IsInGame)
         {
             if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-            bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
+            bool shouldSeeTargetAddons = self || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
 
             string roleText;
             bool hideRoleText = false;
 
-            if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek || !IsRoleTextEnabled(__instance))
+            if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek || !IsRoleTextEnabled(player))
             {
                 roleText = string.Empty;
                 hideRoleText = true;
@@ -1742,13 +1739,13 @@ internal static class FixedUpdatePatch
                 roleText = ColorString(roleTextData.Item2, roleTextData.Item1);
             }
 
-            if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
+            if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(player) && player.Is(CustomRoles.Trickster))
             {
                 roleText = Investigator.RandomRole[lpId];
                 roleText += Investigator.GetTaskState();
             }
 
-            string progressText = GetProgressText(__instance);
+            string progressText = GetProgressText(player);
 
             if (progressText.RemoveHtmlTags().Length > 25 && Main.VisibleTasksCount)
                 progressText = $"\n{progressText}";
@@ -1762,7 +1759,7 @@ internal static class FixedUpdatePatch
             }
 
             PlayerControl seer = PlayerControl.LocalPlayer;
-            PlayerControl target = __instance;
+            PlayerControl target = player;
 
             if (target.Is(CustomRoles.Car))
             {
@@ -1781,7 +1778,7 @@ internal static class FixedUpdatePatch
 
             string realName = target.GetRealName();
             
-            if (ApplySuffix(__instance, out var formattedName))
+            if (ApplySuffix(player, out var formattedName))
                 realName = formattedName;
 
             if (target.Is(CustomRoles.BananaMan))
@@ -1826,7 +1823,7 @@ internal static class FixedUpdatePatch
 
             additionalSuffixes.Add(AFKDetector.GetSuffix(seer, target));
             
-            if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && (self || (seer.IsImpostor() && target.IsImpostor())))
+            if (!GameStates.IsMeeting && Options.CurrentGameMode == CustomGameMode.Standard && Main.Invisible.Contains(target.PlayerId) && ((self && target.GetCustomRole() is not (CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon)) || (seer.IsImpostor() && target.IsImpostor())))
                 additionalSuffixes.Add(ColorString(Palette.White_75Alpha, "\n" + GetString("Invisible")));
 
             switch (target.GetCustomRole())

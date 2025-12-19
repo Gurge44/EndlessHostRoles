@@ -135,7 +135,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
             _ => SystemTypes.Outside
         };
 
-        TimeLimit = GetDefaultSabotageTimeLimit(map);
+        TimeLimit = Math.Min(60, GetDefaultSabotageTimeLimit(map));
         AdjustTimeLimitBasedOnPlayerSpeed(ref TimeLimit);
 
         RoomPosition = RandomSpawn.SpawnMap.GetSpawnMap().Positions.GetValueOrDefault(TargetRoom, TargetRoom.GetRoomClass().transform.position);

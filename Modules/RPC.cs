@@ -380,12 +380,7 @@ internal static class RPCHandlerPatch
                     }
                     case 80:
                     {
-                        reader.ReadString();
-                        reader.ReadString();
-
-                        if (reader.ReadString() != Main.ForkId)
-                            Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.red);
-
+                        Logger.SendInGame(string.Format(GetString("ModMismatch"), __instance.Data?.PlayerName), Color.red);
                         break;
                     }
                     case 62 when GameStates.IsInTask && Main.IntroDestroyed && !ExileController.Instance && !AntiBlackout.SkipTasks:
@@ -463,21 +458,30 @@ internal static class RPCHandlerPatch
                 {
                     if (AmongUsClient.Instance.AmHost) break;
 
-                    int startIndex = reader.ReadPackedInt32();
-                    
-                    if (startIndex == 2)
-                    {
-                        Options.Preset.SetValue(9, false, false);
-                        Options.GameMode.SetValue(reader.ReadPackedInt32(), false, false);
-                    }
+                    List<OptionItem> listOptions = [];
+                    int startAmount = reader.ReadInt32();
+                    int lastAmount = reader.ReadInt32();
+                    int countAllOptions = OptionItem.AllOptions.Count;
 
-                    for (int i = startIndex; i < OptionItem.AllOptions.Count; i++)
+                    // Add Options
+                    for (int option = startAmount; option < countAllOptions && option <= lastAmount; option++)
+                        listOptions.Add(OptionItem.AllOptions[option]);
+
+                    int countOptions = listOptions.Count;
+                    Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
+
+                    // Sync Settings
+                    foreach (OptionItem option in listOptions)
                     {
-                        if (reader.BytesRemaining == 0) break;
-                        var option = OptionItem.AllOptions[i];
-                        if (option is TextOptionItem || option.Id >= 660000) continue;
-                        
-                        option.SetValue(reader.ReadPackedInt32(), false, false);
+                        try { option.SetValue(reader.ReadPackedInt32(), false, false); }
+                        catch { }
+
+                        try
+                        {
+                            if (startAmount == 0 && option.Name == "Preset" && option.CurrentValue != 9)
+                                option.SetValue(9, false, false);
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
                     }
 
                     OptionSaver.Save();
@@ -635,18 +639,18 @@ internal static class RPCHandlerPatch
                 case CustomRPC.NotificationPopper:
                 {
                     byte typeId = reader.ReadByte();
-                    int item = reader.ReadPackedInt32();
+                    int index = reader.ReadPackedInt32();
                     int customRole = reader.ReadPackedInt32();
                     bool playSound = reader.ReadBoolean();
-                    OptionItem key = OptionItem.AllOptions[item];
+                    OptionItem key = OptionItem.AllOptions[index];
 
                     switch (typeId)
                     {
                         case 0:
-                            NotificationPopperPatch.AddSettingsChangeMessage(item, key, playSound);
+                            NotificationPopperPatch.AddSettingsChangeMessage(index, key, playSound);
                             break;
                         case 1:
-                            NotificationPopperPatch.AddRoleSettingsChangeMessage(item, key, (CustomRoles)customRole, playSound);
+                            NotificationPopperPatch.AddRoleSettingsChangeMessage(index, key, (CustomRoles)customRole, playSound);
                             break;
                     }
 
@@ -1438,6 +1442,7 @@ internal static class RPCHandlerPatch
 
 internal static class RPC
 {
+    // Credit: https://github.com/music-discussion/TownOfHost-TheOtherRoles/blob/main/Modules/RPC.cs
     public static void SyncCustomSettingsRPC(int targetId = -1)
     {
         if (targetId != -1)
@@ -1448,26 +1453,38 @@ internal static class RPC
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
 
-        Logger.Msg(" Starting from 2", "SyncCustomSettings");
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-        writer.WritePacked(2);
-        writer.WritePacked(Options.GameMode.GetValue());
-        
-        for (int i = 2; i < OptionItem.AllOptions.Count; i++)
+        int amount = OptionItem.AllOptions.Count;
+        int divideBy = amount / 10;
+        for (var i = 0; i <= 10; i++) SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, targetId);
+    }
+
+    private static void SyncOptionsBetween(int startAmount, int lastAmount, int targetId = -1)
+    {
+        if (targetId != -1)
         {
-            var option = OptionItem.AllOptions[i];
-            if (option is TextOptionItem || option.Id >= 660000) continue;
-            
-            if (writer.Length > 500)
-            {
-                Logger.Msg($" Starting from {i}", "SyncCustomSettings");
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-                writer.WritePacked(i);
-            }
-            
-            writer.WritePacked(option.GetValue());
+            ClientData client = Utils.GetClientById(targetId);
+            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
+
+        if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
+
+        int amountAllOptions = OptionItem.AllOptions.Count;
+
+        Logger.Msg(" Starting", "SyncCustomSettings");
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
+        writer.Write(startAmount);
+        writer.Write(lastAmount);
+
+        List<OptionItem> listOptions = [];
+
+        // Add Options
+        for (int option = startAmount; option < amountAllOptions && option <= lastAmount; option++) listOptions.Add(OptionItem.AllOptions[option]);
+
+        int countListOptions = listOptions.Count;
+        Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
+
+        // Sync Settings
+        foreach (OptionItem option in listOptions) writer.WritePacked(option.GetValue());
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Logger.Msg(" Finished", "SyncCustomSettings");

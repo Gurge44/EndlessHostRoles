@@ -253,6 +253,8 @@ public static class Options
     public static OptionItem DisableSpectateCommand;
     public static OptionItem Disable8ballCommand;
     public static OptionItem DisableVoteStartCommand;
+    public static OptionItem DisableVentingOn1v1;
+    public static OptionItem DisableSabotagingOn1v1;
 
     public static OptionItem DisableReactorOnSkeldAndMira;
     public static OptionItem DisableReactorOnPolus;
@@ -342,12 +344,6 @@ public static class Options
     public static OptionItem InnocentCanWinByImp;
     public static OptionItem BaitNotification;
     public static OptionItem DoctorVisibleToEveryone;
-    public static OptionItem ArsonistDouseTime;
-    public static OptionItem ArsonistCooldown;
-    public static OptionItem ArsonistKeepsGameGoing;
-    public static OptionItem ArsonistCanIgniteAnytime;
-    public static OptionItem ArsonistMinPlayersToIgnite;
-    public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyNemesis;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
@@ -1345,6 +1341,7 @@ public static class Options
         foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
         {
             if (roleOptionType == RoleOptionType.Coven_Miscellaneous) continue;
+            if (roleOptionType == RoleOptionType.Madmate) continue;
 
             TabGroup tab = roleOptionType.GetTabFromOptionType();
             Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
@@ -1599,16 +1596,6 @@ public static class Options
                 catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
 
                 yield return null;
-            }
-
-            if (roleClasses.Key == RoleOptionType.Impostor_Miscellaneous)
-            {
-                new TextOptionItem(titleId, "ROT.MadMates", TabGroup.ImpostorRoles)
-                    .SetHeader(true)
-                    .SetGameMode(CustomGameMode.Standard)
-                    .SetColor(Palette.ImpostorRed);
-
-                titleId += 10;
             }
 
             yield return null;
@@ -2326,6 +2313,14 @@ public static class Options
 
         DisableVoteStartCommand = new BooleanOptionItem(22814, "DisableVoteStartCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        
+        DisableVentingOn1v1 = new BooleanOptionItem(22815, "DisableVentingOn1v1", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        
+        DisableSabotagingOn1v1 = new BooleanOptionItem(22816, "DisableSabotagingOn1v1", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 75;
 
@@ -2333,81 +2328,100 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableSkeldDevices = new BooleanOptionItem(22905, "DisableSkeldDevices", false, TabGroup.GameSettings)
-            .SetParent(DisableDevices);
+            .SetParent(DisableDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableSkeldAdmin = new BooleanOptionItem(22906, "DisableSkeldAdmin", false, TabGroup.GameSettings)
-            .SetParent(DisableSkeldDevices);
+            .SetParent(DisableSkeldDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableSkeldCamera = new BooleanOptionItem(22907, "DisableSkeldCamera", false, TabGroup.GameSettings)
-            .SetParent(DisableSkeldDevices);
+            .SetParent(DisableSkeldDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 76;
 
         DisableMiraHQDevices = new BooleanOptionItem(22908, "DisableMiraHQDevices", false, TabGroup.GameSettings)
-            .SetParent(DisableDevices);
+            .SetParent(DisableDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableMiraHQAdmin = new BooleanOptionItem(22909, "DisableMiraHQAdmin", false, TabGroup.GameSettings)
-            .SetParent(DisableMiraHQDevices);
+            .SetParent(DisableMiraHQDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableMiraHQDoorLog = new BooleanOptionItem(22910, "DisableMiraHQDoorLog", false, TabGroup.GameSettings)
-            .SetParent(DisableMiraHQDevices);
+            .SetParent(DisableMiraHQDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisablePolusDevices = new BooleanOptionItem(22911, "DisablePolusDevices", false, TabGroup.GameSettings)
-            .SetParent(DisableDevices);
+            .SetParent(DisableDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisablePolusAdmin = new BooleanOptionItem(22912, "DisablePolusAdmin", false, TabGroup.GameSettings)
-            .SetParent(DisablePolusDevices);
+            .SetParent(DisablePolusDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisablePolusCamera = new BooleanOptionItem(22913, "DisablePolusCamera", false, TabGroup.GameSettings)
-            .SetParent(DisablePolusDevices);
+            .SetParent(DisablePolusDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisablePolusVital = new BooleanOptionItem(22914, "DisablePolusVital", false, TabGroup.GameSettings)
-            .SetParent(DisablePolusDevices);
+            .SetParent(DisablePolusDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableAirshipDevices = new BooleanOptionItem(22915, "DisableAirshipDevices", false, TabGroup.GameSettings)
-            .SetParent(DisableDevices);
+            .SetParent(DisableDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableAirshipCockpitAdmin = new BooleanOptionItem(22916, "DisableAirshipCockpitAdmin", false, TabGroup.GameSettings)
-            .SetParent(DisableAirshipDevices);
+            .SetParent(DisableAirshipDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 77;
 
         DisableAirshipRecordsAdmin = new BooleanOptionItem(22917, "DisableAirshipRecordsAdmin", false, TabGroup.GameSettings)
-            .SetParent(DisableAirshipDevices);
+            .SetParent(DisableAirshipDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableAirshipCamera = new BooleanOptionItem(22918, "DisableAirshipCamera", false, TabGroup.GameSettings)
-            .SetParent(DisableAirshipDevices);
+            .SetParent(DisableAirshipDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableAirshipVital = new BooleanOptionItem(22919, "DisableAirshipVital", false, TabGroup.GameSettings)
-            .SetParent(DisableAirshipDevices);
+            .SetParent(DisableAirshipDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableFungleDevices = new BooleanOptionItem(22925, "DisableFungleDevices", false, TabGroup.GameSettings)
             .SetParent(DisableDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableFungleCamera = new BooleanOptionItem(22926, "DisableFungleCamera", false, TabGroup.GameSettings)
             .SetParent(DisableFungleDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableFungleVital = new BooleanOptionItem(22927, "DisableFungleVital", false, TabGroup.GameSettings)
             .SetParent(DisableFungleDevices)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableDevicesIgnoreConditions = new BooleanOptionItem(22920, "IgnoreConditions", false, TabGroup.GameSettings)
-            .SetParent(DisableDevices);
+            .SetParent(DisableDevices)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableDevicesIgnoreImpostors = new BooleanOptionItem(22921, "IgnoreImpostors", false, TabGroup.GameSettings)
-            .SetParent(DisableDevicesIgnoreConditions);
+            .SetParent(DisableDevicesIgnoreConditions)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableDevicesIgnoreNeutrals = new BooleanOptionItem(22922, "IgnoreNeutrals", false, TabGroup.GameSettings)
-            .SetParent(DisableDevicesIgnoreConditions);
+            .SetParent(DisableDevicesIgnoreConditions)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableDevicesIgnoreCrewmates = new BooleanOptionItem(22923, "IgnoreCrewmates", false, TabGroup.GameSettings)
-            .SetParent(DisableDevicesIgnoreConditions);
+            .SetParent(DisableDevicesIgnoreConditions)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableDevicesIgnoreAfterAnyoneDied = new BooleanOptionItem(22924, "IgnoreAfterAnyoneDied", false, TabGroup.GameSettings)
             .SetParent(DisableDevicesIgnoreConditions)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 78;
 

@@ -13,6 +13,8 @@ public static class OptionShower
     public static int CurrentPage;
     public static List<string> Pages = [];
     public static string LastText = string.Empty;
+    private static bool Running;
+    private static bool InQueue;
 
     static OptionShower() { }
 
@@ -33,6 +35,16 @@ public static class OptionShower
 
     public static IEnumerator GetText()
     {
+        if (Running)
+        {
+            if (InQueue) yield break;
+            InQueue = true;
+            while (Running) yield return null;
+            InQueue = false;
+        }
+        
+        Running = true;
+        
         StringBuilder sb = new();
 
         Pages =
@@ -122,6 +134,8 @@ public static class OptionShower
         }
 
         if (CurrentPage >= Pages.Count) CurrentPage = Pages.Count - 1;
+
+        Running = false;
     }
 
     public static void Next()

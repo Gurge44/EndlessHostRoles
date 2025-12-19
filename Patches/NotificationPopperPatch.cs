@@ -73,7 +73,6 @@ internal static class NotificationPopperPatch
     private static void SendRpc(byte typeId, int index, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
     {
         if (Options.HideGameSettings.GetBool()) return;
-
         Utils.SendRPC(CustomRPC.NotificationPopper, typeId, index, (int)customRole, playSound);
     }
 }

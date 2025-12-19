@@ -173,7 +173,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 }
                 case CustomGameMode.Snowdown:
                 {
-                    Snowdown.ApplyGameOptions(opt, player);
+                    Snowdown.ApplyGameOptions();
                     goto case CustomGameMode.RoomRush;
                 }
                 case CustomGameMode.NaturalDisasters:

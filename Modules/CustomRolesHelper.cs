@@ -454,9 +454,9 @@ internal static class CustomRolesHelper
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
         if (!load && ((Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) || role.AlwaysUsesPhantomBase()) && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
-        
+
         bool UsePets = !load && Options.UsePets.GetBool();
-        
+
         return role switch
         {
             // Solo PVP
@@ -619,12 +619,12 @@ internal static class CustomRolesHelper
 
     public static bool IsNonNK(this CustomRoles role, bool check = false)
     {
-        return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistKeepsGameGoing != null && !Options.ArsonistKeepsGameGoing.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
+        return (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Arsonist.ArsonistKeepsGameGoing != null && !Arsonist.ArsonistKeepsGameGoing.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah;
     }
 
     public static bool IsNK(this CustomRoles role, bool check = false)
     {
-        return (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Options.ArsonistKeepsGameGoing == null || Options.ArsonistKeepsGameGoing.GetBool())) || role is
+        return (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Arsonist.ArsonistKeepsGameGoing == null || Arsonist.ArsonistKeepsGameGoing.GetBool())) || role is
             CustomRoles.Jackal or
             CustomRoles.Glitch or
             CustomRoles.Sidekick or
@@ -1320,7 +1320,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Warlock or
                 CustomRoles.Wasp or
                 CustomRoles.Wiper => true,
-            
+
             _ => false
         };
     }
@@ -1460,7 +1460,7 @@ internal static class CustomRolesHelper
             CustomRoles.Stalker when Stalker.SnatchesWin.GetBool() => CountTypes.Crew,
             CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
             CustomRoles.Stalker => !Stalker.SnatchesWin.GetBool() ? CountTypes.Stalker : CountTypes.Crew,
-            CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
+            CustomRoles.Arsonist => Arsonist.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
             CustomRoles.Shifter => CountTypes.OutOfGame,
             CustomRoles.NoteKiller when !NoteKiller.CountsAsNeutralKiller => CountTypes.Crew,
             CustomRoles.DoubleAgent => CountTypes.Crew,
@@ -1511,7 +1511,7 @@ internal static class CustomRolesHelper
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
         if (role.IsCoven()) return RoleOptionType.Coven_Miscellaneous;
-        if (role.IsImpostor()) return role.GetImpostorRoleCategory();
+        if (role.IsImpostor() || role.IsMadmate()) return role.GetImpostorRoleCategory();
         if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
         if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
 
@@ -1526,6 +1526,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Impostor_Support => Utils.GetRoleColor(CustomRoles.Bubble),
             RoleOptionType.Impostor_Concealing => Utils.GetRoleColor(CustomRoles.CopyCat),
             RoleOptionType.Impostor_Miscellaneous => Palette.ImpostorRed,
+            RoleOptionType.Madmate => Palette.ImpostorRed,
             RoleOptionType.Crewmate_Miscellaneous => Palette.CrewmateBlue,
             RoleOptionType.Crewmate_Investigate => Utils.GetRoleColor(CustomRoles.Forensic),
             RoleOptionType.Crewmate_Support => Utils.GetRoleColor(CustomRoles.NiceEraser),
@@ -1549,6 +1550,7 @@ internal static class CustomRolesHelper
             RoleOptionType.Impostor_Support => TabGroup.ImpostorRoles,
             RoleOptionType.Impostor_Concealing => TabGroup.ImpostorRoles,
             RoleOptionType.Impostor_Miscellaneous => TabGroup.ImpostorRoles,
+            RoleOptionType.Madmate => TabGroup.ImpostorRoles,
             RoleOptionType.Crewmate_Miscellaneous => TabGroup.CrewmateRoles,
             RoleOptionType.Crewmate_Investigate => TabGroup.CrewmateRoles,
             RoleOptionType.Crewmate_Support => TabGroup.CrewmateRoles,
@@ -1747,7 +1749,10 @@ internal static class CustomRolesHelper
             CustomRoles.PhantomEHR => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.Viper => RoleOptionType.Impostor_Miscellaneous,
             CustomRoles.ViperEHR => RoleOptionType.Impostor_Miscellaneous,
-            CustomRoles.DoubleAgent => RoleOptionType.Crewmate_Investigate,
+            CustomRoles.Parasite => RoleOptionType.Madmate,
+            CustomRoles.Hypocrite => RoleOptionType.Madmate,
+            CustomRoles.Crewpostor => RoleOptionType.Madmate,
+            CustomRoles.Renegade => RoleOptionType.Madmate,
             _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
         };
     }
@@ -1920,6 +1925,7 @@ public enum RoleOptionType
     Impostor_Support,
     Impostor_Concealing,
     Impostor_Miscellaneous,
+    Madmate,
     Crewmate_Miscellaneous,
     Crewmate_Investigate,
     Crewmate_Support,

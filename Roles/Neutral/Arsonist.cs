@@ -13,6 +13,15 @@ internal class Arsonist : RoleBase
     public static Dictionary<(byte, byte), bool> IsDoused = [];
     public static byte CurrentDousingTarget = byte.MaxValue;
 
+    public static OptionItem ArsonistDouseTime;
+    public static OptionItem ArsonistCooldown;
+    public static OptionItem ArsonistKeepsGameGoing;
+    public static OptionItem ArsonistCanIgniteAnytime;
+    public static OptionItem ArsonistMinPlayersToIgnite;
+    public static OptionItem ArsonistMaxPlayersToIgnite;
+    public static OptionItem ArsonistCanVent;
+    public static OptionItem ArsonistHasImpostorVision;
+
     public static bool On;
     public override bool IsEnable => On;
 
@@ -39,6 +48,12 @@ internal class Arsonist : RoleBase
 
         ArsonistKeepsGameGoing = new BooleanOptionItem(10412, "ArsonistKeepsGameGoing", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+        
+        ArsonistCanVent = new BooleanOptionItem(10416, "CanVent", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
+        
+        ArsonistHasImpostorVision = new BooleanOptionItem(10417, "ImpostorVision", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
     }
 
     public override void Add(byte playerId)
@@ -59,7 +74,7 @@ internal class Arsonist : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return pc.IsDouseDone() || (ArsonistCanIgniteAnytime.GetBool() && !UsePets.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
+        return pc.IsDouseDone() || ArsonistCanVent.GetBool() || (ArsonistCanIgniteAnytime.GetBool() && !UsePets.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
     }
 
     public override void SetKillCooldown(byte id)
@@ -69,7 +84,7 @@ internal class Arsonist : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        opt.SetVision(false);
+        opt.SetVision(ArsonistHasImpostorVision.GetBool());
     }
 
     public override string GetProgressText(byte playerId, bool comms)
@@ -89,7 +104,7 @@ internal class Arsonist : RoleBase
         float douseTime = ArsonistDouseTime.GetFloat();
         killer.SetKillCooldown(Mathf.Approximately(douseTime, 0f) ? ArsonistCooldown.GetFloat() : douseTime);
 
-        if (!IsDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId))
+        if (!IsDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId) && killer.RpcCheckAndMurder(target, check: true))
         {
             ArsonistTimer.Add(killer.PlayerId, (target, 0f));
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);

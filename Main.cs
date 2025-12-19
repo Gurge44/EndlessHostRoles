@@ -557,7 +557,7 @@ public class Main : BasePlugin
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.Berserker, "#50538F" },
                 { CustomRoles.SerialKiller, "#233fcc" },
-                { CustomRoles.Spider, "#f54251" },
+                { CustomRoles.Spider, "#C9E44C" },
                 { CustomRoles.SoulCollector, "#6021A0" },
                 { CustomRoles.Sharpshooter, "#5901D4" },
                 { CustomRoles.Explosivist, "#ff5900" },
