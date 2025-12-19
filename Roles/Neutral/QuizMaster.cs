@@ -37,7 +37,8 @@ internal class QuizMaster : RoleBase
         SystemTypes.LifeSupp,
         SystemTypes.MushroomMixupSabotage,
         SystemTypes.Laboratory,
-        SystemTypes.HeliSabotage
+        SystemTypes.HeliSabotage,
+        (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast
     ];
 
     public static ((string ColorString, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((string.Empty, null), string.Empty, default(SystemTypes), string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
@@ -300,6 +301,7 @@ internal class QuizMaster : RoleBase
 
             if (CurrentQuestion.CorrectAnswerIndex == index)
             {
+                RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
                 Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"));
                 Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
 
@@ -315,6 +317,7 @@ internal class QuizMaster : RoleBase
                 Main.PlayerStates[Target].SetDead();
                 if (pc != null) pc.RpcExileV2();
                 Utils.AfterPlayerDeathTasks(pc, true);
+                pc.RpcGuesserMurderPlayer();
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");
             }
