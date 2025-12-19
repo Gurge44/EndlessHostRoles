@@ -1340,8 +1340,7 @@ public static class Options
 
         foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
         {
-            if (roleOptionType == RoleOptionType.Coven_Miscellaneous) continue;
-            if (roleOptionType == RoleOptionType.Madmate) continue;
+            if (roleOptionType is RoleOptionType.Coven_Miscellaneous or RoleOptionType.Impostor_Madmate) continue;
 
             TabGroup tab = roleOptionType.GetTabFromOptionType();
             Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
