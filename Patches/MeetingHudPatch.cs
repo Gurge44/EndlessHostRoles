@@ -177,6 +177,7 @@ internal static class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() != null && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
+                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControls.Length > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
                 {
@@ -640,6 +641,7 @@ internal static class ExtendedMeetingHud
                 }
 
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
+                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControls.Length > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) voteNum += Magistrate.ExtraVotes.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
@@ -900,7 +902,7 @@ internal static class MeetingHudStartPatch
                 (target.Is(CustomRoles.Crewpostor) && seer.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
                 (target.Is(CustomRoles.Hypocrite) && seer.Is(CustomRoleTypes.Impostor) && Hypocrite.KnowsAllies.GetBool()) ||
                 (target.IsMadmate() && seer.IsMadmate() && Options.MadmateKnowWhosMadmate.GetBool()) ||
-                ((target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Recruit)) && (seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Recruit) || seer.Is(CustomRoles.Jackal))) ||
+                ((target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Sidekick)) && (seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Jackal))) ||
                 (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
                 (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||

@@ -807,7 +807,6 @@ public static class Options
     public static OptionItem NoLimitAddonsNumMax;
 
     public static OptionItem CharmedCanBeGuessed;
-    public static OptionItem RecruitCanBeGuessed;
     public static OptionItem ContagiousCanBeGuessed;
     public static OptionItem UndeadCanBeGuessed;
     public static OptionItem EgoistCanBeGuessed;
@@ -1454,10 +1453,6 @@ public static class Options
             .SetHeader(true)
             .SetGameMode(CustomGameMode.Standard)
             .AddReplacement(("{role}", CustomRoles.Charmed.ToColoredString()));
-
-        RecruitCanBeGuessed = new StringOptionItem(214, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
-            .SetGameMode(CustomGameMode.Standard)
-            .AddReplacement(("{role}", CustomRoles.Recruit.ToColoredString()));
 
         ContagiousCanBeGuessed = new StringOptionItem(215, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard)

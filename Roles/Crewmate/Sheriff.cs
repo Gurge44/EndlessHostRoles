@@ -126,7 +126,7 @@ public class Sheriff : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanBeKilledBySheriff(target) || (killer.Is(CustomRoles.Recruit) && SidekickSheriffCanGoBerserk.GetBool()) || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
+        if (CanBeKilledBySheriff(target) || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
         {
             SetKillCooldown(killer.PlayerId);
             return true;
@@ -160,7 +160,6 @@ public class Sheriff : RoleBase
                 CustomRoles.Madmate => CanKillMadmate.GetBool(),
                 CustomRoles.Charmed => CanKillCharmed.GetBool(),
                 CustomRoles.Lovers => CanKillLovers.GetBool(),
-                CustomRoles.Recruit => CanKillSidekicks.GetBool(),
                 CustomRoles.Contagious => CanKillContagious.GetBool(),
                 CustomRoles.Rascal => true,
                 _ => false

@@ -17,6 +17,7 @@ public class Silencer : RoleBase
 
     public static OptionItem SkillCooldown;
     public static OptionItem SilenceMode;
+    public static OptionItem MaxPlayersAliveForSilencedToVote;
 
     public static List<byte> ForSilencer = [];
 
@@ -35,12 +36,16 @@ public class Silencer : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
 
-        SkillCooldown = new FloatOptionItem(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
+        SkillCooldown = new FloatOptionItem(Id + 5, "AbilityCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
             .SetValueFormat(OptionFormat.Seconds);
 
         SilenceMode = new StringOptionItem(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer]);
+        
+        MaxPlayersAliveForSilencedToVote = new IntegerOptionItem(Id + 6, "MaxPlayersAliveForSilencedToVote", new(1, 15, 1), 5, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
+            .SetValueFormat(OptionFormat.Players);
     }
 
     public override void Init()

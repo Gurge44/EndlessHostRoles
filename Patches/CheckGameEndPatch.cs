@@ -167,7 +167,7 @@ internal static class GameEndChecker
                     break;
                 case CustomWinner.Jackal:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit))
+                        .Where(pc => pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick))
                         .Select(pc => pc.PlayerId));
 
                     break;
@@ -651,7 +651,6 @@ internal static class GameEndChecker
                     if (x.Is(CustomRoles.Charmed)) roleCounts[(null, CustomWinner.Cultist)]++;
                     if (x.Is(CustomRoles.Undead)) roleCounts[(null, CustomWinner.Necromancer)]++;
                     if (x.Is(CustomRoles.Sidekick)) roleCounts[(null, CustomWinner.Jackal)]++;
-                    if (x.Is(CustomRoles.Recruit)) roleCounts[(null, CustomWinner.Jackal)]++;
                     if (x.Is(CustomRoles.Contagious)) roleCounts[(null, CustomWinner.Virus)]++;
                 }
             }

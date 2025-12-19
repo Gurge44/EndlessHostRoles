@@ -189,7 +189,6 @@ public static class GuessManager
                         convertedGuessSetting = role switch
                         {
                             CustomRoles.Charmed => Options.CharmedCanBeGuessed,
-                            CustomRoles.Recruit => Options.RecruitCanBeGuessed,
                             CustomRoles.Contagious => Options.ContagiousCanBeGuessed,
                             CustomRoles.Undead => Options.UndeadCanBeGuessed,
                             CustomRoles.Egoist => Options.EgoistCanBeGuessed,
@@ -1064,7 +1063,6 @@ public static class GuessManager
                 [CustomRoles.Deathknight] = CustomRoles.Necromancer,
                 [CustomRoles.Undead] = CustomRoles.Necromancer,
                 [CustomRoles.Sidekick] = CustomRoles.Jackal,
-                [CustomRoles.Recruit] = CustomRoles.Jackal,
                 [CustomRoles.Charmed] = CustomRoles.Cultist,
                 [CustomRoles.Contagious] = CustomRoles.Virus,
                 [CustomRoles.Entranced] = CustomRoles.Siren

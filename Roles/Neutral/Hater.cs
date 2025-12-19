@@ -106,7 +106,7 @@ public class Hater : RoleBase
                     || (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
                          || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
-                    || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())
+                    || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal)) && CanKillSidekicks.GetBool())
                     || (target.Is(CustomRoles.Egoist) && CanKillEgoists.GetBool())
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
                 )

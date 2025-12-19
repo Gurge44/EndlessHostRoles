@@ -159,7 +159,6 @@ public static class NameColorManager
             CustomRoles.Virus when target.Is(CustomRoles.Contagious) => Main.RoleColors[CustomRoles.Contagious],
             CustomRoles.Monarch when target.Is(CustomRoles.Knighted) => Main.RoleColors[CustomRoles.Knighted],
             CustomRoles.Spiritcaller when target.Is(CustomRoles.EvilSpirit) => Main.RoleColors[CustomRoles.EvilSpirit],
-            CustomRoles.Jackal when target.Is(CustomRoles.Recruit) => Main.RoleColors[CustomRoles.Jackal],
             CustomRoles.Renegade when target.Is(CustomRoleTypes.Impostor) => Main.RoleColors[CustomRoles.ImpostorEHR],
             CustomRoles.HeadHunter when ((HeadHunter)seerRoleClass).Targets.Contains(target.PlayerId) => "000000",
             CustomRoles.BountyHunter when (seerRoleClass as BountyHunter)?.GetTarget(seer) == target.PlayerId => "000000",
@@ -204,7 +203,6 @@ public static class NameColorManager
         // Check if the role color can be seen based on the target's role
         color = targetRole switch
         {
-            CustomRoles.Jackal when seer.Is(CustomRoles.Recruit) => Main.RoleColors[CustomRoles.Jackal],
             CustomRoles.Virus when seer.Is(CustomRoles.Contagious) => Main.RoleColors[CustomRoles.Virus],
             CustomRoles.Renegade when seer.Is(CustomRoleTypes.Impostor) => Main.RoleColors[CustomRoles.Renegade],
             CustomRoles.Speedrunner when !seer.Is(Team.Crewmate) && target.GetTaskState().CompletedTasksCount >= Speedrunner.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Speedrunner.SpeedrunnerNotifyKillers.GetBool() => Main.RoleColors[CustomRoles.Speedrunner],
@@ -232,7 +230,6 @@ public static class NameColorManager
             if (target.Is(CustomRoles.Charmed)) color = Main.NeutralColor;
             if (target.Is(CustomRoles.Contagious)) color = Main.NeutralColor;
             if (target.Is(CustomRoles.Egoist)) color = Main.NeutralColor;
-            if (target.Is(CustomRoles.Recruit)) color = Main.NeutralColor;
             if (target.Is(CustomRoles.Entranced)) color = Main.CovenColor;
         }
 

@@ -840,7 +840,6 @@ internal static class CustomRolesHelper
             CustomRoles.Madmate or
             CustomRoles.Egoist or
             CustomRoles.Charmed or
-            CustomRoles.Recruit or
             CustomRoles.Contagious or
             CustomRoles.Rascal or
             CustomRoles.Entranced;
@@ -958,7 +957,6 @@ internal static class CustomRolesHelper
     {
         return role is
             CustomRoles.Charmed or
-            CustomRoles.Recruit or
             CustomRoles.Contagious or
             CustomRoles.Lovers or
             CustomRoles.Madmate or
@@ -1365,7 +1363,6 @@ internal static class CustomRolesHelper
     {
         return (role == CustomRoles.Egoist && Inspector.InspectorCheckEgoistInt() == 1) || role is
             CustomRoles.Charmed or
-            CustomRoles.Recruit or
             CustomRoles.Contagious or
             CustomRoles.Undead or
             CustomRoles.Entranced;

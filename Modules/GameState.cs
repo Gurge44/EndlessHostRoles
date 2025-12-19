@@ -126,16 +126,6 @@ public class PlayerState(byte playerId)
 
         countTypes = role.GetCountTypes();
 
-        if (SubRoles.Contains(CustomRoles.Recruit))
-        {
-            countTypes = Jackal.SidekickCountMode.GetValue() switch
-            {
-                0 => CountTypes.Jackal,
-                1 => CountTypes.OutOfGame,
-                _ => role.GetCountTypes()
-            };
-        }
-
         if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam))
             countTypes = CountTypes.CustomTeam;
 
@@ -253,7 +243,6 @@ public class PlayerState(byte playerId)
 
                 SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
@@ -273,7 +262,6 @@ public class PlayerState(byte playerId)
 
                 SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
@@ -293,7 +281,6 @@ public class PlayerState(byte playerId)
 
                 SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
@@ -313,7 +300,6 @@ public class PlayerState(byte playerId)
 
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
@@ -324,26 +310,6 @@ public class PlayerState(byte playerId)
                 break;
             case CustomRoles.LastImpostor:
                 SubRoles.Remove(CustomRoles.Mare);
-                break;
-            case CustomRoles.Recruit:
-                countTypes = Jackal.SidekickCountMode.GetInt() switch
-                {
-                    0 => CountTypes.Jackal,
-                    1 => CountTypes.OutOfGame,
-                    2 => countTypes,
-                    _ => throw new NotImplementedException()
-                };
-
-                SubRoles.Remove(CustomRoles.Entranced);
-                SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Undead);
-                Utils.NotifyRoles(SpecifySeer: Player);
-                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
@@ -356,7 +322,6 @@ public class PlayerState(byte playerId)
 
                 SubRoles.Remove(CustomRoles.Entranced);
                 SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);

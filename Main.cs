@@ -744,7 +744,6 @@ public class Main : BasePlugin
                 { CustomRoles.Autopsy, "#80ffdd" },
                 { CustomRoles.Loyal, "#B71556" },
                 { CustomRoles.Visionary, "#ff1919" },
-                { CustomRoles.Recruit, "#00b4eb" },
                 { CustomRoles.Glow, "#E2F147" },
                 { CustomRoles.Diseased, "#AAAAAA" },
                 { CustomRoles.Antidote, "#FF9876" },

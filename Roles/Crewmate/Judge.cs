@@ -167,7 +167,7 @@ public class Judge : RoleBase
 
                         judgeSuicide = true;
                     }
-                    else if (pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Charmed) || pc.Is(CustomRoles.Recruit) || pc.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Rascal) || target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool() || target.IsConverted() && CanTrialConverted.GetBool() || target.IsNeutralKiller() && CanTrialNeutralK.GetBool())
+                    else if (pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Charmed) || pc.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Rascal) || target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool() || target.IsConverted() && CanTrialConverted.GetBool() || target.IsNeutralKiller() && CanTrialNeutralK.GetBool())
                         judgeSuicide = false;
                     else if (target.Is(CustomRoles.Pestilence) || target.Is(CustomRoles.Trickster))
                         judgeSuicide = true;
