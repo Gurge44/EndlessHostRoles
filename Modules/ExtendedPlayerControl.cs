@@ -1107,7 +1107,15 @@ internal static class ExtendedPlayerControl
 
     public static void FixBlackScreen(this PlayerControl pc)
     {
-        if (pc == null || !AmongUsClient.Instance.AmHost || pc.IsModdedClient()) return;
+        if (pc == null || !AmongUsClient.Instance.AmHost) return;
+
+        if (MeetingStates.FirstMeeting)
+        {
+            pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);
+            return;
+        }
+        
+        if (pc.IsModdedClient()) return;
 
         if (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || pc.inVent || pc.inMovingPlat || pc.onLadder || !Main.AllPlayerControls.FindFirst(x => !x.IsAlive(), out var dummyGhost))
         {
