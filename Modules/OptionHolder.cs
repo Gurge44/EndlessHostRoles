@@ -1341,6 +1341,7 @@ public static class Options
         foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
         {
             if (roleOptionType == RoleOptionType.Coven_Miscellaneous) continue;
+            if (roleOptionType == RoleOptionType.Madmate) continue;
 
             TabGroup tab = roleOptionType.GetTabFromOptionType();
             Color roleOptionTypeColor = roleOptionType.GetRoleOptionTypeColor();
@@ -1595,16 +1596,6 @@ public static class Options
                 catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
 
                 yield return null;
-            }
-
-            if (roleClasses.Key == RoleOptionType.Impostor_Miscellaneous)
-            {
-                new TextOptionItem(titleId, "ROT.MadMates", TabGroup.ImpostorRoles)
-                    .SetHeader(true)
-                    .SetGameMode(CustomGameMode.Standard)
-                    .SetColor(Palette.ImpostorRed);
-
-                titleId += 10;
             }
 
             yield return null;
