@@ -1330,6 +1330,7 @@ internal static class ReportDeadBodyPatch
         FortuneTeller.DidVote.Clear();
         Oracle.DidVote.Clear();
 
+        Imitator.ImitatingRole.ToArray().DoIf(x => !Main.PlayerStates.TryGetValue(x.Key, out var s) || s.MainRole != x.Value, x => Imitator.ImitatingRole.Remove(x.Key));
         Imitator.ImitatingRole.SetAllValues(CustomRoles.Imitator);
 
         foreach (PlayerState state in Main.PlayerStates.Values)
