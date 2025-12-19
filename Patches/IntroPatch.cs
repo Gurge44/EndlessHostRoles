@@ -654,7 +654,8 @@ internal static class BeginCrewmatePatch
                     CustomRoles.Workaholic
                     => HudManager.Instance.TaskCompleteSound,
 
-                CustomRoles.Helper or
+                CustomRoles.Bestower or
+                    CustomRoles.Helper or
                     CustomRoles.TaskManager
                     => HudManager.Instance.TaskUpdateSound,
 
@@ -807,6 +808,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Exclusionary
                     or CustomRoles.Stalker
                     or CustomRoles.SoulCatcher
+                    or CustomRoles.SoulCollector
                     or CustomRoles.SoulHunter
                     => GetIntroSound(RoleTypes.Phantom),
 
