@@ -21,7 +21,6 @@ internal static class CustomTeamManager
 
             CustomTeams = File.ReadAllLines($"{Main.DataPath}/EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
             RefreshCustomOptions();
-            UpdateEnabledTeams();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -46,14 +45,14 @@ internal static class CustomTeamManager
             var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
             var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
             var arrows = new BooleanOptionItem(id++, "CTA.Arrows", true, tab);
-            var maxPlayers = new IntegerOptionItem(id++, "CTA.MaxPlayersAssignedToTeam", new(1, 15, 1), 15, tab);
+            var maxPlayers = new IntegerOptionItem(id++, "CTA.MaxPlayersAssignedToTeam", new(0, 15, 1), 15, tab);
 
             var teamPlayerCounts = new Dictionary<Team, IntegerOptionItem[]>();
 
             foreach (Team teamType in Enum.GetValues<Team>()[1..])
             {
-                var min = new IntegerOptionItem(id++, "CTA.MinPlayers." + teamType, new(1, 15, 1), 1, tab);
-                var max = new IntegerOptionItem(id++, "CTA.MaxPlayers." + teamType, new(1, 15, 1), 15, tab);
+                var min = new IntegerOptionItem(id++, "CTA.MinPlayers." + teamType, new(0, 15, 1), 1, tab);
+                var max = new IntegerOptionItem(id++, "CTA.MaxPlayers." + teamType, new(0, 15, 1), 15, tab);
                 teamPlayerCounts[teamType] = [min, max];
             }
 
