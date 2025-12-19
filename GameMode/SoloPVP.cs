@@ -239,7 +239,7 @@ internal static class SoloPVP
         PlayerHP[pc.PlayerId] = PlayerHPMax[pc.PlayerId];
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
         pc.ReviveFromTemporaryExile();
-        RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
+        RPC.PlaySoundRPC(pc.PlayerId, Sounds.SpawnSound);
         SpawnMap.GetSpawnMap().RandomTeleport(pc);
         Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
     }
