@@ -1,5 +1,6 @@
 ﻿using System;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate;
 
@@ -57,6 +58,7 @@ public class Bestower : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         float give = GivenUses.GetFloat();
+        RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskUpdateSound);
         target.RpcIncreaseAbilityUseLimitBy(give);
         killer.Notify(string.Format(Translator.GetString("Bestower.GaveNotify"), Math.Round(give, 2)));
         killer.RpcRemoveAbilityUse();

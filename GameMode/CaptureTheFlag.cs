@@ -761,7 +761,7 @@ public static class CaptureTheFlag
                     TemporarilyOutPlayers.Remove(__instance.PlayerId);
                     __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);
-                    RPC.PlaySoundRPC(__instance.PlayerId, Sounds.TaskComplete);
+                    RPC.PlaySoundRPC(__instance.PlayerId, Sounds.SpawnSound);
                     Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
                 }
                 else if (GameEndCriteria.GetValue() != 2)

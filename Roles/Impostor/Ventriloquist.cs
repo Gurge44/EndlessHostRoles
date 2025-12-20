@@ -1,4 +1,10 @@
-﻿namespace EHR.Impostor;
+using System;
+using System.Linq;
+﻿using EHR.Modules;
+using Hazel;
+using UnityEngine;
+
+namespace EHR.Impostor;
 
 public class Ventriloquist : RoleBase
 {
@@ -39,5 +45,60 @@ public class Ventriloquist : RoleBase
     {
         var command = $"/target {target.PlayerId}";
         ChatCommands.TargetCommand(shapeshifter, command, command.Split(' '));
+    }
+
+    public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
+    {
+        int playerId = reader.ReadByte();
+        var command = $"/target {playerId}";
+        ChatCommands.TargetCommand(pc, command, command.Split(' '));
+    }
+
+    private static void VentriloquisttOnClick(byte playerId /*, MeetingHud __instance*/)
+    {
+        Logger.Msg($"Click: ID {playerId}", "Ventriloquist UI");
+        PlayerControl pc = Utils.GetPlayerById(playerId);
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            var command = $"/target {playerId}";
+            ChatCommands.TargetCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VentriloquistClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
+            writer.Write(playerId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    }
+
+    public static void CreateVentriloquistButton(MeetingHud __instance)
+    {
+        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        {
+            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            if (pc == null || !pc.IsAlive()) continue;
+
+            GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
+            targetBox.name = "ShootButton";
+            targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
+            var renderer = targetBox.GetComponent<SpriteRenderer>();
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Hack.png", 160f);
+            var button = targetBox.GetComponent<PassiveButton>();
+            button.OnClick.RemoveAllListeners();
+            button.OnClick.AddListener((Action)(() => VentriloquisttOnClick(pva.TargetPlayerId)));
+        }
+    }
+
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Ventriloquist) && PlayerControl.LocalPlayer.IsAlive())
+                CreateVentriloquistButton(__instance);
+        }
     }
 }
