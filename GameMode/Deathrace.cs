@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using Hazel;
-using InnerNet;
 using UnityEngine;
 
 namespace EHR;
@@ -16,7 +14,6 @@ public static class Deathrace
     public static Dictionary<byte, PlayerData> Data = [];
     public static long LastPowerUpSpawn;
     public static List<DeathracePowerUp> SpawnedPowerUps = [];
-    
     public static bool GameGoing;
     
     // Settings
@@ -371,13 +368,16 @@ public static class Deathrace
         if (!SpawnPowerUps || !Data.TryGetValue(killer.PlayerId, out var data) || data.PowerUps.Count == 0) return;
         PowerUp powerUp = data.PowerUps[0];
         if (powerUp != PowerUp.Taser) return;
+        killer.RPCPlayCustomSound("Line");
         data.PowerUps.RemoveAt(0);
         Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
+        target.RPCPlayCustomSound("Bite");
         target.MarkDirtySettings();
         LateTask.New(() =>
         {
             if (target == null) return;
             Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
             target.MarkDirtySettings();
         }, PowerUpEffectDuration, $"Taser Revert ({Main.AllPlayerNames.GetValueOrDefault(killer.PlayerId, $"ID {killer.PlayerId}")} => {Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, $"ID {target.PlayerId}")})");
     }
@@ -392,6 +392,7 @@ public static class Deathrace
     {
         if (!SpawnPowerUps || !Data.TryGetValue(pc.PlayerId, out var data) || data.PowerUps.Count == 0) return;
         PowerUp powerUp = data.PowerUps[0];
+        pc.RPCPlayCustomSound("Line");
         data.PowerUps.RemoveAt(0);
         PlayerControl[] playersInRange = Utils.GetPlayersInRadius(PowerUpEffectRange, pc.Pos()).Without(pc).ToArray();
 
@@ -444,6 +445,7 @@ public static class Deathrace
                 {
                     if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
                     state.IsBlackOut = true;
+                    player.RPCPlayCustomSound("FlashBang");
                     player.MarkDirtySettings();
                 }
                 
@@ -453,6 +455,7 @@ public static class Deathrace
                     {
                         if (player == null || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || !state.IsBlackOut) continue;
                         state.IsBlackOut = false;
+                        RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                         player.MarkDirtySettings();
                     }
                 }, PowerUpEffectDuration, $"Grenade Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
@@ -463,6 +466,7 @@ public static class Deathrace
                 foreach (PlayerControl player in playersInRange)
                 {
                     Main.AllPlayerSpeed[player.PlayerId] *= -1;
+                    RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
                     player.MarkDirtySettings();
                 }
                 
@@ -472,6 +476,7 @@ public static class Deathrace
                     {
                         if (player == null || Main.AllPlayerSpeed[player.PlayerId] >= 0f) continue;
                         Main.AllPlayerSpeed[player.PlayerId] *= -1;
+                        RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                         player.MarkDirtySettings();
                     }
                 }, PowerUpEffectDuration, $"Ice Revert ({Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, $"ID {pc.PlayerId}")})");
@@ -530,10 +535,12 @@ public static class Deathrace
                     data.LastRoom = data.NextRoom;
                     int index = Track.IndexOf(data.NextRoom);
                     bool endOfTrack = Clockwise ? index == Track.Count - 1 : index == 0;
+                    if (index != - 1) RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
 
                     if (endOfTrack)
                     {
                         data.Lap++;
+                        RPC.PlaySoundRPC(id, Sounds.TaskComplete);
                         Utils.SendRPC(CustomRPC.DeathraceSync, id, data.Lap);
                         
                         if (data.Lap >= LapsToWin)
@@ -558,11 +565,8 @@ public static class Deathrace
 
                         data.NextRoom = Clockwise ? Track[0] : Track[^1];
                     }
-                    else
-                    {
-                        data.NextRoom = Clockwise ? Track[index + 1] : Track[index - 1];
-                    }
-                    
+                    else data.NextRoom = Clockwise ? Track[index + 1] : Track[index - 1];
+
                     Logger.Info($"{Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}")} entered {data.LastRoom}, next is {data.NextRoom}", "Deathrace");
                 }
                 else if (!coordinateCheck && InitialSpawnRoom[Main.CurrentMap] != room.RoomId)
