@@ -255,7 +255,7 @@ public class CustomLogger
     public void Finish(bool dump = true)
     {
         var append = Builder.ToString();
-        if (string.IsNullOrEmpty(append.Trim())) return;
+        if (string.IsNullOrWhiteSpace(append)) return;
         if (dump) append += HtmlFooter;
         File.AppendAllText(LOGFilePath, append);
         PrivateInstance = null;

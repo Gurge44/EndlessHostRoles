@@ -1306,7 +1306,7 @@ public static class GuessManager
                 if (!NetIdToRawDisplay.TryGetValue(target.NetId, out display))
                     display = string.Empty;
 
-                if (string.IsNullOrEmpty(display))
+                if (string.IsNullOrWhiteSpace(display))
                 {
                     Reset();
                     return false;

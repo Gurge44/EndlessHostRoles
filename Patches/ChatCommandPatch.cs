@@ -427,7 +427,7 @@ internal static class ChatCommands
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
             goto Canceled;
 
-        if (text.IsNullOrWhiteSpace() || string.IsNullOrEmpty(text))
+        if (string.IsNullOrWhiteSpace(text))
             goto Canceled;
 
         goto Skip;
@@ -585,7 +585,7 @@ internal static class ChatCommands
         if (args.Length >= 2)
         {
             string uuid = args[1].Trim();
-            if (string.IsNullOrEmpty(uuid)) return;
+            if (string.IsNullOrWhiteSpace(uuid)) return;
 
             Main.Instance.StartCoroutine(SendVerificationCoroutine(uuid));
         }
@@ -598,13 +598,13 @@ internal static class ChatCommands
             string puid = player.GetClient().ProductUserId;
             var gameId = AmongUsClient.Instance.GameId.ToString();
 
-            if (string.IsNullOrEmpty(friendCode) || string.IsNullOrEmpty(puid))
+            if (string.IsNullOrWhiteSpace(friendCode) || string.IsNullOrWhiteSpace(puid))
             {
                 Logger.Error($" Missing friendcode/puid for player {player.PlayerId}", "ConfirmAuth");
                 yield break;
             }
 
-            if (string.IsNullOrEmpty(gameId) || gameId == "32")
+            if (string.IsNullOrWhiteSpace(gameId) || gameId == "32")
             {
                 Logger.Error(" Invalid GameId", "ConfirmAuth");
                 yield break;
@@ -2163,7 +2163,7 @@ internal static class ChatCommands
 
         string subArgs = args.Length < 2 ? string.Empty : args[1];
 
-        if (string.IsNullOrEmpty(subArgs) || !byte.TryParse(subArgs, out byte kickPlayerId))
+        if (string.IsNullOrWhiteSpace(subArgs) || !byte.TryParse(subArgs, out byte kickPlayerId))
         {
             Utils.SendMessage(GetString("KickCommandInvalidID"), player.PlayerId, sendOption: SendOption.None);
             return;
@@ -2204,7 +2204,7 @@ internal static class ChatCommands
             if (!File.Exists(modLogFilePath))
             {
                 string directoryName = Path.GetDirectoryName(modLogFilePath);
-                if (!string.IsNullOrEmpty(directoryName)) Directory.CreateDirectory(directoryName);
+                if (!string.IsNullOrWhiteSpace(directoryName)) Directory.CreateDirectory(directoryName);
                 File.WriteAllText(modLogFilePath, "=== Moderation Log ===\n");
             }
         

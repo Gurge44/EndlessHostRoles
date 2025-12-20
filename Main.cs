@@ -921,7 +921,7 @@ public class Main : BasePlugin
             try
             {
                 string json = File.ReadAllText(path);
-                if (string.IsNullOrEmpty(json) || json == serialized || json.Length < serialized.Length) return;
+                if (string.IsNullOrWhiteSpace(json) || json == serialized || json.Length < serialized.Length) return;
                 var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
                 RoleColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
             }

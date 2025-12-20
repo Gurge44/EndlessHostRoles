@@ -72,7 +72,7 @@ public static class DevManager
 
         public bool HasTag()
         {
-            return !string.IsNullOrEmpty(tag_name);
+            return !string.IsNullOrWhiteSpace(tag_name);
         }
 
         public string GetTag()

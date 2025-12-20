@@ -88,6 +88,6 @@ public class Doorjammer : RoleBase
     {
         if (seer.PlayerId != DoorjammerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
         string join = string.Join(", ", JammedRooms.ConvertAll(x => Translator.GetString(x.ToString())));
-        return string.Format(Translator.GetString("Doorjammer.Suffix"), JammedRooms.Count, MaxRoomsJammedAtOnce.GetInt(), string.IsNullOrEmpty(join.Trim()) ? string.Empty : $"\n<size=80%>{join}</size>");
+        return string.Format(Translator.GetString("Doorjammer.Suffix"), JammedRooms.Count, MaxRoomsJammedAtOnce.GetInt(), string.IsNullOrWhiteSpace(join) ? string.Empty : $"\n<size=80%>{join}</size>");
     }
 }

@@ -109,14 +109,16 @@ internal static class ExileControllerWrapUpPatch
         }
 
         if (exiled == null) return;
-        byte id = exiled.PlayerId;
+        PlayerControl exiledPlayer = exiled.Object;
 
         LateTask.New(() =>
         {
-            if (GameStates.IsEnded) return;
-            PlayerControl player = id.GetPlayer();
-            if (player != null) Utils.AfterPlayerDeathTasks(player, true);
-        }, 2.5f, "AfterPlayerDeathTasks For Exiled Player");
+            if (!GameStates.IsEnded && exiledPlayer != null)
+            {
+                exiledPlayer.RpcExileV2();
+                Utils.AfterPlayerDeathTasks(exiledPlayer, true);
+            }
+        }, 3.5f, "AfterPlayerDeathTasks For Exiled Player");
     }
 
     public static void WrapUpFinalizer()
@@ -151,7 +153,7 @@ internal static class ExileControllerWrapUpPatch
             string finalText = ejectionNotify ? "<#ffffff>" + CheckForEndVotingPatch.EjectionText.Trim() : text;
             if (Options.EnableGameTimeLimit.GetBool()) finalText += $"\n<#888888>{Options.GameTimeLimit.GetInt() - Main.GameTimer:N0}s {Translator.GetString("RemainingText.Suffix")}";
 
-            if (!string.IsNullOrEmpty(finalText))
+            if (!string.IsNullOrWhiteSpace(finalText))
                 Main.AllAlivePlayerControls.NotifyPlayers(finalText, 13f);
         }
 

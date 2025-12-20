@@ -293,7 +293,7 @@ internal static class HudManagerPatch
                             CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
                             CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
                             _ => string.Empty
-                        }).Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                        }).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
                         return suffixes.Length > 0
                             ? $"\n{string.Join('\n', suffixes)}"

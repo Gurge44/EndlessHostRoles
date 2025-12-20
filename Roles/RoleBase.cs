@@ -241,7 +241,7 @@ public class OptionSetupHandler(int id, TabGroup tab, CustomRoles role)
     {
         try
         {
-            bool generalOption = !Translator.GetString(fieldName).Contains("INVALID");
+            bool generalOption = !Translator.GetString(fieldName).StartsWith('*');
             string name = overrideName == "" ? generalOption ? fieldName : $"{role}.{fieldName}" : overrideName;
 
             field = (valueRule, defaultValue) switch

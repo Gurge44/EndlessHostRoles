@@ -65,7 +65,7 @@ public static class ModUpdater
         {
             FirstNotify = false;
             
-            if (!string.IsNullOrEmpty(LatestTitleModName))
+            if (!string.IsNullOrWhiteSpace(LatestTitleModName))
                 ShowPopupWithTwoButtons(string.Format(GetString("NewUpdateAvailable"), LatestTitleModName), GetString("updateButton"), onClickOnFirstButton: () => StartUpdate(DownloadUrl, true));
         }
     }
@@ -146,7 +146,7 @@ public static class ModUpdater
             Logger.Info("latestVersionl: " + LatestVersion, "GitHub");
             Logger.Info("latestTitle: " + LatestTitle, "GitHub");
 
-            if (string.IsNullOrEmpty(DownloadUrl))
+            if (string.IsNullOrWhiteSpace(DownloadUrl))
             {
                 Logger.Error("No Download URL", "CheckRelease");
                 return false;
@@ -361,7 +361,7 @@ public static class ModUpdater
                 var secondButtonGetChild = secondButton.GetChild(0);
                 secondButtonGetChild.GetComponent<TextTranslatorTMP>().TargetText = StringNames.Cancel;
                 secondButtonGetChild.GetComponent<TextTranslatorTMP>().ResetText();
-                if (!string.IsNullOrEmpty(secondButtonText))
+                if (!string.IsNullOrWhiteSpace(secondButtonText))
                 {
                     secondButtonGetChild.GetComponent<TextTranslatorTMP>().DestroyTranslator();
                     secondButtonGetChild.GetComponent<TextMeshPro>().text = secondButtonText;

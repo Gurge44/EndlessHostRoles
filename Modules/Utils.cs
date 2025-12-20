@@ -2379,9 +2379,9 @@ public static class Utils
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
-            string tempSuffix = state.Role.GetSuffix(seer, target, hud, meeting).Trim();
+            string tempSuffix = state.Role.GetSuffix(seer, target, hud, meeting);
 
-            if (!string.IsNullOrEmpty(tempSuffix))
+            if (!string.IsNullOrWhiteSpace(tempSuffix))
                 suffix.Append($"{tempSuffix}\n");
         }
 
@@ -2537,11 +2537,7 @@ public static class Utils
 
                 SelfSuffix.Append(BuildSuffix(seer, seer, meeting: forMeeting));
 
-                foreach (var suffix in new[] { Spurt.GetSuffix(seer), Dynamo.GetSuffix(seer), CustomTeamManager.GetSuffix(seer) })
-                {
-                    var trimmedSuffix = suffix.Trim();
-                    if (!string.IsNullOrEmpty(trimmedSuffix)) SelfSuffix.Append("\n" + trimmedSuffix);
-                }
+                new[] { Spurt.GetSuffix(seer), Dynamo.GetSuffix(seer), CustomTeamManager.GetSuffix(seer) }.DoIf(x => !string.IsNullOrWhiteSpace(x), x => SelfSuffix.Append("\n" + x));
 
                 if (!forMeeting)
                 {
@@ -2640,7 +2636,7 @@ public static class Utils
                         break;
                 }
 
-                List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+                List<string> addSuff = additionalSuffixes.FindAll(x => !string.IsNullOrWhiteSpace(x));
                 
                 if (addSuff.Count > 0)
                 {
@@ -2993,7 +2989,7 @@ public static class Utils
                                         break;
                                 }
 
-                                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.Speedrun)
+                                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrWhiteSpace(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.Speedrun)
                                     additionalSuffixes.Add(GetString("DiedR1Warning"));
 
                                 if (!forMeeting)
@@ -3004,7 +3000,7 @@ public static class Utils
 
                                 TargetSuffix.Append(BuildSuffix(seer, target, meeting: forMeeting));
 
-                                List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+                                List<string> addSuff = additionalSuffixes.FindAll(x => !string.IsNullOrWhiteSpace(x));
                                 
                                 if (addSuff.Count > 0)
                                 {

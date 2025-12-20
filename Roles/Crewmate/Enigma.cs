@@ -280,7 +280,7 @@ public class Enigma : RoleBase
         {
             var letter2 = string.Empty;
             string tmpName = killerName.Replace(letter, string.Empty);
-            if (!string.IsNullOrEmpty(tmpName)) letter2 = tmpName.Where(char.IsLetter).RandomElement().ToString().ToLower();
+            if (!string.IsNullOrWhiteSpace(tmpName)) letter2 = tmpName.Where(char.IsLetter).RandomElement().ToString().ToLower();
 
             return string.Format(GetString("EnigmaClueName3"), letter, letter2);
         }

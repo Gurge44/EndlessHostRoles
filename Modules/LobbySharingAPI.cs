@@ -23,7 +23,7 @@ public static class LobbySharingAPI
         if (gameId == 32) return;
 
         string roomCode = GameCode.IntToGameName(gameId);
-        if (roomCode == LastRoomCode || roomCode.IsNullOrWhiteSpace() || string.IsNullOrEmpty(roomCode)) return;
+        if (roomCode == LastRoomCode || string.IsNullOrWhiteSpace(roomCode)) return;
         LastRoomCode = roomCode;
 
         int modLanguage = Options.ModLanguage.GetValue();
@@ -105,7 +105,7 @@ public static class LobbySharingAPI
 
     private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus, int players, string map, string gameMode)
     {
-        if (string.IsNullOrEmpty(Token)) yield break;
+        if (string.IsNullOrWhiteSpace(Token)) yield break;
 
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);

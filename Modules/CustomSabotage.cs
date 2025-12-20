@@ -59,9 +59,9 @@ public abstract class CustomSabotage
 
         foreach (CustomSabotage sabotage in Instances)
         {
-            string tempSuffix = sabotage.GetSuffix(seer, target, hud, meeting).Trim();
+            string tempSuffix = sabotage.GetSuffix(seer, target, hud, meeting);
 
-            if (!string.IsNullOrEmpty(tempSuffix))
+            if (!string.IsNullOrWhiteSpace(tempSuffix))
                 suffix.Append($"{tempSuffix}\n");
         }
 

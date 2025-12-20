@@ -677,7 +677,7 @@ internal static class EAC
                         string secondString = sr.ReadString();
                         sr.ReadInt32();
 
-                        bool flag = string.IsNullOrEmpty(firstString) && string.IsNullOrEmpty(secondString);
+                        bool flag = string.IsNullOrWhiteSpace(firstString) && string.IsNullOrWhiteSpace(secondString);
 
                         if (!flag)
                         {
@@ -731,7 +731,7 @@ internal static class EAC
                         string firstString = sr.ReadString();
                         string secondString = sr.ReadString();
                         sr.ReadInt32();
-                        bool flag = string.IsNullOrEmpty(firstString) && string.IsNullOrEmpty(secondString);
+                        bool flag = string.IsNullOrWhiteSpace(firstString) && string.IsNullOrWhiteSpace(secondString);
 
                         if (!flag)
                         {
@@ -1289,7 +1289,7 @@ internal static class GameDataHandlerPatch
                     return false;
                 }
 
-                if (string.IsNullOrEmpty(scene))
+                if (string.IsNullOrWhiteSpace(scene))
                 {
                     Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag with null scene.", "GameDataHandlerPatch");
                     EAC.WarnHost();

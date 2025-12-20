@@ -568,7 +568,7 @@ internal static class CheckMurderPatch
                 return false;
         }
 
-        if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode))
+        if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrWhiteSpace(target.FriendCode))
         {
             Main.ShieldPlayer = string.Empty;
             killer.SetKillCooldown(15f);
@@ -1468,7 +1468,7 @@ internal static class FixedUpdatePatch
             
             long now = TimeStamp;
             string nameWithRole = __instance.GetNameWithRole();
-            if (string.IsNullOrEmpty(nameWithRole.Trim())) return;
+            if (string.IsNullOrWhiteSpace(nameWithRole)) return;
 
             if (LastErrorTS != now)
             {
@@ -1983,10 +1983,10 @@ internal static class FixedUpdatePatch
                     break;
             }
 
-            if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
+            if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrWhiteSpace(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
                 additionalSuffixes.Add(GetString("DiedR1Warning"));
 
-            List<string> addSuff = additionalSuffixes.ConvertAll(x => x.Trim()).FindAll(x => !string.IsNullOrEmpty(x));
+            List<string> addSuff = additionalSuffixes.FindAll(x => !string.IsNullOrWhiteSpace(x));
             
             if (addSuff.Count > 0)
             {

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
 using UnityEngine;
+using UnityEngine.Networking;
 using static EHR.Translator;
 
 namespace EHR;
@@ -52,17 +53,51 @@ public static class BanManager
                 Logger.Warn("Creating a new WhiteList.txt file", "BanManager");
                 File.Create(WhiteListListPath).Close();
             }
+            
+            Main.Instance.StartCoroutine(LoadEACList());
 
-            // Read EAC List
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Config.EACList.txt")!;
-            stream.Position = 0;
-            using StreamReader sr = new(stream, Encoding.UTF8);
-
-            while (sr.ReadLine() is { } line)
+            static System.Collections.IEnumerator LoadEACList()
             {
-                if (line == "" || line.StartsWith("#")) continue;
+                EACList.Clear();
 
-                EACList.Add(line);
+                UnityWebRequest request = UnityWebRequest.Get("https://raw.githubusercontent.com/Gurge44/EndlessHostRoles/main/Resources/Config/EACList.txt");
+                request.timeout = 5;
+                request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
+                
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success && !string.IsNullOrWhiteSpace(request.downloadHandler.text))
+                {
+                    using StringReader reader = new(request.downloadHandler.text);
+
+                    while (reader.ReadLine() is { } line)
+                    {
+                        line = line.Trim();
+                        if (line.Length == 0 || line.StartsWith("#")) continue;
+
+                        EACList.Add(line);
+                    }
+
+                    Logger.Info("EAC list loaded from GitHub", "BanManager");
+                    yield break;
+                }
+
+                Logger.Warn($"Failed to load EAC list from GitHub, falling back to local copy: {request.error}", "BanManager");
+
+                // Fallback: embedded resource
+                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Config.EACList.txt")!;
+                stream.Position = 0;
+                using StreamReader sr = new(stream, Encoding.UTF8);
+
+                while (sr.ReadLine() is { } line)
+                {
+                    line = line.Trim();
+                    if (line == "" || line.StartsWith("#")) continue;
+
+                    EACList.Add(line);
+                }
+
+                Logger.Info("EAC list loaded from embedded resource", "BanManager");
             }
         }
         catch (Exception ex) { Logger.Exception(ex, "BanManager"); }
@@ -99,7 +134,7 @@ public static class BanManager
 
         if (!CheckBanList(friendCode, hashedPuid) && !TempBanWhiteList.Contains(hashedPuid))
         {
-            if (!string.IsNullOrEmpty(hashedPuid))
+            if (!string.IsNullOrWhiteSpace(hashedPuid))
             {
                 File.AppendAllText(BanListPath, $"{friendCode},{hashedPuid},{player.PlayerName.RemoveHtmlTags()}\n");
                 Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName), Color.yellow);
