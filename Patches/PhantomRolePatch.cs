@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
