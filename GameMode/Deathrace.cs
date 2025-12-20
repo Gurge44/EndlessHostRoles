@@ -515,6 +515,7 @@ public static class Deathrace
 
                 if (SpawnedPowerUps.FindFirst(x => Vector2.Distance(data.Player.Pos(), x.Position) <= PowerUpPickupRange, out var powerUp))
                 {
+                    RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
                     data.PowerUps.Add(powerUp.PowerUp);
                     SpawnedPowerUps.Remove(powerUp);
                     powerUp.Despawn();
