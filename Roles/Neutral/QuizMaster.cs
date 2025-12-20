@@ -180,6 +180,7 @@ internal class QuizMaster : RoleBase
         return killer.CheckDoubleTrigger(target, () =>
         {
             Target = target.PlayerId;
+            killer.RPCPlayCustomSound("Clothe");
             killer.SetKillCooldown(MarkCooldown.GetFloat());
         });
     }
