@@ -1292,11 +1292,9 @@ internal static class ChatCommands
         PlayerState state = Main.PlayerStates[pc.PlayerId];
         state.deathReason = PlayerState.DeathReason.Kill;
         state.RealKiller.ID = player.PlayerId;
-        state.SetDead();
-
-        pc.RpcExileV2();
-        Utils.AfterPlayerDeathTasks(pc, true);
+        
         pc.RpcGuesserMurderPlayer();
+        Utils.AfterPlayerDeathTasks(pc, true);
 
         string coloredName = deadPlayer.ColoredPlayerName();
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathNoteCommand.Success"), coloredName), sendOption: SendOption.None);
@@ -3804,3 +3802,4 @@ internal static class RpcSendChatPatch
         return false;
     }
 }
+
