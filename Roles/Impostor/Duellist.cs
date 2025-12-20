@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Neutral;
@@ -49,6 +49,11 @@ public class Duellist : RoleBase
         AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
     }
 
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(Translator.GetString("SoulCatcherButtonText"));
+    }
+
     public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
     {
         if (!IsEnable) return false;
@@ -69,6 +74,9 @@ public class Duellist : RoleBase
 
             duellist.TP(pos);
             DuelPair[duellist.PlayerId] = target.PlayerId;
+
+            duellist.RPCPlayCustomSound("Teleport");
+            target.RPCPlayCustomSound("Teleport");
         }
         else
             duellist.Notify(GetString("TargetCannotBeTeleported"));
@@ -107,4 +115,3 @@ public class Duellist : RoleBase
             }
         }
     }
-}
