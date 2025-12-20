@@ -642,6 +642,7 @@ public static class BedWars
 
                     if (!allowed)
                     {
+                        RPC.PlaySoundRPC(__instance.PlayerId, Sounds.ImpDiscovered);
                         __instance.Notify(Translator.GetString("Bedwars.YouCannotLeaveRoomInGracePeriod"));
                         __instance.TP(data.Base.SpawnPosition);
                     }
@@ -663,7 +664,6 @@ public static class BedWars
                     {
                         InShop[__instance.PlayerId] = nearestShop.shop;
                         nearestShop.shop.EnterShop(__instance);
-                        RPC.PlaySoundRPC(__instance.PlayerId, Sounds.TaskUpdateSound);
                         Logger.Info($"{__instance.GetRealName()} entered {nearestShop.shop.GetType().Name}", "BedWars");
                         if (__instance.AmOwner) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }
@@ -1078,6 +1078,7 @@ public static class BedWars
         public virtual void EnterShop(PlayerControl pc)
         {
             if (pc == null || !pc.IsAlive()) return;
+            RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
             SelectionIndex.TryAdd(pc.PlayerId, 0);
         }
 
@@ -1177,8 +1178,8 @@ public static class BedWars
         public override void EnterShop(PlayerControl pc)
         {
             if (pc == null || !pc.IsAlive()) return;
-            RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
             SelectionIndex.TryAdd(pc.PlayerId, 0);
+            RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
             CategoryIndex.TryAdd(pc.PlayerId, 0);
         }
 
