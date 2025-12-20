@@ -180,8 +180,6 @@ internal static class ChangeRoleSettings
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
             }
 
-            Utils.GameStartTimeStamp = Utils.TimeStamp;
-
             Main.GameEndDueToTimer = false;
 
             try
