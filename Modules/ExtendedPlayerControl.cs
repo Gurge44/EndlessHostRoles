@@ -441,6 +441,7 @@ internal static class ExtendedPlayerControl
         
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
 
+        RPC.PlaySoundRPC(player.PlayerId, Sounds.SpawnSound);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         state.RealKiller = (DateTime.MinValue, byte.MaxValue);
         state.IsDead = false;
