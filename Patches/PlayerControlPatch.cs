@@ -1509,7 +1509,7 @@ internal static class FixedUpdatePatch
             {
                 Camouflage.OnFixedUpdate(player);
 
-                if (self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.Snowdown && GameStartTimeStamp + 44 == TimeStamp)
+                if (self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.Snowdown && IntroCutsceneDestroyPatch.IntroDestroyTS + 20 == TimeStamp)
                     NotifyRoles();
             }
         }
@@ -1996,7 +1996,7 @@ internal static class FixedUpdatePatch
                 Suffix.Append(string.Join('\n', addSuff));
             }
 
-            if (self && GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
+            if (self && IntroCutsceneDestroyPatch.IntroDestroyTS + 20 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                 Suffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
 
             // Devourer

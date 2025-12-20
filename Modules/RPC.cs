@@ -197,7 +197,7 @@ public enum Sounds
     LobbyTimerPopUp,
     SpawnSound,
     ImpTransform,
-    YeehawTransform
+    YeehawSound
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]

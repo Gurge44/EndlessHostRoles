@@ -707,7 +707,7 @@ internal static class ShipStatusFixedUpdatePatch
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.InGame || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
-            if (Utils.GameStartTimeStamp + 30 > Utils.TimeStamp) return;
+            if (IntroCutsceneDestroyPatch.IntroDestroyTS + 5 > Utils.TimeStamp) return;
 
             if (Count++ < 40) return;
             Count = 0;

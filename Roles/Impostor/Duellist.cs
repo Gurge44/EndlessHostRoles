@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -116,3 +116,4 @@ public class Duellist : RoleBase
             }
         }
     }
+}

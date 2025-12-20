@@ -92,8 +92,6 @@ public static class Utils
 
     private static long LastNotifyRolesErrorTS = TimeStamp;
 
-    public static long GameStartTimeStamp;
-
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModdedClient() && !x.IsHost());
@@ -2691,7 +2689,7 @@ public static class Utils
                     }
                 }
 
-                if (GameStartTimeStamp + 44 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
+                if (IntroCutsceneDestroyPatch.IntroDestroyTS + 20 > TimeStamp && Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs) && !playedFCs.Contains(seer.FriendCode))
                     SelfSuffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
             }
 
