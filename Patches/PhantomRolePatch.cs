@@ -6,8 +6,6 @@ using EHR.Impostor;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem.Collections.Generic;
-using UnityEngine;
 
 namespace EHR.Patches;
 // By TommyXL & NikoCat233
