@@ -535,7 +535,7 @@ public static class Deathrace
                     data.LastRoom = data.NextRoom;
                     int index = Track.IndexOf(data.NextRoom);
                     bool endOfTrack = Clockwise ? index == Track.Count - 1 : index == 0;
-                    if (index != - 1) RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
+                    if (!endOfTrack) RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
 
                     if (endOfTrack)
                     {
