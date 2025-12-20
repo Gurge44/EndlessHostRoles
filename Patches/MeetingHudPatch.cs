@@ -1156,6 +1156,7 @@ internal static class MeetingHudStartPatch
         Imitator.StartMeetingPatch.Postfix(__instance);
         Retributionist.StartMeetingPatch.Postfix(__instance);
         Starspawn.StartMeetingPatch.Postfix(__instance);
+        Ventriloquist.StartMeetingPatch.Postfix(__instance);
         ShowHostMeetingPatch.Setup_Postfix(__instance);
 #if !ANDROID
         Crowded.MeetingHudStartPatch.Postfix(__instance);
@@ -1547,4 +1548,5 @@ internal static class ExileControllerBeginPatch
         if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
             __instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
     }
+
 }

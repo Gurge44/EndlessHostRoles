@@ -66,7 +66,7 @@ internal static class ExtendedPlayerControl
     public static bool UsesMeetingShapeshift(this PlayerControl player)
     {
         CustomRoles role = player.GetCustomRole();
-        if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Judge or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Retributionist) return false;
+        if (player.IsModdedClient() && role is CustomRoles.Councillor or CustomRoles.Inspector or CustomRoles.Judge or CustomRoles.Retributionist or CustomRoles.Starspawn or CustomRoles.Swapper or CustomRoles.Ventriloquist) return false;
         return role.UsesMeetingShapeshift();
     }
 
@@ -441,6 +441,7 @@ internal static class ExtendedPlayerControl
         
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
 
+        RPC.PlaySoundRPC(player.PlayerId, Sounds.SpawnSound);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         state.RealKiller = (DateTime.MinValue, byte.MaxValue);
         state.IsDead = false;

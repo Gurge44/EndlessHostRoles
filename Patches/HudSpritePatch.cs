@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Neutral;
@@ -190,6 +190,7 @@ public static class HudSpritePatch
 
                     break;
                 }
+                case CustomRoles.Duellist:
                 case CustomRoles.SoulCatcher:
                 case CustomRoles.Twister:
                 {
@@ -315,6 +316,7 @@ public static class HudSpritePatch
                     break;
                 }
                 case CustomRoles.Gangster when Gangster.CanRecruit(player.PlayerId):
+                case CustomRoles.Jackal when player.GetAbilityUseLimit() > 0:
                 {
                     newKillButton = CustomButton.Get("Sidekick");
                     break;

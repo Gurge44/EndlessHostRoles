@@ -29,7 +29,7 @@ internal class Speedrunner : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(652500, TabGroup.CrewmateRoles, CustomRoles.Speedrunner, zeroOne: true);
+        SetupSingleRoleOptions(652500, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
 
         SpeedrunnerNotifyKillers = new BooleanOptionItem(652510, "SpeedrunnerNotifyKillers", true, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);

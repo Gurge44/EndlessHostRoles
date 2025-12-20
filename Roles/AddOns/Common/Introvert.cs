@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
@@ -55,7 +55,6 @@ public class Introvert : IAddon
 
             if (time == 0)
             {
-                pc.RPCPlayCustomSound("Teleport");
                 pc.TPToRandomVent();
                 return;
             }
@@ -68,6 +67,7 @@ public class Introvert : IAddon
 
         if (endTS <= Utils.TimeStamp && !pc.inVent)
         {
+            pc.RPCPlayCustomSound("Teleport");
             pc.TPToRandomVent();
             TeleportAwayDelays.Remove(pc.PlayerId);
             Utils.SendRPC(CustomRPC.SyncIntrovert, 1, pc.PlayerId);
