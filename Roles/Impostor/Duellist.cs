@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
+using EHR.Modules;
 using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
