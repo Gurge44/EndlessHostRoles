@@ -1178,8 +1178,8 @@ public static class BedWars
         public override void EnterShop(PlayerControl pc)
         {
             if (pc == null || !pc.IsAlive()) return;
-            SelectionIndex.TryAdd(pc.PlayerId, 0);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
+            SelectionIndex.TryAdd(pc.PlayerId, 0);
             CategoryIndex.TryAdd(pc.PlayerId, 0);
         }
 
