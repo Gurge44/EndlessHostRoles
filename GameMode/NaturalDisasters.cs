@@ -971,7 +971,11 @@ public static class NaturalDisasters
 
                 if (room != null && CollapsedRooms.Exists(x => x == room))
                 {
-                    if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos)) pc.TP(lastPos);
+                    if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
+                    {
+                        RPC.PlaySoundRPC(pc.PlayerId, Sounds.ImpDiscovered);
+                        pc.TP(lastPos);
+                    }
                     else pc.Suicide(PlayerState.DeathReason.Collapsed);
                 }
                 else LastPosition[pc.PlayerId] = pc.Pos();
