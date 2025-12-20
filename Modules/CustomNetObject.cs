@@ -5,6 +5,7 @@ using AmongUs.InnerNet.GameDataMessages;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
+using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
@@ -77,6 +78,9 @@ namespace EHR
 
             sender.EndMessage();
             sender.SendMessage();
+
+            playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.3f);
         }
 
         public void TP(Vector2 position)
@@ -168,7 +172,7 @@ namespace EHR
             
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position} - Time since game start: {Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS}s", "CNO.CreateNetObject");
 
-            if (!GameStates.InGame || !Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10)
+            if (Options.CurrentGameMode == CustomGameMode.Standard && (!GameStates.InGame || !Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10))
             {
                 if (GameStates.InGame && (!Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10))
                 {
@@ -673,7 +677,15 @@ namespace EHR
         protected override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
+            
             int oldTime = Time;
+            
+            if (oldTime <= 0)
+            {
+                Despawn();
+                return;
+            }
+            
             Timer -= UnityEngine.Time.fixedDeltaTime;
             if (Time != oldTime) RpcChangeSprite($"<size=250%>{Time:N0}</size>\n{Disaster}");
         }
@@ -965,5 +977,25 @@ namespace EHR
             Direction = direction;
             Active = true;
         }
+    }
+}
+
+// This method sometimes throws an exception, preventing further code from running
+// Fixed by wrapping each line in try-catch
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RawSetName))]
+static class RawSetNameErrorFixPatch
+{
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
+    {
+        try { __instance.gameObject.name = name; }
+        catch { }
+        
+        try { __instance.cosmetics.SetName(name); }
+        catch { }
+        
+        try { __instance.cosmetics.SetNameMask(true); }
+        catch { }
+        
+        return false;
     }
 }

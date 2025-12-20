@@ -26,7 +26,6 @@ public static class NaturalDisasters
     public static readonly Dictionary<byte, int> SurvivalTimes = [];
 
     private static ((float Left, float Right) X, (float Bottom, float Top) Y) MapBounds;
-    private static long GameStartTimeStamp;
 
     private static OptionItem DisasterFrequency;
     private static OptionItem DisasterWarningTime;
@@ -132,8 +131,6 @@ public static class NaturalDisasters
         const float extend = 5f;
         MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
 
-        GameStartTimeStamp = Utils.TimeStamp;
-
         LateTask.New(() =>
         {
             Main.AllPlayerSpeed = Main.PlayerStates.Keys.ToDictionary(k => k, _ => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
@@ -160,7 +157,7 @@ public static class NaturalDisasters
 
     public static void RecordDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
     {
-        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - GameStartTimeStamp - 15);
+        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS);
 
         string message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
         message = Utils.ColorString(DeathReasonColor(deathReason), message);
@@ -205,7 +202,7 @@ public static class NaturalDisasters
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || GameStartTimeStamp + 15 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || IntroCutsceneDestroyPatch.IntroDestroyTS + 5 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
             {
@@ -220,7 +217,7 @@ public static class NaturalDisasters
                     _ => (0, false)
                 };
 
-                if (shouldWait || GameStartTimeStamp + minimumWaitTime > Utils.TimeStamp) return;
+                if (shouldWait || IntroCutsceneDestroyPatch.IntroDestroyTS + minimumWaitTime > Utils.TimeStamp) return;
             }
             
             UpdatePreparingDisasters();

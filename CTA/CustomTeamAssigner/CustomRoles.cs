@@ -575,7 +575,6 @@ public enum CustomRoles
     Physicist,
     Rascal,
     Reach,
-    Recruit,
     Rookie,
     Trainee,
     Schizophrenic,

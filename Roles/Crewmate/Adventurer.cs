@@ -338,6 +338,9 @@ internal class Adventurer : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        long now = Utils.TimeStamp;
+        LastGroupingResourceTimeStamp = now;
+        LastRandomResourceTimeStamp = now;
         ActiveWeapons.Remove(Weapon.Proxy);
     }
 

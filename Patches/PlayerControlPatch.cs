@@ -1564,8 +1564,8 @@ internal static class FixedUpdatePatch
 
                 if (self)
                 {
-                    if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
-                        QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
+                    if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.FindFirst(IsActive, out SystemTypes active))
+                        QuizMaster.Data.LastSabotage = active;
                 }
 
                 if (!lowLoad && player.IsModdedClient() && player.Is(CustomRoles.Haste))

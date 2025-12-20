@@ -133,7 +133,7 @@ public static class Statistics
             if (addons.Contains(CustomRoles.Spurt) && Spurt.LocalPlayerAvoidsZeroAndOneHundredPrecent)
                 Achievements.Type.ExpertControl.CompleteAfterGameEnd();
 
-            if (Utils.GameStartTimeStamp + 90 > Utils.TimeStamp)
+            if (IntroCutsceneDestroyPatch.IntroDestroyTS + 60 > Utils.TimeStamp)
                 Achievements.Type.Speedrun.CompleteAfterGameEnd();
 
             if (won && CustomWinnerHolder.WinnerTeam == CustomWinner.Impostor && lp.IsMadmate() && !aapc.Any(x => x.IsImpostor()))

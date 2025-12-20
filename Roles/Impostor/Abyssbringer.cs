@@ -97,6 +97,14 @@ public class Abyssbringer : RoleBase
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetInt();
     }
 
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
+            killer.AddAbilityCD();
+        else
+            killer.RpcResetAbilityCooldown();
+    }
+
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting) return true;
@@ -123,6 +131,7 @@ public class Abyssbringer : RoleBase
         string roomName = room == null ? string.Empty : Translator.GetString($"{room.RoomId}");
         BlackHoles.Add(new(new(pos), Utils.TimeStamp, pos, roomName, 0));
         Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 1, pos, roomName);
+        shapeshifter.SetKillCooldown(KillCooldown.GetInt());
     }
 
     public override void OnReportDeadBody()

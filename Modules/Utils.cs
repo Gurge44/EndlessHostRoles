@@ -2363,7 +2363,7 @@ public static class Utils
                     longInfo = $"<#ffffff>{longInfo}</color>";
 
                     int lines = longInfo.Count(x => x == '\n');
-                    int readTime = 20 + (lines * 5);
+                    int readTime = 10 + (lines * 5);
 
                     LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
                 }
@@ -2678,11 +2678,11 @@ public static class Utils
                     }
                     else if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
                     {
-                        if (GameStartTimeStamp + 40 > now) seerRealName = CustomHnS.GetRoleInfoText(seer);
+                        if (IntroCutsceneDestroyPatch.IntroDestroyTS + 15 > now) seerRealName = CustomHnS.GetRoleInfoText(seer);
                     }
                     else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModdedClient() && Options.CurrentGameMode == CustomGameMode.Standard)
                     {
-                        bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && GameStartTimeStamp + description.Duration > now;
+                        bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && IntroCutsceneDestroyPatch.IntroDestroyTS + description.Duration > now;
                         string mHelp = !showLongInfo || description.Long ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
                         string color = seerTeam.GetTextColor();
                         string teamStr = seerTeam == Team.Impostor && seer.IsMadmate() ? "Madmate" : seerTeam.ToString();
