@@ -315,10 +315,8 @@ internal class QuizMaster : RoleBase
 
                 if (pc.Is(CustomRoles.Pestilence)) return;
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
-                Main.PlayerStates[Target].SetDead();
-                if (pc != null) pc.RpcExileV2();
+                pc?.RpcGuesserMurderPlayer();
                 Utils.AfterPlayerDeathTasks(pc, true);
-                pc.RpcGuesserMurderPlayer();
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");
             }
