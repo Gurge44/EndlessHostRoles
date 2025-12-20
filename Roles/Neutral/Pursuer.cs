@@ -84,7 +84,7 @@ public class Pursuer : RoleBase
         clientList.Add(target.PlayerId);
         NotActiveList.Add(pc.PlayerId);
         pc.SetKillCooldown();
-        pc.RPCPlayCustomSound("Bet");
+        pc.RPCPlayCustomSound("Clothe");
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
     }
 
@@ -121,4 +121,5 @@ public class Pursuer : RoleBase
     {
         hud.KillButton?.OverrideText(Translator.GetString("PursuerButtonText"));
     }
+
 }
