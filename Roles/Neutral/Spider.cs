@@ -109,6 +109,7 @@ public class Spider : RoleBase
         Vector2 pos = player.Pos();
         if (Webs.Keys.Any(x => Vector2.Distance(x, pos) <= WebTrapRange.GetFloat() * 2f)) return;
         Webs[pos] = [];
+        player.RPCPlayCustomSound("Line");
         LocateArrow.Add(player.PlayerId, pos);
         player.Notify(Translator.GetString("MarkDone"));
     }
@@ -132,6 +133,8 @@ public class Spider : RoleBase
 
         if (Webs.FindFirst(x => Vector2.Distance(x.Key, pos) <= WebTrapRange.GetFloat() && x.Value.TryAdd(pc.PlayerId, Utils.TimeStamp + TrappedDuration.GetInt()), out KeyValuePair<Vector2, Dictionary<byte, long>> kvp))
         {
+            RPC.PlaySoundRPC(SpiderId, Sounds.TaskUpdateSound);
+            pc.RPCPlayCustomSound("FlashBang");
             pc.MarkDirtySettings();
             Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 1, kvp.Key, pc.PlayerId, kvp.Value.Last().Value);
         }
@@ -154,6 +157,7 @@ public class Spider : RoleBase
                 {
                     trapped.Keys.ToValidPlayers().Do(x =>
                     {
+                        RPC.PlaySoundRPC(x.PlayerId, Sounds.TaskComplete);
                         Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         x.MarkDirtySettings();
                     });
