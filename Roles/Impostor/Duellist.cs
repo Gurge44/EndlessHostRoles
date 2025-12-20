@@ -52,7 +52,7 @@ public class Duellist : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.AbilityButton?.OverrideText(Translator.GetString("SoulCatcherButtonText"));
+        hud.AbilityButton?.OverrideText(GetString("SoulCatcherButtonText"));
     }
 
     public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
