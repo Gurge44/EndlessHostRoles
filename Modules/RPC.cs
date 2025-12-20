@@ -193,6 +193,7 @@ public enum Sounds
     TaskComplete,
     TaskUpdateSound,
     SabotageSound,
+    ImpDiscovered,
     LobbyTimerPopUp,
     SpawnSound,
     ImpTransform,
@@ -1647,6 +1648,9 @@ internal static class RPC
                     break;
                 case Sounds.SabotageSound:
                     SoundManager.Instance.PlaySound(ShipStatus.Instance.SabotageSound, false);
+                    break;
+                case Sounds.ImpDiscovered:
+                    SoundManager.Instance.PlaySound(PlayerControl.LocalPlayer.MyPhysics.ImpostorDiscoveredSound, false);
                     break;
                 case Sounds.LobbyTimerPopUp when HudManager.InstanceExists:
                     SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
