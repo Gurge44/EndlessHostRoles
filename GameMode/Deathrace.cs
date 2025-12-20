@@ -536,7 +536,6 @@ public static class Deathrace
                     data.LastRoom = data.NextRoom;
                     int index = Track.IndexOf(data.NextRoom);
                     bool endOfTrack = Clockwise ? index == Track.Count - 1 : index == 0;
-                    if (!endOfTrack) RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
 
                     if (endOfTrack)
                     {
@@ -566,7 +565,11 @@ public static class Deathrace
 
                         data.NextRoom = Clockwise ? Track[0] : Track[^1];
                     }
-                    else data.NextRoom = Clockwise ? Track[index + 1] : Track[index - 1];
+                    else
+                    {
+                        data.NextRoom = Clockwise ? Track[index + 1] : Track[index - 1];
+                        RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
+                    }
 
                     Logger.Info($"{Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}")} entered {data.LastRoom}, next is {data.NextRoom}", "Deathrace");
                 }
