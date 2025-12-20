@@ -771,6 +771,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Demon
                     or CustomRoles.Pelican
                     or CustomRoles.Scavenger
+                    or CustomRoles.Spider
                     or CustomRoles.Vampire
                     or CustomRoles.Vulture
                     or CustomRoles.Wasp
