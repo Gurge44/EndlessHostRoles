@@ -942,7 +942,7 @@ internal static class ShapeshiftPatch
 
             switch (Main.PlayerStates[pc.PlayerId].Role)
             {
-                case Adventurer av:
+                case Adventurer av when shapeshifting:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
                 case Crewmate.Sentry st:
@@ -2264,6 +2264,12 @@ internal static class PlayerControlCompleteTaskPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Die))]
 public static class PlayerControlDiePatch
 {
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(1)] ref bool assignGhostRole)
+    {
+        if (!ReportDeadBodyPatch.MeetingStarted && !GameStates.IsMeeting && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(__instance.PlayerId)))
+            assignGhostRole = false;
+    }
+    
     public static void Postfix(PlayerControl __instance)
     {
         if (AmongUsClient.Instance.AmHost) PetsHelper.RpcRemovePet(__instance);

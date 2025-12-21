@@ -106,6 +106,9 @@ internal static class GhostRolesManager
                     return false;
             }
 
+            var killer = pc.GetRealKiller();
+            if (killer != null && killer.Is(CustomRoles.SoulCollector) && Main.DiedThisRound.Contains(pc.PlayerId)) return false;
+
             CustomRoles suitableRole = GetSuitableGhostRole(pc);
 
             return suitableRole switch

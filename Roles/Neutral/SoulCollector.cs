@@ -14,7 +14,7 @@ public class SoulCollector : RoleBase
 
     public override bool IsEnable => On;
 
-    private List<byte> ToExile = [];
+    public List<byte> ToExile = [];
 
     public override void SetupCustomOption()
     {

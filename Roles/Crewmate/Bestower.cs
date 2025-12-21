@@ -60,7 +60,6 @@ public class Bestower : RoleBase
         float give = GivenUses.GetFloat();
         RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskUpdateSound);
         target.RpcIncreaseAbilityUseLimitBy(give);
-        killer.Notify(string.Format(Translator.GetString("Bestower.GaveNotify"), Math.Round(give, 2)));
         killer.RpcRemoveAbilityUse();
         killer.SetKillCooldown();
         return false;

@@ -53,6 +53,11 @@ public class MoonDancer : Coven
         return HasNecronomicon ? CanVentAfterNecronomicon.GetBool() : CanVentBeforeNecronomicon.GetBool();
     }
 
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return pc.IsAlive();
+    }
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.PhantomCooldown = SelfAssignAddonCooldown.GetFloat();
@@ -104,7 +109,7 @@ public class MoonDancer : Coven
 
     public override bool OnVanish(PlayerControl pc)
     {
-        CustomRoles addon = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, pc)).RandomElement();
+        CustomRoles addon = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame()).RandomElement();
         if (addon == default(CustomRoles)) return false;
         pc.RpcSetCustomRole(addon);
         return false;

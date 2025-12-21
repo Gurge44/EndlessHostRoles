@@ -1394,7 +1394,7 @@ public static class Utils
             return;
         }
 
-        StringBuilder sb = new();
+        StringBuilder sb = new("<size=80%>");
         sb.Append($"{GetRoleName(CustomRoles.GM)}: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}");
 
         Dictionary<TabGroup, List<string>> roles = new()
@@ -1407,7 +1407,7 @@ public static class Utils
             [TabGroup.OtherRoles] = []
         };
 
-        (Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles.FindAll(x => x.IsEnable()) : (Options.CustomRoleSpawnChances.Keys.Concat(Options.CustomAdtRoleSpawnRate.Keys).Except(CustomHnS.AllHnSRoles).Distinct().Where(x => x.IsEnable()).ToList())).ForEach(x =>
+        (Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles.FindAll(x => x.IsEnable()) : (Options.CustomRoleSpawnChances.Keys.Concat(Options.CustomAdtRoleSpawnRate.Keys).Except(CustomHnS.AllHnSRoles).Distinct().Where(x => x.IsEnable()).OrderBy(x => GetString($"{x}")).ToList())).ForEach(x =>
         {
             string roleDisplay = x.ToColoredString();
 
@@ -1424,13 +1424,14 @@ public static class Utils
             else if (x.IsCoven()) usedList = roles[TabGroup.CovenRoles];
             else return;
             
-            if (usedList.Count % 10 == 0) roleDisplay = "\n" + roleDisplay;
+            if (usedList.Count > 0 && usedList.Count % 10 == 0)
+                roleDisplay = "\n" + roleDisplay;
             
             usedList.Add(roleDisplay);
         });
 
         roles.DoIf(x => x.Value.Count > 0, x => sb.Append($"\n\n<u>{GetString($"TabGroup.{x.Key}")}:</u>\n{string.Join(", ", x.Value)}"));
-        SendMessage(sb.ToString().Replace("color=", string.Empty).Trim(), playerId, GetString("GMRoles"));
+        SendMessage("\n", playerId, sb.ToString().Replace("color=", string.Empty).Trim());
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
@@ -3756,7 +3757,7 @@ public static class Utils
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, guess: onMeeting);
 
-            if (!target.HasGhostRole())
+            if (!target.HasGhostRole() && !Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(target.PlayerId)))
             {
                 Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 target.MarkDirtySettings();
