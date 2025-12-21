@@ -9354,7 +9354,7 @@
   "Exclusionary.CooldownAfterExclusion": "Откат после исключения",
   "Catalyst": "Катализатор",
   "CatalystInfo": "Давайте полезные атрибуты своей команде после каждого убийства",
-  "CatalystInfoLong": "(Impostors):\\nAs the Catalyst, with each kill you make, every impostor-teamed players gains a new helpful add-on. Depending on the settings, they may lose these add-ons after you die.",
+  "CatalystInfoLong": "(Предатель):\\nКак Катализатор, с каждым убийством каждый игрок в команде Предателей получит полезный атрибут. В зависимости от настроек:\\n1) атрибуты исчезнут, если вы умрёте\\n2) вы также будете получать атрибут.",
   "Catalyst.GiveAddonsToSelf": "<#ff1919>Катализатор</color> также получает полезные атрибуты",
   "Catalyst.GiveOnlyEnabledAddons": "Давать только полезные атрибуты",
   "Catalyst.RemoveGivenAddonsAfterDeath": "Если <#ff1919>Катализатор</color> умрёт, убрать все выданные атрибуты",
