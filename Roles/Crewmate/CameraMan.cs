@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate;
 
@@ -94,6 +95,7 @@ public class CameraMan : RoleBase
             LateTask.New(() =>
             {
                 BasePos = pc.Pos();
+                pc.RPCPlayCustomSound("teleport");
                 if (pc.TP(CameraPosition)) IsTeleported = true;
             }, 2f, "CameraMan Teleport");
         }
@@ -110,6 +112,7 @@ public class CameraMan : RoleBase
             pc.RpcRemoveAbilityUse();
 
             BasePos = pc.Pos();
+            pc.RPCPlayCustomSound("teleport");
             if (pc.TP(CameraPosition)) IsTeleported = true;
         }
         else

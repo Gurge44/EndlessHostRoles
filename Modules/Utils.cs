@@ -1395,7 +1395,7 @@ public static class Utils
         }
 
         StringBuilder sb = new("<size=80%>");
-        sb.Append($"{GetRoleName(CustomRoles.GM)}: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}");
+        sb.Append($"<color={GetRoleColorCode(CustomRoles.GM)}>{GetRoleName(CustomRoles.GM)}</color>: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}");
 
         Dictionary<TabGroup, List<string>> roles = new()
         {
