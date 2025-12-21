@@ -2679,7 +2679,6 @@
   "XORListTitle": "<#00a5ff>➡ XOR Combinations ⬅</color>",
   "ForgeSuccess": "<#00ffa5>✓</color> Successfully forged {1} as {2}.\\n<size=80%>You have {0} ability uses left.</size>",
   "ThankYouForUsingEHR": "Thank you for using EHR!",
-  "GMRoles": "<color=#ff5b70>【 ★ Roles ★ 】</color>",
   "AnonymousBodies": "Anonymous Bodies",
   "LoadingHint.0": "Did you know?\nYou can put roles of your choice into custom teams!\nView instructions on our website (link on main menu)!",
   "LoadingHint.1": "Did you know?\nYou can force or ban certain role and add-on combos using /combo in lobby!\nGive it a try after this game!",
