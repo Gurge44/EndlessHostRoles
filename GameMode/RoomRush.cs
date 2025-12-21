@@ -588,7 +588,7 @@ public static class RoomRush
 
         private static bool RegisterHost(PlayerControl pc)
         {
-            if (!pc.AmOwner) return true;
+            if (!pc.AmOwner || DonePlayers.Contains(pc.PlayerId)) return true;
 
             if (HostRegisterTimer.IsRunning)
             {
