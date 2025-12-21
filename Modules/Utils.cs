@@ -1414,12 +1414,19 @@ public static class Utils
             int count = x.GetCount();
             if (count > 1) roleDisplay += $" ×{count}";
 
-            if (x.IsGhostRole()) roles[TabGroup.OtherRoles].Add(roleDisplay);
-            else if (x.IsAdditionRole()) roles[TabGroup.Addons].Add(roleDisplay);
-            else if (x.IsCrewmate()) roles[TabGroup.CrewmateRoles].Add(roleDisplay);
-            else if (x.IsImpostor() || x.IsMadmate()) roles[TabGroup.ImpostorRoles].Add(roleDisplay);
-            else if (x.IsNeutral()) roles[TabGroup.NeutralRoles].Add(roleDisplay);
-            else if (x.IsCoven()) roles[TabGroup.CovenRoles].Add(roleDisplay);
+            List<string> usedList;
+
+            if (x.IsGhostRole()) usedList = roles[TabGroup.OtherRoles];
+            else if (x.IsAdditionRole()) usedList = roles[TabGroup.Addons];
+            else if (x.IsCrewmate()) usedList = roles[TabGroup.CrewmateRoles];
+            else if (x.IsImpostor() || x.IsMadmate()) usedList = roles[TabGroup.ImpostorRoles];
+            else if (x.IsNeutral()) usedList = roles[TabGroup.NeutralRoles];
+            else if (x.IsCoven()) usedList = roles[TabGroup.CovenRoles];
+            else return;
+            
+            if (usedList.Count % 10 == 0) roleDisplay = "\n" + roleDisplay;
+            
+            usedList.Add(roleDisplay);
         });
 
         roles.DoIf(x => x.Value.Count > 0, x => sb.Append($"\n\n<u>{GetString($"TabGroup.{x.Key}")}:</u>\n{string.Join(", ", x.Value)}"));
