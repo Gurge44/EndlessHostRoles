@@ -291,12 +291,19 @@ internal static class GameEndChecker
 
                 if (WinnerTeam != CustomWinner.CustomTeam && CustomTeamManager.EnabledCustomTeams.Count > 0)
                 {
-                    Main.AllPlayerControls
+                    Dictionary<CustomTeamManager.CustomTeam, IEnumerable<byte>> teams = Main.AllPlayerControls
                         .Select(x => new { Team = CustomTeamManager.GetCustomTeam(x.PlayerId), Player = x })
                         .Where(x => x.Team != null)
                         .GroupBy(x => x.Team)
-                        .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId))
-                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam), x => WinnerIds.ExceptWith(x.Value));
+                        .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId));
+
+                    foreach ((CustomTeamManager.CustomTeam team, IEnumerable<byte> playerIds) in teams)
+                    {
+                        if (CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.OriginalWinCondition) && WinnerTeam is not (CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Coven or CustomWinner.Neutrals))
+                            WinnerIds.UnionWith(playerIds);
+                        else if (!CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.WinWithOriginalTeam))
+                            WinnerIds.ExceptWith(playerIds);
+                    }
                 }
 
                 if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.TrueForAll(x => x.IsAlive()) && reason != GameOverReason.CrewmatesByTask)

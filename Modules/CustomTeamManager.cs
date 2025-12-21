@@ -32,7 +32,7 @@ internal static class CustomTeamManager
 
         const int startId = 660000;
         const TabGroup tab = TabGroup.GameSettings;
-        CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (15 * i))).ToList();
+        CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (20 * i))).ToList();
         UpdateEnabledTeams();
 
         return;
@@ -42,6 +42,7 @@ internal static class CustomTeamManager
             var enabled = new BooleanOptionItem(id++, "CTA.FLAG" + team.TeamName, true, tab);
             var knowRoles = new BooleanOptionItem(id++, "CTA.KnowRoles", true, tab);
             var winWithOriginalTeam = new BooleanOptionItem(id++, "CTA.WinWithOriginalTeam", false, tab);
+            var originalWinCondition = new BooleanOptionItem(id++, "CTA.OriginalWinCondition", true, tab);
             var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
             var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
             var arrows = new BooleanOptionItem(id++, "CTA.Arrows", true, tab);
@@ -56,7 +57,7 @@ internal static class CustomTeamManager
                 teamPlayerCounts[teamType] = [min, max];
             }
 
-            CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers, teamPlayerCounts);
+            CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, originalWinCondition, killEachOther, guessEachOther, arrows, maxPlayers, teamPlayerCounts);
             group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
             group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
             group.AllOptions.ForEach(x => x.SetGameMode(CustomGameMode.Standard));
@@ -280,9 +281,9 @@ internal static class CustomTeamManager
     {
         public readonly List<OptionItem> AllOptions;
 
-        public CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows, IntegerOptionItem maxPlayers, Dictionary<Team, IntegerOptionItem[]> teamPlayerCounts)
+        public CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem originalWinCondition, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows, IntegerOptionItem maxPlayers, Dictionary<Team, IntegerOptionItem[]> teamPlayerCounts)
         {
-            AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers];
+            AllOptions = [enabled, knowRoles, winWithOriginalTeam, originalWinCondition, killEachOther, guessEachOther, arrows, maxPlayers];
             AllOptions.AddRange(teamPlayerCounts.Values.Flatten());
             Team = team;
             Enabled = enabled;
@@ -302,6 +303,7 @@ public enum CTAOption
 {
     KnowRoles = 1,
     WinWithOriginalTeam,
+    OriginalWinCondition,
     KillEachOther,
     GuessEachOther,
     Arrows

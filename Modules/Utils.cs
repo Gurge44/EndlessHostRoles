@@ -1407,48 +1407,23 @@ public static class Utils
             [TabGroup.OtherRoles] = []
         };
 
-        foreach (CustomRoles role in Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(CustomHnS.AllHnSRoles))
+        (Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles.FindAll(x => x.IsEnable()) : (Options.CustomRoleSpawnChances.Keys.Concat(Options.CustomAdtRoleSpawnRate.Keys).Except(CustomHnS.AllHnSRoles).Distinct().Where(x => x.IsEnable()).ToList())).ForEach(x =>
         {
-            string mode;
+            string roleDisplay = x.ToColoredString();
 
-            try
-            {
-                mode = !role.IsAdditionRole() || role.IsGhostRole()
-                    ? GetString($"Rate{role.GetMode()}")
-                    : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
-            }
-            catch (KeyNotFoundException) { continue; }
+            int count = x.GetCount();
+            if (count > 1) roleDisplay += $" ×{count}";
 
-            mode = mode.Replace("color=", string.Empty);
-
-            if (role.IsEnable())
-            {
-                int count = role.GetCount();
-                string roleDisplay = $"{role.ToColoredString()} <size=70%>{mode}";
-                if (count > 1) roleDisplay += $" ×{count}";
-                roleDisplay += "</size>";
-
-                if (role.IsGhostRole()) roles[TabGroup.OtherRoles].Add(roleDisplay);
-                else if (role.IsAdditionRole()) roles[TabGroup.Addons].Add(roleDisplay);
-                else if (role.IsCrewmate()) roles[TabGroup.CrewmateRoles].Add(roleDisplay);
-                else if (role.IsImpostor() || role.IsMadmate()) roles[TabGroup.ImpostorRoles].Add(roleDisplay);
-                else if (role.IsNeutral()) roles[TabGroup.NeutralRoles].Add(roleDisplay);
-                else if (role.IsCoven()) roles[TabGroup.CovenRoles].Add(roleDisplay);
-            }
-        }
-
-        // new List<Message>
-        // {
-        //     new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GMRoles")),
-        //     new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
-        //     new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
-        //     new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("NeutralRoles")),
-        //     new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("CovenRoles")),
-        //     new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GhostRoles")),
-        //     new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("AddonRoles"))
-        // }.FindAll(x => x.Text.Length > 18).SendMultipleMessages();
+            if (x.IsGhostRole()) roles[TabGroup.OtherRoles].Add(roleDisplay);
+            else if (x.IsAdditionRole()) roles[TabGroup.Addons].Add(roleDisplay);
+            else if (x.IsCrewmate()) roles[TabGroup.CrewmateRoles].Add(roleDisplay);
+            else if (x.IsImpostor() || x.IsMadmate()) roles[TabGroup.ImpostorRoles].Add(roleDisplay);
+            else if (x.IsNeutral()) roles[TabGroup.NeutralRoles].Add(roleDisplay);
+            else if (x.IsCoven()) roles[TabGroup.CovenRoles].Add(roleDisplay);
+        });
 
         roles.DoIf(x => x.Value.Count > 0, x => sb.Append($"\n\n<u>{GetString($"TabGroup.{x.Key}")}:</u>\n{string.Join(", ", x.Value)}"));
+        SendMessage(sb.ToString().Replace("color=", string.Empty).Trim(), playerId, GetString("GMRoles"));
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
