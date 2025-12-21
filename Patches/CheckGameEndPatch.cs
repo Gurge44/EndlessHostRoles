@@ -299,9 +299,11 @@ internal static class GameEndChecker
 
                     foreach ((CustomTeamManager.CustomTeam team, IEnumerable<byte> playerIds) in teams)
                     {
-                        if (CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.OriginalWinCondition) && WinnerTeam is not (CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Coven or CustomWinner.Neutrals))
+                        bool winWithOriginalTeam = CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.WinWithOriginalTeam);
+
+                        if (CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.OriginalWinCondition) && (winWithOriginalTeam || WinnerTeam is not (CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Coven or CustomWinner.Neutrals)))
                             WinnerIds.UnionWith(playerIds);
-                        else if (!CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.WinWithOriginalTeam))
+                        else if (!winWithOriginalTeam)
                             WinnerIds.ExceptWith(playerIds);
                     }
                 }
