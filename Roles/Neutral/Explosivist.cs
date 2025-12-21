@@ -110,7 +110,9 @@ public class Explosivist : RoleBase
             Utils.GetPlayersInRadius(ExplosionRadius.GetFloat(), Explosive.Position).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
 
             pc.RevertFreeze(RealPosition);
-            if (!Options.UsePets.GetBool()) pc.RpcResetAbilityCooldown();
+            
+            if (!Options.UsePets.GetBool() || (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()))
+                pc.RpcResetAbilityCooldown();
             
             Explosive.Despawn();
             Explosive = null;
@@ -125,6 +127,10 @@ public class Explosivist : RoleBase
         {
             PlayerControl pc = ExplosivistId.GetPlayer();
             pc.RevertFreeze(RealPosition);
+            Explosive.Despawn();
+            Explosive = null;
+            RealPosition = Vector2.zero;
+            ExplodeTS = 0;
         }
     }
 

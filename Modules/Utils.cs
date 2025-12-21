@@ -1395,14 +1395,17 @@ public static class Utils
         }
 
         StringBuilder sb = new();
-        sb.Append($"\n{GetRoleName(CustomRoles.GM)}: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}");
+        sb.Append($"{GetRoleName(CustomRoles.GM)}: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}");
 
-        StringBuilder impsb = new();
-        StringBuilder neutralsb = new();
-        StringBuilder crewsb = new();
-        StringBuilder covensb = new();
-        StringBuilder addonsb = new();
-        StringBuilder ghostsb = new();
+        Dictionary<TabGroup, List<string>> roles = new()
+        {
+            [TabGroup.ImpostorRoles] = [],
+            [TabGroup.CrewmateRoles] = [],
+            [TabGroup.NeutralRoles] = [],
+            [TabGroup.CovenRoles] = [],
+            [TabGroup.Addons] = [],
+            [TabGroup.OtherRoles] = []
+        };
 
         foreach (CustomRoles role in Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHnS.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(CustomHnS.AllHnSRoles))
         {
@@ -1420,27 +1423,32 @@ public static class Utils
 
             if (role.IsEnable())
             {
-                var roleDisplay = $"\n{ColorString(GetRoleColor(role).ShadeColor(0.25f), GetString(role.ToString()))}: {mode} x{role.GetCount()}";
+                int count = role.GetCount();
+                string roleDisplay = $"{role.ToColoredString()} <size=70%>{mode}";
+                if (count > 1) roleDisplay += $" ×{count}";
+                roleDisplay += "</size>";
 
-                if (role.IsGhostRole()) ghostsb.Append(roleDisplay);
-                else if (role.IsAdditionRole()) addonsb.Append(roleDisplay);
-                else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
-                else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
-                else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
-                else if (role.IsCoven()) covensb.Append(roleDisplay);
+                if (role.IsGhostRole()) roles[TabGroup.OtherRoles].Add(roleDisplay);
+                else if (role.IsAdditionRole()) roles[TabGroup.Addons].Add(roleDisplay);
+                else if (role.IsCrewmate()) roles[TabGroup.CrewmateRoles].Add(roleDisplay);
+                else if (role.IsImpostor() || role.IsMadmate()) roles[TabGroup.ImpostorRoles].Add(roleDisplay);
+                else if (role.IsNeutral()) roles[TabGroup.NeutralRoles].Add(roleDisplay);
+                else if (role.IsCoven()) roles[TabGroup.CovenRoles].Add(roleDisplay);
             }
         }
 
-        new List<Message>
-        {
-            new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GMRoles")),
-            new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
-            new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
-            new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("NeutralRoles")),
-            new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("CovenRoles")),
-            new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GhostRoles")),
-            new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("AddonRoles"))
-        }.FindAll(x => x.Text.Length > 18).SendMultipleMessages();
+        // new List<Message>
+        // {
+        //     new($"<size=80%>{sb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GMRoles")),
+        //     new($"<size=80%>{impsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles"))),
+        //     new($"<size=80%>{crewsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles"))),
+        //     new($"<size=80%>{neutralsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("NeutralRoles")),
+        //     new($"<size=80%>{covensb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("CovenRoles")),
+        //     new($"<size=80%>{ghostsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("GhostRoles")),
+        //     new($"<size=80%>{addonsb.Append("\n.").ToString().RemoveHtmlTags().Trim()}</size>", playerId, GetString("AddonRoles"))
+        // }.FindAll(x => x.Text.Length > 18).SendMultipleMessages();
+
+        roles.DoIf(x => x.Value.Count > 0, x => sb.Append($"\n\n<u>{GetString($"TabGroup.{x.Key}")}:</u>\n{string.Join(", ", x.Value)}"));
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)

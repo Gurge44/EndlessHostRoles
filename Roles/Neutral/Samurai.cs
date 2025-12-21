@@ -131,6 +131,8 @@ internal class Samurai : RoleBase
 
     public override void OnReportDeadBody()
     {
+        Target = (byte.MaxValue, 0);
+        
         foreach (byte id in Delays.Keys)
         {
             PlayerControl player = Utils.GetPlayerById(id);
