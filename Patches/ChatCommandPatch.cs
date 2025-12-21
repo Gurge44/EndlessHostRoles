@@ -659,6 +659,7 @@ internal static class ChatCommands
         if (realKiller != targetId)
         {
             rb.Notified = false;
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Fail"));
         }
         else
