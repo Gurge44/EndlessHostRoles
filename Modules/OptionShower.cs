@@ -60,7 +60,7 @@ public static class OptionShower
         {
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
+                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}</color>: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
                 sb.Append(GetString("ActiveRolesList")).Append('\n');
                 var count = 4;
 
@@ -156,4 +156,5 @@ public static class OptionShower
             if (opt.Value.GetBool()) ShowChildren(opt.Value, ref sb, color, deep + 1);
         }
     }
+
 }
