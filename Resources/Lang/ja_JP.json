@@ -2679,7 +2679,6 @@
   "XORListTitle": "<#00a5ff>➡ XOR Combinations ⬅</color>",
   "ForgeSuccess": "<#00ffa5>✓</color> {1} を {2}として 構築した。\\n<size=80%>あなたは 残りの使用能力が {0} あります。</size>",
   "ThankYouForUsingEHR": "EHR をご利用いただき ありがとうございます！",
-  "GMRoles": "<color=#ff5b70>【 ★ 役割 ★ 】</color>",
   "AnonymousBodies": "死体の匿名化",
   "LoadingHint.0": "ご存知でしたか？\nあなたは カスタムチームに あなたの選択の役割を置くことができます！\n私たちのwebsiteで 説明書を表示します (メインメニューのリンク)！",
   "LoadingHint.1": "ご存知でしたか？\nあなたは ロビーで <b>/combo</b> を使用して 特定の 役割 と 属性 の組み合わせを 強制 または 禁止することができます！\nこのゲームの後に ぜひ それを試してみてください！",
