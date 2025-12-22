@@ -285,6 +285,7 @@ internal class QuizMaster : RoleBase
 
         MessagesToSend[Target] = sample;
 
+        RPC.PlaySoundRPC(Target, Sounds.TaskUpdateSound);
         Logger.Info($"Question for {Utils.GetPlayerById(Target)?.GetNameWithRole()}: {msgTitle} - Choices: {string.Join('/', CurrentQuestion.Answers)} - Correct Answer: {CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]}", "QuizMaster");
     }
 

@@ -1,124 +1,125 @@
-## Hackers and cheaters
-e3b0cb855
-chancygrid#7957,1466867f1
-flowerfit#4735,422cfefe8
-wideink#3618,677db6a5c, Fastpathos // Hacking streamer's lobby
-wiggreeny#9194,91f48d4e0
-wreckastir#1163,c4088d65
-ourregion#2992,米娜桑
-muddytee#7260,帅哥别刀我
-rugglace#7257,你好啊
-dailymaze#3669,Paperchips
-dewsupply#4199,Pinchic
-awewitted#1541,jim
-awareawe#3725,Briskflask
-tilemousy#6919,三次元
-homeyrifle#9095,CR7
-supblond#8721,Musterrrrr
-sakecivic#3834,Longmoor
-fleetkey#2790,Russetpore
-fizzycurve#5875,和
-mediumlace#6059,Slickname
-insidesnug#5858,你在干什么
-innerdodge#6269,原版非mod
-agileneap#1421,Dishfa
-halcyondew#6797,IShowSpeed
-localclue#9040,b站 残暴fell?
-flexsleepy#7693,煎饼
-squishsafe#1232,花生味的名字
-tipbright#9969,11
-nounpurple#8471,ewr32424
-quillearly#9466,?
-stuckink#8892,AI人机
-needremiss#2326,69
-shinylure#0346,MD11
-visualbow#0206,【貓貓限定】我是狼
-takingcent#8384,i
-superbfilm#8098,Jesse
-insidesnug#5858,你在干什么
-tilemousy#6919,好臭的人 
-halfawake#6342,YOU
-micesage#5792,Clamity
-pupalshank#4261,999感冒灵
-witfervid#6713,raven
-medianoast#0198,foxy
-comicfox#0635,pride
-finishbaby#2850,pop666
-tipsyelite#3556,Linus
-joggerleft#7093,Run4Life
-lordlyatom#8997,0
-plaincode#3260,I
-solidhay#2143,ILoveYou
-homelysofa#7210,Nagva
-moviebulky#3847,le ghoste
-cosapt#6243,卡斯特
-splaytale#9633,
-socialfee#5455,原神忠诚玩家
-screenawed#9893,Mealfloral
-vetpiebald#7783,傻狗Windy
-seemlysofa#9106,Sawdesktop
-blondclue#2905,是稽不是寄
-dramatoy#4080,CCBlueX
-bonnyfibre#6777,TOMsuppn
-nestshy#8262,A
-spafain#1094,AUM
-storedusty#6125,o O
-farcorn#5146,Acfun
-tilesteep#2740,Engineer
-imagetense#5619,Chinese
-gabledebb#2717.部屋潰しガチ勢SEX
-lawnhoppy#4726,封禁
-larkyprow#0965,9eb11d42b,hacker
-rapidmatch#3120,7a320d676,rawpotato6
-panslushy#9362,34aaba1bd,No one
-socialnest#0628,2dc0c9013,ROFL
-53b5b1a76,Cheifalike //Android No friendcode hacker
-curtsyboth#4114,1f9bbee79,龙傲天》//MalumMenu
-shyfortune#7692,526f950da,B站日常无语的无语君 //AUM
-0a4f7e294,Melani //no friendcode hacker
-sprysign#5596,064c15bb6,Onion
-errantlug#6514,79f0cbe07,Kerbpoetic //AUM
-levelposse#7723,virajwins // Hacking while also streaming it
-gummytub#2962,0f6992415
-dollepic#0847,17be4645c // DESTRUCT10
-donehoof#2148
-coachcalm#9343,354aa4ac3,Twinfabled // Hacking the game
-goldapex#3225,a89e4420e,BoomplayYT
-woveelixir#4088,42044d211,DMD 3CD //hacker and probably BoomplayYT's alt
-tenpalace#1924,6a259fcd9,Goaty
-pinbrittle#1538,4955c179f,Moralmaser // Cheating and disrupting lobbies
-dollfly#4791,5ba449454,Mari // Spamming RPCs to crash lobbies
+# Format: friendcode | hashPUID | ign | reason | notes
 
-## Griefers, toxic, harrasing, morons
-setmolar#4374,藏族顶针
-overtfeast#5802,黑影
-roomybump#8560,中国国民党
-whipsame#5558,齐心 习母
-epicdoer#2966,毛泽车
-ternaryjog#6069,习皇帝万岁
-bigtunnel#1506,카제하야가꿈 //Discrimination against Chinese
-feeprim#7337,Athena //Racism
-sassycalf#9283,db2adda95,Caesar
-afootauto#1216,026ad9f54,你妈阴道有蛆
-rubykop#0410,a1de8a400,习主席近平
-netgaff#6739,01b5992f0,李克强
-apemv#5959,77c89daa8
-lineraring#9796,02c2ce996 //Toxic, was attempting to hack games
-secretname#8564,aa9e48c80
-polkaoval#0453,自作Modな橋本環奈
-driedbreak#2568, 2f9986d9f, ASHHHOLE //(toxic)
-markedfee#5991, 10e7b3318, (name-not-known) //(toxic)
-freepurse#4452, ee4c01545, Brinysouth //spamming with the n word
-jetevery#3237, f00da9258, Nigertien //the n word
-jumpypool#9964, 7475bd199, NigH8R // the n word
-gougesole#0734,ed140c20d // Pedophile Behaviour
-deltamalty#8755,Nggeereee
-polarsail#2468,hatenggers
-primesnow#4272,65b98a6de, HiverXM // the n word
+## Cheaters
+ | e3b0cb855 |  | Cheating | 
+chancygrid#7957 | 1466867f1 |  | Cheating | 
+flowerfit#4735 | 422cfefe8 |  | Cheating | 
+wideink#3618 | 677db6a5c | Fastpathos | Cheating | Cheating in streamer's lobby
+wiggreeny#9194 | 91f48d4e0 |  | Cheating | 
+wreckastir#1163 | c4088d65 |  | Cheating | 
+ourregion#2992 |  | 米娜桑 | Cheating | 
+muddytee#7260 |  | 帅哥别刀我 | Cheating | 
+rugglace#7257 |  | 你好啊 | Cheating | 
+dailymaze#3669 |  | Paperchips | Cheating | 
+dewsupply#4199 |  | Pinchic | Cheating | 
+awewitted#1541 |  | jim | Cheating | 
+awareawe#3725 |  | Briskflask | Cheating | 
+tilemousy#6919 |  | 三次元 | Cheating | 
+homeyrifle#9095 |  | CR7 | Cheating | 
+supblond#8721 |  | Musterrrrr | Cheating | 
+sakecivic#3834 |  | Longmoor | Cheating | 
+fleetkey#2790 |  | Russetpore | Cheating | 
+fizzycurve#5875 |  | 和 | Cheating | 
+mediumlace#6059 |  | Slickname | Cheating | 
+insidesnug#5858 |  | 你在干什么 | Cheating | 
+innerdodge#6269 |  | 原版非mod | Cheating | 
+agileneap#1421 |  | Dishfa | Cheating | 
+halcyondew#6797 |  | IShowSpeed | Cheating | 
+localclue#9040 |  | b站 残暴fell? | Cheating | 
+flexsleepy#7693 |  | 煎饼 | Cheating | 
+squishsafe#1232 |  | 花生味的名字 | Cheating | 
+tipbright#9969 |  | 11 | Cheating | 
+nounpurple#8471 |  | ewr32424 | Cheating | 
+quillearly#9466 |  | ? | Cheating | 
+stuckink#8892 |  | AI人机 | Cheating | 
+needremiss#2326 |  | 69 | Cheating | 
+shinylure#0346 |  | MD11 | Cheating | 
+visualbow#0206 |  | 【貓貓限定】我是狼 | Cheating | 
+takingcent#8384 |  | i | Cheating | 
+superbfilm#8098 |  | Jesse | Cheating | 
+insidesnug#5858 |  | 你在干什么 | Cheating | 
+tilemousy#6919 |  | 好臭的人 | Cheating | 
+halfawake#6342 |  | YOU | Cheating | 
+micesage#5792 |  | Clamity | Cheating | 
+pupalshank#4261 |  | 999感冒灵 | Cheating | 
+witfervid#6713 |  | raven | Cheating | 
+medianoast#0198 |  | foxy | Cheating | 
+comicfox#0635 |  | pride | Cheating | 
+finishbaby#2850 |  | pop666 | Cheating | 
+tipsyelite#3556 |  | Linus | Cheating | 
+joggerleft#7093 |  | Run4Life | Cheating | 
+lordlyatom#8997 |  | 0 | Cheating | 
+plaincode#3260 |  | I | Cheating | 
+solidhay#2143 |  | ILoveYou | Cheating | 
+homelysofa#7210 |  | Nagva | Cheating | 
+moviebulky#3847 |  | le ghoste | Cheating | 
+cosapt#6243 |  | 卡斯特 | Cheating | 
+splaytale#9633 |  |  | Cheating | 
+socialfee#5455 |  | 原神忠诚玩家 | Cheating | 
+screenawed#9893 |  | Mealfloral | Cheating | 
+vetpiebald#7783 |  | 傻狗Windy | Cheating | 
+seemlysofa#9106 |  | Sawdesktop | Cheating | 
+blondclue#2905 |  | 是稽不是寄 | Cheating | 
+dramatoy#4080 |  | CCBlueX | Cheating | 
+bonnyfibre#6777 |  | TOMsuppn | Cheating | 
+nestshy#8262 |  | A | Cheating | 
+spafain#1094 |  | AUM | Cheating | 
+storedusty#6125 |  | o O | Cheating | 
+farcorn#5146 |  | Acfun | Cheating | 
+tilesteep#2740 |  | Engineer | Cheating | 
+imagetense#5619 |  | Chinese | Cheating | 
+gabledebb#2717 |  | 部屋潰しガチ勢SEX | Cheating | 
+lawnhoppy#4726 |  | 封禁 | Cheating | 
+larkyprow#0965 | 9eb11d42b | Cheater| Cheating | 
+rapidmatch#3120 | 7a320d676 | rawpotato6 | Cheating | 
+panslushy#9362 | 34aaba1bd | No one | Cheating | 
+socialnest#0628 | 2dc0c9013 | ROFL | Cheating | 
+ | 53b5b1a76 | Cheifalike | Cheating | No friendcode cheater
+curtsyboth#4114 | 1f9bbee79 | 龙傲天》 | Cheating | MalumMenu
+shyfortune#7692 | 526f950da | B站日常无语的无语君 | Cheating | AUM
+ | 0a4f7e294 | Melani | Cheating | No friendcode cheater
+sprysign#5596 | 064c15bb6 | Onion | Cheating | 
+errantlug#6514 | 79f0cbe07 | Kerbpoetic | Cheating | AUM
+levelposse#7723 |  | virajwins | Cheating | Cheating while also streaming it
+gummytub#2962 | 0f6992415 |  | Cheating | 
+dollepic#0847 | 17be4645c |  | Cheating | DESTRUCT10
+donehoof#2148 |  |  | Cheating | 
+coachcalm#9343 | 354aa4ac3 | Twinfabled | Cheating |
+goldapex#3225 | a89e4420e | BoomplayYT | Cheating | 
+woveelixir#4088 | 42044d211 | DMD 3CD | Cheating | Cheater and probably BoomplayYT's alt
+tenpalace#1924 | 6a259fcd9 | Goaty | Cheating | 
+pinbrittle#1538 | 4955c179f | Moralmaser | Cheating | Cheating and disrupting lobbies
+dollfly#4791 | 5ba449454 | Mari | Cheating | Spamming RPCs to crash lobbies
 
+## Griefers, Toxic, harrasing, morons
+setmolar#4374 |  | 藏族顶针 | Toxic | 
+overtfeast#5802 |  | 黑影 | Toxic | 
+roomybump#8560 |  | 中国国民党 | Toxic | 
+whipsame#5558 |  | 齐心 习母 | Toxic | 
+epicdoer#2966 |  | 毛泽车 | Toxic | 
+ternaryjog#6069 |  | 习皇帝万岁 | Toxic | 
+bigtunnel#1506 |  | 카제하야가꿈 | Toxic | Discrimination against Chinese
+feeprim#7337 |  | Athena | Toxic | Racism
+sassycalf#9283 | db2adda95 | Caesar | Toxic | 
+afootauto#1216 | 026ad9f54 | 你妈阴道有蛆 | Toxic | 
+rubykop#0410 | a1de8a400 | 习主席近平 | Toxic | 
+netgaff#6739 | 01b5992f0 | 李克强 | Toxic | 
+apemv#5959 | 77c89daa8 |  | Toxic | 
+lineraring#9796 | 02c2ce996 |  | Toxic | Toxic, was attempting to hack games
+secretname#8564 | aa9e48c80 |  | Toxic | 
+polkaoval#0453 |  | 自作Modな橋本環奈 | Toxic | 
+driedbreak#2568 | 2f9986d9f | ASHHHOLE | Toxic | 
+markedfee#5991 | 10e7b3318 | (name-not-known) | Toxic | 
+freepurse#4452 | ee4c01545 | Brinysouth | Toxic | Spamming with the n word
+jetevery#3237 | f00da9258 | Nigertien | Toxic | The n word
+jumpypool#9964 | 7475bd199 | NigH8R | Toxic | The n word
+gougesole#0734 | ed140c20d |  | Toxic | Pedophile Behaviour
+deltamalty#8755 |  | Nggeereee | Toxic | 
+polarsail#2468 |  | hatenggers | Toxic | 
+primesnow#4272 | 65b98a6de | HiverXM | Toxic | The n word
 
 ## Other
-tenthrope#3476,Oldishwire
-greencorps#9587,4a403fe31,ellsbells
-finlucky#6381,433b2e672,Wuwu
-nattertame#9540,0abd54784,Wuwu // Alt account
+tenthrope#3476 |  | Oldishwire | Other | 
+greencorps#9587 | 4a403fe31 | ellsbells | Other | 
+finlucky#6381 | 433b2e672 | Wuwu | Other | 
+nattertame#9540 | 0abd54784 | Wuwu | Other | Alt account

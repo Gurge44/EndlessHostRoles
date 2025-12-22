@@ -659,6 +659,7 @@ internal static class ChatCommands
         if (realKiller != targetId)
         {
             rb.Notified = false;
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Fail"));
         }
         else
@@ -1276,6 +1277,7 @@ internal static class ChatCommands
         if (deadPlayer == 0 && (!NoteKiller.RealNames.TryGetValue(0, out string name) || name != guess))
         {
             NoteKiller.CanGuess = false;
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage(GetString("DeathNoteCommand.WrongName"), player.PlayerId);
             return;
         }
