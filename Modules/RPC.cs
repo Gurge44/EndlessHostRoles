@@ -474,7 +474,7 @@ internal static class RPCHandlerPatch
                         listOptions.Add(OptionItem.AllOptions[option]);
 
                     int countOptions = listOptions.Count;
-                    Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
+                    Logger.Info($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
 
                     // Sync Settings
                     foreach (OptionItem option in listOptions)
