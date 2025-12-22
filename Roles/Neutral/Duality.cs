@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Diagnostics;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
@@ -15,7 +16,7 @@ public class Duality : RoleBase
     public override bool IsEnable => On;
 
     public bool KillingPhase;
-    private long TimerEndTS;
+    private Stopwatch Timer;
     private long LastUpdateTS;
     private byte DualityId;
 
@@ -37,7 +38,8 @@ public class Duality : RoleBase
         On = true;
         KillingPhase = true;
         DualityId = playerId;
-        ResetTimer();
+        Timer = new();
+        LateTask.New(() => Timer = Stopwatch.StartNew(), 10f, log: false);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -71,7 +73,7 @@ public class Duality : RoleBase
         LateTask.New(() =>
         {
             KillingPhase = false;
-            killer.RpcChangeRoleBasis(CanVent.GetBool() ? CustomRoles.EngineerEHR : CustomRoles.CrewmateEHR);
+            killer.RpcSetRoleGlobal(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate);
             killer.RpcResetTasks();
             ResetTimer();
         }, 0.2f, log: false);
@@ -92,7 +94,7 @@ public class Duality : RoleBase
         if (LastUpdateTS == now) return;
         LastUpdateTS = now;
 
-        if (now >= TimerEndTS)
+        if (GetRemainingTime() <= 0)
         {
             pc.Suicide();
             if (pc.AmOwner) Achievements.Type.OutOfTime.Complete();
@@ -102,30 +104,33 @@ public class Duality : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
+    public override void OnReportDeadBody()
+    {
+        Timer.Reset();
+    }
+
     public override void AfterMeetingTasks()
     {
-        if (TimerEndTS - Utils.TimeStamp < 8)
-        {
-            TimerEndTS = Utils.TimeStamp + 8;
-            Utils.SendRPC(CustomRPC.SyncRoleData, DualityId, TimerEndTS, KillingPhase);
-        }
+        ResetTimer();
     }
 
     void ResetTimer()
     {
-        TimerEndTS = Utils.TimeStamp + Time.GetInt() + (Main.IntroDestroyed ? 1 : 12);
-        Utils.SendRPC(CustomRPC.SyncRoleData, DualityId, TimerEndTS, KillingPhase);
+        Timer = Stopwatch.StartNew();
+        Utils.SendRPC(CustomRPC.SyncRoleData, DualityId, KillingPhase);
     }
+
+    long GetRemainingTime() => Time.GetInt() - Timer.Elapsed.Seconds;
 
     public void ReceiveRPC(MessageReader reader)
     {
-        TimerEndTS = long.Parse(reader.ReadString());
         KillingPhase = reader.ReadBoolean();
+        Timer = Stopwatch.StartNew();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != DualityId || seer.PlayerId != target.PlayerId || (!hud && seer.IsModdedClient()) || meeting || !seer.IsAlive()) return string.Empty;
-        return $"<size=80%>{string.Format(Translator.GetString(KillingPhase ? "Duality.MustKill" : "Duality.MustDoTask"), TimerEndTS - Utils.TimeStamp)}</size>";
+        return $"<size=80%>{string.Format(Translator.GetString(KillingPhase ? "Duality.MustKill" : "Duality.MustDoTask"), GetRemainingTime() - 1)}</size>";
     }
 }

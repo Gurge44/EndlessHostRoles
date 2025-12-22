@@ -127,6 +127,13 @@ public static class FixedUpdateCaller
             }
             catch { }
 
+            try
+            {
+                if (amongUsClient.AmHost && GameStates.InGame && !GameStates.IsEnded)
+                    FixedUpdatePatch.LoversSuicide();
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             bool lobby = GameStates.IsLobby;
 
             if (lobby || (Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))

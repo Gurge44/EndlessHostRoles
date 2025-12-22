@@ -8,6 +8,7 @@ public class Thief : RoleBase
 
     private static OptionItem CanStealCovenRoles;
     private static OptionItem ImpostorVision;
+    private static OptionItem CanKillRound1;
 
     public override bool IsEnable => On;
 
@@ -15,7 +16,8 @@ public class Thief : RoleBase
     {
         StartSetup(656400)
             .AutoSetupOption(ref CanStealCovenRoles, false)
-            .AutoSetupOption(ref ImpostorVision, false);
+            .AutoSetupOption(ref ImpostorVision, false)
+            .AutoSetupOption(ref CanKillRound1, false);
     }
 
     public override void Init()
@@ -30,7 +32,7 @@ public class Thief : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return !MeetingStates.FirstMeeting || CanKillRound1.GetBool();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

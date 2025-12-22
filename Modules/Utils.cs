@@ -460,12 +460,6 @@ public static class Utils
         }
     }
 
-    public static void RemovePlayerFromPreviousRoleData(PlayerControl target)
-    {
-        if (!Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state)) return;
-        state.Role.Remove(target.PlayerId);
-    }
-
     public static string GetDisplayRoleName(byte playerId, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
         (string, Color) textData = GetRoleText(playerId, playerId, pure, seeTargetBetrayalAddons);
@@ -1177,7 +1171,7 @@ public static class Utils
             }
 
             TaskState taskState = state.TaskState;
-            if (!taskState.HasTasks) return string.Empty;
+            if (!taskState.HasTasks || taskState.AllTasksCount == 0) return string.Empty;
 
             NetworkedPlayerInfo info = GetPlayerInfoById(playerId);
             bool hasTasks = HasTasks(info);
@@ -3455,10 +3449,6 @@ public static class Utils
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);
-
-        if (role.SimpleAbilityTrigger() &&
-            (Options.UsePhantomBasis.GetBool() && (!role.IsNeutral() || Options.UsePhantomBasisForNKs.GetBool())) && !role.AlwaysUsesPhantomBase())
-            GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
     public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(byte seerId, byte targetId = byte.MaxValue)

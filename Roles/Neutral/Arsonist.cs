@@ -95,14 +95,17 @@ internal class Arsonist : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        float cooldown = ArsonistCooldown.GetFloat();
+        
         if (ArsonistCanIgniteAnytime.GetBool() && IsDoused[(killer.PlayerId, target.PlayerId)] && Utils.GetDousedPlayerCount(killer.PlayerId).Doused >= ArsonistMinPlayersToIgnite.GetInt())
         {
+            killer.SetKillCooldown(cooldown);
             Ignite(killer.MyPhysics);
             return false;
         }
         
         float douseTime = ArsonistDouseTime.GetFloat();
-        killer.SetKillCooldown(Mathf.Approximately(douseTime, 0f) ? ArsonistCooldown.GetFloat() : douseTime);
+        killer.SetKillCooldown(Mathf.Approximately(douseTime, 0f) ? cooldown : douseTime);
 
         if (!IsDoused[(killer.PlayerId, target.PlayerId)] && !ArsonistTimer.ContainsKey(killer.PlayerId) && killer.RpcCheckAndMurder(target, check: true))
         {

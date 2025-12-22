@@ -999,7 +999,7 @@ public static class GuessManager
                         if (selectedButton != button)
                         {
                             selectedButton = button;
-                            buttons.ForEach(x => x.GetComponent<SpriteRenderer>().color = x == selectedButton ? Utils.GetRoleColor(PlayerControl.LocalPlayer.GetCustomRole()) : Main.DarkTheme.Value ? new Color(0.1f, 0.1f, 0.1f) : Color.white);
+                            buttons.ForEach(x => x.GetComponent<SpriteRenderer>().color = x == selectedButton ? Utils.GetRoleColor(PlayerControl.LocalPlayer.GetCustomRole()) : Main.DarkThemeForMeetingUI.Value ? new Color(0.1f, 0.1f, 0.1f) : Color.white);
                         }
                         else
                         {

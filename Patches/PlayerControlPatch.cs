@@ -648,7 +648,7 @@ internal static class MurderPlayerPatch
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
-        if (Butcher.ButcherDeadPlayerList.Contains(target.PlayerId)) return;
+        if (Butcher.ButcherDeadPlayerList.Contains(target.PlayerId) || (__instance.AmOwner && __instance.Is(CustomRoles.SoulCollector))) return;
 
         PlayerControl killer = __instance; // Alternative variable
 
@@ -1377,7 +1377,8 @@ internal static class ReportDeadBodyPatch
                             RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
                         }
 
-                        if (pc.IsShifted()) pc.RpcShapeshift(pc, false);
+                        if (Main.CheckShapeshift.ContainsKey(pc.PlayerId))
+                            pc.RpcShapeshift(pc, false);
                     }
                     else if (!pc.Data.IsDead)
                         pc.RpcExileV2();
@@ -1670,9 +1671,6 @@ internal static class FixedUpdatePatch
 
             if (AmongUsClient.Instance.AmHost && inTask && alive && Options.LadderDeath.GetBool())
                 FallFromLadder.FixedUpdate(player);
-
-            if (self && GameStates.IsInGame)
-                LoversSuicide();
 
             if (inTask && self && Options.DisableDevices.GetBool())
                 DisableDevice.FixedUpdate();

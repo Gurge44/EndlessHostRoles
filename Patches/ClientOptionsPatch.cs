@@ -21,6 +21,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
     private static ClientOptionItem DarkTheme;
+    private static ClientOptionItem DarkThemeForMeetingUI;
     private static ClientOptionItem HorseMode;
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
@@ -130,6 +131,9 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (DarkTheme == null || DarkTheme.ToggleButton == null)
             DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
+        
+        if (DarkThemeForMeetingUI == null || DarkThemeForMeetingUI.ToggleButton == null)
+            DarkThemeForMeetingUI = ClientOptionItem.Create("DarkThemeForMeetingUI", Main.DarkThemeForMeetingUI, __instance);
 
         if (HorseMode == null || HorseMode.ToggleButton == null)
         {

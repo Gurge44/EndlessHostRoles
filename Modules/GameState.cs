@@ -114,7 +114,7 @@ public class PlayerState(byte playerId)
 
     public void SetMainRole(CustomRoles role)
     {
-        try { Utils.RemovePlayerFromPreviousRoleData(Player); }
+        try { Role.Remove(PlayerId); }
         catch (Exception e) { Utils.ThrowException(e); }
 
         if (Main.IntroDestroyed && (RoleHistory.Count == 0 || RoleHistory[^1] != MainRole))

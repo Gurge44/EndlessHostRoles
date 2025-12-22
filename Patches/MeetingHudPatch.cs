@@ -1418,7 +1418,7 @@ static class NamePlateDarkThemePatch
 {
     public static void Postfix(PlayerVoteArea __instance)
     {
-        if (Main.DarkTheme.Value)
+        if (Main.DarkThemeForMeetingUI.Value)
             __instance.Background.color = new Color(0.1f, 0.1f, 0.1f);
     }
 }
@@ -1428,7 +1428,7 @@ static class MeetingHud_Start
 {
     public static void Postfix(MeetingHud __instance)
     {
-        if (!Main.DarkTheme.Value) return;
+        if (!Main.DarkThemeForMeetingUI.Value) return;
         __instance.meetingContents.transform.FindChild("PhoneUI").FindChild("baseColor").GetComponent<SpriteRenderer>().color = new Color(0.01f, 0.01f, 0.01f);
         __instance.Glass.color = new Color(0.7f, 0.7f, 0.7f, 0.3f);
         __instance.SkipVoteButton.GetComponent<SpriteRenderer>().color = new Color(0.4f, 0.4f, 0.4f);

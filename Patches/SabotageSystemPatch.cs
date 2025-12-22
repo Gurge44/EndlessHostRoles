@@ -181,7 +181,7 @@ public static class MushroomMixupSabotageSystemPatch
             LateTask.New(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
-                Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => x.RpcResetAbilityCooldown());
+                Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() == RoleTypes.Shapeshifter, x => x.RpcResetAbilityCooldown());
 
                 ReportDeadBodyPatch.CanReport.SetAllValues(true);
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");

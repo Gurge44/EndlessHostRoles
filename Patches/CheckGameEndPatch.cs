@@ -291,17 +291,17 @@ internal static class GameEndChecker
 
                 if (WinnerTeam != CustomWinner.CustomTeam && CustomTeamManager.EnabledCustomTeams.Count > 0)
                 {
-                    Dictionary<CustomTeamManager.CustomTeam, IEnumerable<byte>> teams = Main.AllPlayerControls
+                    Dictionary<CustomTeamManager.CustomTeam, byte[]> teams = Main.AllPlayerControls
                         .Select(x => new { Team = CustomTeamManager.GetCustomTeam(x.PlayerId), Player = x })
                         .Where(x => x.Team != null)
                         .GroupBy(x => x.Team)
-                        .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId));
+                        .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId).ToArray());
 
-                    foreach ((CustomTeamManager.CustomTeam team, IEnumerable<byte> playerIds) in teams)
+                    foreach ((CustomTeamManager.CustomTeam team, byte[] playerIds) in teams)
                     {
                         bool winWithOriginalTeam = CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.WinWithOriginalTeam);
 
-                        if (CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.OriginalWinCondition) && (winWithOriginalTeam || WinnerTeam is not (CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Coven or CustomWinner.Neutrals)))
+                        if (CustomTeamManager.IsSettingEnabledForTeam(team, CTAOption.OriginalWinCondition) && playerIds.Any(WinnerIds.Contains) && (winWithOriginalTeam || WinnerTeam is not (CustomWinner.Impostor or CustomWinner.Crewmate or CustomWinner.Coven or CustomWinner.Neutrals)))
                             WinnerIds.UnionWith(playerIds);
                         else if (!winWithOriginalTeam)
                             WinnerIds.ExceptWith(playerIds);

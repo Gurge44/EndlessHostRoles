@@ -377,7 +377,7 @@ internal static class ExtendedPlayerControl
     }
 
     // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
-    public static void RpcSetRoleGlobal(this PlayerControl player, RoleTypes roleTypes)
+    public static void RpcSetRoleGlobal(this PlayerControl player, RoleTypes roleTypes, bool setRoleMap = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (AmongUsClient.Instance.AmClient) player.StartCoroutine(player.CoSetRole(roleTypes, true));
@@ -386,6 +386,19 @@ internal static class ExtendedPlayerControl
         writer.Write(true);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Logger.Info($" {player.GetNameWithRole()} => {roleTypes}", "RpcSetRoleGlobal");
+
+        if (setRoleMap)
+        {
+            foreach ((byte seerID, byte targetID) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap.Keys.ToArray())
+            {
+                if (targetID == player.PlayerId)
+                {
+                    var value = StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerID, targetID)];
+                    value.RoleType = roleTypes;
+                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerID, targetID)] = value;
+                }
+            }
+        }
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)

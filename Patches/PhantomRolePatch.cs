@@ -66,7 +66,7 @@ public static class PhantomRolePatch
             {
                 HudManager.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
                 if (Utils.ShouldNotApplyAbilityCooldown(roleBase)) return false;
-                phantom.Data.Role.SetCooldown();
+                phantom.RpcResetAbilityCooldown();
                 return false;
             }
 
@@ -78,17 +78,13 @@ public static class PhantomRolePatch
                 .Write(true)
                 .EndRpc();
 
-            if (Utils.ShouldNotApplyAbilityCooldown(roleBase))
+            if (!Utils.ShouldNotApplyAbilityCooldown(roleBase))
             {
-                sender.EndMessage();
-                sender.SendMessage();
-                return false;
+                sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
+                    .WriteNetObject(phantom)
+                    .Write(0)
+                    .EndRpc();
             }
-            
-            sender.StartRpc(phantom.NetId, RpcCalls.ProtectPlayer)
-                .WriteNetObject(phantom)
-                .Write(0)
-                .EndRpc();
 
             sender.EndMessage();
             sender.SendMessage();

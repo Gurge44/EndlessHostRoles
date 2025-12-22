@@ -97,7 +97,7 @@ public class Venerer : RoleBase
                 Utils.NotifyRoles(SpecifyTarget: pc);
                 LateTask.New(() =>
                 {
-                    if (!ChangedSkin || pc == null || !pc.IsAlive()) return;
+                    if (!ChangedSkin || pc == null || !pc.IsAlive() || Camouflage.IsCamouflage) return;
                     Utils.RpcChangeSkin(pc, outfit);
                     ChangedSkin = false;
                     Utils.NotifyRoles(SpecifyTarget: pc);

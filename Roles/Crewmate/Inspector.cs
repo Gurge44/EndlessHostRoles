@@ -439,7 +439,7 @@ public class Inspector : RoleBase
 
         if (FirstPick.TryGetValue(lpcId, out byte firstPick))
         {
-            InspectorCheckMsg(PlayerControl.LocalPlayer, $"/cp {playerId} {firstPick}");
+            InspectorCheckMsg(lpcId.GetPlayer(), $"/cp {playerId} {firstPick}", lpcId.IsPlayerModdedClient());
             FirstPick.Remove(lpcId);
         }
         else

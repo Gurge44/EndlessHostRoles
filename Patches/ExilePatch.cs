@@ -89,7 +89,7 @@ internal static class ExileControllerWrapUpPatch
             }
 
             pc.ResetKillCooldown(false);
-            pc.RpcResetAbilityCooldown();
+            if (!Utils.ShouldNotApplyAbilityCooldownAfterMeeting(pc)) pc.RpcResetAbilityCooldown();
             PetsHelper.RpcRemovePet(pc);
         }
 

@@ -83,8 +83,6 @@ public class Shifter : RoleBase
 
         CustomRoles targetRole = target.GetCustomRole();
 
-        Utils.RemovePlayerFromPreviousRoleData(target);
-
         killer.RpcSetCustomRole(targetRole);
         killer.RpcChangeRoleBasis(targetRole);
 

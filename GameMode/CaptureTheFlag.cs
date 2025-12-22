@@ -379,7 +379,7 @@ public static class CaptureTheFlag
                         try
                         {
                             var pc1 = id1.GetPlayer();
-                            if (pc1 == null) continue;
+                            if (pc1 == null || pc1.AmOwner) continue;
 
                             var sender = CustomRpcSender.Create("CTF Set Teams");
                             sender.StartMessage(pc1.OwnerId);

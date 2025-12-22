@@ -1481,7 +1481,6 @@ internal static class RPC
 
         int amountAllOptions = OptionItem.AllOptions.Count;
 
-        Logger.Msg(" Starting", "SyncCustomSettings");
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
         writer.Write(startAmount);
         writer.Write(lastAmount);
@@ -1492,13 +1491,12 @@ internal static class RPC
         for (int option = startAmount; option < amountAllOptions && option <= lastAmount; option++) listOptions.Add(OptionItem.AllOptions[option]);
 
         int countListOptions = listOptions.Count;
-        Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
+        Logger.Info($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
 
         // Sync Settings
         foreach (OptionItem option in listOptions) writer.WritePacked(option.GetValue());
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-        Logger.Msg(" Finished", "SyncCustomSettings");
     }
 
     public static void PlaySoundRPC(byte playerID, Sounds sound)

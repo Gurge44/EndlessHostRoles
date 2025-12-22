@@ -76,15 +76,18 @@ public class Imitator : RoleBase
         {
             var command = $"/imitate {playerId}";
             ChatCommands.ImitateCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+
+            if (ImitatingRole.ContainsKey(PlayerControl.LocalPlayer.PlayerId))
+            {
+                foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
+                {
+                    Transform button = pva.transform.FindChild("ImitatorButton");
+                    if (button != null) Object.Destroy(button.gameObject);
+                }
+            }
         }
         else
             SendRPC(playerId);
-
-        foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
-        {
-            Transform button = pva.transform.FindChild("ImitatorButton");
-            if (button != null) Object.Destroy(button.gameObject);
-        }
     }
 
     private static void CreateImitatorButton(MeetingHud __instance)

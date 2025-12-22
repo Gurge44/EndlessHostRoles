@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -78,8 +80,10 @@ internal static class CustomTeamManager
         UpdateEnabledTeams();
         if (EnabledCustomTeams.Count == 0) return;
 
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        
         CustomTeamPlayerIds = Main.PlayerStates
-            .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
+            .IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key)
             .GroupBy(x => EnabledCustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
             .Where(x => x.Key != null)
             .ToDictionary(x => x.Key, x => TakeAsManyAsSet(x, x.Key));
@@ -105,6 +109,19 @@ internal static class CustomTeamManager
                     TargetArrow.Add(player, target);
                 }
             }
+        }
+
+        var imps = aapc.Where(x => x.IsImpostor() && !CustomTeamPlayerIds.Values.Any(l => l.Contains(x.PlayerId))).ToList();
+
+        if (imps.Count > 0)
+        {
+            CustomTeamPlayerIds.Values.Flatten().ToValidPlayers().DoIf(x => x != null && x.IsImpostor() && !IsSettingEnabledForPlayerTeam(x.PlayerId, CTAOption.WinWithOriginalTeam), ctp =>
+            {
+                imps.ForEach(imp => ctp.RpcSetRoleDesync(RoleTypes.Crewmate, imp.OwnerId, setRoleMap: true));
+                var sender = CustomRpcSender.Create("CustomTeamManager_SetImpostorDesync", SendOption.Reliable);
+                imps.ForEach(imp => sender.RpcSetRole(imp, RoleTypes.Crewmate, ctp.OwnerId, changeRoleMap: true));
+                sender.SendMessage();
+            });
         }
 
         return;

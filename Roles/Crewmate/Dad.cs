@@ -164,6 +164,9 @@ public class Dad : RoleBase
     public override void Remove(byte playerId)
     {
         Instances.Remove(this);
+        if (!AmongUsClient.Instance.AmHost) return;
+        Main.AllPlayerSpeed[playerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        PlayerGameOptionsSender.SetDirty(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

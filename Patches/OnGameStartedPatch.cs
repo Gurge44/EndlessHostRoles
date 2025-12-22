@@ -871,26 +871,6 @@ internal static class StartGameHostPatch
 
         try
         {
-            if (CustomTeamManager.EnabledCustomTeams.Count > 0)
-            {
-                var imps = RoleResult.Where(x => x.Value.IsImpostor() && !CustomTeamManager.CustomTeamPlayerIds.Values.Any(l => l.Contains(x.Key))).Select(x => x.Key).ToValidPlayers().ToHashSet();
-
-                if (imps.Count > 0)
-                {
-                    CustomTeamManager.CustomTeamPlayerIds.Values.Flatten().ToValidPlayers().DoIf(x => x != null && x.IsImpostor() && !CustomTeamManager.IsSettingEnabledForPlayerTeam(x.PlayerId, CTAOption.WinWithOriginalTeam), ctp =>
-                    {
-                        imps.Do(imp => ctp.RpcSetRoleDesync(RoleTypes.Scientist, imp.OwnerId, setRoleMap: true));
-                        var sender = CustomRpcSender.Create("CustomTeamManager_SetImpostorDesync", SendOption.Reliable);
-                        imps.Do(imp => sender.RpcSetRole(imp, RoleTypes.Scientist, ctp.OwnerId, changeRoleMap: true));
-                        sender.SendMessage();
-                    });
-                }
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
-        try
-        {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 if (!Main.PlayerStates.ContainsKey(pc.PlayerId)) Main.PlayerStates[pc.PlayerId] = new PlayerState(pc.PlayerId);
@@ -1043,7 +1023,7 @@ internal static class StartGameHostPatch
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
+            LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 4f, log: false);
 
             if (overrideLovers) Logger.Msg(Main.LoversPlayers.Join(x => x?.GetRealName()), "Lovers");
 
