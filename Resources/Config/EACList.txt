@@ -93,6 +93,7 @@ dollfly#4791 | 5ba449454 | Mari | Cheating | Spamming RPCs to crash lobbies
 
 byechic#6270 | 91e0145f1 | (Contains n word) | Harassing a streamer with a slur in the IGN | 
 waiverfore#0496 | b493df896 |  | Hacking in syl's lobby | 
+whaleutter#4768 | 9e04dc5d5 |  | Cheaing in syl's lobby | no name hacker
 ## Griefers, Toxic, harrasing, morons
 setmolar#4374 |  | 藏族顶针 | Toxic | 
 overtfeast#5802 |  | 黑影 | Toxic | 
