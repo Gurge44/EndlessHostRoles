@@ -61,6 +61,7 @@ public class SoulCollector : RoleBase
         {
             state.deathReason = PlayerState.DeathReason.Kill;
             state.SetDead();
+            target.SetRealKiller(killer);
         }
 
         if (killer.AmOwner)
