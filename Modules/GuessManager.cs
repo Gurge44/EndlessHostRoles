@@ -36,7 +36,7 @@ public static class GuessManager
 
     public static string GetFormatString()
     {
-        return Main.AllAlivePlayerControls.Aggregate(GetString("PlayerIdList"), (current, pc) => current + $"\n{pc.PlayerId.ToString()} → {pc.GetRealName()}");
+        return Main.AllPlayerControls.Aggregate(GetString("PlayerIdList"), (current, pc) => current + $"\n{pc.PlayerId.ToString()} → {pc.GetRealName()}");
     }
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)

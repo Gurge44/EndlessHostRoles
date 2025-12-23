@@ -180,6 +180,11 @@ public class Spider : RoleBase
         }
     }
 
+    public override void OnReportDeadBody()
+    {
+        Webs.SetAllValues([]);
+    }
+
     public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)
     {
         foreach (Spider instance in Instances)

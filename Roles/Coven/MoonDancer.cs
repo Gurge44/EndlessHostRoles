@@ -81,7 +81,7 @@ public class MoonDancer : Coven
         {
             if (HasNecronomicon && !StealAllAddonsOnKill.GetBool()) return true;
             PlayerState state = Main.PlayerStates[target.PlayerId];
-            state.SubRoles.FindAll(x => !killer.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, killer)).ForEach(x =>
+            state.SubRoles.FindAll(x => !killer.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted() && CustomRolesHelper.CheckAddonConflict(x, killer)).ForEach(x =>
             {
                 killer.RpcSetCustomRole(x);
                 state.RemoveSubRole(x);
@@ -94,7 +94,7 @@ public class MoonDancer : Coven
         
         void GiveAddon()
         {
-            CustomRoles addon = Options.GroupedAddons[target.Is(Team.Coven) ? AddonTypes.Helpful : AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
+            CustomRoles addon = Options.GroupedAddons[target.Is(Team.Coven) ? AddonTypes.Helpful : AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
             if (addon == default(CustomRoles))
                 return;
 
@@ -109,7 +109,7 @@ public class MoonDancer : Coven
 
     public override bool OnVanish(PlayerControl pc)
     {
-        CustomRoles addon = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame()).RandomElement();
+        CustomRoles addon = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted()).RandomElement();
         if (addon == default(CustomRoles)) return false;
         pc.RpcSetCustomRole(addon);
         return false;
