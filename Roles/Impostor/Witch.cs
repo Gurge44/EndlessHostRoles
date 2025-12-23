@@ -312,7 +312,7 @@ public class Witch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModdedClient() && !hud)) return string.Empty;
+        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var str = new StringBuilder();
 
@@ -339,8 +339,10 @@ public class Witch : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (SpellMode && NowSwitchTrigger is not SwitchTrigger.DoubleTrigger and not SwitchTrigger.Vanish)
-            hud.KillButton.OverrideText(GetString("WitchSpellButtonText"));
+        if (SpellMode && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
+            hud.KillButton.OverrideText(IsHM ? GetString("HexButtonText") : GetString("WitchSpellButtonText"));
+        else if (SpellMode && NowSwitchTrigger == SwitchTrigger.Vanish)
+            hud.AbilityButton.OverrideText(IsHM ? GetString("HexButtonText") : GetString("WitchSpellButtonText"));
         else
             hud.KillButton.OverrideText(GetString("KillButtonText"));
     }
