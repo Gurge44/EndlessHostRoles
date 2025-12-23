@@ -79,6 +79,7 @@ public class Magistrate : RoleBase
 
     private static void UseAbility(PlayerControl pc)
     {
+        pc.RPCPlayCustomSound("Line");
         pc.RpcRemoveAbilityUse();
         CallCourtNextMeeting = true;
     }

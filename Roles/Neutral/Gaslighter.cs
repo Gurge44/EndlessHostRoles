@@ -80,6 +80,22 @@ public class Gaslighter : RoleBase
         };
     }
 
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        switch (CurrentRound)
+        {
+            case Round.Knight:
+                hud.KillButton?.OverrideText(Translator.GetString("MonarchKillButtonText"));
+                break;
+            case Round.Curse:
+                hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
+                break;
+            case Round.Shield:
+                hud.KillButton?.OverrideText(Translator.GetString("MedicalerButtonText"));
+                break;
+        }
+    }
+
     public static void OnExile(byte[] exileIds)
     {
         try
@@ -195,12 +211,15 @@ public class Gaslighter : RoleBase
                 killer.SetKillCooldown();
                 break;
             case Round.Curse:
+                killer.RPCPlayCustomSound("Curse");
                 CursedPlayers.Add(target.PlayerId);
                 Utils.SendRPC(CustomRPC.SyncRoleData, GaslighterId, 1, target.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 killer.SetKillCooldown();
                 break;
             case Round.Shield when killer.GetAbilityUseLimit() > 0:
+                killer.RPCPlayCustomSound("Shield");
+                target.RPCPlayCustomSound("Shield");
                 ShieldedPlayers.Add(target.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);

@@ -81,11 +81,11 @@ internal class Vector : RoleBase
         VectorVentCount[pc.PlayerId]++;
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        pc.RPCPlayCustomSound("VectorJump");
+        pc.RPCPlayCustomSound("MarioJump");
 
         if (AmongUsClient.Instance.AmHost && VectorVentCount[pc.PlayerId] >= VectorVentNumWin)
         {
-            pc.RPCPlayCustomSound("VectorCoin");
+            pc.RPCPlayCustomSound("MarioCoin");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vector);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
