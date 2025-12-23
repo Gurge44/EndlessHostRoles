@@ -249,7 +249,7 @@ public class Wizard : RoleBase
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, TaskMode);
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
-                pc.RpcSetRoleGlobal(RoleTypes.Crewmate);
+                pc.RpcSetRoleGlobal(RoleTypes.Crewmate, setRoleMap: true);
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 TaskMode = true;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4, TaskMode);

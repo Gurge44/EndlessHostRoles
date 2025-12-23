@@ -83,7 +83,7 @@ public class Carrier : RoleBase
                 TaskMode = true;
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
-                pc.RpcSetRoleGlobal(RoleTypes.Crewmate);
+                pc.RpcSetRoleGlobal(RoleTypes.Crewmate, setRoleMap: true);
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 TaskMode = true;
                 break;

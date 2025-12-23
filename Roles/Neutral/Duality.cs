@@ -73,7 +73,7 @@ public class Duality : RoleBase
         LateTask.New(() =>
         {
             KillingPhase = false;
-            killer.RpcSetRoleGlobal(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate);
+            killer.RpcSetRoleGlobal(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, setRoleMap: true);
             killer.RpcResetTasks();
             ResetTimer();
         }, 0.2f, log: false);
@@ -82,7 +82,7 @@ public class Duality : RoleBase
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         KillingPhase = true;
-        pc.RpcChangeRoleBasis(CustomRoles.Duality);
+        pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId, setRoleMap: true);
         ResetTimer();
     }
 
