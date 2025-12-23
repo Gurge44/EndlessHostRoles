@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Neutral;
 
