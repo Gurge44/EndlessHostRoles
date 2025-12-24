@@ -10,6 +10,7 @@ internal class Phantasm : IGhostRole
 
     public bool IsWon;
     public Team Team => Team.Neutral;
+    public RoleTypes RoleTypes => RoleTypes.CrewmateGhost;
     public int Cooldown => 900;
 
     public void OnAssign(PlayerControl pc)
@@ -27,7 +28,6 @@ internal class Phantasm : IGhostRole
 
             pc.RpcResetTasks();
             pc.SyncSettings();
-            pc.RpcResetAbilityCooldown();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, 1f, "Phantasm Assign");
     }

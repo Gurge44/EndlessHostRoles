@@ -14,7 +14,7 @@ internal class Haunter : IGhostRole
     private static OptionItem RevealNeutralKillers;
     private static OptionItem RevealMadmates;
     private static OptionItem NumberOfReveals;
-    public static OptionItem CanWinWithCrewmates;
+    private static OptionItem CanWinWithCrewmates;
 
     private static readonly string[] WinWithCrewOpts =
     [
@@ -28,6 +28,7 @@ internal class Haunter : IGhostRole
     private long WarnTimeStamp;
 
     public Team Team => Team.Crewmate | Team.Neutral;
+    public RoleTypes RoleTypes => RoleTypes.CrewmateGhost;
     public int Cooldown => 900;
 
     public void OnProtect(PlayerControl pc, PlayerControl target) { }
@@ -47,7 +48,6 @@ internal class Haunter : IGhostRole
 
             pc.RpcResetTasks();
             pc.SyncSettings();
-            pc.RpcResetAbilityCooldown();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, 1f, "Haunter Assign");
     }
@@ -95,14 +95,14 @@ internal class Haunter : IGhostRole
             };
         });
 
+        WarnTimeStamp = Utils.TimeStamp + 2;
+
         foreach (PlayerControl imp in filtered)
         {
             TargetArrow.Add(imp.PlayerId, pc.PlayerId);
             WarnedImps.Add(imp.PlayerId);
             imp.Notify(Translator.GetString("Haunter1TaskLeft"), 10f);
         }
-
-        WarnTimeStamp = Utils.TimeStamp;
     }
 
     public void OnFinishedTasks(PlayerControl pc)
@@ -123,15 +123,17 @@ internal class Haunter : IGhostRole
 
         AllHauntedPlayers.UnionWith(targets);
 
-        targets.ForEach(x => Utils.GetPlayerById(x)?.Notify(Translator.GetString("HaunterRevealedYou"), 7f));
-        WarnedImps.ForEach(x => Utils.GetPlayerById(x)?.Notify(Translator.GetString("HaunterFinishedTasks"), 7f));
+        var targetPcs = targets.ToValidPlayers();
 
-        targets.ToValidPlayers().ForEach(x => Utils.NotifyRoles(SpecifyTarget: x));
+        targetPcs.ForEach(x => x.Notify(Translator.GetString("HaunterRevealedYou"), 10f));
+        WarnedImps.ToValidPlayers().ForEach(x => x.Notify(Translator.GetString("HaunterFinishedTasks"), 10f));
+
+        targetPcs.ForEach(x => Utils.NotifyRoles(SpecifyTarget: x));
     }
 
     public void Update(PlayerControl pc)
     {
-        if (WarnedImps.Count == 0 || WarnTimeStamp == Utils.TimeStamp) return;
+        if (WarnedImps.Count == 0 || WarnTimeStamp >= Utils.TimeStamp) return;
 
         if (WarnedImps.Any(imp => TargetArrow.GetArrows(Utils.GetPlayerById(imp), pc.PlayerId) == "・"))
         {

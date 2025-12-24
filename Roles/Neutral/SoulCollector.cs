@@ -109,14 +109,16 @@ public class SoulCollector : RoleBase
         {
             var sender = CustomRpcSender.Create("SoulCollector Post Exile", SendOption.Reliable);
             sender.StartMessage();
-            ToExile.ToValidPlayers().ForEach(x =>
+            List<PlayerControl> toExile = ToExile.ToValidPlayers();
+            ToExile = [];
+            toExile.ForEach(x =>
             {
                 Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                x.Exiled();
                 sender.StartRpc(x.NetId, RpcCalls.Exiled)
                     .EndRpc();
             });
             sender.SendMessage();
-            ToExile = [];
         }
     }
 }

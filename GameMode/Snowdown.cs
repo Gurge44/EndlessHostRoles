@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -242,6 +243,7 @@ public static class Snowdown
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        killer.SetKillCooldown(5f);
         if (!Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.SnowballsReady < 1 || targetData.SnowballsReady >= targetData.MaxSnowballsReady) return;
         killerData.SnowballsReady--;
         targetData.SnowballsReady++;
@@ -279,20 +281,7 @@ public static class Snowdown
                 data.LastPosition = pos;
             }
 
-            foreach (PlayerControl target in Main.AllAlivePlayerControls)
-            {
-                string suffix = GetSuffix(__instance, target);
-                
-                if (!data.LastSuffix.TryGetValue(target.PlayerId, out string lastSuffix))
-                    goto Skip;
-                
-                if (lastSuffix != suffix)
-                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: target);
-
-                Skip:
-                
-                data.LastSuffix[target.PlayerId] = suffix;
-            }
+            Utils.NotifyRoles(SpecifySeer: __instance, SendOption: SendOption.None);
         }
     }
 
@@ -310,7 +299,6 @@ public static class Snowdown
         private int ShopSelectedIndex;
         public int Points;
         private bool ShowHelp;
-        public readonly Dictionary<byte, string> LastSuffix = [];
 
         public void OnSabotage(PlayerControl pc)
         {

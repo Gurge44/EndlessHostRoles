@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 
 namespace EHR.AddOns.GhostRoles;
@@ -11,6 +12,7 @@ internal class Minion : IGhostRole
     private static OptionItem CD;
 
     public Team Team => Team.Impostor;
+    public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
     public int Cooldown => CD.GetInt();
 
     public void OnProtect(PlayerControl pc, PlayerControl target)

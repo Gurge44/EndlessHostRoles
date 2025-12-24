@@ -34,7 +34,7 @@ public class Silencer : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer, zeroOne: true);
+        SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
 
         SkillCooldown = new FloatOptionItem(Id + 5, "AbilityCooldown", new(2.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
@@ -168,19 +168,5 @@ public class Silencer : RoleBase
         if (ForSilencer.Count == 0) return;
         ForSilencer.Clear();
         PlayerIdList.ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, x, 2));
-    }
-
-    public override void OnReportDeadBody()
-    {
-        if (ForSilencer.Count == 0) return;
-        Main.Instance.StartCoroutine(WaitForVote());
-        return;
-        
-        System.Collections.IEnumerator WaitForVote()
-        {
-            while (MeetingHud.Instance && MeetingHud.Instance.state is not (MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted) && !GameStates.IsEnded && GameStates.InGame && !ExileController.Instance) yield return null;
-            if (!MeetingHud.Instance || GameStates.IsEnded || !GameStates.InGame || ExileController.Instance) yield break;
-            ForSilencer.ForEach(x => MeetingHud.Instance.CastVote(x, 253)); // 253 is skip vote
-        }
     }
 }

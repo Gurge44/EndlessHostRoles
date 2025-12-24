@@ -1542,7 +1542,7 @@ internal static class FixedUpdatePatch
                         if (!BanManager.TempBanWhiteList.Contains(hashedPuid)) BanManager.TempBanWhiteList.Add(hashedPuid);
                     }
 
-                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1) && !LobbyPatch.IsGlitchedRoomCode())
+                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1))
                     {
                         string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
                         Logger.SendInGame(msg, Color.yellow);
@@ -2259,6 +2259,35 @@ internal static class PlayerControlCompleteTaskPatch
     }
 }
 
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.OnPlayerDeath))]
+static class GameManagerOnPlayerDeathPatch
+{
+    public static void Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] ref bool assignGhostRole)
+    {
+        if (!ReportDeadBodyPatch.MeetingStarted && !GameStates.IsMeeting && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(player.PlayerId)))
+            assignGhostRole = false;
+    }
+}
+
+[HarmonyPatch(typeof(LogicRoleSelectionNormal), nameof(LogicRoleSelectionNormal.OnPlayerDeath))]
+static class LogicRoleSelectionNormalOnPlayerDeathPatch
+{
+    public static void Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] ref bool assignGhostRole)
+    {
+        if (!ReportDeadBodyPatch.MeetingStarted && !GameStates.IsMeeting && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(player.PlayerId)))
+            assignGhostRole = false;
+    }
+}
+
+[HarmonyPatch(typeof(RoleManager), nameof(RoleManager.AssignRoleOnDeath))]
+static class RoleManagerAssignRoleOnDeathPatch
+{
+    public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
+    {
+        return ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || !Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(player.PlayerId));
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Die))]
 public static class PlayerControlDiePatch
 {
@@ -2345,7 +2374,9 @@ internal static class PlayerControlSetRolePatch
 
         if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
         {
-            if (__instance.HasGhostRole() || GhostRolesManager.ShouldHaveGhostRole(__instance))
+            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out var ghostRole))
+                roleType = ghostRole.Instance.RoleTypes;
+            else if (GhostRolesManager.ShouldHaveGhostRole(__instance))
                 roleType = RoleTypes.GuardianAngel;
             else if (!(__instance.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.Role.CanUseSabotage(__instance))
                 roleType = RoleTypes.ImpostorGhost;

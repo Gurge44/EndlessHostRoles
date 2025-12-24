@@ -1,10 +1,13 @@
-﻿namespace EHR.AddOns.GhostRoles;
+﻿using AmongUs.GameOptions;
+
+namespace EHR.AddOns.GhostRoles;
 
 public class Facilitator : IGhostRole
 {
     private static OptionItem CD;
 
     public Team Team => Team.Coven;
+    public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
     public int Cooldown => CD.GetInt();
 
     public void OnProtect(PlayerControl pc, PlayerControl target)

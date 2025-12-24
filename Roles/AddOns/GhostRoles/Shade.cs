@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.AddOns.GhostRoles;
 
@@ -9,6 +10,7 @@ public class Shade : IGhostRole
     public HashSet<byte> Protected = [];
     
     public Team Team => Team.Neutral;
+    public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
     public int Cooldown => CD.GetInt();
     
     public void OnProtect(PlayerControl pc, PlayerControl target)

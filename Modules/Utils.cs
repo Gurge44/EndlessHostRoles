@@ -3539,16 +3539,13 @@ public static class Utils
                 }
 
                 Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
-
-                if (pc.Is(CustomRoles.Phantasm) || pc.Is(CustomRoles.Haunter))
-                    pc.RpcResetAbilityCooldown();
             
                 if (pc.Is(CustomRoles.TaskMaster))
                     TaskMaster.AfterMeetingTasks(pc);
 
                 Main.CheckShapeshift[pc.PlayerId] = false;
             }
-            catch (System.Exception e) { ThrowException(e); }
+            catch (Exception e) { ThrowException(e); }
         }
 
         LateTask.New(() => Main.ProcessShapeshifts = true, 1f, log: false);

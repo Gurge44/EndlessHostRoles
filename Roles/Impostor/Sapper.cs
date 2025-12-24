@@ -91,11 +91,6 @@ public class Sapper : RoleBase
         return PlaceBomb(shapeshifter);
     }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
-    {
-        return false;
-    }
-
     public override bool CanUseKillButton(PlayerControl pc)
     {
         return CanKill.GetBool();

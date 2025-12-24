@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using Hazel;
 
 namespace EHR.AddOns.GhostRoles;
@@ -18,6 +19,7 @@ internal class Bloodmoon : IGhostRole
     private byte BloodmoonID;
     
     public Team Team => Team.Impostor | Team.Neutral;
+    public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
     public int Cooldown => CD.GetInt() + Main.PlayerStates.Values.Count(x => x.GetRealKiller() == BloodmoonID && x.deathReason == PlayerState.DeathReason.LossOfBlood) * CDIncreasePerUse.GetInt();
 
     public void OnAssign(PlayerControl pc)

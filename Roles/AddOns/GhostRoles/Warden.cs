@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.AddOns.GhostRoles;
 
@@ -13,6 +14,7 @@ internal class Warden : IGhostRole
     private readonly Dictionary<byte, (long StartTimeStamp, float OriginalSpeed)> SpeedList = [];
 
     public Team Team => Team.Crewmate;
+    public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
     public int Cooldown => CD.GetInt();
 
     public void OnProtect(PlayerControl pc, PlayerControl target)
