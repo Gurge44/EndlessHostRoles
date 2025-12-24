@@ -1091,6 +1091,8 @@
   "AutoMPollCommandCooldown": "Delay Before Auto Executing /mpoll (After Joining The Lobby)",
   "AutoDraftStartCommandAfterJoin": "Auto Execute /draftstart After Joining The Lobby",
   "AutoDraftStartCommandCooldown": "Delay Before Auto Executing /draftstart (After Joining The Lobby)",
+  "AutoReadyCheckCommandAfterJoin": "Auto Execute /readycheck After Joining The Lobby",
+  "AutoReadyCheckCommandCooldown": "Delay Before Auto Executing /readycheck (After Joining The Lobby)",
   "EnterKeyToStartGame": "Begin the starting countdown by pressing the Enter key",
   "RemovePetsAtDeadPlayers": "Remove pets from dead players",
   "SeeEjectedRolesInMeeting": "See ejected roles in meetings",
