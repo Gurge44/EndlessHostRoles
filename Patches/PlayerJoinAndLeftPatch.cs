@@ -183,6 +183,25 @@ internal static class OnGameJoinedPatch
                     if (Options.AutoDraftStartCommandAfterJoin.GetBool())
                         ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "Command.DraftStart", "/draftstart", ["/draftstart"]);
                 }
+
+            if (Options.AutoReadyCheckCommandAfterJoin.GetBool())
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                IEnumerator CoRoutine()
+                {
+                    float timer = Options.AutoReadyCheckCommandCooldown.GetInt();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    if (Options.AutoReadyCheckCommandAfterJoin.GetBool())
+                        ChatCommands.ReadyCheckCommand(PlayerControl.LocalPlayer, "Command.ReadyCheck", "/readycheck", ["/readycheck"]);
+                }
             }
 
             if (Options.AutoGMRotationEnabled)
@@ -895,4 +914,5 @@ internal static class NetworkedPlayerInfoInitPatch
             }
         }
     }
+
 }
