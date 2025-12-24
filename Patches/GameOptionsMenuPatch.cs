@@ -949,7 +949,6 @@ public static class GameSettingMenuPatch
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.55f, 0f);
 
     private static readonly Vector3 ButtonSize = new(0.45f, 0.35f, 1f);
-    // private static readonly Vector3 ButtonSize = new(0.45f, 0.6f, 1f);
 
     private static GameOptionsMenu TemplateGameOptionsMenu;
     private static PassiveButton TemplateGameSettingsButton;
