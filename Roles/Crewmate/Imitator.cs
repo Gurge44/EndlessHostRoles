@@ -63,7 +63,7 @@ public class Imitator : RoleBase
     {
         int playerId = reader.ReadByte();
         var command = $"/imitate {playerId}";
-        ChatCommands.ImitateCommand(pc, command, command.Split(' '));
+        ChatCommands.ImitateCommand(pc, "Command.Imitate", command, command.Split(' '));
     }
 
     private static void ImitatorOnClick(byte playerId /*, MeetingHud __instance*/)
@@ -75,7 +75,7 @@ public class Imitator : RoleBase
         if (AmongUsClient.Instance.AmHost)
         {
             var command = $"/imitate {playerId}";
-            ChatCommands.ImitateCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+            ChatCommands.ImitateCommand(PlayerControl.LocalPlayer, "Command.Imitate", command, command.Split(' '));
 
             if (ImitatingRole.ContainsKey(PlayerControl.LocalPlayer.PlayerId))
             {

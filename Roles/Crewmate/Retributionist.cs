@@ -107,7 +107,7 @@ public class Retributionist : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         var command = $"/retribute {target.PlayerId}";
-        ChatCommands.RetributeCommand(shapeshifter, command, command.Split(' '));
+        ChatCommands.RetributeCommand(shapeshifter, "Command.Retribute", command, command.Split(' '));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -124,7 +124,7 @@ public class Retributionist : RoleBase
         if (AmongUsClient.Instance.AmHost)
         {
             var command = $"/retribute {playerId}";
-            ChatCommands.RetributeCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+            ChatCommands.RetributeCommand(PlayerControl.LocalPlayer, "Command.Retribute", command, command.Split(' '));
         }
         else
         {

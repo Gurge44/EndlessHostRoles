@@ -1026,7 +1026,7 @@ public static class Options
             sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Hidden |");
             sb.AppendLine("|---------|-------------|-----------|-------------|------------|--------|");
 
-            foreach (Command command in ChatCommands.AllCommands)
+            foreach ((String key, Command command) in Command.AllCommands)
             {
                 string forms = command.CommandForms.TakeWhile(x => x.All(char.IsAscii)).Join(x => $"/{x}", "<br>");
                 string description = command.Description;
@@ -1077,7 +1077,7 @@ public static class Options
             }
 
             sb.AppendLine("| | | | | | |");
-            sb.Append($"| {ChatCommands.AllCommands.Count} | | | | | |");
+            sb.Append($"| {Command.AllCommands.Count} | | | | | |");
 
             const string path = "./commands.txt";
             if (!File.Exists(path)) File.Create(path).Close();
