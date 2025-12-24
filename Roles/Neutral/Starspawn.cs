@@ -77,7 +77,7 @@ public class Starspawn : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         const string command = "/daybreak";
-        ChatCommands.DayBreakCommand(shapeshifter, command, command.Split(' '));
+        ChatCommands.DayBreakCommand(shapeshifter, "Command.Daybreak", command, command.Split(' '));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -93,7 +93,7 @@ public class Starspawn : RoleBase
         if (AmongUsClient.Instance.AmHost)
         {
             var command = $"/daybreak";
-            ChatCommands.DayBreakCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+            ChatCommands.DayBreakCommand(PlayerControl.LocalPlayer, "Command.Daybreak", command, command.Split(' '));
         }
         else
         {

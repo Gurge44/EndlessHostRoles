@@ -141,7 +141,7 @@ internal static class OnGameJoinedPatch
                     }
 
                     if (Options.AutoGMPollCommandAfterJoin.GetBool() && !Options.AutoGMRotationEnabled)
-                        ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
+                        ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "Command.GameModePoll", "/gmpoll", ["/gmpoll"]);
                 }
             }
 
@@ -161,7 +161,7 @@ internal static class OnGameJoinedPatch
                     }
 
                     if (Options.AutoMPollCommandAfterJoin.GetBool() && !Options.RandomMapsMode.GetBool())
-                        ChatCommands.MapPollCommand(PlayerControl.LocalPlayer, "/mpoll", ["/mpoll"]);
+                        ChatCommands.MapPollCommand(PlayerControl.LocalPlayer, "Command.MapPoll", "/mpoll", ["/mpoll"]);
                 }
             }
 
@@ -181,7 +181,7 @@ internal static class OnGameJoinedPatch
                     }
 
                     if (Options.AutoDraftStartCommandAfterJoin.GetBool())
-                        ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "/draftstart", ["/draftstart"]);
+                        ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "Command.DraftStart", "/draftstart", ["/draftstart"]);
                 }
             }
 
@@ -217,7 +217,7 @@ internal static class OnGameJoinedPatch
 
                     if (Options.AutoGMRotationEnabled)
                     {
-                        if (nextGM == CustomGameMode.All) ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "/gmpoll", ["/gmpoll"]);
+                        if (nextGM == CustomGameMode.All) ChatCommands.GameModePollCommand(PlayerControl.LocalPlayer, "Command.GameModePoll", "/gmpoll", ["/gmpoll"]);
                         else Options.GameMode.SetValue((int)nextGM - 1);
 
                         Logger.Info($"Auto GM Rotation: Next Game Mode = {nextGM}", "Auto GM Rotation");
