@@ -679,9 +679,6 @@ internal static class RPCHandlerPatch
                     if (!command.CanUseCommand(player)) break;
 
                     command.Action(player, commandKey, text, text.Split(' '));
-
-                    // const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
-                    // typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);
                     Logger.Info($"Invoke Command: {command.Action.Method.Name} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
                     break;
                 }
