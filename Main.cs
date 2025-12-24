@@ -995,9 +995,9 @@ public class Main : BasePlugin
 public enum Team
 {
     None = 0,
-    Impostor = 1,
-    Neutral = 2,
-    Crewmate = 3,
+    Crewmate = 1,
+    Impostor = 2,
+    Neutral = 3,
     Coven = 4
 
     /*
