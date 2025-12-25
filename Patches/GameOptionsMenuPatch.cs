@@ -812,7 +812,7 @@ public static class StringOptionPatch
         if (instance == null) return string.Empty;
 
         Team team = instance.Team;
-        if ((int)team is 1 or 2 or 3 or 4) return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
+        if ((int)team is 1 or 2 or 4 or 8) return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
 
         Team[] teams = (int)team switch
         {
