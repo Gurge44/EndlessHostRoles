@@ -1196,6 +1196,7 @@ public static class GameSettingMenuPatch
             {
                 Options.GameMode.SetValue((int)gm - 1);
                 GameOptionsMenuPatch.ReloadUI();
+                CustomHnS.AllHnSRoles = CustomHnS.GetAllHnsRoles(CustomHnS.GetAllHnsRoleTypes());
             }));
             gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = Main.GameModeColors[gm];
 
