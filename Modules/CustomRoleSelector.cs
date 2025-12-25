@@ -309,7 +309,7 @@ internal static class CustomRoleSelector
 
         Dictionary<byte, CustomRoles> preSetRoles = Main.SetRoles.AddRange(ChatCommands.DraftResult, false);
 
-        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + Main.SetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value.GetCountTypes() is CountTypes.Crew or CountTypes.None or CountTypes.OutOfGame))
+        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + preSetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value.GetCountTypes() is CountTypes.Crew or CountTypes.None or CountTypes.OutOfGame))
         {
             byte removeKey = ChatCommands.DraftResult.Keys.RandomElement();
             ChatCommands.DraftResult.Remove(removeKey);
@@ -921,7 +921,9 @@ internal static class CustomRoleSelector
                 .GroupBy(x => x.Info.OptionType)
                 .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
                 .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
-                .OrderByDescending(x => x.Limit is { Exists: true, Value: > 0 })
+                .Shuffle()
+                .OrderBy(x => x.Info.SpawnChance != 100)
+                .ThenByDescending(x => x.Limit is { Exists: true, Value: > 0 })
                 .Take(type switch
                 {
                     RoleAssignType.Impostor => optImpNum,
@@ -1031,4 +1033,5 @@ internal static class CustomRoleSelector
         public int AssignedCount { get; set; }
         public RoleOptionType OptionType { get; } = role.GetRoleOptionType();
     }
+
 }
