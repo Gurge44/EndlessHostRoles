@@ -812,7 +812,7 @@ public static class StringOptionPatch
         if (instance == null) return string.Empty;
 
         Team team = instance.Team;
-        if ((int)team is 1 or 2 or 4) return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
+        if ((int)team is 1 or 2 or 4 or 8) return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
 
         Team[] teams = (int)team switch
         {
@@ -949,7 +949,6 @@ public static class GameSettingMenuPatch
     private static readonly Vector3 ButtonPositionRight = new(-2.4f, -0.55f, 0f);
 
     private static readonly Vector3 ButtonSize = new(0.45f, 0.35f, 1f);
-    // private static readonly Vector3 ButtonSize = new(0.45f, 0.6f, 1f);
 
     private static GameOptionsMenu TemplateGameOptionsMenu;
     private static PassiveButton TemplateGameSettingsButton;
@@ -1503,4 +1502,5 @@ public static class RpcSyncSettingsPatch
     {
         OptionItem.SyncAllOptions();
     }
+
 }

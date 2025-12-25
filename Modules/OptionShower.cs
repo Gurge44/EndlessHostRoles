@@ -87,7 +87,7 @@ public static class OptionShower
             }
 
             Pages.Add("");
-            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
+            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}</color>: {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
 
             var index = 0;
 
