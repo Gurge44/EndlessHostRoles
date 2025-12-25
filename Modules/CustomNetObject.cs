@@ -157,13 +157,23 @@ namespace EHR
 
         protected virtual void OnFixedUpdate()
         {
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (AmongUsClient.Instance.AmClient) playerControl.NetTransform.SnapTo(Position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U));
-            ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
-            NetHelpers.WriteVector2(Position, messageWriter);
-            messageWriter.Write(num);
-            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+            try
+            {
+                if (!AmongUsClient.Instance.AmHost) return;
+            
+                if (AmongUsClient.Instance.AmClient)
+                {
+                    try { playerControl.NetTransform.SnapTo(Position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U)); }
+                    catch { }
+                }
+
+                ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
+                MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
+                NetHelpers.WriteVector2(Position, messageWriter);
+                messageWriter.Write(num);
+                AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+            }
+            catch { }
         }
 
         protected void CreateNetObject(string sprite, Vector2 position)
