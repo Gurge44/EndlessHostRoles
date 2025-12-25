@@ -484,7 +484,9 @@ public class Dad : RoleBase
             return;
         }
 
-        keepGameGoing = true;
-        countsAs = 1;
+        bool wentForMilk = UsingAbilities.Contains(Ability.GoForMilk);
+        
+        keepGameGoing = !wentForMilk;
+        countsAs = wentForMilk ? 0 : 1;
     }
 }
