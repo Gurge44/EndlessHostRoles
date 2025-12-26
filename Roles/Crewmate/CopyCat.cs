@@ -8,6 +8,7 @@ public class CopyCat : RoleBase
 {
     private const int Id = 666420;
     public static List<CopyCat> Instances = [];
+    public static List<byte> PlayerIdList = [];
     private static bool Resetting;
 
     private static OptionItem KillCooldown;
@@ -55,6 +56,7 @@ public class CopyCat : RoleBase
     {
         if (Resetting) return;
         Instances = [];
+        PlayerIdList = [];
         CurrentKillCooldown = AdjustedDefaultKillCooldown;
     }
 
@@ -62,6 +64,7 @@ public class CopyCat : RoleBase
     {
         if (Resetting) return;
         Instances.Add(this);
+        PlayerIdList.Add(playerId);
         CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
         int limit = MiscopyLimitOpt.GetInt();
@@ -197,6 +200,4 @@ public class CopyCat : RoleBase
         SetKillCooldown(pc.PlayerId);
         return false;
     }
-
 }
-

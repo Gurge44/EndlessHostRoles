@@ -19,7 +19,6 @@ public class Oxyman : RoleBase
     private long LastUpdate;
     private int OxygenLevel;
     private byte OxymanId;
-    private float StartingSpeed;
 
     public override bool IsEnable => On;
 
@@ -65,7 +64,6 @@ public class Oxyman : RoleBase
         OxymanId = playerId;
         OxygenLevel = 59;
         LastUpdate = Utils.TimeStamp;
-        StartingSpeed = Main.AllPlayerSpeed[playerId];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -90,11 +88,10 @@ public class Oxyman : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
+        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || !Main.IntroDestroyed) return;
 
         long now = Utils.TimeStamp;
         if (now == LastUpdate) return;
-
         LastUpdate = now;
 
         if (OxygenLevel <= 0)
@@ -130,7 +127,7 @@ public class Oxyman : RoleBase
                 break;
             case Level.None:
                 Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                Main.AllPlayerSpeed[pc.PlayerId] = StartingSpeed;
+                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 pc.MarkDirtySettings();
                 break;
             case Level.Invulnerable:
@@ -151,13 +148,9 @@ public class Oxyman : RoleBase
     {
         // ReSharper disable ConvertIfStatementToReturnStatement
         if (OxygenLevel <= LevelSettings[Level.Blind].GetInt()) return Level.Blind;
-
         if (OxygenLevel <= LevelSettings[Level.Slow].GetInt()) return Level.Slow;
-
         if (OxygenLevel >= LevelSettings[Level.Invulnerable].GetInt()) return Level.Invulnerable;
-
         if (OxygenLevel >= LevelSettings[Level.Fast].GetInt()) return Level.Fast;
-
         return Level.None;
         // ReSharper restore ConvertIfStatementToReturnStatement
     }

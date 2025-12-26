@@ -661,7 +661,7 @@ internal static class MurderPlayerPatch
 
             if (killer.Is(CustomRoles.Sniper))
             {
-                if (!Options.UsePets.GetBool())
+                if (!Options.UsePets.GetBool() || Options.UsePhantomBasis.GetBool())
                     killer.RpcResetAbilityCooldown();
                 else
                 {
@@ -2041,7 +2041,7 @@ internal static class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
-        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (Main.LoversPlayers.Count == 0 || Options.CurrentGameMode != CustomGameMode.Standard) return;
         if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (Main.LoversPlayers.FindAll(x => x.IsAlive()).Count != 1 && !force)) return;
 
         PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());

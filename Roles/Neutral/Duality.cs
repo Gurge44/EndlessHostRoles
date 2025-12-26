@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Neutral;
@@ -94,7 +95,7 @@ public class Duality : RoleBase
         if (LastUpdateTS == now) return;
         LastUpdateTS = now;
 
-        if (GetRemainingTime() <= 0)
+        if (Timer.GetRemainingTime(Time.GetInt()) <= 0)
         {
             pc.Suicide();
             if (pc.AmOwner) Achievements.Type.OutOfTime.Complete();
@@ -120,8 +121,6 @@ public class Duality : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, DualityId, KillingPhase);
     }
 
-    long GetRemainingTime() => Time.GetInt() - Timer.Elapsed.Seconds;
-
     public void ReceiveRPC(MessageReader reader)
     {
         KillingPhase = reader.ReadBoolean();
@@ -131,6 +130,6 @@ public class Duality : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != DualityId || seer.PlayerId != target.PlayerId || (!hud && seer.IsModdedClient()) || meeting || !seer.IsAlive()) return string.Empty;
-        return $"<size=80%>{string.Format(Translator.GetString(KillingPhase ? "Duality.MustKill" : "Duality.MustDoTask"), GetRemainingTime() - 1)}</size>";
+        return $"<size=80%>{string.Format(Translator.GetString(KillingPhase ? "Duality.MustKill" : "Duality.MustDoTask"), Timer.GetRemainingTime(Time.GetInt()) - 1)}</size>";
     }
 }

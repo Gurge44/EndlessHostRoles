@@ -123,12 +123,6 @@ public static class FixedUpdateCaller
 
             try
             {
-                if (CopyCat.Instances.Count > 0) CopyCat.Instances.RemoveAll(x => x.CopyCatPC == null);
-            }
-            catch { }
-
-            try
-            {
                 if (amongUsClient.AmHost && GameStates.InGame && !GameStates.IsEnded)
                     FixedUpdatePatch.LoversSuicide();
             }

@@ -47,7 +47,7 @@ public class Marshall : RoleBase
 
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
     {
-        return CanSeeMarshall(seer) && PlayerIdList.Contains(target.PlayerId) && target.IsAlive() && target.GetTaskState().IsTaskFinished ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★") : string.Empty;
+        return PlayerIdList.Contains(target.PlayerId) && target.GetTaskState().IsTaskFinished && target.IsAlive() && CanSeeMarshall(seer) ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★") : string.Empty;
     }
 
     public static bool CanSeeMarshall(PlayerControl seer)

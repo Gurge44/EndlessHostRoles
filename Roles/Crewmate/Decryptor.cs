@@ -107,7 +107,12 @@ public class Decryptor : RoleBase
 
     private void RevealLetter()
     {
-        Dictionary<byte, char> nextLetters = AllRoleNames.ToDictionary(x => x.Key, x => x.Value.Except(KnownCharacters[x.Key]).RandomElement());
+        Dictionary<byte, char> nextLetters = AllRoleNames.ToDictionary(x => x.Key, x =>
+        {
+            List<char> list = x.Value.ToList();
+            KnownCharacters[x.Key].ForEach(kc => list.Remove(kc));
+            return list.RandomElement();
+        });
 
         KnownCharacters.Do(x =>
         {
