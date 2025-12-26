@@ -842,7 +842,9 @@ public static class Options
     public static OptionItem AutoMPollCommandCooldown;
     public static OptionItem AutoDraftStartCommandAfterJoin;
     public static OptionItem AutoDraftStartCommandCooldown;
-
+    public static OptionItem AutoReadyCheckCommandAfterJoin;
+    public static OptionItem AutoReadyCheckCommandCooldown;
+    
     public static OptionItem DumpLogAfterGameEnd;
 
     private static readonly string[] SuffixModes =
@@ -1675,6 +1677,12 @@ public static class Options
 
         AutoDraftStartCommandCooldown = new IntegerOptionItem(19427, "AutoDraftStartCommandCooldown", new(10, 600, 5), 150, TabGroup.SystemSettings)
             .SetParent(AutoDraftStartCommandAfterJoin)
+            .SetValueFormat(OptionFormat.Seconds);
+
+        AutoReadyCheckCommandAfterJoin = new BooleanOptionItem(19433, "AutoReadyCheckCommandAfterJoin", false, TabGroup.SystemSettings);
+
+        AutoReadyCheckCommandCooldown = new IntegerOptionItem(19434, "AutoReadyCheckCommandCooldown", new(10, 600, 5), 325, TabGroup.SystemSettings)
+            .SetParent(AutoReadyCheckCommandAfterJoin)
             .SetValueFormat(OptionFormat.Seconds);
         
         EnterKeyToStartGame = new BooleanOptionItem(19432, "EnterKeyToStartGame", false, TabGroup.SystemSettings);
@@ -2828,16 +2836,19 @@ public static class Options
         });
 
         HideGuesserCommands = new BooleanOptionItem(19717, "GuesserTryHideMsg", true, TabGroup.TaskSettings)
-            .SetParent(GuesserMode)
-            .SetColor(Color.green);
+            .SetColor(Color.green)
+            .SetParent(GuesserMode);
 
         GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings)
+            .SetColor(Color.yellow)
             .SetGameMode(CustomGameMode.Standard);
 
         CanGuessDuringDiscussionTime = new BooleanOptionItem(19799, "CanGuessDuringDiscussionTime", true, TabGroup.TaskSettings)
+            .SetColor(Color.yellow)
             .SetGameMode(CustomGameMode.Standard);
         
         MisguessDeathReason = new BooleanOptionItem(44444, "MisguessDeathReason", false, TabGroup.TaskSettings)
+            .SetColor(Color.yellow)
             .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 92;

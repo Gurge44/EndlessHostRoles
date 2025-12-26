@@ -90,11 +90,12 @@ woveelixir#4088 | 42044d211 | DMD 3CD | Cheating | Cheater and probably Boomplay
 tenpalace#1924 | 6a259fcd9 | Goaty | Cheating | 
 pinbrittle#1538 | 4955c179f | Moralmaser | Cheating | Cheating and disrupting lobbies
 dollfly#4791 | 5ba449454 | Mari | Cheating | Spamming RPCs to crash lobbies
-
 byechic#6270 | 91e0145f1 | (Contains n word) | Harassing a streamer with a slur in the IGN | 
 waiverfore#0496 | b493df896 |  | Cheating in Syl's lobby | 
 whaleutter#4768 | 9e04dc5d5 |  | Cheating in Syl's lobby | No name cheater
-whimrecent#6558 | f8452a9d1 |  | Cheating | no name cheater
+whimrecent#6558 | f8452a9d1 |  | Cheating | No name cheater
+
+pureplot#2423 | ed4c7bdf6 | hdrzz | Cheater | Cheated in Sarha's lobby
 ## Griefers, Toxic, harrasing, morons
 setmolar#4374 |  | 藏族顶针 | Toxic | 
 overtfeast#5802 |  | 黑影 | Toxic | 
