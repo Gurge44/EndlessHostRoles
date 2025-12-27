@@ -319,7 +319,7 @@ public class Councillor : RoleBase
     {
         Logger.Msg($"Click: ID {playerId}", "Councillor UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
 
         if (AmongUsClient.Instance.AmHost)
             MurderMsg(PlayerControl.LocalPlayer, $"/tl {playerId}", true);

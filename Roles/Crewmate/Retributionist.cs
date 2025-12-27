@@ -119,7 +119,7 @@ public class Retributionist : RoleBase
     {
         Logger.Msg($"Click: ID {playerId}", "Retributionist UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
 
         if (AmongUsClient.Instance.AmHost)
         {

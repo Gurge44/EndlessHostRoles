@@ -8,7 +8,6 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-
 namespace EHR.Crewmate;
 
 public class Inspector : RoleBase
@@ -435,7 +434,7 @@ public class Inspector : RoleBase
     private static void PickForCompare(byte playerId, byte lpcId)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
 
         if (FirstPick.TryGetValue(lpcId, out byte firstPick))
         {

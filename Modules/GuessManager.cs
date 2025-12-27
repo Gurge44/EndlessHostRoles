@@ -328,15 +328,17 @@ public static class GuessManager
                         case CustomRoles.Ankylosaurus:
                             ShowMessage("GuessAnkylosaurus");
                             return true;
-                        case CustomRoles.Speedrunner when target.Is(CustomRoles.Speedrunner) && !pc.Is(Team.Crewmate) && target.GetTaskState().CompletedTasksCount >= Speedrunner.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Speedrunner.SpeedrunnerNotifyKillers.GetBool():
+                        case CustomRoles.Car:
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
-                        case CustomRoles.Car:
+                        case CustomRoles.Speedrunner when target.Is(CustomRoles.Speedrunner) && !pc.Is(Team.Crewmate) && target.GetTaskState().CompletedTasksCount >= Speedrunner.SpeedrunnerNotifyAtXTasksLeft.GetInt() && Speedrunner.SpeedrunnerNotifyKillers.GetBool():
                         case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():
+                        case CustomRoles.BananaMan:
                         case CustomRoles.Disco:
+                        case CustomRoles.Flashman:
+                        case CustomRoles.Giant:
                         case CustomRoles.Glow:
                         case CustomRoles.LastImpostor:
-                        case CustomRoles.BananaMan:
                             ShowMessage("GuessObviousAddon");
                             return true;
                         case CustomRoles.GM:
@@ -781,7 +783,7 @@ public static class GuessManager
     private static void GuesserOnClick(byte playerId, MeetingHud __instance)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || GuesserUI != null || !GameStates.IsVoting) return;
+        if (pc == null || !pc.IsAlive() || GuesserUI != null || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
 
         try
         {
@@ -1003,7 +1005,7 @@ public static class GuessManager
                         }
                         else
                         {
-                            if (__instance.state is not (MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
+                            if (MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || !PlayerControl.LocalPlayer.IsAlive()) return;
 
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
@@ -1038,20 +1040,23 @@ public static class GuessManager
     {
         if (role is
                 CustomRoles.GM or
-                CustomRoles.Oblivious or
-                CustomRoles.Flashman or
+                CustomRoles.Ankylosaurus or
+                CustomRoles.BananaMan or
+                CustomRoles.Car or
                 CustomRoles.Disco or
+                CustomRoles.Flashman or
                 CustomRoles.Giant or
+                CustomRoles.LastImpostor or
                 CustomRoles.NotAssigned or
-                CustomRoles.SoloPVP_Player or
-                CustomRoles.Paranoid or
-                CustomRoles.SuperStar or
-                CustomRoles.GuardianAngelEHR
+                CustomRoles.Shifter or
+                CustomRoles.Specter or
+                CustomRoles.SuperStar
             )
             return false;
 
+        if (role.IsForOtherGameMode()) return false;
         if (!role.IsEnable() && !role.RoleExist(true) && !CanMakeRoleSpawn(role)) return false;
-        return Options.CurrentGameMode == CustomGameMode.Standard && !CustomHnS.AllHnSRoles.Contains(role) && !role.IsVanilla();
+        return Options.CurrentGameMode == CustomGameMode.Standard && !CustomHnS.AllHnSRoles.Contains(role) && !role.IsGhostRole() && !role.IsVanilla();
 
         bool CanMakeRoleSpawn(CustomRoles r)
         {
@@ -1646,3 +1651,4 @@ public static class GuessManager
     }
 
 }
+
