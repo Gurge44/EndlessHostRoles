@@ -191,7 +191,7 @@ internal class Nemesis : RoleBase
     {
         Logger.Msg($"Click: ID {playerId}", "Nemesis UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
+        if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
 
         if (AmongUsClient.Instance.AmHost)
             NemesisMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
