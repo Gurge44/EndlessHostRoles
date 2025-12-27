@@ -783,7 +783,7 @@ public static class GuessManager
     private static void GuesserOnClick(byte playerId, MeetingHud __instance)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || GuesserUI != null || (!GameStates.IsVoting && !Options.CanGuessDuringDiscussionTime.GetBool()) || Starspawn.IsDayBreak) return;
+        if (pc == null || !pc.IsAlive() || GuesserUI != null || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
 
         try
         {
@@ -1005,7 +1005,7 @@ public static class GuessManager
                         }
                         else
                         {
-                            if (!PlayerControl.LocalPlayer.IsAlive()) return;
+                            if (MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || !PlayerControl.LocalPlayer.IsAlive()) return;
 
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
@@ -1054,7 +1054,8 @@ public static class GuessManager
             )
             return false;
 
-        if (!role.IsEnable() && !role.RoleExist(true) && !CanMakeRoleSpawn(role) && role.IsForOtherGameMode()) return false;
+        if (role.IsForOtherGameMode()) return false;
+        if (!role.IsEnable() && !role.RoleExist(true) && !CanMakeRoleSpawn(role)) return false;
         return Options.CurrentGameMode == CustomGameMode.Standard && !CustomHnS.AllHnSRoles.Contains(role) && !role.IsGhostRole() && !role.IsVanilla();
 
         bool CanMakeRoleSpawn(CustomRoles r)
@@ -1650,3 +1651,4 @@ public static class GuessManager
     }
 
 }
+
