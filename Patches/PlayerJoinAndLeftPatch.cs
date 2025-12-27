@@ -183,6 +183,7 @@ internal static class OnGameJoinedPatch
                     if (Options.AutoDraftStartCommandAfterJoin.GetBool())
                         ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "Command.DraftStart", "/draftstart", ["/draftstart"]);
                 }
+            }
 
             if (Options.AutoReadyCheckCommandAfterJoin.GetBool())
             {
