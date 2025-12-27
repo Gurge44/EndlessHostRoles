@@ -699,17 +699,20 @@ internal static class ChatCommands
 
         if (!targetState.IsDead)
         {
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeDead"));
             return;
         }
 
         if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole == CustomRoles.GM)
         {
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeCrew"));
             return;
         }
 
         Imitator.ImitatingRole[player.PlayerId] = targetState.MainRole;
+        RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
         Logger.Info($"{player.GetRealName()} will be imitating as {targetState.MainRole}", "Imitator");
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Imitator.Success"), targetId.ColoredPlayerName()));
 
@@ -2277,6 +2280,8 @@ internal static class ChatCommands
 
         var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
         vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
+
+        player.RPCPlayCustomSound("Line");
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
