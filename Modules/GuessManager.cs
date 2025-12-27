@@ -1003,7 +1003,7 @@ public static class GuessManager
                         }
                         else
                         {
-                            if (__instance.state is not (MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted) || !PlayerControl.LocalPlayer.IsAlive()) return;
+                            if (!PlayerControl.LocalPlayer.IsAlive()) return;
 
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
