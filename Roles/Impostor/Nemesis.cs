@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
