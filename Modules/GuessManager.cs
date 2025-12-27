@@ -781,7 +781,7 @@ public static class GuessManager
     private static void GuesserOnClick(byte playerId, MeetingHud __instance)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || GuesserUI != null || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
+        if (pc == null || !pc.IsAlive() || GuesserUI != null || (!GameStates.IsVoting && !Options.CanGuessDuringDiscussionTime.GetBool()) || Starspawn.IsDayBreak) return;
 
         try
         {
