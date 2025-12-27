@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
 
@@ -70,7 +71,7 @@ public class Imitator : RoleBase
     {
         Logger.Msg($"Click: ID {playerId}", "Imitator UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || pc.IsAlive() || !GameStates.IsVoting) return;
+        if (pc == null || pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
 
         if (AmongUsClient.Instance.AmHost)
         {
