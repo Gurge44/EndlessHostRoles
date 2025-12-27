@@ -1336,7 +1336,7 @@ internal static class ChatCommands
             () => Utils.EnterQuickSetupRoles(false));
     }
 
-    private static void ReadyCheckCommand(PlayerControl player, string commandKey, string text, string[] args)
+    public static void ReadyCheckCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
