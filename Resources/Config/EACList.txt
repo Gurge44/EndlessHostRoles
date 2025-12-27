@@ -97,6 +97,7 @@ whimrecent#6558 | f8452a9d1 |  | Cheating | No name cheater
 pureplot#2423 | ed4c7bdf6 | hdrzz | Cheater | Cheated in Sarha's lobby
 
 wackytext#6530 | 825431910 |  | Disrupting lobbies | Cheating in Dora Chan's Livestream
+#0000 | Test |  | Testing | 
 ## Griefers, Toxic, harrasing, morons
 setmolar#4374 |  | 藏族顶针 | Toxic | 
 overtfeast#5802 |  | 黑影 | Toxic | 
