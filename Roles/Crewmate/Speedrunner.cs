@@ -37,7 +37,7 @@ internal class Speedrunner : RoleBase
         SpeedrunnerNotifyAtXTasksLeft = new IntegerOptionItem(652511, "SpeedrunnerNotifyAtXTasksLeft", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
 
-        SpeedrunnerSpeed = new FloatOptionItem(652512, "SpeedrunnerSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
+        SpeedrunnerSpeed = new FloatOptionItem(652512, "SpeedrunnerSpeed", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner])
             .SetValueFormat(OptionFormat.Multiplier);
 
