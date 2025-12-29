@@ -826,7 +826,7 @@ public static class Options
     public static OptionItem PresidentCanBeMadmate;
 
     public static OptionItem MadSnitchTasks;
-    public static OptionItem FlashmanSpeed;
+    public static OptionItem FlashSpeed;
     public static OptionItem GiantSpeed;
     public static OptionItem ImpEgoistVisibalToAllies;
     public static OptionItem VotesPerKill;
