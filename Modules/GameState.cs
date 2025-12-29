@@ -337,7 +337,7 @@ public class PlayerState(byte playerId)
     {
         SubRoles.Remove(role);
 
-        if (role is CustomRoles.Flashman or CustomRoles.Dynamo or CustomRoles.Spurt)
+        if (role is CustomRoles.Flash or CustomRoles.Dynamo or CustomRoles.Spurt)
         {
             Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             PlayerGameOptionsSender.SetDirty(PlayerId);
@@ -597,4 +597,5 @@ public static class MeetingStates
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static NetworkedPlayerInfo ReportTarget { get; set; }
+
 }
