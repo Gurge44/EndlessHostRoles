@@ -3643,7 +3643,7 @@
   "ReportBaitAtAllCost": "Report <#00f7ff>Bait</color> at All Cost",
   "Jailor": "Jailor",
   "JailorInfo": "Lock up your target in Jail",
-  "JailorInfoLong": "(Crewmates):\\nAs the Jailor, use your kill button to lock a player in jail. Jailed players cannot be guessed or judged and jailed players can only guess Jailor.",
+  "JailorInfoLong": "(Crewmates):\\nAs the Jailor, use your kill button to lock a player in jail. Jailed players cannot be guessed or judged and jailed players can only guess Jailor.\nWhile in jail, jailed players can privately communicate with the Jailor using /jailtalk",
   "JailorJailCooldown": "Jail cooldown",
   "JailorTargetAlreadySelected": "You have already selected a target",
   "SuccessfullyJailed": "Target successfully Jailed",
