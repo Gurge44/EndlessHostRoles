@@ -263,9 +263,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                                 break;
                             }
-                            case CustomRoles.Flashman:
+                            case CustomRoles.Flash:
                             {
-                                Main.AllPlayerSpeed[player.PlayerId] = Options.FlashmanSpeed.GetFloat();
+                                Main.AllPlayerSpeed[player.PlayerId] = Options.FlashSpeed.GetFloat();
                                 break;
                             }
                             case CustomRoles.Giant:
@@ -660,4 +660,5 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         return base.AmValid() && player != null && player.Data != null && !player.Data.Disconnected && Main.RealOptionsData != null;
     }
+
 }
