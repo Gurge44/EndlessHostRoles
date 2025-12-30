@@ -43,7 +43,7 @@ public class Arrogance : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Arrogance])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(0f, 30f, 0.5f), 3.5f, TabGroup.ImpostorRoles)
+        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(0.5f, 30f, 0.5f), 3.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Arrogance])
             .SetValueFormat(OptionFormat.Seconds);
 

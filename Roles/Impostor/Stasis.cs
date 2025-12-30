@@ -32,7 +32,7 @@ public class Stasis : RoleBase
             .AutoSetupOption(ref AbilityDuration, 10, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AffectsOtherImpostors, true)
             .AutoSetupOption(ref CanVent, false)
-            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 180f, 1f), OptionFormat.Seconds)
+            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref CanSabotage, false);
     }
 
