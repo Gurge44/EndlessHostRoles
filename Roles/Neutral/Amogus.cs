@@ -37,9 +37,9 @@ public class Amogus : RoleBase
             .AutoSetupOption(ref StartingLevel, 0, Enum.GetValues<Levels>().Select(x => $"Amogus.Levels.{x}").ToArray())
             .AutoSetupOption(ref SugomaSpeed, 2f, new FloatValueRule(0.1f, 3f, 0.1f), OptionFormat.Multiplier)
             .AutoSetupOption(ref SuspiciousSusArrowsToBodies, false)
-            .AutoSetupOption(ref UltimateSusVotesPerKill, 1, new IntegerValueRule(0, 10, 0.5), OptionFormat.Votes)
+            .AutoSetupOption(ref UltimateSusVotesPerKill, 1, new IntegerValueRule(0, 10, 1), OptionFormat.Votes)
             .AutoSetupOption(ref AbilityCooldown, 20f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityDuration, 15f, new FloatValueRule(1f, 180f, 0.5f), OptionFormat.Seconds)
+
             .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref CanVent, true)
             .AutoSetupOption(ref ImpostorVision, true);
