@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    if: github.head_ref != 'translation'
     runs-on: ubuntu-latest
 
     steps:
