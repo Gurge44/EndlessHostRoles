@@ -30,7 +30,7 @@ public class Spy : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
             .SetValueFormat(OptionFormat.Times);
 
-        SpyRedNameDur = new FloatOptionItem(Id + 11, "SpyRedNameDur", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles)
+        SpyRedNameDur = new FloatOptionItem(Id + 11, "SpyRedNameDur", new(0f, 70f, 0.5f), 3f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
             .SetValueFormat(OptionFormat.Seconds);
 
