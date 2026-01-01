@@ -509,5 +509,4 @@ public static class HudSpritePatch
             }
         }
     }
-
 }
