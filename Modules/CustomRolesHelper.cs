@@ -1216,7 +1216,7 @@ internal static class CustomRolesHelper
             CustomRoles.Haste when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) || !pc.CanUseImpostorVentButton() || pc.Is(CustomRoles.Glitch) => false,
             CustomRoles.Diseased when pc.Is(CustomRoles.Antidote) => false,
             CustomRoles.Antidote when pc.Is(CustomRoles.Diseased) => false,
-            CustomRoles.Flash or CustomRoles.Giant when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist or CustomRoles.Ankylosaurus => false,
+            CustomRoles.Flash or CustomRoles.Giant when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist or CustomRoles.Ankylosaurus or CustomRoles.Swiftclaw => false,
             CustomRoles.Bait when pc.Is(CustomRoles.Disregarded) => false,
             CustomRoles.Busy when !pc.GetTaskState().HasTasks => false,
             CustomRoles.Truant when pc.Is(CustomRoles.SoulHunter) => false,
@@ -1238,6 +1238,7 @@ internal static class CustomRolesHelper
             CustomRoles.Fool when pc.GetCustomRole() is CustomRoles.Mechanic or CustomRoles.GuardianAngelEHR or CustomRoles.Technician => false,
             CustomRoles.Coroner when pc.Is(CustomRoles.Oblivious) => false,
             CustomRoles.Fragile when pc.Is(CustomRoles.Detour) => false,
+            CustomRoles.Physicist when pc.GetCustomRole() is CustomRoles.Tracefinder or CustomRoles.Doctor => false,
             CustomRoles.DoubleShot when pc.GetCustomRole() is not CustomRoles.EvilGuesser and not CustomRoles.NiceGuesser and not CustomRoles.Augur && !Options.GuesserMode.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.EvilGuesser) && pc.Is(CustomRoleTypes.Impostor) && !Options.ImpostorsCanGuess.GetBool() => false,
             CustomRoles.DoubleShot when !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.NiceGuesser) && pc.Is(CustomRoleTypes.Crewmate) && !Options.CrewmatesCanGuess.GetBool() => false,
@@ -2035,3 +2036,4 @@ public enum CountTypes
 
     Coven
 }
+
