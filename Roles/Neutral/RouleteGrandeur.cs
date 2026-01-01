@@ -37,7 +37,7 @@ public class RouleteGrandeur : RoleBase
         HasImpostorVision = new BooleanOptionItem(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.RouleteGrandeur]);
 
-        KCDReduction = new FloatOptionItem(Id + 4, "KCDReduction", new(0f, 100f, 0.5f), 3.5f, TabGroup.NeutralRoles)
+        KCDReduction = new FloatOptionItem(Id + 4, "KCDReduction", new(0.5f, 100f, 0.5f), 3.5f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.RouleteGrandeur])
             .SetValueFormat(OptionFormat.Seconds);
     }
