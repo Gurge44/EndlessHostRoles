@@ -1,4 +1,5 @@
 using System;
+using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Neutral;
@@ -177,7 +178,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("JesterVent");
                     break;
                 }
-                case CustomRoles.Transporter:
+                case CustomRoles.Transporter when player.GetRoleTypes() == RoleTypes.Shapeshifter:
                 case CustomRoles.Swapster:
                 {
                     newAbilityButton = CustomButton.Get("Transport");

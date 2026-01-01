@@ -44,6 +44,4 @@ public class Juggernaut : RoleBase
     public override void Init() { }
 
     public override void Add(byte playerId) { }
-
 }
-

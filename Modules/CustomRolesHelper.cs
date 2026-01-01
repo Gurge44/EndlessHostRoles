@@ -2035,6 +2035,3 @@ public enum CountTypes
 
     Coven
 }
-
-
-
