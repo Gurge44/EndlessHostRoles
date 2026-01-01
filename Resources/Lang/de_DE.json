@@ -2078,7 +2078,7 @@
   "LookoutInfoLong": "(Crewmates):\\nAls der Wache kannst du die IDs jeder Person zu jedem Zeitpunkt sehen. Dies erlaubt dir durch die Tarnungen der Camouflagen oder der Formwandlungen zu sehen.",
   "Witness": "Zeuge",
   "WitnessInfo": "Finde heraus, ob jemand vor kurzem gekillt hat",
-  "WitnessInfoLong": "(Crewmates):\\nWhen you use your kill button on someone, it tells you if the player killed recently or not. The yellow exclamation mark means they've killed, and the green chech mark means they've not.",
+  "WitnessInfoLong": "(Crewmates):\\nWenn du deinen Kill-Button bei jemandem verwendest, wird dir mitgeteilt, ob dieser Spieler kürzlich getötet hat oder nicht. Ein gelbes Ausrufezeichen sagt aus, dass er getötet hat und ein grünes bedeutet, dass er es nicht getan hat.",
   "WitnessTime": "Max Time after killing where killer appears red",
   "WitnessButtonText": "Prüfen",
   "WitnessFoundInnocent": "<size=3><color=#00ff00>✓</color></size>",
