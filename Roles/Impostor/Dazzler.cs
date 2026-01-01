@@ -113,5 +113,4 @@ public class Dazzler : RoleBase
     {
         hud.AbilityButton?.OverrideText(GetString("DazzleButtonText"));
     }
-
 }
