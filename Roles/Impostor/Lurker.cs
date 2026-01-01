@@ -61,5 +61,4 @@ public class Lurker : RoleBase
     {
         killer.ResetKillCooldown();
     }
-
 }
