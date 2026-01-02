@@ -34,7 +34,7 @@ public class Maverick : RoleBase
         HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick]);
 
-        MinKillsToWin = new IntegerOptionItem(Id + 12, "DQNumOfKillsNeeded", new(1, 14, 1), 2, TabGroup.NeutralRoles)
+        MinKillsToWin = new IntegerOptionItem(Id + 12, "DQNumOfKillsNeeded", new(0, 14, 1), 2, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick]);
     }
 
@@ -97,3 +97,4 @@ public class Maverick : RoleBase
     }
 
 }
+
