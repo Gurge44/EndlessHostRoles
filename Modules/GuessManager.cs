@@ -5,18 +5,15 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using static EHR.Translator;
+using EHR.Gamemodes;
 
 namespace EHR;
 

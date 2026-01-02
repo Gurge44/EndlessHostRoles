@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-using EHR.AddOns.GhostRoles;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
@@ -10,6 +9,11 @@ using Hazel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using EHR.Roles;
+using EHR.Gamemodes;
+
+
+
 
 #if ANDROID
 using System.Collections.Generic;

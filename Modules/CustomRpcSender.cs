@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;

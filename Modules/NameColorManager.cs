@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using EHR.AddOns.Common;
-using EHR.AddOns.GhostRoles;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using Hazel;
+using EHR.Gamemodes;
 
 namespace EHR;
 

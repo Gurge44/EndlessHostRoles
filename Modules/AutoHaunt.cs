@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.GameMode.HideAndSeekRoles;
+using EHR.Gamemodes;
+using EHR.Roles;
 using UnityEngine;
 
 namespace EHR.Modules;

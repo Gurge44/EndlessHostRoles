@@ -2,9 +2,8 @@ using System;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using EHR.GameMode.HideAndSeekRoles;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
@@ -13,6 +12,7 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+using EHR.Gamemodes;
 
 namespace EHR;
 

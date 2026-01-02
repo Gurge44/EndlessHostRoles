@@ -4,16 +4,8 @@ using System.Linq;
 using System.Reflection;
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.AddOns.Impostor;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.GameMode.HideAndSeekRoles;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
@@ -22,7 +14,8 @@ using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
-using Tree = EHR.Crewmate.Tree;
+using Tree = EHR.Roles.Tree;
+using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -704,7 +697,7 @@ internal static class MurderPlayerPatch
             switch (target.GetCustomRole())
             {
                 case CustomRoles.Lightning when killer != target:
-                    Impostor.Lightning.MurderPlayer(killer, target);
+                    Roles.Lightning.MurderPlayer(killer, target);
                     break;
                 case CustomRoles.Bane when killer != target:
                     Bane.OnKilled(killer);
@@ -945,7 +938,7 @@ internal static class ShapeshiftPatch
                 case Adventurer av when shapeshifting:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
-                case Crewmate.Sentry st:
+                case EHR.Roles.Sentry st:
                     st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
@@ -1911,7 +1904,7 @@ internal static class FixedUpdatePatch
 
             if (target.AmOwner) Mark.Append(Sniper.GetShotNotify(target.PlayerId));
 
-            if (Impostor.Lightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
+            if (Roles.Lightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
             Mark.Append(Medic.GetMark(seer, target));
             Mark.Append(Gaslighter.GetMark(seer, target));
@@ -2108,7 +2101,7 @@ internal static class EnterVentPatch
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyst.OnAnyoneEnterVent(pc);
-        Crewmate.Sentry.OnAnyoneEnterVent(pc);
+        Roles.Sentry.OnAnyoneEnterVent(pc);
 
         switch (pc.GetCustomRole())
         {
