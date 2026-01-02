@@ -35,16 +35,16 @@ public class HeadHunter : RoleBase
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
 
-        SuccessKillCooldown = new FloatOptionItem(Id + 11, "HHSuccessKCDDecrease", new(0.5f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        SuccessKillCooldown = new FloatOptionItem(Id + 11, "HHSuccessKCDDecrease", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
 
-        FailureKillCooldown = new FloatOptionItem(Id + 12, "HHFailureKCDIncrease", new(0.5f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        FailureKillCooldown = new FloatOptionItem(Id + 12, "HHFailureKCDIncrease", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
 
         CanVent = new BooleanOptionItem(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
         HasImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
 
-        NumOfTargets = new IntegerOptionItem(Id + 15, "HHNumOfTargets", new(1, 10, 1), 3, TabGroup.NeutralRoles)
+        NumOfTargets = new IntegerOptionItem(Id + 15, "HHNumOfTargets", new(0, 10, 1), 3, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Times);
 
@@ -188,3 +188,4 @@ public class HeadHunter : RoleBase
     }
 
 }
+
