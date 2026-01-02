@@ -29,7 +29,7 @@ public class Beehive : RoleBase
         var id = 647350;
         Options.SetupRoleOptions(id++, TabGroup.NeutralRoles, CustomRoles.Beehive);
 
-        Distance = new FloatOptionItem(++id, "Beehive.Distance", new(0f, 20f, 0.5f), 15f, TabGroup.NeutralRoles)
+        Distance = new FloatOptionItem(++id, "Beehive.Distance", new(0.5f, 20f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive]);
 
         Time = new FloatOptionItem(++id, "Beehive.Time", new(0f, 30f, 0.5f), 10f, TabGroup.NeutralRoles)

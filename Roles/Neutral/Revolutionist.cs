@@ -36,7 +36,7 @@ internal class Revolutionist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Seconds);
 
-        RevolutionistDrawCount = new IntegerOptionItem(18412, "RevolutionistDrawCount", new(0, 14, 1), 6, TabGroup.NeutralRoles)
+        RevolutionistDrawCount = new IntegerOptionItem(18412, "RevolutionistDrawCount", new(1, 14, 1), 6, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Players);
 
@@ -44,7 +44,7 @@ internal class Revolutionist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Percent);
 
-        RevolutionistVentCountDown = new FloatOptionItem(18414, "RevolutionistVentCountDown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles)
+        RevolutionistVentCountDown = new FloatOptionItem(18414, "RevolutionistVentCountDown", new(0.5f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
             .SetValueFormat(OptionFormat.Seconds);
     }

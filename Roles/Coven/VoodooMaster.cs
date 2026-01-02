@@ -20,7 +20,7 @@ public class VoodooMaster : Coven
     {
         StartSetup(650050)
             .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityUseLimit, 5f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
+            .AutoSetupOption(ref AbilityUseLimit, 5f, new FloatValueRule(0, 20, 1f), OptionFormat.Times)
             .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
             .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }

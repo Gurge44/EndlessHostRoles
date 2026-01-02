@@ -19,7 +19,7 @@ public class Timelord : Coven
     {
         StartSetup(650110)
             .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref TimeStolenWithEachKill, 10, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref TimeStolenWithEachKill, 10, new IntegerValueRule(1, 60, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref CanVentBeforeNecronomicon, false)
             .AutoSetupOption(ref CanVentAfterNecronomicon, true);
     }
