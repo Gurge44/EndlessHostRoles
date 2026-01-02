@@ -50,7 +50,7 @@ public class Werewolf : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
 
-        RampageDur = new FloatOptionItem(Id + 13, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles)
+        RampageDur = new FloatOptionItem(Id + 13, "WWRampageDur", new(0.5f, 180f, 0.5f), 12f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -285,4 +285,5 @@ public class Werewolf : RoleBase
 
         return true;
     }
+
 }
