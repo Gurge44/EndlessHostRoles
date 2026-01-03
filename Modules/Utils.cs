@@ -13,15 +13,8 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
 using BepInEx;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.AddOns.Impostor;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
@@ -31,7 +24,8 @@ using InnerNet;
 using Newtonsoft.Json;
 using UnityEngine;
 using static EHR.Translator;
-using Tree = EHR.Crewmate.Tree;
+using Tree = EHR.Roles.Tree;
+using EHR.Gamemodes;
 
 namespace EHR;
 /*
@@ -2504,7 +2498,7 @@ public static class Utils
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
                 if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
 
-                if (Impostor.Lightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
+                if (Roles.Lightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gaslighter.GetMark(seer, seer, forMeeting));
@@ -2802,7 +2796,7 @@ public static class Utils
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
 
-                            if (Impostor.Lightning.IsGhost(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
+                            if (Roles.Lightning.IsGhost(target)) TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
                             TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
@@ -3401,7 +3395,7 @@ public static class Utils
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Catcher => Catcher.AbilityCooldown.GetInt(),
-            CustomRoles.Sentry => Crewmate.Sentry.ShowInfoCooldown.GetInt(),
+            CustomRoles.Sentry => EHR.Roles.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
             CustomRoles.Ambusher => Ambusher.AbilityCooldown.GetInt(),
             CustomRoles.AntiAdminer => AntiAdminer.AbilityCooldown.GetInt(),
@@ -3727,7 +3721,7 @@ public static class Utils
                 Amnesiac.OnAnyoneDead(target);
                 Scout.OnPlayerDeath(target);
                 Dad.OnAnyoneDeath(target);
-                Crewmate.Sentry.OnAnyoneMurder(target);
+                EHR.Roles.Sentry.OnAnyoneMurder(target);
                 Soothsayer.OnAnyoneDeath(targetRealKiller);
 
                 TargetDies(targetRealKiller, target);

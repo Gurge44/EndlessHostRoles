@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.AddOns.GhostRoles;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 

@@ -1,10 +1,8 @@
 using System;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Impostor;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 

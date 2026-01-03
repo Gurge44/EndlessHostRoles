@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.AddOns.Common;
-using EHR.Crewmate;
-using EHR.Neutral;
+using EHR.Gamemodes;
+using EHR.Roles;
 
 namespace EHR.Modules;
 
