@@ -27,7 +27,7 @@ public class Hypnotist : RoleBase
     {
         StartSetup(647550)
             .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
-            .AutoSetupOption(ref AbilityDuration, 15, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref AbilityDuration, 15, new IntegerValueRule(1, 30, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.8f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
             .AutoSetupOption(ref DoReportAfterHypnosisEnds, true);

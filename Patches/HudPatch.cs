@@ -205,7 +205,7 @@ internal static class HudManagerPatch
                     ActionButton usedButton = __instance.KillButton;
                     if (usesPetInsteadOfKill) usedButton = __instance.PetButton;
 
-                    __instance.KillButton?.OverrideText(GetString("KillButtonText"));
+                    __instance.KillButton?.OverrideText(player.GetRoleTypes() == RoleTypes.Viper ? GetString("KillButtonText.Viper") : GetString("KillButtonText"));
                     __instance.ReportButton?.OverrideText(GetString("ReportButtonText"));
                     __instance.PetButton?.OverrideText(GetString("PetButtonText"));
                     __instance.ImpostorVentButton?.OverrideText(GetString("VentButtonText"));
@@ -237,7 +237,7 @@ internal static class HudManagerPatch
                         case CustomRoles.Medic:
                             usedButton?.OverrideText(GetString("MedicalerButtonText"));
                             break;
-                        case CustomRoles.SoloPVP_Player:
+                        case CustomRoles.Challenger:
                         case CustomRoles.BedWarsPlayer:
                             __instance.KillButton?.OverrideText(GetString("DemonButtonText"));
                             break;
@@ -660,7 +660,7 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 
-            case CustomRoles.SoloPVP_Player:
+            case CustomRoles.Challenger:
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ReportButton?.ToggleVisible(false);

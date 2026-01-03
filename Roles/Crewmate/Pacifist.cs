@@ -15,7 +15,7 @@ internal class Pacifist : RoleBase
     {
         SetupRoleOptions(7700, TabGroup.CrewmateRoles, CustomRoles.Pacifist);
 
-        PacifistCooldown = new FloatOptionItem(7710, "PacifistCooldown", new(0f, 180f, 1f), 7f, TabGroup.CrewmateRoles)
+        PacifistCooldown = new FloatOptionItem(7710, "PacifistCooldown", new(0f, 180f, 0.5f), 7f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Pacifist])
             .SetValueFormat(OptionFormat.Seconds);
 

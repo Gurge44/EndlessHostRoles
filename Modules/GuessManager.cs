@@ -335,7 +335,7 @@ public static class GuessManager
                         case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():
                         case CustomRoles.BananaMan:
                         case CustomRoles.Disco:
-                        case CustomRoles.Flashman:
+                        case CustomRoles.Flash:
                         case CustomRoles.Giant:
                         case CustomRoles.Glow:
                         case CustomRoles.LastImpostor:
@@ -1044,7 +1044,7 @@ public static class GuessManager
                 CustomRoles.BananaMan or
                 CustomRoles.Car or
                 CustomRoles.Disco or
-                CustomRoles.Flashman or
+                CustomRoles.Flash or
                 CustomRoles.Giant or
                 CustomRoles.LastImpostor or
                 CustomRoles.NotAssigned or
@@ -1651,4 +1651,3 @@ public static class GuessManager
     }
 
 }
-

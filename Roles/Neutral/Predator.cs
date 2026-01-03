@@ -29,7 +29,7 @@ internal class Predator : RoleBase
         NumOfRolesToKill = new IntegerOptionItem(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
 
-        MaxImpRolePicks = new IntegerOptionItem(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles)
+        MaxImpRolePicks = new IntegerOptionItem(Id + 3, "MaxImpRolePicks", new(0, 10, 1), 1, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
 
         KillCooldown = new FloatOptionItem(Id + 4, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)

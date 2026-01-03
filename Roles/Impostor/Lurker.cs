@@ -21,7 +21,7 @@ public class Lurker : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(0f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
+        ReduceKillCooldown = new FloatOptionItem(Id + 11, "ArroganceReduceKillCooldown", new(1f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
             .SetValueFormat(OptionFormat.Seconds);
     }

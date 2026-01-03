@@ -45,7 +45,7 @@ internal class Samurai : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KillDelay = new FloatOptionItem(id + 7, "Samurai.KillDelay", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
+        KillDelay = new FloatOptionItem(id + 7, "Samurai.KillDelay", new(0.5f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
             .SetValueFormat(OptionFormat.Seconds);
     }

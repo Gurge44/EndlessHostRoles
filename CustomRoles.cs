@@ -428,7 +428,7 @@ public enum CustomRoles
     Wyrd,
 
     // Solo Kombat
-    SoloPVP_Player,
+    Challenger,
 
     // FFA
     Killer,
@@ -536,7 +536,7 @@ public enum CustomRoles
     Examiner,
     Facilitator, // Ghost role
     Finder,
-    Flashman,
+    Flash,
     Fragile,
     Fool,
     Giant,

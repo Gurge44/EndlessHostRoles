@@ -15,7 +15,7 @@ public class Wraith : RoleBase
     {
         StartSetup(13300)
             .AutoSetupOption(ref WraithCooldown, 20f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds)
-            .AutoSetupOption(ref WraithDuration, 10f, new FloatValueRule(0f, 30f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref WraithDuration, 10f, new FloatValueRule(0.5f, 30f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref WraithVentNormallyOnCooldown, true)
             .AutoSetupOption(ref WraithCanVent, true, overrideName: "CanVent")
             .AutoSetupOption(ref ImpostorVision, true)

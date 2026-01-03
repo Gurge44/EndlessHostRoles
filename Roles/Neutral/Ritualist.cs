@@ -21,7 +21,7 @@ public class Ritualist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])
             .SetValueFormat(OptionFormat.Seconds);
 
-        RitualMaxCount = new IntegerOptionItem(Id + 11, "RitualMaxCount", new(0, 15, 1), 1, TabGroup.NeutralRoles)
+        RitualMaxCount = new IntegerOptionItem(Id + 11, "RitualMaxCount", new(1, 15, 1), 1, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])
             .SetValueFormat(OptionFormat.Times);
 
@@ -35,4 +35,5 @@ public class Ritualist : RoleBase
     public override void Init() { }
 
     public override void Add(byte playerId) { }
+
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +20,41 @@ public static class Zoom
             if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {
                 if (Camera.main.orthographicSize > 3.0f) ResetButtons = true;
+#if ANDROID
+                if (Input.touchCount == 2)
+                {
+                    Touch touch0 = Input.GetTouch(0);
+                    Touch touch1 = Input.GetTouch(1);
 
+                    Vector2 touch0PrevPos = touch0.position - touch0.deltaPosition;
+                    Vector2 touch1PrevPos = touch1.position - touch1.deltaPosition;
+
+                    float prevTouchDeltaMag = (touch0PrevPos - touch1PrevPos).magnitude;
+                    float currentTouchDeltaMag = (touch0.position - touch1.position).magnitude;
+                    float deltaMagnitudeDiff = currentTouchDeltaMag - prevTouchDeltaMag;
+
+                    switch (deltaMagnitudeDiff)
+                    {
+                        case > 0:
+                        {
+                            if (Camera.main.orthographicSize > 3.0f)
+                                SetZoomSize();
+
+                            break;
+                        }
+                        case < 0:
+                        {
+                            if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                            {
+                                if (Camera.main.orthographicSize < 18.0f)
+                                    SetZoomSize(true);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+#else
                 switch (Input.mouseScrollDelta.y)
                 {
                     case > 0:
@@ -41,7 +75,7 @@ public static class Zoom
                         break;
                     }
                 }
-
+#endif
                 Flag.NewFlag("Zoom");
             }
             else
@@ -107,11 +141,4 @@ public static class Flag
     {
         if (!OneTimeList.Contains(type)) OneTimeList.Add(type);
     }
-
-    /*
-        public static void DeleteFlag(string type)
-        {
-            if (OneTimeList.Contains(type)) OneTimeList.Remove(type);
-        }
-    */
 }

@@ -24,7 +24,7 @@ public class Jinx : RoleBase
         CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx]);
         HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx]);
 
-        JinxSpellTimes = new IntegerOptionItem(Id + 14, "JinxSpellTimes", new(0, 15, 1), 1, TabGroup.NeutralRoles)
+        JinxSpellTimes = new IntegerOptionItem(Id + 14, "JinxSpellTimes", new(1, 15, 1), 1, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jinx])
             .SetValueFormat(OptionFormat.Times);
 
@@ -34,4 +34,5 @@ public class Jinx : RoleBase
     public override void Init() { }
 
     public override void Add(byte playerId) { }
+
 }

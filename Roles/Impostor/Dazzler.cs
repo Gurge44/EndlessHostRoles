@@ -38,7 +38,7 @@ public class Dazzler : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Multiplier);
 
-        DazzleLimitOpt = new IntegerOptionItem(Id + 14, "DazzlerDazzleLimit", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
+        DazzleLimitOpt = new IntegerOptionItem(Id + 14, "DazzlerDazzleLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Dazzler])
             .SetValueFormat(OptionFormat.Times);
 
