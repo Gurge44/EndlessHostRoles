@@ -1,4 +1,5 @@
 using System;
+using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Patches;
 using EHR.Roles;
