@@ -438,7 +438,11 @@ internal static class CustomRoleSelector
         
         static RoleAssignInfo PickWeighted(List<RoleAssignInfo> pool, IRandom rng)
         {
-            int totalWeight = pool.Sum(t => t.SpawnChance);
+            int totalWeight = 0;
+
+            foreach (var info in pool)
+                totalWeight += info.SpawnChance * (info.MaxCount - info.AssignedCount);
+
             if (totalWeight <= 0) return null;
 
             int roll = rng.Next(totalWeight);
@@ -446,7 +450,7 @@ internal static class CustomRoleSelector
 
             foreach (var info in pool)
             {
-                cumulative += info.SpawnChance;
+                cumulative += info.SpawnChance * (info.MaxCount - info.AssignedCount);
                 if (roll < cumulative) return info;
             }
 
