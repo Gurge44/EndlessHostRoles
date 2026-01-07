@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Crewmate;
+using EHR.Gamemodes;
 using EHR.Patches;
 using HarmonyLib;
 using InnerNet;

@@ -1,6 +1,5 @@
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 

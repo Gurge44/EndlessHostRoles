@@ -1,9 +1,8 @@
 using System;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Gamemodes;
 using EHR.Patches;
+using EHR.Roles;
 using UnityEngine;
 
 namespace EHR;

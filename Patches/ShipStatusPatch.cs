@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Crewmate;
-using EHR.Neutral;
+using EHR.Roles;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
+using EHR.Gamemodes;
 
 namespace EHR;
 

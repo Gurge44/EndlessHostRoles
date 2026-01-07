@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
-using EHR.Coven;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
+using EHR.Gamemodes;
 
 namespace EHR;
 

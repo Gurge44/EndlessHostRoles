@@ -2,17 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+using EHR.Gamemodes;
 
 namespace EHR.Patches;
 
@@ -1116,7 +1113,7 @@ internal static class MeetingHudStartPatch
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
 
-            if (Impostor.Lightning.IsGhost(target))
+            if (Roles.Lightning.IsGhost(target))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lightning), "■"));
 
             if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 2)
@@ -1146,7 +1143,7 @@ internal static class MeetingHudStartPatch
 
         // -------------------------------------------------------------------------------------------
 
-        Coven.Coven.CovenMeetingStartPatch.Postfix();
+        CovenBase.CovenMeetingStartPatch.Postfix();
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);

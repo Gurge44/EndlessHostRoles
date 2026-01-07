@@ -4,13 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Crewmate;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Gamemodes;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -710,7 +706,7 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SyncSentry:
                 {
                     byte id = reader.ReadByte();
-                    if (Main.PlayerStates[id].Role is not Crewmate.Sentry sentry) break;
+                    if (Main.PlayerStates[id].Role is not Roles.Sentry sentry) break;
 
                     sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                     break;
@@ -1030,7 +1026,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetGhostPlayer:
                 {
-                    Impostor.Lightning.ReceiveRPC(reader);
+                    Roles.Lightning.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetStalkerKillCount:
