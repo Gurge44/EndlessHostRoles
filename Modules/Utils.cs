@@ -2384,7 +2384,7 @@ public static class Utils
         {
             foreach (PlayerControl target in aapc)
             {
-                if (GameStates.IsMeeting) yield break;
+                if (GameStates.IsMeeting || ReportDeadBodyPatch.MeetingStarted) yield break;
                 var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable, log: false);
                 var hasValue = WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
                 sender.SendMessage(!hasValue || sender.stream.Length <= 3);

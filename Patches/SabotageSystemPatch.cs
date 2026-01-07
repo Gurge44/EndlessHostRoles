@@ -407,6 +407,8 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
     {
+        if (__instance is { Timer: > 0f }) return false;
+        
         if (Options.DisableSabotage.GetBool())
         {
             switch (systemTypes)

@@ -12,7 +12,6 @@ public class Overheat : RoleBase
     private static OptionItem OverheatChanceIncrease;
     private static OptionItem OverheatChanceIncreaseFrequency;
     private static OptionItem OverheatRollChanceFrequency;
-    private static OptionItem CoolDownTime;
     private static OptionItem KCDDecreasePerIncreasedTemperature;
     private float ChanceIncreaseTimer;
     private float RollChanceTimer;
@@ -34,15 +33,11 @@ public class Overheat : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 8f, TabGroup.ImpostorRoles)
+        OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CoolDownTime = new FloatOptionItem(id + 5, "Overheat.CoolDownTime", new(0.5f, 30f, 0.5f), 4f, TabGroup.ImpostorRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
-            .SetValueFormat(OptionFormat.Seconds);
-
-        KCDDecreasePerIncreasedTemperature = new FloatOptionItem(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 3f, TabGroup.ImpostorRoles)
+        KCDDecreasePerIncreasedTemperature = new FloatOptionItem(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -101,7 +96,7 @@ public class Overheat : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance != null) return;
+        if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance || AntiBlackout.SkipTasks || Main.IntroDestroyed) return;
 
         ChanceIncreaseTimer += Time.fixedDeltaTime;
         RollChanceTimer += Time.fixedDeltaTime;
@@ -112,7 +107,6 @@ public class Overheat : RoleBase
             Temperature += OverheatChanceIncrease.GetInt();
             SendRPC(pc.PlayerId);
             pc.ResetKillCooldown();
-            pc.MarkDirtySettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -128,16 +122,7 @@ public class Overheat : RoleBase
         Temperature = StartingTemperature;
         SendRPC(pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-
-        float speed = Main.AllPlayerSpeed[pc.PlayerId];
-        Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
-        pc.MarkDirtySettings();
-
-        LateTask.New(() =>
-        {
-            Main.AllPlayerSpeed[pc.PlayerId] = speed;
-            pc.MarkDirtySettings();
-        }, CoolDownTime.GetFloat(), "Overheat Cool Down");
+        pc.ResetKillCooldown();
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

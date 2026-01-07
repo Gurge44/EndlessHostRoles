@@ -274,7 +274,7 @@ public static class NaturalDisasters
                 if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
-                KeyValuePair<SystemTypes, Vector2> roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions.RandomElement();
+                KeyValuePair<SystemTypes, Vector2> roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions.Where(x => x.Key is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.Key.ToString().Contains("Decontamination")).RandomElement();
 
                 Vector2 position = disaster.Name switch
                 {

@@ -174,6 +174,8 @@ internal static class EndGamePatch
                     else Options.AutoGMRotationIndex = 0;
                 }
             }
+            
+            Main.Instance.StartCoroutine(BanManager.LoadEACList(reload: true));
         }
     }
 }
