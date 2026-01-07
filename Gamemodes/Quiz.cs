@@ -36,7 +36,7 @@ public static class Quiz
             ['B'] = SystemTypes.UpperEngine,
             ['C'] = SystemTypes.Security,
             ['D'] = SystemTypes.LowerEngine,
-            ['E'] = SystemTypes.Hallway
+            ['E'] = SystemTypes.Outside
         },
         [MapNames.MiraHQ] = new()
         {
@@ -183,7 +183,7 @@ public static class Quiz
                     char letter = (char)('A' + i);
                     SystemTypes room = UsedRooms[Main.CurrentMap][letter];
 
-                    bool isInThisRoom = room == SystemTypes.Outside ? seer.GetPlainShipRoom() == null : seer.IsInRoom(room);
+                    bool isInThisRoom = room == SystemTypes.Outside ? seer.GetPlainShipRoom() == null || seer.IsInRoom(SystemTypes.Hallway) : seer.IsInRoom(room);
 
                     string prefix = isInThisRoom ? "\u27a1 <u>" : string.Empty;
                     string suffix = isInThisRoom ? "</u>" : string.Empty;
@@ -449,7 +449,7 @@ public static class Quiz
         QuestionTimeLimitEndTS = 0;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
-        DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
+        DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null && x.Room.RoomId != SystemTypes.Hallway : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
         if (DyingPlayers.Count == 0) NumAllCorrectAnswers++;
         bool everyoneWasWrong = DyingPlayers.Count == aapc.Length;
         if (!everyoneWasWrong) NumCorrectAnswers.IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key).DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
@@ -590,7 +590,7 @@ public static class Quiz
                     if (CurrentDifficulty == Difficulty.Test)
                     {
                         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
-                        DyingPlayers = Main.AllAlivePlayerControls.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
+                        DyingPlayers = Main.AllAlivePlayerControls.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null && x.Room.RoomId != SystemTypes.Hallway : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
                         QuestionTimeLimitEndTS = 0;
                         Utils.NotifyRoles();
                     }
