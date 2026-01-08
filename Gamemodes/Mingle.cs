@@ -35,6 +35,7 @@ public static class Mingle
     public static OptionItem MinTimeOption;
     public static OptionItem MaxRequiredPlayersPerRoomOption;
     public static OptionItem MaxWinningPlayersOption;
+    public static OptionItem ChatDuringGameOption;
     
     public static void SetupCustomOption()
     {
@@ -78,10 +79,14 @@ public static class Mingle
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Players);
         
-        MaxWinningPlayersOption = new IntegerOptionItem(id, "Mingle.MaxWinningPlayersOption", new(1, 10, 1), 1, tab)
+        MaxWinningPlayersOption = new IntegerOptionItem(id++, "Mingle.MaxWinningPlayersOption", new(1, 10, 1), 1, tab)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Players);
+        
+        ChatDuringGameOption = new BooleanOptionItem(id, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            .SetColor(color)
+            .SetGameMode(gameMode);
     }
 
     public static string GetSuffix(PlayerControl seer)

@@ -109,7 +109,7 @@ public class Altruist : RoleBase
             if (ReviveTargetsKillerGetsArrow.GetBool()) TargetArrow.Add(killer.PlayerId, ReviveTarget);
 
             killer.KillFlash();
-            killer.Notify(string.Format(Translator.GetString("AltruistKillerAlert"), ReviveTarget.ColoredPlayerName()), 10f);
+            killer.Notify(Translator.GetString("AltruistKillerAlert"), 10f);
         }
 
         ReviveTarget = byte.MaxValue;

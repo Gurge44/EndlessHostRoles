@@ -78,6 +78,10 @@ internal static class SoloPVP
         SoloPVP_CanVent = new BooleanOptionItem(66_233_009, "SoloPVP_CanVent", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue));
+        
+        SoloPVP_ChatDuringGame = new BooleanOptionItem(66_233_010, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.SoloPVP)
+            .SetColor(new Color32(245, 82, 82, byte.MaxValue));
     }
 
     public static void Init()
@@ -346,6 +350,7 @@ internal static class SoloPVP
     private static OptionItem SoloPVP_ResurrectionWaitingTime;
     private static OptionItem SoloPVP_KillBonusMultiplier;
     private static OptionItem SoloPVP_CanVent;
+    public static OptionItem SoloPVP_ChatDuringGame;
 
     // ReSharper restore InconsistentNaming
 }

@@ -383,7 +383,8 @@ internal static class HudManagerPatch
                     __instance.ImpostorVentButton?.Hide();
                     __instance.KillButton?.Hide();
                     __instance.AbilityButton?.Show();
-                    __instance.AbilityButton?.OverrideText(GetString(StringNames.HauntAbilityName));
+                    __instance.AbilityButton?.SetEnabled();
+                    __instance.AbilityButton?.OverrideText(GetString(player.GetRoleTypes() == RoleTypes.GuardianAngel ? StringNames.ProtectAbility : StringNames.HauntAbilityName));
                 }
             }
 

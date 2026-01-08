@@ -18,8 +18,6 @@ internal static class FreeForAll
     public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
 
-    private static string LatestChatMessage = string.Empty;
-
     public static Dictionary<byte, int> PlayerTeams = [];
 
     public static readonly Dictionary<int, string> TeamColors = new()
@@ -361,12 +359,6 @@ internal static class FreeForAll
 
         string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
         return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
-    }
-
-    public static void UpdateLastChatMessage(string playerName, string message)
-    {
-        LatestChatMessage = string.Format(GetString("FFAChatMessageNotify"), playerName, message);
-        Main.AllAlivePlayerControls.NotifyPlayers(LatestChatMessage);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]

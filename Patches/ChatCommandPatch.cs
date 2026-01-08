@@ -859,7 +859,7 @@ internal static class ChatCommands
             return;
         }
         
-        if (!player.IsHost() || args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2))
+        if ((!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) || args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2))
         {
             Utils.SendMessage(string.Join('\n', Main.XORRoles.ConvertAll(x => $"{x.Item1.ToColoredString()} ⊕ {x.Item2.ToColoredString()}")), player.PlayerId, GetString("XORListTitle"));
             return;
@@ -2562,7 +2562,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsHost() || args.Length < 4)
+        if ((!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) || args.Length < 4)
         {
             if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) return;
 

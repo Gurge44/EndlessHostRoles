@@ -148,12 +148,12 @@ public static class GameStartManagerPatch
                 {
                     if (DataManager.Settings.Gameplay.StreamerMode)
                     {
-                        if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
+                        if (__instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
                         if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = true;
                     }
                     else
                     {
-                        if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
+                        if (__instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
                         if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = false;
                     }
                 }
@@ -196,6 +196,8 @@ public static class GameStartManagerPatch
 
             if (invalidColor.Length > 0)
             {
+                Main.UpdateTime = -100;
+                
                 Main.AllPlayerControls
                     .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
                     .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
@@ -634,6 +636,7 @@ public static class GameStartManagerBeginPatch
             if (__instance.startState == GameStartManager.StartingStates.Countdown)
             {
                 __instance.ResetStartState();
+                ChatCommands.VotedToStart.Clear();
                 return false;
             }
 

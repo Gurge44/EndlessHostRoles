@@ -19,6 +19,7 @@ public class PlagueBearer : RoleBase
     public static OptionItem PestilenceCanVent;
     public static OptionItem PestilenceHasImpostorVision;
     public static OptionItem InfectionSpreads;
+    public static OptionItem AnnounceTransformation;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -41,6 +42,9 @@ public class PlagueBearer : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
         
         InfectionSpreads = new BooleanOptionItem(Id + 14, "InfectionSpreads", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
+        
+        AnnounceTransformation = new BooleanOptionItem(Id + 15, "AnnounceTransformation", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
     }
 
@@ -161,11 +165,14 @@ public class Pestilence : RoleBase
     public static bool On;
     public override bool IsEnable => On;
 
+    private bool Announced;
+
     public override void SetupCustomOption() { }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Announced = false;
     }
 
     public override void Init()
@@ -208,5 +215,12 @@ public class Pestilence : RoleBase
             Achievements.Type.YoureTooLate.Complete();
 
         return false;
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (Announced || !PlagueBearer.AnnounceTransformation.GetBool()) return;
+        LateTask.New(() => Utils.SendMessage(GetString("TransformationAnnouncementMessage"), title: $"{CustomRoles.PlagueBearer.ToColoredString()} => {CustomRoles.Pestilence.ToColoredString()}"), 12f, "Pb to Pesti transform message");
+        Announced = true;
     }
 }

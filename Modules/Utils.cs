@@ -3460,7 +3460,7 @@ public static class Utils
             if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive()))
                 Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
         }
-        catch (System.Exception e) { ThrowException(e); }
+        catch (Exception e) { ThrowException(e); }
 
         try
         {
@@ -3472,7 +3472,7 @@ public static class Utils
             CopyCat.ResetRoles();
             Imitator.SetRoles();
         }
-        catch (System.Exception e) { ThrowException(e); }
+        catch (Exception e) { ThrowException(e); }
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -3505,8 +3505,6 @@ public static class Utils
 
                     if (Options.UsePets.GetBool())
                     {
-                        pc.AddAbilityCD(false);
-
                         LateTask.New(() =>
                         {
                             if (GameStates.IsEnded) return;
@@ -3515,6 +3513,8 @@ public static class Utils
                             pc.Data.DefaultOutfit.PetSequenceId += 10;
                             pc.RpcSetPet(petId);
                         }, 3f, "No Pet Reassign");
+
+                        pc.AddAbilityCD(false);
                     }
 
                     AFKDetector.RecordPosition(pc);
@@ -3566,7 +3566,7 @@ public static class Utils
             Deadlined.AfterMeetingTasks();
             Tired.Reset();
         }
-        catch (System.Exception e) { ThrowException(e); }
+        catch (Exception e) { ThrowException(e); }
 
         if (Options.AirshipVariableElectrical.GetBool())
             AirshipElectricalDoors.Initialize();

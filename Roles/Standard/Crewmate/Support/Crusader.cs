@@ -93,7 +93,7 @@ public class Crusader : RoleBase
             return;
         }
 
-        keepGameGoing = false;
-        countsAs = 2;
+        keepGameGoing = ForCrusade.ToValidPlayers().Exists(x => x.IsAlive());
+        countsAs = 1;
     }
 }

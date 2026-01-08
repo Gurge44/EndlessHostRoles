@@ -33,6 +33,7 @@ public static class NaturalDisasters
     private static OptionItem MaximumDisastersAtOnce;
     private static OptionItem WhenLimitIsReached;
     private static OptionItem PreferRemovingThunderstorm;
+    private static OptionItem ChatDuringGame;
     private static readonly Dictionary<string, OptionItem> DisasterSpawnChances = [];
 
     private static readonly string[] LimitReachedOptions =
@@ -53,6 +54,8 @@ public static class NaturalDisasters
     }
 
     public static int FrequencyOfDisasters => DisasterFrequency.GetInt();
+
+    public static bool Chat => ChatDuringGame.GetBool();
 
     public static void SetupCustomOption()
     {
@@ -88,6 +91,10 @@ public static class NaturalDisasters
         PreferRemovingThunderstorm = new BooleanOptionItem(id++, "ND_PreferRemovingThunderstorm", true, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetParent(WhenLimitIsReached)
+            .SetColor(color);
+        
+        ChatDuringGame = new BooleanOptionItem(id++, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
             .SetColor(color);
 
         LoadAllDisasters();

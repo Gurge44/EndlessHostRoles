@@ -1171,8 +1171,12 @@ internal static class IntroCutsceneDestroyPatch
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.SoloPVP when SoloPVP.SoloPVP_ChatDuringGame.GetBool():
                 case CustomGameMode.FFA when FreeForAll.FFAChatDuringGame.GetBool():
+                case CustomGameMode.Mingle when Mingle.ChatDuringGameOption.GetBool():
                 case CustomGameMode.Quiz when Quiz.Chat:
+                case CustomGameMode.HideAndSeek when CustomHnS.Chat:
+                case CustomGameMode.NaturalDisasters when NaturalDisasters.Chat:
                     Utils.SetChatVisibleForAll();
                     break;
             }

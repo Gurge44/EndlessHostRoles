@@ -14,6 +14,9 @@ internal class TimeMaster : RoleBase
 {
     public static bool On;
 
+    public static OptionItem TimeMasterCanRevive;
+    public static OptionItem TimeMasterRevivedKillerAlert;
+    public static OptionItem TimeMasterRevivedCanReportTheirOwnBody;
     public static OptionItem TimeMasterCanUseVitals;
     public static OptionItem TimeMasterRewindTimeLength;
     public static OptionItem TimeMasterSkillCooldown;
@@ -22,6 +25,7 @@ internal class TimeMaster : RoleBase
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
 
     private static Dictionary<long, Dictionary<byte, Vector2>> BackTrack = [];
+    private static List<byte> RevivedPlayers = [];
     public static bool Rewinding;
 
     public override bool IsEnable => On;
@@ -31,6 +35,15 @@ internal class TimeMaster : RoleBase
     public override void SetupCustomOption()
     {
         SetupRoleOptions(652100, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
+
+        TimeMasterCanRevive = new BooleanOptionItem(652106, "TimeMasterCanRevive", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster]);
+
+        TimeMasterRevivedKillerAlert = new BooleanOptionItem(652107, "Altruist.ReviveTargetsKillerGetsAlert", true, TabGroup.CrewmateRoles)
+            .SetParent(TimeMasterCanRevive);
+
+        TimeMasterRevivedCanReportTheirOwnBody = new BooleanOptionItem(652108, "Altruist.ReviveTargetCanReportTheirOwnBody", false, TabGroup.CrewmateRoles)
+            .SetParent(TimeMasterCanRevive);
 
         TimeMasterCanUseVitals = new BooleanOptionItem(652109, "TimeMasterCanUseVitals", true, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster]);
@@ -68,6 +81,7 @@ internal class TimeMaster : RoleBase
     {
         On = false;
         Rewinding = false;
+        RevivedPlayers = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -84,6 +98,12 @@ internal class TimeMaster : RoleBase
             hud.PetButton.buttonLabelText.text = Translator.GetString("TimeMasterVentButtonText");
         else
             hud.AbilityButton.buttonLabelText.text = Translator.GetString("TimeMasterVentButtonText");
+    }
+
+    public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
+    {
+        if (TimeMasterRevivedCanReportTheirOwnBody.GetBool()) return true;
+        return !RevivedPlayers.Contains(reporter.PlayerId) || target.PlayerId != reporter.PlayerId;
     }
 
     public override void OnPet(PlayerControl pc)
@@ -149,15 +169,29 @@ internal class TimeMaster : RoleBase
                 yield return new WaitForSeconds(delay);
             }
 
-            foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
+            if (TimeMasterCanRevive.GetBool())
             {
-                if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out PlayerState ps)) continue;
-
-                if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
+                foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
                 {
-                    ps.Player.RpcRevive();
-                    ps.Player.TP(deadBody.TruePosition);
-                    ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
+                    if (!Main.PlayerStates.TryGetValue(deadBody.ParentId, out PlayerState ps)) continue;
+
+                    if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
+                    {
+                        ps.Player.RpcRevive();
+                        ps.Player.TP(deadBody.TruePosition);
+                        ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
+                    }
+
+                    if (TimeMasterRevivedKillerAlert.GetBool())
+                    {
+                        var killer = ps.RealKiller.ID.GetPlayer();
+
+                        if (killer != null && killer.IsAlive())
+                        {
+                            killer.KillFlash();
+                            killer.Notify(Translator.GetString("TimeMasterKillerAlert"), 10f);
+                        }
+                    }
                 }
             }
 
@@ -233,6 +267,9 @@ internal class TimeMaster : RoleBase
         return !IsThisRole(pc) || pc.Is(CustomRoles.Nimble) || pc.GetClosestVent()?.Id == ventId;
     }
 
+    private bool KeepGameGoingCache;
+    private long KeepGameGoingCacheLastUpdate;
+
     public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
     {
         if (playerState.IsDead)
@@ -241,8 +278,14 @@ internal class TimeMaster : RoleBase
             return;
         }
 
-        keepGameGoing = false;
+        long now = Utils.TimeStamp;
+        bool cacheUpToDate = KeepGameGoingCacheLastUpdate == now;
+
+        keepGameGoing = cacheUpToDate && KeepGameGoingCache;
         countsAs = 1;
+        
+        if (cacheUpToDate) return;
+        
         int length = TimeMasterRewindTimeLength.GetInt();
 
         foreach (DeadBody deadBody in Object.FindObjectsOfType<DeadBody>())
@@ -252,8 +295,13 @@ internal class TimeMaster : RoleBase
             if (ps.RealKiller.TimeStamp.AddSeconds(length) >= DateTime.Now)
             {
                 keepGameGoing = true;
+                KeepGameGoingCache = keepGameGoing;
+                KeepGameGoingCacheLastUpdate = now;
                 return;
             }
         }
+        
+        KeepGameGoingCache = keepGameGoing;
+        KeepGameGoingCacheLastUpdate = now;
     }
 }

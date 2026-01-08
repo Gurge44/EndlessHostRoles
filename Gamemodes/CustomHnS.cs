@@ -21,6 +21,7 @@ internal static class CustomHnS
     private static OptionItem MaxNeutrals;
     private static OptionItem DangerMeter;
     private static OptionItem PlayersSeeRoles;
+    private static OptionItem ChatDuringGame;
 
     public static Dictionary<Team, Dictionary<CustomRoles, int>> HideAndSeekRoles = [];
     public static Dictionary<byte, (IHideAndSeekRole Interface, CustomRoles Role)> PlayerRoles = [];
@@ -31,6 +32,7 @@ internal static class CustomHnS
 
     public static int SeekerNum => Math.Max(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
     public static int MaximumGameLength => MaxGameLength.GetInt();
+    public static bool Chat => ChatDuringGame.GetBool();
 
     public static void SetupCustomOption()
     {
@@ -55,6 +57,10 @@ internal static class CustomHnS
             .SetColor(color);
 
         PlayersSeeRoles = new BooleanOptionItem(id + 4, "HNS.PlayersSeeRoles", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.HideAndSeek)
+            .SetColor(color);
+        
+        ChatDuringGame = new BooleanOptionItem(id + 5, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetColor(color);
     }

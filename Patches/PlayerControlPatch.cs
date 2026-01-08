@@ -1058,7 +1058,8 @@ internal static class ReportDeadBodyPatch
 
 
                 if (!Occultist.OnAnyoneReportDeadBody(target) ||
-                    !Altruist.OnAnyoneCheckReportDeadBody(__instance, target))
+                    !Altruist.OnAnyoneCheckReportDeadBody(__instance, target) ||
+                    !TimeMaster.OnAnyoneCheckReportDeadBody(__instance, target))
                 {
                     Notify("PlayerWasRevived");
                     return false;
