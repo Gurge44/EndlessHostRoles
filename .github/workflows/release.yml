@@ -66,13 +66,14 @@ jobs:
           unzip bepinex.zip -d bepinex
 
       # -----------------------------
-      # 7. Download .NET runtime (latest 8.x win-x64)
+      # 7. Download .NET runtime (latest 6.x win-x64)
       # -----------------------------
-      - name: Download .NET Runtime
+      - name: Download .NET 6 Runtime
         run: |
-          RUNTIME_URL=$(curl -s https://api.github.com/repos/dotnet/runtime/releases/latest \
+          RUNTIME_URL=$(curl -s https://api.github.com/repos/dotnet/runtime/releases \
             | grep browser_download_url \
-            | grep "dotnet-runtime-.*-win-x64.zip" \
+            | grep "dotnet-runtime-6.0.*-win-x64.zip" \
+            | head -n 1 \
             | cut -d '"' -f 4)
 
           echo "Downloading runtime: $RUNTIME_URL"
