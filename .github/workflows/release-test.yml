@@ -1,4 +1,4 @@
-name: Build & Release EHR
+name: Build & Release EHR TEST
 
 on:
   workflow_dispatch:
