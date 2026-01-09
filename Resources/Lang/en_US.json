@@ -10108,6 +10108,8 @@
   "Empress.CoverageDuration": "Coverage Duration",
   "Empress.FrostGazeDelay": "Frost Gaze Delay",
   "Empress.FrostGazeDuration": "Frost Gaze Duration",
+  "Empress.EmpowerFailWeakenedMessage": "<#ff5555>X <#bb0000>The <#7b3fbb>Necronomicon</color> cannot be empowered in 2 consecutive rounds!</color>",
+  "Empress.EmpowerSuccessMessage": "<#00ff00>✓ <#00ffa5>Successfully empowered the <#7b3fbb>Necronomicon</color>!</color>",
   "DCNotify.Hacking": "You were <color=#ff1919>banned</color> for hacking.\\n\\nPlease stop.",
   "DCNotify.Banned": "You were <color=#ff1919>banned</color> from this lobby.\\n\\nContact the host if this was a mistake.",
   "DCNotify.Kicked": "You were <color=#ffff00>kicked</color> from this lobby.\\n\\nYou may still rejoin.",
