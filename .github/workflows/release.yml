@@ -48,7 +48,7 @@ jobs:
       # -----------------------------
       - name: Build EHR
         run: |
-          dotnet publish EHR.csproj -c Release -o build/EHR
+          dotnet publish EHR.csproj -c Release -o build/
 
       # -----------------------------
       # 5. Build CTA (Control Panel)
@@ -56,7 +56,7 @@ jobs:
       - name: Build CustomTeamAssigner (Control Panel)
         run: |
           cp CustomRoles.cs CTA/CustomTeamAssigner/CustomRoles.cs
-          dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/CTA
+          dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/
 
       # -----------------------------
       # 6. Download BepInEx 6.0.0-pre.2
@@ -71,14 +71,27 @@ jobs:
       # -----------------------------
       - name: Download .NET 6 Runtime
         run: |
-          RUNTIME_URL=$(curl -s https://api.github.com/repos/dotnet/runtime/releases \
-            | grep browser_download_url \
-            | grep "dotnet-runtime-6.0.*-win-x64.zip" \
-            | head -n 1 \
-            | cut -d '"' -f 4)
+          RELEASE_JSON=$(curl -s https://api.github.com/repos/dotnet/runtime/releases)
 
-          echo "Downloading runtime: $RUNTIME_URL"
-          curl -L "$RUNTIME_URL" -o dotnet.zip
+          # Get the latest tag that matches v6.0.x
+          TAG=$(echo "$RELEASE_JSON" \
+            | jq -r '.[].tag_name' \
+            | grep '^v6\.0\.' \
+            | sort -Vr \
+            | head -n 1)
+
+          echo "Selected tag: $TAG"
+
+          # Get the zipball_url for that tag
+          ZIP_URL=$(echo "$RELEASE_JSON" \
+            | jq -r --arg TAG "$TAG" '
+                .[]
+                | select(.tag_name == $TAG)
+                | .zipball_url
+              ')
+
+          echo "Downloading zipball: $ZIP_URL"
+          curl -L "$ZIP_URL" -o dotnet.zip
           unzip dotnet.zip -d dotnet
 
       # -----------------------------
@@ -109,30 +122,23 @@ jobs:
           mkdir -p release/steam
 
           # Copy mod DLL
-          cp build/EHR/EHR.dll release/epic/
-          cp build/EHR/EHR.dll release/steam/
+          cp build/*.dll release/epic/
+          cp build/*.dll release/steam/
 
           # Copy Control Panel
-          cp build/CTA/*.exe release/epic/
-          cp build/CTA/*.exe release/steam/
+          cp build/*.exe release/epic/
+          cp build/*.exe release/steam/
 
           # Copy BepInEx
-          cp -r bepinex/BepInEx release/epic/
-          cp -r bepinex/BepInEx release/steam/
+          cp -r bepinex/* release/epic/
+          cp -r bepinex/* release/steam/
 
           # Copy dotnet runtime
           cp -r dotnet/shared release/epic/dotnet
           cp -r dotnet/shared release/steam/dotnet
 
-          # Copy misc packaging files
-          cp packaging/winhttp.dll release/epic/
-          cp packaging/winhttp.dll release/steam/
-
-          cp -r packaging/doorstop_config.ini release/epic/
-          cp -r packaging/doorstop_config.ini release/steam/
-
           # Steam-only file
-          cp packaging/steam_appid.txt release/steam/
+          echo "945360" > release/steam/steam_appid.txt
 
           # Generate changelog
           echo CHANGELOG.txt > release/changelog.txt
