@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -55,52 +56,56 @@ public static class BanManager
             }
             
             Main.Instance.StartCoroutine(LoadEACList());
-
-            static System.Collections.IEnumerator LoadEACList()
-            {
-                EACList.Clear();
-
-                UnityWebRequest request = UnityWebRequest.Get("https://raw.githubusercontent.com/Gurge44/EndlessHostRoles/main/Resources/Config/EACList.txt");
-                request.timeout = 5;
-                request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
-                
-                yield return request.SendWebRequest();
-
-                if (request.result == UnityWebRequest.Result.Success && !string.IsNullOrWhiteSpace(request.downloadHandler.text))
-                {
-                    using StringReader reader = new(request.downloadHandler.text);
-
-                    while (reader.ReadLine() is { } line)
-                    {
-                        line = line.Trim();
-                        if (line.Length == 0 || line.StartsWith("#")) continue;
-
-                        EACList.Add(line);
-                    }
-
-                    Logger.Info("EAC list loaded from GitHub", "BanManager");
-                    yield break;
-                }
-
-                Logger.Warn($"Failed to load EAC list from GitHub, falling back to local copy: {request.error}", "BanManager");
-
-                // Fallback: embedded resource
-                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Config.EACList.txt")!;
-                stream.Position = 0;
-                using StreamReader sr = new(stream, Encoding.UTF8);
-
-                while (sr.ReadLine() is { } line)
-                {
-                    line = line.Trim();
-                    if (line == "" || line.StartsWith("#")) continue;
-
-                    EACList.Add(line);
-                }
-
-                Logger.Info("EAC list loaded from embedded resource", "BanManager");
-            }
         }
         catch (Exception ex) { Logger.Exception(ex, "BanManager"); }
+    }
+
+    public static IEnumerator LoadEACList(bool reload = false)
+    {
+        if (!reload) EACList.Clear();
+
+        UnityWebRequest request = UnityWebRequest.Get("https://raw.githubusercontent.com/Gurge44/EndlessHostRoles/main/Resources/Config/EACList.txt");
+        request.timeout = 5;
+        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
+                
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success && !string.IsNullOrWhiteSpace(request.downloadHandler.text))
+        {
+            if (reload) EACList.Clear();
+            
+            using StringReader reader = new(request.downloadHandler.text);
+
+            while (reader.ReadLine() is { } line)
+            {
+                line = line.Trim();
+                if (line.Length == 0 || line.StartsWith("#")) continue;
+
+                EACList.Add(line);
+            }
+
+            Logger.Info("EAC list loaded from GitHub", "BanManager");
+            yield break;
+        }
+        
+        if (reload) yield break;
+
+        Logger.Warn($"Failed to load EAC list from GitHub, falling back to local copy: {request.error}", "BanManager");
+        
+        // Fallback: embedded resource
+        Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Config.EACList.txt")!;
+        stream.Position = 0;
+        using StreamReader sr = new(stream, Encoding.UTF8);
+
+        while (sr.ReadLine() is { } line)
+        {
+            line = line.Trim();
+            if (line == "" || line.StartsWith("#")) continue;
+
+            EACList.Add(line);
+        }
+
+        Logger.Info("EAC list loaded from embedded resource", "BanManager");
     }
 
     private static string GetResourcesTxt(string path)

@@ -140,7 +140,7 @@ public static class UpdateFriendCodeUIPatch
 
     public static void Prefix()
     {
-        var credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2025";
+        var credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2026";
         credentialsText += "\t\t\t";
         credentialsText += $"<color={Main.ModColor}>{Main.ModName}</color> - {Main.PluginVersion}";
 
@@ -335,7 +335,7 @@ internal static class TitleLogoPatch
         GameObject.Find("BackgroundTexture")?.SetActive(!MainMenuManagerPatch.ShowedBak);
 
         DateTime now = DateTime.Now;
-        bool holidays = now is { Month: 12, Day: < 24 };
+        bool holidays = now is { Month: 12, Day: < 24 or > 26 };
         bool christmas = now is { Month: 12, Day: >= 24 and <= 26 };
         bool newYear = now is { Month: 1, Day: <= 6 };
         bool easter = IsEasterPeriod();

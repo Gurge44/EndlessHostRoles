@@ -1,4 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup> 
+        <AmongUsPath>D:\SteamLibrary\steamapps\common\Among Us</AmongUsPath> 
+    </PropertyGroup>
+    <Import Project="local.props" Condition="Exists('local.props')" /> 
     <PropertyGroup>
         <TargetFramework Condition="'$(Configuration)' == 'Android'">net8.0</TargetFramework>
         <TargetFramework Condition="'$(Configuration)' != 'Android'">net6.0</TargetFramework>
@@ -8,8 +13,7 @@
         <Description>EHR</Description>
         <Authors>Gurge44</Authors>
         <LangVersion>preview</LangVersion>
-        <AmongUs>D:\SteamLibrary\steamapps\common\Among Us</AmongUs>
-        <!--<AmongUs>C:\Program Files\Epic Games\AmongUs</AmongUs>-->
+        <AmongUs>$(AmongUsPath)</AmongUs>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Optimize>True</Optimize>
         <AssemblyName>$(MSBuildProjectName)</AssemblyName>

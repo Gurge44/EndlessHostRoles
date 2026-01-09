@@ -7,11 +7,10 @@ using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
-using EHR.AddOns.Common;
-using EHR.Crewmate;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -182,6 +181,26 @@ internal static class OnGameJoinedPatch
 
                     if (Options.AutoDraftStartCommandAfterJoin.GetBool())
                         ChatCommands.DraftStartCommand(PlayerControl.LocalPlayer, "Command.DraftStart", "/draftstart", ["/draftstart"]);
+                }
+            }
+
+            if (Options.AutoReadyCheckCommandAfterJoin.GetBool())
+            {
+                Main.Instance.StartCoroutine(CoRoutine());
+
+                IEnumerator CoRoutine()
+                {
+                    float timer = Options.AutoReadyCheckCommandCooldown.GetInt();
+
+                    while (timer > 0)
+                    {
+                        if (!GameStates.IsLobby) yield break;
+                        timer -= Time.deltaTime;
+                        yield return null;
+                    }
+
+                    if (Options.AutoReadyCheckCommandAfterJoin.GetBool())
+                        ChatCommands.ReadyCheckCommand(PlayerControl.LocalPlayer, "Command.ReadyCheck", "/readycheck", ["/readycheck"]);
                 }
             }
 
@@ -533,12 +552,14 @@ internal static class OnPlayerLeftPatch
         {
             if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character != null)
             {
-                ExtendedPlayerControl.TempExiled.Remove(data.Character.PlayerId);
+                byte id = data.Character.PlayerId;
+                
+                ExtendedPlayerControl.TempExiled.Remove(id);
 
                 switch (Options.CurrentGameMode)
                 {
                     case CustomGameMode.HideAndSeek:
-                        CustomHnS.PlayerRoles.Remove(data.Character.PlayerId);
+                        CustomHnS.PlayerRoles.Remove(id);
                         break;
                     case CustomGameMode.Mingle when data.Character.IsAlive():
                         Mingle.HandleDisconnect();
@@ -556,13 +577,13 @@ internal static class OnPlayerLeftPatch
                         Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                     }
 
-                    Main.LoversPlayers.RemoveAll(x => x.PlayerId == data.Character.PlayerId);
+                    Main.LoversPlayers.RemoveAll(x => x.PlayerId == id);
                 }
 
                 switch (data.Character.GetCustomRole())
                 {
                     case CustomRoles.Pelican:
-                        Pelican.OnPelicanDied(data.Character.PlayerId);
+                        Pelican.OnPelicanDied(id);
                         break;
                     case CustomRoles.Markseeker:
                         Markseeker.OnDeath(data.Character);
@@ -572,23 +593,29 @@ internal static class OnPlayerLeftPatch
                         break;
                 }
 
-                if (Executioner.Target.ContainsValue(data.Character.PlayerId)) Executioner.ChangeRoleByTarget(data.Character);
+                if (Executioner.Target.ContainsValue(id))
+                    Executioner.ChangeRoleByTarget(data.Character);
 
-                if (Lawyer.Target.ContainsValue(data.Character.PlayerId)) Lawyer.ChangeRoleByTarget(data.Character);
+                if (Lawyer.Target.ContainsValue(id))
+                    Lawyer.ChangeRoleByTarget(data.Character);
 
-                if (Spiritualist.SpiritualistTarget == data.Character.PlayerId) Spiritualist.RemoveTarget();
+                if (Spiritualist.SpiritualistTarget == id)
+                    Spiritualist.RemoveTarget();
+
+                if (CopyCat.PlayerIdList.Remove(id))
+                    CopyCat.Instances.RemoveAll(x => x.CopyCatPC == null);
 
                 Postman.CheckAndResetTargets(data.Character);
-                GhostRolesManager.AssignedGhostRoles.Remove(data.Character.PlayerId);
+                GhostRolesManager.AssignedGhostRoles.Remove(id);
 
-                PlayerState state = Main.PlayerStates[data.Character.PlayerId];
+                PlayerState state = Main.PlayerStates[id];
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
 
                 if (!state.IsDead) state.SetDead();
 
                 Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting, true);
 
-                NameNotifyManager.Notifies.Remove(data.Character.PlayerId);
+                NameNotifyManager.Notifies.Remove(id);
                 data.Character.RpcSetName(data.Character.GetRealName(true));
                 PlayerGameOptionsSender.RemoveSender(data.Character);
             }
@@ -895,4 +922,5 @@ internal static class NetworkedPlayerInfoInitPatch
             }
         }
     }
+
 }

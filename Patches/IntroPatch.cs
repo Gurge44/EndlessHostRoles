@@ -3,10 +3,10 @@ using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-using EHR.AddOns.Common;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
@@ -875,11 +875,11 @@ internal static class BeginCrewmatePatch
         {
             case CustomGameMode.SoloPVP:
             {
-                __instance.TeamTitle.text = GetString("SoloPVP_Player");
+                __instance.TeamTitle.text = GetString("Challenger");
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(245, 82, 82, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = DestroyableSingleton<HnSImpostorScreamSfx>.Instance.HnSOtherImpostorTransformSfx;
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("SoloPVP_PlayerInfo");
+                __instance.ImpostorText.text = GetString("ChallengerInfo");
                 break;
             }
             case CustomGameMode.FFA:
@@ -1171,8 +1171,12 @@ internal static class IntroCutsceneDestroyPatch
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.SoloPVP when SoloPVP.SoloPVP_ChatDuringGame.GetBool():
                 case CustomGameMode.FFA when FreeForAll.FFAChatDuringGame.GetBool():
+                case CustomGameMode.Mingle when Mingle.ChatDuringGameOption.GetBool():
                 case CustomGameMode.Quiz when Quiz.Chat:
+                case CustomGameMode.HideAndSeek when CustomHnS.Chat:
+                case CustomGameMode.NaturalDisasters when NaturalDisasters.Chat:
                     Utils.SetChatVisibleForAll();
                     break;
             }

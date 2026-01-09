@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;

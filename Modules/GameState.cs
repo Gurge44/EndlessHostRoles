@@ -2,14 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.Coven;
-using EHR.Crewmate;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using InnerNet;
+using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -337,7 +333,7 @@ public class PlayerState(byte playerId)
     {
         SubRoles.Remove(role);
 
-        if (role is CustomRoles.Flashman or CustomRoles.Dynamo or CustomRoles.Spurt)
+        if (role is CustomRoles.Flash or CustomRoles.Dynamo or CustomRoles.Spurt)
         {
             Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             PlayerGameOptionsSender.SetDirty(PlayerId);
@@ -597,4 +593,5 @@ public static class MeetingStates
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static NetworkedPlayerInfo ReportTarget { get; set; }
+
 }

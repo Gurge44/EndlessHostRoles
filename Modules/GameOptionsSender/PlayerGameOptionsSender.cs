@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.AddOns.Impostor;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Roles;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
+using EHR.Gamemodes;
 
 // ReSharper disable ForCanBeConvertedToForeach
 
@@ -263,9 +257,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                                 break;
                             }
-                            case CustomRoles.Flashman:
+                            case CustomRoles.Flash:
                             {
-                                Main.AllPlayerSpeed[player.PlayerId] = Options.FlashmanSpeed.GetFloat();
+                                Main.AllPlayerSpeed[player.PlayerId] = Options.FlashSpeed.GetFloat();
                                 break;
                             }
                             case CustomRoles.Giant:
@@ -660,4 +654,5 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         return base.AmValid() && player != null && player.Data != null && !player.Data.Disconnected && Main.RealOptionsData != null;
     }
+
 }
