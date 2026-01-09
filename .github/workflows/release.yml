@@ -1,0 +1,167 @@
+name: Build & Release EHR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (e.g. v7.0.2)"
+        required: true
+      changelog:
+        description: "Changelog (Markdown supported)"
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------
+      # 1. Checkout main
+      # -----------------------------
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -----------------------------
+      # 2. Download translations from Crowdin
+      # -----------------------------
+      - name: Sync translations from Crowdin
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: false
+          download_translations: true
+          config: crowdin.yml
+          push_translations: true
+          commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # -----------------------------
+      # 3. Setup .NET
+      # -----------------------------
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      # -----------------------------
+      # 4. Build main mod (EHR)
+      # -----------------------------
+      - name: Build EHR
+        run: |
+          dotnet publish EHR/EHR.csproj -c Release -o build/EHR
+
+      # -----------------------------
+      # 5. Build CTA (Control Panel)
+      # -----------------------------
+      - name: Build CustomTeamAssigner (Control Panel)
+        run: |
+          dotnet publish CTA/CustomTeamAssigner.csproj -c Release -o build/CTA
+
+      # -----------------------------
+      # 6. Download BepInEx 6.0.0-pre.2
+      # -----------------------------
+      - name: Download BepInEx 6.0.0-pre.2
+        run: |
+          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx_x64_6.0.0-pre.2.zip -o bepinex.zip
+          unzip bepinex.zip -d bepinex
+
+      # -----------------------------
+      # 7. Download .NET runtime (latest 8.x win-x64)
+      # -----------------------------
+      - name: Download .NET Runtime
+        run: |
+          RUNTIME_URL=$(curl -s https://api.github.com/repos/dotnet/runtime/releases/latest \
+            | grep browser_download_url \
+            | grep "dotnet-runtime-.*-win-x64.zip" \
+            | cut -d '"' -f 4)
+
+          echo "Downloading runtime: $RUNTIME_URL"
+          curl -L "$RUNTIME_URL" -o dotnet.zip
+          unzip dotnet.zip -d dotnet
+
+      # -----------------------------
+      # 8. Prepare packaging folders
+      # -----------------------------
+      - name: Prepare packaging structure
+        run: |
+          mkdir -p release/epic
+          mkdir -p release/steam
+
+          # Copy mod DLL
+          cp build/EHR/EHR.dll release/epic/
+          cp build/EHR/EHR.dll release/steam/
+
+          # Copy Control Panel
+          cp build/CTA/*.exe release/epic/
+          cp build/CTA/*.exe release/steam/
+
+          # Copy BepInEx
+          cp -r bepinex/BepInEx release/epic/
+          cp -r bepinex/BepInEx release/steam/
+
+          # Copy dotnet runtime
+          cp -r dotnet/shared release/epic/dotnet
+          cp -r dotnet/shared release/steam/dotnet
+
+          # Copy misc packaging files
+          cp packaging/winhttp.dll release/epic/
+          cp packaging/winhttp.dll release/steam/
+
+          cp -r packaging/doorstop_config.ini release/epic/
+          cp -r packaging/doorstop_config.ini release/steam/
+
+          # Steam-only file
+          cp packaging/steam_appid.txt release/steam/
+
+          # Generate changelog
+          echo "${{ github.event.inputs.changelog }}" > release/changelog.txt
+          cp release/changelog.txt release/epic/
+          cp release/changelog.txt release/steam/
+
+      # -----------------------------
+      # 9. Create ZIPs
+      # -----------------------------
+      - name: Create ZIP archives
+        run: |
+          cd release
+          zip -r "EHR.${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" epic/
+          zip -r "EHR.${{ github.event.inputs.version }}_Steam.zip" steam/
+
+      # -----------------------------
+      # 10. Create source archives
+      # -----------------------------
+      - name: Create source code archives
+        run: |
+          git archive --format zip --output source.zip HEAD
+          git archive --format tar.gz --output source.tar.gz HEAD
+
+      # -----------------------------
+      # 11. Create GitHub Release
+      # -----------------------------
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: "EHR ${{ github.event.inputs.version }}"
+          body: ${{ github.event.inputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # -----------------------------
+      # 12. Upload assets
+      # -----------------------------
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          files: |
+            build/EHR/EHR.dll
+            release/*.zip
+            source.zip
+            source.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
