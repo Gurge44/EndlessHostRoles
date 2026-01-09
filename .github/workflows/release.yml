@@ -83,7 +83,26 @@ jobs:
           unzip dotnet.zip -d dotnet
 
       # -----------------------------
-      # 8. Prepare packaging folders
+      # 8. Generate changelog automatically
+      # -----------------------------
+      - name: Generate changelog
+        id: changelog
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tag found, using full history."
+            git log --pretty=format:"* %s" > CHANGELOG.txt
+          else
+            echo "Generating changelog since $LAST_TAG"
+            git log $LAST_TAG..HEAD --pretty=format:"* %s" > CHANGELOG.txt
+          fi  
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # -----------------------------
+      # 9. Prepare packaging folders
       # -----------------------------
       - name: Prepare packaging structure
         run: |
@@ -122,7 +141,7 @@ jobs:
           cp release/changelog.txt release/steam/
 
       # -----------------------------
-      # 9. Create ZIPs
+      # 10. Create ZIPs
       # -----------------------------
       - name: Create ZIP archives
         run: |
@@ -131,7 +150,7 @@ jobs:
           zip -r "EHR.${{ github.event.inputs.version }}_Steam.zip" steam/
 
       # -----------------------------
-      # 10. Create source archives
+      # 11. Create source archives
       # -----------------------------
       - name: Create source code archives
         run: |
@@ -139,7 +158,15 @@ jobs:
           git archive --format tar.gz --output source.tar.gz HEAD
 
       # -----------------------------
-      # 11. Create GitHub Release
+      # 12. Create tag for this release
+      # -----------------------------
+      - name: Create tag
+        run: |
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
+
+      # -----------------------------
+      # 13. Create GitHub Release
       # -----------------------------
       - name: Create GitHub Release
         id: create_release
@@ -147,7 +174,7 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.version }}
           name: "EHR ${{ github.event.inputs.version }}"
-          body: ${{ github.event.inputs.changelog }}
+          body: ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
