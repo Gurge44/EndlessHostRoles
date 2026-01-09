@@ -292,6 +292,8 @@ internal static class CheckMurderPatch
                 return false;
 
             Seamstress.OnAnyoneCheckMurder(killer, target);
+            
+            Empress.OnInteraction(target);
 
             if (killer.PlayerId != target.PlayerId)
             {
@@ -721,6 +723,8 @@ internal static class MurderPlayerPatch
             EvilTracker.OnAnyoneMurder(killer, target);
             
             Berserker.OnAnyoneMurder(killer);
+            
+            Empress.OnAnyoneMurder(killer);
 
             if (Options.CurrentGameMode == CustomGameMode.Speedrun)
                 Speedrun.ResetTimer(killer);

@@ -24,7 +24,7 @@ public abstract class CovenBase : RoleBase
         Dictionary<byte, PlayerState> psDict = Main.PlayerStates.Where(x => x.Value.Role is CovenBase { HasNecronomicon: false } coven && coven.NecronomiconReceivePriority != NecronomiconReceivePriorities.Never).ToDictionary(x => x.Key, x => x.Value);
         if (psDict.Count == 0) return;
 
-        KeyValuePair<byte, PlayerState> receiver = psDict.Shuffle().OrderBy(x => ((CovenBase)x.Value.Role).NecronomiconReceivePriority).ThenByDescending(x => !x.Value.IsDead).First();
+        KeyValuePair<byte, PlayerState> receiver = psDict.Shuffle().OrderByDescending(x => !x.Value.IsDead).ThenBy(x => ((CovenBase)x.Value.Role).NecronomiconReceivePriority).First();
 
         var covenRole = (CovenBase)receiver.Value.Role;
         covenRole.HasNecronomicon = true;
