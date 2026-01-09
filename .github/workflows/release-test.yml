@@ -45,6 +45,7 @@ jobs:
       - name: Build CustomTeamAssigner (Control Panel)
         run: |
           cp CustomRoles.cs CTA/CustomTeamAssigner/CustomRoles.cs
+          sed -i 's/Challenger,/SoloPVP_Player,/g' CTA/CustomTeamAssigner/CustomRoles.cs
           dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/CTA
 
       # -----------------------------
