@@ -9965,7 +9965,7 @@
   "PestilenceCanVent": "<color=#343136>Чума</color> может использовать люки",
   "PestilenceHasImpostorVision": "<color=#343136>Чума</color> имеет зрение <color=#ff1919>Предателей</color>",
   "AnnounceTransformation": "Объявить о превращении (<#e5f6b4>Чумоносец</color> => <color=#343136>Чума</color>)",
-  "TransformationAnnouncementMessage": "The ship has been infected with a powerful disease, turning the <#e5f6b4>Plaguebearer</color> into <color=#343136>Pestilence</color>!",
+  "TransformationAnnouncementMessage": "Ужасная болезнь поразила экипаж, превратив <#e5f6b4>Чумоносца</color> в <color=#343136>Чуму</color>!",
   "GuessPestilence": "Вы попытались угадать Чуму.\\n\\nК несчастью, Чума вас убила.",
   "PestilenceImmune": "Вы не можете убить Чуму.",
   "DoomsayerAmountOfGuessesToWin": "Кол-во угадываний для победы",
