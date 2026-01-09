@@ -67,35 +67,7 @@ jobs:
           unzip bepinex.zip -d bepinex
 
       # -----------------------------
-      # 7. Download .NET runtime (latest 6.x win-x64)
-      # -----------------------------
-      - name: Download .NET 6 Runtime
-        run: |
-          RELEASE_JSON=$(curl -s https://api.github.com/repos/dotnet/runtime/releases)
-
-          # Get the latest tag that matches v6.0.x
-          TAG=$(echo "$RELEASE_JSON" \
-            | jq -r '.[].tag_name' \
-            | grep '^v6\.0\.' \
-            | sort -Vr \
-            | head -n 1)
-
-          echo "Selected tag: $TAG"
-
-          # Get the zipball_url for that tag
-          ZIP_URL=$(echo "$RELEASE_JSON" \
-            | jq -r --arg TAG "$TAG" '
-                .[]
-                | select(.tag_name == $TAG)
-                | .zipball_url
-              ')
-
-          echo "Downloading zipball: $ZIP_URL"
-          curl -L "$ZIP_URL" -o dotnet.zip
-          unzip dotnet.zip -d dotnet
-
-      # -----------------------------
-      # 8. Generate changelog automatically
+      # 7. Generate changelog automatically
       # -----------------------------
       - name: Generate changelog
         id: changelog
@@ -114,7 +86,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       # -----------------------------
-      # 9. Prepare packaging folders
+      # 8. Prepare packaging folders
       # -----------------------------
       - name: Prepare packaging structure
         run: |
@@ -146,7 +118,7 @@ jobs:
           cp release/changelog.txt release/steam/
 
       # -----------------------------
-      # 10. Create ZIPs
+      # 9. Create ZIPs
       # -----------------------------
       - name: Create ZIP archives
         run: |
@@ -155,7 +127,7 @@ jobs:
           zip -r "EHR.${{ github.event.inputs.version }}_Steam.zip" steam/
 
       # -----------------------------
-      # 11. Create source archives
+      # 10. Create source archives
       # -----------------------------
       - name: Create source code archives
         run: |
@@ -163,7 +135,7 @@ jobs:
           git archive --format tar.gz --output source.tar.gz HEAD
 
       # -----------------------------
-      # 12. Create tag for this release
+      # 11. Create tag for this release
       # -----------------------------
       - name: Create tag
         run: |
@@ -171,7 +143,7 @@ jobs:
           git push origin ${{ github.event.inputs.version }}
 
       # -----------------------------
-      # 13. Create GitHub Release
+      # 12. Create GitHub Release
       # -----------------------------
       - name: Create GitHub Release
         id: create_release
@@ -184,7 +156,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # -----------------------------
-      # 12. Upload assets
+      # 13. Upload assets
       # -----------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
