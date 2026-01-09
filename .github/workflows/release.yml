@@ -4,10 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version tag (e.g. v7.0.2)"
-        required: true
-      changelog:
-        description: "Changelog (Markdown supported)"
+        description: "Version (e.g. 7.0.2)"
         required: true
 
 jobs:
@@ -136,7 +133,7 @@ jobs:
           cp packaging/steam_appid.txt release/steam/
 
           # Generate changelog
-          echo "${{ github.event.inputs.changelog }}" > release/changelog.txt
+          echo CHANGELOG.txt > release/changelog.txt
           cp release/changelog.txt release/epic/
           cp release/changelog.txt release/steam/
 
