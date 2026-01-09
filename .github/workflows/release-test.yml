@@ -69,11 +69,13 @@ jobs:
           else
             echo "Generating changelog since $LAST_TAG"
             git log $LAST_TAG..HEAD --pretty=format:"* %s" > CHANGELOG.txt
-          fi  
+          fi
 
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "changelog<<EOF"
+            cat CHANGELOG.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       # -----------------------------
       # 8. Prepare packaging folders
@@ -109,8 +111,8 @@ jobs:
       - name: Create ZIP archives
         run: |
           cd release
-          zip -r "EHR.${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" epic/
-          zip -r "EHR.${{ github.event.inputs.version }}_Steam.zip" steam/
+          zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" epic/
+          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" steam/
 
       # -----------------------------
       # 10. Create source archives
@@ -149,7 +151,8 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.version }}
           files: |
-            build/EHR/EHR.dll
+            build/EHR.dll
+            build.*.exe
             release/*.zip
             source.zip
             source.tar.gz
