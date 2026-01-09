@@ -60,22 +60,11 @@ jobs:
       # 7. Generate changelog automatically
       # -----------------------------
       - name: Generate changelog
-        id: changelog
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -z "$LAST_TAG" ]; then
-            echo "No previous tag found, using full history."
-            git log --pretty=format:"* %s" > CHANGELOG.txt
-          else
-            echo "Generating changelog since $LAST_TAG"
-            git log $LAST_TAG..HEAD --pretty=format:"* %s" > CHANGELOG.txt
-          fi
-
-          {
-            echo "changelog<<EOF"
-            cat CHANGELOG.txt
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+        uses: heinrichreimer/action-github-changelog-generator@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          headerLabel: Thank you so much for finding and using EHR!
+          output: CHANGELOG.txt
 
       # -----------------------------
       # 8. Prepare packaging folders
@@ -99,11 +88,6 @@ jobs:
 
           # Steam-only file
           echo "945360" > release/steam/steam_appid.txt
-
-          # Generate changelog
-          echo CHANGELOG.txt > release/changelog.txt
-          cp release/changelog.txt release/epic/
-          cp release/changelog.txt release/steam/
 
       # -----------------------------
       # 9. Create ZIPs
@@ -139,7 +123,7 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.version }}
           name: "EHR ${{ github.event.inputs.version }}"
-          body: ${{ steps.changelog.outputs.changelog }}
+          body_path: CHANGELOG.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
