@@ -63,7 +63,7 @@ jobs:
       # -----------------------------
       - name: Download BepInEx 6.0.0-pre.2
         run: |
-          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx_x64_6.0.0-pre.2.zip -o bepinex.zip
+          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
           unzip bepinex.zip -d bepinex
 
       # -----------------------------
