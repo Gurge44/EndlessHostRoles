@@ -428,8 +428,8 @@ public enum CustomRoles
     VoodooMaster,
     Wyrd,
 
-    // Solo Kombat
-    Challenger,
+    // Solo PVP
+    SoloPVP_Player,
 
     // FFA
     Killer,
