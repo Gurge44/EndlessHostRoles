@@ -55,7 +55,7 @@ jobs:
       # -----------------------------
       - name: Build CustomTeamAssigner (Control Panel)
         run: |
-          cp EHR/CustomRoles.cs CTA/CustomTeamAssigner/CustomRoles.cs
+          cp CustomRoles.cs CTA/CustomTeamAssigner/CustomRoles.cs
           dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/CTA
 
       # -----------------------------
