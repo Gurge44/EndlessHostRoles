@@ -48,14 +48,14 @@ jobs:
       # -----------------------------
       - name: Build EHR
         run: |
-          dotnet publish EHR/EHR.csproj -c Release -o build/EHR
+          dotnet publish EHR.csproj -c Release -o build/EHR
 
       # -----------------------------
       # 5. Build CTA (Control Panel)
       # -----------------------------
       - name: Build CustomTeamAssigner (Control Panel)
         run: |
-          dotnet publish CTA/CustomTeamAssigner.csproj -c Release -o build/CTA
+          dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/CTA
 
       # -----------------------------
       # 6. Download BepInEx 6.0.0-pre.2
