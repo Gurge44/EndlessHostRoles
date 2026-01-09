@@ -414,6 +414,7 @@ public enum CustomRoles
     CovenMember,
     Death, // Reaper changes to Death
     Dreamweaver,
+    Empress,
     Enchanter,
     Goddess,
     Illusionist,
