@@ -10108,6 +10108,8 @@
   "Empress.CoverageDuration": "Coverage Duration",
   "Empress.FrostGazeDelay": "Frost Gaze Delay",
   "Empress.FrostGazeDuration": "Frost Gaze Duration",
+  "Empress.EmpowerFailWeakenedMessage": "<#ff5555>X <#bb0000>The <#7b3fbb>Necronomicon</color> cannot be empowered in 2 consecutive rounds!</color>",
+  "Empress.EmpowerSuccessMessage": "<#00ff00>✓ <#00ffa5>Successfully empowered the <#7b3fbb>Necronomicon</color>!</color>",
   "DCNotify.Hacking": "您因使用作弊工具而被<color=#ff1919>封禁</color> \\n\\n请停止你的行为。",
   "DCNotify.Banned": "你已被该房间<color=#ff1919>封禁</color> \\n\\n如果这是一个错误，请联系房主。",
   "DCNotify.Kicked": "你已经被 <color=#ffff00>踢出</color> 该房间.\\n\\n你可以尝试重新加入.",
