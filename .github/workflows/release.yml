@@ -125,9 +125,7 @@ jobs:
 
       - name: Create Steam ZIP
         run: |
-          cd
-          echo "945360" > release/steam_appid.txt
-          cd release
+          echo "945360" > steam_appid.txt
           zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" .
 
       - name: Upload release artifacts
