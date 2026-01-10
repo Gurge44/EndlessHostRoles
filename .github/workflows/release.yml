@@ -81,7 +81,9 @@ jobs:
             /t:publish
 
       - name: Rename exe file
-        run: mv CTA/CustomTeamAssigner/build/CustomTeamAssigner.exe build/EHR_Control-Panel_BETA.exe
+        run: |
+          mkdir build/
+          mv CTA/CustomTeamAssigner/build/CustomTeamAssigner.exe build/EHR_Control-Panel_BETA.exe
 
       - name: Upload Control Panel artifact
         uses: actions/upload-artifact@v4
