@@ -169,14 +169,24 @@ jobs:
           path: release-artifacts/control-panel
 
       # -----------------------------
-      # Generate changelog
+      # Read manual changelog from repo
+      # -----------------------------
+      - name: Read manual changelog
+        id: manual
+        run: |
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # -----------------------------
+      # Generate auto changelog (PRs, contributors, link)
       # -----------------------------
       - name: Generate changelog
-        uses: heinrichreimer/action-github-changelog-generator@v2.3
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          headerLabel: Thank you so much for finding and using EHR!
-          output: CHANGELOG.md
+          configuration: ".github/changelog-config.json"
 
       # -----------------------------
       # Create GitHub Release
@@ -184,9 +194,17 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "EHR Release ${{ github.ref_name }}"
-          body_path: CHANGELOG.md
+          tag_name: "v${{ github.event.inputs.version }}"
+          name: "EHR v${{ github.event.inputs.version }}"
+          body: |
+            # Thank you so much for finding and using EHR!
+
+            ## Changes
+
+            ${{ steps.manual.outputs.notes }}
+
+            ${{ steps.changelog.outputs.changelog }}
+
           files: |
             release-artifacts/zips/*
             release-artifacts/ehr/EHR.dll

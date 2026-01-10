@@ -1,0 +1,11 @@
+{
+  "template": "## Pull Requests\n{{CHANGELOG}}\n\n## Contributors\n{{CONTRIBUTORS}}\n\n## Full Changelog\n{{RELEASE_LINK}}",
+  "pr_template": "- {{TITLE}} (by @{{AUTHOR}})",
+  "empty_template": "- No pull requests in this release.",
+  "contributors_template": "- @{{AUTHOR}}",
+  "sort": "ASC",
+  "max_tags_to_fetch": 200,
+  "tag_resolver": {
+    "method": "semver"
+  }
+}
