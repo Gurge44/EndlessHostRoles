@@ -11,11 +11,8 @@ jobs:
   prepare-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-    # - name: Sync translations from Crowdin
+      - name: Sync translations from Crowdin
+        run: echo 
     #   uses: crowdin/github-action@v2
     #   with:
     #     upload_sources: false
@@ -83,7 +80,7 @@ jobs:
             /t:publish
 
       - name: Rename exe file
-        run: mv CTA/bin/x64/Release/win-x64/publish/*.exe CTA/bin/x64/Release/win-x64/publish/EHR_Control-Panel_BETA.exe
+        run: mv CTA\CustomTeamAssigner\bin\x64\Release\net8.0-windows\win-x64\CustomTeamAssigner.exe CTA\CustomTeamAssigner\bin\x64\Release\net8.0-windows\win-x64\EHR_Control-Panel_BETA.exe
 
       - name: Upload Control Panel artifact
         uses: actions/upload-artifact@v4
