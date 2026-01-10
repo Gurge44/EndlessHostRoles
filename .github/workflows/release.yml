@@ -58,13 +58,11 @@ jobs:
     needs: [prepare-build]
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET 
         uses: actions/setup-dotnet@v4
         with: 
           dotnet-version: 8.0.x 
-          
-      - name: Install Windows Desktop workload 
-        run: dotnet workload install windowsdesktop
       
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
