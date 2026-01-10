@@ -23,18 +23,18 @@ jobs:
       # -----------------------------
       # 2. Download translations from Crowdin
       # -----------------------------
-      - name: Sync translations from Crowdin
-        uses: crowdin/github-action@v2
-        with:
-          upload_sources: false
-          download_translations: true
-          config: crowdin.yml
-          push_translations: true
-          commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
-        env:
-          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      # - name: Sync translations from Crowdin
+      #   uses: crowdin/github-action@v2
+      #   with:
+      #     upload_sources: false
+      #     download_translations: true
+      #     config: crowdin.yml
+      #     push_translations: true
+      #     commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
+      #   env:
+      #     CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #
       # -----------------------------
       # 3. Setup .NET
       # -----------------------------
@@ -77,6 +77,9 @@ jobs:
           # Download and unzip BepInEx
           curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
           unzip bepinex.zip -d release
+
+          # Fix perms in release/
+          chmod -R u+rwX,go+rX release
 
           # Copy EHR DLL to plugins
           cp build/EHR.dll release/BepInEx/plugins/
