@@ -8,58 +8,159 @@ on:
         required: true
 
 jobs:
-  release:
+  prepare-build:
     runs-on: ubuntu-latest
-
     steps:
-      # -----------------------------
-      # 1. Checkout main
-      # -----------------------------
       - name: Checkout main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+    # - name: Sync translations from Crowdin
+    #   uses: crowdin/github-action@v2
+    #   with:
+    #     upload_sources: false
+    #     download_translations: true
+    #     config: crowdin.yml
+    #     push_translations: true
+    #     commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
+    #   env:
+    #     CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
-      # -----------------------------
-      # 2. Download translations from Crowdin
-      # -----------------------------
-      # - name: Sync translations from Crowdin
-      #   uses: crowdin/github-action@v2
-      #   with:
-      #     upload_sources: false
-      #     download_translations: true
-      #     config: crowdin.yml
-      #     push_translations: true
-      #     commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
-      #   env:
-      #     CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #
-      # -----------------------------
-      # 3. Setup .NET
-      # -----------------------------
+  # ---------------------------------------------------------
+  # 1) Build EHR on Linux
+  # ---------------------------------------------------------
+  build-ehr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: 8.0.x
 
-      # -----------------------------
-      # 4. Build main mod (EHR)
-      # -----------------------------
       - name: Build EHR
+        run: dotnet build EHR/EHR.csproj -c Release -o build/EHR
+
+      - name: Upload EHR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ehr
+          path: build/EHR/EHR.dll
+
+  # ---------------------------------------------------------
+  # 2) Build CTA on Windows using MSBuild
+  # ---------------------------------------------------------
+  build-cta:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build CTA (MSBuild)
         run: |
-          dotnet publish EHR.csproj -c Release -o build/
+          msbuild CTA/CustomTeamAssigner.csproj `
+            /p:Configuration=Release `
+            /p:Platform="x64" `
+            /p:PublishSingleFile=true `
+            /p:SelfContained=true `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:IncludeAllContentForSelfExtract=true `
+            /p:DebugType=None `
+            /t:publish
+
+      - name: Rename exe file
+        run: mv CTA/bin/x64/Release/win-x64/publish/*.exe CTA/bin/x64/Release/win-x64/publish/EHR_Control-Panel_BETA.exe
+
+      - name: Upload CTA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cta
+          path: CTA/bin/x64/Release/win-x64/publish/EHR_Control-Panel_BETA.exe
+
+  # ---------------------------------------------------------
+  # 3) Package everything on Linux
+  # ---------------------------------------------------------
+  package:
+    runs-on: ubuntu-latest
+    needs: [build-ehr, build-cta]
+
+    steps:
+      - name: Download EHR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ehr
+          path: artifacts/ehr
+
+      - name: Prepare release folder
+        run: mkdir -p release
+
+      - name: Download BepInEx
+        run: |
+          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
+          unzip bepinex.zip -d release
+          chmod -R u+rwX,go+rX release
+
+      - name: Copy EHR dll to plugins
+        run: |
+          cp artifacts/ehr/EHR.dll release/BepInEx/plugins/
+
+      - name: Download modded regions DLL to plugins
+        run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
+
+      - name: Create Epic/MS Store ZIP
+        run: |
+          cd release
+          zip -r "../EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" .
+
+      - name: Create Steam ZIP
+        run: |
+          cd
+          echo "945360" > release/steam_appid.txt
+          cd release
+          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" .
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-zips
+          path: release/*.zip
+  # ---------------------------------------------------------
+  # 4) Create GitHub Release
+  # ---------------------------------------------------------
+  release:
+    runs-on: ubuntu-latest
+    needs: [package]
+
+    steps:
+      - uses: actions/checkout@v4
 
       # -----------------------------
-      # 5. Build CTA (Control Panel)
+      # Download all artifacts
       # -----------------------------
-      - name: Build CustomTeamAssigner (Control Panel)
-        run: |
-          cp CustomRoles.cs CTA/CustomTeamAssigner/CustomRoles.cs
-          dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/
+      - name: Download packaged ZIPs
+        uses: actions/download-artifact@v4
+        with:
+          name: final-zips
+          path: release-artifacts/zips
+
+      - name: Download EHR.dll
+        uses: actions/download-artifact@v4
+        with:
+          name: ehr
+          path: release-artifacts/ehr
+
+      - name: Download CTA EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: cta
+          path: release-artifacts/cta
 
       # -----------------------------
-      # 6. Generate changelog automatically
+      # Generate changelog
       # -----------------------------
       - name: Generate changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.3
@@ -68,56 +169,17 @@ jobs:
           headerLabel: Thank you so much for finding and using EHR!
 
       # -----------------------------
-      # 7. Package ZIPs for Epic/Microsoft and Steam
+      # Create GitHub Release
       # -----------------------------
-      - name: Prepare packaging structure
-        run: |
-          mkdir -p release
-
-          # Download and unzip BepInEx
-          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
-          unzip bepinex.zip -d release
-
-          # Fix perms in release/
-          chmod -R u+rwX,go+rX release
-
-          # Copy EHR DLL to plugins
-          cp build/EHR.dll release/BepInEx/plugins/
-
-          # Download modded regions DLL to plugins
-          curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
-
-          cd release
-          zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" .
-
-          # Steam-only file
-          echo "945360" > steam_appid.txt
-
-          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" .
-
-      # -----------------------------
-      # 8. Create GitHub Release
-      # -----------------------------
-      - name: Create GitHub Release
-        id: create_release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: "EHR ${{ github.event.inputs.version }}"
-          body_path: changelog
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # -----------------------------
-      # 9. Upload assets
-      # -----------------------------
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event.inputs.version }}
+          tag_name: ${{ github.ref_name }}
+          name: "EHR Release ${{ github.ref_name }}"
+          body_path: CHANGELOG.md
           files: |
-            build/EHR.dll
-            build/CustomTeamAssigner.exe
-            release/*.zip
+            release-artifacts/zips/*
+            release-artifacts/ehr/EHR.dll
+            release-artifacts/cta/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
