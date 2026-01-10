@@ -429,7 +429,7 @@ public enum CustomRoles
     Wyrd,
 
     // Solo PVP
-    SoloPVP_Player,
+    Challenger,
 
     // FFA
     Killer,
