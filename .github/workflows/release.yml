@@ -79,7 +79,7 @@ jobs:
           unzip bepinex.zip -d release
 
           # Copy EHR DLL to plugins
-          cp build/EHR.dll release/BepInEx/plugins
+          cp build/EHR.dll release/BepInEx/plugins/
 
           # Download modded regions DLL to plugins
           curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
