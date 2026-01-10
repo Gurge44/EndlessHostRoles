@@ -177,7 +177,7 @@ jobs:
           tag_name: "v${{ github.event.inputs.version }}"
           name: "EHR v${{ github.event.inputs.version }}"
           generate_release_notes: true
-          body: cat CHANGELOG.md
+          body: ${cat CHANGELOG.md}
           files: |
             release-artifacts/zips/*
             release-artifacts/ehr/EHR.dll
