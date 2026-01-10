@@ -32,6 +32,7 @@ jobs:
   # ---------------------------------------------------------
   build-ehr:
     runs-on: ubuntu-latest
+    needs: [prepare-build]
     steps:
       - uses: actions/checkout@v4
 
@@ -41,19 +42,20 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build EHR
-        run: dotnet build EHR.csproj -c Release -o build/EHR
+        run: dotnet build EHR.csproj -c Release -o build/
 
       - name: Upload EHR artifact
         uses: actions/upload-artifact@v4
         with:
           name: ehr
-          path: build/EHR/EHR.dll
+          path: build/EHR.dll
 
   # ---------------------------------------------------------
   # 2) Build CTA on Windows using MSBuild
   # ---------------------------------------------------------
   build-cta:
     runs-on: windows-latest
+    needs: [prepare-build]
     steps:
       - uses: actions/checkout@v4
 
@@ -61,7 +63,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Restore NuGet packages
-        run: nuget restore CTA/CustomTeamAssigner.sln
+        run: nuget restore CTA/CustomTeamAssigner/CustomTeamAssigner.sln
 
       - name: Build CTA (MSBuild)
         run: |
