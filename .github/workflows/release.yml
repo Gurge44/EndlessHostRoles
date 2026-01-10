@@ -85,12 +85,12 @@ jobs:
           curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
 
           cd release
-          zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip"
+          zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" .
 
           # Steam-only file
           echo "945360" > steam_appid.txt
 
-          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip"
+          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" .
 
       # -----------------------------
       # 8. Create GitHub Release
