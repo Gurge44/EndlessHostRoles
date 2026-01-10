@@ -12,17 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Sync translations from Crowdin
-        run: echo 
-    #   uses: crowdin/github-action@v2
-    #   with:
-    #     upload_sources: false
-    #     download_translations: true
-    #     config: crowdin.yml
-    #     push_translations: true
-    #     commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
-    #   env:
-    #     CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: false
+          download_translations: true
+          config: crowdin.yml
+          push_translations: true
+          commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
   # ---------------------------------------------------------
   # 1) Build EHR on Linux
