@@ -66,7 +66,7 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Restore NuGet packages
+      - name: Restore .NET packages
         run: dotnet restore CTA/CustomTeamAssigner/CustomTeamAssigner.sln
 
       - name: Build CTA (MSBuild)
