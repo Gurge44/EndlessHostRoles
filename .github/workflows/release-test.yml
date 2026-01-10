@@ -20,9 +20,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      # -----------------------------
+      # 2. Download translations from Crowdin
+      # -----------------------------
       - name: Stub Crowdin step
         run: echo "Skipping Crowdin sync (no secrets in test mode)"
-
 
       # -----------------------------
       # 3. Setup .NET
@@ -45,24 +47,18 @@ jobs:
       - name: Build CustomTeamAssigner (Control Panel)
         run: |
           cp CustomRoles.cs CTA/CustomTeamAssigner/CustomRoles.cs
-          sed -i 's/Challenger,/SoloPVP_Player,/g' CTA/CustomTeamAssigner/CustomRoles.cs
           dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/
 
       # -----------------------------
       # 6. Download BepInEx 6.0.0-pre.2
       # -----------------------------
-      - name: Cache BepInEx ZIP
-        id: cache-bepinex
-        uses: actions/cache@v4
-        with:
-          path: bepinex.zip
-          key: bepinex-6.0.0-pre.2
-
       - name: Download BepInEx 6.0.0-pre.2
-        if: steps.cache-bepinex.outputs.cache-hit != 'true'
         run: |
           curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
           unzip bepinex.zip -d bepinex
+
+      - name: Download Mini.RegionInstall
+        run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll
 
       # -----------------------------
       # 7. Generate changelog automatically
@@ -72,58 +68,31 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           headerLabel: Thank you so much for finding and using EHR!
-          output: CHANGELOG.txt
 
       # -----------------------------
-      # 8. Prepare packaging folders
+      # 8. Package ZIPs for Epic/Microsoft and Steam
       # -----------------------------
       - name: Prepare packaging structure
         run: |
-          mkdir -p release/epic
-          mkdir -p release/steam
-
-          # Copy mod DLL
-          cp build/*.dll release/epic/
-          cp build/*.dll release/steam/
-
-          # Copy Control Panel
-          cp build/*.exe release/epic/
-          cp build/*.exe release/steam/
+          mkdir -p release
 
           # Copy BepInEx
-          cp -r bepinex/* release/epic/
-          cp -r bepinex/* release/steam/
+          cp -r bepinex/* release
+
+          # Copy mod DLL and custom regions DLL to plugins
+          cp build/EHR.dll release/BepInEx/plugins
+          cp Mini.RegionInstall.dll release/BepInEx/plugins
+
+          cd release
+          zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip"
 
           # Steam-only file
-          echo "945360" > release/steam/steam_appid.txt
+          echo "945360" > steam_appid.txt
+
+          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip"
 
       # -----------------------------
-      # 9. Create ZIPs
-      # -----------------------------
-      - name: Create ZIP archives
-        run: |
-          cd release
-          zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" epic/
-          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" steam/
-
-      # -----------------------------
-      # 10. Create source archives
-      # -----------------------------
-      - name: Create source code archives
-        run: |
-          git archive --format zip --output source.zip HEAD
-          git archive --format tar.gz --output source.tar.gz HEAD
-
-      # -----------------------------
-      # 11. Create tag for this release
-      # -----------------------------
-      - name: Create tag
-        run: |
-          git tag ${{ github.event.inputs.version }}
-          git push origin ${{ github.event.inputs.version }}
-
-      # -----------------------------
-      # 12. Create GitHub Release
+      # 9. Create GitHub Release
       # -----------------------------
       - name: Create GitHub Release
         id: create_release
@@ -131,12 +100,12 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.version }}
           name: "EHR ${{ github.event.inputs.version }}"
-          body_path: CHANGELOG.txt
+          body_path: changelog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # -----------------------------
-      # 13. Upload assets
+      # 10. Upload assets
       # -----------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
@@ -144,9 +113,7 @@ jobs:
           tag_name: ${{ github.event.inputs.version }}
           files: |
             build/EHR.dll
-            build.*.exe
+            build/CustomTeamAssigner.exe
             release/*.zip
-            source.zip
-            source.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
