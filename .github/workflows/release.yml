@@ -132,7 +132,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: final-zips
-          path: release/*.zip
+          path: ./EHR*.zip
+
   # ---------------------------------------------------------
   # 4) Create GitHub Release
   # ---------------------------------------------------------
