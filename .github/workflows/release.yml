@@ -69,15 +69,15 @@ jobs:
 
       - name: Build Control Panel (MSBuild)
         run: |
-          msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj`
-            /p:Configuration=Release`
-            /p:Platform="x64"`
-            /p:PublishSingleFile=true`
-            /p:SelfContained=true`
-            /p:RuntimeIdentifier=win-x64`
-            /p:IncludeAllContentForSelfExtract=true`
-            /p:DebugType=None`
-            /p:PublishDir=build\`
+          msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj `
+            /p:Configuration=Release `
+            /p:Platform="x64" `
+            /p:PublishSingleFile=true `
+            /p:SelfContained=true `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:IncludeAllContentForSelfExtract=true `
+            /p:DebugType=None `
+            /p:PublishDir=build\ `
             /t:publish
 
       - name: Rename exe file
