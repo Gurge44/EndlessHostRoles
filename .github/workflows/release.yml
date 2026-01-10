@@ -174,9 +174,11 @@ jobs:
       - name: Read manual changelog
         id: manual
         run: |
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo 'notes<<EOF'
+            cat CHANGELOG.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
 
       # -----------------------------
       # Generate auto changelog (PRs, contributors, link)
