@@ -35,7 +35,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 6.0.x
 
       - name: Build EHR
         run: dotnet build EHR.csproj -c Release -o build/
@@ -58,7 +58,7 @@ jobs:
       - name: Setup .NET 
         uses: actions/setup-dotnet@v4
         with: 
-          dotnet-version: 8.0.x 
+          dotnet-version: 6.0.x 
       
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -107,15 +107,17 @@ jobs:
       - name: Prepare release folder
         run: mkdir -p release
 
-      - name: Download BepInEx
+      - name: Download BepInEx 6 pre-release 735
         run: |
-          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
+          curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.735%2B5fef357.zip -o bepinex.zip
           unzip bepinex.zip -d release
           chmod -R u+rwX,go+rX release
 
       - name: Copy EHR dll to plugins
-        run: |
-          cp artifacts/ehr/EHR.dll release/BepInEx/plugins/
+        run: cp artifacts/ehr/EHR.dll release/BepInEx/plugins/
+
+      - name: Copy configs to BepInEx config
+        run: cp packaging/* release/BepInEx/config/
 
       - name: Download modded regions DLL to plugins
         run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
