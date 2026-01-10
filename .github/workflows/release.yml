@@ -100,7 +100,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download EHR artifact
         uses: actions/download-artifact@v4
         with:
@@ -120,7 +120,9 @@ jobs:
         run: cp artifacts/ehr/EHR.dll release/BepInEx/plugins/
 
       - name: Copy configs to BepInEx config
-        run: cp packaging/* release/BepInEx/config/
+        run: |
+          mkdir -p release/BepInEx/config/
+          cp packaging/* release/BepInEx/config/
 
       - name: Download modded regions DLL to plugins
         run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
