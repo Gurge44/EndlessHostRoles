@@ -60,6 +60,9 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Restore NuGet packages
+        run: nuget restore CTA/CustomTeamAssigner.sln
+
       - name: Build CTA (MSBuild)
         run: |
           msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj `
