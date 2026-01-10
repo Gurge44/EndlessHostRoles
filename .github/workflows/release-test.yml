@@ -50,18 +50,7 @@ jobs:
           dotnet publish CTA/CustomTeamAssigner/CustomTeamAssigner.csproj -c Release -o build/
 
       # -----------------------------
-      # 6. Download BepInEx 6.0.0-pre.2
-      # -----------------------------
-      - name: Download BepInEx 6.0.0-pre.2
-        run: |
-          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
-          unzip bepinex.zip -d bepinex
-
-      - name: Download Mini.RegionInstall
-        run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll
-
-      # -----------------------------
-      # 7. Generate changelog automatically
+      # 6. Generate changelog automatically
       # -----------------------------
       - name: Generate changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.3
@@ -70,18 +59,21 @@ jobs:
           headerLabel: Thank you so much for finding and using EHR!
 
       # -----------------------------
-      # 8. Package ZIPs for Epic/Microsoft and Steam
+      # 7. Package ZIPs for Epic/Microsoft and Steam
       # -----------------------------
       - name: Prepare packaging structure
         run: |
           mkdir -p release
 
-          # Copy BepInEx
-          cp -r bepinex/* release
+          # Download and unzip BepInEx
+          curl -L https://github.com/BepInEx/BepInEx/releases/download/v6.0.0-pre.2/BepInEx-Unity.IL2CPP-win-x64-6.0.0-pre.2.zip -o bepinex.zip
+          unzip bepinex.zip -d release
 
-          # Copy mod DLL and custom regions DLL to plugins
+          # Copy EHR DLL to plugins
           cp build/EHR.dll release/BepInEx/plugins
-          cp Mini.RegionInstall.dll release/BepInEx/plugins
+
+          # Download modded regions DLL to plugins
+          curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
 
           cd release
           zip -r "EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip"
@@ -92,7 +84,7 @@ jobs:
           zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip"
 
       # -----------------------------
-      # 9. Create GitHub Release
+      # 8. Create GitHub Release
       # -----------------------------
       - name: Create GitHub Release
         id: create_release
@@ -105,7 +97,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # -----------------------------
-      # 10. Upload assets
+      # 9. Upload assets
       # -----------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
