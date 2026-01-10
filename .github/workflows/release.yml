@@ -173,6 +173,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           headerLabel: Thank you so much for finding and using EHR!
+          output: CHANGELOG.md
 
       # -----------------------------
       # Create GitHub Release
