@@ -69,24 +69,25 @@ jobs:
 
       - name: Build Control Panel (MSBuild)
         run: |
-          msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj `
-            /p:Configuration=Release `
-            /p:Platform="x64" `
-            /p:PublishSingleFile=true `
-            /p:SelfContained=true `
-            /p:RuntimeIdentifier=win-x64 `
-            /p:IncludeAllContentForSelfExtract=true `
-            /p:DebugType=None `
+          msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj`
+            /p:Configuration=Release`
+            /p:Platform="x64"`
+            /p:PublishSingleFile=true`
+            /p:SelfContained=true`
+            /p:RuntimeIdentifier=win-x64`
+            /p:IncludeAllContentForSelfExtract=true`
+            /p:DebugType=None`
+            /p:PublishDir=build\`
             /t:publish
 
       - name: Rename exe file
-        run: mv CTA\CustomTeamAssigner\bin\x64\Release\net8.0-windows\win-x64\CustomTeamAssigner.exe CTA\CustomTeamAssigner\bin\x64\Release\net8.0-windows\win-x64\EHR_Control-Panel_BETA.exe
+        run: mv build/CustomTeamAssigner.exe build/EHR_Control-Panel_BETA.exe
 
       - name: Upload Control Panel artifact
         uses: actions/upload-artifact@v4
         with:
           name: control-panel
-          path: CTA/bin/x64/Release/win-x64/publish/EHR_Control-Panel_BETA.exe
+          path: build\EHR_Control-Panel_BETA.exe
 
   # ---------------------------------------------------------
   # 3) Package everything on Linux
