@@ -41,7 +41,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build EHR
-        run: dotnet build EHR/EHR.csproj -c Release -o build/EHR
+        run: dotnet build EHR.csproj -c Release -o build/EHR
 
       - name: Upload EHR artifact
         uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
 
       - name: Build CTA (MSBuild)
         run: |
-          msbuild CTA/CustomTeamAssigner.csproj `
+          msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj `
             /p:Configuration=Release `
             /p:Platform="x64" `
             /p:PublishSingleFile=true `
