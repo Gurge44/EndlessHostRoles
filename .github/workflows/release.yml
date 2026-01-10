@@ -99,6 +99,8 @@ jobs:
     needs: [build-ehr, build-control-panel]
 
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Download EHR artifact
         uses: actions/download-artifact@v4
         with:
