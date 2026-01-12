@@ -39,6 +39,7 @@ internal static class CustomRolesHelper
         CustomRoles.Tree,
         CustomRoles.Doorjammer,
         CustomRoles.Carrier,
+        CustomRoles.Empress,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -605,6 +606,7 @@ internal static class CustomRolesHelper
             CustomRoles.Siren => RoleTypes.Phantom,
             CustomRoles.Wyrd => RoleTypes.Shapeshifter,
             CustomRoles.MoonDancer => RoleTypes.Phantom,
+            CustomRoles.Empress => RoleTypes.Phantom,
 
             _ => RoleTypes.GuardianAngel
         };
@@ -1045,6 +1047,7 @@ internal static class CustomRolesHelper
     public static bool AlwaysUsesPhantomBase(this CustomRoles role)
     {
         return role is
+            CustomRoles.Empress or
             CustomRoles.Wizard;
     }
 
@@ -1275,6 +1278,7 @@ internal static class CustomRolesHelper
             CustomRoles.Enchanter or
             CustomRoles.Siren or
             CustomRoles.Wyrd or
+            CustomRoles.Empress or
             CustomRoles.MoonDancer;
     }
 
