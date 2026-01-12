@@ -16,9 +16,12 @@ jobs:
         with:
           upload_sources: false
           download_translations: true
-          config: crowdin.yml
           push_translations: true
+          push_sources: false
+          localization_branch_name: main
           commit_message: "chore: update translations for release ${{ github.event.inputs.version }}"
+          create_pull_request: false
+          config: crowdin.yml
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
