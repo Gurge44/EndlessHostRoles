@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.AddOns.Common;
-using EHR.Crewmate;
-using EHR.Neutral;
+using EHR.Gamemodes;
+using EHR.Roles;
 
 namespace EHR.Modules;
 
@@ -179,7 +178,7 @@ public static class Statistics
                 case CustomRoles.Sheriff when won && lp.IsAlive() && Main.PlayerStates.Values.Where(x => x.IsDead && x.deathReason == PlayerState.DeathReason.Kill).All(x => x.GetRealKiller() == lp.PlayerId):
                     Achievements.Type.Superhero.CompleteAfterGameEnd();
                     break;
-                case CustomRoles.Snitch when lp.AllTasksCompleted() && CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate && won:
+                case CustomRoles.Snitch when lp.IsAlive() && lp.AllTasksCompleted() && CustomWinnerHolder.WinnerTeam == CustomWinner.Crewmate && won:
                     Achievements.Type.CrewHero.Complete();
                     break;
                 case CustomRoles.KillingMachine when Main.PlayerStates.Values.Count(x => x.GetRealKiller() == lp.PlayerId) >= 8:

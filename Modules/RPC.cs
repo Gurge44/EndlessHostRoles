@@ -4,13 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Crewmate;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Gamemodes;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -666,18 +662,20 @@ internal static class RPCHandlerPatch
                 {
                     if (!AmongUsClient.Instance.AmHost) break;
 
-                    string methodName = reader.ReadString();
+                    string commandKey = reader.ReadString();
                     PlayerControl player = reader.ReadByte().GetPlayer();
                     string text = reader.ReadString();
-                    bool modCommand = reader.ReadBoolean();
-                    bool adminCommand = reader.ReadBoolean();
 
-                    if (modCommand && !ChatCommands.IsPlayerModerator(player.FriendCode)) break;
-                    if (adminCommand && !ChatCommands.IsPlayerAdmin(player.FriendCode)) break;
+                    if (!Command.AllCommands.TryGetValue(commandKey, out Command command))
+                    {
+                        Logger.Error($"Invalid Command {commandKey}.", "RequestCommandProcessingFromHost");
+                        break;
+                    }
 
-                    const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
-                    typeof(ChatCommands).GetMethod(methodName, flags)?.Invoke(null, [player, text, text.Split(' ')]);
-                    Logger.Info($"Invoke Command: {methodName} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
+                    if (!command.CanUseCommand(player)) break;
+
+                    command.Action(player, commandKey, text, text.Split(' '));
+                    Logger.Info($"Invoke Command: {command.Action.Method.Name} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
                     break;
                 }
                 case CustomRPC.SyncPostman:
@@ -708,7 +706,7 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SyncSentry:
                 {
                     byte id = reader.ReadByte();
-                    if (Main.PlayerStates[id].Role is not Crewmate.Sentry sentry) break;
+                    if (Main.PlayerStates[id].Role is not Roles.Sentry sentry) break;
 
                     sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                     break;
@@ -1028,7 +1026,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SetGhostPlayer:
                 {
-                    Impostor.Lightning.ReceiveRPC(reader);
+                    Roles.Lightning.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetStalkerKillCount:
@@ -1360,13 +1358,13 @@ internal static class RPCHandlerPatch
                 {
                     int playerId = reader.ReadByte();
                     var command = $"/retribute {playerId}";
-                    ChatCommands.RetributeCommand(__instance, command, command.Split(' '));
+                    ChatCommands.RetributeCommand(__instance, "Command.Retribute", command, command.Split(' '));
                     break;
                 }
                 case CustomRPC.StarspawnClick:
                 {
                     var command = $"/daybreak";
-                    ChatCommands.DayBreakCommand(__instance, command, command.Split(' '));
+                    ChatCommands.DayBreakCommand(__instance, "Command.DayBreak", command, command.Split(' '));
                     break;
                 }
                 case CustomRPC.VentriloquistClick:

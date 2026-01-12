@@ -2,17 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+using EHR.Gamemodes;
 
 namespace EHR.Patches;
 
@@ -108,7 +105,7 @@ internal static class CheckForEndVotingPatch
                 }
             }
 
-            if (!shouldSkip && !__instance.playerStates.All(ps => ps == null || !Main.PlayerStates.TryGetValue(ps.TargetPlayerId, out PlayerState st) || st.IsDead || ps.AmDead || ps.DidVote || Utils.GetPlayerById(ps.TargetPlayerId) == null || Utils.GetPlayerById(ps.TargetPlayerId).Data == null || Utils.GetPlayerById(ps.TargetPlayerId).Data.Disconnected)) return false;
+            if (!shouldSkip && !__instance.playerStates.All(ps => ps == null || Silencer.ForSilencer.Contains(ps.TargetPlayerId) || !Main.PlayerStates.TryGetValue(ps.TargetPlayerId, out PlayerState st) || st.IsDead || ps.AmDead || ps.DidVote || Utils.GetPlayerById(ps.TargetPlayerId) == null || Utils.GetPlayerById(ps.TargetPlayerId).Data == null || Utils.GetPlayerById(ps.TargetPlayerId).Data.Disconnected)) return false;
 
             NetworkedPlayerInfo exiledPlayer = PlayerControl.LocalPlayer.Data;
             var tie = false;
@@ -1116,7 +1113,7 @@ internal static class MeetingHudStartPatch
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
 
-            if (Impostor.Lightning.IsGhost(target))
+            if (Roles.Lightning.IsGhost(target))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lightning), "■"));
 
             if (seer.PlayerId == target.PlayerId && (Medic.InProtect(seer.PlayerId) || Medic.TempMarkProtectedList.Contains(seer.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 2)
@@ -1146,7 +1143,7 @@ internal static class MeetingHudStartPatch
 
         // -------------------------------------------------------------------------------------------
 
-        Coven.Coven.CovenMeetingStartPatch.Postfix();
+        CovenBase.CovenMeetingStartPatch.Postfix();
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);
@@ -1372,6 +1369,12 @@ internal static class MeetingHudCastVotePatch
             voteCanceled = true;
         }
 
+        if (Silencer.ForSilencer.Contains(srcPlayerId))
+        {
+            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pcSrc));
+            voteCanceled = true;
+        }
+
         Logger.Info($"{pcSrc.GetNameWithRole()} => {(skip ? "Skip" : pcTarget.GetNameWithRole())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
         return skip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
@@ -1545,7 +1548,7 @@ internal static class ExileControllerBeginPatch
 {
     public static void Postfix(ExileController __instance, [HarmonyArgument(0)] ExileController.InitProperties init)
     {
-        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
+        if (CheckForEndVotingPatch.EjectionText.EndsWith("<size=0>") && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
             __instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
     }
 

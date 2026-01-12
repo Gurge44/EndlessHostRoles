@@ -5,20 +5,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
-using EHR.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
+using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -1404,7 +1399,7 @@ internal static class ExtendedPlayerControl
         return pc.GetCustomRole() switch
         {
             // Solo PVP
-            CustomRoles.SoloPVP_Player => pc.SoloAlive(),
+            CustomRoles.Challenger => pc.SoloAlive(),
             // FFA
             CustomRoles.Killer => pc.IsAlive(),
             // Stop And Go
@@ -1455,7 +1450,7 @@ internal static class ExtendedPlayerControl
             CustomGameMode.Snowdown => true,
             CustomGameMode.Deathrace => Deathrace.CanUseVent(pc, pc.GetClosestVent().Id),
 
-            CustomGameMode.Standard when CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId) => true,
+            CustomGameMode.Standard when CopyCat.PlayerIdList.Contains(pc.PlayerId) => true,
             CustomGameMode.Standard when pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool() => true,
             CustomGameMode.Standard when pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Renegade) => true,
 
@@ -1755,7 +1750,7 @@ internal static class ExtendedPlayerControl
 
         Main.AllPlayerKillCooldown[player.PlayerId] = player.GetCustomRole() switch
         {
-            CustomRoles.SoloPVP_Player => SoloPVP.SoloPVP_ATKCooldown.GetFloat(),
+            CustomRoles.Challenger => SoloPVP.SoloPVP_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
             CustomRoles.CTFPlayer => CaptureTheFlag.KCD,

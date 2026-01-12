@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Patches;
 using Hazel;
 
@@ -50,7 +51,7 @@ public static class AntiBlackout
         dummyImp.RpcSetRoleGlobal(RoleTypes.Impostor);
         players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcSetRoleGlobal(RoleTypes.Crewmate));
         
-        Main.AllPlayerControls.DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead, x => x.RpcSetRoleGlobal(x.HasGhostRole() ? RoleTypes.GuardianAngel : RoleTypes.CrewmateGhost));
+        Main.AllPlayerControls.DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead, x => x.RpcSetRoleGlobal(GhostRolesManager.AssignedGhostRoles.TryGetValue(x.PlayerId, out var ghostRole) ? ghostRole.Instance.RoleTypes : RoleTypes.CrewmateGhost));
     }
 
     // After the ejection screen, we revert the role types to their actual values.
@@ -89,7 +90,7 @@ public static class AntiBlackout
                 if (seer == null || target == null) continue;
 
                 if (target.IsAlive()) target.RpcSetRoleDesync(roleType, seer.OwnerId);
-                else target.RpcSetRoleDesync(target.HasGhostRole() ? RoleTypes.GuardianAngel : seer.PlayerId == target.PlayerId && !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && state.Role.CanUseSabotage(target) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
+                else target.RpcSetRoleDesync(GhostRolesManager.AssignedGhostRoles.TryGetValue(targetId, out var ghostRole) ? ghostRole.Instance.RoleTypes : seerId == targetId && !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(targetId, out var state) && state.Role.CanUseSabotage(target) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
@@ -126,7 +127,9 @@ public static class AntiBlackout
                         pc.Exiled();
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, 4, SendOption.Reliable);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
-                        if (pc.HasGhostRole()) pc.RpcResetAbilityCooldown();
+                        
+                        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
+                            pc.RpcResetAbilityCooldown();
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

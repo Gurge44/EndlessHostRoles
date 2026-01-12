@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-using EHR.AddOns.GhostRoles;
-using EHR.Crewmate;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using TMPro;
@@ -174,6 +173,8 @@ internal static class EndGamePatch
                     else Options.AutoGMRotationIndex = 0;
                 }
             }
+            
+            Main.Instance.StartCoroutine(BanManager.LoadEACList(reload: true));
         }
     }
 }

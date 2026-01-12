@@ -1,7 +1,6 @@
 ﻿using System;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;

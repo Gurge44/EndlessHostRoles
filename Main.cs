@@ -14,7 +14,7 @@ using BepInEx.Unity.IL2CPP;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.0.1";
-    public const string PluginDisplayVersion = "7.0.1";
+    public const string PluginVersion = "7.1.0";
+    public const string PluginDisplayVersion = "7.1.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -690,7 +690,7 @@ public class Main : BasePlugin
                 { CustomRoles.Stained, "#e6bf91" },
                 { CustomRoles.Clumsy, "#b8b8b8" },
                 { CustomRoles.Mischievous, "#30221c" },
-                { CustomRoles.Flashman, "#ff8400" },
+                { CustomRoles.Flash, "#ff8400" },
                 { CustomRoles.Haste, "#f0ec22" },
                 { CustomRoles.Busy, "#32a852" },
                 { CustomRoles.Sleep, "#000000" },
@@ -754,7 +754,7 @@ public class Main : BasePlugin
                 { CustomRoles.Underdog, "#ff1919" },
 
                 // Solo PVP
-                { CustomRoles.SoloPVP_Player, "#f55252" },
+                { CustomRoles.Challenger, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
                 // Stop And Go

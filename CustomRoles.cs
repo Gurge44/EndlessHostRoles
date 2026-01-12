@@ -414,6 +414,7 @@ public enum CustomRoles
     CovenMember,
     Death, // Reaper changes to Death
     Dreamweaver,
+    Empress,
     Enchanter,
     Goddess,
     Illusionist,
@@ -427,8 +428,8 @@ public enum CustomRoles
     VoodooMaster,
     Wyrd,
 
-    // Solo Kombat
-    SoloPVP_Player,
+    // Solo PVP
+    Challenger,
 
     // FFA
     Killer,
@@ -536,7 +537,7 @@ public enum CustomRoles
     Examiner,
     Facilitator, // Ghost role
     Finder,
-    Flashman,
+    Flash,
     Fragile,
     Fool,
     Giant,

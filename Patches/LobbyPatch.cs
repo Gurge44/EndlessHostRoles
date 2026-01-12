@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
-using InnerNet;
 using TMPro;
 using UnityEngine;
 
@@ -79,16 +77,6 @@ public static class HostInfoPanelSetUpPatch
     }
 }
 
-public static class LobbyPatch
-{
-    public static bool IsGlitchedRoomCode()
-    {
-        string roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId).ToUpper();
-        string[] badEndings = ["IJPG", "SZAF", "LDQG", "ALGG", "UMPG", "GFXG", "JTFG", "PATG", "WMPG", "FUGG", "YTHG", "UFLG", "FBGG", "ZCQG", "RGGG", "ZHLG", "PJDG", "KJQG", "VDXG", "LCAF"];
-        return badEndings.Any(roomCode.EndsWith);
-    }
-}
-
 // https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Patches/LobbyBehaviourPatch.cs
 //[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
 internal static class LobbyBehaviourUpdatePatch
@@ -110,5 +98,4 @@ internal static class LobbyBehaviourUpdatePatch
             SoundManager.Instance.CrossFadeSound("MapTheme", __instance.MapTheme, 0.5f);
         }
     }
-
 }

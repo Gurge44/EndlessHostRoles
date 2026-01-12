@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.AddOns.GhostRoles;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 
@@ -33,12 +32,13 @@ internal static class GhostRolesManager
 
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);
-        pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.OwnerId);
+        pc.RpcSetRoleDesync(instance.RoleTypes, pc.OwnerId);
         instance.OnAssign(pc);
         Main.ResetCamPlayerList.Add(pc.PlayerId);
         AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
 
-        if (suitableRole == CustomRoles.Haunter) GhostRoles.Remove(suitableRole);
+        if (suitableRole == CustomRoles.Haunter)
+            GhostRoles.Remove(suitableRole);
 
         NotifyAboutGhostRole(pc, true);
     }

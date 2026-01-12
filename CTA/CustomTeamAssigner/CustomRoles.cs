@@ -427,19 +427,19 @@ public enum CustomRoles
     VoodooMaster,
     Wyrd,
 
-    // Solo Kombat
-    SoloPVP_Player,
+    // Solo PVP
+    Challenger,
 
     // FFA
     Killer,
 
-    // Move And Stop
+    // Stop And Go
     Tasker,
 
     // Hot Potato
     Potato,
 
-    // H&S
+    // Hide And Seek
     Hider,
     Seeker,
     Fox,
@@ -536,7 +536,7 @@ public enum CustomRoles
     Examiner,
     Facilitator, // Ghost role
     Finder,
-    Flashman,
+    Flash,
     Fragile,
     Fool,
     Giant,

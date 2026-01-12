@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
-using EHR.Coven;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
+using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -202,12 +202,8 @@ public static class ChatManager
                 break;
         }
 
-        switch (Options.CurrentGameMode)
-        {
-            case CustomGameMode.FFA when GameStates.InGame && !message.StartsWith('/'):
-                FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
-                break;
-        }
+        if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.NaturalDisasters or CustomGameMode.Mingle or CustomGameMode.HideAndSeek && GameStates.InGame && !message.StartsWith('/'))
+            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(Translator.GetString("FFAChatMessageNotify"), Main.GameModeColors.GetValueOrDefault(Options.CurrentGameMode, new(1,1,1)), player.PlayerId.ColoredPlayerName(), message));
     }
 
     public static void AddChatHistory(PlayerControl player, string message)

@@ -7,12 +7,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
-using EHR.AddOns.Common;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -24,7 +22,7 @@ using static EHR.Translator;
 
 namespace EHR;
 
-internal class Command(string[] commandForms, string arguments, string description, Command.UsageLevels usageLevel, Command.UsageTimes usageTime, Action<PlayerControl, string, string[]> action, bool isCanceled, bool alwaysHidden, string[] argsDescriptions = null)
+internal class Command(string[] commandForms, string arguments, string description, Command.UsageLevels usageLevel, Command.UsageTimes usageTime, Action<PlayerControl, string, string, string[]> action, bool isCanceled, bool alwaysHidden, string[] argsDescriptions = null)
 {
     public enum UsageLevels
     {
@@ -45,13 +43,15 @@ internal class Command(string[] commandForms, string arguments, string descripti
         AfterDeathOrLobby
     }
 
+    public static Dictionary<string, Command> AllCommands = [];
+
     public string[] CommandForms => commandForms;
     public string Arguments => arguments;
     public string Description => description;
     public string[] ArgsDescriptions => argsDescriptions ?? [];
     public UsageLevels UsageLevel => usageLevel;
     public UsageTimes UsageTime => usageTime;
-    public Action<PlayerControl, string, string[]> Action => action;
+    public Action<PlayerControl, string, string, string[]> Action => action;
     public bool IsCanceled => isCanceled;
     public bool AlwaysHidden => alwaysHidden;
 
@@ -101,7 +101,6 @@ internal static class ChatCommands
 {
     public static readonly List<string> ChatHistory = [];
     public static readonly Dictionary<byte, long> LastSentCommand = [];
-    public static HashSet<Command> AllCommands = [];
 
     private static readonly Dictionary<char, int> PollVotes = [];
     private static readonly Dictionary<char, string> PollAnswers = [];
@@ -128,116 +127,116 @@ internal static class ChatCommands
 
     public static void LoadCommands()
     {
-        AllCommands =
-        [
-            new(["lt", "лт", "大厅关闭时间"], "", GetString("CommandDescription.LT"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LTCommand, false, false),
-            new(["dump", "дамп", "лог", "导出日志"], "", GetString("CommandDescription.Dump"), Command.UsageLevels.Modded, Command.UsageTimes.Always, DumpCommand, false, false),
-            new(["v", "version", "в", "версия", "检查版本", "versão"], "", GetString("CommandDescription.Version"), Command.UsageLevels.Modded, Command.UsageTimes.Always, VersionCommand, false, false),
-            new(["cs", "changesetting", "измнастр", "修改设置", "mudarconfig", "mudarconfiguração"], "{name} {?} [?]", GetString("CommandDescription.ChangeSetting"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ChangeSettingCommand, true, false, [GetString("CommandArgs.ChangeSetting.Name"), GetString("CommandArgs.ChangeSetting.UnknownValue"), GetString("CommandArgs.ChangeSetting.UnknownValue")]),
-            new(["win", "winner", "победители", "获胜者", "vencedor"], "", GetString("CommandDescription.Winner"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, WinnerCommand, true, false),
-            new(["l", "lastresult", "л", "对局职业信息", "resultados", "ultimoresultado"], "", GetString("CommandDescription.LastResult"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LastResultCommand, true, false),
-            new(["rn", "rename", "name", "рн", "ренейм", "переименовать", "修改名称", "renomear"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, false, [GetString("CommandArgs.Rename.Name")]),
-            new(["hn", "hidename", "хн", "спрник", "隐藏姓名", "semnome", "escondernome"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true, false),
-            new(["level", "лвл", "уровень", "修改等级", "nível"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, false, [GetString("CommandArgs.Level.Level")]),
-            new(["n", "now", "н", "当前设置", "atual"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true, false),
-            new(["dis", "disconnect", "дис", "断连"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, false, [GetString("CommandArgs.Disconnect.Team")]),
-            new(["r", "р", "função"], "[role]", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, false, [GetString("CommandArgs.R.Role")]),
-            new(["up", "指定"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, false, [GetString("CommandArgs.Up.Role")]),
-            new(["setrole", "setaddon", "сетроль", "预设职业", "definir-função"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, false, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
-            new(["h", "help", "хэлп", "хелп", "помощь", "帮助", "ajuda"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true, false),
-            new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры", "对局状态", "estadojogo", "status"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true, false),
-            new(["addmod", "добмодера", "指定协管", "moderador-add"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, false, [GetString("CommandArgs.AddMod.Id")]),
-            new(["deletemod", "убрмодера", "удмодера", "убратьмодера", "удалитьмодера", "移除协管", "moderador-remover"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, false, [GetString("CommandArgs.DeleteMod.Id")]),
-            new(["combo", "комбо", "设置不会同时出现的职业", "combinação", "combinar"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ComboCommand, true, false, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
-            new(["eff", "effect", "эффект", "效果", "efeito"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, false, [GetString("CommandArgs.Effect.Effect")]),
-            new(["afkexempt", "освафк", "афкосв", "挂机检测器不会检测", "afk-isentar"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, AFKExemptCommand, true, false, [GetString("CommandArgs.AFKExempt.Id")]),
-            new(["m", "myrole", "м", "мояроль", "我的职业", "minhafunção"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, MyRoleCommand, true, false),
-            new(["tpout", "тпаут", "传送出"], "", GetString("CommandDescription.TPOut"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPOutCommand, true, false),
-            new(["tpin", "тпин", "传送进"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true, false),
-            new(["t", "template", "т", "темплейт", "模板"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, false, [GetString("CommandArgs.Template.Tag")]),
-            new(["mw", "messagewait", "мв", "медленныйрежим", "消息冷却", "espera-mensagens"], "{duration}", GetString("CommandDescription.MessageWait"), Command.UsageLevels.Host, Command.UsageTimes.Always, MessageWaitCommand, true, false, [GetString("CommandArgs.MessageWait.Duration")]),
-            new(["death", "d", "д", "смерть", "死亡原因", "abate"], "[id]", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true, false, [GetString("CommandArgs.Death.Id")]),
-            new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, false, [GetString("CommandArgs.Say.Message")]),
-            new(["vote", "голос", "投票给", "votar"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, true, [GetString("CommandArgs.Vote.Id")]),
-            new(["ask", "спр", "спросить", "数学家提问", "perguntar"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
-            new(["ans", "answer", "отв", "ответить", "回答数学家问题", "responder"], "{number}", GetString("CommandDescription.Answer"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AnswerCommand, true, false, [GetString("CommandArgs.Answer.Number")]),
-            new(["qa", "вопротв", "回答测验大师问题", "questão-responder"], "{letter}", GetString("CommandDescription.QA"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QACommand, true, false, [GetString("CommandArgs.QA.Letter")]),
-            new(["qs", "вопрпоказать", "检查测验大师问题", "questão-ver"], "", GetString("CommandDescription.QS"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QSCommand, true, false),
-            new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
-            new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
-            new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id} [reason]", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id"), GetString("CommandArgs.Ban.Reason")]),
-            new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
-            new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
-            new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
-            new(["id", "guesslist", "айди", "ID列表"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true, false),
-            new(["changerole", "изменитьроль", "измроль", "修改职业", "mudar-função"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, false, [GetString("CommandArgs.ChangeRole.Role")]),
-            new(["end", "закончить", "завершить", "结束游戏", "encerrar", "finalizar", "fim"], "", GetString("CommandDescription.End"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InGame, EndCommand, true, false),
-            new(["cosid", "костюм", "одежда", "服装ID"], "", GetString("CommandDescription.CosID"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CosIDCommand, true, false),
-            new(["mt", "hy", "собрание", "开会/结束会议"], "", GetString("CommandDescription.MTHY"), Command.UsageLevels.Host, Command.UsageTimes.InGame, MTHYCommand, true, false),
-            new(["csd", "кзвук", "自定义播放声音"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true, false, [GetString("CommandArgs.CSD.Sound")]),
-            new(["sd", "взвук", "游戏中播放声音"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, false, [GetString("CommandArgs.SD.Sound")]),
-            new(["gno", "гно", "猜数字"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, false, [GetString("CommandArgs.GNO.Number")]),
-            new(["poll", "опрос", "发起调查", "enquete"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, false, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
-            new(["pv", "проголосовать", "选择调查选项"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, false, false, [GetString("CommandArgs.PV.Vote")]),
-            new(["hm", "мс", "мессенджер", "送信"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, false, [GetString("CommandArgs.HM.Id")]),
-            new(["decree", "указ", "总统命令", "decretar"], "{number}", GetString("CommandDescription.Decree"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DecreeCommand, true, true, [GetString("CommandArgs.Decree.Number")]),
-            new(["addvip", "добавитьвип", "добвип", "指定会员", "vip-add"], "{id}", GetString("CommandDescription.AddVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddVIPCommand, true, false, [GetString("CommandArgs.AddVIP.Id")]),
-            new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип", "删除会员", "vip-remover"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, false, [GetString("CommandArgs.DeleteVIP.Id")]),
-            new(["assume", "предположить", "传销头目预测投票", "assumir"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
-            new(["note", "заметка", "记者管理笔记", "nota", "anotar"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
-            new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
-            new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
-            new(["mute", "замутить", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
-            new(["unmute", "размутить", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
-            new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, DraftStartCommand, true, false),
-            new(["dd", "draftdesc", "draftdescription", "драфтописание", "драфтопис", "草稿描述", "todosescolhem-descricao"], "{index}", GetString("CommandDescription.DraftDescription"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftDescriptionCommand, false, false, [GetString("CommandArgs.DraftDescription.Index")]),
-            new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, false, [GetString("CommandArgs.Draft.Number")]),
-            new(["rc", "readycheck", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, ReadyCheckCommand, true, false),
-            new(["ready", "готов", "准备", "pronto"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true, false),
-            new(["enableallroles", "вклвсероли", "启用所有职业", "habilitar-todas-as-funções"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true, false),
-            new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
-            new(["dn", "deathnote", "угадатьимя", "отгадатьимя", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
-            new(["w", "whisper", "шёпот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
-            new(["hw", "hwhisper", "хш", "хшёпот"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, false, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
-            new(["spectate", "наблюдатель", "спектатор", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
-            new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, AnagramCommand, true, false),
-            new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
-            new(["jt", "jailtalk", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
-            new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
-            new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "гмполл", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
-            new (["mp", "mpoll", "pollm", "mappoll", "мполл"], "", GetString("CommandDescription.MapPoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, MapPollCommand, true, false),
-            new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
-            new(["addtag", "createtag", "добавитьтег", "создатьтег", "добтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
-            new(["deletetag", "удалитьтег", "убратьтег", "удтег", "убртег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
-            new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
-            new(["fix", "blackscreenfix", "fixblackscreen", "фикс", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
-            new(["xor", "异或命令"], "{role} {role}", GetString("CommandDescription.XOR"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, XORCommand, true, false, [GetString("CommandArgs.XOR.Role"), GetString("CommandArgs.XOR.Role")]),
-            new(["ci", "chemistinfo", "химик", "化学家"], "", GetString("CommandDescription.ChemistInfo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
-            new(["forge"], "{id} {role}", GetString("CommandDescription.Forge"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
-            new(["choose", "pick", "выбрать", "选择", "escolher"], "{role}", GetString("CommandDescription.Choose"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
-            new(["copypreset", "presetcopy", "скопироватьсохранение", "скопироватьсохр", "复制预设", "copiar"], "{sourcepreset} {targetpreset}", GetString("CommandDescription.CopyPreset"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
-            new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
-            new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
-            new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
-            new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
-            new(["ret", "retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
-            new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
-            new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
-            new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
-            new(["fabricate", "фабриковать", "伪造", "fabricar"], "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
-            new(["start", "старт", "开始"], "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
-            
-            new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
-            
+        Command.AllCommands = new Dictionary<string, Command>
+        {
+            ["Command.LT"] = new(["lt", "лт", "大厅关闭时间"], "", GetString("CommandDescription.LT"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LTCommand, false, false),
+            ["Command.Dump"] = new(["dump", "дамп", "лог", "导出日志"], "", GetString("CommandDescription.Dump"), Command.UsageLevels.Modded, Command.UsageTimes.Always, DumpCommand, false, false),
+            ["Command.Version"] = new(["v", "version", "в", "версия", "检查版本", "versão"], "", GetString("CommandDescription.Version"), Command.UsageLevels.Modded, Command.UsageTimes.Always, VersionCommand, false, false),
+            ["Command.ChangeSetting"] = new(["cs", "changesetting", "измнастр", "修改设置", "mudarconfig", "mudarconfiguração"], "{name} {?} [?]", GetString("CommandDescription.ChangeSetting"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ChangeSettingCommand, true, false, [GetString("CommandArgs.ChangeSetting.Name"), GetString("CommandArgs.ChangeSetting.UnknownValue"), GetString("CommandArgs.ChangeSetting.UnknownValue")]),
+            ["Command.Winner"] = new(["win", "winner", "победители", "获胜者", "vencedor"], "", GetString("CommandDescription.Winner"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, WinnerCommand, true, false),
+            ["Command.LastResult"] = new(["l", "lastresult", "л", "对局职业信息", "resultados", "ultimoresultado"], "", GetString("CommandDescription.LastResult"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, LastResultCommand, true, false),
+            ["Command.Rename"] = new(["rn", "rename", "name", "рн", "ренейм", "переименовать", "修改名称", "renomear"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, false, [GetString("CommandArgs.Rename.Name")]),
+            ["Command.HideName"] = new(["hn", "hidename", "хн", "спрник", "隐藏姓名", "semnome", "escondernome"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true, false),
+            ["Command.Level"] = new(["level", "лвл", "уровень", "修改等级", "nível"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, false, [GetString("CommandArgs.Level.Level")]),
+            ["Command.Now"] = new(["n", "now", "н", "当前设置", "atual"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true, false),
+            ["Command.Disconnect"] = new(["dis", "disconnect", "дис", "断连"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, false, [GetString("CommandArgs.Disconnect.Team")]),
+            ["Command.R"] = new(["r", "р", "função"], "[role]", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, false, [GetString("CommandArgs.R.Role")]),
+            ["Command.Up"] = new(["up", "指定"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, false, [GetString("CommandArgs.Up.Role")]),
+            ["Command.SetRole"] = new(["setrole", "setaddon", "сетроль", "预设职业", "definir-função"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, false, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
+            ["Command.Help"] = new(["h", "help", "хэлп", "хелп", "помощь", "帮助", "ajuda"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true, false),
+            ["Command.KCount"] = new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры", "对局状态", "estadojogo", "status"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true, false),
+            ["Command.AddMod"] = new(["addmod", "добмодера", "指定协管", "moderador-add"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, false, [GetString("CommandArgs.AddMod.Id")]),
+            ["Command.DeleteMod"] = new(["deletemod", "убрмодера", "удмодера", "убратьмодера", "удалитьмодера", "移除协管", "moderador-remover"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, false, [GetString("CommandArgs.DeleteMod.Id")]),
+            ["Command.Combo"] = new(["combo", "комбо", "设置不会同时出现的职业", "combinação", "combinar"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ComboCommand, true, false, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
+            ["Command.Effect"] = new(["eff", "effect", "эффект", "效果", "efeito"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, false, [GetString("CommandArgs.Effect.Effect")]),
+            ["Command.AFKExempt"] = new(["afkexempt", "освафк", "афкосв", "挂机检测器不会检测", "afk-isentar"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, AFKExemptCommand, true, false, [GetString("CommandArgs.AFKExempt.Id")]),
+            ["Command.MyRole"] = new(["m", "myrole", "м", "мояроль", "我的职业", "minhafunção"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, MyRoleCommand, true, false),
+            ["Command.TPOut"] = new(["tpout", "тпаут", "传送出"], "", GetString("CommandDescription.TPOut"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPOutCommand, true, false),
+            ["Command.TPIn"] = new(["tpin", "тпин", "传送进"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true, false),
+            ["Command.Template"] = new(["t", "template", "т", "темплейт", "模板"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, false, [GetString("CommandArgs.Template.Tag")]),
+            ["Command.MessageWait"] = new(["mw", "messagewait", "мв", "медленныйрежим", "消息冷却", "espera-mensagens"], "{duration}", GetString("CommandDescription.MessageWait"), Command.UsageLevels.Host, Command.UsageTimes.Always, MessageWaitCommand, true, false, [GetString("CommandArgs.MessageWait.Duration")]),
+            ["Command.Death"] = new(["death", "d", "д", "смерть", "死亡原因", "abate"], "[id]", GetString("CommandDescription.Death"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, DeathCommand, true, false, [GetString("CommandArgs.Death.Id")]),
+            ["Command.Say"] = new(["say", "s", "сказать", "с", "说", "falar", "dizer"], "{message}", GetString("CommandDescription.Say"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, SayCommand, true, false, [GetString("CommandArgs.Say.Message")]),
+            ["Command.Vote"] = new(["vote", "голос", "投票给", "votar"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, true, [GetString("CommandArgs.Vote.Id")]),
+            ["Command.Ask"] = new(["ask", "спр", "спросить", "数学家提问", "perguntar"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
+            ["Command.Answer"] = new(["ans", "answer", "отв", "ответить", "回答数学家问题", "responder"], "{number}", GetString("CommandDescription.Answer"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AnswerCommand, true, false, [GetString("CommandArgs.Answer.Number")]),
+            ["Command.QA"] = new(["qa", "вопротв", "回答测验大师问题", "questão-responder"], "{letter}", GetString("CommandDescription.QA"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QACommand, true, false, [GetString("CommandArgs.QA.Letter")]),
+            ["Command.QS"] = new(["qs", "вопрпоказать", "检查测验大师问题", "questão-ver"], "", GetString("CommandDescription.QS"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QSCommand, true, false),
+            ["Command.Target"] = new(["target", "цель", "腹语者标记", "alvo"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, true, [GetString("CommandArgs.Target.Id")]),
+            ["Command.Chat"] = new(["chat", "сообщение", "腹语者发送消息"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, true, [GetString("CommandArgs.Chat.Message")]),
+            ["Command.Check"] = new(["check", "проверить", "检查", "veificar"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
+            ["Command.Ban"] = new(["ban", "kick", "бан", "кик", "забанить", "кикнуть", "封禁", "踢出", "banir", "expulsar"], "{id} [reason]", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, false, [GetString("CommandArgs.Ban.Id"), GetString("CommandArgs.Ban.Reason")]),
+            ["Command.Exe"] = new(["exe", "выкинуть", "驱逐", "executar"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, ExeCommand, true, false, [GetString("CommandArgs.Exe.Id")]),
+            ["Command.Kill"] = new(["kill", "убить", "击杀", "matar"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, false, [GetString("CommandArgs.Kill.Id")]),
+            ["Command.Colour"] = new(["colour", "color", "цвет", "更改颜色", "cor"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, false, [GetString("CommandArgs.Colour.Color")]),
+            ["Command.ID"] = new(["id", "guesslist", "айди", "ID列表"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true, false),
+            ["Command.ChangeRole"] = new(["changerole", "изменитьроль", "измроль", "修改职业", "mudar-função"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, false, [GetString("CommandArgs.ChangeRole.Role")]),
+            ["Command.End"] = new(["end", "закончить", "завершить", "结束游戏", "encerrar", "finalizar", "fim"], "", GetString("CommandDescription.End"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InGame, EndCommand, true, false),
+            ["Command.CosID"] = new(["cosid", "костюм", "одежда", "服装ID"], "", GetString("CommandDescription.CosID"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CosIDCommand, true, false),
+            ["Command.MTHY"] = new(["mt", "hy", "собрание", "开会/结束会议"], "", GetString("CommandDescription.MTHY"), Command.UsageLevels.Host, Command.UsageTimes.InGame, MTHYCommand, true, false),
+            ["Command.CSD"] = new(["csd", "кзвук", "自定义播放声音"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true, false, [GetString("CommandArgs.CSD.Sound")]),
+            ["Command.SD"] = new(["sd", "взвук", "游戏中播放声音"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, false, [GetString("CommandArgs.SD.Sound")]),
+            ["Command.GNO"] = new(["gno", "гно", "猜数字"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, false, [GetString("CommandArgs.GNO.Number")]),
+            ["Command.Poll"] = new(["poll", "опрос", "发起调查", "enquete"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, false, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
+            ["Command.PV"] = new(["pv", "проголосовать", "选择调查选项"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, false, false, [GetString("CommandArgs.PV.Vote")]),
+            ["Command.HM"] = new(["hm", "мс", "мессенджер", "送信"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, false, [GetString("CommandArgs.HM.Id")]),
+            ["Command.Decree"] = new(["decree", "указ", "总统命令", "decretar"], "{number}", GetString("CommandDescription.Decree"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DecreeCommand, true, true, [GetString("CommandArgs.Decree.Number")]),
+            ["Command.AddVIP"] = new(["addvip", "добавитьвип", "добвип", "指定会员", "vip-add"], "{id}", GetString("CommandDescription.AddVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddVIPCommand, true, false, [GetString("CommandArgs.AddVIP.Id")]),
+            ["Command.DeleteVIP"] = new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип", "删除会员", "vip-remover"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, false, [GetString("CommandArgs.DeleteVIP.Id")]),
+            ["Command.Assume"] = new(["assume", "предположить", "传销头目预测投票", "assumir"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
+            ["Command.Note"] = new(["note", "заметка", "记者管理笔记", "nota", "anotar"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
+            ["Command.OS"] = new(["os", "optionset", "шансроли", "设置职业生成概率"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, OSCommand, true, false, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
+            ["Command.Negotiation"] = new(["negotiation", "neg", "наказание", "谈判方式", "negociar", "negociação"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, false, [GetString("CommandArgs.Negotiation.Number")]),
+            ["Command.Mute"] = new(["mute", "замутить", "мут", "禁言", "mutar", "silenciar"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, false, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
+            ["Command.Unmute"] = new(["unmute", "размутить", "размут", "解禁", "desmutar", "desilenciar"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.HostOrAdmin, Command.UsageTimes.Always, UnmuteCommand, true, false, [GetString("CommandArgs.Unmute.Id")]),
+            ["Command.DraftStart"] = new(["draftstart", "ds", "драфтстарт", "启用草稿", "todosescolhem-iniciar"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, DraftStartCommand, true, false),
+            ["Command.DraftDescription"] = new(["dd", "draftdesc", "draftdescription", "драфтописание", "драфтопис", "草稿描述", "todosescolhem-descricao"], "{index}", GetString("CommandDescription.DraftDescription"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftDescriptionCommand, false, false, [GetString("CommandArgs.DraftDescription.Index")]),
+            ["Command.Draft"] = new(["draft", "драфт", "选择草稿", "todosescolhem-escolher"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, false, false, [GetString("CommandArgs.Draft.Number")]),
+            ["Command.ReadyCheck"] = new(["rc", "readycheck", "проверитьготовность", "准备检测", "verificação-de-prontidão"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, ReadyCheckCommand, true, false),
+            ["Command.Ready"] = new(["ready", "готов", "准备", "pronto"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true, false),
+            ["Command.EnableAllRoles"] = new(["enableallroles", "вклвсероли", "启用所有职业", "habilitar-todas-as-funções"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true, false),
+            ["Command.Achievements"] = new(["achievements", "достижения", "成就", "conquistas"], "", GetString("CommandDescription.Achievements"), Command.UsageLevels.Modded, Command.UsageTimes.Always, AchievementsCommand, true, false),
+            ["Command.DeathNote"] = new(["dn", "deathnote", "угадатьимя", "отгадатьимя", "死亡笔记"], "{name}", GetString("CommandDescription.DeathNote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DeathNoteCommand, true, true, [GetString("CommandArgs.DeathNote.Name")]),
+            ["Command.Whisper"] = new(["w", "whisper", "шёпот", "ш", "私聊", "sussurrar"], "{id} {message}", GetString("CommandDescription.Whisper"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, WhisperCommand, true, true, [GetString("CommandArgs.Whisper.Id"), GetString("CommandArgs.Whisper.Message")]),
+            ["Command.HWhisper"] = new(["hw", "hwhisper", "хш", "хшёпот"], "{id} {message}", GetString("CommandDescription.HWhisper"), Command.UsageLevels.Host, Command.UsageTimes.Always, HWhisperCommand, true, false, [GetString("CommandArgs.HWhisper.Id"), GetString("CommandArgs.HWhisper.Message")]),
+            ["Command.Spectate"] = new(["spectate", "наблюдатель", "спектатор", "观战", "espectar"], "[id]", GetString("CommandDescription.Spectate"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, SpectateCommand, false, false, [GetString("CommandArgs.Spectate.Id")]),
+            ["Command.Anagram"] = new(["anagram", "анаграмма"], "", GetString("CommandDescription.Anagram"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, AnagramCommand, true, false),
+            ["Command.RoleList"] = new(["rl", "rolelist", "роли"], "", GetString("CommandDescription.RoleList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RoleListCommand, true, false),
+            ["Command.JailTalk"] = new(["jt", "jailtalk", "监狱谈话"], "{message}", GetString("CommandDescription.JailTalk"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, JailTalkCommand, true, true, [GetString("CommandArgs.JailTalk.Message")]),
+            ["Command.GameModeList"] = new(["gm", "gml", "gamemodes", "gamemodelist", "режимы", "模式列表"], "", GetString("CommandDescription.GameModeList"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
+            ["Command.GameModePoll"] = new(["gmp", "gmpoll", "pollgm", "gamemodepoll", "гмполл", "模式投票"], "", GetString("CommandDescription.GameModePoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
+            ["Command.MapPoll"] = new(["mp", "mpoll", "pollm", "mappoll", "мполл"], "", GetString("CommandDescription.MapPoll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, MapPollCommand, true, false),
+            ["Command.EightBall"] = new(["8ball", "шар", "八球"], "[question]", GetString("CommandDescription.EightBall"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
+            ["Command.AddTag"] = new(["addtag", "createtag", "добавитьтег", "создатьтег", "добтег", "添加标签", "adicionartag"], "{id} {color} {tag}", GetString("CommandDescription.AddTag"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
+            ["Command.DeleteTag"] = new(["deletetag", "удалитьтег", "убратьтег", "удтег", "убртег", "删除标签"], "{id}", GetString("CommandDescription.DeleteTag"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
+            ["Command.DayBreak"] = new(["daybreak", "db", "дейбрейк", "破晓"], "", GetString("CommandDescription.DayBreak"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DayBreakCommand, true, true),
+            ["Command.Fix"] = new(["fix", "blackscreenfix", "fixblackscreen", "фикс", "исправить", "修复"], "{id}", GetString("CommandDescription.Fix"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InGame, FixCommand, true, false, [GetString("CommandArgs.Fix.Id")]),
+            ["Command.XOR"] = new(["xor", "异或命令"], "{role} {role}", GetString("CommandDescription.XOR"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, XORCommand, true, false, [GetString("CommandArgs.XOR.Role"), GetString("CommandArgs.XOR.Role")]),
+            ["Command.ChemistInfo"] = new(["ci", "chemistinfo", "химик", "化学家"], "", GetString("CommandDescription.ChemistInfo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
+            ["Command.Forge"] = new(["forge"], "{id} {role}", GetString("CommandDescription.Forge"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
+            ["Command.Choose"] = new(["choose", "pick", "выбрать", "选择", "escolher"], "{role}", GetString("CommandDescription.Choose"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
+            ["Command.CopyPreset"] = new(["copypreset", "presetcopy", "скопироватьсохранение", "скопироватьсохр", "复制预设", "copiar"], "{sourcepreset} {targetpreset}", GetString("CommandDescription.CopyPreset"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
+            ["Command.AddAdmin"] = new(["addadmin", "добавитьадмин", "добадмин", "指定管理员", "admin-add"], "{id}", GetString("CommandDescription.AddAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
+            ["Command.DeleteAdmin"] = new(["deleteadmin", "удалитьадмин", "убратьадмин", "удалитьадминку", "убратьадминку", "删除管理员", "admin-remover"], "{id}", GetString("CommandDescription.DeleteAdmin"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
+            ["Command.VoteStart"] = new(["vs", "votestart", "голосованиестарт", "投票开始"], "", GetString("CommandDescription.VoteStart"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, VoteStartCommand, true, false),
+            ["Command.Imitate"] = new(["imitate", "имитировать", "模仿"], "{id}", GetString("CommandDescription.Imitate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ImitateCommand, true, true, [GetString("CommandArgs.Imitate.Id")]),
+            ["Command.Retribute"] = new(["ret", "retribute", "воздать", "报复"], "{id}", GetString("CommandDescription.Retribute"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RetributeCommand, true, true, [GetString("CommandArgs.Retribute.Id")]),
+            ["Command.Revive"] = new(["revive", "воскрешение", "воскрешать", "复活", "reviver"], "{id}", GetString("CommandDescription.Revive"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ReviveCommand, true, false, [GetString("CommandArgs.Revive.Id")]),
+            ["Command.Select"] = new(["select", "выбратьигрока", "选择玩家", "selecionar"], "{id} {role}", GetString("CommandDescription.Select"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SelectCommand, true, true, [GetString("CommandArgs.Select.Id"), GetString("CommandArgs.Select.Role")]),
+            ["Command.UIScale"] = new(["uiscale", "масштаб"], "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
+            ["Command.Fabricate"] = new(["fabricate", "фабриковать", "伪造", "fabricar"], "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
+            ["Command.Start"] = new(["start", "старт", "开始"], "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
+            ["Command.ConfirmAuth"] = new(["confirmauth"], "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
+                        
             // Commands with action handled elsewhere
-            new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
-            new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
-            new(["sw", "swap", "st", "свап", "свапнуть", "换票", "trocar"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Swap.Id")]),
-            new(["compare", "cp", "cmp", "сравнить", "ср", "检查", "comparar"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
-            new(["ms", "mediumship", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
-            new(["rv", "месть", "отомстить", "复仇"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _) => { }, true, false, [GetString("CommandArgs.Revenge.Id")])
-        ];
+            ["Command.Guess"] = new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт", "猜测", "赌", "adivinhar"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, false, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
+            ["Command.Trial"] = new(["tl", "sp", "jj", "trial", "суд", "засудить", "审判", "判", "julgar"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, false, [GetString("CommandArgs.Trial.Id")]),
+            ["Command.Swap"] = new(["sw", "swap", "st", "свап", "свапнуть", "换票", "trocar"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, false, [GetString("CommandArgs.Swap.Id")]),
+            ["Command.Compare"] = new(["compare", "cp", "cmp", "сравнить", "ср", "检查", "comparar"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, false, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
+            ["Command.Medium"] = new(["ms", "mediumship", "medium", "медиум", "回答"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, false, [GetString("CommandArgs.Medium.Answer")]),
+            ["Command.Revenge"] = new(["rv", "месть", "отомстить", "复仇"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _, _) => { }, true, false, [GetString("CommandArgs.Revenge.Id")]),
+
+        };
     }
 
     private static string[] ModsFileCache = [];
@@ -402,7 +401,7 @@ internal static class ChatCommands
 
         if (text.StartsWith('/'))
         {
-            foreach (Command command in AllCommands)
+            foreach ((string key, Command command) in Command.AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
 
@@ -412,7 +411,7 @@ internal static class ChatCommands
                 if (!command.CanUseCommand(PlayerControl.LocalPlayer, sendErrorMessage: true))
                     goto Canceled;
 
-                command.Action(PlayerControl.LocalPlayer, text, args);
+                command.Action(PlayerControl.LocalPlayer, key, text, args);
                 if (command.IsCanceled) goto Canceled;
 
                 break;
@@ -479,38 +478,36 @@ internal static class ChatCommands
         }
     }
 
-    private static void RequestCommandProcessingFromHost(string methodName, string text, bool modCommand = false, bool adminCommand = false)
+    private static void RequestCommandProcessingFromHost(string text, string commandKey)
     {
         PlayerControl pc = PlayerControl.LocalPlayer;
         MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)CustomRPC.RequestCommandProcessing, SendOption.Reliable, AmongUsClient.Instance.HostId);
-        w.Write(methodName);
+        w.Write(commandKey);
         w.Write(pc.PlayerId);
         w.Write(text);
-        w.Write(modCommand);
-        w.Write(adminCommand);
         AmongUsClient.Instance.FinishRpcImmediately(w);
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
     
-    private static void StartCommand(PlayerControl player, string text, string[] args)
+    private static void StartCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(StartCommand), text, modCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         VotedToStart.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
     }
     
-    private static void FabricateCommand(PlayerControl player, string text, string[] args)
+    private static void FabricateCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(FabricateCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -529,19 +526,19 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void UIScaleCommand(PlayerControl player, string text, string[] args)
+    private static void UIScaleCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 2 || !float.TryParse(args[1], out float scale) || scale == 0f) return;
         HudManagerStartPatch.TryResizeUI(scale);
     }
     
-    private static void SelectCommand(PlayerControl player, string text, string[] args)
+    private static void SelectCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SelectCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -558,7 +555,7 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
     
-    private static void ReviveCommand(PlayerControl player, string text, string[] args)
+    private static void ReviveCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if ((!Options.NoGameEnd.GetBool() && !player.FriendCode.GetDevUser().up) || args.Length < 2 || !byte.TryParse(args[1], out byte targetId)) return;
         
@@ -568,7 +565,7 @@ internal static class ChatCommands
         target.RpcRevive();
     }
     
-    private static void ConfirmAuthCommand(PlayerControl player, string text, string[] args)
+    private static void ConfirmAuthCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
@@ -637,13 +634,13 @@ internal static class ChatCommands
         }
     }
 
-    public static void RetributeCommand(PlayerControl player, string text, string[] args)
+    public static void RetributeCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(RetributeCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -686,13 +683,13 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    public static void ImitateCommand(PlayerControl player, string text, string[] args)
+    public static void ImitateCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ImitateCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -700,28 +697,31 @@ internal static class ChatCommands
 
         if (!targetState.IsDead)
         {
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeDead"));
             return;
         }
 
         if (!targetState.MainRole.Is(Team.Crewmate) || targetState.MainRole == CustomRoles.GM)
         {
+            RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
             Utils.SendMessage("\n", player.PlayerId, GetString("Imitator.TargetMustBeCrew"));
             return;
         }
 
         Imitator.ImitatingRole[player.PlayerId] = targetState.MainRole;
+        RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
         Logger.Info($"{player.GetRealName()} will be imitating as {targetState.MainRole}", "Imitator");
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Imitator.Success"), targetId.ColoredPlayerName()));
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
     
-    private static void VoteStartCommand(PlayerControl player, string text, string[] args)
+    private static void VoteStartCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(VoteStartCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -741,11 +741,11 @@ internal static class ChatCommands
         }
     }
     
-    private static void DeleteAdminCommand(PlayerControl player, string text, string[] args)
+    private static void DeleteAdminCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DeleteAdminCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -766,11 +766,11 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("PlayerRemovedFromAdminList"), player.PlayerId);
     }
 
-    private static void AddAdminCommand(PlayerControl player, string text, string[] args)
+    private static void AddAdminCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AddAdminCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -786,7 +786,7 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("PlayerAddedToAdminList"), player.PlayerId);
     }
     
-    private static void CopyPresetCommand(PlayerControl player, string text, string[] args)
+    private static void CopyPresetCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 3 || !int.TryParse(args[1], out int sourcePresetId) || sourcePresetId is < 1 or > 10 || (!int.TryParse(args[2], out int targetPreset) && targetPreset is < 1 or > 10)) return;
 
@@ -809,11 +809,11 @@ internal static class ChatCommands
         }
     }
     
-    private static void ChooseCommand(PlayerControl player, string text, string[] args)
+    private static void ChooseCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ChooseCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -825,13 +825,13 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void ForgeCommand(PlayerControl player, string text, string[] args)
+    private static void ForgeCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ForgeCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -846,20 +846,20 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void ChemistInfoCommand(PlayerControl player, string text, string[] args)
+    private static void ChemistInfoCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         Utils.SendMessage(Chemist.GetProcessesInfo(), player.PlayerId, CustomRoles.Chemist.ToColoredString());
     }
 
-    private static void XORCommand(PlayerControl player, string text, string[] args)
+    private static void XORCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(XORCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
         
-        if (!player.IsHost() || args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2))
+        if ((!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) || args.Length < 3 || !GetRoleByName(args[1], out CustomRoles role1) || !GetRoleByName(args[2], out CustomRoles role2))
         {
             Utils.SendMessage(string.Join('\n', Main.XORRoles.ConvertAll(x => $"{x.Item1.ToColoredString()} ⊕ {x.Item2.ToColoredString()}")), player.PlayerId, GetString("XORListTitle"));
             return;
@@ -887,11 +887,11 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("XORAdded"), role1.ToColoredString(), role2.ToColoredString()));
     }
 
-    private static void FixCommand(PlayerControl player, string text, string[] args)
+    private static void FixCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(FixCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -906,11 +906,11 @@ internal static class ChatCommands
             Logger.SendInGame(GetString("FixBlackScreenWaitForDead"), Color.yellow);
     }
 
-    public static void DayBreakCommand(PlayerControl player, string text, string[] args)
+    public static void DayBreakCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DayBreakCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -923,7 +923,7 @@ internal static class ChatCommands
         Utils.SendMessage("\n", title: string.Format(GetString("StarspawnUsedDayBreak"), CustomRoles.Starspawn.ToColoredString()));
     }
 
-    private static void AddTagCommand(PlayerControl player, string text, string[] args)
+    private static void AddTagCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 4 || !byte.TryParse(args[1], out byte id)) return;
 
@@ -937,7 +937,7 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("AddTagSuccess"), tag, id.ColoredPlayerName(), id));
     }
 
-    private static void DeleteTagCommand(PlayerControl player, string text, string[] args)
+    private static void DeleteTagCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
 
@@ -949,7 +949,7 @@ internal static class ChatCommands
         Utils.DirtyName.Add(pc.PlayerId);
     }
 
-    private static void EightBallCommand(PlayerControl player, string text, string[] args)
+    private static void EightBallCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Options.Disable8ballCommand.GetBool())
         {
@@ -959,46 +959,46 @@ internal static class ChatCommands
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(EightBallCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
     }
 
-    public static void GameModePollCommand(PlayerControl player, string text, string[] args)
+    public static void GameModePollCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(GameModePollCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         GMPollGameModes = Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
         string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
-        PollCommand(player, msg, msg.Split(' '));
+        PollCommand(player, "Command.Poll", msg, msg.Split(' '));
     }
     
-    public static void MapPollCommand(PlayerControl player, string text, string[] args)
+    public static void MapPollCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(MapPollCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         MPollMaps = Enum.GetValues<MapNames>().Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
         string mNames = string.Join(' ', MPollMaps.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("MapPoll.Question").TrimEnd('?')}? {mNames}";
-        PollCommand(player, msg, msg.Split(' '));
+        PollCommand(player, "Command.Poll", msg, msg.Split(' '));
     }
 
-    private static void GameModeListCommand(PlayerControl player, string text, string[] args)
+    private static void GameModeListCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(GameModeListCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1009,13 +1009,13 @@ internal static class ChatCommands
         Utils.SendMessage(info, player.PlayerId, GetString("GameModeListTitle"));
     }
 
-    private static void JailTalkCommand(PlayerControl player, string text, string[] args)
+    private static void JailTalkCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 2) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(JailTalkCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1036,11 +1036,11 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void RoleListCommand(PlayerControl player, string text, string[] args)
+    private static void RoleListCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(RoleListCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1127,11 +1127,11 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, sb.ToString().Trim() + "</size>");
     }
 
-    private static void AnagramCommand(PlayerControl player, string text, string[] args)
+    private static void AnagramCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AnagramCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1147,11 +1147,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void SpectateCommand(PlayerControl player, string text, string[] args)
+    private static void SpectateCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SpectateCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1190,11 +1190,11 @@ internal static class ChatCommands
             Utils.SendMessage("\n", player.PlayerId, GetString("SpectateCommand.Success"));
     }
 
-    private static void WhisperCommand(PlayerControl player, string text, string[] args)
+    private static void WhisperCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(WhisperCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1241,7 +1241,7 @@ internal static class ChatCommands
         }
     }
 
-    private static void HWhisperCommand(PlayerControl player, string text, string[] args)
+    private static void HWhisperCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
 
@@ -1252,13 +1252,13 @@ internal static class ChatCommands
         ChatUpdatePatch.LastMessages.Add((msg, targetId, title, Utils.TimeStamp));
     }
 
-    private static void DeathNoteCommand(PlayerControl player, string text, string[] args)
+    private static void DeathNoteCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DeathNoteCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1310,7 +1310,7 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void AchievementsCommand(PlayerControl player, string text, string[] args)
+    private static void AchievementsCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         Func<Achievements.Type, string> ToAchievementString = x => $"<b>{GetString($"Achievement.{x}")}</b> - {GetString($"Achievement.{x}.Description")}";
 
@@ -1323,11 +1323,11 @@ internal static class ChatCommands
         Utils.SendMessage(completedAchievements, player.PlayerId, GetString("CompletedAchievementsTitle") + $" <#00a5ff>(<#00ffa5>{union.Length}</color>/{allAchievements.Length})</color>");
     }
 
-    private static void EnableAllRolesCommand(PlayerControl player, string text, string[] args)
+    private static void EnableAllRolesCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(EnableAllRolesCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1337,11 +1337,11 @@ internal static class ChatCommands
             () => Utils.EnterQuickSetupRoles(false));
     }
 
-    private static void ReadyCheckCommand(PlayerControl player, string text, string[] args)
+    public static void ReadyCheckCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ReadyCheckCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1377,31 +1377,31 @@ internal static class ChatCommands
         }
     }
 
-    private static void ReadyCommand(PlayerControl player, string text, string[] args)
+    private static void ReadyCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ReadyCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         ReadyPlayers.Add(player.PlayerId);
     }
 
-    public static void DraftStartCommand(PlayerControl player, string text, string[] args)
+    public static void DraftStartCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DraftStartCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         DraftResult = [];
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
-        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM).ToList();
+        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM).Shuffle();
 
         if (allRoles.Count < allPlayerIds.Length)
         {
@@ -1410,8 +1410,8 @@ internal static class ChatCommands
         }
 
         IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
-        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt());
-        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.MaxNNKs.GetInt());
+        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt(), Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt()));
+        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt() - Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt(), Options.MaxNNKs.GetInt()));
         IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());
@@ -1453,11 +1453,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void DraftDescriptionCommand(PlayerControl player, string text, string[] args)
+    private static void DraftDescriptionCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DraftDescriptionCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1486,11 +1486,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void DraftCommand(PlayerControl player, string text, string[] args)
+    private static void DraftCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DraftCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1510,11 +1510,11 @@ internal static class ChatCommands
         if (DraftResult.Count >= DraftRoles.Count) Utils.SendMessage("\n", PlayerControl.LocalPlayer.PlayerId, GetString("EveryoneDrafted"));
     }
 
-    private static void MuteCommand(PlayerControl player, string text, string[] args)
+    private static void MuteCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(MuteCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1534,11 +1534,11 @@ internal static class ChatCommands
         messages.SendMultipleMessages();
     }
 
-    private static void UnmuteCommand(PlayerControl player, string text, string[] args)
+    private static void UnmuteCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(UnmuteCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1550,11 +1550,11 @@ internal static class ChatCommands
         if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("AdminUnmuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName()));
     }
 
-    private static void NegotiationCommand(PlayerControl player, string text, string[] args)
+    private static void NegotiationCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(NegotiationCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1565,11 +1565,11 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void OSCommand(PlayerControl player, string text, string[] args)
+    private static void OSCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(OSCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
         
@@ -1585,13 +1585,13 @@ internal static class ChatCommands
             option.SetValue(chance / 5);
     }
 
-    private static void NoteCommand(PlayerControl player, string text, string[] args)
+    private static void NoteCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(NoteCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1602,13 +1602,13 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void AssumeCommand(PlayerControl player, string text, string[] args)
+    private static void AssumeCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AssumeCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1619,7 +1619,7 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void DeleteVIPCommand(PlayerControl player, string text, string[] args)
+    private static void DeleteVIPCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 2 || !byte.TryParse(args[1], out byte VIPId)) return;
 
@@ -1634,7 +1634,7 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("PlayerRemovedFromVIPList"), player.PlayerId);
     }
 
-    private static void AddVIPCommand(PlayerControl player, string text, string[] args)
+    private static void AddVIPCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length < 2 || !byte.TryParse(args[1], out byte newVIPId)) return;
 
@@ -1648,13 +1648,13 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("PlayerAddedToVIPList"), player.PlayerId);
     }
 
-    private static void DecreeCommand(PlayerControl player, string text, string[] args)
+    private static void DecreeCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DecreeCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1672,11 +1672,11 @@ internal static class ChatCommands
         }, 0.2f, log: false);
     }
 
-    private static void HMCommand(PlayerControl player, string text, string[] args)
+    private static void HMCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(HMCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1711,11 +1711,11 @@ internal static class ChatCommands
     }
 
     // Credit: Drakos for the base code
-    private static void PollCommand(PlayerControl player, string text, string[] args)
+    private static void PollCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(PollCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1792,7 +1792,7 @@ internal static class ChatCommands
 
             string result = winners.Length == 1
                 ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
-                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} - {t.Value} {PollAnswers[t.Key]}\n")
+                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("<size=70%>", (s, t) => s + $"{t.Key} - {t.Value} {PollAnswers[t.Key]}\n")
                 : string.Format(GetString("Poll.Tie"), string.Join(" & ", winners.Select(x => $"{x.Key}{PollAnswers[x.Key]}")), maxVotes);
 
             Utils.SendMessage(result, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
@@ -1816,11 +1816,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void PVCommand(PlayerControl player, string text, string[] args)
+    private static void PVCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(PVCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1849,27 +1849,27 @@ internal static class ChatCommands
         Utils.SendMessage(string.Format(GetString("Poll.YouVoted"), vote, PollVotes[vote]), player.PlayerId);
     }
 
-    private static void HelpCommand(PlayerControl player, string text, string[] args)
+    private static void HelpCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(HelpCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         Utils.ShowHelp(player.PlayerId);
     }
 
-    private static void DumpCommand(PlayerControl player, string text, string[] args)
+    private static void DumpCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         Utils.DumpLog();
     }
 
-    private static void GNOCommand(PlayerControl player, string text, string[] args)
+    private static void GNOCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(GNOCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1923,11 +1923,11 @@ internal static class ChatCommands
         Main.GuessNumber[player.PlayerId][1] = 7;
     }
 
-    private static void SDCommand(PlayerControl player, string text, string[] args)
+    private static void SDCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SDCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1936,11 +1936,11 @@ internal static class ChatCommands
         RPC.PlaySoundRPC(player.PlayerId, (Sounds)sound1);
     }
 
-    private static void CSDCommand(PlayerControl player, string text, string[] args)
+    private static void CSDCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(CSDCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1948,11 +1948,11 @@ internal static class ChatCommands
         player.RPCPlayCustomSound(subArgs.Trim());
     }
 
-    private static void MTHYCommand(PlayerControl player, string text, string[] args)
+    private static void MTHYCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(MTHYCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1965,11 +1965,11 @@ internal static class ChatCommands
             player.NoCheckStartMeeting(null, true);
     }
 
-    private static void CosIDCommand(PlayerControl player, string text, string[] args)
+    private static void CosIDCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(CosIDCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1982,11 +1982,11 @@ internal static class ChatCommands
         Logger.Warn($"NamePlateId: {of.NamePlateId}", "Get Cos Id");
     }
 
-    private static void EndCommand(PlayerControl player, string text, string[] args)
+    private static void EndCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(EndCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -1996,11 +1996,11 @@ internal static class ChatCommands
         GameManager.Instance.LogicFlow.CheckEndCriteria();
     }
 
-    private static void ChangeRoleCommand(PlayerControl player, string text, string[] args)
+    private static void ChangeRoleCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ChangeRoleCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2030,11 +2030,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void IDCommand(PlayerControl player, string text, string[] args)
+    private static void IDCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(IDCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2044,11 +2044,11 @@ internal static class ChatCommands
         Utils.SendMessage(msgText, player.PlayerId);
     }
 
-    private static void ColorCommand(PlayerControl player, string text, string[] args)
+    private static void ColorCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ColorCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2077,11 +2077,11 @@ internal static class ChatCommands
         Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), player.PlayerId, sendOption: SendOption.None);
     }
 
-    private static void KillCommand(PlayerControl player, string text, string[] args)
+    private static void KillCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(KillCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2106,11 +2106,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void ExeCommand(PlayerControl player, string text, string[] args)
+    private static void ExeCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ExeCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2139,11 +2139,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void BanKickCommand(PlayerControl player, string text, string[] args)
+    private static void BanKickCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(BanKickCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2216,13 +2216,13 @@ internal static class ChatCommands
         AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
     }
 
-    private static void CheckCommand(PlayerControl player, string text, string[] args)
+    private static void CheckCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(CheckCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2239,13 +2239,13 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void ChatCommand(PlayerControl player, string text, string[] args)
+    private static void ChatCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ChatCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2264,13 +2264,13 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    public static void TargetCommand(PlayerControl player, string text, string[] args)
+    public static void TargetCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(TargetCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2279,14 +2279,16 @@ internal static class ChatCommands
         var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
         vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
 
+        player.RPCPlayCustomSound("Line");
+
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void QSCommand(PlayerControl player, string text, string[] args)
+    private static void QSCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(QSCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2300,11 +2302,11 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void QACommand(PlayerControl player, string text, string[] args)
+    private static void QACommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(QACommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2318,11 +2320,11 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void AnswerCommand(PlayerControl player, string text, string[] args)
+    private static void AnswerCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AnswerCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2331,13 +2333,13 @@ internal static class ChatCommands
         Mathematician.Reply(player, args[1]);
     }
 
-    private static void AskCommand(PlayerControl player, string text, string[] args)
+    private static void AskCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AskCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2346,11 +2348,11 @@ internal static class ChatCommands
         Mathematician.Ask(player, args[1], args[2]);
     }
 
-    private static void VoteCommand(PlayerControl player, string text, string[] args)
+    private static void VoteCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(VoteCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2367,11 +2369,11 @@ internal static class ChatCommands
         MeetingHud.Instance.CastVote(player.PlayerId, voteId);
     }
 
-    private static void SayCommand(PlayerControl player, string text, string[] args)
+    private static void SayCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(SayCommand), text, true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2380,11 +2382,11 @@ internal static class ChatCommands
         if (args.Length > 1) Utils.SendMessage(args[1..].Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
     }
 
-    private static void DeathCommand(PlayerControl player, string text, string[] args)
+    private static void DeathCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DeathCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2405,7 +2407,7 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()));
     }
 
-    private static void MessageWaitCommand(PlayerControl player, string text, string[] args)
+    private static void MessageWaitCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (args.Length > 1 && int.TryParse(args[1], out int sec))
         {
@@ -2416,11 +2418,11 @@ internal static class ChatCommands
             Utils.SendMessage($"{GetString("Message.MessageWaitHelp")}\n{GetString("ForExample")}:\n{args[0]} 3", 0);
     }
 
-    private static void TemplateCommand(PlayerControl player, string text, string[] args)
+    private static void TemplateCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(TemplateCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2440,11 +2442,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void TPInCommand(PlayerControl player, string text, string[] args)
+    private static void TPInCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(TPInCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2459,11 +2461,11 @@ internal static class ChatCommands
         player.TP(new Vector2(-0.2f, 1.3f));
     }
 
-    private static void TPOutCommand(PlayerControl player, string text, string[] args)
+    private static void TPOutCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(TPOutCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2478,11 +2480,11 @@ internal static class ChatCommands
         player.TP(new Vector2(0.1f, 3.8f));
     }
 
-    private static void MyRoleCommand(PlayerControl player, string text, string[] args)
+    private static void MyRoleCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(MyRoleCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2525,11 +2527,11 @@ internal static class ChatCommands
             Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
     }
 
-    private static void AFKExemptCommand(PlayerControl player, string text, string[] args)
+    private static void AFKExemptCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AFKExemptCommand), text, adminCommand: true);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2539,11 +2541,11 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerExemptedFromAFK"), afkId.ColoredPlayerName()));
     }
 
-    private static void EffectCommand(PlayerControl player, string text, string[] args)
+    private static void EffectCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(EffectCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2552,15 +2554,15 @@ internal static class ChatCommands
         if (Enum.TryParse(args[1], true, out Randomizer.Effect effect)) effect.Apply(player);
     }
 
-    private static void ComboCommand(PlayerControl player, string text, string[] args)
+    private static void ComboCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ComboCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
-        if (!player.IsHost() || args.Length < 4)
+        if ((!player.IsHost() && !IsPlayerAdmin(player.FriendCode)) || args.Length < 4)
         {
             if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) return;
 
@@ -2706,11 +2708,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void DeleteModCommand(PlayerControl player, string text, string[] args)
+    private static void DeleteModCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DeleteModCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2731,11 +2733,11 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("PlayerRemovedFromModList"), player.PlayerId);
     }
 
-    private static void AddModCommand(PlayerControl player, string text, string[] args)
+    private static void AddModCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(AddModCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2756,11 +2758,11 @@ internal static class ChatCommands
         Utils.SendMessage(GetString("PlayerAddedToModList"), player.PlayerId);
     }
 
-    private static void KCountCommand(PlayerControl player, string text, string[] args)
+    private static void KCountCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(KCountCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2773,7 +2775,7 @@ internal static class ChatCommands
         Utils.SendMessage("\n", player.PlayerId, Utils.GetGameStateData());
     }
 
-    private static void SetRoleCommand(PlayerControl player, string text, string[] args)
+    private static void SetRoleCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         string subArgs = string.Join(' ', args[1..]);
 
@@ -2810,22 +2812,22 @@ internal static class ChatCommands
             Prompt.Show(GetString("Promt.SetRoleRequiresPets"), () => Options.UsePets.SetValue(1), () => { });
     }
 
-    private static void UpCommand(PlayerControl player, string text, string[] args)
+    private static void UpCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(UpCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
         Utils.SendMessage($"{GetString("UpReplacedMessage")}", player.PlayerId);
     }
 
-    private static void RCommand(PlayerControl player, string text, string[] args)
+    private static void RCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(RCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2834,11 +2836,11 @@ internal static class ChatCommands
         SendRolesInfo(subArgs, to);
     }
 
-    private static void DisconnectCommand(PlayerControl player, string text, string[] args)
+    private static void DisconnectCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(DisconnectCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2873,11 +2875,11 @@ internal static class ChatCommands
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Admin, 0);
     }
 
-    private static void NowCommand(PlayerControl player, string text, string[] args)
+    private static void NowCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(NowCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2899,11 +2901,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void LevelCommand(PlayerControl player, string text, string[] args)
+    private static void LevelCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(LevelCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2921,11 +2923,11 @@ internal static class ChatCommands
         player.RpcSetLevel(number - 1);
     }
 
-    private static void HideNameCommand(PlayerControl player, string text, string[] args)
+    private static void HideNameCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(HideNameCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2937,11 +2939,11 @@ internal static class ChatCommands
                 : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
     }
 
-    private static void RenameCommand(PlayerControl player, string text, string[] args)
+    private static void RenameCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(RenameCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2975,11 +2977,11 @@ internal static class ChatCommands
         }
     }
 
-    private static void LastResultCommand(PlayerControl player, string text, string[] args)
+    private static void LastResultCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(LastResultCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -2989,11 +2991,11 @@ internal static class ChatCommands
         Utils.ShowLastResult(player.PlayerId);
     }
 
-    private static void WinnerCommand(PlayerControl player, string text, string[] args)
+    private static void WinnerCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(WinnerCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -3003,11 +3005,11 @@ internal static class ChatCommands
             Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.WinnerNameList));
     }
 
-    private static void ChangeSettingCommand(PlayerControl player, string text, string[] args)
+    private static void ChangeSettingCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(ChangeSettingCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -3382,17 +3384,17 @@ internal static class ChatCommands
         GameManager.Instance.LogicOptions.SyncOptions();
     }
 
-    private static void VersionCommand(PlayerControl player, string text, string[] args)
+    private static void VersionCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         string versionText = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
         if (versionText != string.Empty && HudManager.InstanceExists) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + versionText);
     }
 
-    private static void LTCommand(PlayerControl player, string text, string[] args)
+    private static void LTCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            RequestCommandProcessingFromHost(nameof(LTCommand), text);
+            RequestCommandProcessingFromHost(text, commandKey);
             return;
         }
 
@@ -3633,7 +3635,7 @@ internal static class ChatCommands
 
         if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
-            foreach (Command command in AllCommands)
+            foreach ((string key, Command command) in Command.AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
 
@@ -3647,7 +3649,7 @@ internal static class ChatCommands
                 }
 
                 if (command.AlwaysHidden) ChatManager.SendPreviousMessagesToAll();
-                command.Action(player, text, args);
+                command.Action(player, key, text, args);
                 if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;
             }

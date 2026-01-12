@@ -1,10 +1,8 @@
 using System;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Impostor;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 
@@ -407,6 +405,8 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
     {
+        if (__instance is { Timer: > 0f }) return false;
+        
         if (Options.DisableSabotage.GetBool())
         {
             switch (systemTypes)

@@ -11,12 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Crewmate;
-
-
-namespace EHR;
+namespace EHR.Roles;
 
 public abstract class RoleBase : IComparable<RoleBase>
 {
@@ -134,7 +129,7 @@ public abstract class RoleBase : IComparable<RoleBase>
         if (Imitator.PlayerIdList.Contains(pc.PlayerId))
         {
             string command = $"/imitate {target.PlayerId}";
-            ChatCommands.ImitateCommand(pc, command, command.Split(' '));
+            ChatCommands.ImitateCommand(pc, "Command.Imitate", command, command.Split(' '));
         }
     }
 

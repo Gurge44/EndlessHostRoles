@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Crewmate;
+using EHR.Gamemodes;
 using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
@@ -118,12 +118,6 @@ public static class FixedUpdateCaller
                     else
                         killButton.SetDisabled();
                 }
-            }
-            catch { }
-
-            try
-            {
-                if (CopyCat.Instances.Count > 0) CopyCat.Instances.RemoveAll(x => x.CopyCatPC == null);
             }
             catch { }
 

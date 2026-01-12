@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.InnerNet.GameDataMessages;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
-using Tree = EHR.Crewmate.Tree;
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
 // Huge thanks to Rabek009 for this code!
@@ -157,13 +156,23 @@ namespace EHR
 
         protected virtual void OnFixedUpdate()
         {
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (AmongUsClient.Instance.AmClient) playerControl.NetTransform.SnapTo(Position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U));
-            ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
-            NetHelpers.WriteVector2(Position, messageWriter);
-            messageWriter.Write(num);
-            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+            try
+            {
+                if (!AmongUsClient.Instance.AmHost) return;
+            
+                if (AmongUsClient.Instance.AmClient)
+                {
+                    try { playerControl.NetTransform.SnapTo(Position, (ushort)(playerControl.NetTransform.lastSequenceId + 1U)); }
+                    catch { }
+                }
+
+                ushort num = (ushort)(playerControl.NetTransform.lastSequenceId + 2U);
+                MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(playerControl.NetTransform.NetId, 21, SendOption.None);
+                NetHelpers.WriteVector2(Position, messageWriter);
+                messageWriter.Write(num);
+                AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+            }
+            catch { }
         }
 
         protected void CreateNetObject(string sprite, Vector2 position)
@@ -887,7 +896,7 @@ namespace EHR
     {
         public FallenTree(Vector2 position)
         {
-            CreateNetObject(Tree.FallenSprite, position);
+            CreateNetObject(EHR.Roles.Tree.FallenSprite, position);
         }
     }
 
