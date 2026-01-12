@@ -548,7 +548,7 @@ internal static class CheckMurderPatch
 
         switch (target.GetCustomRole())
         {
-            case CustomRoles.Medic:
+            case CustomRoles.Medic when !check:
                 Medic.IsDead(target);
                 break;
             case CustomRoles.Gambler when Gambler.IsShielded.ContainsKey(target.PlayerId):

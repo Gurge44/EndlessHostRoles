@@ -360,7 +360,7 @@ internal static class CustomRolesHelper
             CustomRoles.Enigma => CustomRoles.Crewmate,
             CustomRoles.Addict => CustomRoles.Engineer,
             CustomRoles.Alchemist => CustomRoles.Engineer, // Needs to vent to use the invisibility potion
-            CustomRoles.Chameleon => CustomRoles.Engineer,
+            CustomRoles.Chameleon => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Lurker => CustomRoles.Impostor,
             CustomRoles.Doomsayer => CustomRoles.Crewmate,
             CustomRoles.Godfather => CustomRoles.Impostor,

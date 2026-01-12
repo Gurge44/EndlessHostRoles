@@ -1312,6 +1312,26 @@ internal static class MeetingHudOnDestroyPatch
                 aapc.DoIf(x => x.IsImpostor(), x => x.RpcSetRoleGlobal(x.GetRoleTypes()));
             }
         }
+
+        if (Main.LIMap) Main.Instance.StartCoroutine(WaitForExileFinish());
+        return;
+
+        System.Collections.IEnumerator WaitForExileFinish()
+        {
+            while (!ExileController.Instance && !GameStates.IsEnded) yield return null;
+            if (GameStates.IsEnded) yield break;
+
+            yield return new WaitForSeconds(1f);
+            if (!ExileController.Instance || GameStates.IsEnded) yield break;
+            
+            if (CheckForEndVotingPatch.EjectionText.EndsWith("<size=0>") && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && CheckForEndVotingPatch.TempExiledPlayer != null)
+                ExileController.Instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
+            
+            while (ExileController.Instance) yield return null;
+
+            try { ExileControllerWrapUpPatch.WrapUpPostfix(CheckForEndVotingPatch.TempExiledPlayer); }
+            finally { ExileControllerWrapUpPatch.WrapUpFinalizer(); }
+        }
     }
 }
 
@@ -1551,5 +1571,4 @@ internal static class ExileControllerBeginPatch
         if (CheckForEndVotingPatch.EjectionText.EndsWith("<size=0>") && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && init is { outfit: not null })
             __instance.completeString = CheckForEndVotingPatch.EjectionText[..^8];
     }
-
 }

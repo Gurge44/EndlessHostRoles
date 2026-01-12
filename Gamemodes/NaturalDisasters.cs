@@ -129,20 +129,17 @@ public static class NaturalDisasters
 
         if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) return;
 
-        Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
+        List<Vector2> rooms = Main.LIMap
+            ? ShipStatus.Instance.AllRooms.Select(x => new Vector2(x.transform.position.x, x.transform.position.y)).ToList()
+            : RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values.ToList();
+        
         if (rooms == null) return;
 
-        float[] x = rooms.Select(r => r.x).ToArray();
-        float[] y = rooms.Select(r => r.y).ToArray();
+        List<float> x = rooms.ConvertAll(r => r.x);
+        List<float> y = rooms.ConvertAll(r => r.y);
 
         const float extend = 5f;
         MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
-
-        LateTask.New(() =>
-        {
-            Main.AllPlayerSpeed = Main.PlayerStates.Keys.ToDictionary(k => k, _ => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-            Utils.SyncAllSettings();
-        }, 16f, log: false);
     }
 
     public static void ApplyGameOptions(IGameOptions opt, byte id)
@@ -281,7 +278,19 @@ public static class NaturalDisasters
                 if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
-                KeyValuePair<SystemTypes, Vector2> roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions.Where(x => x.Key is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.Key.ToString().Contains("Decontamination")).RandomElement();
+                KeyValuePair<SystemTypes, Vector2> roomKvp;
+
+                if (Main.LIMap)
+                {
+                    var plainShipRoom = ShipStatus.Instance.AllRooms.Where(x => x.RoomId is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.RoomId.ToString().Contains("Decontamination")).RandomElement();
+                    roomKvp = new KeyValuePair<SystemTypes, Vector2>(plainShipRoom.RoomId, plainShipRoom.transform.position);
+                }
+                else
+                {
+                    roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions
+                        .Where(x => x.Key is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.Key.ToString().Contains("Decontamination"))
+                        .RandomElement();
+                }
 
                 Vector2 position = disaster.Name switch
                 {

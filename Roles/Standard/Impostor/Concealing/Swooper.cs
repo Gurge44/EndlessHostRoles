@@ -218,7 +218,7 @@ public class Swooper : RoleBase
                         Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     }
                     else
-                        player.RpcMakeVisible();
+                        player.RpcMakeVisible(phantom: UsedRole == CustomRoles.Swooper);
 
                     player.Notify(GetString("SwooperInvisStateOut"));
                     player.RpcResetAbilityCooldown();
@@ -234,7 +234,7 @@ public class Swooper : RoleBase
 
     bool OnCoEnterVent(PlayerPhysics __instance, int ventId)
     {
-        if (!AmongUsClient.Instance.AmHost || IsInvis || (UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool()))) return false;
+        if (!AmongUsClient.Instance.AmHost || IsInvis || (UsedRole == CustomRoles.Chameleon && UsePets.GetBool()) || (UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool()))) return false;
 
         PlayerControl pc = __instance.myPlayer;
 
@@ -287,7 +287,7 @@ public class Swooper : RoleBase
 
         if (CanGoInvis && (wraith || limit >= 1))
         {
-            pc.RpcMakeInvisible();
+            pc.RpcMakeInvisible(phantom: UsedRole == CustomRoles.Swooper);
             
             InvisTime = Utils.TimeStamp;
             if (!wraith) pc.RpcRemoveAbilityUse();
@@ -297,6 +297,11 @@ public class Swooper : RoleBase
         }
 
         return false;
+    }
+
+    public override void OnPet(PlayerControl pc)
+    {
+        OnVanish(pc);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

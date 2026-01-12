@@ -333,56 +333,65 @@ public static class RoomRush
         DonePlayers.Clear();
         RoomGoal = AllRooms.Without(previous).RandomElement();
         Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
-        Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);
-        float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-        var time = (int)Math.Ceiling(distance / speed);
-        Dictionary<(SystemTypes, SystemTypes), int> multipliers = Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
-        time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
-
-        bool involvesDecontamination = map switch
+        int time;
+        
+        if (!Main.LIMap)
         {
-            MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
-            MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
-            (MapNames)6 => (previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast) ^ (RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast),
-            _ => false
-        };
+            Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);
+            float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
+            time = (int)Math.Ceiling(distance / speed);
+            Dictionary<(SystemTypes, SystemTypes), int> multipliers = Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
+            time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
 
-        if (involvesDecontamination)
-        {
-            int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
-                ? map == MapNames.Polus
-                    ? Options.DecontaminationTimeOnPolus.GetInt() + Options.DecontaminationDoorOpenTimeOnPolus.GetInt()
-                    : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
-                : 6;
+            bool involvesDecontamination = map switch
+            {
+                MapNames.MiraHQ => previous is SystemTypes.Laboratory or SystemTypes.Reactor ^ RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
+                MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
+                (MapNames)6 => (previous == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast) ^ (RoomGoal == (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast),
+                _ => false
+            };
 
-            if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
-            time += decontaminationTime;
+            if (involvesDecontamination)
+            {
+                int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
+                    ? map == MapNames.Polus
+                        ? Options.DecontaminationTimeOnPolus.GetInt() + Options.DecontaminationDoorOpenTimeOnPolus.GetInt()
+                        : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
+                    : 6;
+
+                if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
+                time += decontaminationTime;
+            }
+
+            switch (map)
+            {
+                case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
+                    time += (int)(8 / speed);
+                    break;
+                case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens and not SystemTypes.Office) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
+                    time -= (int)(5 * speed);
+                    break;
+                case MapNames.Airship when previous == SystemTypes.GapRoom:
+                    time *= RoomGoal switch
+                    {
+                        SystemTypes.MeetingRoom => 6,
+                        SystemTypes.Brig or SystemTypes.VaultRoom or SystemTypes.Records or SystemTypes.Showers or SystemTypes.Lounge => 3,
+                        SystemTypes.Engine or SystemTypes.CargoBay or SystemTypes.Medical => 2,
+                        _ => 1
+                    };
+                    break;
+            }
+
+            var maxTime = (int)Math.Ceiling((map is MapNames.Skeld or MapNames.Dleks ? 25 : 32) / speed);
+            time = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
         }
+        else
+            time = (int)Math.Ceiling(32 / speed * GlobalTimeMultiplier.GetFloat());
 
-        switch (map)
-        {
-            case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
-                time += (int)(8 / speed);
-                break;
-            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens and not SystemTypes.Office) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
-                time -= (int)(5 * speed);
-                break;
-            case MapNames.Airship when previous == SystemTypes.GapRoom:
-                time *= RoomGoal switch
-                {
-                    SystemTypes.MeetingRoom => 6,
-                    SystemTypes.Brig or SystemTypes.VaultRoom or SystemTypes.Records or SystemTypes.Showers or SystemTypes.Lounge => 3,
-                    SystemTypes.Engine or SystemTypes.CargoBay or SystemTypes.Medical => 2,
-                    _ => 1
-                };
-                break;
-        }
-
-        var maxTime = (int)Math.Ceiling((map is MapNames.Skeld or MapNames.Dleks ? 25 : 32) / speed);
-        time = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
         TimeLimitEndTS = Utils.TimeStamp + time;
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
+
         Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
