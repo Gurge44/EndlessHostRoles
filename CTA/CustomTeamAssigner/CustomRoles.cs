@@ -414,6 +414,7 @@ public enum CustomRoles
     CovenMember,
     Death, // Reaper changes to Death
     Dreamweaver,
+    Empress,
     Enchanter,
     Goddess,
     Illusionist,
@@ -433,13 +434,13 @@ public enum CustomRoles
     // FFA
     Killer,
 
-    // Stop And Go
+    // Move And Stop
     Tasker,
 
     // Hot Potato
     Potato,
 
-    // Hide And Seek
+    // H&S
     Hider,
     Seeker,
     Fox,

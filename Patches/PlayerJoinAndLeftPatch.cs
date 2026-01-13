@@ -712,10 +712,11 @@ internal static class InnerNetClientSpawnPatch
                         // Only for vanilla
                         if (!client.Character.IsModdedClient())
                         {
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
-                            writer.WritePacked((int)GameStartManagerPatch.Timer);
-                            writer.Write(false);
-                            AmongUsClient.Instance.FinishRpcImmediately(writer);
+                            // This kicks the host now on vanilla regions
+                            // MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
+                            // writer.WritePacked((int)GameStartManagerPatch.Timer);
+                            // writer.Write(false);
+                            // AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                         // Non-host modded client
                         else
