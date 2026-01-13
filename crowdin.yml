@@ -4,5 +4,6 @@ base_path: .
 bundles:
   - 2
 files:
-  - source: '**/Lang/en_US.json'
+  - source: main/Resources/Lang/en_US.json
     translation: /Resources/Lang/%locale_with_underscore%.json
+    preserve_heirarchy: false
