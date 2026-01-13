@@ -40,6 +40,7 @@ public class CustomRpcSender
     private int currentRpcTarget;
 
     private State currentState = State.BeforeInit;
+    private int messages;
     public MessageWriter stream;
 
     private CustomRpcSender() { }
@@ -54,6 +55,7 @@ public class CustomRpcSender
         this.log = log;
         currentRpcTarget = -2;
         onSendDelegate = () => { };
+        messages = 0;
 
         currentState = State.Ready;
         if (log) Logger.Info($"\"{name}\" is ready", "CustomRpcSender");
@@ -135,7 +137,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length >= 1500 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
+        if (stream.Length >= 1400 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
         else if (log || stream.Length > 3) Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)
@@ -146,7 +148,7 @@ public class CustomRpcSender
 
                 doneStreams.ForEach(x =>
                 {
-                    if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
+                    if (x.Length >= 1400 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
                     else if (log || x.Length > 3) sb.Append($" | {x.Length}");
 
                     AmongUsClient.Instance.SendOrDisconnect(x);
@@ -271,6 +273,14 @@ public class CustomRpcSender
             else
                 throw new InvalidOperationException(errorMsg);
         }
+
+        if (messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
+        {
+            doneStreams.Add(stream);
+            stream = MessageWriter.Get(sendOption);
+        }
+
+        messages++;
 
         stream.StartMessage(2);
         stream.WritePacked(targetNetId);

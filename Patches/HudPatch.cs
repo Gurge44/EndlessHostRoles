@@ -31,6 +31,7 @@ internal static class HudManagerPatch
 
     public static void ClearLowerInfoText()
     {
+        if (LowerInfoText == null) return;
         LowerInfoText.text = string.Empty;
     }
 

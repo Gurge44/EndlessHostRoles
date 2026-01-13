@@ -494,12 +494,6 @@ internal static class OnPlayerJoinedPatch
                     return;
                 }
 
-                if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
-                {
-                    MessageWriter retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
-                    AmongUsClient.Instance.FinishRpcImmediately(retry);
-                }
-
                 if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && Main.AllPlayerControls.Length >= 17)
                     Disco.ChangeColor(client.Character);
             }
@@ -530,7 +524,6 @@ internal static class OnPlayerJoinedPatch
         }
 
         BanManager.CheckBanPlayer(client);
-        RPC.RpcVersionCheck();
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -692,16 +685,8 @@ internal static class InnerNetClientSpawnPatch
                 if (Main.OverrideWelcomeMsg != "")
                     Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId, sendOption: SendOption.None);
                 else
-                    TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
+                    TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true, sendOption: SendOption.None);
             }, GameStates.CurrentServerType == GameStates.ServerType.Niko ? 7f : 3f, "Welcome Message");
-
-            LateTask.New(() =>
-            {
-                if (client.Character == null) return;
-
-                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, client.Character.OwnerId);
-                AmongUsClient.Instance.FinishRpcImmediately(sender);
-            }, 3f, "RPC Request Retry Version Check");
 
             if (GameStates.IsOnlineGame && !client.Character.IsHost())
             {
@@ -713,7 +698,7 @@ internal static class InnerNetClientSpawnPatch
                         if (!client.Character.IsModdedClient())
                         {
                             // This kicks the host now on vanilla regions
-                            // MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
                             // writer.WritePacked((int)GameStartManagerPatch.Timer);
                             // writer.Write(false);
                             // AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -831,15 +816,6 @@ internal static class PlayerControlCheckNamePatch
             Logger.Warn($"Standard nickname: {playerName} => {name}", "Name Format");
             playerName = name;
         }
-
-        LateTask.New(() =>
-        {
-            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModdedClient())
-            {
-                MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
-                AmongUsClient.Instance.FinishRpcImmediately(sender);
-            }
-        }, 0.6f, "Retry Version Check", false);
     }
 }
 

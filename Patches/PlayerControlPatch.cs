@@ -1413,52 +1413,56 @@ internal static class FixedUpdatePatch
 
     public static void Postfix(PlayerControl __instance, bool lowLoad)
     {
-        if (__instance == null || __instance.PlayerId >= 254) return;
-
-        CheckMurderPatch.Update(__instance.PlayerId);
-
-        if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
-            CustomNetObject.FixedUpdate();
-
-        byte id = __instance.PlayerId;
-
-        if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && !id.IsPlayerRoleBlocked() && ReportDeadBodyPatch.WaitReport[id].Count > 0)
+        try
         {
-            NetworkedPlayerInfo info = ReportDeadBodyPatch.WaitReport[id][0];
-            ReportDeadBodyPatch.WaitReport[id].Clear();
-            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}: Now that it is possible to report, we will process the report.", "ReportDeadBody");
-            __instance.ReportDeadBody(info);
-        }
+            if (__instance == null || __instance.PlayerId >= 254) return;
 
-        if (AmongUsClient.Instance.AmHost)
-        {
-            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(id, out (CustomRoles Role, IGhostRole Instance) ghostRole))
+            CheckMurderPatch.Update(__instance.PlayerId);
+
+            if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
+                CustomNetObject.FixedUpdate();
+
+            byte id = __instance.PlayerId;
+
+            if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && !id.IsPlayerRoleBlocked() && ReportDeadBodyPatch.WaitReport[id].Count > 0)
             {
-                switch (ghostRole.Instance)
-                {
-                    case Warden warden:
-                        warden.Update(__instance);
-                        break;
-                    case Haunter haunter:
-                        haunter.Update(__instance);
-                        break;
-                    case Bloodmoon bloodmoon:
-                        Bloodmoon.Update(__instance, bloodmoon);
-                        break;
-                }
+                NetworkedPlayerInfo info = ReportDeadBodyPatch.WaitReport[id][0];
+                ReportDeadBodyPatch.WaitReport[id].Clear();
+                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}: Now that it is possible to report, we will process the report.", "ReportDeadBody");
+                __instance.ReportDeadBody(info);
             }
-            else if (!Main.HasJustStarted && GameStates.IsInTask && !ExileController.Instance && GhostRolesManager.ShouldHaveGhostRole(__instance))
-                GhostRolesManager.AssignGhostRole(__instance);
-        }
 
-        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !(__instance.IsHost() && __instance.AmOwner) && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
-        {
-            int buffer = Options.DeepLowLoad.GetBool() ? 150 : 60;
-            DeadBufferTime.TryAdd(id, buffer);
-            DeadBufferTime[id]--;
-            if (DeadBufferTime[id] > 0) return;
-            DeadBufferTime[id] = buffer;
+            if (AmongUsClient.Instance.AmHost)
+            {
+                if (GhostRolesManager.AssignedGhostRoles.TryGetValue(id, out (CustomRoles Role, IGhostRole Instance) ghostRole))
+                {
+                    switch (ghostRole.Instance)
+                    {
+                        case Warden warden:
+                            warden.Update(__instance);
+                            break;
+                        case Haunter haunter:
+                            haunter.Update(__instance);
+                            break;
+                        case Bloodmoon bloodmoon:
+                            Bloodmoon.Update(__instance, bloodmoon);
+                            break;
+                    }
+                }
+                else if (!Main.HasJustStarted && GameStates.IsInTask && !ExileController.Instance && GhostRolesManager.ShouldHaveGhostRole(__instance))
+                    GhostRolesManager.AssignGhostRole(__instance);
+            }
+
+            if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !(__instance.IsHost() && __instance.AmOwner) && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode is not CustomGameMode.RoomRush and not CustomGameMode.Quiz)
+            {
+                int buffer = Options.DeepLowLoad.GetBool() ? 150 : 60;
+                DeadBufferTime.TryAdd(id, buffer);
+                DeadBufferTime[id]--;
+                if (DeadBufferTime[id] > 0) return;
+                DeadBufferTime[id] = buffer;
+            }
         }
+        catch (Exception e) { ThrowException(e); }
 
         try { DoPostfix(__instance, lowLoad); }
         catch (Exception ex)
@@ -2419,15 +2423,6 @@ internal static class AssertWithTimeoutPatch
     public static bool Prefix()
     {
         return false;
-    }
-}
-
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckName))]
-internal static class CmdCheckNameVersionCheckPatch
-{
-    public static void Postfix()
-    {
-        RPC.RpcVersionCheck();
     }
 }
 

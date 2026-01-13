@@ -77,7 +77,6 @@ static class CoShowIntroPatch
         {
             while (!ShipStatus.Instance || !HudManager.InstanceExists) yield return null;
 
-            RPC.RpcVersionCheck();
             GameStates.InGame = true;
 
             __instance.IsIntroDisplayed = true;
@@ -103,6 +102,8 @@ static class CoShowIntroPatch
             __instance.SetHudActive(true);
             __instance.CrewmatesKilled.gameObject.SetActive(GameManager.Instance.ShowCrewmatesKilled());
             GameManager.Instance.StartGame();
+            
+            RPC.RpcVersionCheck();
         }
 
         IEnumerator CoBegin(IntroCutscene introCutscene)

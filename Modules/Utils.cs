@@ -166,11 +166,11 @@ public static class Utils
 
             switch (Vector2.Distance(pc.Pos(), location))
             {
-                case < 0.3f:
-                {
-                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
-                    return false;
-                }
+                // case < 0.3f:
+                // {
+                //     if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                //     return false;
+                // }
                 case < 1.5f when !GameStates.IsLobby:
                 {
                     if (log) Logger.Msg($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Changed to SendOption.None", "TP");
@@ -3196,14 +3196,18 @@ public static class Utils
 
     public static void SendGameData()
     {
+        int messages = 0;
+        int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
+        
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         writer.StartMessage(5);
         writer.Write(AmongUsClient.Instance.GameId);
 
         foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
         {
-            if (writer.Length > 500)
+            if (writer.Length > 500 || messages >= packingLimit)
             {
+                messages = 0;
                 writer.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Clear(SendOption.Reliable);
@@ -3215,6 +3219,8 @@ public static class Utils
             writer.WritePacked(playerinfo.NetId);
             playerinfo.Serialize(writer, false);
             writer.EndMessage();
+            
+            messages++;
         }
 
         writer.EndMessage();
@@ -3224,6 +3230,9 @@ public static class Utils
 
     public static void SendGameDataTo(int targetClientId)
     {
+        int messages = 0;
+        int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
+
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         writer.StartMessage(6);
         writer.Write(AmongUsClient.Instance.GameId);
@@ -3231,8 +3240,9 @@ public static class Utils
 
         foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
         {
-            if (writer.Length > 500)
+            if (writer.Length > 500 || messages >= packingLimit)
             {
+                messages = 0;
                 writer.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Clear(SendOption.Reliable);
@@ -3245,6 +3255,8 @@ public static class Utils
             writer.WritePacked(playerinfo.NetId);
             playerinfo.Serialize(writer, false);
             writer.EndMessage();
+            
+            messages++;
         }
 
         writer.EndMessage();

@@ -177,7 +177,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            if (GameStates.IsEnded || !AmongUsClient.Instance.AmHost) return;
+            if (GameStates.IsEnded || !AmongUsClient.Instance.AmHost || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
             
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position} - Time since game start: {Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS}s", "CNO.CreateNetObject");
 

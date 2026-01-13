@@ -232,8 +232,6 @@ public static class GameStartManagerPatch
                 OptionItem.SyncAllOptions();
             }
 
-            RPC.RpcVersionCheck();
-
             GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
             GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
             __instance?.StartButton.gameObject.SetActive(false);

@@ -1360,6 +1360,9 @@ public static class GuessManager
                 StringBuilder sb = new();
                 int textIndex = 0;
 
+                int messages = 0;
+                int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
+                
                 var skipped = false;
                 PlayerControl guesser = guesserId.GetPlayer();
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
@@ -1388,8 +1391,9 @@ public static class GuessManager
                     if (textIndex % 3 == 0) sb.AppendLine();
                     else sb.Append(' ');
 
-                    if (writer.Length > 500)
+                    if (writer.Length > 500 || messages + 2 > packingLimit)
                     {
+                        messages = 0;
                         writer.EndMessage();
                         AmongUsClient.Instance.SendOrDisconnect(writer);
                         writer.Clear(SendOption.Reliable);
@@ -1412,6 +1416,8 @@ public static class GuessManager
                     writer.Write(namePlateId);
                     writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr));
                     writer.EndMessage();
+
+                    messages += 2;
                 }
 
                 writer.EndMessage();

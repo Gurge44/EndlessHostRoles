@@ -623,7 +623,7 @@ internal static class GameEndChecker
 
             foreach (PlayerState playerState in statesCoutingAsCrew)
             {
-                if (playerState.IsDead || !Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool()) continue;
+                if (!Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool()) continue;
                 playerState.Role.ManipulateGameEndCheckCrew(playerState, out bool keepGameGoing, out int countsAs);
                 crewKeepsGameGoing |= keepGameGoing;
                 crew += countsAs - 1;
@@ -749,11 +749,12 @@ internal static class GameEndChecker
                     return true;
             }
 
-            if (winner != null) ResetAndSetWinner((CustomWinner)winner);
+            if (winner.HasValue)
+                ResetAndSetWinner(winner.Value);
 
-            if (rl != null)
+            if (rl.HasValue)
             {
-                WinnerRoles.Add((CustomRoles)rl);
+                WinnerRoles.Add(rl.Value);
                 WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.GetCustomRole() == rl).Select(x => x.PlayerId));
             }
 

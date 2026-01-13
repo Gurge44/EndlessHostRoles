@@ -1535,7 +1535,7 @@ internal static class ExtendedPlayerControl
             if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
             
             var sender = CustomRpcSender.Create("RpcMakeInvisible", SendOption.Reliable);
-            sender.StartMessage(pc.GetClientId());
+            sender.StartMessage(pc.OwnerId);
             sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write(player.NetTransform.lastSequenceId)
@@ -1584,7 +1584,7 @@ internal static class ExtendedPlayerControl
             if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
             
             var sender = CustomRpcSender.Create("RpcMakeVisible", SendOption.Reliable);
-            sender.StartMessage(pc.GetClientId());
+            sender.StartMessage(pc.OwnerId);
             sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                 .WriteVector2(new Vector2(50f, 50f))
                 .Write((ushort)(player.NetTransform.lastSequenceId + 32767))
@@ -1617,7 +1617,7 @@ internal static class ExtendedPlayerControl
             if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
             
             var sender = CustomRpcSender.Create("RpcResetInvisibility", SendOption.Reliable);
-            sender.StartMessage(pc.GetClientId());
+            sender.StartMessage(pc.OwnerId);
             sender.StartRpc(player.NetId, RpcCalls.Exiled)
                 .EndRpc();
             RoleTypes role = Utils.GetRoleMap(pc.PlayerId, player.PlayerId).RoleType;
