@@ -1170,14 +1170,24 @@ public static class GameSettingMenuPatch
 
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        CustomGameMode[] gms = Enum.GetValues<CustomGameMode>()[..^1];
-        gms = gms.Without(CustomGameMode.TheMindGame).ToArray();
-        if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6) gms = gms.Where(SubmergedCompatibility.IsSupported).ToArray();
-        int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Length / 7f));
+        var gms = Enum.GetValues<CustomGameMode>()[..^1].ToList();
+        gms.Remove(CustomGameMode.TheMindGame);
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            gms.Remove(CustomGameMode.CaptureTheFlag);
+            gms.Remove(CustomGameMode.NaturalDisasters);
+            gms.Remove(CustomGameMode.BedWars);
+        }
+        
+        if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6)
+            gms.RemoveAll(SubmergedCompatibility.IsNotSupported);
+        
+        int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Count / 7f));
 
         GMButtons = [];
 
-        for (var index = 0; index < gms.Length; index++)
+        for (var index = 0; index < gms.Count; index++)
         {
             CustomGameMode gm = gms[index];
 
