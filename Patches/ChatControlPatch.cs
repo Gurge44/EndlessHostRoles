@@ -177,7 +177,7 @@ public static class ChatManager
 
         switch (operate)
         {
-            case 1 when player.IsAlive(): // Guessing Command & Such
+            case 1: // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
                 if (player.AmOwner) break;
 
