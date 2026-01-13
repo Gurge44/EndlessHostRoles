@@ -140,8 +140,9 @@ jobs:
 
       - name: Create Steam ZIP
         run: |
+          cd release
           echo "945360" > steam_appid.txt
-          zip -r "EHR.v${{ github.event.inputs.version }}_Steam.zip" .
+          zip -r "../EHR.v${{ github.event.inputs.version }}_Steam.zip" .
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
@@ -189,7 +190,7 @@ jobs:
           tag_name: "v${{ github.event.inputs.version }}"
           name: "EHR v${{ github.event.inputs.version }}"
           generate_release_notes: true
-          body: ${cat CHANGELOG.md}
+          body_path: CHANGELOG.md
           files: |
             release-artifacts/zips/*
             release-artifacts/ehr/EHR.dll
