@@ -6,7 +6,10 @@ on:
       version:
         description: "Version (e.g. 7.0.2)"
         required: true
-
+        
+permissions: 
+  contents: write 
+  
 jobs:
   prepare-build:
     runs-on: ubuntu-latest
