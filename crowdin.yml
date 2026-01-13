@@ -6,4 +6,4 @@ bundles:
 files:
   - source: main/Resources/Lang/en_US.json
     translation: /Resources/Lang/%locale_with_underscore%.json
-    preserve_heirarchy: false
+    preserve_hierarchy: false
