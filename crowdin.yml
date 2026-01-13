@@ -4,5 +4,5 @@ base_path: .
 bundles:
   - 2
 files:
-  - source: Resources/Lang/en_US.json
-    translation: Resources/Lang/%locale_with_underscore%.json
+  - source: /Resources/Lang/en_US.json
+    translation: /Resources/Lang/%locale_with_underscore%.json
