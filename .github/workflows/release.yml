@@ -113,35 +113,48 @@ jobs:
           name: ehr
           path: artifacts/ehr
 
-      - name: Prepare release folder
-        run: mkdir -p release
+      - name: Prepare release folders
+        run: |
+          mkdir -p epic
+          mkdir -p steam
 
       - name: Download BepInEx 6 pre-release 735
         run: |
           curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.735%2B5fef357.zip -o bepinex.zip
-          unzip bepinex.zip -d release
-          chmod -R u+rwX,go+rX release
+          unzip bepinex.zip -d epic
+          chmod -R u+rwX,go+rX epic
+          curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.735%2B5fef357.zip -o bepinex.zip
+          unzip bepinex.zip -d steam
+          chmod -R u+rwX,go+rX steam
 
       - name: Copy EHR dll to plugins
-        run: cp artifacts/ehr/EHR.dll release/BepInEx/plugins/
+        run: |
+          cp artifacts/ehr/EHR.dll epic/BepInEx/plugins/
+          cp artifacts/ehr/EHR.dll steam/BepInEx/plugins/
 
       - name: Copy configs to BepInEx config
         run: |
-          mkdir -p release/BepInEx/config/
-          cp packaging/* release/BepInEx/config/
+          mkdir -p epic/BepInEx/config/
+          mkdir -p steam/BepInEx/config/
+          cp packaging/* epic/BepInEx/config/
+          cp packaging/* steam/BepInEx/config/
 
       - name: Download modded regions DLL to plugins
-        run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o release/BepInEx/plugins/Mini.RegionInstall.dll
+        run: |
+          curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o epic/BepInEx/plugins/Mini.RegionInstall.dll
+          cp epic/BepInEx/plugins/Mini.RegionInstall.dll steam/BepInEx/plugins/Mini.RegionInstall.dll
+
+      - name: Steam App ID
+        run : echo "945360" > steam_appid.txt
 
       - name: Create Epic/MS Store ZIP
         run: |
-          cd release
+          cd epic
           zip -r "../EHR.v${{ github.event.inputs.version }}_Epic-Games_Microsoft-Store.zip" .
 
       - name: Create Steam ZIP
         run: |
-          cd release
-          echo "945360" > steam_appid.txt
+          cd steam
           zip -r "../EHR.v${{ github.event.inputs.version }}_Steam.zip" .
 
       - name: Upload release artifacts
