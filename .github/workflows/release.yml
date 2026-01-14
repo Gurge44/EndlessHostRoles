@@ -226,3 +226,12 @@ jobs:
           MODNEWS_API_URL: ${{ secrets.MODNEWS_API_URL }}
           MODNEWS_API_TOKEN: ${{ secrets.MODNEWS_API_TOKEN }}
         run: python release_to_modnews.py
+      # -----------------------------
+      # Ping Release Channel
+      # -----------------------------
+      - name: Notify Discord
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"<@&1170671991343288391>\nEHR v${{ github.event.inputs.version }}\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ github.event.inputs.version }}\"}" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
