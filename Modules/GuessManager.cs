@@ -1361,7 +1361,7 @@ public static class GuessManager
                 int textIndex = 0;
 
                 int messages = 0;
-                int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
+                int packingLimit = 10;
                 
                 var skipped = false;
                 PlayerControl guesser = guesserId.GetPlayer();

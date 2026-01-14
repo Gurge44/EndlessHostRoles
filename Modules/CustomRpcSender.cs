@@ -274,7 +274,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
+        if (messages >= 10)
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);

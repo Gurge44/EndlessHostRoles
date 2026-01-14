@@ -181,7 +181,16 @@ public static class MainMenuManagerPatch
             buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
         }
 
-        __instance.PlayOnlineButton.OnClick.AddListener((UnityAction)(() => GameOptionsManager.Instance.Initialize()));
+        __instance.PlayOnlineButton.OnClick.AddListener((UnityAction)(() =>
+        {
+            GameOptionsManager.Instance.Initialize();
+            
+            if (GameOptionsManager.Instance.normalGameHostOptions.MapId is 3 or > 5)
+            {
+                GameOptionsManager.Instance.normalGameHostOptions.MapId = 0;
+                GameOptionsManager.Instance.SaveNormalHostOptions();
+            }
+        }));
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
