@@ -72,10 +72,10 @@ internal static class GameEndChecker
             Ended = true;
             LoadingEndScreen = true;
 
-            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
+            //Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
 
             NameNotifyManager.Reset();
-            NotifyRoles(ForceLoop: true);
+            //NotifyRoles(ForceLoop: true);
 
             CustomSabotage.Reset();
 
@@ -623,7 +623,7 @@ internal static class GameEndChecker
 
             foreach (PlayerState playerState in statesCoutingAsCrew)
             {
-                if (!Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool()) continue;
+                if (!Options.CrewAdvancedGameEndCheckingSettings.TryGetValue(playerState.MainRole, out var option) || !option.GetBool() || playerState.SubRoles.Exists(x => x == CustomRoles.Madmate || x.IsConverted())) continue;
                 playerState.Role.ManipulateGameEndCheckCrew(playerState, out bool keepGameGoing, out int countsAs);
                 crewKeepsGameGoing |= keepGameGoing;
                 crew += countsAs - 1;

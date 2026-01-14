@@ -114,6 +114,12 @@ public class CustomRpcSender
             // StartMessage processing
             if (currentState == State.InRootMessage)
                 EndMessage(startNew: true);
+            else if (messages > 0) // state is Ready
+            {
+                doneStreams.Add(stream);
+                stream = MessageWriter.Get(sendOption);
+                messages = 0;
+            }
 
             StartMessage(targetClientId);
         }
@@ -205,6 +211,7 @@ public class CustomRpcSender
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
+            messages = 0;
         }
 
         if (targetClientId < 0)
@@ -244,6 +251,7 @@ public class CustomRpcSender
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
+            messages = 0;
         }
 
         currentRpcTarget = -2;
@@ -276,8 +284,8 @@ public class CustomRpcSender
 
         if (messages >= 10)
         {
-            doneStreams.Add(stream);
-            stream = MessageWriter.Get(sendOption);
+            EndMessage(startNew: true);
+            StartMessage(currentRpcTarget);
         }
 
         messages++;
