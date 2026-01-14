@@ -234,4 +234,4 @@ jobs:
           curl -H "Content-Type: application/json" \
             -X POST \
             -d "{\"content\": \"<@&1170671991343288391>\nEHR v${{ github.event.inputs.version }}\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ github.event.inputs.version }}\"}" \
-            ${{ secrets.DISCORD_WEBHOOK_URL }}
+            ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
