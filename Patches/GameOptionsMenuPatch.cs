@@ -1182,8 +1182,17 @@ public static class GameSettingMenuPatch
         
         if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6)
             gms.RemoveAll(SubmergedCompatibility.IsNotSupported);
+
+        if (Main.LIMap)
+        {
+            gms.Remove(CustomGameMode.CaptureTheFlag);
+            gms.Remove(CustomGameMode.Quiz);
+            gms.Remove(CustomGameMode.TheMindGame);
+            gms.Remove(CustomGameMode.BedWars);
+            gms.Remove(CustomGameMode.Deathrace);
+        }
         
-        int totalCols = Mathf.Max(1, Mathf.CeilToInt(gms.Count / 7f));
+        int totalCols = 2;
 
         GMButtons = [];
 
