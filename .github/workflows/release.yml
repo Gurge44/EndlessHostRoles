@@ -120,11 +120,11 @@ jobs:
 
       - name: Download BepInEx 6 pre-release 735
         run: |
-          curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.735%2B5fef357.zip -o bepinex.zip
-          unzip bepinex.zip -d epic
+          curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.735%2B5fef357.zip -o bepinex-x64.zip
+          unzip bepinex-x64.zip -d epic
           chmod -R u+rwX,go+rX epic
-          curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.735%2B5fef357.zip -o bepinex.zip
-          unzip bepinex.zip -d steam
+          curl -L https://builds.bepinex.dev/projects/bepinex_be/735/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.735%2B5fef357.zip -o bepinex-x86.zip
+          unzip bepinex-x86.zip -d steam
           chmod -R u+rwX,go+rX steam
 
       - name: Copy EHR dll to plugins
