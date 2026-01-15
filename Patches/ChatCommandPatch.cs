@@ -125,6 +125,8 @@ internal static class ChatCommands
 
     public static bool HasMessageDuringEjectionScreen;
 
+    private static bool WaitingToSend;
+
     public static void LoadCommands()
     {
         Command.AllCommands = new Dictionary<string, Command>
@@ -465,6 +467,21 @@ internal static class ChatCommands
 
         if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Demon))
             Achievements.Type.WhatTheHell.Complete();
+
+        if (!canceled && AmongUsClient.Instance.AmHost && Utils.TempReviveHostRunning)
+        {
+            if (!WaitingToSend) Main.Instance.StartCoroutine(Wait());
+            return false;
+            
+            IEnumerator Wait()
+            {
+                WaitingToSend = true;
+                while (Utils.TempReviveHostRunning && AmongUsClient.Instance.AmHost) yield return null;
+                if (GameStates.IsEnded || GameStates.IsLobby) yield break;
+                if (HudManager.InstanceExists) HudManager.Instance.Chat.SendChat();
+                WaitingToSend = false;
+            }
+        }
 
         return !canceled;
     }

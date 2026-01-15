@@ -72,10 +72,10 @@ internal static class GameEndChecker
             Ended = true;
             LoadingEndScreen = true;
 
-            //Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
+            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
 
             NameNotifyManager.Reset();
-            //NotifyRoles(ForceLoop: true);
+            NotifyRoles(ForceLoop: true);
 
             CustomSabotage.Reset();
 
@@ -358,13 +358,6 @@ internal static class GameEndChecker
     {
         try { LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Ended); }
         catch (Exception e) { ThrowException(e); }
-
-        string msg = GetString("NotifyGameEnding");
-
-        Main.AllPlayerControls
-            .Where(x => x.GetClient() != null && !x.Data.Disconnected)
-            .Select(x => new Message("\n", x.PlayerId, msg))
-            .SendMultipleMessages();
 
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;

@@ -1796,6 +1796,9 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
+    public static bool TempReviveHostRunning;
+    private static Stopwatch TempReviveHostStopwatch;
+
     public static void SendMultipleMessages(this IEnumerable<Message> messages, SendOption sendOption = SendOption.Reliable)
     {
         var sender = CustomRpcSender.Create("Utils.SendMultipleMessages", sendOption);
@@ -1838,7 +1841,34 @@ public static class Utils
             text = text.Replace("color=", string.Empty);
             title = title.Replace("color=", string.Empty);
 
-            PlayerControl sender = !addtoHistory ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+            PlayerControl sender = !addtoHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+
+            if (sender.AmOwner && (!sender.IsAlive() || sender.Data.IsDead))
+            {
+                if (!TempReviveHostRunning)
+                    Main.Instance.StartCoroutine(TempReviveHost());
+                else
+                    TempReviveHostStopwatch?.Restart();
+                
+                IEnumerator TempReviveHost()
+                {
+                    TempReviveHostRunning = true;
+                    TempReviveHostStopwatch = Stopwatch.StartNew();
+
+                    sender.Data.IsDead = false;
+                    sender.Data.SendGameData();
+                    
+                    while (TempReviveHostStopwatch.ElapsedMilliseconds < 1000)
+                        yield return null;
+                    
+                    if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby) yield break;
+                    
+                    sender.Data.IsDead = true;
+                    sender.Data.SendGameData();
+                    
+                    TempReviveHostRunning = false;
+                }
+            }
 
             if (sendTo != byte.MaxValue && receiver.AmOwner)
             {
