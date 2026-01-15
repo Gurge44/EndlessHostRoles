@@ -1037,7 +1037,7 @@ public static class Utils
                 return true;
         }
 
-        if ((Main.VisibleTasksCount && !PlayerControl.LocalPlayer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId))) || (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool())) return true;
+        if ((Main.VisibleTasksCount && !PlayerControl.LocalPlayer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!IsRevivingRoleAlive() || !Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId))) || (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && !__instance.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())) return true;
 
         if (__instance.AmOwner) return true;
 
@@ -1797,19 +1797,19 @@ public static class Utils
     }
 
     public static bool TempReviveHostRunning;
-    private static Stopwatch TempReviveHostStopwatch;
+    private static Stopwatch TempReviveHostStopwatch = new();
 
     public static void SendMultipleMessages(this IEnumerable<Message> messages, SendOption sendOption = SendOption.Reliable)
     {
-        var sender = CustomRpcSender.Create("Utils.SendMultipleMessages", sendOption);
-        sender = messages.Aggregate(sender, (current, message) => SendMessage(message.Text, message.SendTo, message.Title, writer: current, multiple: true, sendOption: sendOption));
-        sender.SendMessage(dispose: sender.stream.Length <= 3);
+        messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, sendOption: sendOption));
     }
 
-    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addtoHistory = true)
+    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addToHistory = true, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
     {
         try
         {
+            Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1]} at line {callerLineNumber}", "SendMessage");
+            
             PlayerControl receiver = GetPlayerById(sendTo, false);
             if (sendTo != byte.MaxValue && receiver == null || title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
 
@@ -1841,19 +1841,43 @@ public static class Utils
             text = text.Replace("color=", string.Empty);
             title = title.Replace("color=", string.Empty);
 
-            PlayerControl sender = !addtoHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+            PlayerControl sender = !addToHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
-            if (sender.AmOwner && (!sender.IsAlive() || sender.Data.IsDead))
+            if (sender.AmOwner && sender.Data.IsDead)
             {
-                if (!TempReviveHostRunning)
-                    Main.Instance.StartCoroutine(TempReviveHost());
-                else
-                    TempReviveHostStopwatch?.Restart();
+                bool delayMessage = false;
                 
+                if (!TempReviveHostRunning)
+                {
+                    delayMessage = true;
+                    Main.Instance.StartCoroutine(TempReviveHost());
+                }
+                else
+                {
+                    if (TempReviveHostStopwatch.ElapsedMilliseconds < 200)
+                        delayMessage = true;
+                    
+                    TempReviveHostStopwatch.Restart();
+                }
+
+                if (delayMessage)
+                {
+                    Main.Instance.StartCoroutine(DelaySend());
+                    return writer;
+                    
+                    IEnumerator DelaySend()
+                    {
+                        yield return new WaitForSeconds(0.3f);
+                        SendMessage(text, sendTo, title, noSplit, writer, final, multiple, sendOption, addToHistory);
+                    }
+                }
+
                 IEnumerator TempReviveHost()
                 {
                     TempReviveHostRunning = true;
                     TempReviveHostStopwatch = Stopwatch.StartNew();
+                    
+                    Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
 
                     sender.Data.IsDead = false;
                     sender.Data.SendGameData();
@@ -1861,8 +1885,14 @@ public static class Utils
                     while (TempReviveHostStopwatch.ElapsedMilliseconds < 1000)
                         yield return null;
                     
-                    if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby) yield break;
+                    Logger.Msg("Re-killing host after message sent.", "TempReviveHost");
                     
+                    if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby)
+                    {
+                        TempReviveHostRunning = false;
+                        yield break;
+                    }
+
                     sender.Data.IsDead = true;
                     sender.Data.SendGameData();
                     
@@ -1888,7 +1918,7 @@ public static class Utils
                 }
                 catch { Logger.Info(" Message sent", "SendMessage"); }
 
-                if (addtoHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+                if (addToHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
                 return writer;
             }
 
@@ -1997,7 +2027,7 @@ public static class Utils
                         }
                         catch { Logger.Info(" Message sent", "SendMessage"); }
 
-                        if (addtoHistory) ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
+                        if (addToHistory) ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
                         return writer;
                     }
                 }
@@ -2105,7 +2135,7 @@ public static class Utils
         }
         catch (Exception e) { ThrowException(e); }
 
-        if (addtoHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+        if (addToHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         return writer;
 
         void RestartMessageIfTooLong()

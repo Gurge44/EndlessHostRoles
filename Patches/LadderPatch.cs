@@ -40,7 +40,7 @@ public class FallFromLadder
 
         if (TargetLadderData.TryGetValue(player.PlayerId, out Vector3 targetLadderData) && Vector2.Distance(targetLadderData, player.Pos()) < 0.5f)
         {
-            if (player.Data.IsDead) return;
+            if (player.Data.IsDead || !player.IsAlive()) return;
 
             // To insert LateTask, first enter the death judgment.
             player.Data.IsDead = true;

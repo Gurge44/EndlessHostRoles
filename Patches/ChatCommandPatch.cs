@@ -453,7 +453,7 @@ internal static class ChatCommands
                 if (!Main.AllPlayerNames.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out string name))
                     Utils.ApplySuffix(PlayerControl.LocalPlayer, out name);
 
-                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name, addtoHistory: false);
+                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name, addToHistory: false);
 
                 canceled = true;
                 __instance.freeChatField.textArea.Clear();

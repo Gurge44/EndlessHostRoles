@@ -100,7 +100,7 @@ public class Disperser : RoleBase
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
-            if (player.PlayerId == pc.PlayerId || pc.Data.IsDead || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting)
+            if (player.PlayerId == pc.PlayerId || pc.Data.IsDead || !pc.IsAlive() || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting)
             {
                 if (!pc.Is(CustomRoles.Disperser)) pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("ErrorTeleport"), pc.GetRealName())));
                 continue;
