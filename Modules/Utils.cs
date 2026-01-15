@@ -1809,6 +1809,9 @@ public static class Utils
         try
         {
             Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1]} at line {callerLineNumber}", "SendMessage");
+
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                text = text.RemoveHtmlTags();
             
             PlayerControl receiver = GetPlayerById(sendTo, false);
             if (sendTo != byte.MaxValue && receiver == null || title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
