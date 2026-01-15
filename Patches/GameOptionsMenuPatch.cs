@@ -1192,7 +1192,7 @@ public static class GameSettingMenuPatch
             gms.Remove(CustomGameMode.Deathrace);
         }
         
-        int totalCols = 2;
+        int totalCols = 3;
 
         GMButtons = [];
 
