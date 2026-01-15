@@ -477,6 +477,7 @@ internal static class ChatCommands
             {
                 WaitingToSend = true;
                 while (Utils.TempReviveHostRunning && AmongUsClient.Instance.AmHost) yield return null;
+                yield return new WaitForSeconds(0.5f);
                 if (GameStates.IsEnded || GameStates.IsLobby) yield break;
                 if (HudManager.InstanceExists) HudManager.Instance.Chat.SendChat();
                 WaitingToSend = false;
