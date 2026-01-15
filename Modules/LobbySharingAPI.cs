@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
 using UnityEngine;
@@ -54,7 +55,7 @@ public static class LobbySharingAPI
         };
 
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {hostName}");
+        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;
