@@ -1847,6 +1847,28 @@ public static class Utils
 
             PlayerControl sender = !addToHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
+            if (sendTo != byte.MaxValue && receiver.AmOwner)
+            {
+                if (HudManager.InstanceExists)
+                {
+                    string name = sender.Data.PlayerName;
+                    sender.SetName(title);
+                    HudManager.Instance.Chat.AddChat(sender, text);
+                    sender.SetName(name);
+                }
+
+                try
+                {
+                    string pureText = text.RemoveHtmlTags();
+                    string pureTitle = title.RemoveHtmlTags();
+                    Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {GetPlayerById(sendTo)?.GetRealName()} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
+                }
+                catch { Logger.Info(" Message sent", "SendMessage"); }
+
+                if (addToHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
+                return writer;
+            }
+
             if (sender.AmOwner && sender.Data.IsDead)
             {
                 bool delayMessage = false;
@@ -1905,28 +1927,6 @@ public static class Utils
                     
                     TempReviveHostRunning = false;
                 }
-            }
-
-            if (sendTo != byte.MaxValue && receiver.AmOwner)
-            {
-                if (HudManager.InstanceExists)
-                {
-                    string name = sender.Data.PlayerName;
-                    sender.SetName(title);
-                    HudManager.Instance.Chat.AddChat(sender, text);
-                    sender.SetName(name);
-                }
-
-                try
-                {
-                    string pureText = text.RemoveHtmlTags();
-                    string pureTitle = title.RemoveHtmlTags();
-                    Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {GetPlayerById(sendTo)?.GetRealName()} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
-                }
-                catch { Logger.Info(" Message sent", "SendMessage"); }
-
-                if (addToHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
-                return writer;
             }
 
             int targetClientId = sendTo == byte.MaxValue ? -1 : receiver.OwnerId;
@@ -3685,6 +3685,9 @@ public static class Utils
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }, 3f, "Repeat Lobby Despawn");
+        
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive())
+            PlayerControl.LocalPlayer.RpcMakeInvisible();
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)

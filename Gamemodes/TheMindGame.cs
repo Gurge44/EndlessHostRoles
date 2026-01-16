@@ -790,11 +790,14 @@ public static class TheMindGame
                             {
                                 WinningBriefcaseLastHolderId = id;
                                 WinningBriefcaseHolderId = pc.PlayerId;
-                                Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
-                                Utils.SendMessage(Translator.GetString("TMG.Message.LassoedWinningBriefcase"), id, "<#ffff00>⚠</color>");
+                                LateTask.New(() =>
+                                {
+                                    Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
+                                    Utils.SendMessage(Translator.GetString("TMG.Message.LassoedWinningBriefcase"), id, "<#ffff00>⚠</color>");
+                                }, 0.2f);
                             }
                             else
-                                Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>");
+                                LateTask.New(() => Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>"), 0.2f);
 
                             break;
                         }
