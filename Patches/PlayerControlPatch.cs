@@ -2301,7 +2301,44 @@ public static class PlayerControlDiePatch
     
     public static void Postfix(PlayerControl __instance)
     {
-        if (AmongUsClient.Instance.AmHost) PetsHelper.RpcRemovePet(__instance);
+        if (!AmongUsClient.Instance.AmHost) return;
+        
+        PetsHelper.RpcRemovePet(__instance);
+        
+        if (!Main.LIMap) return;
+        
+        LateTask.New(() =>
+        {
+            if (Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && !state.IsDead)
+            {
+                state.IsDead = true;
+                var sender = CustomRpcSender.Create($"LIDeathSync:{__instance.GetRealName()}", SendOption.Reliable);
+                var hasValue = sender.SyncGeneralOptions(__instance);
+                sender.SendMessage(dispose: !hasValue);
+            }
+        }, 0.2f);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Revive))]
+static class PlayerControlRevivePatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost || !Main.LIMap) return;
+
+        LateTask.New(() =>
+        {
+            if (Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.IsDead)
+            {
+                state.IsDead = false;
+                var sender = CustomRpcSender.Create($"LIReviveSync:{__instance.GetRealName()}", SendOption.Reliable);
+                var hasValue = sender.SyncGeneralOptions(__instance);
+                sender.SendMessage(dispose: !hasValue);
+                Vector2 pos = __instance.Pos();
+                __instance.TP(Main.AllAlivePlayerControls.Without(__instance).Select(x => x.Pos()).Concat(ShipStatus.Instance.AllVents.Select(x => new Vector2(x.transform.position.x, x.transform.position.y + 0.3636f))).MinBy(x => Vector2.Distance(pos, x)));
+            }
+        }, 0.2f);
     }
 }
 

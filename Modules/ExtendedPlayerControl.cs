@@ -674,9 +674,9 @@ internal static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs
-    public static void SyncGeneralOptions(this CustomRpcSender sender, PlayerControl player)
+    public static bool SyncGeneralOptions(this CustomRpcSender sender, PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !DoRPC) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !DoRPC) return false;
 
         sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions);
         sender.Write(player.PlayerId);
@@ -686,6 +686,8 @@ internal static class ExtendedPlayerControl
         sender.Write(Main.AllPlayerKillCooldown[player.PlayerId]);
         sender.Write(Main.AllPlayerSpeed[player.PlayerId]);
         sender.EndRpc();
+        
+        return true;
     }
 
     // Next 3: https://github.com/0xDrMoe/TownofHost-Enhanced/blob/12487ce1aa7e4f5087f2300be452b5af7c04d1ff/Modules/ExtendedPlayerControl.cs#L239
