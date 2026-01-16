@@ -1,8 +1,8 @@
 # Thank you so much for finding and using EHR!
 
-- Fixed flaws with kick-prevention logic
-- Fixed messages sometimes not appearing (HTML tag = entire message gone, ty innersloth)
-- Fixed non-ASCII characters in the host's name causing errors
+- Chat spam is now dumber but doesn't kick the host (on vanilla servers)
+- More LevelImpostor compatibility
+- Host is now invisible after death (on vanilla servers)
 
 (you better not complain about the frequency of updates)
 
