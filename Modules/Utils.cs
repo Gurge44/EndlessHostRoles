@@ -4328,7 +4328,7 @@ public static class Utils
 
         string ip = region.Servers.FirstOrDefault()?.Ip ?? string.Empty;
 
-        if (ip.Contains("aumods.us", StringComparison.Ordinal) || ip.Contains("duikbo.at", StringComparison.Ordinal))
+        if (ip.Contains("aumods.org", StringComparison.Ordinal) || ip.Contains("duikbo.at", StringComparison.Ordinal))
         {
             // Official Modded Server
             if (ip.Contains("au-eu"))
@@ -4342,7 +4342,7 @@ public static class Utils
         }
 
         if (name.Contains("Niko", StringComparison.OrdinalIgnoreCase))
-            name = name.Replace("233(", "-").TrimEnd(')');
+            name = name.Replace("233(", "-").Replace("233 (", "-").TrimEnd(')');
 
         return name;
     }
