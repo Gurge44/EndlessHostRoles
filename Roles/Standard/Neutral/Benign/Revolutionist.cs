@@ -193,7 +193,7 @@ internal class Revolutionist : RoleBase
             }
         }
 
-        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive() && player.IsAlive())
+        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
         {
             if (RevolutionistStart.TryGetValue(playerId, out var start))
             {
