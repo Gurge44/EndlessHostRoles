@@ -356,7 +356,7 @@ public static class KingOfTheZones
             yield return null;
         }
 
-        yield return new WaitForSeconds(showTutorial ? 8f : 2f);
+        yield return new WaitForSecondsRealtime(showTutorial ? 8f : 2f);
         NameNotifyManager.Reset();
         if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -382,14 +382,14 @@ public static class KingOfTheZones
             };
 
             aapc.NotifyPlayers($"<#ffffff>{gameEnd}</color>", 100f);
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSecondsRealtime(4f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
             string tags = string.Format(GetString("KOTZ.Notify.Tutorial.Tagging"), tagCooldown, respawnTime);
 
             aapc.NotifyPlayers($"<#ffffff>{tags}</color>", 100f);
-            yield return new WaitForSeconds(4f);
+            yield return new WaitForSecondsRealtime(4f);
             NameNotifyManager.Reset();
             if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -398,7 +398,7 @@ public static class KingOfTheZones
                 string zoneMovement = string.Format(GetString(AllZonesMoveAtOnce.GetBool() ? "KOTZ.Notify.Tutorial.ZonesMoving.AllAtOnce" : "KOTZ.Notify.Tutorial.ZonesMoving.Separately"), ZoneMoveTime.GetInt());
 
                 aapc.NotifyPlayers($"<#ffffff>{zoneMovement}</color>", 100f);
-                yield return new WaitForSeconds(4f);
+                yield return new WaitForSecondsRealtime(4f);
                 NameNotifyManager.Reset();
                 if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
 
@@ -409,7 +409,7 @@ public static class KingOfTheZones
                     string downTimeInfo = string.Format(GetString("KOTZ.Notify.Tutorial.ZonesMoving.Downtime"), downTime);
 
                     aapc.NotifyPlayers($"<#ffffff>{downTimeInfo}</color>", 100f);
-                    yield return new WaitForSeconds(4f);
+                    yield return new WaitForSecondsRealtime(4f);
                     NameNotifyManager.Reset();
                     if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
                 }
@@ -425,7 +425,7 @@ public static class KingOfTheZones
             {
                 LastShortInfo = info;
                 aapc.NotifyPlayers($"<#ffffff>{info}</color>", 100f);
-                yield return new WaitForSeconds(4f);
+                yield return new WaitForSecondsRealtime(4f);
                 NameNotifyManager.Reset();
                 if (!GameStates.InGame || !Main.IntroDestroyed) goto End;
             }
@@ -470,7 +470,7 @@ public static class KingOfTheZones
             {
                 NameNotifyManager.Reset();
                 aapc.NotifyPlayers($"<#ffffff>{string.Format(GetString("RR_ReadyQM"), i)}</color>", 100f);
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
             }
 
             NameNotifyManager.Reset();

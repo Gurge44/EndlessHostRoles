@@ -55,7 +55,7 @@ public static class AutoHaunt
                         HudManager.Instance.AbilityButton.DoClick();
                 }
 
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSecondsRealtime(5f);
             }
 
             if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance != null)

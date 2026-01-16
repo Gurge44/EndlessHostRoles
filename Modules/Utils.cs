@@ -1797,14 +1797,15 @@ public static class Utils
     }
 
     public static bool TempReviveHostRunning;
-    private static Stopwatch TempReviveHostStopwatch = new();
+    private static Stopwatch TempReviveHostRevertStopwatch = new();
+    private static Stopwatch TempReviveHostTimeSinceRevivalStopwatch = new();
 
     public static void SendMultipleMessages(this IEnumerable<Message> messages, SendOption sendOption = SendOption.Reliable)
     {
         messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, sendOption: sendOption));
     }
 
-    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addToHistory = true, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
+    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addToHistory = true, bool force = false, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
     {
         try
         {
@@ -1814,7 +1815,7 @@ public static class Utils
                 text = text.RemoveHtmlTags();
             
             PlayerControl receiver = GetPlayerById(sendTo, false);
-            if (sendTo != byte.MaxValue && receiver == null || title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
+            if (sendTo != byte.MaxValue && receiver == null || !force && title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
 
             if (!AmongUsClient.Instance.AmHost)
             {
@@ -1857,10 +1858,10 @@ public static class Utils
                 }
                 else
                 {
-                    if (TempReviveHostStopwatch.ElapsedMilliseconds < 200)
+                    if (TempReviveHostTimeSinceRevivalStopwatch.ElapsedMilliseconds < 250)
                         delayMessage = true;
                     
-                    TempReviveHostStopwatch.Restart();
+                    TempReviveHostRevertStopwatch.Restart();
                 }
 
                 if (delayMessage)
@@ -1870,7 +1871,7 @@ public static class Utils
                     
                     IEnumerator DelaySend()
                     {
-                        yield return new WaitForSeconds(0.3f);
+                        yield return new WaitForSecondsRealtime(0.3f);
                         SendMessage(text, sendTo, title, noSplit, writer, final, multiple, sendOption, addToHistory);
                     }
                 }
@@ -1878,17 +1879,20 @@ public static class Utils
                 IEnumerator TempReviveHost()
                 {
                     TempReviveHostRunning = true;
-                    TempReviveHostStopwatch = Stopwatch.StartNew();
+                    TempReviveHostRevertStopwatch = Stopwatch.StartNew();
+                    TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
                     
                     Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
 
                     sender.Data.IsDead = false;
                     sender.Data.SendGameData();
                     
-                    while (TempReviveHostStopwatch.ElapsedMilliseconds < 1000)
+                    while (TempReviveHostRevertStopwatch.ElapsedMilliseconds < 1000)
                         yield return null;
                     
                     Logger.Msg("Re-killing host after message sent.", "TempReviveHost");
+                    
+                    TempReviveHostTimeSinceRevivalStopwatch.Reset();
                     
                     if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby)
                     {

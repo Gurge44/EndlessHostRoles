@@ -408,7 +408,7 @@ internal static class GameEndChecker
         self.FinishRpcImmediately(winnerWriter);
 
         // Delay to ensure that resuscitation is delivered after the ghost roll setting
-        yield return new WaitForSeconds(EndGameDelay);
+        yield return new WaitForSecondsRealtime(EndGameDelay);
 
         if (playersToRevive.Count > 0)
         {
@@ -424,7 +424,7 @@ internal static class GameEndChecker
             }
 
             // Delay to ensure that the end of the game is delivered at the end of the game
-            yield return new WaitForSeconds(EndGameDelay);
+            yield return new WaitForSecondsRealtime(EndGameDelay);
         }
 
         // Start End Game

@@ -210,7 +210,7 @@ internal static class OnGameJoinedPatch
 
                 IEnumerator CoRoutine()
                 {
-                    yield return new WaitForSeconds(10f);
+                    yield return new WaitForSecondsRealtime(10f);
 
                     try { Utils.SendMessage(HudManagerPatch.BuildAutoGMRotationStatusText(true), title: GetString("AutoGMRotationStatusText")); }
                     catch (Exception e) { Utils.ThrowException(e); }

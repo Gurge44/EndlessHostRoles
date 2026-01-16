@@ -22,7 +22,7 @@ internal static class LateTask
 
         IEnumerator CoLateTask()
         {
-            yield return new WaitForSeconds(time);
+            yield return new WaitForSecondsRealtime(time);
 
             try
             {

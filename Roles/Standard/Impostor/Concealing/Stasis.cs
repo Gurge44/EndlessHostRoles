@@ -140,7 +140,7 @@ public class Stasis : RoleBase
                 try { imps.NotifyPlayers($"<#00ffa5>{Translator.GetString("Stasis.TimeFrozenNotify")}</color> <#888888>-</color> <#ffffff>{time - i}</color>", overrideAll: true); }
                 catch (Exception e) { Utils.ThrowException(e); }
                 
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
             }
 
             UsingAbility = false;

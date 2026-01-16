@@ -496,7 +496,7 @@ internal static class ExtendedPlayerControl
                 IEnumerator DelayBasisChange()
                 {
                     while (AntiBlackout.SkipTasks || ExileController.Instance) yield return null;
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSecondsRealtime(1f);
                     Logger.Msg($"Now that the anti-blackout processing or ejection screen showing is complete, the role basis of {player.GetNameWithRole()} will be changed", "RpcChangeRoleBasis");
                     player.RpcChangeRoleBasis(newCustomRole, loggerRoleMap);
                 }
@@ -1154,7 +1154,7 @@ internal static class ExtendedPlayerControl
                     yield break;
                 }
 
-                yield return new WaitForSeconds(pc.IsAlive() ? 1f : 3f);
+                yield return new WaitForSecondsRealtime(pc.IsAlive() ? 1f : 3f);
 
                 if (!GameStates.InGame || GameStates.IsEnded)
                 {

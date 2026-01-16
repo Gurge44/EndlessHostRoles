@@ -1321,7 +1321,7 @@ internal static class MeetingHudOnDestroyPatch
             while (!ExileController.Instance && !GameStates.IsEnded) yield return null;
             if (GameStates.IsEnded) yield break;
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
             if (!ExileController.Instance || GameStates.IsEnded) yield break;
             
             if (CheckForEndVotingPatch.EjectionText.EndsWith("<size=0>") && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && CheckForEndVotingPatch.TempExiledPlayer != null)

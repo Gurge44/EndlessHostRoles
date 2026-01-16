@@ -38,7 +38,7 @@ public static class DevManager
         if (request.result != UnityWebRequest.Result.Success)
         {
             Logger.Error($"Error fetching tags: {request.error}", "DevManager.FetchTags");
-            yield return new WaitForSeconds(300f);
+            yield return new WaitForSecondsRealtime(300f);
             yield return FetchTags();
         }
         else

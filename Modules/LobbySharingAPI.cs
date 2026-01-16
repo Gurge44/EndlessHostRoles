@@ -42,7 +42,7 @@ public static class LobbySharingAPI
     private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode, string hostHashedPuid)
     {
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\",\"hostHashedPuid\":\"{hostHashedPuid}\"}}";
@@ -109,7 +109,7 @@ public static class LobbySharingAPI
         if (string.IsNullOrWhiteSpace(Token)) yield break;
 
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";

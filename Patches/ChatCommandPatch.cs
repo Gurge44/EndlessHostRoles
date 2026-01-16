@@ -477,7 +477,7 @@ internal static class ChatCommands
             {
                 WaitingToSend = true;
                 while (Utils.TempReviveHostRunning && AmongUsClient.Instance.AmHost) yield return null;
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSecondsRealtime(0.5f);
                 if (GameStates.IsEnded || GameStates.IsLobby) yield break;
                 WaitingToSend = false;
                 if (HudManager.InstanceExists) HudManager.Instance.Chat.SendChat();
@@ -1465,7 +1465,7 @@ internal static class ChatCommands
 
                 messages.SendMultipleMessages(index == 0 ? SendOption.Reliable : SendOption.None);
 
-                yield return new WaitForSeconds(20f);
+                yield return new WaitForSecondsRealtime(20f);
                 if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
         }
@@ -1709,7 +1709,7 @@ internal static class ChatCommands
             while (!GameStates.IsMeeting && GameStates.InGame) yield return null;
             if (!GameStates.InGame) yield break;
 
-            if (!meeting) yield return new WaitForSeconds(7f);
+            if (!meeting) yield return new WaitForSecondsRealtime(7f);
 
             PlayerControl killer = player.GetRealKiller();
             if (killer == null && id != 3) yield break;
@@ -3724,7 +3724,7 @@ internal static class ChatUpdatePatch
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)
     {
-        PlayerControl player = GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return false;
 
         bool wasCleared = false;

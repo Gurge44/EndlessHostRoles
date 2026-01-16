@@ -119,18 +119,18 @@ public class Spiritcaller : RoleBase
             var writer = CustomRpcSender.Create("SpiritCallerSendMessage", SendOption.Reliable);
             writer.StartMessage(target.OwnerId);
 
-            writer.StartRpc(target.NetId, RpcCalls.SetName)
-                .Write(target.Data.NetId)
+            writer.StartRpc(PlayerControl.LocalPlayer.NetId, RpcCalls.SetName)
+                .Write(PlayerControl.LocalPlayer.Data.NetId)
                 .Write(GetString("SpiritcallerNoticeTitle"))
                 .EndRpc();
 
-            writer.StartRpc(target.NetId, RpcCalls.SendChat)
+            writer.StartRpc(PlayerControl.LocalPlayer.NetId, RpcCalls.SendChat)
                 .Write(GetString("SpiritcallerNoticeMessage"))
                 .EndRpc();
 
-            writer.StartRpc(target.NetId, RpcCalls.SetName)
-                .Write(target.Data.NetId)
-                .Write(target.Data.PlayerName)
+            writer.StartRpc(PlayerControl.LocalPlayer.NetId, RpcCalls.SetName)
+                .Write(PlayerControl.LocalPlayer.Data.NetId)
+                .Write(PlayerControl.LocalPlayer.Data.PlayerName)
                 .EndRpc();
 
             writer.EndMessage();
