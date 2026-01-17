@@ -31,7 +31,7 @@ internal static class LateTask
                 if (name is not "" and not "No Name Task" && log)
                     Logger.Info($"\"{name}\" is finished", "LateTask");
             }
-            catch (Exception ex) { Logger.Error($"{ex.GetType()}: {ex.Message}\n  in \"{name}\"\n  (created at {path.Split('\\')[^1]}, by member {member}, at line {line})\n  {ex.StackTrace}".Replace("\r\n", "\n"), "LateTask.Error", false, multiLine: true); }
+            catch (Exception ex) { Logger.Error($"{ex.GetType()}: {ex.Message}\n  in \"{name}\"\n  (created at {path.Split('\\')[^1].Split('/')[^1]}, by member {member}, at line {line})\n  {ex.StackTrace}".Replace("\r\n", "\n"), "LateTask.Error", false, multiLine: true); }
         }
     }
 }

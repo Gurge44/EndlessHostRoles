@@ -718,7 +718,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             StringBuilder sb = new();
-            sb.Append($" {ex.GetType().Name}: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName.Split('\\')[^1]}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
+            sb.Append($" {ex.GetType().Name}: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName.Split('\\')[^1].Split('/')[^1]}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
 
             var skip = true;
 
@@ -1805,11 +1805,11 @@ public static class Utils
         messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, sendOption: sendOption));
     }
 
-    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addToHistory = true, bool force = false, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
+    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addToHistory = true, bool force = false, bool noNumberSplit = false, bool numberSplitFinal = false, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
     {
         try
         {
-            Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1]} at line {callerLineNumber}", "SendMessage");
+            Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1].Split('/')[^1]} at line {callerLineNumber}", "SendMessage");
 
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                 text = text.RemoveHtmlTags();
@@ -1926,6 +1926,17 @@ public static class Utils
                     sender.Data.SendGameData();
                     
                     TempReviveHostRunning = false;
+                }
+            }
+            
+            if (!noSplit && !noNumberSplit)
+            {
+                var parts = SplitByNumberLimit();
+
+                if (parts.Count > 1)
+                {
+                    writer = parts.Take(parts.Count - 1).Aggregate(writer, (current, part) => SendMessage(part, sendTo, title, writer: current, final: false, multiple: true, sendOption: sendOption, addToHistory: addToHistory, noNumberSplit: true));
+                    return SendMessage(parts[^1], sendTo, title, false, writer, final, multiple, sendOption, addToHistory, noNumberSplit: true, numberSplitFinal: true);
                 }
             }
 
@@ -2127,7 +2138,7 @@ public static class Utils
                 sender.SetName(name);
             }
 
-            if ((noSplit && final) || !noSplit)
+            if ((noSplit && final) || (!noSplit && (!noNumberSplit || numberSplitFinal)))
             {
                 writer.AutoStartRpc(sender.NetId, RpcCalls.SetName, targetClientId)
                     .Write(sender.Data.NetId)
@@ -2152,6 +2163,47 @@ public static class Utils
                 writer.SendMessage();
                 writer = CustomRpcSender.Create("Utils.SendMessage", sendOption);
             }
+        }
+        
+        List<string> SplitByNumberLimit()
+        {
+            List<string> result = [];
+            StringBuilder sb = new();
+
+            int digitCount = 0;
+
+            foreach (char c in text)
+            {
+                if (char.IsDigit(c))
+                {
+                    digitCount++;
+
+                    if (digitCount > 5)
+                    {
+                        int lastNewline = sb.ToString().LastIndexOf('\n');
+
+                        if (lastNewline >= 0)
+                        {
+                            result.Add(sb.ToString(0, lastNewline + 1));
+                            sb.Remove(0, lastNewline + 1);
+                        }
+                        else
+                        {
+                            result.Add(sb.ToString());
+                            sb.Clear();
+                        }
+
+                        digitCount = 1;
+                    }
+                }
+
+                sb.Append(c);
+            }
+
+            if (sb.Length > 0)
+                result.Add(sb.ToString());
+
+            return result;
         }
     }
 
