@@ -1929,7 +1929,7 @@ public static class Utils
                 }
             }
             
-            if (!noSplit && !noNumberSplit)
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !noSplit && !noNumberSplit)
             {
                 var parts = SplitByNumberLimit();
 
