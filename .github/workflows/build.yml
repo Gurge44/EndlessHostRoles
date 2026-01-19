@@ -7,7 +7,7 @@ on:
 
 jobs:
   # ---------------------------------------------------------
-  # 1) Build EHR on Linux (same as release.yml)
+  # 1) Build EHR
   # ---------------------------------------------------------
   build-ehr:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------
-  # 2) Build Control Panel on Windows (same as release.yml)
+  # 2) Build Control Panel
   # ---------------------------------------------------------
   build-control-panel:
     runs-on: windows-latest
