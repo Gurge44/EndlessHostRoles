@@ -28,6 +28,7 @@ jobs:
         with:
           name: ehr
           path: build/EHR.dll
+          retention-days: 1
 
   # ---------------------------------------------------------
   # 2) Build Control Panel on Windows (same as release.yml)
@@ -72,3 +73,4 @@ jobs:
         with:
           name: control-panel
           path: build/EHR_Control-Panel_BETA.exe
+          retention-days: 1
