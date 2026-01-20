@@ -50,7 +50,6 @@ public enum CustomRPC
     SyncAbilityCD,
     SyncGeneralOptions,
     SyncRoleData,
-    RequestSendMessage,
     NotificationPopper,
     RequestCommandProcessing,
 
@@ -72,10 +71,10 @@ public enum CustomRPC
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
+    SyncSoulHunter,
 
     BAU = 150,
 
-    SyncSoulHunter,
     SyncMycologist,
     SyncBubble,
     AddTornado,
@@ -88,10 +87,10 @@ public enum CustomRPC
     SyncMafiosoData,
     SyncMafiosoPistolCD,
     SyncDamoclesTimer,
+    SyncChronomancer,
 
     Sicko = 164,
 
-    SyncChronomancer,
     PenguinSync,
     SyncInfection,
     SetAlchemistPotion,
@@ -135,6 +134,7 @@ public enum CustomRPC
     SyncVengefulRomanticTarget,
     SetRevealedPlayer,
     SetCurrentRevealTarget,
+    RpcPassBomb,
     SetDoomsayerProgress = 209,
 
     /*
@@ -147,7 +147,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    RpcPassBomb,
     SetAlchemistTimer,
     SyncPostman,
     SyncChangeling,
@@ -255,7 +254,7 @@ internal static class RPCHandlerPatch
     {
         if (id == 115) return true;
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick or CustomRPC.RetributionistClick or CustomRPC.StarspawnClick or CustomRPC.VentriloquistClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick or CustomRPC.RetributionistClick or CustomRPC.StarspawnClick or CustomRPC.VentriloquistClick;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -629,17 +628,6 @@ internal static class RPCHandlerPatch
                     float speed = reader.ReadSingle();
                     Main.AllPlayerKillCooldown[id] = kcd;
                     Main.AllPlayerSpeed[id] = speed;
-                    break;
-                }
-                case CustomRPC.RequestSendMessage:
-                {
-                    if (!AmongUsClient.Instance.AmHost) break;
-
-                    string text = reader.ReadString();
-                    byte sendTo = reader.ReadByte();
-                    string title = reader.ReadString();
-                    bool noSplit = reader.ReadBoolean();
-                    Utils.SendMessage(text, sendTo, title, noSplit);
                     break;
                 }
                 case CustomRPC.NotificationPopper:

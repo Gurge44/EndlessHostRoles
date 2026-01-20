@@ -1820,14 +1820,7 @@ public static class Utils
             if (!AmongUsClient.Instance.AmHost)
             {
                 if (sendTo == PlayerControl.LocalPlayer.PlayerId && !multiple)
-                {
-                    MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage, SendOption.Reliable, AmongUsClient.Instance.HostId);
-                    w.Write(text);
-                    w.Write(sendTo);
-                    w.Write(title);
-                    w.Write(noSplit);
-                    AmongUsClient.Instance.FinishRpcImmediately(w);
-                }
+                    SendLocally(PlayerControl.LocalPlayer);
 
                 return writer;
             }
@@ -1849,21 +1842,7 @@ public static class Utils
 
             if (sendTo != byte.MaxValue && receiver.AmOwner)
             {
-                if (HudManager.InstanceExists)
-                {
-                    string name = sender.Data.PlayerName;
-                    sender.SetName(title);
-                    HudManager.Instance.Chat.AddChat(sender, text);
-                    sender.SetName(name);
-                }
-
-                try
-                {
-                    string pureText = text.RemoveHtmlTags();
-                    string pureTitle = title.RemoveHtmlTags();
-                    Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {GetPlayerById(sendTo)?.GetRealName()} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
-                }
-                catch { Logger.Info(" Message sent", "SendMessage"); }
+                SendLocally(sender);
 
                 if (addToHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
                 return writer;
@@ -2174,36 +2153,56 @@ public static class Utils
 
             foreach (char c in text)
             {
-                if (char.IsDigit(c))
+                if (char.IsDigit(c) && digitCount == 5)
                 {
-                    digitCount++;
+                    int lastNewline = sb.ToString().LastIndexOf('\n');
 
-                    if (digitCount > 5)
+                    if (lastNewline >= 0)
                     {
-                        int lastNewline = sb.ToString().LastIndexOf('\n');
-
-                        if (lastNewline >= 0)
-                        {
-                            result.Add(sb.ToString(0, lastNewline + 1));
-                            sb.Remove(0, lastNewline + 1);
-                        }
-                        else
-                        {
-                            result.Add(sb.ToString());
-                            sb.Clear();
-                        }
-
-                        digitCount = 1;
+                        result.Add(sb.ToString(0, lastNewline + 1));
+                        sb.Remove(0, lastNewline + 1);
                     }
+                    else
+                    {
+                        result.Add(sb.ToString());
+                        sb.Clear();
+                    }
+
+                    digitCount = 0;
+                    foreach (char r in sb.ToString())
+                        if (char.IsDigit(r))
+                            digitCount++;
                 }
 
                 sb.Append(c);
+
+                if (char.IsDigit(c))
+                    digitCount++;
             }
 
             if (sb.Length > 0)
                 result.Add(sb.ToString());
 
             return result;
+        }
+
+        void SendLocally(PlayerControl sender)
+        {
+            if (HudManager.InstanceExists)
+            {
+                string name = sender.Data.PlayerName;
+                sender.SetName(title);
+                HudManager.Instance.Chat.AddChat(sender, text);
+                sender.SetName(name);
+            }
+
+            try
+            {
+                string pureText = text.RemoveHtmlTags();
+                string pureTitle = title.RemoveHtmlTags();
+                Logger.Info($" Message: {pureText[..(pureText.Length <= 300 ? pureText.Length : 300)]} - To: {PlayerControl.LocalPlayer.GetRealName()} - Title: {pureTitle[..(pureTitle.Length <= 300 ? pureTitle.Length : 300)]}", "SendMessage");
+            }
+            catch { Logger.Info(" Message sent", "SendMessage"); }
         }
     }
 
