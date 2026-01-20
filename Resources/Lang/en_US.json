@@ -3024,6 +3024,7 @@
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>Drafting</color> <#00a5ff>⬅</color>",
   "DraftChosen": "You have chosen the <b>{0}</b> role for the next game.\\n<size=70%>You can still change your choice by typing /draft [index] again.</size>",
   "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "DraftAffectedByRoleSpawnChances": "Take Role Spawn Chances Into Account When Picking Draft Choices",
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
   "DeathCommand": "<#ffffff>You were killed by </color>{0}<#ffffff>\\nTheir role is </color>{1}",
   "DeathCommandFail": "<#ff0000>The game could not determine your real killer.</color>\\nYour death reason is <#00ffa5>{0}</color>.",
