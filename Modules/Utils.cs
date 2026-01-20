@@ -3498,8 +3498,8 @@ public static class Utils
         {
             CustomRoles.Farmer => 2,
             CustomRoles.Thanos => 5,
-            CustomRoles.PortalMaker => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
+            CustomRoles.PortalMaker => PortalMaker.AbilityCooldown.GetInt(),
             CustomRoles.Telecommunication => Telecommunication.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
             CustomRoles.Gardener => Gardener.AbilityCooldown.GetInt(),
