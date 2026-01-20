@@ -567,6 +567,12 @@ internal static class ChatCommands
     
     private static void ConfirmAuthCommand(PlayerControl player, string commandKey, string text, string[] args)
     {
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            RequestCommandProcessingFromHost(text, commandKey);
+            return;
+        }
+
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("ConfirmAuth.ErrorNotVanilla"));
