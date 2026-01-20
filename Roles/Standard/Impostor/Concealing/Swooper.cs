@@ -184,7 +184,7 @@ public class Swooper : RoleBase
             {
                 long cooldown = lastTime + (long)Cooldown - now;
 
-                if ((int)cooldown != CD && !(UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
+                if ((int)cooldown != CD && !(UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
                     player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, true);
 
                 CD = (int)cooldown;
@@ -212,7 +212,7 @@ public class Swooper : RoleBase
                 case < 0:
                     lastTime = now;
 
-                    if (UsedRole == CustomRoles.Chameleon)
+                    if (UsedRole == CustomRoles.Chameleon && !UsePets.GetBool())
                     {
                         int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
                         Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
