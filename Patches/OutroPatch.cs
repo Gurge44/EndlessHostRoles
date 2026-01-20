@@ -641,7 +641,7 @@ internal static class SetEverythingUpPatch
 
                 static IEnumerator SlideAndFadeIn(RectTransform rect, TextMeshPro text, float delay)
                 {
-                    yield return new WaitForSeconds(delay);
+                    yield return new WaitForSecondsRealtime(delay);
 
                     Vector2 start = rect.anchoredPosition;
                     Vector2 end = start + new Vector2(5f, 0); // target pos

@@ -108,7 +108,7 @@ public class Car : RoleBase
             if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + (addVector * 2), Constants.ShipOnlyMask, false)) break;
 
             target.TP(newPos, log: false);
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSecondsRealtime(0.05f);
         }
 
         Main.AllPlayerSpeed[target.PlayerId] = oldSpeed;

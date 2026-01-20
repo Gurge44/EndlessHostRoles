@@ -260,7 +260,7 @@ public static class Achievements
             IEnumerator FetchAchievementsFromApiAsync()
             {
                 while (PlayerControl.LocalPlayer == null) yield return null;
-                yield return new WaitForSeconds(3f);
+                yield return new WaitForSecondsRealtime(3f);
 
                 string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
                 var url = $"{ApiLoadEndpoint}?userId={userId}";

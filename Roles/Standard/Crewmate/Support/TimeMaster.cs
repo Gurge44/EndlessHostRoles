@@ -152,7 +152,7 @@ internal class TimeMaster : RoleBase
                 player.MarkDirtySettings();
             }
 
-            yield return new WaitForSeconds(0.55f);
+            yield return new WaitForSecondsRealtime(0.55f);
 
             for (long i = now - 1; i >= now - length; i--)
             {
@@ -166,7 +166,7 @@ internal class TimeMaster : RoleBase
                     player.TP(pos);
                 }
 
-                yield return new WaitForSeconds(delay);
+                yield return new WaitForSecondsRealtime(delay);
             }
 
             if (TimeMasterCanRevive.GetBool())

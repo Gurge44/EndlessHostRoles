@@ -1174,7 +1174,7 @@ internal static class StartGameHostPatch
         RpcSetRoleReplacer.EndReplace();
 
 
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSecondsRealtime(1.2f);
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {

@@ -44,7 +44,7 @@ internal static class CheckForEndVotingPatch
                 // Dictators who are not dead have already voted.
 
                 // Take the initiative to rebel
-                if (pva.DidVote && pc.PlayerId == pva.VotedFor && pva.VotedFor < 253 && !pc.Data.IsDead)
+                if (pva.DidVote && pc.PlayerId == pva.VotedFor && pva.VotedFor < 253 && pc.IsAlive())
                 {
                     if (Options.MadmateSpawnMode.GetInt() == 2 && Main.MadmateNum < CustomRoles.Madmate.GetCount() && pc.CanBeMadmate())
                     {
@@ -121,7 +121,7 @@ internal static class CheckForEndVotingPatch
 
                 if (Options.VoteMode.GetBool())
                 {
-                    if (ps.VotedFor == 253 && !voter.Data.IsDead &&
+                    if (ps.VotedFor == 253 && voter.IsAlive() &&
                         !(Options.WhenSkipVoteIgnoreFirstMeeting.GetBool() && MeetingStates.FirstMeeting) &&
                         !(Options.WhenSkipVoteIgnoreNoDeadBody.GetBool() && !MeetingStates.IsExistDeadBody) &&
                         !(Options.WhenSkipVoteIgnoreEmergency.GetBool() && MeetingStates.IsEmergencyMeeting)
@@ -140,7 +140,7 @@ internal static class CheckForEndVotingPatch
                         }
                     }
 
-                    if (ps.VotedFor == 254 && !voter.Data.IsDead)
+                    if (ps.VotedFor == 254 && voter.IsAlive())
                     {
                         switch (Options.GetWhenNonVote())
                         {
@@ -160,7 +160,7 @@ internal static class CheckForEndVotingPatch
                     }
                 }
                 
-                if (ps.VotedFor == 254 && !voter.Data.IsDead && voter.Is(CustomRoles.Compelled))
+                if (ps.VotedFor == 254 && voter.IsAlive() && voter.Is(CustomRoles.Compelled))
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.FortuneTeller) && FortuneTeller.HideVote.GetBool()) continue;
@@ -886,9 +886,9 @@ internal static class MeetingHudStartPatch
 
             roleTextMeeting.enabled =
                 target.AmOwner ||
-                (Main.VisibleTasksCount && seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
-                (seer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
-                (target.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && target.Data.IsDead) ||
+                (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool()) ||
+                (seer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool()) ||
+                (target.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && !target.IsAlive()) ||
                 (Main.LoversPlayers.TrueForAll(x => x.PlayerId == target.PlayerId || x.PlayerId == seer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                 (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) ||
                 (target.Is(CustomRoleTypes.Impostor) && seer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId)) ||
@@ -914,7 +914,7 @@ internal static class MeetingHudStartPatch
                 Main.GodMode.Value;
 
 
-            if (!seer.Data.IsDead && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
+            if (seer.IsAlive() && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
             {
                 roleTextMeeting.text = Investigator.RandomRole[seer.PlayerId];
                 roleTextMeeting.text += Investigator.GetTaskState();
@@ -984,7 +984,7 @@ internal static class MeetingHudStartPatch
             {
                 TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
                 if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
-            }, 2f, log: false);
+            }, 6f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
 
@@ -1086,7 +1086,7 @@ internal static class MeetingHudStartPatch
                 case CustomRoles.Revolutionist when seer.IsDrawPlayer(target):
                     sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist), "●"));
                     break;
-                case CustomRoles.Psychic when Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead:
+                case CustomRoles.Psychic when Psychic.IsRedForPsy(target, seer) && seer.IsAlive():
                     pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
                     break;
                 case CustomRoles.Demon:
@@ -1101,7 +1101,7 @@ internal static class MeetingHudStartPatch
             if (Silencer.ForSilencer.Contains(target.PlayerId))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
 
-            if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId) || seer.Data.IsDead))
+            if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId) || !seer.IsAlive()))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
 
             sb.Append(Executioner.TargetMark(seer, target));
@@ -1122,7 +1122,7 @@ internal static class MeetingHudStartPatch
             if (seer.Is(CustomRoles.Medic) && (Medic.InProtect(target.PlayerId) || Medic.TempMarkProtectedList.Contains(target.PlayerId)) && Medic.WhoCanSeeProtect.GetInt() is 0 or 1)
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
-            if (seer.Data.IsDead && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
+            if (!seer.IsAlive() && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
             sb.Append(Follower.TargetMark(seer, target));
@@ -1206,7 +1206,7 @@ internal static class MeetingHudUpdatePatch
                 {
                     PlayerControl player = Utils.GetPlayerById(x.TargetPlayerId);
 
-                    if (player != null && !player.Data.IsDead)
+                    if (player != null && player.IsAlive())
                     {
                         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Execution;
                         player.RpcExileV2();
@@ -1321,7 +1321,7 @@ internal static class MeetingHudOnDestroyPatch
             while (!ExileController.Instance && !GameStates.IsEnded) yield return null;
             if (GameStates.IsEnded) yield break;
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
             if (!ExileController.Instance || GameStates.IsEnded) yield break;
             
             if (CheckForEndVotingPatch.EjectionText.EndsWith("<size=0>") && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame && CheckForEndVotingPatch.TempExiledPlayer != null)
@@ -1379,6 +1379,12 @@ internal static class MeetingHudCastVotePatch
         {
             //Logger.Warn("Target PlayerControl is null ⇒ Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
             skip = true;
+        }
+
+        if (!pcSrc.IsAlive())
+        {
+            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pvaSrc, pcSrc));
+            return false;
         }
 
         var voteCanceled = false;

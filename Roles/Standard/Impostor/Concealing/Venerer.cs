@@ -149,7 +149,7 @@ public class Venerer : RoleBase
                         });
                         frozenPlayers = nearbyPlayers;
                         
-                        yield return new WaitForSeconds(1f);
+                        yield return new WaitForSecondsRealtime(1f);
                         timer--;
                     }
                     

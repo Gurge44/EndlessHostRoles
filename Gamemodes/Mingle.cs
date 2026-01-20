@@ -241,7 +241,7 @@ public static class Mingle
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
         if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
+        yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
         List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
@@ -252,7 +252,7 @@ public static class Mingle
         if (showTutorial)
         {
             players.NotifyPlayers("<#ffffff>" + Translator.GetString("Mingle.Tutorial"), 100f);
-            yield return new WaitForSeconds(12f);
+            yield return new WaitForSecondsRealtime(12f);
             NameNotifyManager.Reset();
         }
 
@@ -260,7 +260,7 @@ public static class Mingle
         {
             NameNotifyManager.Reset();
             players.NotifyPlayers(string.Format(Translator.GetString("RR_ReadyQM"), i));
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
         }
         
         NameNotifyManager.Reset();

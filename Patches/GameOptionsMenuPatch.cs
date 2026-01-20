@@ -788,7 +788,7 @@ public static class StringOptionPatch
                     IEnumerator CoRoutine()
                     {
                         while (HelpShowEndTS > Utils.TimeStamp)
-                            yield return new WaitForSeconds(1f);
+                            yield return new WaitForSecondsRealtime(1f);
 
                         GameObject gameObject = GameObject.Find("PlayerOptionsMenu(Clone)");
 
@@ -1192,7 +1192,7 @@ public static class GameSettingMenuPatch
             gms.Remove(CustomGameMode.Deathrace);
         }
         
-        int totalCols = 2;
+        int totalCols = 3;
 
         GMButtons = [];
 

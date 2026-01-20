@@ -210,7 +210,7 @@ public static class RoomRush
 
         Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
-        yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
+        yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
@@ -288,7 +288,7 @@ public static class RoomRush
             }
 
             aapc.NotifyPlayers(sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim(), 100f);
-            yield return new WaitForSeconds(readingTime);
+            yield return new WaitForSecondsRealtime(readingTime);
             if (!GameStates.InGame) yield break;
         }
 
@@ -296,7 +296,7 @@ public static class RoomRush
         {
             NameNotifyManager.Reset();
             aapc.NotifyPlayers(string.Format(Translator.GetString("RR_ReadyQM"), i));
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
         }
 
         if (ventLimit > 0)

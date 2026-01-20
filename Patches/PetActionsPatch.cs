@@ -224,7 +224,7 @@ internal static class ExternalRpcPetPatch
         {
             HudManagerPatch.CooldownTimerFlashColor = yellow ? Color.red : Color.yellow;
             yellow = !yellow;
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSecondsRealtime(0.2f);
         }
 
         HudManagerPatch.CooldownTimerFlashColor = null;

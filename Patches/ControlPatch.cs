@@ -175,7 +175,7 @@ internal static class ControllerManagerUpdatePatch
 
                     IEnumerator Reset()
                     {
-                        yield return new WaitForSeconds(0.1f);
+                        yield return new WaitForSecondsRealtime(0.1f);
 
                         string format = GetString("ResettingOptions");
                         HudManager hudManager = HudManager.Instance;

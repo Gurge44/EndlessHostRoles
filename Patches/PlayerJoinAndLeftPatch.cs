@@ -60,7 +60,7 @@ internal static class OnGameJoinedPatch
                     Prompt.Show(string.Format(GetString("Promt.DeleteOldLogs"), result.Files, result.Folders), () =>
                     {
                         result = CleanOldItems(false);
-                        HudManager.Instance.ShowPopUp(string.Format(GetString("LogDeletionResults"), result.Files, result.Folders));
+                        LateTask.New(() => HudManager.Instance.ShowPopUp(string.Format(GetString("LogDeletionResults"), result.Files, result.Folders)), 0.01f);
                     }, () => { });
                 }
 
@@ -210,7 +210,7 @@ internal static class OnGameJoinedPatch
 
                 IEnumerator CoRoutine()
                 {
-                    yield return new WaitForSeconds(10f);
+                    yield return new WaitForSecondsRealtime(10f);
 
                     try { Utils.SendMessage(HudManagerPatch.BuildAutoGMRotationStatusText(true), title: GetString("AutoGMRotationStatusText")); }
                     catch (Exception e) { Utils.ThrowException(e); }

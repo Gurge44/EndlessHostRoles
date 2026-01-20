@@ -389,7 +389,7 @@ public static class TheMindGame
                 pc.Notify(string.Format(Translator.GetString(sameAsSomeoneElse ? "TMG.Notify.SamePick" : "TMG.Notify.Pick"), pick, sameAsSomeoneElse ? otherId.ColoredPlayerName() : string.Empty));
             }
 
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             if (Stop) yield break;
             NameNotifyManager.Reset();
 
@@ -533,7 +533,7 @@ public static class TheMindGame
                 pc.Notify(string.Format(Translator.GetString(sameAsSomeoneElse ? "TMG.Notify.SamePick" : "TMG.Notify.Pick"), pick, sameAsSomeoneElse ? otherPc.PlayerId.ColoredPlayerName() : string.Empty));
             }
 
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             if (Stop) yield break;
             NameNotifyManager.Reset();
 
@@ -559,7 +559,7 @@ public static class TheMindGame
         while (true)
         {
             PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
-            yield return new WaitForSeconds(8f);
+            yield return new WaitForSecondsRealtime(8f);
             if (!GameStates.InGame || GameStates.IsLobby || GameStates.IsEnded) yield break;
 
             WinningBriefcaseHolderId = Main.AllAlivePlayerControls.RandomElement().PlayerId;
@@ -569,27 +569,27 @@ public static class TheMindGame
 
             while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
                 if (!GameStates.InGame || GameStates.IsLobby || GameStates.IsEnded) yield break;
             }
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
 
             while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
                 if (!GameStates.InGame || GameStates.IsLobby || GameStates.IsEnded) yield break;
             }
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
 
             while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
                 if (!GameStates.InGame || GameStates.IsLobby || GameStates.IsEnded) yield break;
             }
 
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
 
             aapc = Main.AllAlivePlayerControls;
 
@@ -627,7 +627,7 @@ public static class TheMindGame
         NameNotifyManager.Reset();
         Main.AllAlivePlayerControls.NotifyPlayers(join, 100f);
         ProceedingInCountdownEndTS = Utils.TimeStamp + 5;
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSecondsRealtime(5f);
         if (Stop) yield break;
 
         Dictionary<byte, int> round4Points = ranking.ToDictionary(x => x, x => (ranking.Count - ranking.IndexOf(x)) * 10);
@@ -675,7 +675,7 @@ public static class TheMindGame
         string str = Translator.GetString(key);
         Main.AllAlivePlayerControls.NotifyPlayers(args.Length == 0 ? str : string.Format(str, args), 100f);
         ProceedingInCountdownEndTS = Utils.TimeStamp + time;
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSecondsRealtime(time);
         NameNotifyManager.Reset();
     }
 
@@ -692,7 +692,7 @@ public static class TheMindGame
                     pc.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions[groupRoom]);
             }
 
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSecondsRealtime(2f);
         }
     }
 
@@ -790,11 +790,14 @@ public static class TheMindGame
                             {
                                 WinningBriefcaseLastHolderId = id;
                                 WinningBriefcaseHolderId = pc.PlayerId;
-                                Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
-                                Utils.SendMessage(Translator.GetString("TMG.Message.LassoedWinningBriefcase"), id, "<#ffff00>⚠</color>");
+                                LateTask.New(() =>
+                                {
+                                    Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
+                                    Utils.SendMessage(Translator.GetString("TMG.Message.LassoedWinningBriefcase"), id, "<#ffff00>⚠</color>");
+                                }, 0.2f);
                             }
                             else
-                                Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>");
+                                LateTask.New(() => Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>"), 0.2f);
 
                             break;
                         }

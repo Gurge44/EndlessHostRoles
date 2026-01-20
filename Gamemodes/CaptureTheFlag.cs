@@ -297,7 +297,7 @@ public static class CaptureTheFlag
 
     public static IEnumerator OnGameStart()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSecondsRealtime(0.2f);
         
         Main.AllPlayerKillCooldown.SetAllValues(TagCooldown.GetFloat());
 
@@ -330,7 +330,7 @@ public static class CaptureTheFlag
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
 
         // Create flags
         (Vector2 Position, string RoomName) blueFlagBase = BlueFlagBase;
@@ -367,7 +367,7 @@ public static class CaptureTheFlag
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSecondsRealtime(0.2f);
         
         try
         {
@@ -412,7 +412,7 @@ public static class CaptureTheFlag
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSecondsRealtime(0.2f);
 
         ValidTag = true;
         GameStartTS = Utils.TimeStamp;

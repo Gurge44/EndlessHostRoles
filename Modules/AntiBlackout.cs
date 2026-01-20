@@ -25,7 +25,7 @@ public static class AntiBlackout
 
         PlayerControl[] players = Main.AllAlivePlayerControls;
         if (CheckForEndVotingPatch.TempExiledPlayer != null) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
-        PlayerControl dummyImp = players.OrderByDescending(x => x.GetRoleMap().RoleType != RoleTypes.Detective).ThenByDescending(x => x.IsModdedClient()).MinBy(x => x.PlayerId);
+        PlayerControl dummyImp = players.OrderByDescending(x => x.GetCustomRole() is not (CustomRoles.DetectiveEHR or CustomRoles.Detective) && !x.Is(CustomRoles.Examiner)).ThenByDescending(x => x.IsModdedClient()).MinBy(x => x.PlayerId);
 
         if (players.Length == 2)
         {
@@ -49,9 +49,9 @@ public static class AntiBlackout
         }
 
         dummyImp.RpcSetRoleGlobal(RoleTypes.Impostor);
-        players.Without(dummyImp).Where(x => x.GetRoleMap().RoleType != RoleTypes.Detective).Do(x => x.RpcSetRoleGlobal(RoleTypes.Crewmate));
+        players.Without(dummyImp).Where(x => x.GetCustomRole() is not (CustomRoles.DetectiveEHR or CustomRoles.Detective) && !x.Is(CustomRoles.Examiner)).Do(x => x.RpcSetRoleGlobal(RoleTypes.Crewmate));
         
-        Main.AllPlayerControls.DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead, x => x.RpcSetRoleGlobal(GhostRolesManager.AssignedGhostRoles.TryGetValue(x.PlayerId, out var ghostRole) ? ghostRole.Instance.RoleTypes : RoleTypes.CrewmateGhost));
+        Main.AllPlayerControls.DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead && (!x.AmOwner || !Utils.TempReviveHostRunning), x => x.RpcSetRoleGlobal(GhostRolesManager.AssignedGhostRoles.TryGetValue(x.PlayerId, out var ghostRole) ? ghostRole.Instance.RoleTypes : RoleTypes.CrewmateGhost));
     }
 
     // After the ejection screen, we revert the role types to their actual values.
@@ -69,6 +69,8 @@ public static class AntiBlackout
         {
             try
             {
+                if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
+                
                 NetworkedPlayerInfo data = pc.Data;
 
                 if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
@@ -87,7 +89,7 @@ public static class AntiBlackout
             {
                 PlayerControl seer = seerId.GetPlayer();
                 PlayerControl target = targetId.GetPlayer();
-                if (seer == null || target == null) continue;
+                if (seer == null || target == null || (seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning)) continue;
 
                 if (target.IsAlive()) target.RpcSetRoleDesync(roleType, seer.OwnerId);
                 else target.RpcSetRoleDesync(GhostRolesManager.AssignedGhostRoles.TryGetValue(targetId, out var ghostRole) ? ghostRole.Instance.RoleTypes : seerId == targetId && !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(targetId, out var state) && state.Role.CanUseSabotage(target) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
@@ -123,6 +125,8 @@ public static class AntiBlackout
                     }
                     else
                     {
+                        if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
+                        
                         // Ensure that the players who are considered dead by the mod are actually dead in the game.
                         pc.Exiled();
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, 4, SendOption.Reliable);

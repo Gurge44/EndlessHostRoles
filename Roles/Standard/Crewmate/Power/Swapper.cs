@@ -31,11 +31,15 @@ public class Swapper : RoleBase
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Swapper);
 
-        SwapMax = new IntegerOptionItem(Id + 3, "SwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper])
+        SwapMax = new IntegerOptionItem(Id + 3, "SwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper])
             .SetValueFormat(OptionFormat.Times);
 
-        CanSwapSelf = new BooleanOptionItem(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper]);
-        CanStartMeeting = new BooleanOptionItem(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper]);
+        CanSwapSelf = new BooleanOptionItem(Id + 2, "CanSwapSelfVotes", false, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper]);
+        
+        CanStartMeeting = new BooleanOptionItem(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper]);
 
         SwapperAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper])
@@ -45,7 +49,8 @@ public class Swapper : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper])
             .SetValueFormat(OptionFormat.Times);
 
-        HideMsg = new BooleanOptionItem(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper]);
+        HideMsg = new BooleanOptionItem(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapper]);
     }
 
     public override void Init()
@@ -248,8 +253,11 @@ public class Swapper : RoleBase
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
-        else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
+        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+        {
+            if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
+            else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
+        }
         
         SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
     }

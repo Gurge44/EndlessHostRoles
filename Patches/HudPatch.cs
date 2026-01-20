@@ -716,7 +716,7 @@ internal static class HudManagerStartPatch
         while (!HudManager.Instance)
             yield return null;
 
-        yield return new WaitForSeconds(0.01f);
+        yield return new WaitForSecondsRealtime(0.01f);
         ResizeUI(Main.UIScaleFactor.Value);
     }
 

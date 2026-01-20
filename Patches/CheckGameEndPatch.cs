@@ -72,10 +72,10 @@ internal static class GameEndChecker
             Ended = true;
             LoadingEndScreen = true;
 
-            //Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
+            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, true, true, true));
 
             NameNotifyManager.Reset();
-            //NotifyRoles(ForceLoop: true);
+            NotifyRoles(ForceLoop: true);
 
             CustomSabotage.Reset();
 
@@ -359,13 +359,6 @@ internal static class GameEndChecker
         try { LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Ended); }
         catch (Exception e) { ThrowException(e); }
 
-        string msg = GetString("NotifyGameEnding");
-
-        Main.AllPlayerControls
-            .Where(x => x.GetClient() != null && !x.Data.Disconnected)
-            .Select(x => new Message("\n", x.PlayerId, msg))
-            .SendMultipleMessages();
-
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         var self = AmongUsClient.Instance;
         self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
@@ -415,7 +408,7 @@ internal static class GameEndChecker
         self.FinishRpcImmediately(winnerWriter);
 
         // Delay to ensure that resuscitation is delivered after the ghost roll setting
-        yield return new WaitForSeconds(EndGameDelay);
+        yield return new WaitForSecondsRealtime(EndGameDelay);
 
         if (playersToRevive.Count > 0)
         {
@@ -431,7 +424,7 @@ internal static class GameEndChecker
             }
 
             // Delay to ensure that the end of the game is delivered at the end of the game
-            yield return new WaitForSeconds(EndGameDelay);
+            yield return new WaitForSecondsRealtime(EndGameDelay);
         }
 
         // Start End Game

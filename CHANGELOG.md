@@ -1,5 +1,7 @@
 # Thank you so much for finding and using EHR!
 
-- Another attempt at fixing the host getting kicked on vanilla regions
+- Fixed numbers appearing as * in messages on vanilla servers
+
+(you better not complain about the frequency of updates)
 
 ---

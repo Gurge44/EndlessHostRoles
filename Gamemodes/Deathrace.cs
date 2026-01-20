@@ -198,7 +198,7 @@ public static class Deathrace
 
     public static System.Collections.IEnumerator GameStart()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSecondsRealtime(2f);
 
         Track = Tracks[Main.CurrentMap].ToList();
         Logger.Info($"Track: {string.Join(" » ", Track)}", "Deathrace");
@@ -225,20 +225,20 @@ public static class Deathrace
             if (showTutorial)
             {
                 players.NotifyPlayers("<#ffffff>" + Translator.GetString("Deathrace.Tutorial.Basics"), 100f);
-                yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 10f : 5f);
+                yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 10f : 5f);
                 NameNotifyManager.Reset();
             }
 
             var track = Track.ToList();
             if (!Clockwise) track.Reverse();
             players.NotifyPlayers("<#ffffff>" + string.Format(Translator.GetString("Deathrace.Tutorial.Track"), string.Join(" » ", track.ConvertAll(x => Translator.GetString(x.ToString())))), 100f);
-            yield return new WaitForSeconds(Track.Count);
+            yield return new WaitForSecondsRealtime(Track.Count);
             NameNotifyManager.Reset();
 
             if (showTutorial && SpawnPowerUps)
             {
                 players.NotifyPlayers("<#ffffff>" + Translator.GetString("Deathrace.Tutorial.PowerUps"), 100f);
-                yield return new WaitForSeconds(4f);
+                yield return new WaitForSecondsRealtime(4f);
                 NameNotifyManager.Reset();
             }
             
@@ -247,7 +247,7 @@ public static class Deathrace
         }
         else if (Main.CurrentMap == MapNames.Airship)
         {
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             players.MassTP(new RandomSpawn.AirshipSpawnMap().Positions[Clockwise ? Track[^1] : Track[0]]);
         }
 
@@ -255,7 +255,7 @@ public static class Deathrace
         {
             NameNotifyManager.Reset();
             players.NotifyPlayers("<#ffffff>" + string.Format(Translator.GetString("RR_ReadyQM"), i));
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
         }
         
         NameNotifyManager.Reset();

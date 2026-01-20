@@ -270,7 +270,7 @@ public static class Quiz
 
     public static IEnumerator OnGameStart()
     {
-        if (Chat) yield return new WaitForSeconds(1f);
+        if (Chat) yield return new WaitForSecondsRealtime(1f);
 
         NoSuffix = true;
         PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -278,14 +278,14 @@ public static class Quiz
 
         var usedRooms = string.Join('\n', UsedRooms[Main.CurrentMap].Select(x => $"{x.Key}: {GetString(x.Value.ToString())}"));
         aapc.NotifyPlayers(string.Format(GetString("Quiz.Tutorial.Basics"), usedRooms), 11f);
-        yield return new WaitForSeconds(showTutorial ? 9f : 5f);
+        yield return new WaitForSecondsRealtime(showTutorial ? 9f : 5f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
         NameNotifyManager.Reset();
 
         if (showTutorial)
         {
             aapc.NotifyPlayers(GetString("Quiz.Tutorial.TestRound"));
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             NameNotifyManager.Reset();
 
@@ -296,27 +296,27 @@ public static class Quiz
 
             while (QuestionTimeLimitEndTS != 0)
             {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             }
 
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             NoSuffix = true;
 
             aapc.NotifyPlayers(GetString("Quiz.Tutorial.OnWrongAnswer"), 10f);
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             NameNotifyManager.Reset();
 
             aapc.NotifyPlayers(GetString("Quiz.Tutorial.OnCorrectAnswer"));
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSecondsRealtime(2f);
         }
         else
         {
             NoSuffix = true;
             var settings = Settings[CurrentDifficulty];
             Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextStage"), (int)CurrentDifficulty, settings.Rounds.GetInt(), settings.QuestionsAsked.GetInt(), settings.CorrectRequirement.GetInt(), settings.QuestionsAsked.GetInt(), settings.TimeLimit.GetInt()), 8f);
-            yield return new WaitForSeconds(6f);
+            yield return new WaitForSecondsRealtime(6f);
         }
 
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
@@ -334,7 +334,7 @@ public static class Quiz
             NoSuffix = true;
             var settings = Settings[CurrentDifficulty];
             Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextStage"), (int)CurrentDifficulty, settings.Rounds.GetInt(), settings.QuestionsAsked.GetInt(), settings.CorrectRequirement.GetInt(), settings.QuestionsAsked.GetInt(), settings.TimeLimit.GetInt()), 8f);
-            yield return new WaitForSeconds(6f);
+            yield return new WaitForSecondsRealtime(6f);
             if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             NameNotifyManager.Reset();
         }
@@ -345,7 +345,7 @@ public static class Quiz
 
             NoSuffix = true;
             Main.AllAlivePlayerControls.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextRound"), Round + 1));
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSecondsRealtime(3f);
             if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
             NameNotifyManager.Reset();
         }
@@ -459,7 +459,7 @@ public static class Quiz
         if (everyoneWasWrong) QuestionsAsked--;
         Utils.NotifyRoles();
 
-        yield return new WaitForSeconds(everyoneWasWrong ? aapc.Length <= 3 ? 4f : 6f : 3f);
+        yield return new WaitForSecondsRealtime(everyoneWasWrong ? aapc.Length <= 3 ? 4f : 6f : 3f);
         if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
         var settings = Settings[CurrentDifficulty];
@@ -470,7 +470,7 @@ public static class Quiz
             yield break;
         }
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSecondsRealtime(2f);
 
         var correctRequirement = settings.CorrectRequirement.GetInt();
         List<byte> dyingPlayers = NumCorrectAnswers.Where(x => x.Value[CurrentDifficulty][Round] < correctRequirement).Select(x => x.Key).Where(x => Main.PlayerStates.TryGetValue(x, out var s) && !s.IsDead).ToList();
@@ -496,19 +496,19 @@ public static class Quiz
                 goto case 0;
             default:
                 if (aapc.Length is 3 or 2) aapc.Do(x => x.RpcMakeVisible());
-                yield return new WaitForSeconds(2f);
+                yield return new WaitForSecondsRealtime(2f);
                 AllowKills = true;
                 FFAEndTS = Utils.TimeStamp + FFAEventLength.GetInt();
                 var spectators = aapc.ExceptBy(dyingPlayers, x => x.PlayerId).ToArray();
                 spectators.Do(x => x.ExileTemporarily());
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSecondsRealtime(0.2f);
                 var stillLiving = dyingPlayers.ToValidPlayers().FindAll(x => x.IsAlive());
                 stillLiving.ForEach(x => x.RpcChangeRoleBasis(CustomRoles.SerialKiller));
                 Utils.SendRPC(CustomRPC.QuizSync, AllowKills);
 
                 while (Utils.TimeStamp < FFAEndTS)
                 {
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSecondsRealtime(1f);
                     if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
                     Utils.NotifyRoles(SendOption: SendOption.None);
                     stillLiving.RemoveAll(x => x == null || !x.IsAlive());
@@ -535,17 +535,17 @@ public static class Quiz
                         break;
                 }
 
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
 
                 if (Chat)
                 {
                     Utils.SetChatVisibleForAll();
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSecondsRealtime(1f);
                 }
 
                 spectators.Do(x => x.TP(location));
 
-                yield return new WaitForSeconds(2f);
+                yield return new WaitForSecondsRealtime(2f);
                 if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
 
                 FFAEndTS = 0;

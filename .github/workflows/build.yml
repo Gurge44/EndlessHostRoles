@@ -3,31 +3,74 @@ name: Build
 on:
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build:
-    if: github.head_ref != 'translation'
+  # ---------------------------------------------------------
+  # 1) Build EHR
+  # ---------------------------------------------------------
+  build-ehr:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
 
-    - name: Cache NuGet packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+      - name: Build EHR
+        run: dotnet build EHR.csproj -c Release -o build/
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Upload EHR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ehr
+          path: build/EHR.dll
+          retention-days: 1
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+  # ---------------------------------------------------------
+  # 2) Build Control Panel
+  # ---------------------------------------------------------
+  build-control-panel:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 
+        uses: actions/setup-dotnet@v4
+        with: 
+          dotnet-version: 6.0.x 
+      
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore .NET packages
+        run: dotnet restore -p:SelfContained=true CTA/CustomTeamAssigner/CustomTeamAssigner.csproj
+
+      - name: Build Control Panel (MSBuild)
+        run: |
+          msbuild CTA/CustomTeamAssigner/CustomTeamAssigner.csproj `
+            /p:Configuration=Release `
+            /p:Platform="x64" `
+            /p:PublishSingleFile=true `
+            /p:SelfContained=true `
+            /p:RuntimeIdentifier=win-x64 `
+            /p:IncludeAllContentForSelfExtract=true `
+            /p:DebugType=None `
+            /p:PublishDir=build\ `
+            /t:publish
+
+      - name: Rename exe file
+        run: |
+          mkdir build/
+          mv CTA/CustomTeamAssigner/build/CustomTeamAssigner.exe build/EHR_Control-Panel_BETA.exe
+
+      - name: Upload Control Panel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-panel
+          path: build/EHR_Control-Panel_BETA.exe
+          retention-days: 1
