@@ -289,6 +289,7 @@ public enum CustomRoles
 
     // Neutrals
 
+    Accumulator,
     Agitator,
     Amnesiac,
     Amogus,

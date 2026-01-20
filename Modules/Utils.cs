@@ -960,6 +960,7 @@ public static class Utils
             case CustomRoles.Cherokious:
             case CustomRoles.Crewpostor:
             case CustomRoles.Hypocrite:
+            case CustomRoles.Accumulator:
                 if (forRecompute && !p.IsDead) hasTasks = false;
                 if (p.IsDead) hasTasks = false;
                 break;

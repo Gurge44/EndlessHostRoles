@@ -377,6 +377,7 @@ internal static class CustomRolesHelper
             CustomRoles.Clerk => CustomRoles.Crewmate,
             CustomRoles.CovenMember => CustomRoles.Crewmate,
             CustomRoles.Augur => Augur.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Accumulator => Accumulator.CanVentBeforeKilling.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
             CustomRoles.ImpostorEHR => CustomRoles.Impostor,
@@ -654,6 +655,7 @@ internal static class CustomRolesHelper
             CustomRoles.Parasite or
             CustomRoles.Berserker or
             CustomRoles.SerialKiller or
+            CustomRoles.Accumulator or
             CustomRoles.Spider or
             CustomRoles.SoulCollector or
             CustomRoles.Sharpshooter or
@@ -1964,6 +1966,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    Accumulator,
     Spider,
     SoulCollector,
     Berserker,
