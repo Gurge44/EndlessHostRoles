@@ -814,6 +814,7 @@
   "HaterInfoLong": "(Neutrals):\\nAs the Hater, you can kill as often as you want with no cooldown and have impostor vision. You can only kill Lovers, recruited players, and recruiting roles, or you will die. Winning is possible if you kill at least one player during the game.",
   "DemonInfoLong": "(Neutrals):\\nDemon has a unique health-based killing system, and killing takes effect when one's health is exhausted. If a Demon's health is consumed but they are not killed, the murderer will see a shield animation as a reminder.",
   "StalkerInfoLong": "(Neutrals):\\nWhen the Stalker performs a kill, they will trigger the electricty sabotage. Depending on the host's settings, the Stalker may win alone if they're alive when the Crewmate or Impostor team wins.",
+  "WorkaholicInfoLong": "(Neutrals):\\nWorkaholics win by completing more tasks, maybe even after their death.",
   "CollectorInfoLong": "(Neutrals):\\nCollectors can gather all the votes cast by a target in a meeting. When they collect the specified number of votes, they win, even over exiled players.",
   "PoisonerInfoLong": "(Neutrals):\\nAs the Poisoner, your kills are delayed. Kill everyone to win.",
   "SidekickInfoLong": "(Neutrals):\\nHelp your Jackal kill. If they die, you will become the new Jackal. Upon transforming, convert a player with your Kill button. You (and all other Jackals and Sidekicks) win once you achieve majority and no other evil teams exist.",
