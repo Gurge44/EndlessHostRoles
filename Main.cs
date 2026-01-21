@@ -279,7 +279,7 @@ public class Main : BasePlugin
 
     public static MapNames CurrentMap => (MapNames)NormalOptions.MapId;
 
-    public static bool LIMap => NormalOptions?.MapId == 7;
+    public static bool LIMap => NormalOptions is { MapId: 7 };
 
     public override void Load()
     {

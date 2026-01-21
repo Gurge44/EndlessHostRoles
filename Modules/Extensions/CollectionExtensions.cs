@@ -237,7 +237,7 @@ public static class CollectionExtensions
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
     /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
     [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
-    public static bool FindFirst<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
+    public static bool FindFirst<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Func<T, bool> predicate, out T element)
     {
         if (collection is List<T> list)
         {

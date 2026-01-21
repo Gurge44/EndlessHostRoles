@@ -3000,7 +3000,17 @@ public static class Utils
                             if (Options.CurrentGameMode != CustomGameMode.Standard) goto BeforeEnd;
 
                             if (guesserIsForMeeting || forMeeting || (seerRole == CustomRoles.Nemesis && !seer.IsAlive() && Options.NemesisCanKillNum.GetInt() >= 1))
-                                targetPlayerName = $"{ColorString(GetRoleColor(seerRole), target.PlayerId.ToString())} {targetPlayerName}";
+                            {
+                                byte id = target.PlayerId;
+
+                                if (Doppelganger.SwappedIDs.FindFirst(x => x.Item1 == id || x.Item2 == id, out var pair))
+                                {
+                                    if (pair.Item1 == id) id = pair.Item2;
+                                    else if (pair.Item2 == id) id = pair.Item1;
+                                }
+                                
+                                targetPlayerName = $"{ColorString(GetRoleColor(seerRole), id.ToString())} {targetPlayerName}";
+                            }
 
                             switch (seerRole)
                             {

@@ -167,6 +167,7 @@ public enum CustomRPC
     SyncCamouflage,
     SetChatVisible,
     Exclusionary,
+    Deadlined,
 
     // Game Modes
     RoomRushDataSync,
