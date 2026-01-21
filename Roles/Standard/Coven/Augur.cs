@@ -16,6 +16,8 @@ public class Augur : CovenBase
 
     public override bool IsEnable => On;
 
+    public bool CanGuess;
+
     public override void SetupCustomOption()
     {
         StartSetup(650070)
@@ -34,6 +36,7 @@ public class Augur : CovenBase
     public override void Add(byte playerId)
     {
         On = true;
+        CanGuess = true;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -43,5 +46,15 @@ public class Augur : CovenBase
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
         }
+    }
+
+    public override void OnReportDeadBody()
+    {
+        CanGuess = true;
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        CanGuess = true;
     }
 }
