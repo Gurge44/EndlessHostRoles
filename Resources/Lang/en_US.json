@@ -1199,6 +1199,7 @@
   "CommsCamouflageLimitMaxTimesPerGame": "Maximum Times of Camouflaging Per Game",
   "CommsCamouflageLimitMaxTimesPerRound": "Maximum Times of Camouflaging Per Round",
   "CommsCamouflageSetSameSpeed": "All Players Have the Same Speed During Camouflage",
+  "CommsCamouflagePreventRound1": "Don't Camouflage Round 1",
   "DisableReportWhenCC": "Disable body reporting while camouflaged",
   "EnableDebugMode": "Enable Debug Mode",
   "ChangeNameToRoleInfo": "Show Role Info to Unmodded Clients Round 1",

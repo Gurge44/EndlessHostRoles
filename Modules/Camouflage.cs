@@ -84,6 +84,8 @@ public static class Camouflage
     {
         if (Camouflager.On && Camouflager.IsActive) return true;
 
+        if (MeetingStates.FirstMeeting && Options.CommsCamouflagePreventRound1.GetBool()) return false;
+
         switch (Main.CurrentMap)
         {
             case MapNames.Fungle when Options.CommsCamouflageDisableOnFungle.GetBool():

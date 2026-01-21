@@ -614,6 +614,7 @@ public static class Options
     public static OptionItem CommsCamouflageLimitMaxTimesPerGame;
     public static OptionItem CommsCamouflageLimitMaxTimesPerRound;
     public static OptionItem CommsCamouflageSetSameSpeed;
+    public static OptionItem CommsCamouflagePreventRound1;
     public static OptionItem DisableReportWhenCC;
     public static OptionItem SabotageTimeControl;
     public static OptionItem SkeldReactorTimeLimit;
@@ -2115,6 +2116,10 @@ public static class Options
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
         
         CommsCamouflageSetSameSpeed = new BooleanOptionItem(22211, "CommsCamouflageSetSameSpeed", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+        
+        CommsCamouflagePreventRound1 = new BooleanOptionItem(22212, "CommsCamouflagePreventRound1", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(243, 96, 96, byte.MaxValue));
 
