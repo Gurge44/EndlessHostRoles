@@ -485,7 +485,7 @@ Click this badge to view our translation project:
 ### :star: [PL](https://github.com/Lotus-AU/LotusContinued) :
 
 >
-> - Ideas for some roles
+> - Ideas for some roles (Alchemist, Chameleon, Escapist, Necromancer, Deathknight, Romantic and its variants, Vengeance)
 > - Reference: Customize Main Menu
 > - Reference: Auto Play Again
 > - Reference: Some TabIcons
