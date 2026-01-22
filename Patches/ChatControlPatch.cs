@@ -203,7 +203,7 @@ public static class ChatManager
         }
 
         if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.NaturalDisasters or CustomGameMode.Mingle or CustomGameMode.HideAndSeek && GameStates.InGame && !message.StartsWith('/'))
-            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(Translator.GetString("FFAChatMessageNotify"), Main.GameModeColors.GetValueOrDefault(Options.CurrentGameMode, new(1,1,1)), player.PlayerId.ColoredPlayerName(), message));
+            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(Utils.ColorString(Main.GameModeColors.GetValueOrDefault(Options.CurrentGameMode, new(1,1,1)), Translator.GetString("FFAChatMessageNotify")), player.PlayerId.ColoredPlayerName(), message));
     }
 
     public static void AddChatHistory(PlayerControl player, string message)

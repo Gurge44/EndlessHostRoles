@@ -84,6 +84,7 @@ public static class Camouflage
     {
         if (Camouflager.On && Camouflager.IsActive) return true;
 
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (MeetingStates.FirstMeeting && Options.CommsCamouflagePreventRound1.GetBool()) return false;
 
         switch (Main.CurrentMap)

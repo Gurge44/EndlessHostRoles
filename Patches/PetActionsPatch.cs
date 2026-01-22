@@ -99,7 +99,7 @@ internal static class ExternalRpcPetPatch
         LateTask.New(() => OnPetUse(pc), 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
     }
 
-    public static void OnPetUse(PlayerControl pc)
+    private static void OnPetUse(PlayerControl pc)
     {
         if (pc == null ||
             pc.inVent ||
@@ -191,7 +191,7 @@ internal static class ExternalRpcPetPatch
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
         Vector2 pos = pc.Pos();
-        List<(PlayerControl pc, float distance)> players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
+        List<(PlayerControl pc, float distance)> players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 3.5f).OrderBy(x => x.distance).ToList();
         PlayerControl target = players.Count > 0 ? players[0].pc : null;
 
         if (target != null && target.Is(CustomRoles.Detour))

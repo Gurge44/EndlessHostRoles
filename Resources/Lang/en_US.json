@@ -4976,7 +4976,7 @@
   "FFA_ShieldIsOneTimeUse": "Shields break after 1 kill attempt",
   "FFA_ShieldBroken": "<color=#ffff00>Someone tried to kill you, your shield is now broken!</color>",
   "FFA_ChatDuringGame": "Chat During Game",
-  "FFAChatMessageNotify": "<#ffffff><#00ffff>[Chat]</color> {0}: {1}",
+  "FFAChatMessageNotify": "[Chat] {0}: <#ffffff>{1}",
   "Killer": "FREE FOR ALL",
   "KillerInfo": "KILL EVERYONE TO WIN",
   "KillerInfoLong": "KILL EVERYONE TO WIN",
