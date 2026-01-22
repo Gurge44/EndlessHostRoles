@@ -282,7 +282,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (messages >= 10)
+        if (messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
         {
             EndMessage(startNew: true);
             StartMessage(currentRpcTarget);

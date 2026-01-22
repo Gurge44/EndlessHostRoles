@@ -3326,7 +3326,7 @@ public static class Utils
     public static void SendGameData()
     {
         int messages = 0;
-        int packingLimit = 10;
+        int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
         
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         writer.StartMessage(5);
@@ -3360,7 +3360,7 @@ public static class Utils
     public static void SendGameDataTo(int targetClientId)
     {
         int messages = 0;
-        int packingLimit = 10;
+        int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
 
         MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
         writer.StartMessage(6);
