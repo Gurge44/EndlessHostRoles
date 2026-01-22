@@ -96,6 +96,14 @@ public class Accumulator : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
+    public override void AfterMeetingTasks()
+    {
+        if (!Killing) return;
+        PlayerControl pc = AccumulatorId.GetPlayer();
+        if (pc == null || !pc.IsAlive()) return;
+        pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId, setRoleMap: true);
+    }
+
     public void ReceiveRPC(MessageReader reader)
     {
         KCD = reader.ReadSingle();

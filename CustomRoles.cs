@@ -359,6 +359,7 @@ public enum CustomRoles
     Pulse,
     Pursuer,
     Pyromaniac,
+    Quarry,
     QuizMaster,
     Reckless,
     Revolutionist,
