@@ -403,6 +403,8 @@ internal static class ChatCommands
 
         if (text.StartsWith('/'))
         {
+            if (text.StartsWith("/cmd")) text = "/" + text[4..].TrimStart();
+            
             foreach ((string key, Command command) in Command.AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
