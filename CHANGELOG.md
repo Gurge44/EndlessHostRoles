@@ -5,7 +5,8 @@
 
 > [!NOTE]
 > - Custom Net Objects work again! All game modes and roles can be used again on vanilla servers!
-> - HTML tags are supported again! Just make sure they don't contain many numbers. Color tags are automatically replaced to ones without digits. Some visual differences may occur.
+> - HTML tags are supported on vanilla regions again! Just make sure they don't contain many numbers. Color tags are automatically replaced to ones without digits. Some visual differences may occur.
+> - See more info on [our Discord server](https://discord.gg/ehr).
 
 ## Bug Fixes
 - Fixed Comms Camouflage activating in non-standard game modes
