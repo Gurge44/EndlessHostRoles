@@ -1172,13 +1172,6 @@ public static class GameSettingMenuPatch
 
         var gms = Enum.GetValues<CustomGameMode>()[..^1].ToList();
         gms.Remove(CustomGameMode.TheMindGame);
-
-        // if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-        // {
-        //     gms.Remove(CustomGameMode.CaptureTheFlag);
-        //     gms.Remove(CustomGameMode.NaturalDisasters);
-        //     gms.Remove(CustomGameMode.BedWars);
-        // }
         
         if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6)
             gms.RemoveAll(SubmergedCompatibility.IsNotSupported);
