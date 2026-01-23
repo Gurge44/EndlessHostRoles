@@ -1845,6 +1845,7 @@
   "AmOblivious": "You are <color=#424242>Oblivious</color>, meaning you cannot report bodies",
   "ShipHasNoMoreMeetingsLeft": "The ship has no more emergency meetings left",
   "NoMoreEmergencyMeetingsLeft": "You have no more emergency meetings left",
+  "QuarryTarget": "As the <#c1fb2b>Quarry</color>'s target, you cannot start meetings",
   "UnreportableBody": "This body is unreportable due to a role-specific action",
   "CheckMurderFail": "<#ff0000>The murder was canceled due to the following reason:\\n</color>",
   "SameCTATeam": "The player you attacked is in the same custom team as you",
