@@ -104,9 +104,12 @@ public class Quarry : RoleBase
         if (shapeshifter.GetAbilityUseLimit() < 1) return false;
         shapeshifter.RpcRemoveAbilityUse();
 
-        Vector2 pos = shapeshifter.Pos();
-        shapeshifter.TP(target);
-        target.TP(pos);
+        LateTask.New(() =>
+        {
+            Vector2 pos = shapeshifter.Pos();
+            shapeshifter.TP(target);
+            target.TP(pos);
+        }, 0.2f);
 
         TargetId = target.PlayerId;
         SeekTimer = Stopwatch.StartNew();
@@ -181,6 +184,7 @@ public class Quarry : RoleBase
             {
                 killer.Kill(target);
                 killer.RpcSetRoleDesync(killer.GetRoleTypes(), killer.OwnerId);
+                instance.QuarryId.GetPlayer()?.RpcResetAbilityCooldown();
                 instance.TargetId = byte.MaxValue;
                 instance.SeekTimer.Reset();
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.QuarryId, 2);
@@ -241,7 +245,7 @@ public class Quarry : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if ((seer.PlayerId != QuarryId && seer.PlayerId != TargetId) || seer.PlayerId != target.PlayerId || meeting || hud || TargetId == byte.MaxValue) return string.Empty;
-        string timer = string.Format(Translator.GetString("Quarry.TimeLeftSuffix"), SeekTimer.GetRemainingTime(SeekTime.GetInt()) - 1, CustomRoles.Quarry.ToColoredString());
-        return seer.PlayerId == TargetId ? $"{TargetArrow.GetAllArrows(TargetId)}\n{timer}" : timer;
+        string time = SeekTimer.GetRemainingTime(SeekTime.GetInt()).ToString();
+        return seer.PlayerId == TargetId ? $"{TargetArrow.GetAllArrows(TargetId)}\n{string.Format(Translator.GetString("Quarry.TimeLeftSuffix"), time, CustomRoles.Quarry.ToColoredString())}" : time;
     }
 }

@@ -59,6 +59,8 @@ public class RoomRusher : RoleBase
         CompletedNum = 0;
         LastUpdate = Utils.TimeStamp;
         TimeLeft = 50;
+        
+        if (!AmongUsClient.Instance.AmHost) return;
 
         LateTask.New(() =>
         {
