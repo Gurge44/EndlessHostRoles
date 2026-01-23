@@ -264,6 +264,7 @@ internal static class CheckMurderPatch
 
             if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
             if (Dad.OnAnyoneCheckMurderStart(target)) return false;
+            if (Quarry.OnAnyoneCheckMurderStart(killer, target)) return false;
 
             Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 
@@ -1066,6 +1067,12 @@ internal static class ReportDeadBodyPatch
                     !TimeMaster.OnAnyoneCheckReportDeadBody(__instance, target))
                 {
                     Notify("PlayerWasRevived");
+                    return false;
+                }
+
+                if (!Quarry.OnAnyoneCheckReportDeadBody(__instance))
+                {
+                    Notify("QuarryTarget");
                     return false;
                 }
 

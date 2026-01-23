@@ -16,9 +16,14 @@ public class PortalMaker : RoleBase
     private List<Vector2> Marks;
     private Dictionary<byte, long> LastTP;
 
+    public static OptionItem AbilityCooldown;
+    private static OptionItem PetToRemovePortals;
+
     public override void SetupCustomOption()
     {
-        StartSetup(652800);
+        StartSetup(652800)
+            .AutoSetupOption(ref AbilityCooldown, 5, new IntegerValueRule(1, 120, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref PetToRemovePortals, true);
     }
 
     public override void Init()
@@ -36,7 +41,14 @@ public class PortalMaker : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        if (Marks.Count == 2) return;
+        if (Marks.Count == 2)
+        {
+            if (!PetToRemovePortals.GetBool()) return;
+            Marks.Clear();
+            CustomNetObject.AllObjects.OfType<Portal>().Do(x => x.Despawn());
+            pc.Notify(Translator.GetString("MarksCleared"));
+            return;
+        }
 
         Vector2 pos = pc.Pos();
         if (Marks.Count == 1 && Vector2.Distance(Marks[0], pos) < 4f) return;

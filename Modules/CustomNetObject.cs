@@ -368,6 +368,7 @@ namespace EHR
 
             System.Collections.IEnumerator WaitForMeetingEnd()
             {
+                yield return new WaitForSecondsRealtime(5f);
                 while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
                 yield return new WaitForSecondsRealtime(1f);
                 while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;

@@ -57,35 +57,30 @@ internal class Beacon : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || pc == null) return;
-
         long now = Utils.TimeStamp;
         if (LastChange.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
 
         Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
-        bool beaconNearby = Beacons.Any(x => Vector2.Distance(x.Pos(), pos) <= radius);
-        bool affectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
-        bool lightsOff = Utils.IsActive(SystemTypes.Electrical);
 
-        switch (affectedPlayer)
+        switch (affectedPlayer: AffectedPlayers.Contains(pc.PlayerId), beaconNearby: Utils.IsActive(SystemTypes.Electrical) && Beacons.Any(x => Vector2.Distance(x.Pos(), pos) <= radius))
         {
-            case true when !beaconNearby:
+            case (affectedPlayer: true, beaconNearby: false):
             {
                 AffectedPlayers.Remove(pc.PlayerId);
-                if (lightsOff) pc.MarkDirtySettings();
+                pc.MarkDirtySettings();
 
                 LastChange[pc.PlayerId] = now;
                 break;
             }
-            case false when beaconNearby:
+            case (affectedPlayer: false, beaconNearby: true):
             {
                 AffectedPlayers.Add(pc.PlayerId);
-                if (lightsOff) pc.MarkDirtySettings();
+                pc.MarkDirtySettings();
 
                 LastChange[pc.PlayerId] = now;
 
-                if (pc.AmOwner && lightsOff)
+                if (pc.AmOwner)
                     Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
 
                 break;

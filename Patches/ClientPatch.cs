@@ -28,16 +28,6 @@ internal static class MakePublicPatch
     }
 }*/
 
-[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.GetMaxMessagePackingLimit))]
-static class GetMaxMessagePackingLimitPatch
-{
-    public static bool Prefix(ref int __result)
-    {
-        __result = 10;
-        return false;
-    }
-}
-
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 // ReSharper disable once InconsistentNaming
 internal static class MMOnlineManagerStartPatch

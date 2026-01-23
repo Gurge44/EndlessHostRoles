@@ -127,6 +127,7 @@ public class Alchemist : RoleBase
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         PotionID = (byte)IRandom.Instance.Next(1, 8);
+        SendRPCData();
 
         switch (PotionID)
         {
@@ -233,10 +234,9 @@ public class Alchemist : RoleBase
                 player.Notify(GetString("AlchemistNoPotion"));
                 break;
         }
-
-        am.SendRPCData();
-
+        
         am.PotionID = 10;
+        am.SendRPCData();
     }
 
     private void SendRPC()

@@ -956,6 +956,14 @@ internal static class MeetingHudStartPatch
             Transform child = deathReasonTextMeeting.transform.FindChild("RoleTextMeeting");
             if (child != null) Object.Destroy(child.gameObject);
 
+            byte id = pva.TargetPlayerId;
+            
+            if (Doppelganger.SwappedIDs.FindFirst(x => x.Item1 == id || x.Item2 == id, out var pair))
+            {
+                if (pair.Item1 == id) id = pair.Item2;
+                else if (pair.Item2 == id) id = pair.Item1;
+            }
+            
             // Thanks BAU (By D1GQ) - are you happy now?
             Transform playerLevel = pva.transform.Find("PlayerLevel");
             Transform levelDisplay = Object.Instantiate(playerLevel, pva.transform);
@@ -967,7 +975,7 @@ internal static class MeetingHudStartPatch
             Transform idNumber = levelDisplay.transform.Find("LevelNumber");
             Object.Destroy(idLabel.GetComponent<TextTranslatorTMP>());
             idLabel.GetComponent<TextMeshPro>().text = "ID";
-            idNumber.GetComponent<TextMeshPro>().text = pva.TargetPlayerId.ToString();
+            idNumber.GetComponent<TextMeshPro>().text = id.ToString();
             idLabel.name = "IdLabel";
             idNumber.name = "IdNumber";
         }

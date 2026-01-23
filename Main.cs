@@ -279,7 +279,7 @@ public class Main : BasePlugin
 
     public static MapNames CurrentMap => (MapNames)NormalOptions.MapId;
 
-    public static bool LIMap => NormalOptions?.MapId == 7;
+    public static bool LIMap => NormalOptions is { MapId: 7 };
 
     public override void Load()
     {
@@ -561,6 +561,8 @@ public class Main : BasePlugin
                 { CustomRoles.Thanos, "#F9D401" },
                 { CustomRoles.Berserker, "#50538F" },
                 { CustomRoles.SerialKiller, "#233fcc" },
+                { CustomRoles.Quarry, "#c1fb2b" },
+                { CustomRoles.Accumulator, "#2bfbae" },
                 { CustomRoles.Spider, "#C9E44C" },
                 { CustomRoles.SoulCollector, "#6021A0" },
                 { CustomRoles.Sharpshooter, "#5901D4" },
@@ -1066,6 +1068,8 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.SerialKiller,
+    Quarry = CustomRoles.Quarry,
+    Accumulator = CustomRoles.Accumulator,
     Spider = CustomRoles.Spider,
     SoulCollector = CustomRoles.SoulCollector,
     Berserker = CustomRoles.Berserker,

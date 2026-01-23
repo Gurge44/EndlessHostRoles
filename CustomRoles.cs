@@ -289,6 +289,7 @@ public enum CustomRoles
 
     // Neutrals
 
+    Accumulator,
     Agitator,
     Amnesiac,
     Amogus,
@@ -358,6 +359,7 @@ public enum CustomRoles
     Pulse,
     Pursuer,
     Pyromaniac,
+    Quarry,
     QuizMaster,
     Reckless,
     Revolutionist,

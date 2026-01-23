@@ -85,9 +85,15 @@ public class Mastermind : RoleBase
         });
     }
 
+    private long LastUpdate;
+
     public override void OnFixedUpdate(PlayerControl _)
     {
         if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
+
+        long now = TimeStamp;
+        if (now == LastUpdate) return;
+        LastUpdate = now;
 
         foreach (KeyValuePair<byte, long> x in ManipulateDelays)
         {
@@ -99,10 +105,10 @@ public class Mastermind : RoleBase
                 continue;
             }
 
-            if (x.Value + Delay.GetInt() < TimeStamp)
+            if (x.Value + Delay.GetInt() < now)
             {
                 ManipulateDelays.Remove(x.Key);
-                ManipulatedPlayers.TryAdd(x.Key, TimeStamp);
+                ManipulatedPlayers.TryAdd(x.Key, now);
 
                 if (pc.HasKillButton()) TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
                 else pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
@@ -123,7 +129,7 @@ public class Mastermind : RoleBase
                 continue;
             }
 
-            if (x.Value + TimeLimit.GetInt() < TimeStamp)
+            if (x.Value + TimeLimit.GetInt() < now)
             {
                 ManipulatedPlayers.Remove(x.Key);
                 if (!TempKCDs.Remove(x.Key)) player.RpcChangeRoleBasis(player.GetCustomRole());
@@ -134,7 +140,7 @@ public class Mastermind : RoleBase
                     Achievements.Type.OutOfTime.Complete();
             }
 
-            long time = TimeLimit.GetInt() - (TimeStamp - x.Value);
+            long time = TimeLimit.GetInt() - (now - x.Value);
 
             player.Notify(string.Format(GetString("ManipulateNotify"), time), 3f, true);
         }

@@ -53,7 +53,7 @@ public class Starspawn : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return pc.GetAbilityUseLimit() >= 1;
     }
 
     public override void SetKillCooldown(byte id)
@@ -68,7 +68,9 @@ public class Starspawn : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        IsolatedPlayers.Add(target.PlayerId);
+        if (!IsolatedPlayers.Add(target.PlayerId)) return false;
+        killer.RpcRemoveAbilityUse();
+        killer.SetKillCooldown(AbilityCooldown.GetFloat());
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, target.PlayerId);
         return false;
@@ -92,7 +94,7 @@ public class Starspawn : RoleBase
 
         if (AmongUsClient.Instance.AmHost)
         {
-            var command = $"/daybreak";
+            const string command = "/daybreak";
             ChatCommands.DayBreakCommand(PlayerControl.LocalPlayer, "Command.Daybreak", command, command.Split(' '));
         }
         else
@@ -105,7 +107,7 @@ public class Starspawn : RoleBase
         LateTask.New(() => starspawnButton.SetActive(true), 1f, "StarspawnButton");
     }
 
-    public static void CreateStarspawnButton(MeetingHud __instance)
+    private static void CreateStarspawnButton(MeetingHud __instance)
     {
         if (GameObject.Find("StarspawnButton") != null) Object.Destroy(GameObject.Find("StarspawnButton").gameObject);
         if (PlayerControl.LocalPlayer == null || !PlayerControl.LocalPlayer.IsAlive()) return;

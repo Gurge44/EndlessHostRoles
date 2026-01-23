@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using EHR.Modules;
+using Hazel;
+
 namespace EHR.Roles;
 
 public class Deadlined : IAddon
@@ -21,12 +24,14 @@ public class Deadlined : IAddon
     {
         DidTask.Add(pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        Utils.SendRPC(CustomRPC.Deadlined, 1, pc.PlayerId);
     }
 
     public static void AfterMeetingTasks()
     {
         DidTask = [];
         MeetingEndTS = Utils.TimeStamp;
+        Utils.SendRPC(CustomRPC.Deadlined, 2);
 
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -40,13 +45,28 @@ public class Deadlined : IAddon
     {
         if (MeetingStates.FirstMeeting) return;
 
-        if (MeetingEndTS + InactiveTime.GetInt() > Utils.TimeStamp) return;
+        if (MeetingEndTS + InactiveTime.GetInt() >= Utils.TimeStamp) return;
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (!pc.Is(CustomRoles.Deadlined)) continue;
 
-            if (!DidTask.Contains(pc.PlayerId)) pc.Suicide();
+            if (!DidTask.Contains(pc.PlayerId))
+                pc.Suicide();
+        }
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                DidTask.Add(reader.ReadByte());
+                break;
+            case 2:
+                DidTask = [];
+                MeetingEndTS = Utils.TimeStamp - 1;
+                break;
         }
     }
 

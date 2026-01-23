@@ -327,12 +327,12 @@ public static class RoomRush
                 MapNames.Airship => SystemTypes.MainHall,
                 MapNames.Fungle => SystemTypes.Dropship,
                 (MapNames)6 => (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral,
-                _ => throw new ArgumentOutOfRangeException(map.ToString(), "Invalid map")
+                _ => AllRooms.RandomElement()
             };
 
         DonePlayers.Clear();
         RoomGoal = AllRooms.Without(previous).RandomElement();
-        Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
+        Vector2 goalPos = RoomGoal.GetRoomClass().transform.position;
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         int time;
         
@@ -579,7 +579,7 @@ public static class RoomRush
 
             if (WinByPointsInsteadOfDeaths.GetBool())
             {
-                Vector2 location = everyoneDies ? Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position) : DonePlayers.RandomElement().GetPlayer().Pos();
+                Vector2 location = everyoneDies && !Main.LIMap ? Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position) : DonePlayers.RandomElement().GetPlayer().Pos();
                 playersOutsideRoom.MassTP(location);
             }
             else

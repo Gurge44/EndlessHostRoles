@@ -23,6 +23,7 @@ public class Doppelganger : RoleBase
 
     public static int LocalPlayerChangeSkinTimes;
 
+    public static HashSet<(byte, byte)> SwappedIDs = [];
     public static Dictionary<byte, string> DoppelVictim = [];
     public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelPresentSkin = [];
     private static Dictionary<byte, int> TotalSteals = [];
@@ -68,6 +69,7 @@ public class Doppelganger : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
+        SwappedIDs = [];
         DoppelVictim = [];
         TotalSteals = [];
         DoppelPresentSkin = [];
@@ -254,6 +256,9 @@ public class Doppelganger : RoleBase
         NetworkedPlayerInfo.PlayerOutfit targetSkin = Set(new(), tname, target.CurrentOutfit.ColorId, target.CurrentOutfit.HatId, target.CurrentOutfit.SkinId, target.CurrentOutfit.VisorId, target.CurrentOutfit.PetId, target.CurrentOutfit.NamePlateId);
 
         DoppelVictim[target.PlayerId] = tname;
+
+        SwappedIDs.RemoveWhere(x => x.Item1 == killer.PlayerId || x.Item2 == killer.PlayerId);
+        SwappedIDs.Add((killer.PlayerId, target.PlayerId));
 
 
         RpcChangeSkin(target, killerSkin);

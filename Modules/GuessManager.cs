@@ -217,6 +217,7 @@ public static class GuessManager
 
                     switch (pc.GetCustomRole())
                     {
+                        case CustomRoles.Augur when !((Augur)Main.PlayerStates[pc.PlayerId].Role).CanGuess:
                         case CustomRoles.Augur when Main.GuesserGuessed[pc.PlayerId] >= Augur.MaxGuessesPerGame.GetInt():
                         case CustomRoles.Augur when Main.GuesserGuessedMeeting[pc.PlayerId] >= Augur.MaxGuessesPerMeeting.GetInt():
                         case CustomRoles.NiceGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.GGCanGuessTime.GetInt():
@@ -485,7 +486,8 @@ public static class GuessManager
 
                         Doomsayer.GuessesCountPerMeeting++;
 
-                        if (Doomsayer.GuessesCountPerMeeting >= Doomsayer.MaxNumberOfGuessesPerMeeting.GetInt()) Doomsayer.CantGuess = true;
+                        if (Doomsayer.GuessesCountPerMeeting >= Doomsayer.MaxNumberOfGuessesPerMeeting.GetInt())
+                            Doomsayer.CantGuess = true;
 
                         if (!Doomsayer.KillCorrectlyGuessedPlayers.GetBool() && pc.PlayerId != dp.PlayerId)
                         {
@@ -518,6 +520,13 @@ public static class GuessManager
                         }
                     }
 
+                    if (pc.Is(CustomRoles.Augur) && pc.PlayerId == dp.PlayerId)
+                    {
+                        ShowMessage("Augur.IncorrectGuess");
+                        ((Augur)Main.PlayerStates[pc.PlayerId].Role).CanGuess = false;
+                        return true;
+                    }
+
                     string name = dp.GetRealName();
                     if (!Options.DisableKillAnimationOnGuess.GetBool()) CustomSoundsManager.RPCPlayCustomSoundAll("Gunfire");
 
@@ -537,7 +546,8 @@ public static class GuessManager
                             Doomsayer.GuessingToWin[pc.PlayerId]++;
                             Doomsayer.SendRPC(pc);
 
-                            if (!Doomsayer.GuessedRoles.Contains(role)) Doomsayer.GuessedRoles.Add(role);
+                            if (!Doomsayer.GuessedRoles.Contains(role))
+                                Doomsayer.GuessedRoles.Add(role);
 
                             Doomsayer.CheckCountGuess(pc);
                         }
@@ -1362,7 +1372,7 @@ public static class GuessManager
                 int textIndex = 0;
 
                 int messages = 0;
-                int packingLimit = 10;
+                int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
                 
                 var skipped = false;
                 PlayerControl guesser = guesserId.GetPlayer();
