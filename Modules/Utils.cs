@@ -3335,6 +3335,7 @@ public static class Utils
         return true;
     }
 
+/*
     public static void SendGameData()
     {
         int messages = 0;
@@ -3368,6 +3369,7 @@ public static class Utils
         AmongUsClient.Instance.SendOrDisconnect(writer);
         writer.Recycle();
     }
+*/
 
     public static void SendGameDataTo(int targetClientId)
     {
