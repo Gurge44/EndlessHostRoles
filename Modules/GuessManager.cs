@@ -36,8 +36,10 @@ public static class GuessManager
         return Main.AllPlayerControls.Aggregate(GetString("PlayerIdList"), (current, pc) => current + $"\n{pc.PlayerId.ToString()} → {pc.GetRealName()}");
     }
 
-    private static bool CheckCommand(ref string msg, string command, bool exact = true)
+    public static bool CheckCommand(ref string msg, string command, bool exact, out bool spamRequired)
     {
+        Utils.CheckServerCommand(ref msg, out spamRequired);
+        
         string[] comList = command.Split('|');
 
         foreach (string str in comList)
@@ -72,8 +74,8 @@ public static class GuessManager
         int operate; // 1: ID, 2: Guess
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
-        else if (CheckCommand(ref msg, "shoot|guess|bet|st|bt|猜|赌", false)) operate = 2;
+        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired)) operate = 1;
+        else if (CheckCommand(ref msg, "shoot|guess|bet|st|bt|猜|赌", false, out spamRequired)) operate = 2;
         else return false;
 
         Logger.Msg(msg, "Msg Guesser");
@@ -119,13 +121,12 @@ public static class GuessManager
 
                 SkipCheck:
 
-                if (!isUI && !ssMenu && (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
+                if (!isUI && !ssMenu && spamRequired && (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
                      (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())))
                     ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner && !isUI && !ssMenu) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
                 {

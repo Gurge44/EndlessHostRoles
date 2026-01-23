@@ -96,8 +96,6 @@ public class Councillor : RoleBase
 
     public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        string originMsg = msg;
-
         if (!AmongUsClient.Instance.AmHost) return false;
 
         if (!GameStates.IsInGame || pc == null) return false;
@@ -107,9 +105,9 @@ public class Councillor : RoleBase
         int operate; // 1:ID 2:Kill
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (CheckCommond(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
             operate = 1;
-        else if (CheckCommond(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|审判|判|审", false))
+        else if (GuessManager.CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|审判|判|审", false, out spamRequired))
             operate = 2;
         else
             return false;
@@ -124,12 +122,11 @@ public class Councillor : RoleBase
         {
             case 1:
                 Utils.SendMessage(GuessManager.GetFormatString(), pc.PlayerId);
-                return true;
+                break;
             case 2:
             {
-                if (TryHideMsg.GetBool())
+                if (TryHideMsg.GetBool() && !isUI && spamRequired)
                     ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {
@@ -269,29 +266,6 @@ public class Councillor : RoleBase
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    }
-
-    public static bool CheckCommond(ref string msg, string command, bool exact = true)
-    {
-        string[] comList = command.Split('|');
-
-        foreach (string str in comList)
-        {
-            if (exact)
-            {
-                if (msg == "/" + str) return true;
-            }
-            else
-            {
-                if (msg.StartsWith("/" + str))
-                {
-                    msg = msg.Replace("/" + str, string.Empty);
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)

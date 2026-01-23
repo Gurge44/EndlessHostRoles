@@ -1796,6 +1796,17 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
+    public static void CheckServerCommand(ref string text, out bool spamRequired)
+    {
+        spamRequired = true;
+            
+        if (text.StartsWith("/cmd"))
+        {
+            text = "/" + text[4..].TrimStart();
+            spamRequired = false;
+        }
+    }
+
     public static bool TempReviveHostRunning;
     private static Stopwatch TempReviveHostRevertStopwatch = new();
     private static Stopwatch TempReviveHostTimeSinceRevivalStopwatch = new();

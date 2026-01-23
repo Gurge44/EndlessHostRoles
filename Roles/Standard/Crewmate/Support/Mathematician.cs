@@ -39,7 +39,6 @@ internal class Mathematician : RoleBase
             State.MathematicianPlayerId = pc.PlayerId;
 
             string question = string.Format(Translator.GetString("MathematicianQuestionString"), num1, num2);
-            ChatManager.SendPreviousMessagesToAll();
             LateTask.New(() => Utils.SendMessage(question, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mathematician), Translator.GetString("Mathematician"))), 0.2f, log: false);
         }
         catch (Exception e) { Utils.ThrowException(e); }

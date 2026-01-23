@@ -3653,6 +3653,8 @@ internal static class ChatCommands
 
         if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
+            Utils.CheckServerCommand(ref text, out bool spamRequired);
+            
             foreach ((string key, Command command) in Command.AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
@@ -3666,7 +3668,7 @@ internal static class ChatCommands
                     break;
                 }
 
-                if (command.AlwaysHidden) ChatManager.SendPreviousMessagesToAll();
+                if (command.AlwaysHidden && spamRequired) ChatManager.SendPreviousMessagesToAll();
                 command.Action(player, key, text, args);
                 if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;

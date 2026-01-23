@@ -68,8 +68,6 @@ public class Swapper : RoleBase
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        string originMsg = msg;
-
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || pc == null || pc.GetCustomRole() != CustomRoles.Swapper) return false;
 
         Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "Swapper");
@@ -77,9 +75,9 @@ public class Swapper : RoleBase
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
             operate = 1;
-        else if (CheckCommand(ref msg, "sw|换票|换|swap|st", false))
+        else if (GuessManager.CheckCommand(ref msg, "sw|换票|换|swap|st", false, out spamRequired))
             operate = 2;
         else
             return false;
@@ -106,9 +104,8 @@ public class Swapper : RoleBase
                     return true;
                 }
 
-                if (HideMsg.GetBool() && !isUI)
+                if (HideMsg.GetBool() && !isUI && !spamRequired)
                     ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
                 {
@@ -224,29 +221,6 @@ public class Swapper : RoleBase
             Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Swapper), GetString("SwapTitle")));
         }
         catch (Exception e) { Utils.ThrowException(e); }
-    }
-
-    private static bool CheckCommand(ref string msg, string command, bool exact = true)
-    {
-        string[] comList = command.Split('|');
-
-        foreach (string str in comList)
-        {
-            if (exact)
-            {
-                if (msg == "/" + str) return true;
-            }
-            else
-            {
-                if (msg.StartsWith("/" + str))
-                {
-                    msg = msg.Replace("/" + str, string.Empty);
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
