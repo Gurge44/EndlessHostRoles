@@ -1773,8 +1773,7 @@ internal static class ChatCommands
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
-            var str = $"{char.ToUpper(choiceLetter)}) {answers[i]}\n";
-            msg += GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? str : Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), str);
+            msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
             PollAnswers[choiceLetter] = $"〖 {answers[i]} 〗";
         }

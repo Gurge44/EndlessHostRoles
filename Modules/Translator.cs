@@ -48,8 +48,6 @@ public static class Translator
 
             foreach (string jsonFileName in jsonFileNames)
             {
-                Logger.Warn($"Loading lang file: {jsonFileName}", "Translator");
-
                 // Read the JSON file content
                 using Stream resourceStream = assembly.GetManifestResourceStream(jsonFileName);
 
@@ -58,8 +56,6 @@ public static class Translator
                     using StreamReader reader = new(resourceStream);
                     string jsonContent = reader.ReadToEnd();
                     
-                    File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/debug_{jsonFileName}.json", jsonContent);
-
                     // Deserialize the JSON into a dictionary
                     var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
 
@@ -78,12 +74,6 @@ public static class Translator
                     }
                 }
             }
-
-            // Convert the resulting translation map to JSON
-            File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/debug.json", JsonSerializer.Serialize(TranslateMaps, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            }));
         }
         catch (Exception ex) { Logger.Error($"Error: {ex}", "Translator"); }
 
@@ -116,14 +106,6 @@ public static class Translator
             {
                 // If the textString is not already in the translation map, add it
                 if (!translationMaps.ContainsKey(textString)) translationMaps[textString] = [];
-                
-                if (translationMaps[textString].ContainsKey(languageId))
-                {
-                    Logger.Warn(
-                        $"Overwriting translation: {textString} ({languageId})",
-                        "Translator"
-                    );
-                }
 
                 // Add or update the translation for the current id and textString
                 translationMaps[textString][languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");

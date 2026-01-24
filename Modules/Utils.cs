@@ -1813,7 +1813,7 @@ public static class Utils
     private static Stopwatch TempReviveHostRevertStopwatch = new();
     private static Stopwatch TempReviveHostTimeSinceRevivalStopwatch = new();
     private static string[] CachedLetterOnlyHexColors = [];
-    private static readonly Regex ColorTagRegex = new(@"<\s*(?:color\s*=\s*)?#([0-9a-fA-F]{6})\s*>", RegexOptions.Compiled);
+    private static readonly Regex ColorTagRegex = new(@"<\s*(?:color\s*=\s*)?#([0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)\s*>", RegexOptions.Compiled);
     private static readonly Dictionary<(int R, int G, int B), string> CachedColorReplacements = [];
     private static readonly char[] HexLetters = ['a', 'b', 'c', 'd', 'e', 'f'];
     static readonly Dictionary<string, (int r, int g, int b)> NamedColors = new()
@@ -2238,6 +2238,9 @@ public static class Utils
         {
             string hex = match.Groups[1].Value.ToLowerInvariant();
             
+            string a = hex.Length == 8 ? hex[6..8] : string.Empty;
+            if (!string.IsNullOrEmpty(a)) hex = hex[..6];
+            
             if (hex.Length != 6 || !hex.Any(char.IsDigit)) return match.Value;
 
             int r = Convert.ToInt32(hex[..2], 16);
@@ -2248,7 +2251,7 @@ public static class Utils
 
             return NamedColors.ContainsKey(best)
                 ? $"<color={best}>"
-                : $"<#{best}>";
+                : $"<#{best}{a}>";
         });
 
         static string FindClosestSafeColor(int r, int g, int b)
