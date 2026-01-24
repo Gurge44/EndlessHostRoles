@@ -7,11 +7,12 @@
 - Fixed Mingle end summary for non-host modded clients
 - Fixed `Chat During Game` causing black screen for vanilla clients in Mingle, Quiz and Natural Disasters
 - Fixed color tags not being replaced to letter-only ones when they had an alpha channel
+- Fixed Romantic, Follower, and Lawyer not always winning when their target/partner wins
+- Bloodlust Bodyguard now works correctly
+- Fixed Accumulator not being able to kill impostors
 
 ## Changes
-- 
-
-## Additions
-- 
+- Updated and improved the command auto-completion system and helper
+- Quarry's target's kill cooldown gets set to 0 when they get selected as the target
 
 ---
