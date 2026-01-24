@@ -3224,7 +3224,7 @@
   "AbilityButtonText.Impostor": "Haunt",
   "AbilityButtonText.Shapeshifter": "Shift",
   "AbilityButtonText.Phantom": "Vanish",
-  "KillButtonText.Viper": "Acid",
+  "AbilityButtonText.Viper": "Acid",
   "AbilityButtonText.Detective": "Notes",
   "SecondaryAbilityButtonText.Detective": "Interrogate",
   "GauloisKillButtonText": "Speed Up",

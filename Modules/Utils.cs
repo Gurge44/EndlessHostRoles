@@ -1865,10 +1865,7 @@ public static class Utils
             title = title.Replace("color=", string.Empty);
 
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-            {
                 text = ReplaceHexColorsWithSafeColors(text);
-                text = ReplaceDigitsOutsideRichText(text);
-            }
 
             PlayerControl sender = !addToHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
@@ -2185,7 +2182,7 @@ public static class Utils
 
             foreach (char c in text)
             {
-                if (c is >= '0' and <= '9' && digitCount == 5)
+                if (char.IsDigit(c) && digitCount == 5)
                 {
                     int lastNewline = sb.ToString().LastIndexOf('\n');
 
@@ -2318,37 +2315,6 @@ public static class Utils
                                     CachedLetterOnlyHexColors[i++] = $"{r1}{r2}{g1}{g2}{b1}{b2}";
 
             return CachedLetterOnlyHexColors;
-        }
-        
-        static string ReplaceDigitsOutsideRichText(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return text;
-
-            StringBuilder sb = new(text.Length);
-            bool insideTag = false;
-
-            foreach (char c in text)
-            {
-                switch (c)
-                {
-                    case '<':
-                        insideTag = true;
-                        sb.Append(c);
-                        continue;
-                    case '>':
-                        insideTag = false;
-                        sb.Append(c);
-                        continue;
-                    case >= '0' and <= '9' when !insideTag:
-                        sb.Append((char)('０' + (c - '0')));
-                        break;
-                    default:
-                        sb.Append(c);
-                        break;
-                }
-            }
-
-            return sb.ToString();
         }
     }
 
@@ -4264,6 +4230,12 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - {Deathrace.GetStatistics(id)}";
                     break;
                 case CustomGameMode.Mingle:
+                    if (!AmongUsClient.Instance.AmHost)
+                    {
+                        summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetVitalText(id, true)}";
+                        break;
+                    }
+                    
                     int time3 = Mingle.GetSurvivalTime(id);
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({GetVitalText(id, true)})";
                     break;
