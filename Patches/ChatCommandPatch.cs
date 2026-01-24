@@ -1773,9 +1773,10 @@ internal static class ChatCommands
         for (var i = 0; i < Math.Max(answers.Length, 2); i++)
         {
             var choiceLetter = (char)(i + 65);
-            msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
+            var str = $"{char.ToUpper(choiceLetter)}) {answers[i]}\n";
+            msg += GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? str : Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), str);
             PollVotes[choiceLetter] = 0;
-            PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
+            PollAnswers[choiceLetter] = $"〖 {answers[i]} 〗";
         }
 
         msg += $"\n{GetString("Poll.Begin")}\n<size=60%><i>";
