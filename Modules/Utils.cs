@@ -1865,7 +1865,10 @@ public static class Utils
             title = title.Replace("color=", string.Empty);
 
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            {
                 text = ReplaceHexColorsWithSafeColors(text);
+                text = ReplaceDigitsOutsideRichText(text);
+            }
 
             PlayerControl sender = !addToHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
@@ -2182,7 +2185,7 @@ public static class Utils
 
             foreach (char c in text)
             {
-                if (char.IsDigit(c) && digitCount == 5)
+                if (c is >= '0' and <= '9' && digitCount == 5)
                 {
                     int lastNewline = sb.ToString().LastIndexOf('\n');
 
@@ -2315,6 +2318,37 @@ public static class Utils
                                     CachedLetterOnlyHexColors[i++] = $"{r1}{r2}{g1}{g2}{b1}{b2}";
 
             return CachedLetterOnlyHexColors;
+        }
+        
+        static string ReplaceDigitsOutsideRichText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+
+            StringBuilder sb = new(text.Length);
+            bool insideTag = false;
+
+            foreach (char c in text)
+            {
+                switch (c)
+                {
+                    case '<':
+                        insideTag = true;
+                        sb.Append(c);
+                        continue;
+                    case '>':
+                        insideTag = false;
+                        sb.Append(c);
+                        continue;
+                    case >= '0' and <= '9' when !insideTag:
+                        sb.Append((char)('０' + (c - '0')));
+                        break;
+                    default:
+                        sb.Append(c);
+                        break;
+                }
+            }
+
+            return sb.ToString();
         }
     }
 
@@ -4459,7 +4493,19 @@ public static class Utils
     public static void SetChatVisibleForAll()
     {
         if (!GameStates.IsInGame) return;
-        Main.AllAlivePlayerControls.Do(x => x.SetChatVisible(true));
+        
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        
+        if (Options.CurrentGameMode is CustomGameMode.Mingle or CustomGameMode.Quiz or CustomGameMode.NaturalDisasters) 
+        {
+            foreach (var pc in aapc)
+            {
+                var dummyImp = aapc.FirstOrDefault(x => x != pc);
+                if (dummyImp != null) dummyImp.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
+            }
+        }
+
+        aapc.Do(x => x.SetChatVisible(true));
     }
 
     public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase

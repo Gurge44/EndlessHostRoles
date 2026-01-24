@@ -255,7 +255,6 @@ public static class TextBoxPatch
                     if (length <= i) break;
 
                     int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
-                    Logger.Warn($"args.Length: {args.Length}, spaces: {spaces}, i: {i}, args: {string.Join('*', args)}", "debug");
                     string arg = poll ? i == 0 ? string.Join(' ', args[..++skip]) : args[spaces - 1 < i ? skip + i + spaces : skip + i] : spaces > length && i == length - 1 ? string.Join(' ', args[i..^length]) : args[spaces > i ? i : i + spaces];
 
                     string argName = command.Arguments.Split(' ')[i];
