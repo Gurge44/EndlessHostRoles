@@ -119,6 +119,9 @@ public static class TextBoxPatch
 
             string input = __instance.outputText.text.Trim().Replace("\b", "");
 
+            bool startsWithCmd = input.StartsWith("/cmd ");
+            if (startsWithCmd) input = "/" + input[5..];
+
             if (!input.StartsWith('/') || input.Length < 2)
             {
                 Destroy();
@@ -132,7 +135,7 @@ public static class TextBoxPatch
             var exactMatch = false;
             bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
 
-            foreach ((string key, Command cmd) in Command.AllCommands)
+            foreach (Command cmd in Command.AllCommands.Values)
             {
                 string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii))] : cmd.CommandForms;
 
@@ -179,8 +182,9 @@ public static class TextBoxPatch
             {
                 Destroy();
                 IsInvalidCommand = true;
-                __instance.compoText.Color(Color.red);
-                __instance.outputText.color = Color.red;
+                Color textColor = input is "/c" or "/cm" or "/cmd" ? Palette.Orange : Color.red;
+                __instance.compoText.Color(textColor);
+                __instance.outputText.color = textColor;
                 return;
             }
 
@@ -226,7 +230,7 @@ public static class TextBoxPatch
             }
 
             string inputForm = input.TrimStart('/');
-            string text = "/" + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
+            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
             if (!command.CanUseCommand(PlayerControl.LocalPlayer))
@@ -237,24 +241,25 @@ public static class TextBoxPatch
             if (exactMatch && command.Arguments.Length > 0)
             {
                 bool poll = command.CommandForms.Contains("poll");
-                bool say = command.CommandForms.Contains("say");
                 int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
-                if (say) spaces = Math.Min(spaces, 1);
 
                 var preText = $"{text} {command.Arguments}";
-                if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
+                if (!poll) text += " " + (spaces >= command.ArgsDescriptions.Length ? string.Empty : string.Join(' ', command.Arguments.Split(' ')[spaces..]));
 
-                string[] args = preText.Split(' ')[1..];
+                string[] split = preText.Split(' ');
+                string[] args = split[(startsWithCmd && split.Length > 2 ? 2 : 1)..];
 
                 for (var i = 0; i < args.Length; i++)
                 {
-                    if (command.ArgsDescriptions.Length <= i) break;
+                    int length = command.ArgsDescriptions.Length;
+                    if (length <= i) break;
 
                     int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
-                    string arg = say ? args[0] : poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
+                    Logger.Warn($"args.Length: {args.Length}, spaces: {spaces}, i: {i}, args: {string.Join('*', args)}", "debug");
+                    string arg = poll ? i == 0 ? string.Join(' ', args[..++skip]) : args[spaces - 1 < i ? skip + i + spaces : skip + i] : spaces > length && i == length - 1 ? string.Join(' ', args[i..^length]) : args[spaces > i ? i : i + spaces];
 
                     string argName = command.Arguments.Split(' ')[i];
-                    bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
+                    bool current = spaces - 1 == i || spaces > length && i == length - 1, invalid = IsInvalidArg(), valid = IsValidArg();
 
                     info += "\n" + (invalid, current, valid) switch
                     {
@@ -271,7 +276,7 @@ public static class TextBoxPatch
 
                     if (additionalInfo.Length == 0 && argName.Replace('[', '{').Replace(']', '}') is "{id}" or "{id1}" or "{id2}")
                     {
-                        Dictionary<string, byte> allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId.ColoredPlayerName(), x => x.PlayerId);
+                        Dictionary<byte, string> allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.PlayerId.ColoredPlayerName());
                         additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
                         OptionShower.CurrentPage = 0;
                     }
@@ -317,6 +322,8 @@ public static class TextBoxPatch
                             };
                 }
             }
+
+            additionalInfo += startsWithCmd && AmongUsClient.Instance.AmHost ? $"\n\n<#00a5ff>ⓘ <b>{Translator.GetString("HostMayOmitCmdPrefix")}</b></color>" : string.Empty;
 
             PlaceHolderText.text = text;
             CommandInfoText.text = info;

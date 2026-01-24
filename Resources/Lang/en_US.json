@@ -10275,6 +10275,7 @@
   "AutoGMRotationStatusText.NextGM": "Next",
   "AutoGMRotationStatusText.GMPoll": "Player Vote (/gmpoll)",
   "AutoGMRotationStatusText.CooldownTimer": "Jumping to the next game mode on the list in <b>{0}</b> seconds",
+  "HostMayOmitCmdPrefix": "'cmd' prefix\\ncan be omitted",
   "SubmergedRoomName.128": "Research",
   "SubmergedRoomName.129": "Observatory",
   "SubmergedRoomName.130": "Upper Central",
