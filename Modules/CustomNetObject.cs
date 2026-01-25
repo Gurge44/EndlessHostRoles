@@ -377,8 +377,13 @@ namespace EHR
 
                 try
                 {
-                    AmongUsClient.Instance.RemoveNetObject(playerControl);
-                    Object.Destroy(playerControl.gameObject);
+                    try
+                    {
+                        AmongUsClient.Instance.RemoveNetObject(playerControl);
+                        Object.Destroy(playerControl.gameObject);
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
                     playerControl.PlayerId = 254;
                     playerControl.isNew = false;

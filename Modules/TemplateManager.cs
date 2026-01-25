@@ -81,8 +81,10 @@ public static class TemplateManager
         }
         else
         {
+            const string oldWelcomeTemplate = "welcome:<b><size=2.5>Welcome!</size></b>\\nThis is a <color=#ff0000>Modded</color> Lobby.\\n<size=90%>The mod is <b><color=#00ffff>Endless Host Roles</color> <color=#00ffa5>(EHR)</color></b> <b><color=#902efd>v{{ModVersion}}</b></color>.\\nThe mod was made by <color=#ffff00>Gurge44</color>.</size>\\n\\n<size=70%><b>/r</b> → Show all active roles\\n<b>/r <color=#ff0000>[role name]</color></b> → Show description & settings for that role</size>";
+            const string newWelcomeTemplate = "welcome:<b>Welcome!</b>\\n<size=80%>This is a <color=red>Modded</color> Lobby.\\nYou're playing <b><color=blue>Endless Host Roles</color> <color=purple>(EHR)</color> <color=orange>v{{ModVersion}}</b></color>.\\nThe mod was made by <color=yellow>Gurge44</color>.\\n\\n<b>/r</b> → Show all active roles\\n<b>/r <color=red>[role name]</color></b> → Show description & settings for that role";
             string text = File.ReadAllText(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
-            File.WriteAllText(TemplateFilePath, text.Replace("5PNwUaN5", "hkk2p9ggv4"));
+            File.WriteAllText(TemplateFilePath, text.Replace("5PNwUaN5", "hkk2p9ggv4").Replace(oldWelcomeTemplate, newWelcomeTemplate));
         }
     }
 

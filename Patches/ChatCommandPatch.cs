@@ -382,7 +382,6 @@ internal static class ChatCommands
 
         ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
-        string[] args = text.Split(' ');
         var canceled = false;
         Main.IsChatCommand = true;
 
@@ -403,8 +402,8 @@ internal static class ChatCommands
 
         if (text.StartsWith('/'))
         {
-            if (AmongUsClient.Instance.AmHost && text.StartsWith("/cmd"))
-                text = "/" + text[4..].TrimStart();
+            Utils.CheckServerCommand(ref text, out _);
+            string[] args = text.Split(' ');
             
             foreach ((string key, Command command) in Command.AllCommands)
             {
@@ -1429,7 +1428,7 @@ internal static class ChatCommands
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
         bool rollSpawnChance = Options.DraftAffectedByRoleSpawnChances.GetBool();
-        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
+        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && !ShouldNotSpawn(x) && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
 
         if (allRoles.Count < allPlayerIds.Length)
         {
@@ -1478,6 +1477,20 @@ internal static class ChatCommands
                 yield return new WaitForSecondsRealtime(20f);
                 if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
+        }
+        
+        static bool ShouldNotSpawn(CustomRoles role)
+        {
+            return role switch
+            {
+                CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
+                CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
+                CustomRoles.RoomRusher when Main.LIMap => true,
+                CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool() => true,
+                CustomRoles.Commander when Main.NormalOptions.NumImpostors <= 1 && Commander.CannotSpawnAsSoloImp.GetBool() => true,
+                CustomRoles.Changeling when Changeling.GetAvailableRoles(true).Count == 0 => true,
+                _ => false
+            };
         }
     }
 
@@ -3637,8 +3650,6 @@ internal static class ChatCommands
             }
         }
 
-        string[] args = text.Split(' ');
-
         if (!Starspawn.IsDayBreak)
         {
             if (GuessManager.GuesserMsg(player, text) ||
@@ -3664,6 +3675,7 @@ internal static class ChatCommands
         if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
             Utils.CheckServerCommand(ref text, out bool spamRequired);
+            string[] args = text.Split(' ');
             
             foreach ((string key, Command command) in Command.AllCommands)
             {
