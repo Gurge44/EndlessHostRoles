@@ -157,9 +157,9 @@ public class Judge : RoleBase
                     if (pc.PlayerId == target.PlayerId)
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")), sendOption: SendOption.None);
+                            Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromZypherus")), sendOption: SendOption.None);
                         else
-                            pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoTrialSelf"));
+                            pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromZypherus")) + "\n" + GetString("LaughToWhoTrialSelf"));
 
                         judgeSuicide = true;
                     }

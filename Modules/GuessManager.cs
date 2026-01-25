@@ -418,8 +418,8 @@ public static class GuessManager
 
                     if (pc.PlayerId == target.PlayerId)
                     {
-                        if (!isUI) Utils.SendMessage(GetString("LaughToWhoGuessSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
-                        else pc.ShowPopUp($"{Utils.ColorString(Color.cyan, GetString("MessageFromKPD"))}\n{GetString("LaughToWhoGuessSelf")}");
+                        if (!isUI) Utils.SendMessage(GetString("LaughToWhoGuessSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromZypherus")));
+                        else pc.ShowPopUp($"{Utils.ColorString(Color.cyan, GetString("MessageFromZypherus"))}\n{GetString("LaughToWhoGuessSelf")}");
 
                         if (DoubleShot.CheckGuess(pc, isUI)) return true;
                         guesserSuicide = true;

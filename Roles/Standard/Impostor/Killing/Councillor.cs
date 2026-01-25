@@ -186,9 +186,9 @@ public class Councillor : RoleBase
                     if (pc.PlayerId == targetId)
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("LaughToWhoMurderSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
+                            Utils.SendMessage(GetString("LaughToWhoMurderSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromZypherus")));
                         else
-                            pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoMurderSelf"));
+                            pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromZypherus")) + "\n" + GetString("LaughToWhoMurderSelf"));
                     }
                     else if (target.IsMadmate() && CanMurderMadmate.GetBool())
                         councillorSuicide = false;
