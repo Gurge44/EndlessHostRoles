@@ -982,17 +982,17 @@ internal static class MeetingHudStartPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (Options.SyncButtonMode.GetBool())
-            {
-                Utils.SendMessage(string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount));
-                Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
-            }
-
             LateTask.New(() =>
             {
+                if (Options.SyncButtonMode.GetBool())
+                {
+                    Utils.SendMessage(string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount));
+                    Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
+                }
+
                 TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
                 if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
-            }, 6f, log: false);
+            }, 6.5f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
 
