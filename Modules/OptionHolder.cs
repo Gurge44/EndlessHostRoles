@@ -1938,23 +1938,23 @@ public static class Options
             .SetParent(FungleChance)
             .SetValueFormat(OptionFormat.Players);
 
-        MinSpeedForSkeld = new FloatOptionItem(20782, "MinSpeedForSkeld", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.SpeedMultiplier);
+        SpeedForSkeld = new FloatOptionItem(20782, "SpeedForSkeld", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
 
-        MinSpeedForMira = new FloatOptionItem(20783, "MinSpeedForMira", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.SpeedMultiplier);
+        SpeedForMira = new FloatOptionItem(20783, "SpeedForMira", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
 
-        MinSpeedForPolus = new FloatOptionItem(20784, "MinSpeedForPolus", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.SpeedMultiplier);
+        SpeedForPolus = new FloatOptionItem(20784, "SpeedForPolus", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
 
-        MinSpeedForDlesk = new FloatOptionItem(20785, "MinSpeedForDlesk", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.SpeedMultiplier);
+        SpeedForDlesk = new FloatOptionItem(20785, "SpeedForDlesk", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
 
-        MinSpeedForAirship = new FloatOptionItem(20786, "MinSpeedForAirship", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.SpeedMultiplier);
+        SpeedForAirship = new FloatOptionItem(20786, "SpeedForAirship", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
 
-        MinSpeedForFungle = new FloatOptionItem(20787, "MinSpeedForFungle", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
-            .SetValueFormat(OptionFormat.SpeedMultiplier);
+        SpeedForFungle = new FloatOptionItem(20787, "SpeedForFungle", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
 
         LoadingPercentage = 69;
 
@@ -3532,5 +3532,6 @@ public static class Options
 
     // ReSharper restore NotAccessedField.Global
 }
+
 
 
