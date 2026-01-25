@@ -383,6 +383,12 @@ public static class Options
     public static OptionItem FungleChance;
     public static OptionItem MinPlayersForAirship;
     public static OptionItem MinPlayersForFungle;
+    public static OptionItem SpeedForSkeld;
+    public static OptionItem SpeedForMira;
+    public static OptionItem SpeedForPolus;
+    public static OptionItem SpeedForDlesk;
+    public static OptionItem SpeedForAirship;
+    public static OptionItem SpeedForFungle;
 
     public static OptionItem GodfatherCancelVote;
 
@@ -3532,6 +3538,7 @@ public static class Options
 
     // ReSharper restore NotAccessedField.Global
 }
+
 
 
 
