@@ -1938,6 +1938,24 @@ public static class Options
             .SetParent(FungleChance)
             .SetValueFormat(OptionFormat.Players);
 
+        MinSpeedForSkeld = new IntegerOptionItem(19910, "MinSpeedForSkeld", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        MinSpeedForMira = new IntegerOptionItem(19911, "MinSpeedForMira", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        MinSpeedForPolus = new IntegerOptionItem(19912, "MinSpeedForPolus", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        MinSpeedForDlesk = new IntegerOptionItem(19914, "MinSpeedForDlesk", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        MinSpeedForAirship = new IntegerOptionItem(19913, "MinSpeedForAirship", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        MinSpeedForFungle = new IntegerOptionItem(19922, "MinSpeedForFungle", new(0.05, 3, 0.05), 1.25, TabGroup.GameSettings)
+            .SetValueFormat(OptionFormat.Multiplier);
+
         LoadingPercentage = 69;
 
 
@@ -3514,3 +3532,4 @@ public static class Options
 
     // ReSharper restore NotAccessedField.Global
 }
+
