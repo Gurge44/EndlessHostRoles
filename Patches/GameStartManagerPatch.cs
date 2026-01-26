@@ -216,6 +216,9 @@ public static class GameStartManagerPatch
             else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
             else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
 
+            if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
+                Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
+
             if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
             {
                 var opt = Main.NormalOptions.CastFast<IGameOptions>();
@@ -546,6 +549,9 @@ public static class GameStartRandomMap
         }
         else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
         else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
+        if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
+            Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
             Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;

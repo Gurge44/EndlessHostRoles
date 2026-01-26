@@ -141,6 +141,8 @@
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
   "Submerged": "<#3064ff>Submerged</color>",
+  "OverrideSpeedForEachMap": "Override Speed For Each Map",
+  "SpeedForMap": "Player Speed on {map}",
   "CTA.TeamEnabled.Prefix": "Enable ",
   "CTA.TeamEnabled.Suffix": " ",
   "CTA.KnowRoles": "Players Know Each Others' Roles",
