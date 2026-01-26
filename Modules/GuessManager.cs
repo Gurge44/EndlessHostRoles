@@ -347,14 +347,26 @@ public static class GuessManager
 
                     if (target.Is(CustomRoles.Onbound))
                     {
-                        ShowMessage("GuessOnbound");
-
-                        if (Onbound.GuesserSuicides.GetBool())
+                        if (!Onbound.NumBlocked.TryGetValue(target.PlayerId, out HashSet<byte> attempters))
+                            Onbound.NumBlocked[target.PlayerId] = attempters = [];
+                        
+                        if (attempters.Count < Onbound.MaxAttemptsBlocked.GetInt())
                         {
-                            if (DoubleShot.CheckGuess(pc, isUI)) return true;
-                            guesserSuicide = true;
+                            attempters.Add(pc.PlayerId);
+                            ShowMessage("GuessOnbound");
+
+                            if (Onbound.GuesserSuicides.GetBool())
+                            {
+                                if (DoubleShot.CheckGuess(pc, isUI)) return true;
+                                guesserSuicide = true;
+                            }
+                            else return true;
                         }
-                        else return true;
+                        else if (attempters.Contains(pc.PlayerId))
+                        {
+                            ShowMessage("GuessOnbound");
+                            return true;
+                        }
                     }
 
                     if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))

@@ -4144,6 +4144,7 @@
   "ZombieInitialSpeed": "Initial Speed",
   "ZombieMinimumSpeed": "Minimum Speed",
   "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
+  "MaxAttemptsBlocked": "Maximum Distinct Guessing Attempts Blocked",
   "Infection": "Infection",
   "InfectionInfo": "Spread the infection!",
   "InfectionInfoLong": "(Neutrals) (Plague Doctor from TOH):\\nThe Plague Doctor's goal is to infect every living player. They start by choosing one player to infect, after which anyone who spends a set amount of time in range of the infected player becomes infected themselves. Infection progress is cumulative, and does not reset with distance or after meetings.",
