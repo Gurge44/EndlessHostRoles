@@ -382,7 +382,6 @@ internal static class ChatCommands
 
         ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
-        string[] args = text.Split(' ');
         var canceled = false;
         Main.IsChatCommand = true;
 
@@ -403,6 +402,9 @@ internal static class ChatCommands
 
         if (text.StartsWith('/'))
         {
+            Utils.CheckServerCommand(ref text, out _);
+            string[] args = text.Split(' ');
+            
             foreach ((string key, Command command) in Command.AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
@@ -1426,7 +1428,7 @@ internal static class ChatCommands
 
         byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
         bool rollSpawnChance = Options.DraftAffectedByRoleSpawnChances.GetBool();
-        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
+        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && !ShouldNotSpawn(x) && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
 
         if (allRoles.Count < allPlayerIds.Length)
         {
@@ -1475,6 +1477,20 @@ internal static class ChatCommands
                 yield return new WaitForSecondsRealtime(20f);
                 if (DraftResult.Count >= DraftRoles.Count || !GameStates.IsLobby || GameStates.InGame) yield break;
             }
+        }
+        
+        static bool ShouldNotSpawn(CustomRoles role)
+        {
+            return role switch
+            {
+                CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
+                CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
+                CustomRoles.RoomRusher when Main.LIMap => true,
+                CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool() => true,
+                CustomRoles.Commander when Main.NormalOptions.NumImpostors <= 1 && Commander.CannotSpawnAsSoloImp.GetBool() => true,
+                CustomRoles.Changeling when Changeling.GetAvailableRoles(true).Count == 0 => true,
+                _ => false
+            };
         }
     }
 
@@ -1772,7 +1788,7 @@ internal static class ChatCommands
             var choiceLetter = (char)(i + 65);
             msg += Utils.ColorString(gmPoll ? gmPollColors[i] : RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
             PollVotes[choiceLetter] = 0;
-            PollAnswers[choiceLetter] = $"<size=70%>〖 {answers[i]} 〗</size>";
+            PollAnswers[choiceLetter] = $"〖 {answers[i]} 〗";
         }
 
         msg += $"\n{GetString("Poll.Begin")}\n<size=60%><i>";
@@ -3634,8 +3650,6 @@ internal static class ChatCommands
             }
         }
 
-        string[] args = text.Split(' ');
-
         if (!Starspawn.IsDayBreak)
         {
             if (GuessManager.GuesserMsg(player, text) ||
@@ -3660,6 +3674,9 @@ internal static class ChatCommands
 
         if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
+            Utils.CheckServerCommand(ref text, out bool spamRequired);
+            string[] args = text.Split(' ');
+            
             foreach ((string key, Command command) in Command.AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
@@ -3673,7 +3690,7 @@ internal static class ChatCommands
                     break;
                 }
 
-                if (command.AlwaysHidden) ChatManager.SendPreviousMessagesToAll();
+                if (command.AlwaysHidden && spamRequired) ChatManager.SendPreviousMessagesToAll();
                 command.Action(player, key, text, args);
                 if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;

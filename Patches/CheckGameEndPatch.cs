@@ -218,9 +218,6 @@ internal static class GameEndChecker
                         case CustomRoles.Maverick when pc.IsAlive() && roleBase is Maverick mr && mr.NumOfKills >= Maverick.MinKillsToWin.GetInt():
                         case CustomRoles.Provocateur when Provocateur.Provoked.TryGetValue(pc.PlayerId, out byte tar) && !WinnerIds.Contains(tar):
                         case CustomRoles.Hater when (roleBase as Hater).IsWon:
-                        case CustomRoles.Follower when roleBase is Follower tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
-                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)))):
-                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))))):
                         case CustomRoles.Postman when (roleBase as Postman).IsFinished:
                         case CustomRoles.Dealer when (roleBase as Dealer).IsWon:
                         case CustomRoles.Impartial when (roleBase as Impartial).IsWon:
@@ -241,6 +238,22 @@ internal static class GameEndChecker
                         case CustomRoles.Seamstress when WinnerTeam != CustomWinner.Crewmate:
                         case CustomRoles.Spirit when WinnerTeam != CustomWinner.Crewmate:
                         case CustomRoles.Starspawn when WinnerTeam != CustomWinner.Crewmate:
+                            WinnerIds.Add(pc.PlayerId);
+                            AdditionalWinnerTeams.Add((AdditionalWinners)role);
+                            break;
+                    }
+                }
+
+                foreach (PlayerControl pc in Main.AllPlayerControls) // Second loop for roles depending on other winners
+                {
+                    CustomRoles role = pc.GetCustomRole();
+                    RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
+
+                    switch (role)
+                    {
+                        case CustomRoles.Follower when roleBase is Follower tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out PlayerState ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
+                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out PlayerState ps1) && (WinnerRoles.Contains(ps1.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps1.SubRoles.Contains(CustomRoles.Bloodlust)))):
+                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out byte lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out PlayerState ps2) && (WinnerRoles.Contains(ps2.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps2.SubRoles.Contains(CustomRoles.Bloodlust))))):
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add((AdditionalWinners)role);
                             break;

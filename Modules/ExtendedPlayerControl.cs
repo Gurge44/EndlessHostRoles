@@ -374,26 +374,30 @@ internal static class ExtendedPlayerControl
     // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
     public static void RpcSetRoleGlobal(this PlayerControl player, RoleTypes roleTypes, bool setRoleMap = false)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (AmongUsClient.Instance.AmClient) player.StartCoroutine(player.CoSetRole(roleTypes, true));
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);
-        writer.Write((ushort)roleTypes);
-        writer.Write(true);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-        Logger.Info($" {player.GetNameWithRole()} => {roleTypes}", "RpcSetRoleGlobal");
-
-        if (setRoleMap)
+        try
         {
-            foreach ((byte seerID, byte targetID) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap.Keys.ToArray())
+            if (!AmongUsClient.Instance.AmHost) return;
+            if (AmongUsClient.Instance.AmClient) try { player.StartCoroutine(player.CoSetRole(roleTypes, true)); } catch { }
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);
+            writer.Write((ushort)roleTypes);
+            writer.Write(true);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            Logger.Info($" {player.GetNameWithRole()} => {roleTypes}", "RpcSetRoleGlobal");
+
+            if (setRoleMap)
             {
-                if (targetID == player.PlayerId)
+                foreach ((byte seerID, byte targetID) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap.Keys.ToArray())
                 {
-                    var value = StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerID, targetID)];
-                    value.RoleType = roleTypes;
-                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerID, targetID)] = value;
+                    if (targetID == player.PlayerId)
+                    {
+                        var value = StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerID, targetID)];
+                        value.RoleType = roleTypes;
+                        StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerID, targetID)] = value;
+                    }
                 }
             }
         }
+        catch (Exception e) { ThrowException(e); }
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)

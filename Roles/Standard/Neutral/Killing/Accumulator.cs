@@ -90,18 +90,10 @@ public class Accumulator : RoleBase
     {
         if (Killing) return;
         Killing = true;
-        pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId, setRoleMap: true);
+        pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
         LateTask.New(() => pc.SetKillCooldown(KCD), 0.2f);
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KCD, Killing);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-    }
-
-    public override void AfterMeetingTasks()
-    {
-        if (!Killing) return;
-        PlayerControl pc = AccumulatorId.GetPlayer();
-        if (pc == null || !pc.IsAlive()) return;
-        pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId, setRoleMap: true);
     }
 
     public void ReceiveRPC(MessageReader reader)

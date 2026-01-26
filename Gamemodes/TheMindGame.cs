@@ -715,6 +715,8 @@ public static class TheMindGame
         try
         {
             if (Round < 2 || !text.Any(x => x is >= '0' and <= '9') || text.Length < 2 || GameStates.IsLobby) return;
+            
+            Utils.CheckServerCommand(ref text, out bool spamRequired);
 
             switch (text[0])
             {
@@ -784,7 +786,7 @@ public static class TheMindGame
                             byte id = FindTargetIdFromText();
                             if (id == byte.MaxValue) break;
 
-                            if (!pc.AmOwner) ChatManager.SendPreviousMessagesToAll();
+                            if (!pc.AmOwner && spamRequired) ChatManager.SendPreviousMessagesToAll();
 
                             if (id == WinningBriefcaseHolderId)
                             {

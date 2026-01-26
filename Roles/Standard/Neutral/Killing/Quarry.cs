@@ -28,6 +28,7 @@ public class Quarry : RoleBase
 
     private byte QuarryId;
     public byte TargetId;
+    private float TargetKCD;
     private Stopwatch SeekTimer;
     private long LastUpdate;
 
@@ -58,6 +59,7 @@ public class Quarry : RoleBase
         On = true;
         QuarryId = playerId;
         TargetId = byte.MaxValue;
+        TargetKCD = 0f;
         SeekTimer = new();
         LastUpdate = 0;
         Instances.Add(this);
@@ -104,12 +106,16 @@ public class Quarry : RoleBase
         if (shapeshifter.GetAbilityUseLimit() < 1) return false;
         shapeshifter.RpcRemoveAbilityUse();
 
-        Vector2 pos = shapeshifter.Pos();
-        shapeshifter.TP(target);
-        target.TP(pos);
+        LateTask.New(() =>
+        {
+            Vector2 pos = shapeshifter.Pos();
+            shapeshifter.TP(target);
+            target.TP(pos);
+        }, 0.2f);
 
         TargetId = target.PlayerId;
         SeekTimer = Stopwatch.StartNew();
+        TargetKCD = Main.KillTimers[TargetId];
         Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 1, TargetId);
         Main.Instance.StartCoroutine(ContinuouslyResetAbilityCooldown());
         if (TargetHasArrowToQuarry.GetBool()) TargetArrow.Add(target.PlayerId, shapeshifter.PlayerId);
@@ -119,6 +125,7 @@ public class Quarry : RoleBase
         hasValue |= sender.Notify(target, string.Format(Translator.GetString("Quarry.TargetSeekBeginNotify"), CustomRoles.Quarry.ToColoredString()));
         hasValue |= sender.RpcSetRole(target, RoleTypes.Impostor, target.OwnerId);
         hasValue |= sender.RpcSetRole(shapeshifter, RoleTypes.Crewmate, target.OwnerId);
+        hasValue |= sender.SetKillCooldown(target, 0.01f);
         hasValue |= sender.NotifyRolesSpecific(target, shapeshifter, out sender, out bool cleared);
         if (cleared) hasValue = false;
         sender.SendMessage(dispose: !hasValue);
@@ -181,7 +188,10 @@ public class Quarry : RoleBase
             {
                 killer.Kill(target);
                 killer.RpcSetRoleDesync(killer.GetRoleTypes(), killer.OwnerId);
+                killer.SetKillCooldown(instance.TargetKCD);
+                instance.QuarryId.GetPlayer()?.RpcResetAbilityCooldown();
                 instance.TargetId = byte.MaxValue;
+                instance.TargetKCD = 0f;
                 instance.SeekTimer.Reset();
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.QuarryId, 2);
                 return true;
@@ -241,7 +251,7 @@ public class Quarry : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if ((seer.PlayerId != QuarryId && seer.PlayerId != TargetId) || seer.PlayerId != target.PlayerId || meeting || hud || TargetId == byte.MaxValue) return string.Empty;
-        string timer = string.Format(Translator.GetString("Quarry.TimeLeftSuffix"), SeekTimer.GetRemainingTime(SeekTime.GetInt()) - 1, CustomRoles.Quarry.ToColoredString());
-        return seer.PlayerId == TargetId ? $"{TargetArrow.GetAllArrows(TargetId)}\n{timer}" : timer;
+        string time = SeekTimer.GetRemainingTime(SeekTime.GetInt()).ToString();
+        return seer.PlayerId == TargetId ? $"{TargetArrow.GetAllArrows(TargetId)}\n{string.Format(Translator.GetString("Quarry.TimeLeftSuffix"), time, CustomRoles.Quarry.ToColoredString())}" : time;
     }
 }

@@ -47,6 +47,7 @@ public class Retributionist : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
+        if (!AmongUsClient.Instance.AmHost) return Camping == byte.MaxValue;
         return pc.GetRoleMap().CustomRole == CustomRoles.Retributionist;
     }
 

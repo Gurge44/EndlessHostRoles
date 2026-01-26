@@ -44,40 +44,37 @@ internal class Bodyguard : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.IsCrewmate()) return true;
+        if (killer.IsCrewmate() || killer.PlayerId == target.PlayerId || killer.Is(CustomRoles.Bodyguard)) return true;
 
-        if (killer.PlayerId != target.PlayerId)
+        foreach (Bodyguard bodyguard in Instances)
         {
-            foreach (Bodyguard bodyguard in Instances)
+            try
             {
-                try
+                if (bodyguard.BodyguardPC == null || bodyguard.BodyguardPC.PlayerId == target.PlayerId) continue;
+
+                float dis = Vector2.Distance(bodyguard.BodyguardPC.Pos(), target.Pos());
+                if (dis > BodyguardProtectRadius.GetFloat()) return true;
+
+                if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
                 {
-                    if (bodyguard.BodyguardPC == null || bodyguard.BodyguardPC.PlayerId == target.PlayerId) continue;
-
-                    float dis = Vector2.Distance(bodyguard.BodyguardPC.Pos(), target.Pos());
-                    if (dis > BodyguardProtectRadius.GetFloat()) return true;
-
-                    if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
-                    {
-                        Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
-                        continue;
-                    }
-
-                    if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, true))
-                        bodyguard.BodyguardPC.Kill(killer);
-                    else
-                        killer.SetKillCooldown();
-
-                    bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
-                    Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {target.GetRealName()}", "Bodyguard");
-
-                    if (bodyguard.BodyguardPC.AmOwner && target.Is(CustomRoles.President))
-                        Achievements.Type.GetDownMrPresident.Complete();
-
-                    return false;
+                    Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
+                    continue;
                 }
-                catch (Exception e) { Utils.ThrowException(e); }
+
+                if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, true))
+                    bodyguard.BodyguardPC.Kill(killer);
+                else
+                    killer.SetKillCooldown();
+
+                bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
+                Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {target.GetRealName()}", "Bodyguard");
+
+                if (bodyguard.BodyguardPC.AmOwner && target.Is(CustomRoles.President))
+                    Achievements.Type.GetDownMrPresident.Complete();
+
+                return false;
             }
+            catch (Exception e) { Utils.ThrowException(e); }
         }
 
         return true;

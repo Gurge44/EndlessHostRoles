@@ -205,7 +205,7 @@ internal static class HudManagerPatch
                     ActionButton usedButton = __instance.KillButton;
                     if (usesPetInsteadOfKill) usedButton = __instance.PetButton;
 
-                    __instance.KillButton?.OverrideText(player.GetRoleTypes() == RoleTypes.Viper ? GetString("KillButtonText.Viper") : GetString("KillButtonText"));
+                    __instance.KillButton?.OverrideText(player.GetRoleTypes() == RoleTypes.Viper ? GetString("AbilityButtonText.Viper") : GetString("KillButtonText"));
                     __instance.ReportButton?.OverrideText(GetString("ReportButtonText"));
                     __instance.PetButton?.OverrideText(GetString("PetButtonText"));
                     __instance.ImpostorVentButton?.OverrideText(GetString("VentButtonText"));

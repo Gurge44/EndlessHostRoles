@@ -100,7 +100,7 @@ internal class Merchant : RoleBase
 
     public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
     {
-        if (!player.IsAlive() || !player.Is(CustomRoles.Merchant) || AddonsSold[player.PlayerId] >= OptionMaxSell.GetInt()) return;
+        if (!player.IsAlive() || AddonsSold[player.PlayerId] >= OptionMaxSell.GetInt()) return;
 
         if (Addons.Count == 0)
         {
@@ -114,10 +114,9 @@ internal class Merchant : RoleBase
         List<PlayerControl> availableTargets =
             Main.AllAlivePlayerControls.Where(x =>
                 x.PlayerId != player.PlayerId
-                && !Pelican.IsEaten(x.PlayerId)
                 && !x.Is(addon)
                 && CustomRolesHelper.CheckAddonConflict(addon, x)
-                && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
+                && (!x.Is(CustomRoles.Cleansed) || Cleanser.CleansedCanGetAddon.GetBool())
                 && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
                     (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
                     (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller())) ||

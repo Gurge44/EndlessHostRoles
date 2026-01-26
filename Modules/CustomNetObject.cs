@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.InnerNet.GameDataMessages;
@@ -177,7 +178,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            if (GameStates.IsEnded || !AmongUsClient.Instance.AmHost || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
+            if (GameStates.IsEnded || !AmongUsClient.Instance.AmHost) return;
             
             Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position} - Time since game start: {Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS}s", "CNO.CreateNetObject");
 
@@ -187,7 +188,7 @@ namespace EHR
                 {
                     Main.Instance.StartCoroutine(CoRoutine());
                     
-                    System.Collections.IEnumerator CoRoutine()
+                    IEnumerator CoRoutine()
                     {
                         Logger.Info("Delaying CNO Spawn", "CustomNetObject.CreateNetObject");
                         while (GameStates.InGame && !GameStates.IsEnded && (!Main.IntroDestroyed || Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 10)) yield return null;
@@ -366,7 +367,7 @@ namespace EHR
             Main.Instance.StartCoroutine(WaitForMeetingEnd());
             return;
 
-            System.Collections.IEnumerator WaitForMeetingEnd()
+            IEnumerator WaitForMeetingEnd()
             {
                 yield return new WaitForSecondsRealtime(5f);
                 while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
@@ -376,8 +377,13 @@ namespace EHR
 
                 try
                 {
-                    AmongUsClient.Instance.RemoveNetObject(playerControl);
-                    Object.Destroy(playerControl.gameObject);
+                    try
+                    {
+                        AmongUsClient.Instance.RemoveNetObject(playerControl);
+                        Object.Destroy(playerControl.gameObject);
+                    }
+                    catch (Exception e) { Utils.ThrowException(e); }
+                    
                     playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
                     playerControl.PlayerId = 254;
                     playerControl.isNew = false;
@@ -897,7 +903,7 @@ namespace EHR
     {
         public FallenTree(Vector2 position)
         {
-            CreateNetObject(EHR.Roles.Tree.FallenSprite, position);
+            CreateNetObject(Roles.Tree.FallenSprite, position);
         }
     }
 

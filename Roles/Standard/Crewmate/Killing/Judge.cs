@@ -79,8 +79,6 @@ public class Judge : RoleBase
 
     public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        string originMsg = msg;
-
         if (!AmongUsClient.Instance.AmHost) return false;
 
         if (!GameStates.IsInGame || pc == null) return false;
@@ -90,9 +88,9 @@ public class Judge : RoleBase
         int operate; // 1:ID 2:Trial
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
             operate = 1;
-        else if (CheckCommand(ref msg, "jj|tl|trial|审判|判|审", false))
+        else if (GuessManager.CheckCommand(ref msg, "jj|tl|trial|审判|判|审", false, out spamRequired))
             operate = 2;
         else
             return false;
@@ -110,9 +108,8 @@ public class Judge : RoleBase
                 break;
             case 2:
             {
-                if (TryHideMsg.GetBool()) /*GuessManager.TryHideMsg();*/
+                if (TryHideMsg.GetBool() && !isUI && spamRequired)
                     ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {
@@ -238,29 +235,6 @@ public class Judge : RoleBase
 
         error = string.Empty;
         return true;
-    }
-
-    private static bool CheckCommand(ref string msg, string command, bool exact = true)
-    {
-        string[] comList = command.Split('|');
-
-        foreach (string str in comList)
-        {
-            if (exact)
-            {
-                if (msg == "/" + str) return true;
-            }
-            else
-            {
-                if (msg.StartsWith("/" + str))
-                {
-                    msg = msg.Replace("/" + str, string.Empty);
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)

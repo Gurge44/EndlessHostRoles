@@ -55,7 +55,7 @@ public static class Translator
                 {
                     using StreamReader reader = new(resourceStream);
                     string jsonContent = reader.ReadToEnd();
-
+                    
                     // Deserialize the JSON into a dictionary
                     var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
 
@@ -74,12 +74,6 @@ public static class Translator
                     }
                 }
             }
-
-            // Convert the resulting translation map to JSON
-            JsonSerializer.Serialize(TranslateMaps, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
         }
         catch (Exception ex) { Logger.Error($"Error: {ex}", "Translator"); }
 
