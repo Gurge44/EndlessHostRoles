@@ -238,10 +238,12 @@ public class Inspector : RoleBase
                     {
                         LateTask.New(() =>
                         {
+                            string format = string.Format(GetString("InspectorCheckTrue"), target1.GetRealName(), target2.GetRealName());
+
                             if (!isUI)
-                                Utils.SendMessage(string.Format(GetString("InspectorCheckTrue"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
+                                Utils.SendMessage(format, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
                             else
-                                pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTrue")) + "\n" + GetString("InspectorCheckTitle"));
+                                pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), format) + "\n" + GetString("InspectorCheckTitle"));
 
                             Logger.Msg("Check attempt, result TRUE", "Inspector");
                         }, 0.2f, "Inspector 4");
@@ -250,10 +252,12 @@ public class Inspector : RoleBase
                     {
                         LateTask.New(() =>
                         {
+                            string format = string.Format(GetString("InspectorCheckFalse"), target1.GetRealName(), target2.GetRealName());
+                            
                             if (!isUI)
-                                Utils.SendMessage(string.Format(GetString("InspectorCheckFalse"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
+                                Utils.SendMessage(format, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
                             else
-                                pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckFalse")) + "\n" + GetString("InspectorCheckTitle"));
+                                pc.ShowPopUp($"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), format)}\n{GetString("InspectorCheckTitle")}");
 
                             Logger.Msg("Check attempt, result FALSE", "Inspector");
                         }, 0.2f, "Inspector 5");
