@@ -273,7 +273,7 @@ public class Alchemist : RoleBase
 
         ventedId = ventId;
 
-        instance.RpcExitVentDesync(ventId, pc);
+        LateTask.New(() => instance.RpcExitVentDesync(ventId, pc), 0.5f);
 
         InvisTime = Utils.TimeStamp;
         SendRPC();

@@ -386,6 +386,9 @@ public static class Options
     public static OptionItem OverrideSpeedForEachMap;
     public static Dictionary<MapNames, OptionItem> MapSpeeds = [];
 
+    public static OptionItem OverrideVisionInVents;
+    public static Dictionary<Team, OptionItem> InVentVision = [];
+
     public static OptionItem GodfatherCancelVote;
 
     public static OptionItem GuardSpellTimes;
@@ -1943,6 +1946,7 @@ public static class Options
         OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings);
 
         MapSpeeds = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetParent(OverrideSpeedForEachMap)
             .SetValueFormat(OptionFormat.Multiplier)
             .AddReplacement(("{map}", Translator.GetString(x.ToString()))));
 
@@ -3055,6 +3059,13 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetParent(EnableGameTimeLimit)
             .SetValueFormat(OptionFormat.Seconds);
+
+        OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings);
+
+        InVentVision = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
+            .SetParent(OverrideVisionInVents)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .AddReplacement(("{team}", Utils.ColorString(x.GetColor(), Translator.GetString($"Type{x}")))));
 
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)

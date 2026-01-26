@@ -2093,8 +2093,14 @@ internal static class ExitVentPatch
         Drainer.OnAnyoneExitVent(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnExitVent(pc, __instance);
+        
+        LateTask.New(() =>
+        {
+            if (Options.OverrideVisionInVents.GetBool() && Options.InVentVision.ContainsKey(pc.GetTeam()))
+                pc.MarkDirtySettings();
+        }, 0.6f);
 
-        if (Options.WhackAMole.GetBool()) LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Whack-A-Mole TP");
+        if (Options.WhackAMole.GetBool()) LateTask.New(() => pc.TPToRandomVent(), 0.6f, "Whack-A-Mole TP");
 
         if (!pc.IsModdedClient() && pc.Is(CustomRoles.Haste)) pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
     }
@@ -2219,6 +2225,9 @@ internal static class EnterVentPatch
         Chef.SpitOutFood(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnEnterVent(pc, __instance);
+        
+        if (Options.OverrideVisionInVents.GetBool() && Options.InVentVision.ContainsKey(pc.GetTeam()))
+            pc.MarkDirtySettings();
 
         if (pc.AmOwner)
             Statistics.VentTimes++;

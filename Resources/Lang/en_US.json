@@ -1271,6 +1271,8 @@
   "MenuTitle.Guessers": "★ Guesser Mode ★",
   "MenuTitle.CTA": "★ Custom Team Assignment ★",
   "MenuTitle.AFKDetection": "★ AFK Detection ★",
+  "OverrideVisionInVents": "Override Vision While In Vent",
+  "InVentVisionForTeam": "Vision While In Vent For {team}",
   "ReadyCheckMessage": "The Host/a Staff is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the Host/Staff know you're not AFK.",
   "ReadyCheckTitle": "<#ffff00>★ Ready Check ★</color>",
   "EveryoneReadyTitle": "<#00ff00>Everyone is ready!</color>",

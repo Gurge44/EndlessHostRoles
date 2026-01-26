@@ -146,6 +146,13 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             CustomRoles role = player.GetCustomRole();
             RoleTypes roleTypes = player.GetRoleTypes();
 
+            if (player.inVent && Options.OverrideVisionInVents.GetBool() && Options.InVentVision.TryGetValue(player.GetTeam(), out var option))
+            {
+                var value = option.GetFloat();
+                opt.SetFloat(FloatOptionNames.CrewLightMod, value);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, value);
+            }
+
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.FFA:

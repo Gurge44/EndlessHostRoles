@@ -243,7 +243,7 @@ public class Swooper : RoleBase
 
         if (CanGoInvis && (wraith || limit >= 1))
         {
-            __instance.RpcExitVentDesync(ventId, pc);
+            LateTask.New(() => __instance.RpcExitVentDesync(ventId, pc), 0.5f);
 
             ventedId = ventId;
             InvisTime = Utils.TimeStamp;
@@ -256,7 +256,7 @@ public class Swooper : RoleBase
 
         if (!VentNormallyOnCooldown)
         {
-            __instance.RpcExitVent(ventId);
+            LateTask.New(() => __instance.RpcExitVent(ventId), 0.5f);
             pc.Notify(GetString("SwooperInvisInCooldown"));
             return true;
         }
