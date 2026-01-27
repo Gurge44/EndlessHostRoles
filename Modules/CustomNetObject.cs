@@ -354,175 +354,20 @@ namespace EHR
         {
             if (!AmongUsClient.Instance.AmHost) return;
             
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-			writer.StartMessage(5);
-			writer.WritePacked(playerControl.NetId);
-			writer.EndMessage();
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
+            Despawn();
             
             Main.Instance.StartCoroutine(WaitForMeetingEnd());
             return;
 
             IEnumerator WaitForMeetingEnd()
             {
-                yield return new WaitForSecondsRealtime(5f);
+                yield return new WaitForSecondsRealtime(10f);
                 while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
-                yield return new WaitForSecondsRealtime(1f);
+                yield return new WaitForSecondsRealtime(3f);
                 while (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return null;
                 if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby) yield break;
 
-                try
-                {
-                    try
-                    {
-                        AmongUsClient.Instance.RemoveNetObject(playerControl);
-                        Object.Destroy(playerControl.gameObject);
-                    }
-                    catch (Exception e) { Utils.ThrowException(e); }
-                    
-                    playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
-                    playerControl.PlayerId = 254;
-                    playerControl.isNew = false;
-                    playerControl.notRealPlayer = true;
-
-                    try { playerControl.NetTransform.SnapTo(new Vector2(50f, 50f)); }
-                    catch (Exception e) { Utils.ThrowException(e); }
-                    
-                    AmongUsClient.Instance.NetIdCnt += 1U;
-                    MessageWriter msg = MessageWriter.Get(SendOption.Reliable);
-                    msg.StartMessage(5);
-                    msg.Write(AmongUsClient.Instance.GameId);
-                    msg.StartMessage(4);
-                    SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
-                    item.SerializeValues(msg);
-                    msg.EndMessage();
-
-                    if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-                    {
-                        for (uint i = 1; i <= 3; ++i)
-                        {
-                            msg.StartMessage(4);
-                            msg.WritePacked(2U);
-                            msg.WritePacked(-2);
-                            msg.Write((byte)SpawnFlags.None);
-                            msg.WritePacked(1);
-                            msg.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
-                            msg.StartMessage(1);
-                            msg.EndMessage();
-                            msg.EndMessage();
-                        }
-                    }
-
-                    msg.EndMessage();
-                    AmongUsClient.Instance.SendOrDisconnect(msg);
-                    msg.Recycle();
-                    if (PlayerControl.AllPlayerControls.Contains(playerControl))
-                        PlayerControl.AllPlayerControls.Remove(playerControl);
-                    playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-                    playerControl.cosmetics.colorBlindText.color = Color.clear;
-                }
-                catch (Exception e) { Utils.ThrowException(e); }
-
-                yield return new WaitForSecondsRealtime(0.1f);
-
-                try
-                {
-                    foreach (var pc in PlayerControl.AllPlayerControls)
-                    {
-                        try
-                        {
-                            if (pc.AmOwner) continue;
-                            CustomRpcSender sender = CustomRpcSender.Create("CustomNetObject.OnMeeting", SendOption.Reliable);
-                            MessageWriter writer2 = sender.stream;
-                            sender.StartMessage(pc.OwnerId);
-                            writer2.StartMessage(1);
-                            {
-                                writer2.WritePacked(playerControl.NetId);
-                                writer2.Write(pc.PlayerId);
-                            }
-                            writer2.EndMessage();
-                            sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
-                                .WriteNetObject(playerControl)
-                                .Write((int)MurderResultFlags.FailedError)
-                                .EndRpc();
-                            writer2.StartMessage(1);
-                            {
-                                writer2.WritePacked(playerControl.NetId);
-                                writer2.Write((byte)254);
-                            }
-                            writer2.EndMessage();
-                            sender.EndMessage();
-                            sender.SendMessage();
-                        }
-                        catch (Exception e) { Utils.ThrowException(e); }
-                    }
-                    playerControl.CachedPlayerData = PlayerControl.LocalPlayer.Data;
-                }
-                catch (Exception e) { Utils.ThrowException(e); }
-
-                yield return new WaitForSecondsRealtime(0.1f);
-
-                try
-                {
-                    string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
-                    int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
-                    string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
-                    string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
-                    string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
-                    string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-                    var sender = CustomRpcSender.Create("CustomNetObject.CreateNetObject", SendOption.Reliable, log: false);
-                    MessageWriter writer2 = sender.stream;
-                    sender.StartMessage();
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + Sprite;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 0;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
-                    writer2.StartMessage(1);
-                    {
-                        writer2.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
-                        PlayerControl.LocalPlayer.Data.Serialize(writer2, false);
-                    }
-                    writer2.EndMessage();
-
-                    try { playerControl.Shapeshift(PlayerControl.LocalPlayer, false); }
-                    catch (Exception e) { Utils.ThrowException(e); }
-
-                    sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
-                        .WriteNetObject(PlayerControl.LocalPlayer)
-                        .Write(false)
-                        .EndRpc();
-
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = name;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = colorId;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = hatId;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = skinId;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
-                    writer2.StartMessage(1);
-                    {
-                        writer2.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
-                        PlayerControl.LocalPlayer.Data.Serialize(writer2, false);
-                    }
-                    writer2.EndMessage();
-
-                    try { playerControl.NetTransform.SnapTo(Position); }
-                    catch (Exception e) { Utils.ThrowException(e); }
-                    
-                    sender.StartRpc(playerControl.NetTransform.NetId, (byte)RpcCalls.SnapTo)
-                        .WriteVector2(Position)
-                        .Write(playerControl.NetTransform.lastSequenceId)
-                        .EndRpc();
-
-                    sender.EndMessage();
-                    sender.SendMessage();
-                }
-                catch (Exception e) { Utils.ThrowException(e); }
+                CreateNetObject(Sprite, Position);
             }
         }
 

@@ -1169,8 +1169,8 @@ internal static class ReportDeadBodyPatch
 
         try
         {
-            for (int i = CustomNetObject.AllObjects.Count - 1; i >= 0; --i)
-                CustomNetObject.AllObjects[i].OnMeeting();
+            foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
+                cno.OnMeeting();
         }
         catch (Exception e) { ThrowException(e); }
 
