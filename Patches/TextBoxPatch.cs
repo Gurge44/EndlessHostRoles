@@ -135,7 +135,7 @@ public static class TextBoxPatch
             var exactMatch = false;
             bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
 
-            foreach (Command cmd in Command.AllCommands.Values)
+            foreach (Command cmd in Command.AllCommands)
             {
                 string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii))] : cmd.CommandForms;
 

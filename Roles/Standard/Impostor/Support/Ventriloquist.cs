@@ -44,14 +44,7 @@ public class Ventriloquist : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         var command = $"/target {target.PlayerId}";
-        ChatCommands.TargetCommand(shapeshifter, "Command.Target", command, command.Split(' '));
-    }
-
-    public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
-    {
-        int playerId = reader.ReadByte();
-        var command = $"/target {playerId}";
-        ChatCommands.TargetCommand(pc, "Command.Target", command, command.Split(' '));
+        ChatCommands.TargetCommand(shapeshifter, command, command.Split(' '));
     }
 
     private static void VentriloquisttOnClick(byte playerId /*, MeetingHud __instance*/)
@@ -59,18 +52,13 @@ public class Ventriloquist : RoleBase
         Logger.Msg($"Click: ID {playerId}", "Ventriloquist UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
+        
+        var command = $"/target {playerId}";
 
         if (AmongUsClient.Instance.AmHost)
-        {
-            var command = $"/target {playerId}";
-            ChatCommands.TargetCommand(PlayerControl.LocalPlayer, "Command.Target", command, command.Split(' '));
-        }
+            ChatCommands.TargetCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
         else
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VentriloquistClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
-            writer.Write(playerId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+            ChatCommands.RequestCommandProcessingFromHost(command, "Target");
     }
 
     public static void CreateVentriloquistButton(MeetingHud __instance)

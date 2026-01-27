@@ -1035,7 +1035,7 @@ public static class Options
             sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Hidden |");
             sb.AppendLine("|---------|-------------|-----------|-------------|------------|--------|");
 
-            foreach ((String key, Command command) in Command.AllCommands)
+            foreach (Command command in Command.AllCommands)
             {
                 string forms = command.CommandForms.TakeWhile(x => x.All(char.IsAscii)).Join(x => $"/{x}", "<br>");
                 string description = command.Description;

@@ -158,10 +158,6 @@ public enum CustomRPC
     SyncAllergic,
     SyncAsthmatic,
     InspectorCommand,
-    ImitatorClick,
-    RetributionistClick,
-    StarspawnClick,
-    VentriloquistClick,
     Invisibility,
     ResetAbilityCooldown,
     SyncCamouflage,
@@ -255,7 +251,7 @@ internal static class RPCHandlerPatch
     {
         if (id == 115) return true;
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand or CustomRPC.ImitatorClick or CustomRPC.RetributionistClick or CustomRPC.StarspawnClick or CustomRPC.VentriloquistClick;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -656,19 +652,26 @@ internal static class RPCHandlerPatch
                     if (!AmongUsClient.Instance.AmHost) break;
 
                     string commandKey = reader.ReadString();
-                    PlayerControl player = reader.ReadByte().GetPlayer();
                     string text = reader.ReadString();
 
-                    if (!Command.AllCommands.TryGetValue(commandKey, out Command command))
+                    if (__instance == null || !__instance.IsModdedClient())
+                    {
+                        Logger.Error("Player is null or not a modded client", "RequestCommandProcessingFromHost");
+                        break;
+                    }
+
+                    Command command = Command.AllCommands.Find(x => x.Key == commandKey);
+
+                    if (command == null)
                     {
                         Logger.Error($"Invalid Command {commandKey}.", "RequestCommandProcessingFromHost");
                         break;
                     }
 
-                    if (!command.CanUseCommand(player)) break;
+                    if (!command.CanUseCommand(__instance)) break;
 
-                    command.Action(player, commandKey, text, text.Split(' '));
-                    Logger.Info($"Invoke Command: {command.Action.Method.Name} ({player?.Data?.PlayerName}, {text})", "RequestCommandProcessing");
+                    command.Action(__instance, text, text.Split(' '));
+                    Logger.Info($"Invoke Command: {command.Action.Method.Name} ({__instance.Data?.PlayerName}, {text})", "RequestCommandProcessing");
                     break;
                 }
                 case CustomRPC.SyncPostman:
@@ -1340,29 +1343,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.InspectorCommand:
                 {
                     Inspector.ReceiveRPC(reader);
-                    break;
-                }
-                case CustomRPC.ImitatorClick:
-                {
-                    Imitator.ReceiveRPC(reader, __instance);
-                    break;
-                }
-                case CustomRPC.RetributionistClick:
-                {
-                    int playerId = reader.ReadByte();
-                    var command = $"/retribute {playerId}";
-                    ChatCommands.RetributeCommand(__instance, "Command.Retribute", command, command.Split(' '));
-                    break;
-                }
-                case CustomRPC.StarspawnClick:
-                {
-                    var command = $"/daybreak";
-                    ChatCommands.DayBreakCommand(__instance, "Command.DayBreak", command, command.Split(' '));
-                    break;
-                }
-                case CustomRPC.VentriloquistClick:
-                {
-                    Ventriloquist.ReceiveRPC(reader, __instance);
                     break;
                 }
                 case CustomRPC.Invisibility:

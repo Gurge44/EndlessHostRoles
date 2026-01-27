@@ -1717,23 +1717,22 @@ public static class Utils
     public static void ShowHelp(byte id)
     {
         PlayerControl player = GetPlayerById(id);
-        SendMessage(Command.AllCommands.Values.Where(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => id == 0 ? ColorString(GetColor(i), x) : x).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), id, GetString("CommandList"));
+        SendMessage(Command.AllCommands.FindAll(x => x.CanUseCommand(player, false) && !x.CommandForms.Contains("help")).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.TakeWhile(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => id == 0 ? ColorString(GetColor(i), x) : x).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), id, GetString("CommandList"));
         return;
 
-        Color GetColor(int i) =>
-            i switch
-            {
-                0 => Palette.Orange,
-                1 => Color.magenta,
-                2 => id == 0 && Main.DarkTheme.Value ? Color.yellow : Color.blue,
-                3 => Color.red,
-                4 => Color.cyan,
-                5 => Color.green,
-                6 => Palette.Brown,
-                7 => Palette.Purple,
+        Color GetColor(int i) => i switch
+        {
+            0 => Palette.Orange,
+            1 => Color.magenta,
+            2 => id == 0 && Main.DarkTheme.Value ? Color.yellow : Color.blue,
+            3 => Color.red,
+            4 => Color.cyan,
+            5 => Color.green,
+            6 => Palette.Brown,
+            7 => Palette.Purple,
 
-                _ => Color.white
-            };
+            _ => Color.white
+        };
     }
 
     private static void CheckTerroristWin(NetworkedPlayerInfo terrorist)
