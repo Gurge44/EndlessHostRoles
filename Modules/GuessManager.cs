@@ -126,7 +126,7 @@ public static class GuessManager
                      (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())))
-                    ChatManager.SendPreviousMessagesToAll();
+                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
                 {

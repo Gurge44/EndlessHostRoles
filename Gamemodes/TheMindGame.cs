@@ -786,7 +786,8 @@ public static class TheMindGame
                             byte id = FindTargetIdFromText();
                             if (id == byte.MaxValue) break;
 
-                            if (!pc.AmOwner && spamRequired) ChatManager.SendPreviousMessagesToAll();
+                            if (!pc.AmOwner && spamRequired)
+                                Utils.SendMessage("\n", pc.PlayerId, Translator.GetString("NoSpamAnymoreUseCmd"));
 
                             if (id == WinningBriefcaseHolderId)
                             {

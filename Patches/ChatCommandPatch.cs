@@ -3188,7 +3188,7 @@ internal static class ChatCommands
                     break;
                 }
 
-                if (command.AlwaysHidden && spamRequired) ChatManager.SendPreviousMessagesToAll();
+                if (command.AlwaysHidden && spamRequired) Utils.SendMessage("\n", player.PlayerId, GetString("NoSpamAnymoreUseCmd"));
                 command.Action(player, text, args);
                 if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;
