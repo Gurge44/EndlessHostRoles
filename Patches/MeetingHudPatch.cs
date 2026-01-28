@@ -1242,7 +1242,7 @@ internal static class MeetingHudUpdatePatch
                 BufferTime = 10;
                 CustomRoles myRole = PlayerControl.LocalPlayer.GetCustomRole();
 
-                __instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out PlayerState ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
+                //__instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out PlayerState ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
 
                 switch (myRole)
                 {
