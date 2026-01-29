@@ -17,6 +17,9 @@ namespace EHR.Modules;
 
 public enum CustomRPC
 {
+    // Vanilla RpcCalls currently (2025.11.18) uses 65
+    // It is better to leave the remaining RPC numbers as a reserve in case AU adds new RpcCalls
+
     VersionCheck = 102,
     RequestRetryVersionCheck,
     SyncCustomSettings,
@@ -26,20 +29,19 @@ public enum CustomRPC
     SetCustomRole,
     SetNameColorData,
     SetRealKiller,
-    ShowChat,
     SyncLobbyTimer,
     AntiBlackout,
-    PlayCustomSound = 114,
-    
+    PlayCustomSound,
+    SetKillTimer = 114,
+
     /* RED SUS Ranzion 64 RPC = 115 */
-    
-    SetKillTimer = 116,
-    SyncAllPlayerNames,
+
+    SyncAllPlayerNames = 116,
     SyncAllClientRealNames,
     SyncNameNotify,
 
     KnCheat = 119,
-    
+
     ShowPopUp,
     KillFlash,
     SyncAbilityUseLimit,
@@ -181,6 +183,9 @@ public enum CustomRPC
     TMGSync,
     BedWarsSync,
     DeathraceSync
+
+    // The total number of RPCs must not exceed 255
+    // Because HandleRpc accepts Rpc in byte (max 255) system and it will be impossible to use int
 }
 
 public enum Sounds
@@ -981,14 +986,6 @@ internal static class RPCHandlerPatch
                     byte targetId = reader.ReadByte();
                     byte killerId = reader.ReadByte();
                     RPC.SetRealKiller(targetId, killerId);
-                    break;
-                }
-                case CustomRPC.ShowChat:
-                {
-                    uint clientId = reader.ReadPackedUInt32();
-                    bool show = reader.ReadBoolean();
-                    if (AmongUsClient.Instance.ClientId == clientId) HudManager.Instance.Chat.SetVisible(show);
-
                     break;
                 }
                 case CustomRPC.SyncLobbyTimer:
