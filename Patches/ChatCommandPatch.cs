@@ -1105,6 +1105,12 @@ internal static class ChatCommands
             return;
         }
 
+        if (player.Is(CustomRoles.God))
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("NoWhisperAsRole"), sendOption: SendOption.None);
+            return;
+        }
+
         if (args.Length < 3 || !byte.TryParse(args[1], out byte targetId)) return;
 
         PlayerState state = Main.PlayerStates[targetId];

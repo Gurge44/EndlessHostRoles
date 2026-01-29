@@ -11,6 +11,7 @@ public class Ankylosaurus : RoleBase
     private static OptionItem Speed;
     private static OptionItem Vision;
     private static OptionItem Lives;
+    private static OptionItem KCD;
 
     private int LivesLeft;
 
@@ -21,7 +22,8 @@ public class Ankylosaurus : RoleBase
         StartSetup(647100)
             .AutoSetupOption(ref Speed, 0.8f, new FloatValueRule(0.05f, 3f, 0.05f), OptionFormat.Multiplier)
             .AutoSetupOption(ref Vision, 0.25f, new FloatValueRule(0f, 1.3f, 0.05f), OptionFormat.Multiplier)
-            .AutoSetupOption(ref Lives, 3, new IntegerValueRule(1, 30, 1), OptionFormat.Health);
+            .AutoSetupOption(ref Lives, 3, new IntegerValueRule(1, 30, 1), OptionFormat.Health)
+            .AutoSetupOption(ref KCD, 8f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds, overrideName: "MedicResetCooldown");
     }
 
     public override void Init()
@@ -46,8 +48,16 @@ public class Ankylosaurus : RoleBase
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, LivesLeft - 1);
-        return LivesLeft-- <= 1;
+        bool survive = LivesLeft > 0;
+        
+        if (survive)
+        {
+            LivesLeft--;
+            Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, LivesLeft);
+            killer.SetKillCooldown(KCD.GetFloat());
+        }
+        
+        return survive;
     }
 
     public override string GetProgressText(byte playerId, bool comms)

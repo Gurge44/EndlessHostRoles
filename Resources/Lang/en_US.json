@@ -1580,6 +1580,7 @@
   "ArroganceMinKillCooldown": "Minimum kill cooldown",
   "ArroganceShowProgressText": "Show kill cooldown reduction below the name",
   "BomberRadius": "Bomb radius (5x is about half a Cafeteria)",
+  "NoWhisperAsRole": "<#ff0000>X</color> You cannot use the 'whisper' command as this role.",
   "NotifyGodAlive": "Inform players at meetings that God is still alive",
   "God.KnowInfo": "God knows players'",
   "Alignments": "Alignments",
