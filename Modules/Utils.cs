@@ -2795,6 +2795,7 @@ public static class Utils
                     if (seer.Is(CustomRoles.Deadlined)) additionalSuffixes.Add(Deadlined.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Introvert)) additionalSuffixes.Add(Introvert.GetSelfSuffix(seer));
                     if (seer.Is(CustomRoles.Allergic)) additionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
+                    if (seer.Is(CustomRoles.Blessed)) additionalSuffixes.Add(Blessed.GetSuffix(seer));
 
                     additionalSuffixes.Add(Bloodmoon.GetSuffix(seer));
                     additionalSuffixes.Add(Haunter.GetSuffix(seer));
@@ -3854,6 +3855,7 @@ public static class Utils
             Stressed.AfterMeetingTasks();
             Circumvent.AfterMeetingTasks();
             Deadlined.AfterMeetingTasks();
+            Blessed.AfterMeetingTasks();
             Tired.Reset();
         }
         catch (Exception e) { ThrowException(e); }

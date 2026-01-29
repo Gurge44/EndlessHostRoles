@@ -292,6 +292,7 @@ internal static class HudManagerPatch
                             CustomRoles.Dynamo => Dynamo.GetSuffix(player, true),
                             CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
                             CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
+                            CustomRoles.Blessed => Blessed.GetSuffix(player),
                             _ => string.Empty
                         }).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 

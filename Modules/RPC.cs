@@ -164,6 +164,7 @@ public enum CustomRPC
     SetChatVisible,
     Exclusionary,
     Deadlined,
+    Blessed,
 
     // Game Modes
     RoomRushDataSync,
@@ -1220,9 +1221,8 @@ internal static class RPCHandlerPatch
                 {
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Werewolf)?.ReceiveRPC(reader);
-                }
-
                     break;
+                }
                 case CustomRPC.SetSwapperVotes:
                 {
                     Swapper.ReceiveRPC(reader, __instance);
@@ -1414,6 +1414,16 @@ internal static class RPCHandlerPatch
                         }
                     }
                     
+                    break;
+                }
+                case CustomRPC.Deadlined:
+                {
+                    Deadlined.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.Blessed:
+                {
+                    Blessed.ReceiveRPC(reader);
                     break;
                 }
             }

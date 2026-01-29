@@ -510,6 +510,7 @@ public enum CustomRoles
     BananaMan,
     Beartrap,
     Bewilder,
+    Blessed,
     Blind,
     Blocked,
     Bloodlust,
