@@ -90,7 +90,7 @@ public static class SpamManager
 
         if (Options.AutoKickStart.GetBool())
         {
-            if (ContainsStart(text) && GameStates.IsLobby)
+            if (ContainsStart(text) && GameStates.IsLobby && !ChatCommands.IsPlayerModerator(player.FriendCode) && !ChatCommands.IsPlayerVIP(player.FriendCode))
             {
                 Main.SayStartTimes.TryAdd(player.OwnerId, 0);
 
