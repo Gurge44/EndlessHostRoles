@@ -33,7 +33,7 @@ internal static class SwitchGameModePatch
         }
 
         Zoom.SetZoomSize(reset: true);
-        Harmony.UnpatchAll();
+        Main.Instance.Harmony.UnpatchSelf();
         Main.Instance.Unload();
     }
 }
