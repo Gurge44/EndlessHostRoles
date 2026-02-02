@@ -2976,7 +2976,11 @@ internal static class ChatCommands
     {
         text = text.Replace("着", "者").Trim().ToLower();
 
-        return text switch { _ => text };
+        return text switch
+        {
+            "Schrödinger's Cat" or "cat" => "SchrodingersCat",
+            _ => text
+        };
     }
 
     public static bool GetRoleByName(string name, out CustomRoles role)

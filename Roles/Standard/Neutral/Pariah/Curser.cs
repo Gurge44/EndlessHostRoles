@@ -81,11 +81,16 @@ public class Curser : RoleBase
         {
             KnownFactionPlayers.Add(target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            killer.SetKillCooldown();
             killer.RpcRemoveAbilityUse();
         }))
         {
-            Pick:
+            killer.SetKillCooldown();
+            killer.RpcRemoveAbilityUse();
+            
             int random = IRandom.Instance.Next(4);
+            
+            Pick:
 
             switch (random)
             {
@@ -94,7 +99,14 @@ public class Curser : RoleBase
                     break;
                 case 1:
                     CustomRoles addon = Options.GroupedAddons[AddonTypes.Harmful].Where(x => !target.Is(x) && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, target)).RandomElement();
-                    if (addon == default(CustomRoles)) goto Pick;
+                    
+                    if (addon == default(CustomRoles))
+                    {
+                        random = IRandom.Instance.Next(3);
+                        if (random >= 1) random++;
+                        goto Pick;
+                    }
+
                     target.RpcSetCustomRole(addon);
                     break;
                 case 2:
@@ -108,8 +120,6 @@ public class Curser : RoleBase
             }
 
             killer.Notify(Translator.GetString($"Curser.Notify.{random}"));
-            killer.SetKillCooldown();
-            killer.RpcRemoveAbilityUse();
         }
 
         return false;

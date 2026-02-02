@@ -180,6 +180,11 @@ public static class Utils
             }
         }
 
+        CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
+        CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+        AFKDetector.TempIgnoredPlayers.Add(pc.PlayerId);
+        LateTask.New(() => AFKDetector.TempIgnoredPlayers.Remove(pc.PlayerId), 0.2f + CalculatePingDelay(), log: false);
+
         nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
         nt.SetDirtyBit(uint.MaxValue);
 
@@ -199,11 +204,6 @@ public static class Utils
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
-
-        CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
-        CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
-        AFKDetector.TempIgnoredPlayers.Add(pc.PlayerId);
-        LateTask.New(() => AFKDetector.TempIgnoredPlayers.Remove(pc.PlayerId), 0.2f + CalculatePingDelay(), log: false);
 
         if (submerged)
         {

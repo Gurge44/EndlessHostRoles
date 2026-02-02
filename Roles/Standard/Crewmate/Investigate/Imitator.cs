@@ -36,12 +36,6 @@ public class Imitator : RoleBase
         PlayerIdList.Add(playerId);
     }
 
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
-        ImitatingRole.Remove(playerId);
-    }
-
     public static void SetRoles()
     {
         foreach (byte id in PlayerIdList)
