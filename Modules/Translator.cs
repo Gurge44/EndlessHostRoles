@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using EHR.Gamemodes;
+using Global;
 
 #if !ANDROID
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -57,7 +58,7 @@ public static class Translator
                     string jsonContent = reader.ReadToEnd();
                     
                     // Deserialize the JSON into a dictionary
-                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                    if (JsoncParser.Parse(jsonContent) is not Dictionary<string, string> jsonDictionary) continue;
 
                     if (jsonDictionary.TryGetValue("LanguageID", out string languageIdObj) && int.TryParse(languageIdObj, out int languageId))
                     {
