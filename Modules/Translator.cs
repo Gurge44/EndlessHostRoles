@@ -118,7 +118,7 @@ public static class Translator
     private static string[] GetJsonFileNames(Assembly assembly, string directoryName)
     {
         string[] resourceNames = assembly.GetManifestResourceNames();
-        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".json")).ToArray();
+        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".jsonc")).ToArray();
     }
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
@@ -308,4 +308,5 @@ public static class Translator
     {
         return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
     }
+
 }
