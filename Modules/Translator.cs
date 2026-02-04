@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -56,9 +56,19 @@ public static class Translator
                 {
                     using StreamReader reader = new(resourceStream);
                     string jsonContent = reader.ReadToEnd();
-                    
-                    // Deserialize the JSON into a dictionary
-                    if (JsoncParser.Parse(jsonContent) is not Dictionary<string, string> jsonDictionary) continue;
+
+                    var parsedData = JsoncParser.Parse(jsonContent);
+
+                    if (parsedData is not Dictionary<string, object> tempDict)
+                    {
+                        Logger.Error("JSON String Base (string, object) could not be parsed!", "LoadLangs");
+                        continue;
+                    }
+
+                    var jsonDictionary = tempDict.ToDictionary(
+                        item => item.Key,
+                        item => item.Value?.ToString() ?? string.Empty
+                    );
 
                     if (jsonDictionary.TryGetValue("LanguageID", out string languageIdObj) && int.TryParse(languageIdObj, out int languageId))
                     {
