@@ -17,8 +17,10 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
                 if (GameManager.Instance != null && GameManager.Instance.LogicComponents != null && (_logicOptions == null || !GameManager.Instance.LogicComponents.Contains(_logicOptions)))
                 {
                     foreach (GameLogicComponent glc in GameManager.Instance.LogicComponents)
+                    {
                         if (glc.TryCast(out LogicOptions lo))
                             _logicOptions = lo;
+                    }
                 }
 
                 return _logicOptions is { IsDirty: true };
@@ -32,7 +34,7 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
         set => _logicOptions?.ClearDirtyFlag();
     }
 
-    protected override IGameOptions BuildGameOptions()
+    public override IGameOptions BuildGameOptions()
     {
         return BasedGameOptions;
     }

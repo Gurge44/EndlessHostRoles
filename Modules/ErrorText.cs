@@ -172,6 +172,12 @@ public class ErrorText : MonoBehaviour
 
         try
         {
+            if (!HudManager.InstanceExists)
+            {
+                _camera = Camera.main;
+                return;
+            }
+            
             _camera1 = HudManager.Instance.PlayerCam.GetComponent<Camera>();
             _camera = Camera.main;
         }
@@ -185,7 +191,7 @@ public enum ErrorCode
 {
     //xxxyyyz: ERR-xxx-yyy-z
     // xxx: General type of error (HUD-related, banishment-related, etc.)
-    // yyy: Detailed type of error (BoutyHunter processing, SerialKiller processing, etc.)
+    // yyy: Detailed type of error (BoutyHunter processing, Mercenary processing, etc.)
     // z: Severity
     //      0: No action required (hide)
     //      1: Abandon village if not working properly (hide after a certain period of time)
@@ -197,7 +203,7 @@ public enum ErrorCode
 
     // 002 Support related
     UnsupportedVersion = 002_000_3, // 002-000-1 AmongUs version is outdated
-    UnsupportedMap = 002_000_2, // 002-000-2 Unsupported Map
+    UnsupportedMap = 002_000_1, // 002-000-1 Unsupported Map
 
     // ==========
     // 000 Test

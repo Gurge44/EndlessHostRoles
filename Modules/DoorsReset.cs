@@ -11,12 +11,12 @@ public static class DoorsReset
 
     private static bool IsEnabled;
     private static ResetMode Mode;
-    private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system) ? system.TryCast<DoorsSystemType>() : null;
+    private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType system) ? system.CastFast<DoorsSystemType>() : null;
 
     public static void Initialize()
     {
         // Not supported except for Airship, Polus and Fungle
-        if ((MapNames)Main.NormalOptions.MapId is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle))
+        if (Main.CurrentMap is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle) && !(SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6))
         {
             IsEnabled = false;
             return;

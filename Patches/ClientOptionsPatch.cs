@@ -1,3 +1,7 @@
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
@@ -17,12 +21,19 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
     private static ClientOptionItem DarkTheme;
+    private static ClientOptionItem DarkThemeForMeetingUI;
     private static ClientOptionItem HorseMode;
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem LobbyMusic;
     private static ClientOptionItem EnableCommandHelper;
     private static ClientOptionItem ShowModdedClientText;
+    private static ClientOptionItem AutoHaunt;
+    private static ClientOptionItem ButtonCooldownInDecimalUnder10s;
+    private static ClientOptionItem CancelPetAnimation;
+#if !ANDROID
+    private static ClientOptionItem TryFixStuttering;
+#endif
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -60,7 +71,8 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
-        if (ShowFPS == null || ShowFPS.ToggleButton == null) { ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance); }
+        if (ShowFPS == null || ShowFPS.ToggleButton == null)
+            ShowFPS = ClientOptionItem.Create("ShowFPS", Main.ShowFps, __instance);
 
         if (AutoStart == null || AutoStart.ToggleButton == null)
         {
@@ -68,7 +80,7 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void AutoStartButtonToggle()
             {
-                if (Main.AutoStart.Value == false && GameStates.IsCountDown)
+                if (!Main.AutoStart.Value && GameStates.IsCountDown)
                 {
                     GameStartManager.Instance.ResetStartState();
                     Logger.SendInGame(Translator.GetString("CancelStartCountDown"));
@@ -111,7 +123,7 @@ public static class OptionsMenuBehaviourStartPatch
                 {
                     MainMenuManagerPatch.ShowRightPanelImmediately();
 
-                    Harmony.UnpatchAll();
+                    Main.Instance.Harmony.UnpatchSelf();
                     Main.Instance.Unload();
                 }
             }
@@ -119,6 +131,9 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (DarkTheme == null || DarkTheme.ToggleButton == null)
             DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
+        
+        if (DarkThemeForMeetingUI == null || DarkThemeForMeetingUI.ToggleButton == null)
+            DarkThemeForMeetingUI = ClientOptionItem.Create("DarkThemeForMeetingUI", Main.DarkThemeForMeetingUI, __instance);
 
         if (HorseMode == null || HorseMode.ToggleButton == null)
         {
@@ -157,13 +172,67 @@ public static class OptionsMenuBehaviourStartPatch
         }
 
         if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
-            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
+        {
+            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance, ShowPlayerInfoInLobbyButtonToggle);
 
-        if (LobbyMusic == null || LobbyMusic.ToggleButton == null) { LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance); }
+            static void ShowPlayerInfoInLobbyButtonToggle() => Utils.DirtyName.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
+        }
 
-        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
+        if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
+            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
 
-        if (ShowModdedClientText == null || ShowModdedClientText.ToggleButton == null) ShowModdedClientText = ClientOptionItem.Create("ShowModdedClientText", Main.ShowModdedClientText, __instance);
+        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null)
+            EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
+
+        if (ShowModdedClientText == null || ShowModdedClientText.ToggleButton == null)
+            ShowModdedClientText = ClientOptionItem.Create("ShowModdedClientText", Main.ShowModdedClientText, __instance);
+
+        if (AutoHaunt == null || AutoHaunt.ToggleButton == null)
+        {
+            AutoHaunt = ClientOptionItem.Create("AutoHaunt", Main.AutoHaunt, __instance, AutoHauntButtonToggle);
+
+            static void AutoHauntButtonToggle()
+            {
+                if (Main.AutoHaunt.Value)
+                    Modules.AutoHaunt.Start();
+            }
+        }
+        
+        if (ButtonCooldownInDecimalUnder10s == null || ButtonCooldownInDecimalUnder10s.ToggleButton == null)
+            ButtonCooldownInDecimalUnder10s = ClientOptionItem.Create("ButtonCooldownInDecimalUnder10s", Main.ButtonCooldownInDecimalUnder10s, __instance);
+
+        if (CancelPetAnimation == null || CancelPetAnimation.ToggleButton == null)
+            CancelPetAnimation = ClientOptionItem.Create("CancelPetAnimation", Main.CancelPetAnimation, __instance);
+        
+#if !ANDROID
+        if (TryFixStuttering == null || TryFixStuttering.ToggleButton == null)
+        {
+            TryFixStuttering = ClientOptionItem.Create("TryFixStuttering", Main.TryFixStuttering, __instance, TryFixStutteringButtonToggle);
+
+            [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
+            static void TryFixStutteringButtonToggle()
+            {
+                if (Main.TryFixStuttering.Value)
+                {
+                    if (Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
+                    {
+                        var process = Process.GetCurrentProcess();
+                        Main.OriginalAffinity = process.ProcessorAffinity;
+                        process.ProcessorAffinity = (IntPtr)((1 << 2) | (1 << 3));
+                    }
+                }
+                else
+                {
+                    if (Main.OriginalAffinity.HasValue)
+                    {
+                        var proc = Process.GetCurrentProcess();
+                        proc.ProcessorAffinity = Main.OriginalAffinity.Value;
+                        Main.OriginalAffinity = null;
+                    }
+                }
+            }
+        }
+#endif
 
 #if DEBUG
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)

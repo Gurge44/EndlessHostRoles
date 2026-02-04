@@ -7,15 +7,20 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using HarmonyLib;
+using EHR.Gamemodes;
+using Global;
+
+#if !ANDROID
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+#endif
 
 namespace EHR;
 
 public static class Translator
 {
-    public const string LANGUAGE_FOLDER_NAME = "Language";
-    public static Dictionary<string, Dictionary<int, string>> translateMaps;
+    private const string LanguageFolderName = "Language";
+    private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
+    public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
 
     public static void Init()
     {
@@ -34,7 +39,7 @@ public static class Translator
             var assembly = Assembly.GetExecutingAssembly();
             string[] jsonFileNames = GetJsonFileNames(assembly, jsonDirectory);
 
-            translateMaps = [];
+            TranslateMaps = [];
 
             if (jsonFileNames.Length == 0)
             {
@@ -51,9 +56,9 @@ public static class Translator
                 {
                     using StreamReader reader = new(resourceStream);
                     string jsonContent = reader.ReadToEnd();
-
+                    
                     // Deserialize the JSON into a dictionary
-                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                    if (JsoncParser.Parse(jsonContent) is not Dictionary<string, string> jsonDictionary) continue;
 
                     if (jsonDictionary.TryGetValue("LanguageID", out string languageIdObj) && int.TryParse(languageIdObj, out int languageId))
                     {
@@ -61,7 +66,7 @@ public static class Translator
                         jsonDictionary.Remove("LanguageID");
 
                         // Handle the rest of the data and merge it into the resulting translation map
-                        MergeJsonIntoTranslationMap(translateMaps, languageId, jsonDictionary);
+                        MergeJsonIntoTranslationMap(TranslateMaps, languageId, jsonDictionary);
                     }
                     else
                     {
@@ -70,27 +75,21 @@ public static class Translator
                     }
                 }
             }
-
-            // Convert the resulting translation map to JSON
-            JsonSerializer.Serialize(translateMaps, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
         }
-        catch (Exception ex)
-        {
-            Logger.Error($"Error: {ex}", "Translator");
-        }
+        catch (Exception ex) { Logger.Error($"Error: {ex}", "Translator"); }
 
         // Loading custom translation files
-        if (!Directory.Exists(LANGUAGE_FOLDER_NAME)) Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
+        if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
+        try { OriginalRoleNames = Enum.GetValues<CustomRoles>().ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
+        catch (Exception e) { Utils.ThrowException(e); }
+        
         // Creating a translation template
         CreateTemplateFile();
 
         foreach (SupportedLangs lang in Enum.GetValues<SupportedLangs>())
         {
-            if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
+            if (File.Exists($"{Main.DataPath}/{LanguageFolderName}/{lang}.dat"))
             {
                 UpdateCustomTranslation($"{lang}.dat" /*, lang*/);
                 LoadCustomTranslation($"{lang}.dat", lang);
@@ -104,7 +103,7 @@ public static class Translator
         {
             string textString = kvp.Key;
 
-            if (kvp.Value is string translation)
+            if (kvp.Value is { } translation)
             {
                 // If the textString is not already in the translation map, add it
                 if (!translationMaps.ContainsKey(textString)) translationMaps[textString] = [];
@@ -119,44 +118,60 @@ public static class Translator
     private static string[] GetJsonFileNames(Assembly assembly, string directoryName)
     {
         string[] resourceNames = assembly.GetManifestResourceNames();
-        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".json")).ToArray();
+        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".jsonc")).ToArray();
     }
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
+        if (SubmergedCompatibility.IsSubmerged() && int.TryParse(s, out int roomNumber) && roomNumber is >= 128 and <= 135)
+            s = $"SubmergedRoomName.{roomNumber}";
+        
+        if (GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Deathrace && int.TryParse(s, out roomNumber) && Deathrace.CoordinateChecks.ContainsKey(roomNumber))
+            s = "Deathrace.CoordinateCheck";
+        
         SupportedLangs langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
         if (console) langId = SupportedLangs.English;
 
         if (Main.ForceOwnLanguage.Value) langId = GetUserTrueLang();
 
+        int modLanguageId = 0;
+
+        if (Options.IsLoaded)
+        {
+            modLanguageId = Options.ModLanguage.GetValue();
+            if (modLanguageId != 0) langId = (SupportedLangs)(modLanguageId + 100 - 1);
+        }
+
         string str = GetString(s, langId);
 
         if (replacementDic != null)
+        {
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);
+        }
+        
+        if (modLanguageId == 1) // Hungarian (none of the fonts support ő/ű and innersloth doesn't care, thankfully at least German has ö/ü)
+            str = str.Replace("ő", "ö", StringComparison.CurrentCultureIgnoreCase).Replace("ű", "ü", StringComparison.CurrentCultureIgnoreCase);
 
         return str;
     }
 
     public static string GetString(string str, SupportedLangs langId)
     {
-        var res = $"<INVALID:{str}>";
+        var res = $"*{str}";
 
         try
         {
-            if (translateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || res == "" || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese)))) //strに該当する&無効なlangIdかresが空
+            if (TranslateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || string.IsNullOrEmpty(res) || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese))))
                 res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
 
-            if (!translateMaps.ContainsKey(str)) //translateMapsにない場合、StringNamesにあれば取得する
-            {
-                StringNames[] stringNames = Enum.GetValues<StringNames>().Where(x => x.ToString() == str).ToArray();
-                if (stringNames.Length > 0) res = GetString(stringNames.FirstOrDefault());
-            }
+            if (!TranslateMaps.ContainsKey(str) && Enum.GetValues<StringNames>().FindFirst(x => x.ToString() == str, out StringNames stringNames))
+                res = GetString(stringNames);
         }
-        catch (Exception Ex)
+        catch (Exception ex)
         {
-            Logger.Fatal($"Error oucured at [{str}] in String.csv", "Translator");
-            Logger.Error("Here was the error:\n" + Ex, "Translator");
+            Logger.Fatal($"Error oucured at [{str}] in the translation file", "Translator");
+            Logger.Error("Here was the error:\n" + ex, "Translator");
         }
 
         return res;
@@ -164,13 +179,17 @@ public static class Translator
 
     public static string GetString(StringNames stringName)
     {
-        return DestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
+#if ANDROID
+        return TranslationController.Instance.GetString(stringName);
+#else
+        return TranslationController.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
+#endif
     }
 
     public static string GetRoleString(string str, bool forUser = true)
     {
-        SupportedLangs CurrentLanguage = TranslationController.Instance.currentLanguage.languageID;
-        SupportedLangs lang = forUser ? CurrentLanguage : SupportedLangs.English;
+        SupportedLangs currentLanguage = TranslationController.Instance.currentLanguage.languageID;
+        SupportedLangs lang = forUser ? currentLanguage : SupportedLangs.English;
         if (Main.ForceOwnLanguageRoleName.Value) lang = GetUserTrueLang();
 
         return GetString(str, lang);
@@ -182,24 +201,17 @@ public static class Translator
         {
             string name = CultureInfo.CurrentUICulture.Name;
             if (name.StartsWith("en")) return SupportedLangs.English;
-
             if (name.StartsWith("zh_CHT")) return SupportedLangs.TChinese;
-
             if (name.StartsWith("zh")) return SupportedLangs.SChinese;
-
             if (name.StartsWith("ru")) return SupportedLangs.Russian;
-
             return TranslationController.Instance.currentLanguage.languageID;
         }
-        catch
-        {
-            return SupportedLangs.English;
-        }
+        catch { return SupportedLangs.English; }
     }
 
     private static void UpdateCustomTranslation(string filename /*, SupportedLangs lang*/)
     {
-        var path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+        var path = $"{Main.DataPath}/{LanguageFolderName}/{filename}";
 
         if (File.Exists(path))
         {
@@ -211,9 +223,7 @@ public static class Translator
 
                 using (StreamReader reader = new(path, Encoding.GetEncoding("UTF-8")))
                 {
-                    string line;
-
-                    while ((line = reader.ReadLine()) != null)
+                    while (reader.ReadLine() is { } line)
                     {
                         // Split the line by ':' to get the first part
                         string[] parts = line.Split(':');
@@ -230,68 +240,53 @@ public static class Translator
 
                 var sb = new StringBuilder();
 
-                foreach (string templateString in translateMaps.Keys)
+                foreach (string templateString in TranslateMaps.Keys)
+                {
                     if (!textStrings.Contains(templateString))
                         sb.Append($"{templateString}:\n");
+                }
 
                 using FileStream fileStream = new(path, FileMode.Append, FileAccess.Write);
                 using StreamWriter writer = new(fileStream);
                 writer.WriteLine(sb.ToString());
             }
-            catch (Exception e)
-            {
-                Logger.Error("An error occurred: " + e.Message, "Translator");
-            }
+            catch (Exception e) { Logger.Error("An error occurred: " + e.Message, "Translator"); }
         }
     }
 
-    public static void LoadCustomTranslation(string filename, SupportedLangs lang)
+    private static void LoadCustomTranslation(string filename, SupportedLangs lang)
     {
-        var path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+        var path = $"{Main.DataPath}/{LanguageFolderName}/{filename}";
 
         if (File.Exists(path))
         {
-            Logger.Info($"Loading Custom Translation File：{filename}", "LoadCustomTranslation");
+            Logger.Info($"Loading Custom Translation File: {filename}", "LoadCustomTranslation");
 
             try
             {
                 using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
-                string text;
-                string[] tmp = [];
 
-                while ((text = sr.ReadLine()) != null)
+                while (sr.ReadLine() is { } text)
                 {
-                    tmp = text.Split(":");
+                    string[] tmp = text.Split(':');
 
                     if (tmp.Length > 1 && tmp[1] != "")
                     {
-                        try
-                        {
-                            translateMaps[tmp[0]][(int)lang] = tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n").Replace("\\r", "\r");
-                        }
-                        catch (KeyNotFoundException)
-                        {
-                            Logger.Warn($"Invalid Key：{tmp[0]}", "LoadCustomTranslation");
-                        }
+                        try { TranslateMaps[tmp[0]][(int)lang] = string.Join(':', tmp[1..]).Replace("\\n", "\n").Replace("\\r", "\r"); }
+                        catch (KeyNotFoundException) { Logger.Warn($"Invalid Key: {tmp[0]}", "LoadCustomTranslation"); }
                     }
                 }
             }
             catch (ObjectDisposedException) { }
-            catch (Exception e)
-            {
-                Logger.Error(e.ToString(), "Translator.LoadCustomTranslation");
-            }
+            catch (Exception e) { Logger.Error(e.ToString(), "Translator.LoadCustomTranslation"); }
         }
         else
-            Logger.Error($"Custom Translation File Not Found：{filename}", "LoadCustomTranslation");
+            Logger.Error($"Custom Translation File Not Found: {filename}", "LoadCustomTranslation");
     }
 
     private static void CreateTemplateFile()
     {
-        var sb = new StringBuilder();
-        foreach (KeyValuePair<string, Dictionary<int, string>> title in translateMaps) sb.Append($"{title.Key}:\n");
-
-        File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/template.dat", sb.ToString());
+        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/template.dat", string.Join('\n', TranslateMaps.Keys.Select(x => $"{x}:")));
     }
 
     public static void ExportCustomTranslation()
@@ -300,12 +295,18 @@ public static class Translator
         var sb = new StringBuilder();
         SupportedLangs lang = TranslationController.Instance.currentLanguage.languageID;
 
-        foreach (KeyValuePair<string, Dictionary<int, string>> title in translateMaps)
+        foreach (KeyValuePair<string, Dictionary<int, string>> title in TranslateMaps)
         {
             string text = title.Value.GetValueOrDefault((int)lang, "");
             sb.Append($"{title.Key}:{text.Replace("\n", "\\n").Replace("\r", "\\r")}\n");
         }
 
-        File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/export_{lang}.dat", sb.ToString());
+        File.WriteAllText($"{Main.DataPath}/{LanguageFolderName}/export_{lang}.dat", sb.ToString());
     }
+
+    public static string FixRoleName(this string infoLong, CustomRoles role)
+    {
+        return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
+    }
+
 }

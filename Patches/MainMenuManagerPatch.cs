@@ -97,7 +97,7 @@ public static class MainMenuManagerPatch
             if (ShowingPanel
                     ? TitleLogoPatch.RightPanel.transform.localPosition.x > TitleLogoPatch.RightPanelOp.x + 0.03f
                     : TitleLogoPatch.RightPanel.transform.localPosition.x < TitleLogoPatch.RightPanelOp.x + 9f
-               )
+                )
                 TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
         }
 
@@ -148,7 +148,7 @@ public static class MainMenuManagerPatch
                 "DiscordButton",
                 new(-0.5f, -1.3f, 1f),
                 new(88, 101, 242, byte.MaxValue),
-                new(148, 161, byte.MaxValue, byte.MaxValue),
+                new(148, 161, 255, byte.MaxValue),
                 () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
                 Translator.GetString("Discord")); //"Discord"
         }
@@ -163,7 +163,7 @@ public static class MainMenuManagerPatch
                 new(1.3f, -1.3f, 1f),
                 new(251, 81, 44, byte.MaxValue),
                 new(211, 77, 48, byte.MaxValue),
-                () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
+                () => Application.OpenURL("https://gurge44.pythonanywhere.com"),
                 Translator.GetString("Website")); //"Website"
         }
 
@@ -173,12 +173,24 @@ public static class MainMenuManagerPatch
 
         foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
         {
-            var buttonText = GameObject.Find(buttonName).transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+            var go = GameObject.Find(buttonName);
+            if (!go) continue;
+            var buttonText = go.GetComponentInChildren<TMP_Text>();
+            if (!buttonText) continue;
             buttonText.DestroyTranslator();
             buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
         }
 
-        __instance.PlayOnlineButton.OnClick.AddListener((UnityAction)(() => GameOptionsManager.Instance.Initialize()));
+        __instance.PlayOnlineButton.OnClick.AddListener((UnityAction)(() =>
+        {
+            GameOptionsManager.Instance.Initialize();
+            
+            if (GameOptionsManager.Instance.normalGameHostOptions.MapId is 3 or > 5)
+            {
+                GameOptionsManager.Instance.normalGameHostOptions.MapId = 0;
+                GameOptionsManager.Instance.SaveNormalHostOptions();
+            }
+        }));
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)

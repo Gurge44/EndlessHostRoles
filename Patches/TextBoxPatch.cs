@@ -1,24 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using AmongUs.Data;
 using HarmonyLib;
+using InnerNet;
 using TMPro;
 using UnityEngine;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
-static class TextBoxTMPIsCharAllowed
-{
-    public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
-    {
-        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
-        __result = i != '\b';
-        return false;
-    }
-}
-
-[HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
-internal static class TextBoxTMPSetTextPatch
+[HarmonyPatch(typeof(TextBoxTMP))]
+public static class TextBoxPatch
 {
     private static TextMeshPro PlaceHolderText;
     private static TextMeshPro CommandInfoText;
@@ -26,11 +18,98 @@ internal static class TextBoxTMPSetTextPatch
 
     public static bool IsInvalidCommand;
 
-    public static void Postfix(TextBoxTMP __instance)
+#if !ANDROID
+    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPrefix]
+    public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
+    {
+        if (Translator.GetUserTrueLang() == SupportedLangs.Russian || !__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+
+        var flag = false;
+        __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
+        var ch = ' ';
+        __instance.tempTxt.Clear();
+
+        for (var index = 0; index < input.Length; ++index)
+        {
+            char upperInvariant = input[index];
+
+            if (ch == ' ' && upperInvariant == ' ')
+                __instance.AdjustCaretPosition(-1);
+            else
+            {
+                switch (upperInvariant)
+                {
+                    case '\r':
+                    case '\n':
+                        flag = true;
+                        break;
+                    case '\b':
+                        __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
+                        __instance.AdjustCaretPosition(-1);
+                        break;
+                }
+
+                if (__instance.ForceUppercase)
+                    upperInvariant = char.ToUpperInvariant(upperInvariant);
+
+                if (upperInvariant is '\r' or '\n' or '\b')
+                    __instance.AdjustCaretPosition(-1);
+                else
+                {
+                    __instance.tempTxt.Append(upperInvariant);
+                    ch = upperInvariant;
+                }
+            }
+        }
+
+        if (!__instance.tempTxt.ToString().Equals(TranslationController.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+        {
+            int length = __instance.tempTxt.Length;
+            __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
+            __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
+        }
+
+        input = __instance.tempTxt.ToString();
+
+        if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
+        {
+            __instance.text = input;
+            __instance.compoText = inputCompo;
+            string str = __instance.text;
+            string compoText = __instance.compoText;
+
+            if (__instance.Hidden)
+            {
+                str = "";
+                for (var index = 0; index < __instance.text.Length; ++index) str += "*";
+            }
+
+            __instance.outputText.text = str + compoText;
+            __instance.outputText.ForceMeshUpdate(true, true);
+            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+            __instance.OnChange.Invoke();
+
+            if (__instance.tempTxt.Length == __instance.characterLimit && __instance.SendOnFullChars)
+            {
+                __instance.OnEnter.Invoke();
+                __instance.LoseFocus();
+            }
+        }
+
+        if (flag) __instance.OnEnter.Invoke();
+        __instance.SetPipePosition();
+        return false;
+    }
+#endif
+
+    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPostfix]
+    public static void ShowCommandHelp(TextBoxTMP __instance)
     {
         try
         {
-            if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
+            if (!HudManager.InstanceExists || !__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
 
             if (!Main.EnableCommandHelper.Value)
             {
@@ -39,6 +118,9 @@ internal static class TextBoxTMPSetTextPatch
             }
 
             string input = __instance.outputText.text.Trim().Replace("\b", "");
+
+            bool startsWithCmd = input.StartsWith("/cmd ");
+            if (startsWithCmd) input = "/" + input[5..];
 
             if (!input.StartsWith('/') || input.Length < 2)
             {
@@ -53,9 +135,9 @@ internal static class TextBoxTMPSetTextPatch
             var exactMatch = false;
             bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
 
-            foreach (Command cmd in ChatCommands.AllCommands)
+            foreach (Command cmd in Command.AllCommands)
             {
-                string[] commandForms = english ? cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii)).ToArray() : cmd.CommandForms;
+                string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii))] : cmd.CommandForms;
 
                 foreach (string form in commandForms)
                 {
@@ -100,12 +182,14 @@ internal static class TextBoxTMPSetTextPatch
             {
                 Destroy();
                 IsInvalidCommand = true;
-                __instance.compoText.Color(Color.red);
-                __instance.outputText.color = Color.red;
+                Color textColor = input is "/c" or "/cm" or "/cmd" ? Palette.Orange : Color.red;
+                __instance.compoText.Color(textColor);
+                __instance.outputText.color = textColor;
                 return;
             }
 
             IsInvalidCommand = false;
+            HudManager hud = HudManager.Instance;
 
             if (PlaceHolderText == null)
             {
@@ -117,8 +201,7 @@ internal static class TextBoxTMPSetTextPatch
 
             if (CommandInfoText == null)
             {
-                HudManager hud = DestroyableSingleton<HudManager>.Instance;
-                CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
+                CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
                 CommandInfoText.name = "CommandInfoText";
                 CommandInfoText.alignment = TextAlignmentOptions.Left;
                 CommandInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
@@ -133,8 +216,7 @@ internal static class TextBoxTMPSetTextPatch
 
             if (AdditionalInfoText == null)
             {
-                HudManager hud = DestroyableSingleton<HudManager>.Instance;
-                AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform, true);
+                AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
                 AdditionalInfoText.name = "AdditionalInfoText";
                 AdditionalInfoText.alignment = TextAlignmentOptions.Left;
                 AdditionalInfoText.verticalAlignment = VerticalAlignmentOptions.Top;
@@ -148,32 +230,35 @@ internal static class TextBoxTMPSetTextPatch
             }
 
             string inputForm = input.TrimStart('/');
-            string text = "/" + (exactMatch ? inputForm : command.CommandForms.Where(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
+            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
-            string additionalInfo = string.Empty;
+            if (!command.CanUseCommand(PlayerControl.LocalPlayer))
+                info = $"<#ff5555>{info}</color>  <#ff0000>╳ {Translator.GetString("Message.CommandUnavailableShort")}</color>";
+
+            var additionalInfo = string.Empty;
 
             if (exactMatch && command.Arguments.Length > 0)
             {
                 bool poll = command.CommandForms.Contains("poll");
-                bool say = command.CommandForms.Contains("say");
                 int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
-                if (say) spaces = Math.Min(spaces, 1);
 
                 var preText = $"{text} {command.Arguments}";
-                if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
+                if (!poll) text += " " + (spaces >= command.ArgsDescriptions.Length ? string.Empty : string.Join(' ', command.Arguments.Split(' ')[spaces..]));
 
-                string[] args = preText.Split(' ')[1..];
+                string[] split = preText.Split(' ');
+                string[] args = split[(startsWithCmd && split.Length > 2 ? 2 : 1)..];
 
                 for (var i = 0; i < args.Length; i++)
                 {
-                    if (command.ArgsDescriptions.Length <= i) break;
+                    int length = command.ArgsDescriptions.Length;
+                    if (length <= i) break;
 
                     int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
-                    string arg = say ? args[0] : poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
+                    string arg = poll ? i == 0 ? string.Join(' ', args[..++skip]) : args[spaces - 1 < i ? skip + i + spaces : skip + i] : spaces > length && i == length - 1 ? string.Join(' ', args[i..^length]) : args[spaces > i ? i : i + spaces];
 
                     string argName = command.Arguments.Split(' ')[i];
-                    bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
+                    bool current = spaces - 1 == i || spaces > length && i == length - 1, invalid = IsInvalidArg(), valid = IsValidArg();
 
                     info += "\n" + (invalid, current, valid) switch
                     {
@@ -190,16 +275,15 @@ internal static class TextBoxTMPSetTextPatch
 
                     if (additionalInfo.Length == 0 && argName.Replace('[', '{').Replace(']', '}') is "{id}" or "{id1}" or "{id2}")
                     {
-                        var allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId.ColoredPlayerName(), x => x.PlayerId);
+                        Dictionary<byte, string> allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.PlayerId.ColoredPlayerName());
                         additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
                         OptionShower.CurrentPage = 0;
                     }
 
                     continue;
 
-                    bool IsInvalidArg()
-                    {
-                        return arg != argName && argName switch
+                    bool IsInvalidArg() =>
+                        arg != argName && argName switch
                         {
                             "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out byte id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
                             "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out int num) || num < 0,
@@ -208,36 +292,37 @@ internal static class TextBoxTMPSetTextPatch
                             "{addon}" => !ChatCommands.GetRoleByName(arg, out CustomRoles role) || !role.IsAdditionRole(),
                             "{letter}" => arg.Length != 1 || !char.IsLetter(arg[0]),
                             "{chance}" => !int.TryParse(arg, out int chance) || chance < 0 || chance > 100 || chance % 5 != 0,
+                            "{color}" => arg.Length != 6 || !arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f' or >= 'A' and <= 'F') || !ColorUtility.TryParseHtmlString($"#{arg}", out _),
                             _ => false
                         };
-                    }
 
-                    bool IsValidArg()
-                    {
-                        return argName switch
+                    bool IsValidArg() =>
+                        argName switch
                         {
+                            "{sourcepreset}" or "{targetpreset}" => int.TryParse(arg, out int preset) && preset is >= 1 and <= 10,
                             "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out byte id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
                             "{team}" => arg is "crew" or "imp",
-                            "{role}" => ChatCommands.GetRoleByName(arg, out _),
+                            "{role}" or "[role]" => ChatCommands.GetRoleByName(arg, out _),
                             "{addon}" => ChatCommands.GetRoleByName(arg, out CustomRoles role) && role.IsAdditionRole(),
                             "{chance}" => int.TryParse(arg, out int chance) && chance is >= 0 and <= 100 && chance % 5 == 0,
+                            "{color}" => arg.Length == 6 && arg.All(x => char.IsDigit(x) || x is >= 'a' and <= 'f' or >= 'A' and <= 'F') && ColorUtility.TryParseHtmlString($"#{arg}", out _),
                             _ => false
                         };
-                    }
 
-                    string GetExtraArgInfo()
-                    {
-                        return !IsValidArg()
+                    string GetExtraArgInfo() =>
+                        !IsValidArg()
                             ? string.Empty
                             : argName switch
                             {
                                 "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
-                                "{role}" or "{addon}" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
+                                "{role}" or "{addon}" or "[role]" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
+                                "{color}" when ColorUtility.TryParseHtmlString($"#{arg}", out Color color) => $" ({Utils.ColorString(color, "COLOR")})",
                                 _ => string.Empty
                             };
-                    }
                 }
             }
+
+            additionalInfo += startsWithCmd && AmongUsClient.Instance.AmHost ? $"\n\n<#00a5ff>ⓘ <b>{Translator.GetString("HostMayOmitCmdPrefix")}</b></color>" : string.Empty;
 
             PlaceHolderText.text = text;
             CommandInfoText.text = info;
@@ -259,7 +344,13 @@ internal static class TextBoxTMPSetTextPatch
         {
             if (PlaceHolderText != null) PlaceHolderText.enabled = false;
             if (CommandInfoText != null) CommandInfoText.enabled = false;
-            if (AdditionalInfoText != null) AdditionalInfoText.enabled = false;
+
+            if (AdditionalInfoText != null)
+            {
+                bool showLobbyCode = HudManager.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
+                AdditionalInfoText.enabled = showLobbyCode;
+                if (showLobbyCode) AdditionalInfoText.text = $"\n\n{Translator.GetString("LobbyCode")}:\n<size=250%><b>{GameCode.IntToGameName(AmongUsClient.Instance.GameId)}</b></size>";
+            }
         }
     }
 
@@ -274,23 +365,45 @@ internal static class TextBoxTMPSetTextPatch
             OptionShower.CurrentPage = 0;
     }
 
-    public static void Update()
+    public static void CheckChatOpen()
     {
         try
         {
-            bool open = HudManager.Instance?.Chat?.IsOpenOrOpening ?? false;
+            bool open = HudManager.InstanceExists && (HudManager.Instance?.Chat?.IsOpenOrOpening ?? false);
             PlaceHolderText?.gameObject.SetActive(open);
             CommandInfoText?.gameObject.SetActive(open);
             AdditionalInfoText?.gameObject.SetActive(open);
         }
         catch { }
     }
-}
 
-// Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
-[HarmonyPatch(typeof(TextBoxTMP))]
-public static class TextBoxPatch
-{
+#if !ANDROID
+    [HarmonyPatch(nameof(TextBoxTMP.Update))]
+    [HarmonyPrefix]
+    public static bool UpdatePatch(TextBoxTMP __instance)
+    {
+        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
+
+        if (!__instance.enabled || !__instance.hasFocus) return false;
+        __instance.MoveCaret();
+        string inputString = Input.inputString;
+
+        if (inputString.Length > 0 || __instance.compoText != Input.compositionString)
+        {
+            if (__instance.text is null or "Enter Name") __instance.text = "";
+            int startIndex = Math.Clamp(__instance.caretPos, 0, __instance.text.Length);
+            __instance.SetText(__instance.text.Insert(startIndex, inputString), Input.compositionString);
+        }
+
+        if (!__instance.Pipe || !__instance.hasFocus) return false;
+        __instance.pipeBlinkTimer += Time.deltaTime * 2f;
+        __instance.Pipe.enabled = (int)__instance.pipeBlinkTimer % 2 == 0;
+
+        return false;
+    }
+#endif
+
+    // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
     [HarmonyPatch(nameof(TextBoxTMP.SetText))]
     [HarmonyPrefix]
     public static void ModifyCharacterLimit(TextBoxTMP __instance)

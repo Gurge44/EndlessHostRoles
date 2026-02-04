@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
 using TMPro;
@@ -16,23 +17,38 @@ internal static class PingTrackerUpdatePatch
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
-    private static int Delay => GameStates.IsInTask ? 8 : 1;
+    private static readonly List<float> LastFPS = [];
 
-    private static void Postfix(PingTracker __instance)
+    public static bool Prefix(PingTracker __instance)
     {
-        Instance = __instance;
+        FpsSampler.TickFrame();
+        
+        PingTracker instance = Instance == null ? __instance : Instance;
 
-        Instance.text.alignment = TextAlignmentOptions.Center;
-        Instance.text.text = Sb.ToString();
+        if (AmongUsClient.Instance == null) return false;
+
+        if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
+        {
+            instance.gameObject.SetActive(false);
+            return false;
+        }
+
+        if (instance.name != "EHR_SettingsText")
+        {
+            instance.aspectPosition.DistanceFromEdge = !AmongUsClient.Instance.IsGameStarted ? instance.lobbyPos : instance.gamePos;
+            instance.text.alignment = TextAlignmentOptions.Center;
+            instance.text.text = Sb.ToString();
+        }
+
+        if (Instance == null) Instance = __instance;
 
         long now = Utils.TimeStamp;
-        if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
-
+        if (now == LastUpdate) return false;
         LastUpdate = now;
 
         Sb.Clear();
 
-        if (GameStates.IsLobby) Sb.Append("\r\n");
+        Sb.Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>");
 
         Sb.Append(Main.CredentialsText);
 
@@ -47,30 +63,49 @@ internal static class PingTrackerUpdatePatch
             _ => "#ff4500"
         };
 
-        AppendSeparator();
-        Sb.Append($"<color={color}>{ping} {GetString("PingText")}</color>");
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        Sb.Append($"<color={color}>{GetString("PingText")}: {ping}</color>");
         AppendSeparator();
         Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
 
-        if (Main.ShowFps.Value)
+        if (Main.ShowFps.Value && LastFPS.Count > 0)
         {
-            var fps = 1.0f / Time.deltaTime;
+            float fps = LastFPS.Average();
 
             Color fpscolor = fps switch
             {
                 < 10f => Color.red,
-                < 30f => Color.yellow,
-                _ => Color.green
+                < 25f => Color.yellow,
+                < 50f => Color.green,
+                _ => new Color32(0, 165, 255, 255)
             };
 
             AppendSeparator();
-            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + ((int)fps))}");
+            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + (int)fps)}");
         }
 
         if (GameStates.InGame) Sb.Append("\r\n.");
-        return;
+        return false;
 
-        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
+    }
+    
+    static class FpsSampler
+    {
+        private static int Frames;
+        private static float Elapsed;
+        private const float SampleInterval = 0.5f; // half-second window
+    
+        public static void TickFrame()
+        {
+            Frames++;
+            Elapsed += Time.unscaledDeltaTime;
+            if (Elapsed < SampleInterval) return;
+            LastFPS.Add(Frames / Elapsed);
+            if (LastFPS.Count > 10) LastFPS.RemoveAt(0);
+            Frames = 0;
+            Elapsed = 0f;
+        }
     }
 }
 
@@ -84,7 +119,7 @@ internal static class VersionShowerStartPatch
         string testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
 #pragma warning restore CS0162 // Unreachable code detected
 
-        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
@@ -105,11 +140,11 @@ public static class UpdateFriendCodeUIPatch
 
     public static void Prefix()
     {
-        string credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2025";
+        var credentialsText = $"<color={Main.ModColor}>Gurge44</color> \u00a9 2026";
         credentialsText += "\t\t\t";
         credentialsText += $"<color={Main.ModColor}>{Main.ModName}</color> - {Main.PluginVersion}";
 
-        var friendCode = GameObject.Find("FriendCode");
+        GameObject friendCode = GameObject.Find("FriendCode");
 
         if (friendCode != null && VersionShower == null)
         {
@@ -123,15 +158,15 @@ public static class UpdateFriendCodeUIPatch
             tmp.SetText(credentialsText);
         }
 
-        var newRequest = GameObject.Find("NewRequest");
+        GameObject newRequest = GameObject.Find("NewRequest");
 
         if (newRequest != null)
         {
             newRequest.transform.localPosition -= new Vector3(0f, 0f, 10f);
-            newRequest.transform.localScale = new(0.8f, 1f, 1f);
+            newRequest.transform.localScale = new(0f, 0f, 0f);
         }
 
-        var friendsButton = GameObject.Find("FriendsButton");
+        GameObject friendsButton = GameObject.Find("FriendsButton");
 
         if (friendsButton != null)
         {
@@ -142,18 +177,19 @@ public static class UpdateFriendCodeUIPatch
 }
 
 [HarmonyPatch(typeof(FriendsListUI), nameof(FriendsListUI.Open))]
-static class FriendsListUIOpenPatch
+internal static class FriendsListUIOpenPatch
 {
     public static bool Prefix(FriendsListUI __instance)
     {
         try
         {
-            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "") { __instance.Close(); }
+            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "")
+                __instance.Close();
             else
             {
                 FriendsListBar[] componentsInChildren = __instance.GetComponentsInChildren<FriendsListBar>(true);
 
-                for (int index = 0; index < componentsInChildren.Length; ++index)
+                for (var index = 0; index < componentsInChildren.Length; ++index)
                 {
                     if (componentsInChildren[index] != null)
                         Object.Destroy(componentsInChildren[index].gameObject);
@@ -163,7 +199,7 @@ static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if (DestroyableSingleton<HudManager>.InstanceExists && DestroyableSingleton<HudManager>.Instance != null && DestroyableSingleton<HudManager>.Instance.Chat != null && DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening || ShipStatus.Instance != null)
+                if ((HudManager.InstanceExists && HudManager.Instance != null && HudManager.Instance.Chat != null && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
                     return false;
 
                 __instance.friendBars = new();
@@ -174,13 +210,13 @@ static class FriendsListUIOpenPatch
                 __instance.gameObject.SetActive(true);
                 __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(t => t.gameObject.SetActive(false)));
                 __instance.ViewRequestsButton.color = __instance.NoRequestsColor;
-                __instance.ViewRequestsText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.NoNewRequests);
+                __instance.ViewRequestsText.text = TranslationController.Instance.GetString(StringNames.NoNewRequests);
 
-                __instance.StartCoroutine(DestroyableSingleton<FriendsListManager>.Instance.RefreshFriendsList((Action)(() =>
+                __instance.StartCoroutine(FriendsListManager.Instance.RefreshFriendsList((Action)(() =>
                 {
                     __instance.ClearNotifs();
 
-                    if (DestroyableSingleton<EOSManager>.Instance.IsFriendsListAllowed())
+                    if (EOSManager.Instance.IsFriendsListAllowed())
                     {
                         __instance.AddFriendObjects.SetActive(true);
                         __instance.RefreshBlockedPlayers();
@@ -251,10 +287,9 @@ static class FriendsListUIOpenPatch
 internal static class TitleLogoPatch
 {
     private static GameObject ModStamp;
-
     private static GameObject Ambience;
-
-    // public static GameObject LoadingHint;
+    private static GameObject CustomBG;
+    private static GameObject SpecialMessage;
     private static GameObject LeftPanel;
     public static GameObject RightPanel;
     private static GameObject CloseRightButton;
@@ -262,10 +297,75 @@ internal static class TitleLogoPatch
     private static GameObject BottomButtonBounds;
 
     public static Vector3 RightPanelOp;
+    
+    private static bool IsEasterPeriod(int daysBefore = 2, int daysAfter = 1)
+    {
+        DateTime today = DateTime.Today;
+        DateTime easter = GetEasterSunday(today.Year);
+
+        DateTime start = easter.AddDays(-daysBefore);
+        DateTime end = easter.AddDays(daysAfter);
+
+        return today >= start && today <= end;
+    }
+
+    private static DateTime GetEasterSunday(int year)
+    {
+        int a = year % 19;
+        int b = year / 100;
+        int c = year % 100;
+        int d = b / 4;
+        int e = b % 4;
+        int f = (b + 8) / 25;
+        int g = (b - f + 1) / 3;
+        int h = (19 * a + b - d - g + 15) % 30;
+        int i = c / 4;
+        int j = c % 4;
+        int k = (32 + 2 * e + 2 * i - h - j) % 7;
+        int l = (a + 11 * h + 22 * k) / 451;
+
+        int month = (h + k - 7 * l + 114) / 31;
+        int day = ((h + k - 7 * l + 114) % 31) + 1;
+
+        return new DateTime(year, month, day);
+    }
 
     private static void Postfix(MainMenuManager __instance)
     {
         GameObject.Find("BackgroundTexture")?.SetActive(!MainMenuManagerPatch.ShowedBak);
+
+        DateTime now = DateTime.Now;
+        bool holidays = now is { Month: 12, Day: < 24 or > 26 };
+        bool christmas = now is { Month: 12, Day: >= 24 and <= 26 };
+        bool newYear = now is { Month: 1, Day: <= 6 };
+        bool easter = IsEasterPeriod();
+
+        if (SpecialMessage == null && (holidays || christmas || newYear || easter))
+        {
+            SpecialMessage = new GameObject("SpecialMessage");
+            SpecialMessage.transform.SetParent(__instance.transform);
+            SpecialMessage.transform.position = new Vector3(0f, -2.5f, 0f);
+            var text = SpecialMessage.AddComponent<TextMeshPro>();
+            text.alignment = TextAlignmentOptions.Center;
+            text.fontSize = 3f;
+            text.color = Color.white;
+            text.outlineColor = Color.black;
+            text.outlineWidth = 0.2f;
+            text.enableWordWrapping = false;
+            text.fontWeight = FontWeight.Black;
+            text.text = $"<b>{GetString(holidays ? "HolidayGreeting" : christmas ? "ChristmasGreeting" : newYear ? "NewYearGreeting" : "EasterGreeting")}</b>";
+        }
+
+        if (CustomBG == null && (holidays || christmas || newYear || easter))
+        {
+            CustomBG = new GameObject("CustomBG");
+            CustomBG.transform.SetParent(__instance.transform);
+            CustomBG.transform.position = new(0f, 0f, 520f);
+            var sr = CustomBG.AddComponent<SpriteRenderer>();
+            sr.sprite = Utils.LoadSprite(easter ? "EHR.Resources.Images.EasterBG.jpg" : "EHR.Resources.Images.WinterBG.jpg", 180f);
+            PlayerParticles pp = Object.FindObjectOfType<PlayerParticles>();
+            if (pp != null) pp.gameObject.SetActive(false);
+        }
 
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
 
@@ -292,8 +392,8 @@ internal static class TitleLogoPatch
         Dictionary<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> mainButtons = new()
         {
             { [__instance.playButton, __instance.inventoryButton, __instance.shopButton], (standardActiveSprite, new(0f, 0.647f, 1f, 0.8f), shade, Color.white, Color.white) },
-            { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(0.825f, 0.825f, 0.286f, 0.8f), shade, Color.white, Color.white) },
-            { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.226f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) }
+            { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(0f, 0.9f, 0.9f, 0.8f), shade, Color.white, Color.white) },
+            { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.825f, 0.825f, 0.286f, 0.8f), shade, Color.white, Color.white) }
         };
 
         foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)
@@ -345,10 +445,7 @@ internal static class TitleLogoPatch
 
         return;
 
-        static void ResetParent(GameObject obj)
-        {
-            obj.transform.SetParent(LeftPanel.transform.parent);
-        }
+        static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);
 
         void FormatButtonColor(PassiveButton button, Color inActiveColor, Color activeColor, Color inActiveTextColor, Color activeTextColor)
         {
@@ -373,18 +470,19 @@ internal static class ModManagerLateUpdatePatch
     {
         __instance.ShowModStamp();
 
-        LateTask.Update(Time.deltaTime);
-        CheckMurderPatch.Update();
         ChatBubbleShower.Update();
+
+        if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
+            LobbySharingAPI.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
 
         return false;
     }
 
     public static void Postfix(ModManager __instance)
     {
-        __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists
+        __instance.localCamera = !HudManager.InstanceExists
             ? Camera.main
-            : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+            : HudManager.Instance.GetComponentInChildren<Camera>();
 
         if (__instance.localCamera != null)
         {
@@ -394,9 +492,6 @@ internal static class ModManagerLateUpdatePatch
                 __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
                 new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
         }
-
-        if (LobbySharingAPI.LastRoomCode != string.Empty && Options.IsLoaded && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > 150)
-            LobbySharingAPI.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
     }
 }
 
@@ -407,7 +502,7 @@ internal static class OptionsMenuBehaviourOpenPatch
     {
         try
         {
-            if (DestroyableSingleton<HudManager>.InstanceExists && !DestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
+            if (HudManager.InstanceExists && !HudManager.Instance.SettingsButton.activeSelf) return false;
         }
         catch { }
 
@@ -427,7 +522,7 @@ internal static class OptionsMenuBehaviourOpenPatch
             __instance.UpdateButtons();
             __instance.gameObject.SetActive(true);
             __instance.MenuButton?.SelectButton(true);
-            if (DestroyableSingleton<HudManager>.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
+            if (HudManager.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
 
             if (!__instance.grabbedControllerButtons)
             {

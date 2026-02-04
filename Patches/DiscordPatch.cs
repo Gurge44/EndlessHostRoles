@@ -7,7 +7,7 @@ namespace EHR.Patches;
 
 // Originally from "Town of Us Rewritten", by Det
 [HarmonyPatch(typeof(ActivityManager), nameof(ActivityManager.UpdateActivity))]
-public class DiscordRPC
+public static class DiscordRPC
 {
     private static string Lobbycode = "";
     private static string Region = "";
@@ -18,6 +18,11 @@ public class DiscordRPC
 
         var details = $"EHR v{Main.PluginDisplayVersion}";
         activity.Details = details;
+        
+        activity.Assets = new ActivityAssets
+        {
+            LargeImage = "https://i.imgur.com/07BjW2j.png"
+        };
 
         try
         {
@@ -39,8 +44,7 @@ public class DiscordRPC
                 activity.Details = details;
             }
         }
-
-        catch (ArgumentException ex)
+        catch (Exception ex)
         {
             Logger.Error("Error in updating discord rpc", "DiscordPatch");
             Logger.Exception(ex, "DiscordPatch");

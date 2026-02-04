@@ -6,10 +6,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
+using TMPro;
 using Twitch;
 using UnityEngine;
 using static EHR.Translator;
-
 
 namespace EHR;
 
@@ -19,25 +19,34 @@ public static class ModUpdater
     private const string URLGithub = "https://api.github.com/repos/Gurge44/EndlessHostRoles";
     public const bool ForceUpdate = false;
     public static bool HasUpdate;
+    private static bool FirstNotify = true;
     private static bool HasOutdate;
     public static bool IsBroken;
     private static bool IsChecked;
     private static Version LatestVersion;
+    private static string LatestTitleModName = null;
     private static string LatestTitle;
     public static string DownloadUrl;
     private static GenericPopup InfoPopup;
+    private static GenericPopup InfoPopupV2;
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
     [HarmonyPrefix]
     [HarmonyPriority(2)]
     public static void Start_Prefix()
     {
+#if !ANDROID
         NewVersionCheck();
         DeleteOldFiles();
+#endif
         InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopup.name = "InfoPopup";
         InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
 
+        InfoPopupV2 = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
+        InfoPopupV2.name = "InfoPopupV2";
+
+#if !ANDROID
         if (!IsChecked)
         {
             bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
@@ -46,6 +55,18 @@ public static class ModUpdater
             Logger.Info("forceupdate: " + ForceUpdate, "CheckRelease");
             Logger.Info("downloadUrl: " + DownloadUrl, "CheckRelease");
             Logger.Info("latestVersionl: " + LatestVersion, "CheckRelease");
+        }
+#endif
+    }
+
+    public static void ShowAvailableUpdate()
+    {
+        if (FirstNotify && HasUpdate)
+        {
+            FirstNotify = false;
+            
+            if (!string.IsNullOrWhiteSpace(LatestTitleModName))
+                ShowPopupWithTwoButtons(string.Format(GetString("NewUpdateAvailable"), LatestTitleModName), GetString("updateButton"), onClickOnFirstButton: () => StartUpdate(DownloadUrl, true));
         }
     }
 
@@ -91,6 +112,8 @@ public static class ModUpdater
 
             JObject data = JObject.Parse(result);
 
+            LatestTitleModName = data["name"].ToString();
+
             if (beta)
             {
                 LatestTitle = data["name"].ToString();
@@ -101,11 +124,11 @@ public static class ModUpdater
             {
                 LatestVersion = new(data["tag_name"]?.ToString().TrimStart('v') ?? string.Empty);
                 LatestTitle = $"Ver. {LatestVersion}";
-                var assets = data["assets"].Cast<JArray>();
+                var assets = data["assets"].CastFast<JArray>();
 
                 for (var i = 0; i < assets.Count; i++)
                 {
-                    if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}.zip")
+                    if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}_Steam.zip")
                     {
                         DownloadUrl = assets[i]["browser_download_url"].ToString();
                         break;
@@ -123,7 +146,7 @@ public static class ModUpdater
             Logger.Info("latestVersionl: " + LatestVersion, "GitHub");
             Logger.Info("latestTitle: " + LatestTitle, "GitHub");
 
-            if (string.IsNullOrEmpty(DownloadUrl))
+            if (string.IsNullOrWhiteSpace(DownloadUrl))
             {
                 Logger.Error("No Download URL", "CheckRelease");
                 return false;
@@ -152,11 +175,11 @@ public static class ModUpdater
     {
         try
         {
-            if (Directory.Exists("TOH_DATA") && File.Exists("./EHR_DATA/BanWords.txt"))
+            if (Directory.Exists($"{Main.DataPath}/TOH_DATA") && File.Exists($"{Main.DataPath}/EHR_DATA/BanWords.txt"))
             {
-                DirectoryInfo di = new("TOH_DATA");
+                DirectoryInfo di = new($"{Main.DataPath}/TOH_DATA");
                 di.Delete(true);
-                Logger.Warn("Directory deleted：TOH_DATA", "NewVersionCheck");
+                Logger.Warn("Directory deleted: TOH_DATA", "NewVersionCheck");
             }
         }
         catch (Exception ex)
@@ -292,6 +315,63 @@ public static class ModUpdater
                 button.GetComponent<PassiveButton>().OnClick.AddListener((Action)Application.Quit);
             else
                 button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => InfoPopup.Close()));
+        }
+    }
+
+    private static void ShowPopupWithTwoButtons(string message, string firstButtonText, string secondButtonText = "", Action onClickOnFirstButton = null, Action onClickOnSecondButton = null)
+    {
+        if (InfoPopupV2 != null)
+        {
+            var templateExitGame = InfoPopupV2.transform.FindChild("ExitGame");
+            if (templateExitGame == null) return;
+
+            var background = InfoPopupV2.transform.FindChild("Background");
+            if (background == null) return;
+            background.localScale *= 2f;
+
+            InfoPopupV2.Show(message);
+            templateExitGame.gameObject.SetActive(false);
+            var firstButton = Object.Instantiate(templateExitGame, InfoPopupV2.transform);
+            var secondButton = Object.Instantiate(templateExitGame, InfoPopupV2.transform);
+            if (firstButton != null)
+            {
+                firstButton.gameObject.SetActive(true);
+                firstButton.name = "FirstButton";
+                var firstButtonTransform = firstButton.transform;
+                firstButton.transform.localPosition = new Vector3(firstButtonTransform.localPosition.x - 1f, firstButtonTransform.localPosition.y - 0.7f, firstButtonTransform.localPosition.z);
+                firstButton.transform.localScale *= 1.2f;
+                var firstButtonGetChild = firstButton.GetChild(0);
+                firstButtonGetChild.GetComponent<TextTranslatorTMP>().TargetText = StringNames.Cancel;
+                firstButtonGetChild.GetComponent<TextTranslatorTMP>().ResetText();
+                firstButtonGetChild.GetComponent<TextTranslatorTMP>().DestroyTranslator();
+                firstButtonGetChild.GetComponent<TextMeshPro>().text = firstButtonText;
+                firstButtonGetChild.GetComponent<TMP_Text>().text = firstButtonText;
+                firstButton.GetComponent<PassiveButton>().OnClick = new();
+                if (onClickOnFirstButton != null)
+                    firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
+                else firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => InfoPopupV2.Close()));
+            }
+            if (secondButton != null)
+            {
+                secondButton.gameObject.SetActive(true);
+                secondButton.name = "SecondButton";
+                var secondButtonTransform = secondButton.transform;
+                secondButton.transform.localPosition = new Vector3(secondButtonTransform.localPosition.x + 1f, secondButtonTransform.localPosition.y - 0.7f, secondButtonTransform.localPosition.z);
+                secondButton.transform.localScale *= 1.2f;
+                var secondButtonGetChild = secondButton.GetChild(0);
+                secondButtonGetChild.GetComponent<TextTranslatorTMP>().TargetText = StringNames.Cancel;
+                secondButtonGetChild.GetComponent<TextTranslatorTMP>().ResetText();
+                if (!string.IsNullOrWhiteSpace(secondButtonText))
+                {
+                    secondButtonGetChild.GetComponent<TextTranslatorTMP>().DestroyTranslator();
+                    secondButtonGetChild.GetComponent<TextMeshPro>().text = secondButtonText;
+                    secondButtonGetChild.GetComponent<TMP_Text>().text = secondButtonText;
+                }
+                secondButton.GetComponent<PassiveButton>().OnClick = new();
+                if (onClickOnSecondButton != null)
+                    secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
+                else secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => InfoPopupV2.Close()));
+            }
         }
     }
 }

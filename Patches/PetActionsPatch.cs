@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Gamemodes;
+using EHR.Modules;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -25,9 +26,11 @@ internal static class LocalPetPatch
         if (!Options.UsePets.GetBool()) return true;
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
         if (GameStates.IsLobby || !__instance.IsAlive()) return true;
+        
         if (__instance.petting) return true;
-
         __instance.petting = true;
+
+        AFKDetector.SetNotAFK(__instance.PlayerId);
 
         if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
@@ -35,7 +38,7 @@ internal static class LocalPetPatch
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
         LastProcess[__instance.PlayerId] = Utils.TimeStamp;
-        return !__instance.GetCustomRole().PetActivatedAbility();
+        return !Main.CancelPetAnimation.Value || !__instance.GetCustomRole().PetActivatedAbility();
     }
 
     public static void Postfix(PlayerControl __instance)
@@ -44,6 +47,8 @@ internal static class LocalPetPatch
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
 
         __instance.petting = false;
+        
+        if (!Main.CancelPetAnimation.Value) LateTask.New(() => __instance.MyPhysics?.CancelPet(), 0.4f, log: false);
     }
 }
 
@@ -61,6 +66,8 @@ internal static class ExternalRpcPetPatch
 
         if (pc == null || !pc.IsAlive()) return;
 
+        AFKDetector.SetNotAFK(pc.PlayerId);
+
         if (!pc.inVent
             && !pc.inMovingPlat
             && !pc.walkingToVent
@@ -69,8 +76,7 @@ internal static class ExternalRpcPetPatch
             && !physics.Animations.IsPlayingClimbAnimation()
             && !physics.Animations.IsPlayingAnyLadderAnimation()
             && !Pelican.IsEaten(pc.PlayerId)
-            && GameStates.IsInTask
-            && pc.GetCustomRole().PetActivatedAbility())
+            && GameStates.IsInTask)
         {
             CancelPet();
             LateTask.New(CancelPet, 0.4f, log: false);
@@ -93,7 +99,7 @@ internal static class ExternalRpcPetPatch
         LateTask.New(() => OnPetUse(pc), 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
     }
 
-    public static void OnPetUse(PlayerControl pc)
+    private static void OnPetUse(PlayerControl pc)
     {
         if (pc == null ||
             pc.inVent ||
@@ -106,11 +112,13 @@ internal static class ExternalRpcPetPatch
             Pelican.IsEaten(pc.PlayerId) ||
             Penguin.IsVictim(pc) ||
             !AmongUsClient.Instance.AmHost ||
-            GameStates.IsLobby
+            GameStates.IsLobby ||
+            AntiBlackout.SkipTasks ||
+            IntroCutsceneDestroyPatch.PreventKill
             )
             return;
 
-        if (CustomGameMode.CaptureTheFlag.IsActiveOrIntegrated())
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
         {
             CaptureTheFlag.TryPickUpFlag(pc);
             return;
@@ -143,23 +151,39 @@ internal static class ExternalRpcPetPatch
         if (target != null) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
-        bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
+        
+        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        
+        bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade or CustomRoles.Sidekick;
 
-        if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
+        if (!pc.CanUseKillButton() && !alwaysPetRole)
+            hasKillTarget = false;
+
+        RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
 
         if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {
-            if (!CustomGameMode.Speedrun.IsActiveOrIntegrated())
+            if (Options.CurrentGameMode != CustomGameMode.Speedrun)
                 pc.AddKCDAsAbilityCD();
 
-            if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
+            if (target.Is(CustomRoles.Spy) && !Spy.OnKillAttempt(pc, target)) goto Skip;
+            if (!Starspawn.CheckInteraction(pc, target)) goto Skip;
+
+            Seamstress.OnAnyoneCheckMurder(pc, target);
+            
+            PlagueBearer.CheckAndSpreadInfection(pc, target);
+            PlagueBearer.CheckAndSpreadInfection(target, pc);
+
+            if (roleBase.OnCheckMurder(pc, target))
                 pc.RpcCheckAndMurder(target);
 
             if (alwaysPetRole) pc.SetKillCooldown();
         }
-        else Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
+        else roleBase.OnPet(pc);
 
-        if (pc.HasAbilityCD() || Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true }) return;
+        Skip:
+
+        if (pc.HasAbilityCD() || Utils.ShouldNotApplyAbilityCooldown(roleBase)) return;
 
         pc.AddAbilityCD();
     }
@@ -167,7 +191,7 @@ internal static class ExternalRpcPetPatch
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
         Vector2 pos = pc.Pos();
-        List<(PlayerControl pc, float distance)> players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
+        List<(PlayerControl pc, float distance)> players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 3.5f).OrderBy(x => x.distance).ToList();
         PlayerControl target = players.Count > 0 ? players[0].pc : null;
 
         if (target != null && target.Is(CustomRoles.Detour))
@@ -175,6 +199,18 @@ internal static class ExternalRpcPetPatch
             PlayerControl tempTarget = target;
             target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
             Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+
+            if (tempTarget.AmOwner)
+            {
+                Detour.TotalRedirections++;
+                if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+            }
+        }
+
+        if (target != null && Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
+        {
+            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+            target = newTarget;
         }
 
         return target;
@@ -188,7 +224,7 @@ internal static class ExternalRpcPetPatch
         {
             HudManagerPatch.CooldownTimerFlashColor = yellow ? Color.red : Color.yellow;
             yellow = !yellow;
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSecondsRealtime(0.2f);
         }
 
         HudManagerPatch.CooldownTimerFlashColor = null;

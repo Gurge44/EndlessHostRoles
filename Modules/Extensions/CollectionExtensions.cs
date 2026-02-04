@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 // ReSharper disable ForCanBeConvertedToForeach
@@ -24,10 +25,12 @@ public static class CollectionExtensions
     public static TKey GetKeyByValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
     {
         foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+        {
             if (pair.Value.Equals(value))
                 return pair.Key;
+        }
 
-        return default;
+        return default(TKey);
     }
 
     /// <summary>
@@ -39,7 +42,8 @@ public static class CollectionExtensions
     /// <typeparam name="TValue"></typeparam>
     public static void SetAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
     {
-        foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = value;
+        foreach (TKey key in dictionary.Keys.ToArray())
+            dictionary[key] = value;
     }
 
     /// <summary>
@@ -51,7 +55,8 @@ public static class CollectionExtensions
     /// <typeparam name="TValue"></typeparam>
     public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust)
     {
-        foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = adjust(dictionary[key]);
+        foreach (TKey key in dictionary.Keys.ToArray())
+            dictionary[key] = adjust(dictionary[key]);
     }
 
     /// <summary>
@@ -65,7 +70,7 @@ public static class CollectionExtensions
     /// </returns>
     public static T RandomElement<T>(this IList<T> collection)
     {
-        if (collection.Count == 0) return default;
+        if (collection.Count == 0) return default(T);
 
         return collection[IRandom.Instance.Next(collection.Count)];
     }
@@ -107,7 +112,8 @@ public static class CollectionExtensions
     /// <param name="collection">The collection to iterate over</param>
     /// <param name="action">The action to execute for each element</param>
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    public static void Do<T>(this IEnumerable<T> collection, Action<T> action)
+    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+    public static void Do<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Action<T> action)
     {
         if (collection is List<T> list)
         {
@@ -127,7 +133,8 @@ public static class CollectionExtensions
     /// <param name="predicate">The predicate to check for each element</param>
     /// <param name="action">The action to execute for each element that satisfies the predicate</param>
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = true)
+    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+    public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, [Annotations.InstantHandle] Action<T> action, bool fast = true)
     {
         if (fast)
         {
@@ -143,8 +150,10 @@ public static class CollectionExtensions
             }
 
             foreach (T element in collection)
+            {
                 if (predicate(element))
                     action(element);
+            }
 
             return;
         }
@@ -196,8 +205,10 @@ public static class CollectionExtensions
     public static Dictionary<TKey, TValue> AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
     {
         foreach ((TKey key, TValue value) in other)
+        {
             if (overrideExistingKeys || !dictionary.ContainsKey(key))
                 dictionary[key] = value;
+        }
 
         return dictionary;
     }
@@ -225,7 +236,8 @@ public static class CollectionExtensions
     /// </param>
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
     /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
-    public static bool FindFirst<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
+    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+    public static bool FindFirst<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Func<T, bool> predicate, out T element)
     {
         if (collection is List<T> list)
         {
@@ -240,7 +252,7 @@ public static class CollectionExtensions
                 }
             }
 
-            element = default;
+            element = default(T);
             return false;
         }
 
@@ -253,14 +265,34 @@ public static class CollectionExtensions
             }
         }
 
-        element = default;
+        element = default(T);
         return false;
+    }
+
+    public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    {
+        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        var hasValue = false;
+
+        foreach (PlayerControl player in players)
+        {
+            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
+
+            if (sender.stream.Length > 500)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+                hasValue = false;
+            }
+        }
+
+        sender.SendMessage(dispose: !hasValue);
     }
 
     #region ToValidPlayers
 
     /// <summary>
-    /// Converts a collection of player IDs to a collection of <see cref="PlayerControl" /> instances
+    ///     Converts a collection of player IDs to a collection of <see cref="PlayerControl" /> instances
     /// </summary>
     /// <param name="playerIds"></param>
     /// <returns></returns>
@@ -270,7 +302,7 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    /// Converts a list of player IDs to a list of <see cref="PlayerControl" /> instances
+    ///     Converts a list of player IDs to a list of <see cref="PlayerControl" /> instances
     /// </summary>
     /// <param name="playerIds"></param>
     /// <returns></returns>

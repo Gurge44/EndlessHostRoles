@@ -76,7 +76,7 @@ public static class Achievements
         Speedrun, // Have a game end in under 1 minute
         Carried, // Win as a madmate while the other impostors are dead
         SorryToBurstYourBubble, // Explode 5 people with 1 encased player as the Bubble
-        GetLynched, // Successfully guess 3 roles as lyncher
+        GetDecrypted, // Successfully guess 3 roles as Decryptor
         FlagMaster, // Carry the flag the longest in CTF
         Tag, // Tag the most players in CTF
         Vectory, // Vent 50 times in one game
@@ -106,14 +106,44 @@ public static class Achievements
         WhyJustWhy, // As Dictator, vote out the Jester
         CommonEnemyNo1, // Win as any NK
         CoordinatedAttack, // As Jester, Executioner or Innocent, win with any of the other 2 roles
-        ItsJustAPrankBro // As Bomber, Kill half the lobby in 1 bomb
+        ItsJustAPrankBro, // As Bomber, Kill half the lobby in 1 bomb
+        DrivingTestFailed, // Propel someone as the Car
+        MasterOfTheStones, // Get all infinity stones as Thanos
+        FastestRunner, // Win in Deathrace gamemode
+        CloseCall, // Survive russian roulette with 5 bullets as Roulette Grandeur
+        IKnowYourNames, // Get 3 peoples name guessed as Note Killer
+        ThisAintSquidGames, // Win in Mingle game mode
+        ItsGamblingTime, // As Sheriff, shoot a killer 10 seconds into the game
+        FriendlyFire, // Accidentally blow up your impostor partner as Sapper/Bomber/Fireworker
+        MyBad, // As Tree, kill everyone in ur radius by falling
+        MindReader, // As Perceiver, get all killers in your ability radius
+        OhNo, // Kill the Bait as your first kill
+        Why, // As Pawn, choose vanilla Crewmate after doing your tasks
+        GetMuted, // As Banshee, make everyone not have a chat button in a meeting
+        BadEncounter, // As Veteran, get killed while alerted (pestilence,pelican, bypass abilities, etc)
+        DestinysChoice, // Die to the Wyrd's fate countdown
+        YouUnderestimatedMe, // Get shielded by the Medic then kill them
+        Abstain, // Don't vote any player for the entire game
+        Collapse, // With Fragile, get ambushed by the Ambusher
+        YouCopiedMyWholeFlow, // As Pelican, have your body scavenged
+        Bloodthirsty, // As Juggernaut or Arrogance, reach your minimum kill cooldown
+        Lumberjack, // As Weapon Master, kill the Tree with your Axe
+        Massacre, // As Chronomancer, kill 4 or more people at once in a Slaughter
+        PayUp, // Kill a player as Clerk
+        AlarmClock, // Lose Sleepy from Glow getting near you
+        Eavesdropper, // Hear 3 or more messages with Listener in a single meeting
+        YouCopycat, // Have a Rift Maker go through your portal as Portal Maker
+        Easypeasy, // Correctly guess God as Decryptor
+        YourZoneIsMine, // Win in King Of The Zones game mode
+        Checkmate, // Change your role as Pawn, win as your new role
+        HeyRabek // Make H2SO4 as the Chemist
     }
 
-    const string SaveFilePath = "./EHR_DATA/Achievements.json";
+    private static readonly string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";
 
-    const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
-    const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
-    const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
+    private const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
+    private const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
+    private const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
 
     public static readonly HashSet<Type> WaitingAchievements = [];
     public static HashSet<Type> CompletedAchievements = [];
@@ -145,7 +175,7 @@ public static class Achievements
 
         IEnumerator CompleteAchievementAfterDelayAsync()
         {
-            float timer = 0f;
+            var timer = 0f;
 
             while (!GameStates.IsEnded && timer < delay)
             {
@@ -171,8 +201,8 @@ public static class Achievements
 
     private static void ShowAchievementCompletion(Type type)
     {
-        var title = Translator.GetString("AchievementCompletedTitle");
-        var description = Translator.GetString($"Achievement.{type}.Description");
+        string title = Translator.GetString("AchievementCompletedTitle");
+        string description = Translator.GetString($"Achievement.{type}.Description");
         var message = $"<b>{Translator.GetString($"Achievement.{type}")}</b>\n{description}";
 
         ChatBubbleShower.ShowChatBubbleInRound(message, title);
@@ -180,9 +210,10 @@ public static class Achievements
 
     private static void SaveAllData()
     {
-        var json = JsonSerializer.Serialize(CompletedAchievements);
+        string json = JsonSerializer.Serialize(CompletedAchievements);
         File.WriteAllText(SaveFilePath, json);
 
+        if (!Options.StoreCompletedAchievementsOnEHRDatabase.GetBool()) return;
         Main.Instance.StartCoroutine(SendAchievementsToApiAsync());
         return;
 
@@ -190,7 +221,7 @@ public static class Achievements
         {
             while (PlayerControl.LocalPlayer == null) yield return null;
 
-            var userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
+            string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
 
             var data = new
             {
@@ -198,7 +229,7 @@ public static class Achievements
                 achievements = CompletedAchievements
             };
 
-            var payload = JsonSerializer.Serialize(data);
+            string payload = JsonSerializer.Serialize(data);
 
             var request = new UnityWebRequest(ApiSaveEndpoint, UnityWebRequest.kHttpVerbPOST)
             {
@@ -207,6 +238,7 @@ public static class Achievements
             };
 
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
             yield return request.SendWebRequest();
 
             Logger.Msg(request.result != UnityWebRequest.Result.Success ? $"Error saving achievements: {request.error}" : "Achievements saved successfully", "Achievements.SaveAllData");
@@ -217,10 +249,10 @@ public static class Achievements
     {
         if (File.Exists(SaveFilePath))
         {
-            var json = File.ReadAllText(SaveFilePath);
+            string json = File.ReadAllText(SaveFilePath);
             CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
         }
-        else
+        else if (Options.StoreCompletedAchievementsOnEHRDatabase.GetBool())
         {
             Main.Instance.StartCoroutine(FetchAchievementsFromApiAsync());
             return;
@@ -228,19 +260,22 @@ public static class Achievements
             IEnumerator FetchAchievementsFromApiAsync()
             {
                 while (PlayerControl.LocalPlayer == null) yield return null;
+                yield return new WaitForSecondsRealtime(3f);
 
-                var userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
+                string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
                 var url = $"{ApiLoadEndpoint}?userId={userId}";
 
-                var request = UnityWebRequest.Get(url);
+                UnityWebRequest request = UnityWebRequest.Get(url);
+                request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
                 yield return request.SendWebRequest();
 
-                if (request.result != UnityWebRequest.Result.Success) { Logger.Error($"Error loading achievements: {request.error}", "Achievements.LoadAllData"); }
+                if (request.result != UnityWebRequest.Result.Success)
+                    Logger.Error($"Error loading achievements: {request.error}", "Achievements.LoadAllData");
                 else
                 {
-                    var json = request.downloadHandler.text;
+                    string json = request.downloadHandler.text;
                     CompletedAchievements = JsonSerializer.Deserialize<HashSet<Type>>(json);
-                    yield return File.WriteAllTextAsync(SaveFilePath, json);
+                    File.WriteAllText(SaveFilePath, json);
                     Logger.Info("Achievements loaded successfully.", "Achievements.LoadAllData");
                 }
             }

@@ -76,6 +76,6 @@ public interface IRandom
             if (Instance == null || Instance.GetType() != type) Instance = Activator.CreateInstance(type) as IRandom ?? Instance;
         }
         else
-            Logger.Warn($"無効なID: {id}", "IRandom.SetInstanceById");
+            Logger.Warn($"Invalid ID: {id}", "IRandom.SetInstanceById");
     }
 }

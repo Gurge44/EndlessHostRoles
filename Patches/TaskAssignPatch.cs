@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Modules;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -101,13 +98,15 @@ internal static class AddTasksFromListPatch
             };
         }
 
-        if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && CustomGameMode.Standard.IsActiveOrIntegrated()) return;
+        if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard) return;
 
         List<NormalPlayerTask> disabledTasks = [];
 
         foreach (NormalPlayerTask task in unusedTasks)
+        {
             if ((DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool()) || IsTaskAlwaysDisabled(task.TaskType))
                 disabledTasks.Add(task);
+        }
 
         foreach (NormalPlayerTask task in disabledTasks)
         {
@@ -119,9 +118,9 @@ internal static class AddTasksFromListPatch
 
         bool IsTaskAlwaysDisabled(TaskTypes type) => type switch
         {
-            TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.MoveAndStop or CustomGameMode.Speedrun or CustomGameMode.AllInOne,
-            TaskTypes.VentCleaning => CustomGameMode.RoomRush.IsActiveOrIntegrated(),
-            TaskTypes.RunDiagnostics => CustomGameMode.Speedrun.IsActiveOrIntegrated(),
+            TaskTypes.FuelEngines => Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.Speedrun,
+            TaskTypes.VentCleaning => Options.CurrentGameMode == CustomGameMode.RoomRush,
+            TaskTypes.RunDiagnostics => Options.CurrentGameMode == CustomGameMode.Speedrun,
             _ => false
         };
     }
@@ -144,63 +143,63 @@ internal static class RpcSetTasksPatch
         PlayerControl pc = __instance.Object;
         if (pc == null) return;
 
-        CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) gr) && gr.Instance is Specter or Haunter ? gr.Role : pc.GetCustomRole();
+        CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) gr) && gr.Instance is Phantasm or Haunter ? gr.Role : pc.GetCustomRole();
 
         // Default number of tasks
         var hasCommonTasks = true;
-        int NumLongTasks = Main.NormalOptions.NumLongTasks;
-        int NumShortTasks = Main.NormalOptions.NumShortTasks;
+        int numLongTasks = Main.NormalOptions.NumLongTasks;
+        int numShortTasks = Main.NormalOptions.NumShortTasks;
 
         if (Options.OverrideTasksData.AllData.TryGetValue(role, out Options.OverrideTasksData data) && data.DoOverride.GetBool())
         {
             hasCommonTasks = data.AssignCommonTasks.GetBool(); // Whether to assign common tasks (regular tasks)
             // Even if assigned, it will not be reassigned and will be assigned the same common tasks as other crews.
-            NumLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
-            NumShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
+            numLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
+            numShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
             // Longs and shorts are constantly reallocated.
-            if (role is CustomRoles.Specter or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
+            if (role is CustomRoles.Phantasm or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = numLongTasks + numShortTasks;
         }
 
         if (pc.Is(CustomRoles.Busy))
         {
-            NumLongTasks += Options.BusyLongTasks.GetInt();
-            NumShortTasks += Options.BusyShortTasks.GetInt();
+            numLongTasks += Options.BusyLongTasks.GetInt();
+            numShortTasks += Options.BusyShortTasks.GetInt();
         }
 
         // Mad Snitch mission coverage
         if (pc.Is(CustomRoles.Snitch) && pc.Is(CustomRoles.Madmate))
         {
             hasCommonTasks = false;
-            NumLongTasks = 0;
-            NumShortTasks = Options.MadSnitchTasks.GetInt();
+            numLongTasks = 0;
+            numShortTasks = Options.MadSnitchTasks.GetInt();
         }
 
         // GM and Lazy Guy have no tasks
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.Needy) || Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters)
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.LazyGuy) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown)
         {
             hasCommonTasks = false;
-            NumShortTasks = 0;
-            NumLongTasks = 0;
+            numShortTasks = 0;
+            numLongTasks = 0;
         }
 
         // Workhorse task assignment
-        if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
+        if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, numLongTasks, numShortTasks) = Workhorse.TaskData;
 
-        // Capitalism is going to harm people~
-        if (Capitalism.CapitalismAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
+        // Capitalist is going to harm people~
+        if (Capitalist.CapitalistAssignTask.TryGetValue(pc.PlayerId, out int extraTasksNum))
         {
-            NumShortTasks += extraTasksNum;
-            Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
+            numShortTasks += extraTasksNum;
+            Capitalist.CapitalistAssignTask.Remove(pc.PlayerId);
         }
 
         if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks
 
         switch (hasCommonTasks)
         {
-            case false when NumLongTasks == 0 && NumShortTasks == 0:
-                NumShortTasks = 1; // Task 0 measures
+            case false when numLongTasks == 0 && numShortTasks == 0:
+                numShortTasks = 1; // Task 0 measures
                 break;
-            case true when NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks:
+            case true when numLongTasks == Main.NormalOptions.NumLongTasks && numShortTasks == Main.NormalOptions.NumShortTasks:
                 return; // If there are no changes
         }
 
@@ -241,7 +240,7 @@ internal static class RpcSetTasksPatch
         // Use the task assignment function actually used on the Among Us side.
         ShipStatus.Instance.AddTasksFromList(
             ref start2,
-            NumLongTasks,
+            numLongTasks,
             TasksList,
             usedTaskTypes,
             LongTasks
@@ -249,7 +248,7 @@ internal static class RpcSetTasksPatch
 
         ShipStatus.Instance.AddTasksFromList(
             ref start3,
-            NumShortTasks,
+            numShortTasks,
             TasksList,
             usedTaskTypes,
             ShortTasks
@@ -257,7 +256,7 @@ internal static class RpcSetTasksPatch
 
         // Convert the list of tasks to array (Il2CppStructArray)
         taskTypeIds = new(TasksList.Count);
-        for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i]; // False error
+        for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
 
         #region Logging
 
@@ -266,13 +265,14 @@ internal static class RpcSetTasksPatch
             NormalPlayerTask[] allTasks = ShortTasks.ToArray().Concat(LongTasks.ToArray()).ToArray();
             Il2CppSystem.Text.StringBuilder sb = new();
 
-            foreach (TaskTypes taskType in usedTaskTypes) { GetTaskFromTaskType(taskType).AppendTaskText(sb); }
+            foreach (TaskTypes taskType in usedTaskTypes)
+                GetTaskFromTaskType(taskType)?.AppendTaskText(sb);
 
-            Logger.Info($" Assigned tasks:\n{sb.Replace("\r\n", "\n").ToString()}", pc.GetRealName(), multiLine: true);
+            Logger.Info($" Changed Assigned tasks:\n{sb.Replace("\r\n", "\n").ToString()}", pc.GetRealName(), multiLine: true);
 
             PlayerTask GetTaskFromTaskType(TaskTypes type) => allTasks.FirstOrDefault(t => t.TaskType == type);
         }
-        catch (Exception e) { Utils.ThrowException(e); }
+        catch { }
 
         #endregion
     }

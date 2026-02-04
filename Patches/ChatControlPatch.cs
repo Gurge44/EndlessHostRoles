@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
-using EHR.Coven;
-using EHR.Impostor;
+using EHR.Roles;
 using EHR.Patches;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using UnityEngine;
+using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -32,7 +33,7 @@ internal static class ChatControllerUpdatePatch
         {
             __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
 
-            if (!TextBoxTMPSetTextPatch.IsInvalidCommand)
+            if (!TextBoxPatch.IsInvalidCommand)
             {
                 __instance.freeChatField.textArea.compoText.Color(Color.white);
                 __instance.freeChatField.textArea.outputText.color = Color.white;
@@ -62,7 +63,7 @@ internal static class ChatControllerUpdatePatch
 
         __instance.freeChatField.textArea.characterLimit = 1200;
 
-        if (Input.GetKeyDown(KeyCode.Tab)) TextBoxTMPSetTextPatch.OnTabPress(__instance);
+        if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
@@ -161,6 +162,7 @@ public static class ChatManager
     public static void SendMessage(PlayerControl player, string message)
     {
         string playername = player.GetNameWithRole();
+        string originalMessage = message.Trim();
         message = message.ToLower().Trim();
 
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
@@ -175,9 +177,9 @@ public static class ChatManager
 
         switch (operate)
         {
-            case 1 when player.IsAlive(): // Guessing Command & Such
+            case 1: // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
-                if (player.IsLocalPlayer()) break;
+                if (player.AmOwner) break;
 
                 LateTask.New(() =>
                 {
@@ -196,93 +198,122 @@ public static class ChatManager
                 Logger.Info($"Command: {message}", "ChatManager");
                 break;
             case 3: // In Lobby & Evertything Else
-                var chatEntry = $"{player.PlayerId}: {message}";
-                ChatHistory.Add(chatEntry);
-                if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
+                AddChatHistory(player, originalMessage);
                 break;
         }
 
-        if (CustomGameMode.FFA.IsActiveOrIntegrated() && GameStates.InGame && !message.StartsWith('/'))
-            FreeForAll.UpdateLastChatMessage(player.GetRealName(), message);
-
-        if (CustomGameMode.Standard.IsActiveOrIntegrated() && GameStates.InGame && operate != 1 && Banshee.On)
-            Banshee.OnReceiveChat();
+        if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.NaturalDisasters or CustomGameMode.Mingle or CustomGameMode.HideAndSeek && GameStates.InGame && !message.StartsWith('/'))
+            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(Utils.ColorString(Main.GameModeColors.GetValueOrDefault(Options.CurrentGameMode, new(1,1,1)), Translator.GetString("FFAChatMessageNotify")), player.PlayerId.ColoredPlayerName(), message));
     }
 
-    public static void SendPreviousMessagesToAll(bool clear = false)
+    public static void AddChatHistory(PlayerControl player, string message)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        var chatEntry = $"{player.PlayerId}: {message}";
+        ChatHistory.Add(chatEntry);
+        if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
+    }
 
-        ChatUpdatePatch.DoBlockChat = true;
-        Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
+    public static void SendPreviousMessagesToAll()
+    {
+        if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return;
 
-        try
+        Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
+
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        if (aapc.Length == 0) return;
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
-            string msg = Utils.EmptyMessage;
-            int totalAlive = Main.AllAlivePlayerControls.Length;
-            if (totalAlive == 0) return;
+            ClearChat();
 
-            PlayerControl[] x = Main.AllAlivePlayerControls;
-            var r = IRandom.Instance;
-
-            string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
-
-            for (int i = clear ? 0 : filtered.Length; i < 20; i++)
+            StringBuilder sb = new();
+            ChatHistory.ForEach(x =>
             {
-                PlayerControl player = x[r.Next(0, totalAlive)];
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                SendRPC(player, msg);
-            }
-
-            if (!clear)
-            {
-                foreach (string str in filtered)
-                {
-                    string[] entryParts = str.Split(':');
-                    string senderId = entryParts[0].Trim();
-                    string senderMessage = entryParts[1].Trim();
-                    for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
-
-                    PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-                    if (senderPlayer == null) continue;
-
-                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                    SendRPC(senderPlayer, senderMessage);
-                }
-            }
-
-            ChatUpdatePatch.SendLastMessages();
-        }
-        finally { ChatUpdatePatch.DoBlockChat = false; }
-    }
-
-    private static void SendRPC(InnerNetObject senderPlayer, string senderMessage, int targetClientId = -1)
-    {
-        var writer = CustomRpcSender.Create("MessagesToSend");
-        writer.StartMessage(targetClientId);
-
-        writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
-            .Write(senderMessage)
-            .EndRpc();
-
-        writer.EndMessage();
-        writer.SendMessage();
-    }
-
-    public static void ClearChatForSpecificPlayer(PlayerControl target)
-    {
-        var sender = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (sender == null) return;
-
-        if (!target.IsLocalPlayer())
-        {
-            var clientId = target.GetClientId();
-            if (clientId == -1) return;
-
-            Loop.Times(20, _ => SendRPC(sender, Utils.EmptyMessage, clientId));
+                string[] split = x.Split(':');
+                byte id = byte.Parse(split[0].Trim());
+                string msg = string.Join(':', split[1..]).Trim();
+                sb.Append(id.ColoredPlayerName());
+                sb.Append(':');
+                sb.Append(' ');
+                sb.AppendLine(msg);
+            });
+            LateTask.New(() => Utils.SendMessage("\n", title: sb.ToString().Trim()), 0.2f);
+            
             return;
         }
 
-        Loop.Times(20, _ => DestroyableSingleton<HudManager>.Instance.Chat.AddChat(sender, Utils.EmptyMessage));
+        string[] filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+        ChatController chat = HudManager.Instance.Chat;
+        var writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+        var hasValue = false;
+
+        if (filtered.Length < 20) ClearChat(aapc);
+
+        foreach (string str in filtered)
+        {
+            string[] entryParts = str.Split(':');
+            string senderId = entryParts[0].Trim();
+            string senderMessage = entryParts[1].Trim();
+            for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
+
+            PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+            if (senderPlayer == null) continue;
+
+            chat.AddChat(senderPlayer, senderMessage);
+            SendRPC(writer, senderPlayer, senderMessage);
+            hasValue = true;
+
+            if (writer.stream.Length > 500)
+            {
+                writer.SendMessage();
+                writer = CustomRpcSender.Create("SendPreviousMessagesToAll", SendOption.Reliable);
+                hasValue = false;
+            }
+        }
+
+        hasValue |= ChatUpdatePatch.SendLastMessages(ref writer);
+        writer.SendMessage(!hasValue);
+    }
+
+    private static void SendRPC(CustomRpcSender writer, PlayerControl senderPlayer, string senderMessage, int targetClientId = -1)
+    {
+        if (GameStates.IsLobby && senderPlayer.AmOwner)
+            senderMessage = senderMessage.Insert(0, new('\n', PlayerControl.LocalPlayer.name.Count(x => x == '\n')));
+
+        writer.AutoStartRpc(senderPlayer.NetId, RpcCalls.SendChat, targetClientId)
+            .Write(senderMessage)
+            .EndRpc();
+    }
+
+    // Base from https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/Utils.cs
+    public static void ClearChat(params PlayerControl[] targets)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        if (player == null) return;
+        if (targets.Length == 0 || targets.Length >= Main.AllAlivePlayerControls.Length) SendEmptyMessage(null);
+        else targets.Do(SendEmptyMessage);
+        return;
+
+        void SendEmptyMessage(PlayerControl receiver)
+        {
+            bool toEveryone = receiver == null;
+            bool toLocalPlayer = !toEveryone && receiver.AmOwner;
+            if (HudManager.InstanceExists && (toLocalPlayer || toEveryone)) HudManager.Instance.Chat.AddChat(player, "<size=32767>.");
+            if (toLocalPlayer) return;
+
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            {
+                byte to = toEveryone ? byte.MaxValue : receiver.PlayerId;
+                Utils.SendMessage("<size=32767>.", to, "\n", force: true, addToHistory: false);
+            }
+            else
+            {
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
+                writer.Write("<size=32767>.");
+                writer.Write(true);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            }
+        }
     }
 }

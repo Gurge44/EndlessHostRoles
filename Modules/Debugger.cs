@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using EHR.Modules;
+using EHR.Patches;
 using UnityEngine;
 using LogLevel = BepInEx.Logging.LogLevel;
 
@@ -15,7 +16,6 @@ internal static class Logger
 {
     private static bool IsEnable;
     private static readonly List<string> DisableList = [];
-    private static readonly List<string> SendToGameList = [];
     public static bool IsAlsoInGame;
 
     private static readonly HashSet<string> NowDetailedErrorLog = [];
@@ -25,34 +25,46 @@ internal static class Logger
         IsEnable = true;
     }
 
-    public static void Disable()
-    {
-        IsEnable = false;
-    }
+    /*
+        public static void Disable()
+        {
+            IsEnable = false;
+        }
 
-    public static void Enable(string tag, bool toGame = false)
-    {
-        DisableList.Remove(tag);
+        public static void Enable(string tag, bool toGame = false)
+        {
+            DisableList.Remove(tag);
 
-        if (toGame && !SendToGameList.Contains(tag))
-            SendToGameList.Add(tag);
-        else
-            SendToGameList.Remove(tag);
-    }
+            if (toGame && !SendToGameList.Contains(tag))
+                SendToGameList.Add(tag);
+            else
+                SendToGameList.Remove(tag);
+        }
+    */
 
     public static void Disable(string tag)
     {
         if (!DisableList.Contains(tag)) DisableList.Add(tag);
     }
 
-    public static void SendInGame(string text /*, bool isAlways = false*/)
+    public static void SendInGame(string text, Color? textColor = null)
     {
         if (!IsEnable) return;
 
-        if (DestroyableSingleton<HudManager>._instance)
+        NotificationPopper np = NotificationPopperPatch.Instance;
+
+        if (np != null)
         {
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
             Warn(text, "SendInGame");
+
+            LobbyNotificationMessage newMessage = Object.Instantiate(np.notificationMessageOrigin, Vector3.zero, Quaternion.identity, np.transform);
+            newMessage.transform.localPosition = new(0f, 0f, -2f);
+            text = "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + text + "</font>";
+            newMessage.SetUp(text, np.settingsChangeSprite, textColor ?? np.settingsChangeColor, (Action)(() => np.OnMessageDestroy(newMessage)));
+            np.ShiftMessages();
+            np.AddMessageToQueue(newMessage);
+
+            SoundManager.Instance.PlaySoundImmediate(np.settingsChangeSound, false);
         }
     }
 
@@ -60,9 +72,9 @@ internal static class Logger
     {
         if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
 
-        if (SendToGameList.Contains(tag) || IsAlsoInGame) SendInGame($"[{tag}]{text}");
+        if (IsAlsoInGame) SendInGame($"[{tag}]{text}");
 
-        string log_text;
+        string logText;
 
         if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && !NowDetailedErrorLog.Contains(tag))
         {
@@ -70,7 +82,7 @@ internal static class Logger
             StackFrame stack = new(2);
             string className = stack.GetMethod()?.ReflectedType?.Name;
             string memberName = stack.GetMethod()?.Name;
-            log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
+            logText = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
             NowDetailedErrorLog.Add(tag);
             LateTask.New(() => NowDetailedErrorLog.Remove(tag), 3f, log: false);
         }
@@ -79,10 +91,10 @@ internal static class Logger
             if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
 
             var t = DateTime.Now.ToString("HH:mm:ss");
-            log_text = $"[{t}][{tag}]{text}";
+            logText = $"[{t}][{tag}]{text}";
         }
 
-        CustomLogger.Instance.Log(level.ToString(), log_text, multiLine);
+        CustomLogger.Instance.Log(level.ToString(), logText, multiLine);
     }
 
     public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false)
@@ -135,7 +147,11 @@ internal static class Logger
 
 public class CustomLogger
 {
-    private const string LOGFilePath = "./BepInEx/log.html";
+#if ANDROID
+    public static readonly string LOGFilePath = $"{Main.DataPath}/EHR/log.html";
+#else
+    public static readonly string LOGFilePath = $"{Main.DataPath}/BepInEx/log.html";
+#endif
 
     private const string HtmlHeader =
         """
@@ -170,23 +186,36 @@ public class CustomLogger
         """;
 
     private static CustomLogger PrivateInstance;
-    private float timer = 3f;
+    private float timer = 1f;
+
+    private readonly StringBuilder Builder;
 
     private CustomLogger()
     {
+#if ANDROID
+        Directory.CreateDirectory(Path.GetDirectoryName(LOGFilePath) ?? throw new InvalidOperationException());
+#endif
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
+        else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
+        {
+            ClearLog(false);
+            PrivateInstance ??= new();
+            LateTask.New(() => Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped."), 0.1f, log: false);
+        }
+
+        Builder = new();
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
-    public static CustomLogger Instance
-    {
-        get { return PrivateInstance ??= new(); }
-    }
+    public static CustomLogger Instance => PrivateInstance ??= new();
 
-    public static void ClearLog()
+    public static void ClearLog(bool check = true)
     {
-        if (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0)
-            Utils.DumpLog(false);
+        if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
+        {
+            PrivateInstance?.Finish();
+            Utils.DumpLog(false, false);
+        }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);
     }
@@ -195,18 +224,21 @@ public class CustomLogger
     {
         if (multiLine) message = message.Replace("\\n", "<br>");
 
-        if (message.Contains("<b>")) message += "</b>";
-        if (message.Contains("<u>")) message += "</u>";
+        if (message.Contains("<b")) message += "</b>";
+        if (message.Contains("<u")) message += "</u>";
+        if (message.Contains("<i")) message += "</i>";
+        if (message.Contains("<s")) message += "</s>";
 
-        string logEntry = $"""
-                           <div class='log-entry {level.ToLower()}'>
-                               {message}
-                           </div>
-                           """;
+        var logEntry = $"""
+                        <div class='log-entry {level.ToLower()}'>
+                            {message}
+                        </div>
+                        """;
 
-        File.AppendAllText(LOGFilePath, logEntry);
-
-        timer = 3f;
+        Builder.Append(logEntry);
+#if DEBUG
+        Finish(false);
+#endif
     }
 
     private IEnumerator InactivityCheck()
@@ -217,7 +249,18 @@ public class CustomLogger
             yield return null;
         }
 
-        File.AppendAllText(LOGFilePath, HtmlFooter);
+        Finish(false);
+    }
+
+    public void Finish(bool dump = true)
+    {
+        var append = Builder.ToString();
+        if (string.IsNullOrWhiteSpace(append)) return;
+        if (dump) append += HtmlFooter;
+        File.AppendAllText(LOGFilePath, append);
         PrivateInstance = null;
+#if DEBUG
+        Main.Instance.StopCoroutine(InactivityCheck());
+#endif
     }
 }

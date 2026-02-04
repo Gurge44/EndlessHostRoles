@@ -7,19 +7,29 @@ public static class DeconSystemUpdateSystemPatch
 {
     public static void Prefix(DeconSystem __instance)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || SubmergedCompatibility.IsSubmerged()) return;
 
-        if (Options.ChangeDecontaminationTime.GetBool())
+        bool fastDecon = Options.CurrentGameMode is CustomGameMode.BedWars or CustomGameMode.RoomRush or CustomGameMode.Deathrace or CustomGameMode.Mingle;
+
+        if (fastDecon || Options.ChangeDecontaminationTime.GetBool())
         {
-            float deconTime = Main.CurrentMap switch
+            __instance.DoorOpenTime = fastDecon
+                ? 1.5f
+                : Main.CurrentMap switch
             {
-                MapNames.Mira => Options.DecontaminationTimeOnMiraHQ.GetFloat(),
-                MapNames.Polus => Options.DecontaminationTimeOnPolus.GetFloat(),
+                MapNames.MiraHQ => Options.DecontaminationDoorOpenTimeOnMiraHQ.GetFloat(),
+                MapNames.Polus => Options.DecontaminationDoorOpenTimeOnPolus.GetFloat(),
                 _ => 3f
             };
 
-            __instance.DoorOpenTime = deconTime;
-            __instance.DeconTime = deconTime;
+            __instance.DeconTime = fastDecon
+                ? 0.1f
+                : Main.CurrentMap switch
+            {
+                MapNames.MiraHQ => Options.DecontaminationTimeOnMiraHQ.GetFloat(),
+                MapNames.Polus => Options.DecontaminationTimeOnPolus.GetFloat(),
+                _ => 3f
+            };
         }
         else
         {

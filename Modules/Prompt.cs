@@ -17,7 +17,8 @@ public static class Prompt
     {
         try
         {
-            HudManager hud = DestroyableSingleton<HudManager>.Instance;
+            if (!HudManager.InstanceExists) return;
+            HudManager hud = HudManager.Instance;
 
             if (CurrentQuestion != string.Empty || !hud)
             {
@@ -78,7 +79,7 @@ public static class Prompt
         NoButton = null;
     }
 
-    public static void ClearQueue()
+    private static void ClearQueue()
     {
         Queue.Clear();
     }
@@ -92,6 +93,7 @@ public static class Prompt
             {
                 ClearQueue();
                 HidePromt();
+                CurrentQuestion = string.Empty;
             }
         }
     }

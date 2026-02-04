@@ -38,7 +38,7 @@ public static class DevManager
         if (request.result != UnityWebRequest.Result.Success)
         {
             Logger.Error($"Error fetching tags: {request.error}", "DevManager.FetchTags");
-            yield return new WaitForSeconds(300f);
+            yield return new WaitForSecondsRealtime(300f);
             yield return FetchTags();
         }
         else
@@ -70,8 +70,14 @@ public static class DevManager
         public bool up { get; set; }
         public string ip { get; set; }
 
-        public bool HasTag() => !string.IsNullOrEmpty(tag_name);
+        public bool HasTag()
+        {
+            return !string.IsNullOrWhiteSpace(tag_name);
+        }
 
-        public string GetTag() => !HasTag() ? "" : $"<size=1.5><color={tag_color}>{tag_name}</color></size>\r\n";
+        public string GetTag()
+        {
+            return !HasTag() ? "" : $"<size=1.5><color={tag_color}>{tag_name}</color></size>\r\n";
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -25,21 +26,21 @@ public static class ShowHostMeetingPatch
                 NetworkedPlayerInfo.PlayerOutfit outfit = Main.PlayerStates[host.Data.PlayerId].NormalOutfit;
 
                 HostControl = host;
-                HostName = outfit.PlayerName;
+                HostName = Main.AllPlayerNames.GetValueOrDefault(host.PlayerId, outfit.PlayerName);
                 HostColor = outfit.ColorId;
             }
         }
         catch { }
     }
 
-    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
-    [HarmonyPostfix]
+    // [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
+    // [HarmonyPostfix]
     public static void ShowRole_Postfix()
     {
         PlayerControl host = AmongUsClient.Instance.GetHost().Character;
 
         HostControl = host;
-        HostName = host.CurrentOutfit.PlayerName;
+        HostName = Main.AllPlayerNames.GetValueOrDefault(host.PlayerId, host.CurrentOutfit.PlayerName);
         HostColor = host.CurrentOutfit.ColorId;
     }
 
@@ -54,8 +55,8 @@ public static class ShowHostMeetingPatch
         __instance.ProceedButton.gameObject.GetComponentInChildren<TextMeshPro>().text = string.Format(Translator.GetString("HostIconInMeeting"), HostName);
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    [HarmonyPostfix]
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    //[HarmonyPostfix]
     public static void Setup_Postfix(MeetingHud __instance)
     {
         if (!GameStates.IsOnlineGame) return;

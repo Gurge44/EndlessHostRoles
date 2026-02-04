@@ -22,26 +22,41 @@ internal static class NotificationPopperPatch
 
     public static void AddSettingsChangeMessage(int index, OptionItem key, bool playSound = false)
     {
+        string optValue = key.GetString();
+        if (optValue == "STRMISS") return;
+
         SendRpc(0, index, playSound: playSound);
 
+        string name = key.GetName();
+        if (name == "Accept") return;
+
+        string parentName = key.Parent?.GetName() ?? string.Empty;
+        if (parentName == "Accept") return;
+        
         string str = key.Parent != null
-            ? DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.Parent.GetName() + "</font>: <font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetName() + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetString() + "</font>")
-            : DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetName() + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetString() + "</font>");
+            ? TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + parentName + "</font>: <font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>")
+            : TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
 
         SettingsChangeMessageLogic(key, str, playSound);
     }
 
     public static void AddRoleSettingsChangeMessage(int index, OptionItem key, CustomRoles customRole, bool playSound = false)
     {
+        string optValue = key.GetString();
+        if (optValue == "STRMISS") return;
+
+        string name = key.GetName();
+        if (name == "Accept") return;
+
         SendRpc(1, index, customRole, playSound);
-        string str = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetName() + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetString() + "</font>");
+        string str = TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
         SettingsChangeMessageLogic(key, str, playSound);
     }
 
     private static void SettingsChangeMessageLogic(OptionItem key, string item, bool playSound)
     {
         if (Instance.lastMessageKey == key.Id && Instance.activeMessages.Count > 0)
-            Instance.activeMessages[^1].UpdateMessage(item); // False error
+            Instance.activeMessages[^1].UpdateMessage(item);
         else
         {
             Instance.lastMessageKey = key.Id;
@@ -58,7 +73,6 @@ internal static class NotificationPopperPatch
     private static void SendRpc(byte typeId, int index, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
     {
         if (Options.HideGameSettings.GetBool()) return;
-
         Utils.SendRPC(CustomRPC.NotificationPopper, typeId, index, (int)customRole, playSound);
     }
 }

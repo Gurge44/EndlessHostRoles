@@ -1,4 +1,4 @@
-﻿namespace EHR;
+﻿namespace EHR.Roles;
 
 internal class VanillaRole : RoleBase
 {

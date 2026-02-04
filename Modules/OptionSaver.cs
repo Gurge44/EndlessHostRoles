@@ -7,7 +7,7 @@ namespace EHR.Modules;
 // https://github.com/tukasa0001/TownOfHost/blob/main/Modules/OptionSaver.cs
 public static class OptionSaver
 {
-    private static readonly DirectoryInfo SaveDataDirectoryInfo = new("./EHR_DATA/SaveData/");
+    private static readonly DirectoryInfo SaveDataDirectoryInfo = new($"{Main.DataPath}/EHR_DATA/SaveData/");
     private static readonly FileInfo OptionSaverFileInfo = new($"{SaveDataDirectoryInfo.FullName}/Options.json");
     private static readonly LogHandler Logger = EHR.Logger.Handler(nameof(OptionSaver));
     private static readonly FileInfo DefaultPresetFileInfo = new($"{SaveDataDirectoryInfo.FullName}/DefaultPreset.txt");
@@ -35,7 +35,6 @@ public static class OptionSaver
         }
 
         if (!OptionSaverFileInfo.Exists) OptionSaverFileInfo.Create().Dispose();
-
         if (!DefaultPresetFileInfo.Exists) DefaultPresetFileInfo.Create().Dispose();
     }
 
@@ -48,9 +47,11 @@ public static class OptionSaver
         {
             if (option.IsSingleValue)
             {
-                if (!singleOptions.TryAdd(option.Id, option.SingleValue)) EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
+                if (!singleOptions.TryAdd(option.Id, option.SingleValue))
+                    EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
             }
-            else if (!presetOptions.TryAdd(option.Id, option.AllValues)) EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
+            else if (!presetOptions.TryAdd(option.Id, option.AllValues))
+                EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
         }
 
         DefaultPresetNumber = singleOptions[0];
@@ -76,12 +77,16 @@ public static class OptionSaver
         Dictionary<int, int[]> presetOptions = serializableOptionsData.PresetOptions;
 
         foreach ((int id, int value) in singleOptions)
+        {
             if (OptionItem.FastOptions.TryGetValue(id, out OptionItem optionItem))
                 optionItem.SetValue(value, doSave: false);
+        }
 
         foreach ((int id, int[] values) in presetOptions)
+        {
             if (OptionItem.FastOptions.TryGetValue(id, out OptionItem optionItem))
                 optionItem.SetAllValues(values);
+        }
     }
 
     public static void Save()

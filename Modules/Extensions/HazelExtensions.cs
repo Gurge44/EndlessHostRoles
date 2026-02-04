@@ -5,6 +5,8 @@ namespace EHR;
 
 public static class HazelExtensions
 {
+    // -------------------------------------------------------------------------------------------------------------------------
+
     public static void Write(this MessageWriter writer, Vector2 vector)
     {
         NetHelpers.WriteVector2(vector, writer);

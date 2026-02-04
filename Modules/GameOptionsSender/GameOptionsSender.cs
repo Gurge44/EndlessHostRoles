@@ -24,10 +24,10 @@ public abstract class GameOptionsSender
         writer.StartMessage(0);
         writer.Write((byte)opt.GameMode);
 
-        if (opt.TryCast(out NormalGameOptionsV08 normalOpt))
-            NormalGameOptionsV08.Serialize(writer, normalOpt);
-        else if (opt.TryCast(out HideNSeekGameOptionsV08 hnsOpt))
-            HideNSeekGameOptionsV08.Serialize(writer, hnsOpt);
+        if (opt.TryCast(out NormalGameOptionsV10 normalOpt))
+            NormalGameOptionsV10.Serialize(writer, normalOpt);
+        else if (opt.TryCast(out HideNSeekGameOptionsV10 hnsOpt))
+            HideNSeekGameOptionsV10.Serialize(writer, hnsOpt);
         else
         {
             writer.Recycle();
@@ -39,7 +39,7 @@ public abstract class GameOptionsSender
         // Array & Send
         var byteArray = new Il2CppStructArray<byte>(writer.Length - 1);
         // MessageWriter.ToByteArray
-        Buffer.BlockCopy(writer.Buffer.Cast<Array>(), 1, byteArray.Cast<Array>(), 0, writer.Length - 1);
+        Buffer.BlockCopy(writer.Buffer.CastFast<Array>(), 1, byteArray.CastFast<Array>(), 0, writer.Length - 1);
 
         SendOptionsArray(byteArray);
         writer.Recycle();
@@ -61,24 +61,19 @@ public abstract class GameOptionsSender
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
             writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
-
             {
                 writer.Write(AmongUsClient.Instance.GameId);
                 if (targetClientId != -1) writer.WritePacked(targetClientId);
 
                 writer.StartMessage(1);
-
                 {
                     writer.WritePacked(GameManager.Instance.NetId);
                     writer.StartMessage(LogicOptionsIndex);
-
                     {
                         writer.WriteBytesAndSize(optionArray);
                     }
-
                     writer.EndMessage();
                 }
-
                 writer.EndMessage();
             }
 
@@ -87,13 +82,10 @@ public abstract class GameOptionsSender
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }
-        catch (Exception ex)
-        {
-            Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray");
-        }
+        catch (Exception ex) { Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray"); }
     }
 
-    protected abstract IGameOptions BuildGameOptions();
+    public abstract IGameOptions BuildGameOptions();
 
     protected virtual bool AmValid()
     {
@@ -102,14 +94,17 @@ public abstract class GameOptionsSender
 
     #region Static
 
-    public static readonly List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
+    public static readonly List<GameOptionsSender> AllSenders = [new NormalGameOptionsSender()];
 
     public static IEnumerator SendAllGameOptionsAsync()
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
 
-        foreach (GameOptionsSender sender in AllSenders.ToArray())
+        for (var index = 0; index < AllSenders.Count; index++)
         {
+            if (index >= AllSenders.Count) yield break; // Safety check
+            GameOptionsSender sender = AllSenders[index];
+
             if (sender.IsDirty)
             {
                 sender.SendGameOptions();
@@ -127,6 +122,7 @@ public abstract class GameOptionsSender
         // ReSharper disable once ForCanBeConvertedToForeach
         for (var index = 0; index < AllSenders.Count; index++)
         {
+            if (index >= AllSenders.Count) return; // Safety check
             GameOptionsSender sender = AllSenders[index];
             if (sender.IsDirty) sender.SendGameOptions();
 

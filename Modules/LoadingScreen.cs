@@ -31,19 +31,21 @@ internal static class LoadingScreen
             float z = basePos.z;
             LoadingAnimation.transform.position = new(x, y, z);
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "LoadingScreen.UpdateLoadingAnimation"); }
     }
 
     private static void NewHint()
     {
+        if (GameEndChecker.LoadingEndScreen)
+        {
+            Hint = string.Empty;
+            return;
+        }
+
         int index;
         if (ToldHints.Count == HintCount) ToldHints.Clear();
 
-        do
-            index = IRandom.Instance.Next(HintCount);
+        do index = IRandom.Instance.Next(HintCount);
         while (!ToldHints.Add(index));
 
         bool joke = IRandom.Instance.Next(20) == 0;
@@ -51,7 +53,7 @@ internal static class LoadingScreen
 
         string text = Translator.GetString($"LoadingHint.{index}");
         text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
-        text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
+        if (text.Contains('\n')) text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
         text += "</color>";
         Hint = text;
     }
@@ -67,7 +69,7 @@ internal static class LoadingScreen
 
             PlayerAnimations anims = lp.MyPhysics.Animations;
 
-            bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
+            bool visible = (AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder) || GameEndChecker.LoadingEndScreen;
 
             switch (visible)
             {
@@ -87,10 +89,13 @@ internal static class LoadingScreen
                 float y = basePos.y - 4.5f;
                 float z = basePos.z;
 
-                if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);
+                if (LoadingAnimation.transform.position != new Vector3(x, y, z))
+                    LoadingAnimation.transform.position = new(x, y, z);
 
                 LoadingAnimation.transform.Rotate(Vector3.forward, 200f * Time.deltaTime);
             }
+
+            visible &= !GameStates.IsEnded;
 
             switch (visible)
             {
@@ -99,15 +104,11 @@ internal static class LoadingScreen
                     return;
                 case true when !ErrorText.HasHint:
                     if (HintHideTimer > 15f) NewHint();
-
                     HintHideTimer = 0f;
                     ErrorText.Instance.AddError(ErrorCode.LoadingHint);
                     break;
             }
         }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "LoadingScreen.Update");
-        }
+        catch (Exception ex) { Logger.Error(ex.ToString(), "LoadingScreen.Update"); }
     }
 }

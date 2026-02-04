@@ -6,15 +6,12 @@ namespace EHR;
 
 internal static class DoubleTrigger
 {
-    public static List<byte> PlayerIdList = [];
-
     public static Dictionary<byte, float> FirstTriggerTimer = [];
     public static Dictionary<byte, byte> FirstTriggerTarget = [];
     public static Dictionary<byte, Action> FirstTriggerAction = [];
 
     public static void Init()
     {
-        PlayerIdList = [];
         FirstTriggerTimer = [];
         FirstTriggerAction = [];
     }

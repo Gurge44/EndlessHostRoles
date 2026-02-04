@@ -51,6 +51,8 @@ internal static class LocateArrow
     /// <param name="locate"></param>
     public static void Add(byte seer, Vector3 locate)
     {
+        if (Main.PlayerStates.TryGetValue(seer, out var state) && state.SubRoles.Contains(CustomRoles.Blind)) return;
+
         ArrowInfo arrowInfo = new(seer, locate);
 
         if (!LocateArrows.Any(a => a.Key.Equals(arrowInfo)))
@@ -70,7 +72,7 @@ internal static class LocateArrow
     {
         ArrowInfo arrowInfo = new(seer, locate);
         List<ArrowInfo> removeList = new(LocateArrows.Keys.Where(k => k.Equals(arrowInfo)));
-        foreach (ArrowInfo a in removeList.ToArray()) LocateArrows.Remove(a);
+        removeList.ForEach(a => LocateArrows.Remove(a));
 
         Utils.SendRPC(CustomRPC.Arrow, false, 2, seer, locate);
         Logger.Info($"Removed locate arrow: {seer} ({seer.GetPlayer()?.GetRealName()}) => {locate}", "LocateArrow");
@@ -83,7 +85,7 @@ internal static class LocateArrow
     public static void RemoveAllTarget(byte seer)
     {
         List<ArrowInfo> removeList = new(LocateArrows.Keys.Where(k => k.From == seer));
-        foreach (ArrowInfo arrowInfo in removeList.ToArray()) LocateArrows.Remove(arrowInfo);
+        removeList.ForEach(a => LocateArrows.Remove(a));
 
         Utils.SendRPC(CustomRPC.Arrow, false, 3, seer);
         Logger.Info($"Removed all locate arrows for: {seer} ({seer.GetPlayer()?.GetRealName()})", "LocateArrow");
@@ -97,6 +99,18 @@ internal static class LocateArrow
     public static string GetArrows(PlayerControl seer)
     {
         return LocateArrows.Keys.Where(ai => ai.From == seer.PlayerId).Aggregate(string.Empty, (current, arrowInfo) => current + LocateArrows[arrowInfo]);
+    }
+
+    /// <summary>
+    ///     Get a specific visible target arrow
+    /// </summary>
+    /// <param name="seer"></param>
+    /// <param name="position"></param>
+    /// <returns></returns>
+    public static string GetArrow(PlayerControl seer, Vector3 position)
+    {
+        ArrowInfo arrowInfo = new(seer.PlayerId, position);
+        return LocateArrows.FirstOrDefault(a => a.Key.Equals(arrowInfo)).Value ?? string.Empty;
     }
 
     /// <summary>

@@ -17,7 +17,7 @@ public static class ChatBubbleShower
     {
         try
         {
-            if (Queue.Count == 0 || ExileController.Instance) return;
+            if (Queue.Count == 0 || ExileController.Instance || !HudManager.InstanceExists) return;
 
             long now = Utils.TimeStamp;
             int wait = GameStates.IsInTask ? 8 : 4;
@@ -27,7 +27,7 @@ public static class ChatBubbleShower
             (string message, string title) = Queue.First();
             Queue.Remove((message, title));
 
-            ChatController chat = DestroyableSingleton<HudManager>.Instance.Chat;
+            ChatController chat = HudManager.Instance.Chat;
 
             if (GameStates.IsMeeting || chat.IsOpenOrOpening) ShowBubbleWithoutPlayer();
             else if (GameStates.IsLobby) Utils.SendMessage(message, PlayerControl.LocalPlayer.PlayerId, title);
@@ -69,29 +69,27 @@ public static class ChatBubbleShower
             {
                 const string color1 = "#00FFA5";
                 const string color2 = "#00A5FF";
-                bool isColor1 = true;
+                var isColor1 = true;
 
-                for (int i = 0; i < 4; i++)
+                for (var i = 0; i < 4; i++)
                 {
-                    var color = isColor1 ? color1 : color2;
+                    string color = isColor1 ? color1 : color2;
                     isColor1 = !isColor1;
-                    var text = $"<color={color}><b>{title}</b></color>\n<size=80%>{message}</size>";
+                    var text = $"<b>{title}</b>\n<size=80%><color={color}>{message}</color></size>";
                     HudManagerPatch.AchievementUnlockedText = text;
-                    yield return new WaitForSeconds(0.2f);
+                    yield return new WaitForSecondsRealtime(0.2f);
                 }
 
-                yield return new WaitForSeconds(7.25f);
+                HudManagerPatch.AchievementUnlockedText = $"<b>{title}</b>\n<size=80%>{message}</size>";
+                yield return new WaitForSecondsRealtime(7.25f);
                 HudManagerPatch.AchievementUnlockedText = string.Empty;
             }
         }
-        catch (Exception e)
-        {
-            Utils.ThrowException(e);
-        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     /// <summary>
-    /// Displays a chat bubble with a message and a title during the round for the local player.
+    ///     Displays a chat bubble with a message and a title during the round for the local player.
     /// </summary>
     /// <param name="message">The message to display in the chat bubble.</param>
     /// <param name="title">The title of the chat bubble.</param>

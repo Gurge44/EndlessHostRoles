@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using UnityEngine;
 
@@ -41,8 +40,10 @@ public abstract class OptionItem
         else if (IsSingleValue)
             SingleValue = DefaultValue;
         else
+        {
             for (var i = 0; i < NumPresets; i++)
                 AllValues[i] = DefaultValue;
+        }
 
         if (FastOpts.TryAdd(id, this))
             Options.Add(this);
@@ -56,12 +57,14 @@ public abstract class OptionItem
     public TabGroup Tab { get; }
     public bool IsSingleValue { get; }
 
-    private Color NameColor { get; set; }
+    public Color NameColor { get; set; }
     private OptionFormat ValueFormat { get; set; }
     public CustomGameMode GameMode { get; private set; }
     public bool IsHeader { get; protected set; }
     private bool IsHidden { get; set; }
     public bool IsText { get; protected set; }
+
+    public TextOptionItem Header { get; set; } = null;
 
     public Dictionary<string, string> ReplacementDictionary
     {
@@ -87,7 +90,8 @@ public abstract class OptionItem
 
     public OptionItem Parent { get; private set; }
 
-    public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
+    public List<Action<OptionItem, int, int>> UpdateValueEvent;
+    public bool UpdateValueEventRunsOnLoad { get; private set; }
 
     // Setter
     private OptionItem Do(Action<OptionItem> action)
@@ -151,9 +155,25 @@ public abstract class OptionItem
         Do(i => i.Children.Add(child));
     }
 
-    public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
+    /// <summary>
+    ///     Register an event that will be called when the value of this option is updated.
+    /// </summary>
+    /// <param name="handler">
+    ///     The action that has three parameters:
+    ///     the first argument is the OptionItem instance that was updated,
+    ///     the second one is the value before the update,
+    ///     the third one is the value after the update.
+    /// </param>
+    /// <returns></returns>
+    public OptionItem RegisterUpdateValueEvent(Action<OptionItem, int, int> handler)
     {
-        return Do(_ => UpdateValueEvent += handler);
+        UpdateValueEvent ??= [];
+        return Do(_ => UpdateValueEvent.Add(handler));
+    }
+
+    public OptionItem SetRunEventOnLoad(bool value)
+    {
+        return Do(_ => UpdateValueEventRunsOnLoad = value);
     }
 
     public OptionItem AddReplacement((string key, string value) kvp)
@@ -174,7 +194,6 @@ public abstract class OptionItem
     public string GetName(bool disableColor = false, bool console = false)
     {
         if (Name.Contains("CTA.FLAG")) return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
-
         return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
     }
 
@@ -185,6 +204,8 @@ public abstract class OptionItem
             "LoverDieConsequence" => GetValue() == 1,
             "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3,
             "BlackHoleDespawnMode" => GetValue() == 1,
+            "CTF_TaggedPlayersGet" => GetValue() == 2,
+            "CTF_GameEndCriteria" => true,
             _ => CurrentValue != 0
         };
     }
@@ -211,21 +232,23 @@ public abstract class OptionItem
 
     public bool IsCurrentlyHidden()
     {
-        var mode = EHR.Options.CurrentGameMode;
-        return CheckHidden() || (GameMode != CustomGameMode.All && GameMode != mode && !(mode == CustomGameMode.AllInOne && AllInOneGameMode.GameModeIntegrationSettings.TryGetValue(GameMode, out var option) && option.GetBool()));
-    }
-
-    private bool CheckHidden()
-    {
-        int LastParent = Id;
-
-        for (var i = 0; i < 5; i++)
+        for (OptionItem current = this; current != null; current = current.Parent)
         {
-            if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
-            LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
+            if (Hidden(current))
+                return true;
         }
 
-        return IsHidden || Parent?.IsHidden == true || AllOptions.First(x => x.Id == LastParent).IsHidden;
+        return false;
+
+        static bool Hidden(OptionItem oi)
+        {
+            if (oi.Header is { CollapsesSection: true }) return true;
+            CustomGameMode mode = EHR.Options.CurrentGameMode;
+            const CustomGameMode nd = CustomGameMode.NaturalDisasters;
+            return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||
+                    (oi.Name == "IntegrateNaturalDisasters" && mode == nd)) &&
+                   !(oi.GameMode == nd && EHR.Options.IntegrateNaturalDisasters.GetBool());
+        }
     }
 
     protected string ApplyFormat(string value)
@@ -256,7 +279,6 @@ public abstract class OptionItem
         CallUpdateValueEvent(beforeValue, afterValue);
         Refresh();
         if (doSync) SyncAllOptions();
-
         if (doSave) OptionSaver.Save();
     }
 
@@ -270,8 +292,10 @@ public abstract class OptionItem
         if (values.Length == AllValues.Length)
             AllValues = values;
         else
+        {
             for (var i = 0; i < values.Length; i++)
                 AllValues[i] = values[i];
+        }
     }
 
     public static OptionItem operator ++(OptionItem item)
@@ -288,7 +312,8 @@ public abstract class OptionItem
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
-        foreach (OptionItem op in AllOptions) op.Refresh();
+        foreach (OptionItem op in AllOptions)
+            op.Refresh();
 
         SyncAllOptions();
     }
@@ -297,32 +322,25 @@ public abstract class OptionItem
     {
         if (
                 Main.AllPlayerControls.Length <= 1
-                || AmongUsClient.Instance.AmHost == false
+                || !AmongUsClient.Instance.AmHost
                 || PlayerControl.LocalPlayer == null
             )
             return;
 
         RPC.SyncCustomSettingsRPC(targetId);
     }
-
-
-    // EventArgs
-    private void CallUpdateValueEvent(int beforeValue, int currentValue)
+    
+    public void CallUpdateValueEvent(int beforeValue, int currentValue)
     {
-        if (UpdateValueEvent == null) return;
-
-        try { UpdateValueEvent(this, new(beforeValue, currentValue)); }
-        catch (Exception ex)
+        UpdateValueEvent?.ForEach(action =>
         {
-            Logger.Error($"[{Name}] - Exception occurred when calling UpdateValueEvent", "OptionItem.UpdateValueEvent");
-            Logger.Exception(ex, "OptionItem.UpdateValueEvent");
-        }
-    }
-
-    public class UpdateValueEventArgs(int beforeValue, int currentValue) : EventArgs
-    {
-        public int CurrentValue { get; set; } = currentValue;
-        public int BeforeValue { get; set; } = beforeValue;
+            try { action(this, beforeValue, currentValue); }
+            catch (Exception ex)
+            {
+                Logger.Error($"[{Name}] - Exception occurred when calling UpdateValueEvent", "OptionItem.UpdateValueEvent");
+                Logger.Exception(ex, "OptionItem.UpdateValueEvent");
+            }
+        });
     }
 
     #region static

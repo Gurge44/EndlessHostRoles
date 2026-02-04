@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 
@@ -12,14 +13,18 @@ internal static class CanUsePatch
         canUse = couldUse = false;
         // Even if you return this with false, usable items other than tasks will remain usable (buttons, etc.)
         if (Main.GM.Value && AmongUsClient.Instance.AmHost && GameStates.InGame) return false;
-        
+
         PlayerControl lp = PlayerControl.LocalPlayer;
 
-        if (Options.CurrentGameMode == CustomGameMode.AllInOne && !AllInOneGameMode.Taskers.Contains(lp.PlayerId)) return false;
+        return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && lp.GetCustomRole() switch
+        {
+            CustomRoles.Wizard or CustomRoles.Carrier => HasTasksAsDynamicTaskingRole(),
+            CustomRoles.Medic => (Options.UsePets.GetBool() && Medic.UsePet.GetBool()) || lp.GetAbilityUseLimit() < 1f,
+            CustomRoles.Duality => !((Duality)Main.PlayerStates[lp.PlayerId].Role).KillingPhase,
+            _ => true
+        });
 
-        return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && (!lp.Is(CustomRoles.Wizard) || HasTasksAsWizard()));
-
-        bool HasTasksAsWizard()
+        bool HasTasksAsDynamicTaskingRole()
         {
             if (lp.GetTaskState().IsTaskFinished) return false;
             if (!lp.IsAlive()) return true;
@@ -33,7 +38,8 @@ internal static class EmergencyMinigamePatch
 {
     public static void Postfix(EmergencyMinigame __instance)
     {
-        if (Options.DisableMeeting.GetBool() || !CustomGameMode.Standard.IsActiveOrIntegrated()) __instance.Close();
+        if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
+            __instance.Close();
     }
 }
 
@@ -52,8 +58,44 @@ internal static class CanUseVentPatch
 
         // Determine if vent is available based on custom role
         // always true for engineer-based roles
-        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.Cast<IUsable>()));
+        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.CastFast<IUsable>()));
 
+        if (SubmergedCompatibility.IsSubmerged()) // From TheOtherRoles
+        {
+            // As submerged does, only change stuff for vents 9 and 14 of submerged. Code partially provided by AlexejheroYTB
+            if (SubmergedCompatibility.GetInTransition())
+            {
+                __result = float.MaxValue;
+                return canUse = couldUse = false;
+            }
+
+            switch (__instance.Id)
+            {
+                case 9: // Cannot enter vent 9 (Engine Room Exit Only Vent)!
+                {
+                    if (playerControl.inVent) break;
+                    __result = float.MaxValue;
+                    return canUse = couldUse = false;
+                }
+                case 14: // Lower Central
+                {
+                    __result = float.MaxValue;
+                    couldUse = couldUse && !pc.IsDead && (playerControl.CanMove || playerControl.inVent);
+                    canUse = couldUse;
+
+                    if (canUse)
+                    {
+                        Vector3 center = playerControl.Collider.bounds.center;
+                        Vector3 position = __instance.transform.position;
+                        __result = Vector2.Distance(center, position);
+                        canUse &= __result <= __instance.UsableDistance;
+                    }
+
+                    return false;
+                }
+            }
+        }
+        
         canUse = couldUse;
         // Not available if custom roles are not available
         if (!canUse) return false;
@@ -61,7 +103,7 @@ internal static class CanUseVentPatch
         // Mod's own processing up to this point
         // Replace vanilla processing from here
 
-        var usableVent = __instance.Cast<IUsable>();
+        var usableVent = __instance.CastFast<IUsable>();
         // Distance between vent and player
         var actualDistance = float.MaxValue;
 
@@ -77,7 +119,7 @@ internal static class CanUseVentPatch
         // Check vent cleaning
         if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out ISystemType systemType))
         {
-            var ventilationSystem = systemType.TryCast<VentilationSystem>();
+            var ventilationSystem = systemType.CastFast<VentilationSystem>();
             // If someone is cleaning a vent, you can't get into that vent
             if (ventilationSystem != null && ventilationSystem.IsVentCurrentlyBeingCleaned(__instance.Id)) couldUse = false;
         }

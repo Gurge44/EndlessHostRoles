@@ -51,6 +51,8 @@ internal static class TargetArrow
     /// <param name="target"></param>
     public static void Add(byte seer, byte target)
     {
+        if (Main.PlayerStates.TryGetValue(seer, out var state) && state.SubRoles.Contains(CustomRoles.Blind)) return;
+        
         ArrowInfo arrowInfo = new(seer, target);
 
         if (!TargetArrows.Any(a => a.Key.Equals(arrowInfo)))
@@ -105,9 +107,9 @@ internal static class TargetArrow
     /// </summary>
     /// <param name="seer"></param>
     /// <returns></returns>
-    public static string GetAllArrows(PlayerControl seer)
+    public static string GetAllArrows(byte seer)
     {
-        return TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
+        return TargetArrows.Keys.Where(ai => ai.From == seer).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
     }
 
     /// <summary>

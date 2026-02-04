@@ -142,6 +142,13 @@ public static class LongBoiPatches
         return false;
     }
 
+    [HarmonyPatch(nameof(LongBoiPlayerBody.SetHeightFromColor))]
+    [HarmonyPrefix]
+    public static bool SetHeightFromColor_Prefix(int colorIndex)
+    {
+        return colorIndex != byte.MaxValue;
+    }
+
     [HarmonyPatch(nameof(LongBoiPlayerBody.SetHeighFromDistanceHnS))]
     [HarmonyPrefix]
     public static bool LongBoyNeckSize_Patch(LongBoiPlayerBody __instance, ref float distance)
