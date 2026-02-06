@@ -32,7 +32,7 @@ internal class Insight : RoleBase
 
     public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
     {
-        List<PlayerControl> list = Main.AllPlayerControls.Where(x => !KnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CustomRoles.Insight) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned)).ToList();
+        List<PlayerControl> list = Main.EnumeratePlayerControls().Where(x => !KnownRolesOfPlayerIds.Contains(x.PlayerId) && !x.Is(CustomRoles.Insight) && !x.Is(CustomRoles.GM) && !x.Is(CustomRoles.NotAssigned)).ToList();
 
         if (list.Count != 0)
         {

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles;
-using EHR.Modules;
-using Hazel;
 using EHR.Gamemodes;
+using EHR.Modules;
+using EHR.Roles;
+using Hazel;
 
 namespace EHR;
 

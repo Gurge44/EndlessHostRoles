@@ -24,6 +24,6 @@ public class Transmitter : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        pc.TP(Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId) ?? pc);
+        pc.TP(Main.EnumerateAlivePlayerControls().OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId) ?? pc);
     }
 }

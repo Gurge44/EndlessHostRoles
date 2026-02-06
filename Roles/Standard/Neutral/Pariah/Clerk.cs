@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using Hazel;
 
 namespace EHR.Roles;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 namespace EHR.Roles;
 
 internal class Stained : IAddon

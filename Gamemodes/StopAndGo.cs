@@ -363,7 +363,7 @@ internal static class StopAndGo
 
         long now = Utils.TimeStamp;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
@@ -395,7 +395,7 @@ internal static class StopAndGo
             rank += Main.PlayerStates.Values.Where(x => x.TaskState.CompletedTasksCount == ms).ToList().IndexOf(state);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Length; }
+        catch { return Main.AllPlayerControls.Count; }
     }
 
     public static string GetSuffixText(PlayerControl pc)
@@ -447,11 +447,11 @@ internal static class StopAndGo
                     {
                         case Events.VentAccess:
                         {
-                            Main.AllAlivePlayerControls.Do(x => x.RpcSetRoleDesync(RoleTypes.Engineer, x.OwnerId));
+                            Main.EnumerateAlivePlayerControls().Do(x => x.RpcSetRoleDesync(RoleTypes.Engineer, x.OwnerId));
 
                             LateTask.New(() =>
                             {
-                                Main.AllAlivePlayerControls.Do(x =>
+                                Main.EnumerateAlivePlayerControls().Do(x =>
                                 {
                                     x.RpcSetRoleDesync(RoleTypes.Crewmate, x.OwnerId);
 

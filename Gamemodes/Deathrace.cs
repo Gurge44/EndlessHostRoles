@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -196,14 +197,14 @@ public static class Deathrace
         Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
     }
 
-    public static System.Collections.IEnumerator GameStart()
+    public static IEnumerator GameStart()
     {
         yield return new WaitForSecondsRealtime(2f);
 
         Track = Tracks[Main.CurrentMap].ToList();
         Logger.Info($"Track: {string.Join(" » ", Track)}", "Deathrace");
         
-        List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().ToList();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
         
@@ -262,7 +263,7 @@ public static class Deathrace
         Utils.NotifyRoles();
         
         Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Utils.SyncAllSettings();
+        Main.EnumerateAlivePlayerControls().Do(x => x.SyncSettings());
         
         GameGoing = true;
     }
@@ -340,9 +341,9 @@ public static class Deathrace
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !GameGoing) return false;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControls;
 
-        switch (aapc.Length)
+        switch (aapc.Count)
         {
             case 1:
                 PlayerControl winner = aapc[0];

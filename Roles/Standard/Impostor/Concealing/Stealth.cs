@@ -68,7 +68,7 @@ public sealed class Stealth : RoleBase
         Collider2D roomArea = room.roomArea;
         SystemTypes roomName = room.RoomId;
         RpcDarken(roomName);
-        return Main.AllAlivePlayerControls.Where(player => player != StealthPC && player.Collider.IsTouching(roomArea));
+        return Main.EnumerateAlivePlayerControls().Where(player => player != StealthPC && player.Collider.IsTouching(roomArea));
     }
 
     private IEnumerable<PlayerControl> FindPlayersInRange()

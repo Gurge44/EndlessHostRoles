@@ -1,14 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using Il2CppInterop.Runtime.Attributes;
 using TMPro;
 using UnityEngine;
-#if !ANDROID
-using System.Collections.Generic;
-using System.Linq;
-using Il2CppInterop.Runtime.Attributes;
-#endif
 
 namespace EHR.Patches;
 
@@ -321,7 +319,6 @@ internal static class Crowded
         }
     }
 
-#if !ANDROID
     //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public static class MeetingHudStartPatch
     {
@@ -351,7 +348,6 @@ internal static class Crowded
             __instance.gameObject.AddComponent<VitalsPagingBehaviour>().vitalsMinigame = __instance;
         }
     }
-#endif
 
     [HarmonyPatch(typeof(PSManager), nameof(PSManager.CreateGame))]
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.ContinueStart))]
@@ -376,7 +372,6 @@ internal static class Crowded
     }
 }
 
-#if !ANDROID
 public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
 {
     protected const string PageIndexGameObjectName = "CrowdedMod_PageIndex";
@@ -406,6 +401,26 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
     public virtual void Update()
     {
         bool chatIsOpen = HudManager.Instance.Chat.IsOpenOrOpening;
+        
+        if (Input.touchSupported)
+        {
+            foreach (Touch touch in Input.touches)
+            {
+                if (touch.phase != TouchPhase.Moved) continue;
+                if (chatIsOpen) break;
+
+                if (touch.deltaPosition.y > 0f)
+                {
+                    Cycle(false);
+                    break;
+                }
+                if (touch.deltaPosition.y < 0f)
+                {
+                    Cycle(true);
+                    break;
+                }
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || (!chatIsOpen && Input.mouseScrollDelta.y > 0f))
             Cycle(false);
@@ -575,4 +590,3 @@ public class VitalsPagingBehaviour(IntPtr ptr) : AbstractPagingBehaviour(ptr)
         }
     }
 }
-#endif

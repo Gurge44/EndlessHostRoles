@@ -67,7 +67,7 @@ internal class Convener : RoleBase
         if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
         pc.RPCPlayCustomSound("Teleport");
-        LateTask.New(() => Main.AllAlivePlayerControls.MassTP(pc.Pos(), log: true), isPet ? 0.5f : 2f, "Convener TP");
+        LateTask.New(() => Main.EnumerateAlivePlayerControls().MassTP(pc.Pos(), log: true), isPet ? 0.5f : 2f, "Convener TP");
         pc.RpcRemoveAbilityUse();
     }
 

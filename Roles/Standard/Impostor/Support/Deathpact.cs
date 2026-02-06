@@ -307,7 +307,7 @@ public class Deathpact : RoleBase
         {
             if (KillDeathpactPlayersOnMeeting.GetBool())
             {
-                PlayerControl deathpactPlayer = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == deathpact);
+                PlayerControl deathpactPlayer = Main.EnumeratePlayerControls().FirstOrDefault(a => a.PlayerId == deathpact);
                 if (deathpactPlayer == null || !deathpactPlayer.IsAlive()) continue;
 
                 foreach (PlayerControl player in PlayersInDeathpact) KillPlayerInDeathpact(deathpactPlayer, player);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 
@@ -109,7 +108,7 @@ public class MoonDancer : CovenBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        CustomRoles addon = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted()).RandomElement();
+        CustomRoles addon = Main.CustomRoleValues.Where(x => x.IsAdditionRole() && !x.IsGhostRole() && !pc.Is(x) && !x.IsNotAssignableMidGame() && !x.IsConverted()).RandomElement();
         if (addon == default(CustomRoles)) return false;
         pc.RpcSetCustomRole(addon);
         return false;

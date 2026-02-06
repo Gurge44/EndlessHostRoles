@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
-using EHR.Roles;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
-using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -203,7 +202,7 @@ public static class ChatManager
         }
 
         if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.NaturalDisasters or CustomGameMode.Mingle or CustomGameMode.HideAndSeek && GameStates.InGame && !message.StartsWith('/'))
-            Main.AllAlivePlayerControls.NotifyPlayers(string.Format(Utils.ColorString(Main.GameModeColors.GetValueOrDefault(Options.CurrentGameMode, new(1,1,1)), Translator.GetString("FFAChatMessageNotify")), player.PlayerId.ColoredPlayerName(), message));
+            Main.EnumerateAlivePlayerControls().NotifyPlayers(string.Format(Utils.ColorString(Main.GameModeColors.GetValueOrDefault(Options.CurrentGameMode, new(1,1,1)), Translator.GetString("FFAChatMessageNotify")), player.PlayerId.ColoredPlayerName(), message));
     }
 
     public static void AddChatHistory(PlayerControl player, string message)
@@ -219,8 +218,8 @@ public static class ChatManager
 
         Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
 
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        if (aapc.Length == 0) return;
+        var aapc = Main.AllAlivePlayerControls;
+        if (aapc.Count == 0) return;
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
@@ -286,12 +285,12 @@ public static class ChatManager
     }
 
     // Base from https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/Utils.cs
-    public static void ClearChat(params PlayerControl[] targets)
+    public static void ClearChat(params IReadOnlyList<PlayerControl> targets)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
-        if (targets.Length == 0 || targets.Length >= Main.AllAlivePlayerControls.Length) SendEmptyMessage(null);
+        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControls.Count) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 

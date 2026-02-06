@@ -1,5 +1,4 @@
-﻿#if !ANDROID
-using System;
+﻿using System;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
@@ -12,6 +11,12 @@ namespace EHR.Patches;
 [HarmonyPatch(typeof(ServerDropdown), nameof(ServerDropdown.FillServerOptions))]
 public static class ServerDropdownPatch
 {
+    public static bool Prepare()
+    {
+        // On Android, Starlight handles this automatically
+        return !OperatingSystem.IsAndroid();
+    }
+    
     public static bool Prefix(ServerDropdown __instance)
     {
         if (SceneManager.GetActiveScene().name == "FindAGame") return true;
@@ -41,4 +46,3 @@ public static class ServerDropdownPatch
         return false;
     }
 }
-#endif

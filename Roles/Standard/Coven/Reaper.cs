@@ -87,7 +87,7 @@ public class Reaper : CovenBase
         Instances.DoIf(x => x.CursedPlayers.Contains(target.PlayerId) && ++x.Souls >= SoulsRequired.GetInt(), x => x.BecomeDeath());
         Instances.RemoveAll(x => x.Souls >= SoulsRequired.GetInt());
 
-        if (Instances.Count > 0 && Main.AllAlivePlayerControls.All(x => x.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None or CountTypes.Crew || x.Is(CustomRoles.Reaper)))
+        if (Instances.Count > 0 && Main.EnumerateAlivePlayerControls().All(x => x.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None or CountTypes.Crew || x.Is(CustomRoles.Reaper)))
             Instances.RandomElement().BecomeDeath(true);
     }
 

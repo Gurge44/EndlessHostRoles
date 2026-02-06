@@ -193,7 +193,7 @@ public class Alchemist : RoleBase
             case 3: // TP to random player
                 LateTask.New(() =>
                 {
-                    player.TP(Main.AllAlivePlayerControls.Without(player).Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList().RandomElement());
+                    player.TP(Main.EnumerateAlivePlayerControls().Without(player).Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList().RandomElement());
                     player.RPCPlayCustomSound("Teleport");
                 }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
                 break;
@@ -298,7 +298,7 @@ public class Alchemist : RoleBase
             {
                 case < 0:
                     int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
+                    Main.EnumeratePlayerControls().Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     player.Notify(GetString("SwooperInvisStateOut"));
                     SendRPC();
                     refresh = true;

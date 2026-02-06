@@ -150,7 +150,7 @@ public class Virus : RoleBase
         {
             if (!KillInfectedPlayerAfterMeeting.GetBool()) return;
 
-            PlayerControl virus = Main.AllAlivePlayerControls.FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
+            PlayerControl virus = Main.EnumerateAlivePlayerControls().FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
             if (virus == null || deathReason != PlayerState.DeathReason.Vote) return;
 
             if (exileIds.Contains(virus.PlayerId))
@@ -161,7 +161,7 @@ public class Virus : RoleBase
 
             var infectedIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
                 if (!isInfected) continue;

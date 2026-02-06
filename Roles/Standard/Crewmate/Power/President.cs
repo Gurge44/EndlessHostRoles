@@ -178,11 +178,11 @@ public class President : RoleBase
                 break;
             case Decree.Declassification:
                 president.IsDeclassification = true;
-                Utils.SyncAllSettings();
+                Utils.MarkEveryoneDirtySettings();
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                 break;
             case Decree.GovernmentSupport:
-                foreach (PlayerControl player in Main.AllPlayerControls)
+                foreach (PlayerControl player in Main.EnumeratePlayerControls())
                 {
                     if (!player.IsCrewmate()) continue;
 

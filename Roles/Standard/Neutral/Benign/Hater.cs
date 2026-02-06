@@ -151,7 +151,7 @@ public class Hater : RoleBase
     {
         if (!pc.IsAlive()) return;
 
-        if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
+        if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.EnumerateAlivePlayerControls().All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
         {
             CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
             pc.RpcSetCustomRole(role);

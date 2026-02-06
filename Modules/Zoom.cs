@@ -20,41 +20,44 @@ public static class Zoom
             if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {
                 if (Camera.main.orthographicSize > 3.0f) ResetButtons = true;
-#if ANDROID
-                if (Input.touchCount == 2)
+
+                if (Input.touchSupported)
                 {
-                    Touch touch0 = Input.GetTouch(0);
-                    Touch touch1 = Input.GetTouch(1);
-
-                    Vector2 touch0PrevPos = touch0.position - touch0.deltaPosition;
-                    Vector2 touch1PrevPos = touch1.position - touch1.deltaPosition;
-
-                    float prevTouchDeltaMag = (touch0PrevPos - touch1PrevPos).magnitude;
-                    float currentTouchDeltaMag = (touch0.position - touch1.position).magnitude;
-                    float deltaMagnitudeDiff = currentTouchDeltaMag - prevTouchDeltaMag;
-
-                    switch (deltaMagnitudeDiff)
+                    if (Input.touchCount == 2)
                     {
-                        case > 0:
-                        {
-                            if (Camera.main.orthographicSize > 3.0f)
-                                SetZoomSize();
+                        Touch touch0 = Input.GetTouch(0);
+                        Touch touch1 = Input.GetTouch(1);
 
-                            break;
-                        }
-                        case < 0:
+                        Vector2 touch0PrevPos = touch0.position - touch0.deltaPosition;
+                        Vector2 touch1PrevPos = touch1.position - touch1.deltaPosition;
+
+                        float prevTouchDeltaMag = (touch0PrevPos - touch1PrevPos).magnitude;
+                        float currentTouchDeltaMag = (touch0.position - touch1.position).magnitude;
+                        float deltaMagnitudeDiff = currentTouchDeltaMag - prevTouchDeltaMag;
+
+                        switch (deltaMagnitudeDiff)
                         {
-                            if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                            case > 0:
                             {
-                                if (Camera.main.orthographicSize < 18.0f)
-                                    SetZoomSize(true);
-                            }
+                                if (Camera.main.orthographicSize > 3.0f)
+                                    SetZoomSize();
 
-                            break;
+                                break;
+                            }
+                            case < 0:
+                            {
+                                if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                                {
+                                    if (Camera.main.orthographicSize < 18.0f)
+                                        SetZoomSize(true);
+                                }
+
+                                break;
+                            }
                         }
                     }
                 }
-#else
+
                 switch (Input.mouseScrollDelta.y)
                 {
                     case > 0:
@@ -75,7 +78,6 @@ public static class Zoom
                         break;
                     }
                 }
-#endif
                 Flag.NewFlag("Zoom");
             }
             else

@@ -229,6 +229,8 @@ internal static class ChatCommands
             new("UIScale", "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new("Fabricate", "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
             new("Start", "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
+            new("Summon", "{id}", GetString("CommandDescription.Summon"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true),
+            
             new("ConfirmAuth", "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
             // Commands with action handled elsewhere
@@ -514,10 +516,25 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    public static void SummonCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+        
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Summoner sum || player.GetAbilityUseLimit() < 1) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead) return;
+
+        sum.SummonedPlayerId = targetId;
+        player.RpcRemoveAbilityUse();
+        
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Summoner.SummonSuccessMessage"), targetId.ColoredPlayerName()));
+        
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
     
     private static void StartCommand(PlayerControl player, string text, string[] args)
     {
-        VotedToStart.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
+        VotedToStart.UnionWith(Main.EnumeratePlayerControls().Select(x => x.PlayerId));
     }
     
     private static void FabricateCommand(PlayerControl player, string text, string[] args)
@@ -855,7 +872,7 @@ internal static class ChatCommands
 
         pc.FixBlackScreen();
 
-        if (Main.AllPlayerControls.All(x => x.IsAlive()))
+        if (Main.EnumeratePlayerControls().All(x => x.IsAlive()))
             Logger.SendInGame(GetString("FixBlackScreenWaitForDead"), Color.yellow);
     }
 
@@ -1129,7 +1146,7 @@ internal static class ChatCommands
 
         string coloredRole = CustomRoles.Listener.ToColoredString();
 
-        foreach (PlayerControl listener in Main.AllAlivePlayerControls)
+        foreach (PlayerControl listener in Main.EnumerateAlivePlayerControls())
         {
             if (!listener.Is(CustomRoles.Listener) || IRandom.Instance.Next(100) >= Listener.WhisperHearChance.GetInt()) continue;
             string message = IRandom.Instance.Next(100) < Listener.FullMessageHearChance.GetInt() ? string.Format(GetString("Listener.FullMessage"), coloredRole, fromName, toName, msg) : string.Format(GetString("Listener.FromTo"), coloredRole, fromName, toName);
@@ -1241,13 +1258,13 @@ internal static class ChatCommands
             {
                 if (!GameStates.IsLobby) yield break;
 
-                if (Main.AllPlayerControls.Select(x => x.PlayerId).All(ReadyPlayers.Contains)) break;
+                if (Main.EnumeratePlayerControls().Select(x => x.PlayerId).All(ReadyPlayers.Contains)) break;
 
                 timer -= Time.deltaTime;
                 yield return null;
             }
 
-            byte[] notReadyPlayers = Main.AllPlayerControls.Select(x => x.PlayerId).Except(ReadyPlayers).ToArray();
+            byte[] notReadyPlayers = Main.EnumeratePlayerControls().Select(x => x.PlayerId).Except(ReadyPlayers).ToArray();
 
             if (notReadyPlayers.Length == 0)
                 Utils.SendMessage("\n", player.PlayerId, GetString("EveryoneReadyTitle"));
@@ -1269,9 +1286,9 @@ internal static class ChatCommands
 
         DraftResult = [];
 
-        byte[] allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
+        byte[] allPlayerIds = Main.EnumeratePlayerControls().Select(x => x.PlayerId).ToArray();
         bool rollSpawnChance = Options.DraftAffectedByRoleSpawnChances.GetBool();
-        List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && !ShouldNotSpawn(x) && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
+        List<CustomRoles> allRoles = Main.CustomRoleValues.Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && !ShouldNotSpawn(x) && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
 
         if (allRoles.Count < allPlayerIds.Length)
         {
@@ -1579,7 +1596,7 @@ internal static class ChatCommands
         {
             if (PollVotes.Count == 0) yield break;
 
-            bool notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
+            bool notEveryoneVoted = Main.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
 
             var resendTimer = 0f;
 
@@ -1587,7 +1604,7 @@ internal static class ChatCommands
             {
                 if (!GameStates.IsLobby) yield break;
 
-                notEveryoneVoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
+                notEveryoneVoted = Main.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
@@ -1772,7 +1789,7 @@ internal static class ChatCommands
         string subArgs = text.Remove(0, 8);
         string setRole = FixRoleNameInput(subArgs.Trim());
 
-        foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles rl in Main.CustomRoleValues)
         {
             if (rl.IsVanilla()) continue;
 
@@ -1796,7 +1813,7 @@ internal static class ChatCommands
     private static void IDCommand(PlayerControl player, string text, string[] args)
     {
         string msgText = GetString("PlayerIdList");
-        msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {pc.GetRealName()}");
+        msgText = Main.EnumeratePlayerControls().Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {pc.GetRealName()}");
 
         Utils.SendMessage(msgText, player.PlayerId);
     }
@@ -2045,7 +2062,7 @@ internal static class ChatCommands
         string toVote = text[6..].Replace(" ", string.Empty);
         if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
 
-        if (voteId > Main.AllPlayerControls.Length) return;
+        if (voteId > Main.AllPlayerControls.Count) return;
 
         PlayerControl votedPlayer = voteId.GetPlayer();
         if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
@@ -2377,7 +2394,7 @@ internal static class ChatCommands
 
     private static void KCountCommand(PlayerControl player, string text, string[] args)
     {
-        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt())
+        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Count < Options.MinPlayersForGameStateCommand.GetInt())
         {
             Utils.SendMessage(GetString("Message.CommandUnavailable"), player.PlayerId, sendOption: SendOption.None);
             return;
@@ -3008,7 +3025,7 @@ internal static class ChatCommands
         
         string nameWithoutId = Regex.Replace(name.Replace(" ", string.Empty), @"^\d+", string.Empty);
 
-        foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles rl in Main.CustomRoleValues)
         {
             if (rl.IsVanilla()) continue;
             
@@ -3047,7 +3064,7 @@ internal static class ChatCommands
 
         role = FixRoleNameInput(role).ToLower().Trim().Replace(" ", string.Empty);
 
-        foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles rl in Main.CustomRoleValues)
         {
             if (rl.IsVanilla()) continue;
 
@@ -3256,7 +3273,7 @@ internal static class ChatUpdatePatch
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)
     {
-        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : GameStates.IsLobby ? Main.AllPlayerControls.Without(PlayerControl.LocalPlayer).RandomElement() : Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : GameStates.IsLobby ? Main.EnumeratePlayerControls().Without(PlayerControl.LocalPlayer).RandomElement() : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return false;
 
         bool wasCleared = false;

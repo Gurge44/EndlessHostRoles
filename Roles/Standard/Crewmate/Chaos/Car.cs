@@ -71,7 +71,7 @@ public class Car : RoleBase
 
         LastPosition = pos;
 
-        if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out PlayerControl target) && CurrentlyPropelling.Add(target.PlayerId))
+        if (Main.EnumerateAlivePlayerControls().Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out PlayerControl target) && CurrentlyPropelling.Add(target.PlayerId))
             Main.Instance.StartCoroutine(Propel(pc, target, direction));
     }
 

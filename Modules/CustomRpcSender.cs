@@ -457,7 +457,7 @@ public static class CustomRpcSenderExtensions
             case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
                 return;
             case true:
-                Main.AllPlayerControls.Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
+                Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
                 break;
             default:
                 Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
@@ -490,7 +490,7 @@ public static class CustomRpcSenderExtensions
         // Check Observer
         if (!forObserver && !MeetingStates.FirstMeeting)
         {
-            foreach (PlayerControl x in Main.AllPlayerControls)
+            foreach (PlayerControl x in Main.EnumeratePlayerControls())
             {
                 if (x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true))
                     returnValue = true;
@@ -572,7 +572,7 @@ public static class CustomRpcSenderExtensions
                 returnValue = true;
             }
 
-            foreach (PlayerControl x in Main.AllPlayerControls)
+            foreach (PlayerControl x in Main.EnumeratePlayerControls())
             {
                 if (x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true, true))
                     returnValue = true;

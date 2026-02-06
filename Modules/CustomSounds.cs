@@ -8,13 +8,12 @@ namespace EHR.Modules;
 
 public static class CustomSoundsManager
 {
-#if !ANDROID
     private static readonly string SoundsPath = $"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
-#endif
 
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, bool force = false)
     {
-#if !ANDROID
+        if (!OperatingSystem.IsWindows()) return;
+
         if (!force)
         {
             if (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())
@@ -30,19 +29,16 @@ public static class CustomSoundsManager
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, pc.OwnerId);
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-#endif
     }
 
     public static void RPCPlayCustomSoundAll(string sound)
     {
-#if !ANDROID
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || !OperatingSystem.IsWindows()) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable);
         writer.Write(sound);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         Play(sound);
-#endif
     }
 
     public static void ReceiveRPC(MessageReader reader)
@@ -52,8 +48,7 @@ public static class CustomSoundsManager
 
     public static void Play(string sound)
     {
-#if !ANDROID
-        if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value) return;
+        if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value || !OperatingSystem.IsWindows()) return;
 
         string path = SoundsPath + sound + ".wav";
         if (!Directory.Exists(SoundsPath)) Directory.CreateDirectory(SoundsPath);
@@ -78,7 +73,6 @@ public static class CustomSoundsManager
 
         StartPlay(path);
         Logger.Msg($"Playing sound: {sound}", "CustomSounds");
-#endif
     }
 
     [DllImport("winmm.dll", CharSet = CharSet.Unicode)]

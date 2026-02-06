@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Roles;
-using EHR.Modules;
-using UnityEngine;
 using EHR.Gamemodes;
+using EHR.Modules;
+using EHR.Roles;
+using UnityEngine;
 
 namespace EHR;
 
@@ -375,9 +375,10 @@ internal static class CustomRolesHelper
             CustomRoles.NoteKiller => CustomRoles.Crewmate,
             CustomRoles.RoomRusher => RoomRusher.CanVent ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Clerk => CustomRoles.Crewmate,
+            CustomRoles.Accumulator => Accumulator.CanVentBeforeKilling.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.CovenMember => CustomRoles.Crewmate,
             CustomRoles.Augur => Augur.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
-            CustomRoles.Accumulator => Accumulator.CanVentBeforeKilling.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Summoner => Summoner.CanVentBeforeNecronomicon.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
 
             // Vanilla roles (just in case)
             CustomRoles.ImpostorEHR => CustomRoles.Impostor,
@@ -1284,6 +1285,7 @@ internal static class CustomRolesHelper
             CustomRoles.Siren or
             CustomRoles.Wyrd or
             CustomRoles.Empress or
+            CustomRoles.Summoner or
             CustomRoles.MoonDancer;
     }
 
@@ -1404,7 +1406,7 @@ internal static class CustomRolesHelper
 
     public static bool RoleExist(this CustomRoles role, bool countDead = false)
     {
-        return Main.AllPlayerControls.Any(x => x.Is(role) && (countDead || x.IsAlive()));
+        return Main.EnumeratePlayerControls().Any(x => x.Is(role) && (countDead || x.IsAlive()));
     }
 
     public static int GetCount(this CustomRoles role)

@@ -23,14 +23,14 @@ public static class AntiBlackout
         SkipTasks = true;
         CachedRoleMap = StartGameHostPatch.RpcSetRoleReplacer.RoleMap.ToDictionary(x => (x.Key.SeerID, x.Key.TargetID), x => (x.Value.RoleType, x.Value.CustomRole));
 
-        PlayerControl[] players = Main.AllAlivePlayerControls;
+        var players = Main.AllAlivePlayerControls;
         if (CheckForEndVotingPatch.TempExiledPlayer != null) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
         PlayerControl dummyImp = players.OrderByDescending(x => x.GetCustomRole() is not (CustomRoles.DetectiveEHR or CustomRoles.Detective) && !x.Is(CustomRoles.Examiner)).ThenByDescending(x => x.IsModdedClient()).MinBy(x => x.PlayerId);
 
-        if (players.Length == 2)
+        if (players.Count == 2)
         {
             // There are only 2 players alive. We need to revive 1 dead player to have 2 living crewmates.
-            PlayerControl revived = Main.AllPlayerControls.Where(x => !x.IsAlive() && !x.Data.Disconnected && x != CheckForEndVotingPatch.TempExiledPlayer?.Object).MaxBy(x => x.PlayerId);
+            PlayerControl revived = Main.EnumeratePlayerControls().Where(x => !x.IsAlive() && !x.Data.Disconnected && x != CheckForEndVotingPatch.TempExiledPlayer?.Object).MaxBy(x => x.PlayerId);
 
             // The black screen cannot be prevented if there are no players to revive in this case.
             if (revived == null)
@@ -51,7 +51,7 @@ public static class AntiBlackout
         dummyImp.RpcSetRoleGlobal(RoleTypes.Impostor);
         players.Without(dummyImp).Where(x => x.GetCustomRole() is not (CustomRoles.DetectiveEHR or CustomRoles.Detective) && !x.Is(CustomRoles.Examiner)).Do(x => x.RpcSetRoleGlobal(RoleTypes.Crewmate));
         
-        Main.AllPlayerControls.DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead && (!x.AmOwner || !Utils.TempReviveHostRunning), x => x.RpcSetRoleGlobal(GhostRolesManager.AssignedGhostRoles.TryGetValue(x.PlayerId, out var ghostRole) ? ghostRole.Instance.RoleTypes : RoleTypes.CrewmateGhost));
+        Main.EnumeratePlayerControls().DoIf(x => !x.IsAlive() && x.Data != null && x.Data.IsDead && (!x.AmOwner || !Utils.TempReviveHostRunning), x => x.RpcSetRoleGlobal(GhostRolesManager.AssignedGhostRoles.TryGetValue(x.PlayerId, out var ghostRole) ? ghostRole.Instance.RoleTypes : RoleTypes.CrewmateGhost));
     }
 
     // After the ejection screen, we revert the role types to their actual values.
@@ -65,7 +65,7 @@ public static class AntiBlackout
         }
 
         // Set the temporarily revived crewmate back to dead.
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             try
             {
@@ -105,7 +105,7 @@ public static class AntiBlackout
         {
             var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
             
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 try
                 {

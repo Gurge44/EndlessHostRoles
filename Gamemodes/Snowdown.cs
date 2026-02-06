@@ -169,9 +169,9 @@ public static class Snowdown
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !Main.IntroDestroyed) return false;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControls;
 
-        switch (aapc.Length)
+        switch (aapc.Count)
         {
             case 1:
             {
@@ -198,7 +198,7 @@ public static class Snowdown
                     return true;
                 }
 
-                if (GameEndsWhenPointsReached && Data.IntersectBy(Main.AllAlivePlayerControls.Select(p => p.PlayerId), x => x.Key).FindFirst(x => x.Value.Points >= PointsToReach, out var winnerData))
+                if (GameEndsWhenPointsReached && Data.IntersectBy(Main.EnumerateAlivePlayerControls().Select(p => p.PlayerId), x => x.Key).FindFirst(x => x.Value.Points >= PointsToReach, out var winnerData))
                 {
                     CustomWinnerHolder.WinnerIds = [winnerData.Key];
                     Logger.Info($"Winners: {Main.AllPlayerNames.GetValueOrDefault(winnerData.Key, "[Unknown player]")}", "Snowdown");
@@ -223,7 +223,7 @@ public static class Snowdown
         PointsToReach = PointsToReachOption.GetInt();
         PowerUpPrices = PowerUpPriceOptions.ToDictionary(x => x.Key, x => x.Value.GetInt());
         
-        Data = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => new PlayerData());
+        Data = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => new PlayerData());
         Snowballs = [];
         
         Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;

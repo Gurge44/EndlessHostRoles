@@ -138,7 +138,7 @@ public class ToiletMaster : RoleBase
         IEnumerable<PlayerControl> hideList = ToiletVisible switch
         {
             ToiletVisibilityOptions.Instant => [],
-            _ => Main.AllPlayerControls.Without(pc)
+            _ => Main.EnumeratePlayerControls().Without(pc)
         };
 
         Toilets[pos] = (new(pos, hideList), 0, Utils.TimeStamp);
@@ -206,7 +206,7 @@ public class ToiletMaster : RoleBase
                     break;
                 case Poop.Green:
                     float radius = GreenPoopRadius.GetFloat();
-                    bool isKillerNearby = Main.AllAlivePlayerControls.Any(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) <= radius && (x.IsImpostor() || x.IsNeutralKiller()));
+                    bool isKillerNearby = Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) <= radius && (x.IsImpostor() || x.IsNeutralKiller()));
                     Color color = isKillerNearby ? Color.red : Color.green;
                     string str = Translator.GetString(isKillerNearby ? "TM.GreenPoopKiller" : "TM.GreenPoop");
                     pc.Notify(Utils.ColorString(color, str));

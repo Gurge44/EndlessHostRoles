@@ -5,14 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using EHR.Gamemodes;
 using Global;
-
-#if !ANDROID
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-#endif
 
 namespace EHR;
 
@@ -21,6 +16,7 @@ public static class Translator
     private const string LanguageFolderName = "Language";
     private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
     public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
+    public static readonly StringNames[] AllStringNames = Enum.GetValues<StringNames>();
 
     public static void Init()
     {
@@ -58,9 +54,9 @@ public static class Translator
                     string jsonContent = reader.ReadToEnd();
                     
                     // Deserialize the JSON into a dictionary
-                    if (JsoncParser.Parse(jsonContent) is not Dictionary<string, string> jsonDictionary) continue;
+                    if (JsoncParser.Parse(jsonContent) is not Dictionary<string, object> jsonDictionary) continue;
 
-                    if (jsonDictionary.TryGetValue("LanguageID", out string languageIdObj) && int.TryParse(languageIdObj, out int languageId))
+                    if (jsonDictionary.TryGetValue("LanguageID", out object languageIdObj) && int.TryParse(languageIdObj.ToString(), out int languageId))
                     {
                         // Remove the "LanguageID" entry
                         jsonDictionary.Remove("LanguageID");
@@ -81,7 +77,7 @@ public static class Translator
         // Loading custom translation files
         if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
-        try { OriginalRoleNames = Enum.GetValues<CustomRoles>().ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
+        try { OriginalRoleNames = Main.CustomRoleValues.ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
         catch (Exception e) { Utils.ThrowException(e); }
         
         // Creating a translation template
@@ -97,19 +93,17 @@ public static class Translator
         }
     }
 
-    private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, string> jsonDictionary)
+    private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, object> jsonDictionary)
     {
-        foreach (KeyValuePair<string, string> kvp in jsonDictionary)
+        foreach ((string key, object value) in jsonDictionary)
         {
-            string textString = kvp.Key;
-
-            if (kvp.Value is { } translation)
+            if (value is string translation)
             {
                 // If the textString is not already in the translation map, add it
-                if (!translationMaps.ContainsKey(textString)) translationMaps[textString] = [];
+                if (!translationMaps.ContainsKey(key)) translationMaps[key] = [];
 
                 // Add or update the translation for the current id and textString
-                translationMaps[textString][languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
+                translationMaps[key][languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
             }
         }
     }
@@ -165,7 +159,7 @@ public static class Translator
             if (TranslateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || string.IsNullOrEmpty(res) || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese))))
                 res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
 
-            if (!TranslateMaps.ContainsKey(str) && Enum.GetValues<StringNames>().FindFirst(x => x.ToString() == str, out StringNames stringNames))
+            if (!TranslateMaps.ContainsKey(str) && AllStringNames.FindFirst(x => x.ToString() == str, out StringNames stringNames))
                 res = GetString(stringNames);
         }
         catch (Exception ex)
@@ -179,11 +173,7 @@ public static class Translator
 
     public static string GetString(StringNames stringName)
     {
-#if ANDROID
         return TranslationController.Instance.GetString(stringName);
-#else
-        return TranslationController.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
-#endif
     }
 
     public static string GetRoleString(string str, bool forUser = true)

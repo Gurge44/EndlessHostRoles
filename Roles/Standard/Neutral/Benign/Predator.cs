@@ -52,7 +52,7 @@ internal class Predator : RoleBase
         {
             RolesToKill = [];
 
-            List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().ToList();
+            List<CustomRoles> allRoles = Main.CustomRoleValues.ToList();
             allRoles.RemoveAll(x => x == CustomRoles.Predator || x >= CustomRoles.NotAssigned || !x.RoleExist(true));
 
             var r = IRandom.Instance;

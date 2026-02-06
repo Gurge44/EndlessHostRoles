@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Roles;
@@ -21,6 +22,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool IsDirty { get; set; }
 
+    protected override int TargetClientId => player.OwnerId;
+
     public static void SetDirty(byte playerId)
     {
         for (var index = 0; index < AllSenders.Count; index++)
@@ -30,6 +33,22 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
             {
                 sender.SetDirty();
+                break; // Only one sender can have the same player id
+            }
+        }
+    }
+
+    public static void SendImmediately(byte playerId)
+    {
+        for (var index = 0; index < AllSenders.Count; index++)
+        {
+            GameOptionsSender allSender = AllSenders[index];
+
+            if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
+            {
+                ForceWaitFrame = true;
+                sender.SendGameOptions();
+                sender.IsDirty = false;
                 break; // Only one sender can have the same player id
             }
         }
@@ -108,17 +127,27 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             base.SendGameOptions();
     }
 
-    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    protected override IEnumerator SendGameOptionsAsync()
     {
-        try
+        if (player.AmOwner)
         {
-            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
+            IGameOptions opt = BuildGameOptions();
+
+            if (GameManager.Instance?.LogicComponents != null)
             {
-                Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.OwnerId);
+                foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+                {
+                    if (com.TryCast(out LogicOptions lo))
+                        lo.SetGameOptions(opt);
+
+                    yield return WaitFrameIfNecessary();
+                }
             }
+
+            GameOptionsManager.Instance.CurrentGameOptions = opt;
         }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray"); }
+        else
+            yield return base.SendGameOptionsAsync();
     }
 
     public static void RemoveSender(PlayerControl player)

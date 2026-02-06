@@ -99,7 +99,7 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
+            Main.EnumerateAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
             DoomTimer = DoomTime.GetInt();
         }
 
@@ -115,7 +115,7 @@ public class Tremor : RoleBase
 
             Vector2 pos = pc.Pos();
 
-            Main.AllAlivePlayerControls
+            Main.EnumerateAlivePlayerControls()
                 .Where(x => x.PlayerId != pc.PlayerId && Vector2.Distance(pos, x.Pos()) <= 2.5f)
                 .Do(pc.Kill);
 

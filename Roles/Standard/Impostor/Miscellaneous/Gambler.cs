@@ -166,7 +166,7 @@ public class Gambler : RoleBase
                     {
                         if (GameStates.IsInTask && killer.IsAlive())
                         {
-                            PlayerControl[] list = Main.AllAlivePlayerControls.Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToArray();
+                            PlayerControl[] list = Main.EnumerateAlivePlayerControls().Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToArray();
                             TP(killer.NetTransform, list.RandomElement().Pos());
                         }
                     }, TPDelay.GetInt(), "Gambler Swap");

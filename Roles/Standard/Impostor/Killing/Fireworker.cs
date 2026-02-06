@@ -160,7 +160,7 @@ public class Fireworker : RoleBase
                 Logger.Info("Explode fireworks", "Fireworker");
                 var suicide = false;
 
-                foreach (PlayerControl target in Main.AllAlivePlayerControls)
+                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
                 {
                     foreach (Vector3 pos in fireworksPosition)
                     {
@@ -176,7 +176,7 @@ public class Fireworker : RoleBase
 
                 if (suicide)
                 {
-                    int totalAlive = Main.AllAlivePlayerControls.Length;
+                    int totalAlive = Main.AllAlivePlayerControls.Count;
                     if (totalAlive != 1) pc.Suicide();
                 }
 

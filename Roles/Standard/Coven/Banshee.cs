@@ -117,7 +117,7 @@ public class Banshee : CovenBase
 
         PlayerControl pc = BansheeId.GetPlayer();
         
-        if (pc != null && pc.AmOwner && Instances.SelectMany(x => x.ScreechedPlayers).Distinct().Count() == Main.AllAlivePlayerControls.Count(x => !Instances.Exists(a => a.BansheeId == x.PlayerId)))
+        if (pc != null && pc.AmOwner && Instances.SelectMany(x => x.ScreechedPlayers).Distinct().Count() == Main.EnumerateAlivePlayerControls().Count(x => !Instances.Exists(a => a.BansheeId == x.PlayerId)))
             Achievements.Type.GetMuted.CompleteAfterGameEnd();
     }
 }

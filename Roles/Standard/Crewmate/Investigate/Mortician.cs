@@ -52,7 +52,7 @@ public class Mortician : RoleBase
         var minDis = float.MaxValue;
         var minName = string.Empty;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (pc.PlayerId == target.PlayerId) continue;
 

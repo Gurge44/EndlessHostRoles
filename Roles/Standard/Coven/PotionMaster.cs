@@ -82,14 +82,14 @@ public class PotionMaster : CovenBase
 
         RevealedPlayers.Add(target.PlayerId);
         Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 3, target.PlayerId);
-        Main.AllAlivePlayerControls.DoIf(x => x.Is(Team.Coven), x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: target));
+        Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(Team.Coven), x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: target));
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         return false;
     }
 
     public override void OnReceiveNecronomicon()
     {
-        PotionMasterId.GetPlayer().ResetKillCooldown();
+        PotionMasterId.GetPlayer()?.ResetKillCooldown();
     }
 
     public override void SetKillCooldown(byte id)

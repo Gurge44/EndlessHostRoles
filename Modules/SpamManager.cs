@@ -137,7 +137,7 @@ public static class SpamManager
                 Utils.SendMessage(msg, sendOption: SendOption.None);
             else
             {
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     if (pc.IsAlive() == player.IsAlive())
                         Utils.SendMessage(msg, pc.PlayerId, sendOption: SendOption.None);
             }

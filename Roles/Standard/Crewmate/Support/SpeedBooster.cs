@@ -24,7 +24,7 @@ internal class SpeedBooster : RoleBase
     {
         if (player.IsAlive() && completedTaskCount + 1 <= totalTaskCount)
         {
-            PlayerControl target = Main.AllAlivePlayerControls.RandomElement();
+            PlayerControl target = Main.EnumerateAlivePlayerControls().RandomElement();
             Main.AllPlayerSpeed[target.PlayerId] += 0.5f;
 
             target.Notify(Main.AllPlayerSpeed[target.PlayerId] > 3

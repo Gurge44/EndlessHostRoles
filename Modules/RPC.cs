@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Patches;
@@ -167,6 +166,7 @@ public enum CustomRPC
     Exclusionary,
     Deadlined,
     Blessed,
+    CountdownTimer,
 
     // Game Modes
     RoomRushDataSync,
@@ -466,27 +466,15 @@ internal static class RPCHandlerPatch
                 {
                     if (AmongUsClient.Instance.AmHost) break;
 
-                    List<OptionItem> listOptions = [];
-                    int startAmount = reader.ReadInt32();
-                    int lastAmount = reader.ReadInt32();
-                    int countAllOptions = OptionItem.AllOptions.Count;
-
-                    // Add Options
-                    for (int option = startAmount; option < countAllOptions && option <= lastAmount; option++)
-                        listOptions.Add(OptionItem.AllOptions[option]);
-
-                    int countOptions = listOptions.Count;
-                    Logger.Info($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
-
-                    // Sync Settings
-                    foreach (OptionItem option in listOptions)
+                    while (reader.ReadPackedInt32() is var id and >= 0)
                     {
-                        try { option.SetValue(reader.ReadPackedInt32(), false, false); }
-                        catch { }
+                        OptionItem option = OptionItem.FastOptions[id];
+                        var data = reader.ReadPackedInt32();
+                        option.SetValue(data, false, false);
 
                         try
                         {
-                            if (startAmount == 0 && option.Name == "Preset" && option.CurrentValue != 9)
+                            if (option.Id == OptionItem.PresetId && option.CurrentValue != 9)
                                 option.SetValue(9, false, false);
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
@@ -636,18 +624,18 @@ internal static class RPCHandlerPatch
                 case CustomRPC.NotificationPopper:
                 {
                     byte typeId = reader.ReadByte();
-                    int index = reader.ReadPackedInt32();
+                    int optionId = reader.ReadPackedInt32();
                     int customRole = reader.ReadPackedInt32();
                     bool playSound = reader.ReadBoolean();
-                    OptionItem key = OptionItem.AllOptions[index];
+                    OptionItem key = OptionItem.FastOptions[optionId];
 
                     switch (typeId)
                     {
                         case 0:
-                            NotificationPopperPatch.AddSettingsChangeMessage(index, key, playSound);
+                            NotificationPopperPatch.AddSettingsChangeMessage(key, playSound);
                             break;
                         case 1:
-                            NotificationPopperPatch.AddRoleSettingsChangeMessage(index, key, (CustomRoles)customRole, playSound);
+                            NotificationPopperPatch.AddRoleSettingsChangeMessage(key, (CustomRoles)customRole, playSound);
                             break;
                     }
 
@@ -1386,7 +1374,7 @@ internal static class RPCHandlerPatch
                 {
                     if (reader.ReadBoolean())
                     {
-                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                         {
                             if (player.AmOwner) continue;
                             player.SetPet("");
@@ -1398,7 +1386,7 @@ internal static class RPCHandlerPatch
                     }
                     else
                     {
-                        foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                         {
                             if (player.AmOwner) continue;
                             if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
@@ -1431,6 +1419,8 @@ internal static class RPCHandlerPatch
 
 internal static class RPC
 {
+    const int MaxBytesPerRPC = 1000;
+    
     // Credit: https://github.com/music-discussion/TownOfHost-TheOtherRoles/blob/main/Modules/RPC.cs
     public static void SyncCustomSettingsRPC(int targetId = -1)
     {
@@ -1442,38 +1432,22 @@ internal static class RPC
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
 
-        int amount = OptionItem.AllOptions.Count;
-        int divideBy = amount / 10;
-        for (var i = 0; i <= 10; i++) SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, targetId);
-    }
-
-    private static void SyncOptionsBetween(int startAmount, int lastAmount, int targetId = -1)
-    {
-        if (targetId != -1)
-        {
-            ClientData client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
-        }
-
-        if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
-
-        int amountAllOptions = OptionItem.AllOptions.Count;
-
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
-        writer.Write(startAmount);
-        writer.Write(lastAmount);
 
-        List<OptionItem> listOptions = [];
-
-        // Add Options
-        for (int option = startAmount; option < amountAllOptions && option <= lastAmount; option++) listOptions.Add(OptionItem.AllOptions[option]);
-
-        int countListOptions = listOptions.Count;
-        Logger.Info($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
-
-        // Sync Settings
-        foreach (OptionItem option in listOptions) writer.WritePacked(option.GetValue());
-
+        var idx = 0;
+        while (idx < OptionItem.AllOptions.Count)
+        {
+            var option = OptionItem.AllOptions[idx++];
+            writer.WritePacked(option.Id);
+            writer.WritePacked(option.GetValue());
+            if (writer.Position >= MaxBytesPerRPC && idx < OptionItem.AllOptions.Count)
+            {
+                writer.WritePacked(-1); // Stop indicator
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+                writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
+            }
+        }
+        writer.WritePacked(-1); // Stop indicator
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 

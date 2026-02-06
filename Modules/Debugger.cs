@@ -147,11 +147,7 @@ internal static class Logger
 
 public class CustomLogger
 {
-#if ANDROID
-    public static readonly string LOGFilePath = $"{Main.DataPath}/EHR/log.html";
-#else
-    public static readonly string LOGFilePath = $"{Main.DataPath}/BepInEx/log.html";
-#endif
+    public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR" : "BepInEx", "log.html");
 
     private const string HtmlHeader =
         """
@@ -192,9 +188,7 @@ public class CustomLogger
 
     private CustomLogger()
     {
-#if ANDROID
         Directory.CreateDirectory(Path.GetDirectoryName(LOGFilePath) ?? throw new InvalidOperationException());
-#endif
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
         else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {

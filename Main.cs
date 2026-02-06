@@ -14,14 +14,12 @@ using BepInEx.Unity.IL2CPP;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Modules;
+using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
 using UnityEngine.Networking;
-#if !ANDROID
-using EHR.Patches;
-#endif
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
@@ -60,18 +58,17 @@ public class Main : BasePlugin
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2025.9.9";
 
-    public static readonly string DataPath =
-#if ANDROID
-        Application.persistentDataPath;
-#else
-        ".";
-#endif
+    public static readonly string DataPath = OperatingSystem.IsAndroid() ? Application.persistentDataPath : ".";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
     //public static ManualLogSource Logger;
     public static bool HasArgumentException;
     public static string CredentialsText;
+
+    // Cache
+    public static readonly Type[] AllTypes = Assembly.GetExecutingAssembly().GetTypes();
+    public static readonly CustomRoles[] CustomRoleValues = Enum.GetValues<CustomRoles>();
 
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
@@ -228,48 +225,25 @@ public class Main : BasePlugin
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
 
-    public static PlayerControl[] AllPlayerControls
+    public static IReadOnlyList<PlayerControl> AllPlayerControls => EnumeratePlayerControls().ToArray();
+    public static IReadOnlyList<PlayerControl> AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
+
+    public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
-        get
+        foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            int count = PlayerControl.AllPlayerControls.Count;
-            var result = new PlayerControl[count];
-            var i = 0;
-
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-            {
-                if (pc == null || pc.PlayerId >= 254) continue;
-
-                result[i++] = pc;
-            }
-
-            if (i == 0) return [];
-
-            Array.Resize(ref result, i);
-            return result;
+            if (pc == null || pc.PlayerId >= 254) continue;
+            yield return pc;
         }
     }
 
-    public static PlayerControl[] AllAlivePlayerControls
+    public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
-        get
-        {
-            int count = PlayerControl.AllPlayerControls.Count;
-            var result = new PlayerControl[count];
-            var i = 0;
-
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-            {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId) || pc.Is(CustomRoles.GM)) continue;
-
-                result[i++] = pc;
-            }
-
-            if (i == 0) return [];
-
-            Array.Resize(ref result, i);
-            return result;
-        }
+        return EnumeratePlayerControls()
+            .Where(pc => pc.IsAlive()
+                         && pc.Data != null
+                         && (!pc.Data.Disconnected || !IntroDestroyed)
+                         && !Pelican.IsEaten(pc.PlayerId));
     }
 
     // ReSharper disable once InconsistentNaming
@@ -803,9 +777,8 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
-            allRoles.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
-            allRoles.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
+            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
+            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
         }
         catch (ArgumentException ex)
         {
@@ -834,11 +807,9 @@ public class Main : BasePlugin
         handler.Info($"{nameof(ThisAssembly.Git.Tag)}: {ThisAssembly.Git.Tag}");
 
         ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
-#if !ANDROID
         ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
-#endif
 
         NormalGameOptionsV10.RecommendedImpostors = NormalGameOptionsV10.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
         NormalGameOptionsV10.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
@@ -847,6 +818,12 @@ public class Main : BasePlugin
         PrivateTagManager.LoadTagsFromFile();
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+        if (!OperatingSystem.IsAndroid())
+        {
+            // there are some issues with TextBoxPatch on Android
+            Harmony.PatchAll(typeof(TextBoxPatch));
+        }
 
         if (!DebugModeManager.AmDebugger)
             ConsoleManager.DetachConsole();
@@ -878,9 +855,7 @@ public class Main : BasePlugin
         {
             CustomLogger.ClearLog();
 
-#if !ANDROID
             StartCoroutine(ModNewsFetcher.FetchNews());
-#endif
 
             try { DevManager.StartFetchingTags(); }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -898,10 +873,9 @@ public class Main : BasePlugin
             Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
         };
 
-#if !ANDROID
         try
         {
-            if (TryFixStuttering.Value && Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
+            if (TryFixStuttering.Value && OperatingSystem.IsWindows() && Environment.ProcessorCount >= 4)
             {
                 var process = Process.GetCurrentProcess();
                 OriginalAffinity = process.ProcessorAffinity;
@@ -909,7 +883,6 @@ public class Main : BasePlugin
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
-#endif
     }
 
     private static void HandleRoleColorFiles()
@@ -942,8 +915,7 @@ public class Main : BasePlugin
 
         try
         {
-            AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
-                .GetTypes()
+            AllRoleClasses.AddRange(AllTypes
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
                 .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
 
@@ -952,18 +924,22 @@ public class Main : BasePlugin
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    public void StartCoroutine(IEnumerator coroutine)
+    public Coroutine StartCoroutine(IEnumerator coroutine)
     {
-        if (coroutine == null) return;
-
-        coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
     }
 
     public void StopCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null) return;
-
         coroutines.StopCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopCoroutine(Coroutine coroutine)
+    {
+        if (coroutine == null) return;
+        coroutines.StopCoroutine(coroutine);
     }
 
     public void StopAllCoroutines()

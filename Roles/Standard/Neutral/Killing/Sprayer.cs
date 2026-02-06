@@ -84,7 +84,7 @@ internal class Sprayer : RoleBase
         SprayerId = playerId;
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls()) TrappedCount[pc.PlayerId] = 0;
     }
 
     public override void SetKillCooldown(byte id)

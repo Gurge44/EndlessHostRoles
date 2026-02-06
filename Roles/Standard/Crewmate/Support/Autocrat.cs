@@ -26,6 +26,6 @@ internal class Autocrat : RoleBase
     {
         if (!pc.IsAlive()) return;
 
-        Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId)?.TP(pc);
+        Main.EnumerateAlivePlayerControls().OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId)?.TP(pc);
     }
 }

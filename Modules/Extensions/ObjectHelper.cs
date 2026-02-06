@@ -1,7 +1,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ public static class ObjectHelper
     {
         if (obj == null) return;
 
-        obj.ForEachChild((Il2CppSystem.Action<GameObject>)(x => DestroyTranslator(x)));
+        obj.ForEachChild((Il2CppSystem.Action<GameObject>)(x => x.DestroyTranslator()));
         TextTranslatorTMP[] translator = obj.GetComponentsInChildren<TextTranslatorTMP>(true);
         translator?.Do(Object.Destroy);
     }
@@ -52,11 +51,7 @@ public static class Il2CppCastHelper
     public static T CastFast<T>(this Il2CppObjectBase obj) where T : Il2CppObjectBase
     {
         if (obj is T casted) return casted;
-#if ANDROID
-        return obj.Cast<T>();
-#else
-        return obj.Pointer.CastFast<T>();
-#endif
+        return OperatingSystem.IsAndroid() ? obj.Cast<T>() : obj.Pointer.CastFast<T>();
     }
 
     private static T CastFast<T>(this IntPtr ptr) where T : Il2CppObjectBase

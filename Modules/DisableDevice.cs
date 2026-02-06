@@ -61,7 +61,7 @@ internal static class DisableDevice
 
         if (!DoDisable && !rogueForce) return;
 
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             try
             {
