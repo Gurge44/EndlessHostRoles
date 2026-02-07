@@ -72,7 +72,7 @@ public static class BedWars
     private static OptionItem SuddenDeathOption;
     private static OptionItem AllBedsBrokenAfterTimeOption;
 
-    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
     {
@@ -266,7 +266,7 @@ public static class BedWars
                 sb.AppendLine(Utils.ColorString(team.GetColor(), $"{team.GetName()} {Utils.ColorString(Color.green, "✓")}"));
             else
             {
-                int playersLeftInTeam = Main.AllAlivePlayerControls.Count(x => Data.TryGetValue(x.PlayerId, out PlayerData data) && data.Team == team);
+                int playersLeftInTeam = Main.EnumerateAlivePlayerControls().Count(x => Data.TryGetValue(x.PlayerId, out PlayerData data) && data.Team == team);
                 sb.AppendLine($"{Utils.ColorString(team.GetColor(), team.GetName())} ({playersLeftInTeam})");
             }
         }
@@ -280,7 +280,7 @@ public static class BedWars
 
         if (!Main.IntroDestroyed || IsGracePeriod || GameStates.IsEnded) return false;
 
-        if (Enum.GetValues<BedWarsTeam>().FindFirst(x => Main.AllAlivePlayerControls.Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
+        if (Enum.GetValues<BedWarsTeam>().FindFirst(x => Main.EnumerateAlivePlayerControls().Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
         {
             WinnerData = (team.GetColor(), team.GetName() + Translator.GetString("Win"));
             CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Team == team).Select(x => x.Key).ToHashSet();
@@ -434,7 +434,7 @@ public static class BedWars
         }
 
         // Assign players to teams
-        List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle().ToList();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 

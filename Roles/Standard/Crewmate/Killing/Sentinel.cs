@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
 namespace EHR.Roles;
 
-public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
+public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null)
 {
-    private readonly Dictionary<byte, long> LastPostitionCheck = [];
     private List<byte> LastNearbyKillers = [];
-    private long LastUpdate;
 
     public byte SentinelId => sentinelId;
 
@@ -21,14 +20,14 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
 
     private Vector2 StartingPosition { get; set; } = startingPosition ?? Vector2.zero;
 
-    private long PatrolStartTimeStamp { get; set; } = patrolStartTimeStamp;
-
     private int PatrolDuration => patrolDuration;
 
     private float PatrolRadius => patrolRadius;
 
-    public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && (!Sentinel.IsMadmate() || !x.Is(Team.Impostor)) && SentinelId != x.PlayerId).ToArray();
+    private CountdownTimer Timer;
 
+    public IEnumerable<PlayerControl> NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && (!Sentinel.IsMadmate() || !x.Is(Team.Impostor)) && SentinelId != x.PlayerId);
+    
     public void SetPlayer()
     {
         Sentinel = GetPlayerById(SentinelId);
@@ -37,57 +36,36 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
     public void StartPatrolling()
     {
         if (IsPatrolling) return;
-
         IsPatrolling = true;
         StartingPosition = Sentinel.Pos();
-        PatrolStartTimeStamp = TimeStamp;
-        foreach (PlayerControl pc in NearbyKillers) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration));
-
+        NearbyKillers.Do(x => x.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration)));
         Sentinel.MarkDirtySettings();
+        Timer = new CountdownTimer(PatrolDuration, FinishPatrolling, onTick: CheckPlayerPositions, onCanceled: () => IsPatrolling = false);
     }
 
-    public void Update()
+    private void CheckPlayerPositions()
     {
         if (!IsPatrolling) return;
 
-        long now = TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
+        List<byte> killers = NearbyKillers.Select(x => x.PlayerId).ToList();
+        int timeLeft = (int)Timer.Remaining.TotalSeconds;
 
-        if (PatrolStartTimeStamp + PatrolDuration < now)
-            FinishPatrolling();
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        {
+            bool nowInRange = killers.Contains(pc.PlayerId);
+            bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
+
+            if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
+            if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft), 3f, true);
+        }
+
+        LastNearbyKillers = killers;
     }
 
-    public void OnCheckPlayerPosition(PlayerControl pc)
-    {
-        if (!IsPatrolling) return;
-
-        long now = TimeStamp;
-        LastPostitionCheck.TryAdd(pc.PlayerId, now);
-        if (LastPostitionCheck[pc.PlayerId] >= now) return;
-        LastPostitionCheck[pc.PlayerId] = now;
-
-        PlayerControl[] killers = NearbyKillers;
-
-        bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
-        bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
-
-        long timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
-
-        if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
-        if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft), 3f, true);
-
-        LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
-    }
-
-    public void FinishPatrolling()
+    private void FinishPatrolling()
     {
         IsPatrolling = false;
-        if (!GameStates.IsInTask) return;
-
-        foreach (PlayerControl pc in NearbyKillers)
-            pc.Suicide(PlayerState.DeathReason.Patrolled, Sentinel);
-
+        NearbyKillers.Do(x => x.Suicide(PlayerState.DeathReason.Patrolled, Sentinel));
         Sentinel.MarkDirtySettings();
     }
 }
@@ -183,36 +161,6 @@ internal class Sentinel : RoleBase
     {
         AURoleOptions.EngineerCooldown = PatrolCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!IsEnable) return;
-
-        foreach (PatrollingState state in PatrolStates)
-            state.Update();
-    }
-
-    public override void OnCheckPlayerPosition(PlayerControl pc)
-    {
-        if (!IsEnable) return;
-
-        foreach (PatrollingState state in PatrolStates)
-            state.OnCheckPlayerPosition(pc);
-    }
-
-    public override void OnReportDeadBody()
-    {
-        if (!IsEnable) return;
-
-        LateTask.New(() =>
-        {
-            foreach (PatrollingState state in PatrolStates)
-            {
-                if (state.IsPatrolling)
-                    state.FinishPatrolling();
-            }
-        }, 0.1f, "SentinelFinishPatrol");
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

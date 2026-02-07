@@ -73,7 +73,7 @@ internal static class HotPotato
     {
         HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 8, 1);
         SurvivalTimes = [];
-        foreach (PlayerControl pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls()) SurvivalTimes[pc.PlayerId] = 0;
 
         DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
     }
@@ -170,17 +170,17 @@ internal static class HotPotato
 
             if (LastPassTS == now) return;
 
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControls;
             Vector2 pos = holder.Pos();
-            if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), pos) <= Range.GetFloat())) return;
+            if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Count == 2) && Vector2.Distance(x.Pos(), pos) <= Range.GetFloat())) return;
 
-            float wait = aapc.Length <= 2 ? 0.4f : 0f;
+            float wait = aapc.Count <= 2 ? 0.4f : 0f;
             UpdateDelay += UnityEngine.Time.fixedDeltaTime;
             if (UpdateDelay < wait) return;
 
             UpdateDelay = 0;
 
-            PlayerControl target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), pos)).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2));
+            PlayerControl target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), pos)).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Count == 2));
             if (target == null) return;
 
             PassHotPotato(target, false);
@@ -188,9 +188,9 @@ internal static class HotPotato
 
         public static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControls;
 
-            if (!Main.IntroDestroyed || aapc.Length < 2) return;
+            if (!Main.IntroDestroyed || aapc.Count < 2) return;
 
             if (resetTime)
             {
@@ -213,7 +213,7 @@ internal static class HotPotato
                     LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
                 }
 
-                if (aapc.Length < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Length > 1)
+                if (aapc.Count < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Count > 1)
                 {
                     Vector2 pos = target.Pos();
                     TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);

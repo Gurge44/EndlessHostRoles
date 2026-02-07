@@ -1,4 +1,3 @@
-using System;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using UnityEngine;
@@ -35,7 +34,7 @@ internal static class ShowFolderPatch
 
         if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
         {
-            CustomRoles[] list = Enum.GetValues<CustomRoles>();
+            CustomRoles[] list = Main.CustomRoleValues;
 
             foreach (CustomRoles cRoleID in list)
             {

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx;
-using EHR.Roles;
+using EHR.Gamemodes;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
-using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -223,7 +223,7 @@ internal static class RepairSystemPatch
         {
             bool petcd = !Options.UsePhantomBasis.GetBool();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Wiper))
                 {
@@ -302,7 +302,7 @@ internal static class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || Options.CurrentGameMode != CustomGameMode.Standard)
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             __result = false;
             return false;
@@ -368,7 +368,7 @@ internal static class ShipStatusBeginPatch
     {
         if (RolesIsAssigned && !Main.IntroDestroyed)
         {
-            foreach (PlayerControl player in Main.AllPlayerControls) Main.PlayerStates[player.PlayerId].InitTask(player);
+            foreach (PlayerControl player in Main.EnumeratePlayerControls()) Main.PlayerStates[player.PlayerId].InitTask(player);
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
@@ -570,7 +570,7 @@ internal static class VentilationSystemDeterioratePatch
             {
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
                 if (allPlayers.Count >= vents) continue;
-                MessageWriter writer = MessageWriter.Get();
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
                 writer.WritePacked(pc.OwnerId);
@@ -713,7 +713,7 @@ internal static class ShipStatusFixedUpdatePatch
             var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
             if (ventilationSystem == null) return;
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 try
                 {

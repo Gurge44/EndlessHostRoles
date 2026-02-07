@@ -285,7 +285,7 @@ public class Doppelganger : RoleBase
                 PlayerControl pc = Utils.GetPlayerById(DGId);
                 if (pc == null) return;
 
-                PlayerControl currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x?.GetRealName() == DoppelVictim[pc.PlayerId]);
+                PlayerControl currentTarget = Main.EnumeratePlayerControls().FirstOrDefault(x => x?.GetRealName() == DoppelVictim[pc.PlayerId]);
 
                 if (currentTarget != null)
                 {
@@ -302,7 +302,7 @@ public class Doppelganger : RoleBase
     {
         if (ResetMode.GetValue() == 2 && TotalSteals[pc.PlayerId] > 0 && Utils.TimeStamp - StealTimeStamp > ResetTimer.GetInt())
         {
-            PlayerControl currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
+            PlayerControl currentTarget = Main.EnumeratePlayerControls().FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
 
             if (currentTarget != null)
             {

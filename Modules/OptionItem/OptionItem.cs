@@ -8,7 +8,7 @@ namespace EHR;
 public abstract class OptionItem
 {
     public const int NumPresets = 10;
-    private const int PresetId = 0;
+    public const int PresetId = 0;
     public readonly List<OptionItem> Children;
 
     private Dictionary<string, string> _replacementDictionary;
@@ -321,7 +321,7 @@ public abstract class OptionItem
     public static void SyncAllOptions(int targetId = -1)
     {
         if (
-                Main.AllPlayerControls.Length <= 1
+                Main.AllPlayerControls.Count <= 1
                 || !AmongUsClient.Instance.AmHost
                 || PlayerControl.LocalPlayer == null
             )

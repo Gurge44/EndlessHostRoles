@@ -206,7 +206,7 @@ internal class Warlock : RoleBase
                 Vector2 cppos = cp.Pos();
                 Dictionary<PlayerControl, float> cpdistance = [];
 
-                foreach (PlayerControl p in Main.AllAlivePlayerControls)
+                foreach (PlayerControl p in Main.EnumerateAlivePlayerControls())
                 {
                     if (p.PlayerId == cp.PlayerId) continue;
 

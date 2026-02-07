@@ -93,7 +93,7 @@ internal class QuizMaster : RoleBase
 
         LateTask.New(() =>
         {
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 int colorId = pc.Data.DefaultOutfit.ColorId;
                 AllColors.Add(Palette.GetColorName(colorId));
@@ -228,7 +228,7 @@ internal class QuizMaster : RoleBase
         List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
         int index = indexes.RandomElement();
 
-        CustomRoles randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).RandomElement();
+        CustomRoles randomRole = Main.CustomRoleValues.Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).RandomElement();
 
         string title = index switch
         {
@@ -269,7 +269,7 @@ internal class QuizMaster : RoleBase
 
         return new(title, allAnswersList.ToArray(), correctIndex);
 
-        IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
+        IEnumerable<string> GetTwoRandomNames(string except) => Main.EnumeratePlayerControls().Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
 
         IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
     }

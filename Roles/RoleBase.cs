@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
+
 namespace EHR.Roles;
 
 public abstract class RoleBase : IComparable<RoleBase>
@@ -63,7 +64,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual bool CanUseSabotage(PlayerControl pc)
     {
         if (pc.Is(CustomRoles.Aide)) return false;
-        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Length == 2) return false;
+        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Count == 2) return false;
         return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
     }
 

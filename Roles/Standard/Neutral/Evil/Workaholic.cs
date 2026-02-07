@@ -76,7 +76,7 @@ internal class Workaholic : RoleBase
         {
             Logger.Info("Workaholic Tasks Finished", "Workaholic");
             RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray()) pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(pc => pc.PlayerId != player.PlayerId).ToArray()) pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
 
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
             CustomWinnerHolder.WinnerIds.Add(player.PlayerId);

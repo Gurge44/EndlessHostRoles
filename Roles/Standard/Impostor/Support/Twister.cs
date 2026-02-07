@@ -86,11 +86,13 @@ public class Twister : RoleBase
         List<byte> changePositionPlayers = [shapeshifter.PlayerId];
         shapeshifter.RpcRemoveAbilityUse();
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        var aapc = Main.AllAlivePlayerControls;
+
+        foreach (PlayerControl pc in aapc)
         {
             if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting) continue;
 
-            PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+            PlayerControl[] filtered = Main.EnumerateAlivePlayerControls().Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
             if (filtered.Length == 0) break;
 
             PlayerControl target = filtered.RandomElement();

@@ -105,7 +105,7 @@ public class Agitator : RoleBase
 
         if (AgitatorAutoReportBait.GetBool() && target.Is(CustomRoles.Bait)) return true;
 
-        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)))
+        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)))
         {
             target.Kill(killer);
             ResetBomb();
@@ -216,7 +216,7 @@ public class Agitator : RoleBase
         if (target.PlayerId == LastBombedPlayer) return;
         if (!AgitatorCanGetBombed.GetBool() && target.Is(CustomRoles.Agitator)) return;
 
-        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)))
+        if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)))
         {
             target.Kill(player);
             ResetBomb();

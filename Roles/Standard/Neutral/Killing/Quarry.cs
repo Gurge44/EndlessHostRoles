@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -135,7 +136,7 @@ public class Quarry : RoleBase
         
         return false;
 
-        System.Collections.IEnumerator ContinuouslyResetAbilityCooldown()
+        IEnumerator ContinuouslyResetAbilityCooldown()
         {
             while (TargetId != byte.MaxValue)
             {

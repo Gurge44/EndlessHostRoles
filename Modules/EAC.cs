@@ -1084,7 +1084,7 @@ internal static class EAC
             case 3:
             {
                 (
-                    from player in Main.AllPlayerControls
+                    from player in Main.EnumeratePlayerControls()
                     where player.PlayerId != pc?.Data?.PlayerId
                     let message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text)
                     let title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"))
@@ -1209,10 +1209,15 @@ internal enum GameDataTag : byte
     XboxDeclareXuid = 207
 }
 
-#if !ANDROID
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
 internal static class GameDataHandlerPatch
 {
+    public static bool Prepare()
+    {
+        // Disable EAC on Android.
+        return !OperatingSystem.IsAndroid();
+    }
+    
     private static IEnumerator EmptyCoroutine() // fixes errors if we return false
     {
         yield break;
@@ -1368,7 +1373,6 @@ internal static class StartGameHostPatchEAC
         if (ShipStatus.Instance != null) IsStartingAsHost = false;
     }
 }
-#endif
 
 //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class CheckInvalidMovementPatch

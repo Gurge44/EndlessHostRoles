@@ -1,6 +1,8 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
+using Il2CppSystem;
 
 namespace EHR.Roles;
 
@@ -13,10 +15,8 @@ public class Goddess : CovenBase
     private static OptionItem CanVentBeforeNecronomicon;
     private static OptionItem CanVentAfterNecronomicon;
 
-    private long AbilityEndTS;
-
     private byte GoddessId;
-    private long LastNotifyTS;
+    private CountdownTimer Timer;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -39,9 +39,8 @@ public class Goddess : CovenBase
     public override void Add(byte playerId)
     {
         On = true;
-        AbilityEndTS = 0;
-        LastNotifyTS = 0;
         GoddessId = playerId;
+        Timer = null;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -56,8 +55,14 @@ public class Goddess : CovenBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        AbilityEndTS = Utils.TimeStamp + AbilityDuration.GetInt();
-        Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, AbilityEndTS);
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () =>
+        {
+            Timer = null;
+            pc.RpcResetAbilityCooldown();
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, false);
+        }, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc), onCanceled: () => Timer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, true);
         return false;
     }
 
@@ -67,38 +72,9 @@ public class Goddess : CovenBase
         AURoleOptions.PhantomDuration = 0.1f;
     }
 
-    public override void OnReportDeadBody()
-    {
-        AbilityEndTS = 0;
-        Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, AbilityEndTS);
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (AbilityEndTS > 0)
-        {
-            long now = Utils.TimeStamp;
-            bool notify = now != LastNotifyTS;
-
-            if (now >= AbilityEndTS)
-            {
-                AbilityEndTS = 0;
-                Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, AbilityEndTS);
-                pc.RpcResetAbilityCooldown();
-                notify = true;
-            }
-
-            if (notify)
-            {
-                LastNotifyTS = now;
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
-        }
-    }
-
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (AbilityEndTS == 0 || killer.Is(CustomRoles.Pestilence) || !killer.IsAlive()) return true;
+        if (Timer == null || killer.Is(CustomRoles.Pestilence) || !killer.IsAlive()) return true;
 
         killer.SetRealKiller(target);
         target.Kill(killer);
@@ -107,12 +83,12 @@ public class Goddess : CovenBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        AbilityEndTS = long.Parse(reader.ReadString());
+        Timer = reader.ReadBoolean() ? new CountdownTimer(AbilityDuration.GetInt(), onCanceled: () => Timer = null) : null;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || AbilityEndTS == 0) return string.Empty;
-        return string.Format(Translator.GetString("Goddess.Suffix"), AbilityEndTS - Utils.TimeStamp, Main.CovenColor);
+        if (seer.PlayerId != GoddessId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Timer == null) return string.Empty;
+        return string.Format(Translator.GetString("Goddess.Suffix"), (int)Math.Ceiling(Timer.Remaining.TotalSeconds), Main.CovenColor);
     }
 }

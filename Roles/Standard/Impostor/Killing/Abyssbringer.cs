@@ -168,7 +168,7 @@ public class Abyssbringer : RoleBase
                     continue;
             }
 
-            PlayerControl nearestPlayer = Main.AllAlivePlayerControls.Without(pc).MinBy(x => Vector2.Distance(x.Pos(), blackHole.Position));
+            PlayerControl nearestPlayer = Main.EnumerateAlivePlayerControls().Without(pc).MinBy(x => Vector2.Distance(x.Pos(), blackHole.Position));
 
             if (nearestPlayer != null)
             {

@@ -426,6 +426,7 @@ public enum CustomRoles
     Reaper,
     Siren,
     SpellCaster,
+    Summoner,
     Timelord,
     VoodooMaster,
     Wyrd,

@@ -75,14 +75,14 @@ internal class Perceiver : RoleBase
     {
         if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
-        PlayerControl[] killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
+        PlayerControl[] killers = Main.EnumerateAlivePlayerControls().Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
         pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
 
         pc.RpcRemoveAbilityUse();
 
         if (pc.AmOwner)
         {
-            HashSet<byte> allKillers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton()).Select(x => x.PlayerId).ToHashSet();
+            HashSet<byte> allKillers = Main.EnumerateAlivePlayerControls().Where(x => !x.Is(Team.Crewmate) && x.HasKillButton()).Select(x => x.PlayerId).ToHashSet();
             
             if (allKillers.SetEquals(killers.Select(x => x.PlayerId)))
                 Achievements.Type.MindReader.CompleteAfterGameEnd();

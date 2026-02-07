@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
@@ -21,8 +23,7 @@ public class Druid : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private PlayerControl DruidPC;
-    private long lastUpdate;
-    private long TriggerDelay;
+    private CountdownTimer DelayTimer;
     private Dictionary<Vector2, int> TriggerIds = [];
     private Dictionary<Vector2, string> Triggers = [];
 
@@ -56,9 +57,6 @@ public class Druid : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        TriggerDelay = 0;
-        Triggers = [];
-        lastUpdate = TimeStamp;
     }
 
     public override void Add(byte playerId)
@@ -66,8 +64,9 @@ public class Druid : RoleBase
         PlayerIdList.Add(playerId);
         DruidPC = GetPlayerById(playerId);
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
-        lastUpdate = TimeStamp;
         TriggerIds = [];
+        Triggers = [];
+        DelayTimer = null;
     }
 
     public override void Remove(byte playerId)
@@ -111,7 +110,8 @@ public class Druid : RoleBase
         {
             string roomName = reader.ReadString();
 
-            di.TriggerDelay = 0;
+            di.DelayTimer.Dispose();
+            di.DelayTimer = null;
             di.Triggers.TryAdd(position, roomName);
         }
         else
@@ -137,8 +137,6 @@ public class Druid : RoleBase
 
         if (pc.GetAbilityUseLimit() < 1) return;
 
-        long now = TimeStamp;
-
         if (isPet)
         {
             (Vector2 location, string roomName) = pc.GetPositionInfo();
@@ -148,7 +146,18 @@ public class Druid : RoleBase
             TriggerIds.TryAdd(location, id);
         }
         else
-            TriggerDelay = now;
+        {
+            DelayTimer = new CountdownTimer(TriggerPlaceDelay.GetInt(), () =>
+            {
+                byte id = pc.PlayerId;
+                DelayTimer = null;
+                (Vector2 location, string roomName) = pc.GetPositionInfo();
+                Triggers.TryAdd(location, roomName);
+                SendRPCAddTrigger(true, id, location, roomName);
+                _ = new PlayerDetector(location, [pc.PlayerId], out int oid);
+                TriggerIds.TryAdd(location, oid);
+            }, onTick: () => pc.Notify(string.Format(GetString("DruidTimeLeft"), (int)Math.Ceiling(DelayTimer.Remaining.TotalSeconds)), 2f, overrideAll: true), onCanceled: () => DelayTimer = null);
+        }
 
         pc.RpcRemoveAbilityUse();
     }
@@ -157,49 +166,23 @@ public class Druid : RoleBase
     {
         if (!GameStates.IsInTask || Triggers.Count <= 0 || PlayerIdList.Contains(pc.PlayerId)) return;
 
-        foreach (KeyValuePair<Vector2, string> trigger in Triggers)
+        foreach (KeyValuePair<Vector2, string> trigger in Triggers.ToArray())
         {
             if (Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f)
             {
-                DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
                 Triggers.Remove(trigger.Key);
+                DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
                 SendRPCAddTrigger(false, DruidPC.PlayerId, trigger.Key);
                 CustomNetObject.Get(TriggerIds[trigger.Key])?.Despawn();
             }
         }
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!IsEnable || !GameStates.IsInTask || TriggerDelay == 0 || pc == null) return;
-
-        long now = TimeStamp;
-
-        if (TriggerDelay + TriggerPlaceDelay.GetInt() < now)
-        {
-            byte id = pc.PlayerId;
-            TriggerDelay = 0;
-            (Vector2 location, string roomName) = pc.GetPositionInfo();
-            Triggers.TryAdd(location, roomName);
-            SendRPCAddTrigger(true, id, location, roomName);
-            _ = new PlayerDetector(location, [pc.PlayerId], out int oid);
-            TriggerIds.TryAdd(location, oid);
-            return;
-        }
-
-        long timeLeft = TriggerPlaceDelay.GetInt() - (now - TriggerDelay);
-        if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft), 2f, overrideAll: true);
-
-        lastUpdate = now;
-    }
-
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (hud) return GetHUDText(seer);
 
-        if (seer == null || seer.IsModdedClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId) return string.Empty;
-
-        if (Triggers.Count == 0) return string.Empty;
+        if (seer.IsModdedClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId || Triggers.Count == 0) return string.Empty;
 
         var sb = new StringBuilder();
         sb.Append("\n<size=1.7>");

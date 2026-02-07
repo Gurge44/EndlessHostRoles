@@ -5,15 +5,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.Roles;
+using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Roles;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
-using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -67,7 +67,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player)
     {
-        try { return CanUseVent(player, GetClosestVent(player)?.Id ?? int.MaxValue); }
+        try { return player.CanUseVent(player.GetClosestVent()?.Id ?? int.MaxValue); }
         catch (Exception e)
         {
             ThrowException(e);
@@ -84,7 +84,7 @@ internal static class ExtendedPlayerControl
         {
             case CustomGameMode.RoomRush:
                 return true;
-            case CustomGameMode.Standard when Options.DisableVentingOn1v1.GetBool() && Main.AllAlivePlayerControls.Length == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
+            case CustomGameMode.Standard when Options.DisableVentingOn1v1.GetBool() && Main.AllAlivePlayerControls.Count == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
             case CustomGameMode.StopAndGo:
                 return StopAndGo.IsEventActive && StopAndGo.Event.Type == StopAndGo.Events.VentAccess;
@@ -99,27 +99,56 @@ internal static class ExtendedPlayerControl
     }
 
     // Next 2: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
+    
     public static Vent GetClosestVent(this PlayerControl player)
     {
+        if (ShipStatus.Instance?.AllVents == null) return null;
+
         Vector2 pos = player.Pos();
-        return ShipStatus.Instance?.AllVents?.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
+        Vent closest = null;
+
+        foreach (var vent in ShipStatus.Instance.AllVents)
+        {
+            if (closest == null || Vector2.Distance(pos, vent.transform.position) < Vector2.Distance(pos, closest.transform.position))
+                closest = vent;
+        }
+
+        return closest;
     }
+
+    private static readonly List<Vent> ResultBuffer = [];
 
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
     {
-        Vector2 playerpos = player.Pos();
-        List<Vent> vents = ShipStatus.Instance.AllVents.ToList();
-        vents.Sort((v1, v2) => Vector2.Distance(playerpos, v1.transform.position).CompareTo(Vector2.Distance(playerpos, v2.transform.position)));
+        var allVents = ShipStatus.Instance?.AllVents;
+        if (allVents == null) return [];
 
-        if ((player.walkingToVent || player.inVent) && vents[0] != null)
+        ResultBuffer.Clear();
+        ResultBuffer.AddRange(allVents);
+
+        Vector2 playerpos = player.Pos();
+        ResultBuffer.Sort((v1, v2) => 
+            Vector2.Distance(playerpos, v1.transform.position)
+                .CompareTo(Vector2.Distance(playerpos, v2.transform.position)));
+
+        if ((player.walkingToVent || player.inVent) && ResultBuffer.Count > 0 && ResultBuffer[0] != null)
         {
-            List<Vent> nextvents = vents[0].NearbyVents.ToList();
-            nextvents.RemoveAll(v => v == null);
-            nextvents.ForEach(v => vents.Remove(v));
-            vents.InsertRange(0, nextvents);
+            var nearbyVents = ResultBuffer[0].NearbyVents;
+            if (nearbyVents != null)
+            {
+                for (int i = nearbyVents.Length - 1; i >= 0; i--)
+                {
+                    var v = nearbyVents[i];
+                    if (v != null)
+                    {
+                        ResultBuffer.Remove(v);
+                        ResultBuffer.Insert(0, v);
+                    }
+                }
+            }
         }
 
-        return vents;
+        return ResultBuffer;
     }
     
     // Next 2 from https://github.com/Rabek009/MoreGamemodes/blob/master/Roles/Impostor/Concealing/Droner.cs
@@ -152,7 +181,7 @@ internal static class ExtendedPlayerControl
     {
         if (!AmongUsClient.Instance.AmHost) return;
         
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (pc == player || pc.AmOwner) continue;
             CustomRpcSender sender = CustomRpcSender.Create($"SnapTo Freeze ({player.GetNameWithRole()})", SendOption.Reliable);
@@ -236,21 +265,18 @@ internal static class ExtendedPlayerControl
 
     public static ClientData GetClient(this PlayerControl player)
     {
-        try { return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Character.PlayerId == player.PlayerId); }
+        try { return AmongUsClient.Instance.GetClientFromCharacter(player); }
         catch { return null; }
     }
 
     public static int GetClientId(this PlayerControl player)
     {
-        if (player == null) return -1;
-
-        ClientData client = player.GetClient();
-        return client?.Id ?? -1;
+        return !player ? -1 : player.OwnerId;
     }
 
     public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
     {
-        return player == null || player.Object == null ? CustomRoles.Crewmate : player.Object.GetCustomRole();
+        return (!player || !player.Object) ? CustomRoles.Crewmate : player.Object.GetCustomRole();
     }
 
     /// <summary>
@@ -542,7 +568,7 @@ internal static class ExtendedPlayerControl
             // Desync role to normal role
             case (true, false):
             {
-                foreach (PlayerControl seer in Main.AllPlayerControls)
+                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
                 {
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
@@ -592,7 +618,7 @@ internal static class ExtendedPlayerControl
             // Normal role to desync role
             case (false, true):
             {
-                foreach (PlayerControl seer in Main.AllPlayerControls)
+                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
                 {
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
@@ -641,7 +667,7 @@ internal static class ExtendedPlayerControl
             {
                 bool playerIsDesync = player.HasDesyncRole();
 
-                foreach (PlayerControl seer in Main.AllPlayerControls)
+                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
                 {
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
@@ -661,11 +687,11 @@ internal static class ExtendedPlayerControl
 
         if (loggerRoleMap)
         {
-            foreach (PlayerControl seer in Main.AllPlayerControls)
+            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
             {
                 NetworkedPlayerInfo seerData = seer.Data;
 
-                foreach (PlayerControl target in Main.AllPlayerControls)
+                foreach (PlayerControl target in Main.EnumeratePlayerControls())
                 {
                     NetworkedPlayerInfo targetData = target.Data;
                     (RoleTypes roleType, CustomRoles customRole) = seer.GetRoleMap(targetData.PlayerId);
@@ -690,6 +716,22 @@ internal static class ExtendedPlayerControl
         sender.Write(Main.AllPlayerKillCooldown[player.PlayerId]);
         sender.Write(Main.AllPlayerSpeed[player.PlayerId]);
         sender.EndRpc();
+        
+        return true;
+    }
+
+    public static bool SyncGeneralOptions(this PlayerControl player)
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !DoRPC) return false;
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions, SendOption.Reliable);
+        writer.Write(player.PlayerId);
+        writer.WritePacked((int)player.GetCustomRole());
+        writer.Write(Main.PlayerStates[player.PlayerId].IsDead);
+        writer.WritePacked((int)Main.PlayerStates[player.PlayerId].deathReason);
+        writer.Write(Main.AllPlayerKillCooldown[player.PlayerId]);
+        writer.Write(Main.AllPlayerSpeed[player.PlayerId]);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
         
         return true;
     }
@@ -802,7 +844,7 @@ internal static class ExtendedPlayerControl
         if (target == null) target = killer;
 
         // Check Observer
-        if (!forObserver && !MeetingStates.FirstMeeting) Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, true));
+        if (!forObserver && !MeetingStates.FirstMeeting) Main.EnumeratePlayerControls().Where(x => x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, true));
 
         // Host
         if (killer.AmOwner) killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
@@ -829,7 +871,7 @@ internal static class ExtendedPlayerControl
 
     public static void AddKCDAsAbilityCD(this PlayerControl pc)
     {
-        AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd) ? kcd : Options.AdjustedDefaultKillCooldown));
+        pc.AddAbilityCD((int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out float kcd) ? kcd : Options.AdjustedDefaultKillCooldown));
     }
 
     public static void AddAbilityCD(this PlayerControl pc, bool includeDuration = true)
@@ -911,7 +953,7 @@ internal static class ExtendedPlayerControl
             case SchrodingersCat cat when realKiller != null:
                 cat.OnCheckMurderAsTarget(realKiller, pc);
                 return;
-            case Veteran when Veteran.VeteranInProtect.ContainsKey(pc.PlayerId):
+            case Veteran when Veteran.VeteranInProtect.Contains(pc.PlayerId):
             case Pestilence:
                 return;
         }
@@ -989,7 +1031,7 @@ internal static class ExtendedPlayerControl
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
 
-            Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, true, true));
+            Main.EnumeratePlayerControls().Where(x => x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, true, true));
         }
 
         if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur)
@@ -1049,8 +1091,7 @@ internal static class ExtendedPlayerControl
 
     public static void SyncSettings(this PlayerControl player)
     {
-        PlayerGameOptionsSender.SetDirty(player.PlayerId);
-        GameOptionsSender.SendAllGameOptions();
+        PlayerGameOptionsSender.SendImmediately(player.PlayerId);
     }
 
     public static TaskState GetTaskState(this PlayerControl player)
@@ -1132,7 +1173,7 @@ internal static class ExtendedPlayerControl
         
         if (pc.IsModdedClient()) return;
 
-        if (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || pc.inVent || pc.inMovingPlat || pc.onLadder || !Main.AllPlayerControls.FindFirst(x => !x.IsAlive(), out var dummyGhost))
+        if (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || pc.inVent || pc.inMovingPlat || pc.onLadder || !Main.EnumeratePlayerControls().FindFirst(x => !x.IsAlive(), out var dummyGhost))
         {
             if (BlackScreenWaitingPlayers.Add(pc.PlayerId))
                 Main.Instance.StartCoroutine(Wait());
@@ -1143,7 +1184,7 @@ internal static class ExtendedPlayerControl
             {
                 Logger.Warn($"FixBlackScreen was called for {pc.GetNameWithRole()}, but the conditions are not met to execute this code right now, waiting until it becomes possible to do so", "FixBlackScreen");
 
-                while (GameStates.InGame && !GameStates.IsEnded && !CancelBlackScreenFix.Contains(pc.PlayerId) && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.AllPlayerControls.All(x => x.IsAlive())))
+                while (GameStates.InGame && !GameStates.IsEnded && !CancelBlackScreenFix.Contains(pc.PlayerId) && (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks || Main.EnumeratePlayerControls().All(x => x.IsAlive())))
                     yield return null;
 
                 if (CancelBlackScreenFix.Remove(pc.PlayerId))
@@ -1475,8 +1516,17 @@ internal static class ExtendedPlayerControl
     public static Vector2 Pos(this PlayerControl pc)
     {
         if (pc.AmOwner) return pc.transform.position;
-        if (pc.NetTransform.incomingPosQueue.Count > 0 && pc.NetTransform.isActiveAndEnabled && !pc.NetTransform.isPaused)
-            return pc.NetTransform.incomingPosQueue.ToArray()[^1];
+        
+        var queue = pc.NetTransform.incomingPosQueue;
+        
+        if (queue.Count > 0 && pc.NetTransform.isActiveAndEnabled && !pc.NetTransform.isPaused)
+        {        
+            var array = queue._array;
+            int tail = queue._tail;
+            int index = (tail - 1 + array.Length) % array.Length; // handle wrap-around
+            return array[index];
+        }
+        
         return pc.transform.position;
     }
 
@@ -1765,7 +1815,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,
             CustomRoles.SnowdownPlayer => 1f,
-            _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Length <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
+            _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Count <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
 
@@ -2065,7 +2115,7 @@ internal static class ExtendedPlayerControl
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false)
     {
-        return GetPlayersInAbilityRangeSorted(player, _ => true, ignoreColliders);
+        return player.GetPlayersInAbilityRangeSorted(_ => true, ignoreColliders);
     }
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, Predicate<PlayerControl> predicate, bool ignoreColliders = false)
@@ -2273,7 +2323,10 @@ internal static class ExtendedPlayerControl
 
     public static bool IsConverted(this PlayerControl target)
     {
-        return target.GetCustomSubRoles().Any(x => x.IsConverted());
+        foreach (CustomRoles subRole in target.GetCustomSubRoles())
+            if (subRole.IsConverted()) return true;
+
+        return false;
     }
 
     public static bool IsAlive(this PlayerControl target)

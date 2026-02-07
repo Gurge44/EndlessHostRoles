@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -118,7 +119,7 @@ public class Venerer : RoleBase
                 Main.Instance.StartCoroutine(FreezeNearbyPlayers());
                 goto case 2;
 
-                System.Collections.IEnumerator FreezeNearbyPlayers()
+                IEnumerator FreezeNearbyPlayers()
                 {
                     HashSet<byte> frozenPlayers = [];
                     int timer = AbilityDuration.GetInt();

@@ -43,7 +43,7 @@ internal static class CustomRoleSelector
     {
         RoleResult = [];
 
-        if (Main.GM.Value && Main.AllPlayerControls.Length == 1) return;
+        if (Main.GM.Value && Main.AllPlayerControls.Count == 1) return;
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
@@ -64,7 +64,7 @@ internal static class CustomRoleSelector
         }
 
         var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Length;
+        int playerCount = Main.AllAlivePlayerControls.Count;
 
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
 
@@ -96,7 +96,7 @@ internal static class CustomRoleSelector
 
         if (Main.XORRoles.Count > 0) Logger.Info($"Roles banned by XOR combinations: {string.Join(", ", xorBannedRoles)}", "CustomRoleSelector");
 
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles role in Main.CustomRoleValues)
         {
             int chance = role.GetMode();
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
@@ -290,7 +290,7 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "SelectedCovenRoles");
         Logger.Msg("======================================================", "SelectedRoles");
 
-        List<PlayerControl> allPlayers = Main.AllAlivePlayerControls.ToList();
+        List<PlayerControl> allPlayers = Main.EnumerateAlivePlayerControls().ToList();
 
         // Players on the EAC banned list will be assigned as GM when opening rooms
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()))
@@ -397,7 +397,7 @@ internal static class CustomRoleSelector
 
         void AssignRoleToEveryone(CustomRoles role)
         {
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
@@ -565,7 +565,7 @@ internal static class CustomRoleSelector
 
         AddonRolesList = [];
 
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles role in Main.CustomRoleValues)
         {
             if (!role.IsAdditionRole() || role.IsGhostRole()) continue;
 

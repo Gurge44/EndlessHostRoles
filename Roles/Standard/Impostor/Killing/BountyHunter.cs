@@ -175,7 +175,7 @@ public class BountyHunter : RoleBase
 
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: Reset Target", "BountyHunter");
 
-        List<PlayerControl> cTargets = new(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
+        List<PlayerControl> cTargets = new(Main.EnumerateAlivePlayerControls().Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
 
         if (cTargets.Count >= 2 && Target != byte.MaxValue) cTargets.RemoveAll(x => x.PlayerId == Target);
 

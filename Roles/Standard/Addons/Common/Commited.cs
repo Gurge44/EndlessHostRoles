@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 namespace EHR.Roles;
 
 public class Commited : IAddon
@@ -41,16 +42,18 @@ public class Commited : IAddon
         if (!PermanentReduction.GetBool())
             ReduceKCD = [];
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        var aapc = Main.AllAlivePlayerControls;
+
+        foreach (PlayerControl pc in aapc)
         {
             if (pc.Is(CustomRoles.Commited))
-                Target[pc.PlayerId] = Main.AllAlivePlayerControls.Where(x => !x.Is(CustomRoles.Commited)).RandomElement().PlayerId;
+                Target[pc.PlayerId] = aapc.Where(x => !x.Is(CustomRoles.Commited)).RandomElement().PlayerId;
         }
     }
 
     public static void OnVotingResultsShown(List<MeetingHud.VoterState> vs)
     {
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (Target.TryGetValue(pc.PlayerId, out byte target) && vs.FindFirst(x => x.VoterId == pc.PlayerId, out MeetingHud.VoterState s) && vs.FindFirst(x => x.VoterId == target, out MeetingHud.VoterState ts) && !(IgnoreSkips.GetBool() && s.SkippedVote) && s.VotedForId == ts.VotedForId)
             {

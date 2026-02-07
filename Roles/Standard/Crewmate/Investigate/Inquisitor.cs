@@ -41,7 +41,7 @@ public class Inquisitor : RoleBase
         if (Starspawn.IsDayBreak) return false;
         if (voter == null || target == null || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
-        PlayerControl[] players = ExcludeDeadPlayers.GetBool() ? Main.AllAlivePlayerControls : Main.AllPlayerControls;
+        var players = ExcludeDeadPlayers.GetBool() ? Main.EnumerateAlivePlayerControls() : Main.EnumeratePlayerControls();
         List<(byte Id, CustomRoles Role)> knownRoles = [.. from pc in players where Utils.KnowsTargetRole(target, pc) select (pc.PlayerId, pc.GetCustomRole())];
         
         string result;

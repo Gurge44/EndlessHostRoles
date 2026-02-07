@@ -80,7 +80,7 @@ public class Nonplus : RoleBase
 
         pc.RpcRemoveAbilityUse();
 
-        Main.AllAlivePlayerControls.Without(pc).Do(x =>
+        Main.EnumerateAlivePlayerControls().Without(pc).Do(x =>
         {
             Main.PlayerStates[x.PlayerId].IsBlackOut = true;
             x.MarkDirtySettings();
@@ -88,7 +88,7 @@ public class Nonplus : RoleBase
 
         LateTask.New(() =>
         {
-            Main.AllAlivePlayerControls.Without(pc).Do(x =>
+            Main.EnumerateAlivePlayerControls().Without(pc).Do(x =>
             {
                 Main.PlayerStates[x.PlayerId].IsBlackOut = false;
                 x.MarkDirtySettings();

@@ -287,7 +287,7 @@ public class Enigma : RoleBase
 
         private static string GetRandomLetter(PlayerControl killer, string letter)
         {
-            return Main.AllAlivePlayerControls.Without(killer).RandomElement().GetRealName().Replace(letter, "").Where(char.IsLetter).RandomElement().ToString().ToLower();
+            return Main.EnumerateAlivePlayerControls().Without(killer).RandomElement().GetRealName().Replace(letter, "").Where(char.IsLetter).RandomElement().ToString().ToLower();
         }
     }
 

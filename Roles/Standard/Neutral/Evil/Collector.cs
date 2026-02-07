@@ -71,7 +71,7 @@ public class Collector : RoleBase
 
     public static bool CollectorWin(bool check = true)
     {
-        PlayerControl[] pc = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Collector) && x.IsAlive() && CollectDone(x)).ToArray();
+        PlayerControl[] pc = Main.EnumeratePlayerControls().Where(x => x.Is(CustomRoles.Collector) && x.IsAlive() && CollectDone(x)).ToArray();
 
         if (pc.Length > 0)
         {

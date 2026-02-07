@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -19,7 +21,7 @@ public class PotionMaster : CovenBase
     private byte PotionMasterId;
     private HashSet<byte> RevealedPlayers = [];
 
-    private Dictionary<byte, long> ShieldedPlayers = [];
+    private Dictionary<byte, CountdownTimer> ShieldedPlayers = [];
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -69,9 +71,22 @@ public class PotionMaster : CovenBase
     {
         if (target.Is(Team.Coven))
         {
-            long shieldEndTS = Utils.TimeStamp + ShieldDuration.GetInt();
-            ShieldedPlayers[target.PlayerId] = shieldEndTS;
-            Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 1, target.PlayerId, shieldEndTS);
+            ShieldedPlayers[target.PlayerId] = new CountdownTimer(ShieldDuration.GetInt(), () =>
+            {
+                ShieldedPlayers.Remove(target.PlayerId);
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+                Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, target.PlayerId);
+            }, onTick: () =>
+            {
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+            }, onCanceled: () =>
+            {
+                ShieldedPlayers.Remove(target.PlayerId);
+                Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, target.PlayerId);
+            });
+            Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 1, target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
             killer.SetKillCooldown(AbilityCooldown.GetFloat());
@@ -82,43 +97,19 @@ public class PotionMaster : CovenBase
 
         RevealedPlayers.Add(target.PlayerId);
         Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 3, target.PlayerId);
-        Main.AllAlivePlayerControls.DoIf(x => x.Is(Team.Coven), x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: target));
+        Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(Team.Coven), x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: target));
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         return false;
     }
 
     public override void OnReceiveNecronomicon()
     {
-        PotionMasterId.GetPlayer().ResetKillCooldown();
+        PotionMasterId.GetPlayer()?.ResetKillCooldown();
     }
 
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = HasNecronomicon ? KillCooldown.GetFloat() : AbilityCooldown.GetFloat();
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || ShieldedPlayers.Count == 0) return;
-
-        long now = Utils.TimeStamp;
-        List<byte> toRemove = ShieldedPlayers.Where(x => now >= x.Value).Select(x => x.Key).ToList();
-
-        toRemove.ForEach(x =>
-        {
-            ShieldedPlayers.Remove(x);
-            PlayerControl player = x.GetPlayer();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
-            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            Utils.SendRPC(CustomRPC.SyncRoleData, PotionMasterId, 2, x);
-        });
-
-        foreach (byte shieldedId in ShieldedPlayers.Keys)
-        {
-            PlayerControl player = shieldedId.GetPlayer();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
-            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-        }
     }
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
@@ -137,7 +128,7 @@ public class PotionMaster : CovenBase
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                ShieldedPlayers[reader.ReadByte()] = long.Parse(reader.ReadString());
+                ShieldedPlayers[reader.ReadByte()] = new CountdownTimer(ShieldDuration.GetInt());
                 break;
             case 2:
                 ShieldedPlayers.Remove(reader.ReadByte());
@@ -152,8 +143,8 @@ public class PotionMaster : CovenBase
     {
         if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud) return string.Empty;
         if (seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId) return string.Empty;
-        if (!ShieldedPlayers.TryGetValue(target.PlayerId, out long shieldExpireTS)) return string.Empty;
+        if (!ShieldedPlayers.TryGetValue(target.PlayerId, out CountdownTimer timer)) return string.Empty;
 
-        return string.Format(Translator.GetString("PotionMaster.Suffix"), shieldExpireTS - Utils.TimeStamp, Main.CovenColor);
+        return string.Format(Translator.GetString("PotionMaster.Suffix"), (int)Math.Ceiling(timer.Remaining.TotalSeconds), Main.CovenColor);
     }
 }

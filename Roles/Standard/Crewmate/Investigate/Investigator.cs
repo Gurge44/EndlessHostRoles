@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -27,7 +26,7 @@ public class Investigator : RoleBase
 
     public static bool On;
 
-    private static CustomRoles[] RandomRolesForTrickster => Enum.GetValues<CustomRoles>().Where(x => x.IsCrewmate()).ToArray();
+    private static CustomRoles[] RandomRolesForTrickster => Main.CustomRoleValues.Where(x => x.IsCrewmate()).ToArray();
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -58,7 +57,7 @@ public class Investigator : RoleBase
     {
         On = true;
 
-        foreach (PlayerControl ar in Main.AllPlayerControls) IsRevealed[(playerId, ar.PlayerId)] = false;
+        foreach (PlayerControl ar in Main.EnumeratePlayerControls()) IsRevealed[(playerId, ar.PlayerId)] = false;
 
         RandomRole[playerId] = GetRandomCrewRoleString();
     }
@@ -148,7 +147,6 @@ public class Investigator : RoleBase
     public static string GetRandomCrewRoleString()
     {
         CustomRoles randomRole = RandomRolesForTrickster.RandomElement();
-
         return $"<size={FontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
     }
 

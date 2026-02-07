@@ -77,7 +77,7 @@ public class NoteKiller : RoleBase
         {
             List<string> names = Names.ToList();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.NoteKiller)) continue;
                 string name = names.RandomElement();

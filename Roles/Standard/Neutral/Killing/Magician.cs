@@ -437,7 +437,7 @@ public class Magician : RoleBase
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.AllAlivePlayerControls)
+        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 

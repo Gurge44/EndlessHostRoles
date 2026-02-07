@@ -139,8 +139,8 @@ internal static class FreeForAll
 
         PlayerTeams = [];
 
-        PlayerControl[] allPlayers = Main.AllAlivePlayerControls;
-        if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
+        var allPlayers = Main.EnumerateAlivePlayerControls();
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer);
         allPlayers = allPlayers.ExceptBy(ChatCommands.Spectators, x => x.PlayerId).ToArray();
 
         foreach (PlayerControl pc in allPlayers)
@@ -168,7 +168,7 @@ internal static class FreeForAll
             rank += KillCount.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId); // In the old version, the struct 'KeyValuePair' was checked for equality using the inefficient runtime-provided implementation
             return rank;
         }
-        catch { return Main.AllPlayerControls.Length; }
+        catch { return Main.AllPlayerControls.Count; }
     }
 
     public static string GetHudText()
@@ -199,7 +199,7 @@ internal static class FreeForAll
                 return;
             }
 
-            int totalalive = Main.AllAlivePlayerControls.Length;
+            int totalalive = Main.AllAlivePlayerControls.Count;
 
             if (FFAShieldedList.TryGetValue(target.PlayerId, out long dur))
             {
@@ -222,7 +222,7 @@ internal static class FreeForAll
             {
                 PlayerControl otherPC = null;
 
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
                 {
                     TargetArrow.Add(killer.PlayerId, pc.PlayerId);
                     TargetArrow.Add(pc.PlayerId, killer.PlayerId);
@@ -352,9 +352,9 @@ internal static class FreeForAll
 
     public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || target != null && seer.PlayerId != target.PlayerId || Main.AllAlivePlayerControls.Length != 2) return string.Empty;
+        if (GameStates.IsMeeting || target != null && seer.PlayerId != target.PlayerId || Main.AllAlivePlayerControls.Count != 2) return string.Empty;
 
-        PlayerControl otherPlayer = Main.AllAlivePlayerControls.FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
+        PlayerControl otherPlayer = Main.EnumerateAlivePlayerControls().FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
         if (otherPlayer == null) return string.Empty;
 
         string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
@@ -387,11 +387,11 @@ internal static class FreeForAll
 
                 List<byte> changePositionPlayers = [];
 
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
-                    PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a =>
+                    PlayerControl[] filtered = Main.EnumerateAlivePlayerControls().Where(a =>
                         pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
 
                     if (filtered.Length == 0) break;
@@ -418,7 +418,7 @@ internal static class FreeForAll
 
             if (Main.NormalOptions.MapId == 4) return;
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc == null) return;
 

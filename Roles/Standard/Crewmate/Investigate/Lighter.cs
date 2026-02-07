@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -6,9 +7,10 @@ namespace EHR.Roles;
 internal class Lighter : RoleBase
 {
     public static bool On;
-    private long ActivateTimeStamp;
-    private bool IsAbilityActive;
+    
     public override bool IsEnable => On;
+    
+    private CountdownTimer Timer;
 
     public override void SetupCustomOption()
     {
@@ -47,15 +49,12 @@ internal class Lighter : RoleBase
     {
         On = true;
         playerId.SetAbilityUseLimit(LighterSkillMaxOfUsage.GetFloat());
-        IsAbilityActive = false;
-        ActivateTimeStamp = 0;
+        Timer = null;
     }
 
     public override void Init()
     {
         On = false;
-        IsAbilityActive = false;
-        ActivateTimeStamp = 0;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -66,7 +65,7 @@ internal class Lighter : RoleBase
             AURoleOptions.EngineerCooldown = LighterSkillCooldown.GetFloat();
         }
 
-        if (IsAbilityActive)
+        if (Timer != null)
         {
             opt.SetVision(false);
 
@@ -81,7 +80,7 @@ internal class Lighter : RoleBase
     {
         var progressText = new StringBuilder();
 
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, IsAbilityActive));
+        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null));
         progressText.Append(Utils.GetTaskCount(playerId, comms));
 
         return progressText.ToString();
@@ -108,38 +107,26 @@ internal class Lighter : RoleBase
 
     private void Light(PlayerControl pc)
     {
-        if (IsAbilityActive) return;
+        if (Timer != null) return;
 
         if (pc.GetAbilityUseLimit() >= 1)
         {
-            IsAbilityActive = true;
-            ActivateTimeStamp = Utils.TimeStamp;
+            float skillDuration = LighterSkillDuration.GetFloat();
+            
+            Timer = new CountdownTimer(skillDuration, () =>
+            {
+                Timer = null;
+                pc.RpcResetAbilityCooldown();
+                pc.Notify(Translator.GetString("LighterSkillStop"));
+                pc.MarkDirtySettings();
+            }, onCanceled: () => Timer = null);
 
-            pc.Notify(Translator.GetString("LighterSkillInUse"), LighterSkillDuration.GetFloat());
+            pc.Notify(Translator.GetString("LighterSkillInUse"), skillDuration);
             pc.RpcRemoveAbilityUse();
             pc.MarkDirtySettings();
         }
         else
             pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-    }
-
-    public override void OnReportDeadBody()
-    {
-        IsAbilityActive = false;
-        ActivateTimeStamp = 0;
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask) return;
-
-        if (IsAbilityActive && ActivateTimeStamp + LighterSkillDuration.GetInt() < Utils.TimeStamp)
-        {
-            IsAbilityActive = false;
-            player.RpcResetAbilityCooldown();
-            player.Notify(Translator.GetString("LighterSkillStop"));
-            player.MarkDirtySettings();
-        }
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

@@ -60,7 +60,7 @@ public class Medium : RoleBase
         ContactPlayer = [];
         if (target == null || target.Object == null) return;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(x => PlayerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
         {
             if (pc.GetAbilityUseLimit() < 1) continue;
 

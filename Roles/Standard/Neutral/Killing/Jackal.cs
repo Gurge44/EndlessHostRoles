@@ -150,7 +150,7 @@ public class Jackal : RoleBase
     {
         if (target.Is(CustomRoles.Jackal)) return;
 
-        Main.AllAlivePlayerControls
+        Main.EnumerateAlivePlayerControls()
             .Where(x => x.Is(CustomRoles.Jackal))
             .Do(x => x.SetKillCooldown(ResetKillCooldownOn.GetFloat()));
     }

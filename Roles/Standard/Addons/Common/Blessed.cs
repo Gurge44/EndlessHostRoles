@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using EHR.Modules;
 using EHR.Modules.Extensions;
@@ -31,8 +32,8 @@ public class Blessed : IAddon
 
     public static void AfterMeetingTasks()
     {
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        if (aapc.Length < MinLivingPlayersToActivateShield.GetInt()) return;
+        var aapc = Main.AllAlivePlayerControls;
+        if (aapc.Count < MinLivingPlayersToActivateShield.GetInt()) return;
         
         foreach (PlayerControl pc in aapc)
         {
@@ -45,7 +46,7 @@ public class Blessed : IAddon
         Main.Instance.StartCoroutine(CoRoutine());
         return;
 
-        System.Collections.IEnumerator CoRoutine()
+        IEnumerator CoRoutine()
         {
             int duration = ShieldDuration.GetInt();
             while (ShieldTimer.GetRemainingTime(duration) > 0 && !(GameStates.IsMeeting || ExileController.Instance || GameStates.IsEnded || !GameStates.InGame)) yield return null;

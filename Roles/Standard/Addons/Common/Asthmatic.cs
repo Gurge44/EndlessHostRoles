@@ -71,7 +71,7 @@ internal class Asthmatic : IAddon
             var r = IRandom.Instance;
             long now = Utils.TimeStamp;
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Asthmatic))
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), now, '●', false, RandomRedTime, RandomGreenTime);

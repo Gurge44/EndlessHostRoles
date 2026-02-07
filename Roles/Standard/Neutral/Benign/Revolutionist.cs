@@ -53,7 +53,7 @@ internal class Revolutionist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.AllPlayerControls)
+        foreach (PlayerControl ar in Main.EnumeratePlayerControls())
             IsDraw.Add((playerId, ar.PlayerId), false);
     }
 
