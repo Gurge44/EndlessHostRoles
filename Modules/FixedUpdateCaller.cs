@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using EHR.Gamemodes;
 using EHR.Patches;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using UnityEngine;
 
@@ -17,12 +19,25 @@ public static class FixedUpdateCaller
     private static long LastFileLoadTS;
     private static long LastAutoMessageSendTS;
 
+    private static long LastMeasureTS;
+
     // ReSharper disable once UnusedMember.Global
     public static void Postfix()
     {
         try
         {
+            long now = Utils.TimeStamp;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            bool measure = false;
+
+            if (LastMeasureTS != now)
+            {
+                LastMeasureTS = now;
+                measure = true;
+            }
+            
             InnerNetClientFixedUpdatePatch.Postfix();
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (1)", "debug");
 
             var amongUsClient = AmongUsClient.Instance;
 
@@ -31,7 +46,9 @@ public static class FixedUpdateCaller
             if (shipStatus)
             {
                 ShipFixedUpdatePatch.Postfix();
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (2)", "debug");
                 ShipStatusFixedUpdatePatch.Postfix(shipStatus);
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (3)", "debug");
             }
 
             var lobbyBehaviour = LobbyBehaviour.Instance;
@@ -39,29 +56,28 @@ public static class FixedUpdateCaller
             if (lobbyBehaviour)
             {
                 LobbyFixedUpdatePatch.Postfix();
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (4)", "debug");
                 LobbyBehaviourUpdatePatch.Postfix(lobbyBehaviour);
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (5)", "debug");
 
-                long now = Utils.TimeStamp;
+                //long now = Utils.TimeStamp;
 
                 if (now - LastFileLoadTS > 10)
                 {
                     LastFileLoadTS = now;
                     Options.LoadUserData();
+                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (6)", "debug");
                 }
 
                 if (Options.EnableAutoMessage.GetBool() && now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
                 {
                     LastAutoMessageSendTS = now;
-                    TemplateManager.SendTemplate("Notification", sendOption: Hazel.SendOption.None);
+                    TemplateManager.SendTemplate("Notification", sendOption: SendOption.None);
+                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (7)", "debug");
                 }
             }
 
-#if ANDROID
-
-            if (GameStartManager.InstanceExists)
-                GameStartManagerPatch.GameStartManagerUpdatePatch.Postfix_ManualCall(GameStartManager.Instance);
-#endif
-
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (8)", "debug");
             if (HudManager.InstanceExists)
             {
                 HudManager hudManager = HudManager.Instance;
@@ -69,11 +85,15 @@ public static class FixedUpdateCaller
                 if (hudManager)
                 {
                     HudManagerPatch.Postfix(hudManager);
+                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (9)", "debug");
                     Zoom.Postfix();
+                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (10)", "debug");
                     HudSpritePatch.Postfix(hudManager);
+                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (11)", "debug");
                 }
             }
 
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (12)", "debug");
             try
             {
                 foreach (byte key in EAC.TimeSinceLastTaskCompletion.Keys.ToArray())
@@ -81,10 +101,12 @@ public static class FixedUpdateCaller
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (13)", "debug");
             if (!PlayerControl.LocalPlayer) return;
 
             if (amongUsClient.IsGameStarted)
                 Utils.CountAlivePlayers();
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (14)", "debug");
 
             try
             {
@@ -120,6 +142,7 @@ public static class FixedUpdateCaller
                 }
             }
             catch { }
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (15)", "debug");
 
             try
             {
@@ -127,11 +150,13 @@ public static class FixedUpdateCaller
                     FixedUpdatePatch.LoversSuicide();
             }
             catch (Exception e) { Utils.ThrowException(e); }
+            if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (16)", "debug");
 
             bool lobby = GameStates.IsLobby;
 
             if (lobby || (Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))
             {
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (17)", "debug");
                 NonLowLoadPlayerIndex++;
 
                 int count = PlayerControl.AllPlayerControls.Count;
@@ -140,9 +165,11 @@ public static class FixedUpdateCaller
                     NonLowLoadPlayerIndex = Math.Min(0, -(30 - count));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (18)", "debug");
 
                 for (var index = 0; index < count; index++)
                 {
+                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (19)", "debug");
                     try
                     {
                         PlayerControl pc = PlayerControl.AllPlayerControls[index];
@@ -182,6 +209,7 @@ public static class FixedUpdateCaller
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
                 }
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (20)", "debug");
 
                 if (lobby) return;
 
@@ -219,6 +247,7 @@ public static class FixedUpdateCaller
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (21)", "debug");
 
                 try
                 {
@@ -233,11 +262,12 @@ public static class FixedUpdateCaller
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                         
                             if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
-                                CustomWinnerHolder.WinnerIds.UnionWith(Main.AllAlivePlayerControls.Select(x => x.PlayerId));
+                                CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId));
                         }
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (22)", "debug");
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }

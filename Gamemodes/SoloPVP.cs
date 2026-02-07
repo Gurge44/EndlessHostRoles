@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
@@ -101,7 +102,7 @@ internal static class SoloPVP
         RoundTime = SoloPVP_GameTime.GetInt() + 8;
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
             PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
@@ -196,7 +197,7 @@ internal static class SoloPVP
             rank += PlayerScore.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Length; }
+        catch { return Main.AllPlayerControls.Count; }
     }
 
     public static string GetHudText()
@@ -248,7 +249,7 @@ internal static class SoloPVP
         Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
     }
 
-    private static System.Collections.IEnumerator OnPlayerDead(PlayerControl target)
+    private static IEnumerator OnPlayerDead(PlayerControl target)
     {
         BackCountdown.TryAdd(target.PlayerId, SoloPVP_ResurrectionWaitingTime.GetInt());
         if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);

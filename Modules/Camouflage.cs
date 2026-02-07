@@ -140,7 +140,7 @@ public static class Camouflage
 
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
             {
@@ -153,7 +153,7 @@ public static class Camouflage
             yield return null;
         }
 
-        yield return Utils.NotifyEveryoneAsync(5);
+        yield return Utils.NotifyEveryoneAsync();
     }
 
     public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)

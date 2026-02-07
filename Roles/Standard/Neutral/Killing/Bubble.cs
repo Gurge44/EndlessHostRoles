@@ -170,7 +170,7 @@ internal class Bubble : RoleBase
 
         if (ts + NotifyDelay.GetInt() < now)
         {
-            Main.AllAlivePlayerControls.Where(x => (!LastUpdates.TryGetValue(x.PlayerId, out long la) || la != now) && Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x =>
+            Main.EnumerateAlivePlayerControls().Where(x => (!LastUpdates.TryGetValue(x.PlayerId, out long la) || la != now) && Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x =>
             {
                 NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc);
                 LastUpdates[x.PlayerId] = now;

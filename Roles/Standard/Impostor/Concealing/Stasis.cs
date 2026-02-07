@@ -109,7 +109,7 @@ public class Stasis : RoleBase
 
         int time = AbilityDuration.GetInt();
 
-        foreach (PlayerControl player in Main.AllPlayerControls)
+        foreach (PlayerControl player in Main.EnumeratePlayerControls())
         {
             if (!player.IsAlive() || player.PlayerId == pc.PlayerId || (player.Is(Team.Impostor) && !AffectsOtherImpostors.GetBool()))
             {
@@ -127,13 +127,13 @@ public class Stasis : RoleBase
             }
         }
 
-        Utils.SyncAllSettings();
+        Utils.MarkEveryoneDirtySettings();
         Main.Instance.StartCoroutine(Countdown());
         return;
 
         IEnumerator Countdown()
         {
-            PlayerControl[] imps = AffectsOtherImpostors.GetBool() ? [pc] : Main.AllAlivePlayerControls.Where(x => x.Is(Team.Impostor)).ToArray();
+            PlayerControl[] imps = AffectsOtherImpostors.GetBool() ? [pc] : Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Impostor)).ToArray();
 
             for (var i = 0; i < time; i++)
             {
@@ -151,7 +151,7 @@ public class Stasis : RoleBase
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
             Main.PlayerStates.Values.Do(x => x.IsBlackOut = false);
-            Utils.SyncAllSettings();
+            Utils.MarkEveryoneDirtySettings();
 
             pc.RpcResetAbilityCooldown();
         }

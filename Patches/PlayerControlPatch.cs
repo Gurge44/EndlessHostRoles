@@ -1,21 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using AmongUs.Data;
 using AmongUs.GameOptions;
-using EHR.Roles;
+using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
 using Tree = EHR.Roles.Tree;
-using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -140,7 +137,7 @@ internal static class CheckMurderPatch
             if (target.Is(CustomRoles.Detour))
             {
                 PlayerControl tempTarget = target;
-                target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
+                target = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)
@@ -221,7 +218,7 @@ internal static class CheckMurderPatch
                     return false;
                 case CustomGameMode.HotPotato:
                     (byte holderID, byte lastHolderID) = HotPotato.GetState();
-                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Length <= 2))
+                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Count <= 2))
                         HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                     return false;
                 case CustomGameMode.Mingle:
@@ -425,6 +422,7 @@ internal static class CheckMurderPatch
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
+            Blessed.ShieldActive.Contains(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
             !Farmer.OnAnyoneCheckMurder(target) ||
             !PotionMaster.OnAnyoneCheckMurder(target) ||
@@ -527,7 +525,7 @@ internal static class CheckMurderPatch
 
         if (Crusader.ForCrusade.Contains(target.PlayerId))
         {
-            foreach (PlayerControl player in Main.AllPlayerControls)
+            foreach (PlayerControl player in Main.EnumeratePlayerControls())
             {
                 if (player.Is(CustomRoles.Crusader) && player.IsAlive())
                 {
@@ -651,6 +649,8 @@ internal static class MurderPlayerPatch
         try
         {
             Infection.OnAnyMurder();
+            
+            Summoner.OnAnyoneMurder(killer);
 
             // Replacement process when the actual killer and killer are different
             if (Sniper.TryGetSniper(target.PlayerId, ref killer)) Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sniped;
@@ -731,16 +731,16 @@ internal static class MurderPlayerPatch
                 Speedrun.ResetTimer(killer);
 
             if (killer.Is(CustomRoles.Stealer) && killer.PlayerId != target.PlayerId)
-                killer.Notify(string.Format(GetString("StealerGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.VotesPerKill.GetFloat()).ToString("0.0#####")));
+                killer.Notify(string.Format(GetString("StealerGetVote"), ((Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
             if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
-                killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
+                killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
             if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
 
             if (target.Is(CustomRoles.Avenger))
             {
-                PlayerControl[] pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray();
+                PlayerControl[] pcList = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != target.PlayerId).ToArray();
                 PlayerControl rp = pcList.RandomElement();
                 if (!rp.Is(CustomRoles.Pestilence)) rp.Suicide(PlayerState.DeathReason.Revenge, target);
             }
@@ -793,7 +793,7 @@ internal static class MurderPlayerPatch
 
         __instance.MarkDirtySettings();
         target.MarkDirtySettings();
-        Main.Instance.StartCoroutine(NotifyEveryoneAsync(4, false));
+        Main.Instance.StartCoroutine(NotifyEveryoneAsync(false));
 
         Statistics.OnMurder(killer, target);
     }
@@ -901,7 +901,7 @@ internal static class ShapeshiftPatch
 
         // Forced rewriting in case the name cannot be corrected due to the timing of unshifting being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
-            LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryoneAsync(3)), 1.2f, "ShapeShiftNotify");
+            LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryoneAsync()), 1.2f, "ShapeShiftNotify");
 
         if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId) && !Transporter.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
             LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
@@ -932,7 +932,7 @@ internal static class ShapeshiftPatch
 
         bool shapeshifting = __instance.PlayerId != target.PlayerId;
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
             string room = GetString(plainShipRoom != null ? plainShipRoom.RoomId.ToString() : "Outside");
@@ -943,7 +943,7 @@ internal static class ShapeshiftPatch
                 case Adventurer av when shapeshifting:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
-                case EHR.Roles.Sentry st:
+                case Roles.Sentry st:
                     st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
@@ -1160,17 +1160,21 @@ internal static class ReportDeadBodyPatch
             try
             {
                 Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
-                Main.AllAlivePlayerControls.Do(x => x.SyncSettings());
+                Main.EnumerateAlivePlayerControls().Do(x => x.SyncSettings());
             }
             catch (Exception e) { ThrowException(e); }
         }
         
-        LateTask.New(() => Main.PlayerStates.Values.Do(x => x.IsBlackOut = false), 3f, "RemoveBlackout");
+        LateTask.New(() =>
+        {
+            Main.PlayerStates.Values.Do(x => x.IsBlackOut = false);
+            MarkEveryoneDirtySettings();
+        }, 3f, "RemoveBlackout");
 
         try
         {
-            for (int i = CustomNetObject.AllObjects.Count - 1; i >= 0; --i)
-                CustomNetObject.AllObjects[i].OnMeeting();
+            foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
+                cno.OnMeeting();
         }
         catch (Exception e) { ThrowException(e); }
 
@@ -1205,10 +1209,10 @@ internal static class ReportDeadBodyPatch
 
         Main.DiedThisRound = [];
 
-        try { Main.AllAlivePlayerControls.DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos()); }
+        try { Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos()); }
         catch (Exception e) { ThrowException(e); }
 
-        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Exists(x => x != null && x.IsAlive())) LateTask.New(() => ChatManager.ClearChat(Main.AllAlivePlayerControls.ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()), GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive() ? 3f : 0f); }
+        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Exists(x => x != null && x.IsAlive())) LateTask.New(() => ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()), GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive() ? 3f : 0f); }
         catch (Exception e) { ThrowException(e); }
 
         CustomSabotage.Reset();
@@ -1264,7 +1268,7 @@ internal static class ReportDeadBodyPatch
 
             if (QuizMaster.On)
             {
-                if (MeetingStates.FirstMeeting) QuizMaster.Data.NumPlayersDeadFirstRound = Main.AllPlayerControls.Count(x => !x.IsAlive() && !x.Is(CustomRoles.GM));
+                if (MeetingStates.FirstMeeting) QuizMaster.Data.NumPlayersDeadFirstRound = Main.EnumeratePlayerControls().Count(x => !x.IsAlive() && !x.Is(CustomRoles.GM));
                 QuizMaster.Data.NumMeetings++;
             }
 
@@ -1285,7 +1289,7 @@ internal static class ReportDeadBodyPatch
         }
         catch (Exception e) { ThrowException(e); }
 
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             try
             {
@@ -1367,7 +1371,7 @@ internal static class ReportDeadBodyPatch
         {
             Main.ProcessShapeshifts = false;
 
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 try
                 {
@@ -1551,7 +1555,7 @@ internal static class FixedUpdatePatch
                         if (!BanManager.TempBanWhiteList.Contains(hashedPuid)) BanManager.TempBanWhiteList.Add(hashedPuid);
                     }
 
-                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1))
+                    if (!Main.EnumeratePlayerControls().All(x => x.Data.PlayerLevel <= 1))
                     {
                         string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
                         Logger.SendInGame(msg, Color.yellow);
@@ -1686,7 +1690,7 @@ internal static class FixedUpdatePatch
 
             if (self && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
             {
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
                     if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Ninja) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                         Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
@@ -2093,8 +2097,14 @@ internal static class ExitVentPatch
         Drainer.OnAnyoneExitVent(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnExitVent(pc, __instance);
+        
+        LateTask.New(() =>
+        {
+            if (Options.OverrideVisionInVents.GetBool() && Options.InVentVision.ContainsKey(pc.GetTeam()))
+                pc.MarkDirtySettings();
+        }, 0.6f);
 
-        if (Options.WhackAMole.GetBool()) LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Whack-A-Mole TP");
+        if (Options.WhackAMole.GetBool()) LateTask.New(() => pc.TPToRandomVent(), 0.6f, "Whack-A-Mole TP");
 
         if (!pc.IsModdedClient() && pc.Is(CustomRoles.Haste)) pc.SetKillCooldown(Math.Max(Main.KillTimers[pc.PlayerId], 0.1f));
     }
@@ -2139,7 +2149,7 @@ internal static class EnterVentPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
+            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Count <= 2:
                 pc.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
@@ -2192,7 +2202,7 @@ internal static class EnterVentPatch
 
             if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
             {
-                foreach (PlayerControl ventguard in Main.AllAlivePlayerControls)
+                foreach (PlayerControl ventguard in Main.EnumerateAlivePlayerControls())
                 {
                     if (ventguard.Is(CustomRoles.Ventguard))
                         ventguard.Notify(GetString("VentguardNotify"));
@@ -2219,6 +2229,9 @@ internal static class EnterVentPatch
         Chef.SpitOutFood(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnEnterVent(pc, __instance);
+        
+        if (Options.OverrideVisionInVents.GetBool() && Options.InVentVision.ContainsKey(pc.GetTeam()))
+            pc.MarkDirtySettings();
 
         if (pc.AmOwner)
             Statistics.VentTimes++;
@@ -2343,7 +2356,7 @@ static class PlayerControlRevivePatch
                 var hasValue = sender.SyncGeneralOptions(__instance);
                 sender.SendMessage(dispose: !hasValue);
                 Vector2 pos = __instance.Pos();
-                __instance.TP(Main.AllAlivePlayerControls.Without(__instance).Select(x => x.Pos()).Concat(ShipStatus.Instance.AllVents.Select(x => new Vector2(x.transform.position.x, x.transform.position.y + 0.3636f))).MinBy(x => Vector2.Distance(pos, x)));
+                __instance.TP(Main.EnumerateAlivePlayerControls().Without(__instance).Select(x => x.Pos()).Concat(ShipStatus.Instance.AllVents.Select(x => new Vector2(x.transform.position.x, x.transform.position.y + 0.3636f))).MinBy(x => Vector2.Distance(pos, x)));
             }
         }, 0.2f);
     }

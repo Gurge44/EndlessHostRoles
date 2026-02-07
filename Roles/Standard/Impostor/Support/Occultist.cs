@@ -62,7 +62,7 @@ public class Occultist : RoleBase
 
     private void SwitchAction()
     {
-        InRevivingMode = Main.AllAlivePlayerControls.Length >= 4 && !InRevivingMode;
+        InRevivingMode = Main.AllAlivePlayerControls.Count >= 4 && !InRevivingMode;
         Utils.SendRPC(CustomRPC.SyncRoleData, OccultistPC.PlayerId, 1, InRevivingMode);
         Utils.NotifyRoles(SpecifySeer: OccultistPC, SpecifyTarget: OccultistPC);
     }
@@ -146,7 +146,7 @@ public class Occultist : RoleBase
             }
         }
 
-        if (Main.AllAlivePlayerControls.Length < 4) SwitchAction();
+        if (Main.AllAlivePlayerControls.Count < 4) SwitchAction();
     }
 
     public override void OnReportDeadBody()
@@ -158,7 +158,7 @@ public class Occultist : RoleBase
     {
         if (seer.PlayerId != OccultistPC.PlayerId || seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
         string str = string.Format(Translator.GetString("OccultistSuffix"), Translator.GetString(InRevivingMode ? "OccultistMode.Revive" : "OccultistMode.Report"), Translator.GetString($"OccultistActionSwitchMode.{ActionSwitchMode}"));
-        if (Main.AllAlivePlayerControls.Length < 4) str = str.Split('(')[0].TrimEnd(' ');
+        if (Main.AllAlivePlayerControls.Count < 4) str = str.Split('(')[0].TrimEnd(' ');
         return str;
     }
 

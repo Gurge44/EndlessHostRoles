@@ -108,7 +108,7 @@ public class Retributionist : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         var command = $"/retribute {target.PlayerId}";
-        ChatCommands.RetributeCommand(shapeshifter, "Command.Retribute", command, command.Split(' '));
+        ChatCommands.RetributeCommand(shapeshifter, command, command.Split(' '));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -121,18 +121,13 @@ public class Retributionist : RoleBase
         Logger.Msg($"Click: ID {playerId}", "Retributionist UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
+        
+        var command = $"/retribute {playerId}";
 
         if (AmongUsClient.Instance.AmHost)
-        {
-            var command = $"/retribute {playerId}";
-            ChatCommands.RetributeCommand(PlayerControl.LocalPlayer, "Command.Retribute", command, command.Split(' '));
-        }
+            ChatCommands.RetributeCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
         else
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RetributionistClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
-            writer.Write(playerId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+            ChatCommands.RequestCommandProcessingFromHost(command, "Retribute");
     }
 
     public static void CreateRetributionistButton(MeetingHud __instance)

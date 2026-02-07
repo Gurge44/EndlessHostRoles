@@ -112,7 +112,7 @@ public class Rogue : RoleBase
     {
         MorphCooldown = 15 + (int)Options.AdjustedDefaultKillCooldown;
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
-        PlayerControl target = Main.AllAlivePlayerControls.Except([pc]).RandomElement();
+        PlayerControl target = Main.EnumerateAlivePlayerControls().Except([pc]).RandomElement();
         pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
     }
 
@@ -247,7 +247,7 @@ public class Rogue : RoleBase
             object data = objective switch
             {
                 Objective.KillInSpecificRoom => Translator.GetString(ShipStatus.Instance.AllRooms.RandomElement().RoomId.ToString()),
-                Objective.KillSpecificPlayer => Main.AllAlivePlayerControls.Select(x => x.PlayerId).Without(RoguePC.PlayerId).RandomElement(),
+                Objective.KillSpecificPlayer => Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId).Without(RoguePC.PlayerId).RandomElement(),
                 Objective.VentXTimes => IRandom.Instance.Next(2, 20),
                 Objective.KillXTimes => IRandom.Instance.Next(2, 5),
                 _ => null

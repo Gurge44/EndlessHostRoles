@@ -105,7 +105,7 @@ public class Swapper : RoleBase
                 }
 
                 if (HideMsg.GetBool() && !isUI && !spamRequired)
-                    ChatManager.SendPreviousMessagesToAll();
+                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
                 {

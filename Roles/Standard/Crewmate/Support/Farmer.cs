@@ -83,7 +83,7 @@ public class Farmer : RoleBase
                     pc.MarkDirtySettings();
                     goto default;
                 case Seed.Potato:
-                    Main.AllAlivePlayerControls.DoIf(x => !x.Is(Team.Crewmate), x => x.SetKillCooldown(Main.AllPlayerKillCooldown.GetValueOrDefault(x.PlayerId, -1f)));
+                    Main.EnumerateAlivePlayerControls().DoIf(x => !x.Is(Team.Crewmate), x => x.SetKillCooldown(Main.AllPlayerKillCooldown.GetValueOrDefault(x.PlayerId, -1f)));
                     break;
                 case Seed.Blueberry:
                     Object.FindObjectsOfType<DeadBody>().Do(x => LocateArrow.Add(pc.PlayerId, x.TruePosition));

@@ -37,7 +37,7 @@ public class EvilTracker : RoleBase
 
     private byte EvilTrackerId;
     public byte Target = byte.MaxValue;
-    private byte[] ImpostorsId => Main.AllAlivePlayerControls.Where(x => x.PlayerId != EvilTrackerId && x.Is(CustomRoleTypes.Impostor)).Select(x => x.PlayerId).ToArray();
+    private byte[] ImpostorsId => Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != EvilTrackerId && x.Is(CustomRoleTypes.Impostor)).Select(x => x.PlayerId).ToArray();
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 

@@ -367,7 +367,9 @@ public static class CollectionExtensions
     /// <returns>A new, shuffled collection as a <see cref="List{T}" /></returns>
     public static List<T> Shuffle<T>(this IEnumerable<T> collection)
     {
-        List<T> list = collection.ToList();
+        if (collection is not List<T> list)
+            list = collection.ToList();
+        
         int n = list.Count;
         var r = IRandom.Instance;
 

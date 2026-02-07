@@ -78,10 +78,10 @@ internal static class EndGamePatch
 
         EndGameResult.CachedWinners = new();
 
-        HashSet<PlayerControl> winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
+        HashSet<PlayerControl> winner = Main.EnumeratePlayerControls().Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
 
         foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles)
-            winner.UnionWith(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
+            winner.UnionWith(Main.EnumeratePlayerControls().Where(p => p.Is(team) && !winner.Contains(p)));
 
         Main.WinnerNameList = [];
         Main.WinnerList = [];
@@ -123,27 +123,27 @@ internal static class EndGamePatch
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.Standard:
-                    if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) Main.GamesPlayed.AddRange(Main.AllPlayerControls.ToDictionary(x => x.FriendCode, _ => 0), false);
+                    if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) Main.GamesPlayed.AddRange(Main.EnumeratePlayerControls().ToDictionary(x => x.FriendCode, _ => 0), false);
                     Main.GamesPlayed.AdjustAllValues(x => ++x);
                     Main.GotShieldAnimationInfoThisGame.Clear();
                     if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].IsDead = false;
                     break;
                 case CustomGameMode.StopAndGo:
-                    Main.AllPlayerControls.Do(x => StopAndGo.HasPlayed.Add(x.FriendCode));
+                    Main.EnumeratePlayerControls().Do(x => StopAndGo.HasPlayed.Add(x.FriendCode));
                     break;
                 case CustomGameMode.RoomRush:
-                    Main.AllPlayerControls.Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
+                    Main.EnumeratePlayerControls().Do(x => RoomRush.HasPlayedFriendCodes.Add(x.FriendCode));
                     break;
                 case CustomGameMode.KingOfTheZones:
-                    Main.AllPlayerControls.Do(x => KingOfTheZones.PlayedFCs.Add(x.FriendCode));
+                    Main.EnumeratePlayerControls().Do(x => KingOfTheZones.PlayedFCs.Add(x.FriendCode));
                     break;
                 case CustomGameMode.Quiz:
-                    Main.AllPlayerControls.Do(x => Quiz.HasPlayedFriendCodes.Add(x.FriendCode));
+                    Main.EnumeratePlayerControls().Do(x => Quiz.HasPlayedFriendCodes.Add(x.FriendCode));
                     break;
                 case CustomGameMode.Deathrace:
                     MapNames map = Main.CurrentMap;
                     
-                    foreach (PlayerControl pc in Main.AllPlayerControls)
+                    foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     {
                         if (!Deathrace.PlayedMaps.TryGetValue(pc.FriendCode, out var maps))
                             Deathrace.PlayedMaps[pc.FriendCode] = [map];
@@ -153,11 +153,11 @@ internal static class EndGamePatch
 
                     break;
                 case CustomGameMode.Mingle:
-                    Main.AllPlayerControls.Do(x => Mingle.HasPlayedFCs.Add(x.FriendCode));
+                    Main.EnumeratePlayerControls().Do(x => Mingle.HasPlayedFCs.Add(x.FriendCode));
                     break;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
-                        playedFCs.UnionWith(Main.AllPlayerControls.Select(x => x.FriendCode));
+                        playedFCs.UnionWith(Main.EnumeratePlayerControls().Select(x => x.FriendCode));
 
                     break;
             }

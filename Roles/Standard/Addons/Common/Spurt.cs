@@ -43,7 +43,7 @@ internal class Spurt : IAddon
 
     public static void Add()
     {
-        foreach ((PlayerControl pc, float speed) in Main.AllAlivePlayerControls.Zip(Main.AllPlayerSpeed.Values))
+        foreach ((PlayerControl pc, float speed) in Main.EnumerateAlivePlayerControls().Zip(Main.AllPlayerSpeed.Values))
         {
             if (pc.Is(CustomRoles.Spurt))
             {

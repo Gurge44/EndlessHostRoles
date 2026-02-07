@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.Roles;
 using EHR.Modules;
+using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 
@@ -98,7 +97,7 @@ internal static class CustomHnS
             IsBlindTime = false;
             Utils.MarkEveryoneDirtySettingsV4();
 
-            Main.AllAlivePlayerControls
+            Main.EnumerateAlivePlayerControls()
                 .Join(PlayerRoles, x => x.PlayerId, x => x.Key, (pc, role) => (pc, role.Value.Interface))
                 .Where(x => x.Interface.Team == Team.Impostor)
                 .Do(x => x.pc.SetKillCooldown());
@@ -114,12 +113,13 @@ internal static class CustomHnS
             .Where(role => role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0)
             .ToList();
     }
+    
+    private static Type[] CachedHnsTypes;
 
     public static Type[] GetAllHnsRoleTypes()
     {
-        return Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
+        return CachedHnsTypes ??=
+            Main.AllTypes
             .Where(t => typeof(IHideAndSeekRole).IsAssignableFrom(t) && !t.IsInterface)
             .ToArray();
     }
@@ -127,7 +127,7 @@ internal static class CustomHnS
     public static void AssignRoles()
     {
         Dictionary<PlayerControl, CustomRoles> result = [];
-        List<PlayerControl> allPlayers = [.. Main.AllPlayerControls];
+        List<PlayerControl> allPlayers = [.. Main.EnumeratePlayerControls()];
 
         if (Main.GM.Value) allPlayers.RemoveAll(x => x.AmOwner);
         allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
@@ -223,7 +223,7 @@ internal static class CustomHnS
 
         Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HnsRoleAssigner");
 
-        Dictionary<string, IHideAndSeekRole> roleInterfaces = Assembly.GetExecutingAssembly().GetTypes()
+        Dictionary<string, IHideAndSeekRole> roleInterfaces = Main.AllTypes
             .Where(x => typeof(IHideAndSeekRole).IsAssignableFrom(x) && !x.IsInterface)
             .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
             .Where(x => x != null)
@@ -360,10 +360,10 @@ internal static class CustomHnS
     {
         reason = GameOverReason.ImpostorsByKill;
 
-        PlayerControl[] alivePlayers = Main.AllAlivePlayerControls;
+        var alivePlayers = Main.AllAlivePlayerControls;
 
         // If there are 0 players alive, the game is over and only foxes win
-        if (alivePlayers.Length == 0)
+        if (alivePlayers.Count == 0)
         {
             reason = GameOverReason.CrewmateDisconnect;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
@@ -468,11 +468,11 @@ internal static class CustomHnS
 
             TimeLeft--;
 
-            PlayerRoles = PlayerRoles.IntersectBy(Main.AllPlayerControls.Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+            PlayerRoles = PlayerRoles.IntersectBy(Main.EnumeratePlayerControls().Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
             try
             {
-                Dictionary<byte, Vector2> idPosPairs = PlayerRoles.Join(Main.AllPlayerControls, x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
+                Dictionary<byte, Vector2> idPosPairs = PlayerRoles.Join(Main.EnumeratePlayerControls(), x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
                 Dictionary<byte, Vector2> imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => idPosPairs[x.Key]);
                 KeyValuePair<byte, (IHideAndSeekRole Interface, CustomRoles Role)>[] nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
                 ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);

@@ -12,7 +12,6 @@ using static EHR.Translator;
 
 namespace EHR;
 
-#if !ANDROID
 [HarmonyPatch(typeof(ControllerManager), nameof(ControllerManager.Update))]
 internal static class ControllerManagerUpdatePatch
 {
@@ -20,6 +19,11 @@ internal static class ControllerManagerUpdatePatch
     private static int ResolutionIndex;
 
     private static bool IsResetting;
+    
+    public static bool Prepare()
+    {
+        return !OperatingSystem.IsAndroid(); // Disable on Android to prevent input issues
+    }
 
     public static void Postfix( /*ControllerManager __instance*/)
     {
@@ -223,7 +227,6 @@ internal static class ControllerManagerUpdatePatch
 
             if (!Options.NoGameEnd.GetBool()) return;
 
-#endif
 #if DEBUG
             if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
             {
@@ -308,7 +311,6 @@ internal static class ControllerManagerUpdatePatch
                 VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
 
 #endif
-#if !ANDROID
         }
         catch { }
     }
@@ -483,4 +485,3 @@ public static class InGameRoleInfoMenu
         }
     }
 }
-#endif

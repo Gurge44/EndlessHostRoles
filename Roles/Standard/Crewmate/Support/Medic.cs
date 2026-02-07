@@ -226,7 +226,7 @@ public class Medic : RoleBase
         killer.SetKillCooldown(ResetCooldown.GetFloat());
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        var medics = Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && x.IsAlive()).ToArray();
+        var medics = Main.EnumeratePlayerControls().Where(x => PlayerIdList.Contains(x.PlayerId) && x.IsAlive()).ToArray();
 
         switch (KnowShieldBroken.GetInt())
         {
@@ -234,7 +234,7 @@ public class Medic : RoleBase
                 target.RpcGuardAndKill();
                 medics.Do(x => x.KillFlash());
                 medics.NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic"));
-                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
+                Main.EnumeratePlayerControls().Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
                 break;
             case 1:
                 medics.Do(x => x.KillFlash());
@@ -242,7 +242,7 @@ public class Medic : RoleBase
                 break;
             case 2:
                 target.RpcGuardAndKill();
-                Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
+                Main.EnumeratePlayerControls().Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
                 break;
         }
 

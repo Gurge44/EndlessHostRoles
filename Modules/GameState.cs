@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Roles;
-using EHR.Modules;
-using InnerNet;
 using EHR.Gamemodes;
+using EHR.Modules;
+using EHR.Roles;
+using InnerNet;
 
 namespace EHR;
 
@@ -485,7 +485,7 @@ public class TaskState
                 Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);

@@ -256,7 +256,7 @@ public static class KingOfTheZones
         SpawnProtectionTimes = [];
         TimeLeft = 0;
 
-        DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
+        DefaultOutfits = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
 
         List<byte> ids = Main.PlayerStates.Keys.Shuffle();
         if (Main.GM.Value) ids.Remove(0);
@@ -286,10 +286,6 @@ public static class KingOfTheZones
             .SelectMany(x => x)
             .ToDictionary(x => x.Key, x => x.Value);
 
-        float normalSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-        if (Main.GM.Value) Main.AllPlayerSpeed[0] = normalSpeed;
-        ChatCommands.Spectators.Do(x => Main.AllPlayerSpeed[x] = normalSpeed);
-
         GameGoing = false;
         SendRPC();
     }
@@ -300,8 +296,8 @@ public static class KingOfTheZones
 
         yield return new WaitForSecondsRealtime(3f);
 
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Length / 2;
+        var aapc = Main.AllAlivePlayerControls;
+        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Count / 2;
         NameNotifyManager.Reset();
 
         int teams = NumTeams.GetInt();
@@ -458,10 +454,7 @@ public static class KingOfTheZones
 
         End:
 
-        Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Utils.SyncAllSettings();
-
-        yield return Utils.NotifyEveryoneAsync(1, false);
+        yield return Utils.NotifyEveryoneAsync(false);
         yield break;
 
         IEnumerator StartingCountdown()
@@ -593,7 +586,7 @@ public static class KingOfTheZones
 
         if (!Main.IntroDestroyed) return false;
 
-        PlayerControl[] aapc = Main.AllAlivePlayerControls.Concat(ExtendedPlayerControl.TempExiled.ToValidPlayers()).ToArray();
+        PlayerControl[] aapc = Main.EnumerateAlivePlayerControls().Concat(ExtendedPlayerControl.TempExiled.ToValidPlayers()).ToArray();
 
         switch (aapc.Length)
         {
@@ -815,7 +808,7 @@ public static class KingOfTheZones
 
             try
             {
-                Dictionary<byte, PlainShipRoom> playerRooms = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, x => x.GetPlainShipRoom());
+                Dictionary<byte, PlainShipRoom> playerRooms = Main.EnumerateAlivePlayerControls().ToDictionary(x => x.PlayerId, x => x.GetPlainShipRoom());
                 Dictionary<SystemTypes, List<(KOTZTeam Team, int Length)>> roomPlayersAndTeams = Zones.ToDictionary(x => x, x => playerRooms.ExceptBy(RespawnTimes.Keys, k => k.Key).Where(k => k.Value != null && k.Value.RoomId == x).GroupBy(k => PlayerTeams[k.Key]).Select(k => (Team: k.Key, Length: k.Count())).OrderByDescending(k => k.Length).ToList());
 
                 foreach ((SystemTypes zone, List<(KOTZTeam Team, int Length)> teamPlayers) in roomPlayersAndTeams)
@@ -837,7 +830,7 @@ public static class KingOfTheZones
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
-            foreach (PlayerControl player in Main.AllAlivePlayerControls)
+            foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
             {
                 try
                 {

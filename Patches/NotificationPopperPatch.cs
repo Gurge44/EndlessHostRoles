@@ -20,46 +20,46 @@ internal static class NotificationPopperPatch
 {
     public static NotificationPopper Instance;
 
-    public static void AddSettingsChangeMessage(int index, OptionItem key, bool playSound = false)
+    public static void AddSettingsChangeMessage(OptionItem option, bool playSound = false)
     {
-        string optValue = key.GetString();
+        string optValue = option.GetString();
         if (optValue == "STRMISS") return;
 
-        SendRpc(0, index, playSound: playSound);
+        SendRpc(0, option.Id, playSound: playSound);
 
-        string name = key.GetName();
+        string name = option.GetName();
         if (name == "Accept") return;
 
-        string parentName = key.Parent?.GetName() ?? string.Empty;
+        string parentName = option.Parent?.GetName() ?? string.Empty;
         if (parentName == "Accept") return;
         
-        string str = key.Parent != null
+        string str = option.Parent != null
             ? TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + parentName + "</font>: <font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>")
             : TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
 
-        SettingsChangeMessageLogic(key, str, playSound);
+        SettingsChangeMessageLogic(option, str, playSound);
     }
 
-    public static void AddRoleSettingsChangeMessage(int index, OptionItem key, CustomRoles customRole, bool playSound = false)
+    public static void AddRoleSettingsChangeMessage(OptionItem option, CustomRoles customRole, bool playSound = false)
     {
-        string optValue = key.GetString();
+        string optValue = option.GetString();
         if (optValue == "STRMISS") return;
 
-        string name = key.GetName();
+        string name = option.GetName();
         if (name == "Accept") return;
 
-        SendRpc(1, index, customRole, playSound);
+        SendRpc(1, option.Id, customRole, playSound);
         string str = TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
-        SettingsChangeMessageLogic(key, str, playSound);
+        SettingsChangeMessageLogic(option, str, playSound);
     }
 
-    private static void SettingsChangeMessageLogic(OptionItem key, string item, bool playSound)
+    private static void SettingsChangeMessageLogic(OptionItem option, string item, bool playSound)
     {
-        if (Instance.lastMessageKey == key.Id && Instance.activeMessages.Count > 0)
+        if (Instance.lastMessageKey == option.Id && Instance.activeMessages.Count > 0)
             Instance.activeMessages[^1].UpdateMessage(item);
         else
         {
-            Instance.lastMessageKey = key.Id;
+            Instance.lastMessageKey = option.Id;
             LobbyNotificationMessage newMessage = Object.Instantiate(Instance.notificationMessageOrigin, Vector3.zero, Quaternion.identity, Instance.transform);
             newMessage.transform.localPosition = new(0f, 0f, -2f);
             newMessage.SetUp(item, Instance.settingsChangeSprite, Instance.settingsChangeColor, (Action)(() => Instance.OnMessageDestroy(newMessage)));
@@ -70,9 +70,9 @@ internal static class NotificationPopperPatch
         if (playSound) SoundManager.Instance.PlaySoundImmediate(Instance.settingsChangeSound, false);
     }
 
-    private static void SendRpc(byte typeId, int index, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
+    private static void SendRpc(byte typeId, int optionId, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
     {
         if (Options.HideGameSettings.GetBool()) return;
-        Utils.SendRPC(CustomRPC.NotificationPopper, typeId, index, (int)customRole, playSound);
+        Utils.SendRPC(CustomRPC.NotificationPopper, typeId, optionId, (int)customRole, playSound);
     }
 }

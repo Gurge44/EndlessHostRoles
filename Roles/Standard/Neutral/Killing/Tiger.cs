@@ -162,7 +162,7 @@ internal class Tiger : RoleBase
     {
         if (float.IsNaN(EnrageTimer)) return;
 
-        PlayerControl victim = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId).MinBy(x => Vector2.Distance(killer.Pos(), x.Pos()));
+        PlayerControl victim = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId).MinBy(x => Vector2.Distance(killer.Pos(), x.Pos()));
         if (victim == null || Vector2.Distance(killer.Pos(), victim.Pos()) > Radius.GetFloat()) return;
 
         if (killer.RpcCheckAndMurder(victim, true)) victim.Suicide(realKiller: killer);

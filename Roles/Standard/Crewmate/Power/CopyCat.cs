@@ -22,6 +22,7 @@ public class CopyCat : RoleBase
     public PlayerControl CopyCatPC;
     private float CurrentKillCooldown = AdjustedDefaultKillCooldown;
     private float TempLimit;
+    private CustomRoles CopiedRole;
 
     public override bool IsEnable => Instances.Count > 0;
 
@@ -84,6 +85,13 @@ public class CopyCat : RoleBase
 
     private void ResetRole()
     {
+        if (CopyCatPC == null || CopyCatPC.GetCustomRole() != CopiedRole)
+        {
+            if (CopyCatPC != null) PlayerIdList.Remove(CopyCatPC.PlayerId);
+            LateTask.New(() => Instances.Remove(this), 0.2f);
+            return;
+        }
+        
         CopyCatPC.RpcSetCustomRole(CustomRoles.CopyCat);
         CopyCatPC.RpcChangeRoleBasis(CustomRoles.CopyCat);
         Main.PlayerStates[CopyCatPC.PlayerId].Role = this;
@@ -171,6 +179,7 @@ public class CopyCat : RoleBase
         if (tpc.IsCrewmate() && !tpc.Is(CustomRoles.Rascal) && !tpc.Is(CustomRoles.Jailor) && !tpc.IsConverted())
         {
             TempLimit = pc.GetAbilityUseLimit();
+            CopiedRole = role;
 
             pc.RpcSetCustomRole(role);
             pc.RpcChangeRoleBasis(role);

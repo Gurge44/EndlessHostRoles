@@ -107,7 +107,7 @@ public class Snitch : RoleBase
 
         if (!IsExposed[snitchId] && snitchTask.RemainingTasksCount <= RemainingTasksToBeFound)
         {
-            foreach (PlayerControl target in Main.AllAlivePlayerControls)
+            foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
             {
                 if (!IsSnitchTarget(target)) continue;
                 TargetArrow.Add(target.PlayerId, snitchId);
@@ -119,7 +119,7 @@ public class Snitch : RoleBase
 
         if (IsComplete[snitchId] || !snitchTask.IsTaskFinished) return;
 
-        foreach (PlayerControl target in Main.AllAlivePlayerControls)
+        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
         {
             if (!IsSnitchTarget(target)) continue;
 

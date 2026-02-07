@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -97,7 +96,6 @@ public class Empress : CovenBase
     public override void OnReceiveNecronomicon()
     {
         SetKillCooldown(EmpressId);
-        PlayerGameOptionsSender.SetDirty(EmpressId);
     }
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)

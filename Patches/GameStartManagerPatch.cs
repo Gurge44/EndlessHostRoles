@@ -1,18 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using EHR.Roles;
-using EHR.Modules;
+using EHR.Gamemodes;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using Il2CppSystem.Collections.Generic;
 using InnerNet;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -129,7 +128,6 @@ public static class GameStartManagerPatch
         private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
 
-#if !ANDROID
         public static bool Prefix(GameStartManager __instance)
         {
             try
@@ -167,7 +165,6 @@ public static class GameStartManagerPatch
 
             return false;
         }
-#endif
 
         private static void CheckAutoStart(GameStartManager __instance)
         {
@@ -192,13 +189,13 @@ public static class GameStartManagerPatch
             if (GameStates.IsCountDown) return;
             if ((GameData.Instance?.PlayerCount < MinPlayer || timer > MinWait) && timer > MaxWait && !votedToStart) return;
 
-            PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
+            PlayerControl[] invalidColor = Main.EnumeratePlayerControls().Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
             if (invalidColor.Length > 0)
             {
                 Main.UpdateTime = -100;
                 
-                Main.AllPlayerControls
+                Main.EnumeratePlayerControls()
                     .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
                     .Do(p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
 
@@ -215,6 +212,9 @@ public static class GameStartManagerPatch
             }
             else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
             else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
+            if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
+                Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
 
             if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
             {
@@ -329,14 +329,7 @@ public static class GameStartManagerPatch
             instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
 
-#if !ANDROID
         public static void Postfix(GameStartManager __instance)
-        {
-            Postfix_ManualCall(__instance);
-        }
-#endif
-
-        public static void Postfix_ManualCall(GameStartManager __instance)
         {
             try
             {
@@ -349,12 +342,12 @@ public static class GameStartManagerPatch
 
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    List<ClientData> allClients = AmongUsClient.Instance.allClients;
+                    ClientData[] allClients = AmongUsClient.Instance.allClients.ToArray();
 
                     lock (allClients)
                     {
                         // ReSharper disable once ForCanBeConvertedToForeach
-                        for (var index = 0; index < allClients.Count; index++)
+                        for (var index = 0; index < allClients.Length; index++)
                         {
                             ClientData client = allClients[index];
                             if (client.Character == null) continue;
@@ -391,14 +384,6 @@ public static class GameStartManagerPatch
                             warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", ((int)Math.Round(5 - ExitTimer)).ToString()));
                     }
                 }
-
-#if ANDROID
-                try
-                {
-                    if (canStartGame) CheckAutoStart(__instance);
-                }
-                catch (Exception e) { Utils.ThrowException(e); }
-#endif
 
                 if (warningMessage == "")
                     WarningText.gameObject.SetActive(false);
@@ -528,7 +513,7 @@ public static class GameStartRandomMap
 {
     public static bool Prefix(GameStartManager __instance)
     {
-        PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
+        PlayerControl[] invalidColor = Main.EnumeratePlayerControls().Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
         if (invalidColor.Length > 0)
         {
@@ -546,6 +531,9 @@ public static class GameStartRandomMap
         }
         else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
         else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
+        if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
+            Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
             Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
@@ -576,7 +564,7 @@ public static class GameStartRandomMap
 
     public static byte SelectRandomMap()
     {
-        System.Collections.Generic.Dictionary<byte, int> chance = Enumerable.Range(0, 6).ToDictionary(x => (byte)x, x => x switch
+        Dictionary<byte, int> chance = Enumerable.Range(0, 6).ToDictionary(x => (byte)x, x => x switch
         {
             0 => Options.SkeldChance.GetInt(),
             1 => Options.MiraChance.GetInt(),
@@ -587,7 +575,7 @@ public static class GameStartRandomMap
             _ => 0
         });
         
-        int playerCount = Main.AllPlayerControls.Length;
+        int playerCount = Main.AllPlayerControls.Count;
         if (playerCount < Options.MinPlayersForAirship.GetInt()) chance.Remove(4);
         if (playerCount < Options.MinPlayersForFungle.GetInt()) chance.Remove(5);
         

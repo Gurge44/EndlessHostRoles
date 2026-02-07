@@ -95,7 +95,7 @@ internal class Spiritualist : RoleBase
 
             if (!AmongUsClient.Instance.AmHost) continue;
 
-            PlayerControl target = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == SpiritualistTarget);
+            PlayerControl target = Main.EnumeratePlayerControls().FirstOrDefault(a => a.PlayerId == SpiritualistTarget);
             if (target == null) continue;
 
             target.Notify(GetString("SpiritualistTargetMessage"));

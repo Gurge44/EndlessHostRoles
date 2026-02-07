@@ -100,7 +100,7 @@ public class Amogus : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (CurrentLevel >= Levels.SuspiciousSus)
-            Main.AllAlivePlayerControls.Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
+            Main.EnumerateAlivePlayerControls().Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
 
         AmogusFormEndTS = Utils.TimeStamp + AbilityDuration.GetInt();
         Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1, AmogusFormEndTS);
@@ -146,7 +146,7 @@ public class Amogus : RoleBase
         switch (CurrentLevel)
         {
             case Levels.SuspiciousSus:
-                Main.AllAlivePlayerControls.Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
+                Main.EnumerateAlivePlayerControls().Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
                 break;
             case Levels.UltimateSus:
                 ExtraVotes += UltimateSusVotesPerKill.GetInt();

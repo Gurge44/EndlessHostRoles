@@ -39,7 +39,7 @@ public class Magistrate : RoleBase
     public override void AfterMeetingTasks()
     {
         CallCourtNextMeeting = false;
-        Main.AllPlayerControls.Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
+        Main.EnumeratePlayerControls().Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

@@ -142,7 +142,7 @@ public class Witch : RoleBase
         {
             var pos = pc.Pos();
             var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-            var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => !x.IsImpostor()).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
+            var nearPlayers = Main.EnumerateAlivePlayerControls().Without(pc).Where(x => !x.IsImpostor()).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
             PlayerControl target = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
             if (target == null) return false;
             SetSpelled(pc, target);
@@ -268,7 +268,7 @@ public class Witch : RoleBase
 
             var spelledIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 foreach (byte witchId in PlayerIdList)
                 {

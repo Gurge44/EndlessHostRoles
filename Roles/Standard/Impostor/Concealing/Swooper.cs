@@ -215,7 +215,7 @@ public class Swooper : RoleBase
                     if (UsedRole == CustomRoles.Chameleon && !UsePets.GetBool())
                     {
                         int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                        Main.AllPlayerControls.Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
+                        Main.EnumeratePlayerControls().Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
                     }
                     else
                         player.RpcMakeVisible(phantom: UsedRole == CustomRoles.Swooper);
@@ -243,7 +243,7 @@ public class Swooper : RoleBase
 
         if (CanGoInvis && (wraith || limit >= 1))
         {
-            __instance.RpcExitVentDesync(ventId, pc);
+            LateTask.New(() => __instance.RpcExitVentDesync(ventId, pc), 0.5f);
 
             ventedId = ventId;
             InvisTime = Utils.TimeStamp;
@@ -256,7 +256,7 @@ public class Swooper : RoleBase
 
         if (!VentNormallyOnCooldown)
         {
-            __instance.RpcExitVent(ventId);
+            LateTask.New(() => __instance.RpcExitVent(ventId), 0.5f);
             pc.Notify(GetString("SwooperInvisInCooldown"));
             return true;
         }

@@ -90,7 +90,7 @@ public static class SpamManager
 
         if (Options.AutoKickStart.GetBool())
         {
-            if (ContainsStart(text) && GameStates.IsLobby)
+            if (ContainsStart(text) && GameStates.IsLobby && !ChatCommands.IsPlayerModerator(player.FriendCode) && !ChatCommands.IsPlayerVIP(player.FriendCode))
             {
                 Main.SayStartTimes.TryAdd(player.OwnerId, 0);
 
@@ -137,7 +137,7 @@ public static class SpamManager
                 Utils.SendMessage(msg, sendOption: SendOption.None);
             else
             {
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     if (pc.IsAlive() == player.IsAlive())
                         Utils.SendMessage(msg, pc.PlayerId, sendOption: SendOption.None);
             }
@@ -262,6 +262,7 @@ public static class SpamManager
         if (text.Contains("STart")) return true;
         if (text.Contains("s t a r t")) return true;
         if (text.Contains("begin")) return true;
+        if (text.Contains("commence")) return true;
         if (text.Contains('了')) return false;
         if (text.Contains('没')) return false;
         if (text.Contains('吗')) return false;

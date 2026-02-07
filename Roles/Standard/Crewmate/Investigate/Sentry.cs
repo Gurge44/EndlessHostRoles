@@ -152,7 +152,7 @@ internal class Sentry : RoleBase
         }
 
         string roomName = Translator.GetString(MonitoredRoom.RoomId.ToString());
-        string players = Main.AllAlivePlayerControls.Where(IsInMonitoredRoom).Select(x => Utils.GetPlayerById(x.shapeshiftTargetPlayerId) ?? x).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
+        string players = Main.EnumerateAlivePlayerControls().Where(IsInMonitoredRoom).Select(x => Utils.GetPlayerById(x.shapeshiftTargetPlayerId) ?? x).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
         string bodies = GetColoredNames(DeadBodiesInRoom);
 
         string noDataString = Translator.GetString("Sentry.Notify.Info.NoData");

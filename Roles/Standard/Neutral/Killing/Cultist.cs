@@ -158,7 +158,7 @@ public class Cultist : RoleBase
 
         if (pc == null || pc.IsAlive()) return;
 
-        foreach (PlayerControl charmed in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Charmed))) charmed.Suicide(realKiller: pc);
+        foreach (PlayerControl charmed in Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Charmed))) charmed.Suicide(realKiller: pc);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

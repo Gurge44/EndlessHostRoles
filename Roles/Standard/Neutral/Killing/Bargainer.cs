@@ -367,7 +367,7 @@ internal class Bargainer : RoleBase
                     item switch
                     {
                         Item.EnergyDrink => (int.MaxValue, byte.MaxValue),
-                        Item.LensOfTruth => (AlignmentVisibleValue, Main.AllAlivePlayerControls.RandomElement().PlayerId),
+                        Item.LensOfTruth => (AlignmentVisibleValue, Main.EnumerateAlivePlayerControls().RandomElement().PlayerId),
                         Item.BandAid => (ShieldDurationValue, byte.MaxValue),
 
                         _ => (0, byte.MaxValue)

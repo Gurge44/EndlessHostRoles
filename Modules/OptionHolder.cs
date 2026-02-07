@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -383,6 +382,11 @@ public static class Options
     public static OptionItem FungleChance;
     public static OptionItem MinPlayersForAirship;
     public static OptionItem MinPlayersForFungle;
+    public static OptionItem OverrideSpeedForEachMap;
+    public static Dictionary<MapNames, OptionItem> MapSpeeds = [];
+
+    public static OptionItem OverrideVisionInVents;
+    public static Dictionary<Team, OptionItem> InVentVision = [];
 
     public static OptionItem GodfatherCancelVote;
 
@@ -980,7 +984,7 @@ public static class Options
         {
             var sb = new StringBuilder();
 
-            var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
+            var grouped = Main.CustomRoleValues.GroupBy(x =>
             {
                 if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
                 if (x == CustomRoles.DoubleAgent) return 2;
@@ -1030,7 +1034,7 @@ public static class Options
             sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Hidden |");
             sb.AppendLine("|---------|-------------|-----------|-------------|------------|--------|");
 
-            foreach ((String key, Command command) in Command.AllCommands)
+            foreach (Command command in Command.AllCommands)
             {
                 string forms = command.CommandForms.TakeWhile(x => x.All(char.IsAscii)).Join(x => $"/{x}", "<br>");
                 string description = command.Description;
@@ -1164,9 +1168,7 @@ public static class Options
 
     private static void GroupAddons()
     {
-        GroupedAddons = Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
+        GroupedAddons = Main.AllTypes
             .Where(x => x.GetInterfaces().ToList().Contains(typeof(IAddon)))
             .Select(x => (IAddon)Activator.CreateInstance(x))
             .Where(x => x != null)
@@ -1243,7 +1245,7 @@ public static class Options
         roleCounts = [];
         roleSpawnChances = [];
 
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles role in Main.CustomRoleValues)
         {
             roleCounts.Add(role, 0);
             roleSpawnChances.Add(role, 0);
@@ -1495,11 +1497,7 @@ public static class Options
 
         Type IAddonType = typeof(IAddon);
 
-        Type[] assemblyTypes = Assembly
-            .GetExecutingAssembly()
-            .GetTypes();
-
-        Dictionary<AddonTypes, IAddon[]> addonTypes = assemblyTypes
+        Dictionary<AddonTypes, IAddon[]> addonTypes = Main.AllTypes
             .Where(t => IAddonType.IsAssignableFrom(t) && !t.IsInterface)
             .OrderBy(t => Translator.GetString(t.Name))
             .Select(type => (IAddon)Activator.CreateInstance(type))
@@ -1536,7 +1534,7 @@ public static class Options
 
         Type IVanillaType = typeof(IVanillaSettingHolder);
 
-        assemblyTypes
+        Main.AllTypes
             .Where(t => IVanillaType.IsAssignableFrom(t) && !t.IsInterface)
             .OrderBy(t => Translator.GetString(t.Name))
             .Select(type => (IVanillaSettingHolder)Activator.CreateInstance(type))
@@ -1557,7 +1555,7 @@ public static class Options
 
         Type IType = typeof(IGhostRole);
 
-        assemblyTypes
+        Main.AllTypes
             .Where(t => IType.IsAssignableFrom(t) && !t.IsInterface)
             .OrderBy(t => Translator.GetString(t.Name))
             .Select(type => (IGhostRole)Activator.CreateInstance(type))
@@ -1937,6 +1935,13 @@ public static class Options
         MinPlayersForFungle = new IntegerOptionItem(19923, "MinPlayersForFungle", new(1, 15, 1), 8, TabGroup.GameSettings)
             .SetParent(FungleChance)
             .SetValueFormat(OptionFormat.Players);
+
+        OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings);
+
+        MapSpeeds = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+            .SetParent(OverrideSpeedForEachMap)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .AddReplacement(("{map}", Translator.GetString(x.ToString()))));
 
         LoadingPercentage = 69;
 
@@ -3048,6 +3053,13 @@ public static class Options
             .SetParent(EnableGameTimeLimit)
             .SetValueFormat(OptionFormat.Seconds);
 
+        OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings);
+
+        InVentVision = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
+            .SetParent(OverrideVisionInVents)
+            .SetValueFormat(OptionFormat.Multiplier)
+            .AddReplacement(("{team}", Utils.ColorString(x.GetColor(), Translator.GetString($"Type{x}")))));
+
 
         new TextOptionItem(100029, "MenuTitle.Ghost", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -3231,7 +3243,7 @@ public static class Options
 
             foreach (CustomGameMode customGameMode in Enum.GetValues<CustomGameMode>()[..^1])
             {
-                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, $"AGMR.RandomGroup.GMChance", new(0, 100, 5), 50, TabGroup.SystemSettings)
+                OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, "AGMR.RandomGroup.GMChance", new(0, 100, 5), 50, TabGroup.SystemSettings)
                     .SetParent(EnableAutoGMRotation)
                     .SetValueFormat(OptionFormat.Percent)
                     .SetColor(Main.GameModeColors[customGameMode])

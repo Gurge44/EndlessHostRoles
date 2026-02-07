@@ -119,7 +119,7 @@ public class Ambusher : RoleBase
         {
             Vector2 pos = pc.Pos();
             float radius = FollowRadius.GetFloat();
-            (PlayerControl pc, float distance)[] nearPlayers = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).ToArray();
+            (PlayerControl pc, float distance)[] nearPlayers = Main.EnumerateAlivePlayerControls().Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).ToArray();
             PlayerControl closestPlayer = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
 
             if (closestPlayer == null)

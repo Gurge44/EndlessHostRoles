@@ -109,7 +109,7 @@ public class Judge : RoleBase
             case 2:
             {
                 if (TryHideMsg.GetBool() && !isUI && spamRequired)
-                    ChatManager.SendPreviousMessagesToAll();
+                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {

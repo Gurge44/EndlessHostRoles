@@ -79,7 +79,7 @@ public class Starspawn : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         const string command = "/daybreak";
-        ChatCommands.DayBreakCommand(shapeshifter, "Command.Daybreak", command, command.Split(' '));
+        ChatCommands.DayBreakCommand(shapeshifter, command, command.Split(' '));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -92,16 +92,12 @@ public class Starspawn : RoleBase
         Logger.Msg($"Starspawn Click: ID {PlayerControl.LocalPlayer.PlayerId}", "Starspawn UI");
         if (PlayerControl.LocalPlayer == null || !PlayerControl.LocalPlayer.IsAlive() || !GameStates.IsVoting) return;
 
+        const string command = "/daybreak";
+
         if (AmongUsClient.Instance.AmHost)
-        {
-            const string command = "/daybreak";
-            ChatCommands.DayBreakCommand(PlayerControl.LocalPlayer, "Command.Daybreak", command, command.Split(' '));
-        }
+            ChatCommands.DayBreakCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
         else
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.StarspawnClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+            ChatCommands.RequestCommandProcessingFromHost(command, "DayBreak");
 
         starspawnButton.SetActive(false);
         LateTask.New(() => starspawnButton.SetActive(true), 1f, "StarspawnButton");

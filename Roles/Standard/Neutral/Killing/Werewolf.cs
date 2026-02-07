@@ -174,10 +174,9 @@ public class Werewolf : RoleBase
             }
         }
 
-        if (LastFixedTime != now && RampageTime != -10)
+        if (LastFixedTime != now && RampageTime != -10 && !player.inVent)
         {
             LastFixedTime = now;
-            var refresh = false;
             long remainTime = RampageTime + (long)RampageDur.GetFloat() - now;
 
             switch (remainTime)
@@ -188,14 +187,11 @@ public class Werewolf : RoleBase
                     if (!player.IsModdedClient()) player.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
                     RampageTime = -10;
                     SendRPC();
-                    refresh = true;
                     break;
                 case <= 10 when !player.IsModdedClient():
                     player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
-
-            if (refresh) SendRPC();
         }
     }
 

@@ -48,7 +48,7 @@ internal class Crewpostor : RoleBase
 
         SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
-        PlayerControl[] list = Main.AllAlivePlayerControls.Where(x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
+        PlayerControl[] list = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
 
         if (list.Length == 0)
             Logger.Info("No target to kill", "Crewpostor");

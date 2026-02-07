@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -36,12 +35,6 @@ public class Imitator : RoleBase
         PlayerIdList.Add(playerId);
     }
 
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
-        ImitatingRole.Remove(playerId);
-    }
-
     public static void SetRoles()
     {
         foreach (byte id in PlayerIdList)
@@ -58,30 +51,17 @@ public class Imitator : RoleBase
         }
     }
 
-    private static void SendRPC(byte playerId)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ImitatorClick, SendOption.Reliable, AmongUsClient.Instance.HostId);
-        writer.Write(playerId);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
-    {
-        int playerId = reader.ReadByte();
-        var command = $"/imitate {playerId}";
-        ChatCommands.ImitateCommand(pc, "Command.Imitate", command, command.Split(' '));
-    }
-
     private static void ImitatorOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Imitator UI");
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
 
+        var command = $"/imitate {playerId}";
+        
         if (AmongUsClient.Instance.AmHost)
         {
-            var command = $"/imitate {playerId}";
-            ChatCommands.ImitateCommand(PlayerControl.LocalPlayer, "Command.Imitate", command, command.Split(' '));
+            ChatCommands.ImitateCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
 
             if (ImitatingRole.ContainsKey(PlayerControl.LocalPlayer.PlayerId))
             {
@@ -93,7 +73,7 @@ public class Imitator : RoleBase
             }
         }
         else
-            SendRPC(playerId);
+            ChatCommands.RequestCommandProcessingFromHost(command, "Imitate");
     }
 
     private static void CreateImitatorButton(MeetingHud __instance)

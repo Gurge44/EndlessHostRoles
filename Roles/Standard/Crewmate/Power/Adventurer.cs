@@ -196,7 +196,7 @@ internal class Adventurer : RoleBase
                         RemoveAndNotify();
                         break;
                     case Weapon.Portal:
-                        IEnumerable<PlayerControl> e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
+                        IEnumerable<PlayerControl> e = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
                         PlayerControl[] filtered = e as PlayerControl[] ?? e.ToArray();
                         if (filtered.Length == 0) return;
 
@@ -245,7 +245,7 @@ internal class Adventurer : RoleBase
                         RemoveAndNotify();
                         break;
                     case Weapon.Prediction:
-                        PlayerControl closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(pc.Pos(), x.Pos()));
+                        PlayerControl closest = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(pc.Pos(), x.Pos()));
                         RevealedPlayers.Add(closest.PlayerId);
                         RemoveAndNotify(closest);
                         break;
@@ -296,7 +296,7 @@ internal class Adventurer : RoleBase
             Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
         }
 
-        if (LastGroupingResourceTimeStamp + 20 <= now && Main.AllAlivePlayerControls.Count(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pc.Pos()) < 2f) >= 2)
+        if (LastGroupingResourceTimeStamp + 20 <= now && Main.EnumerateAlivePlayerControls().Count(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pc.Pos()) < 2f) >= 2)
         {
             if (ResourceLocations.TryGetValue(Resource.Grouping, out Vector2 location))
             {
