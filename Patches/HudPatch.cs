@@ -1040,27 +1040,48 @@ internal static class TaskPanelBehaviourPatch
                 if (subRoles.Count > 0)
                 {
                     const int max = 3;
-                    var roles = subRoles.Take(max);
                     finalTextBuilder.Append("<size=80%>");
-                    var innerSb = new StringBuilder();
-                    foreach (var cr in roles)
+                    
+                    int taken = 0;
+                    
+                    foreach (var subRole in subRoles)
                     {
+                        if (taken++ >= max) break;
+
+                        StringBuilder innerSb = new StringBuilder();
                         innerSb.Append("\r\n\r\n");
-                        innerSb.Append(cr.ToColoredString());
+                        innerSb.Append(subRole.ToColoredString());
                         innerSb.Append(":\r\n");
-                        innerSb.Append(GetString($"{cr}Info"));
-                        finalTextBuilder.Append(Utils.ColorString(Utils.GetRoleColor(cr), innerSb.ToString()));
+                        innerSb.Append(GetString($"{subRole}Info"));
+                        
+                        finalTextBuilder.Append(Utils.ColorString(Utils.GetRoleColor(subRole), innerSb.ToString()));
                     }
+
                     finalTextBuilder.Append("</size>");
+
                     int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
 
                     if (subRoles.Count > max)
                     {
                         finalTextBuilder.Append("\r\n<size=80%>....\r\n(");
-                        foreach (var cr in subRoles.Skip(max).Chunk(chunk))
+                        
+                        bool firstChunk = true;
+
+                        foreach (var group in subRoles.Skip(max).Chunk(chunk))
                         {
-                            finalTextBuilder.Append(string.Join(", ", cr.Select(r => r.ToColoredString())));
+                            if (!firstChunk) finalTextBuilder.Append(",\r\n");
+                            firstChunk = false;
+                            
+                            bool first = true;
+
+                            foreach (var groupRole in group)
+                            {
+                                if (!first) finalTextBuilder.Append(", ");
+                                first = false;
+                                finalTextBuilder.Append(groupRole.ToColoredString());
+                            }
                         }
+
                         finalTextBuilder.Append(")</size>");
                     }
                 }
@@ -1076,15 +1097,15 @@ internal static class TaskPanelBehaviourPatch
                 finalTextBuilder.Append("\r\n\r\n");
                 finalTextBuilder.Append(GetString("PVP.ATK"));
                 finalTextBuilder.Append(": ");
-                finalTextBuilder.AppendFormat("{0:N1}", SoloPVP.PlayerATK[lpc.PlayerId]);
+                finalTextBuilder.Append($"{SoloPVP.PlayerATK[lpc.PlayerId]:N1}");
                 finalTextBuilder.Append("\r\n");
                 finalTextBuilder.Append(GetString("PVP.DF"));
                 finalTextBuilder.Append(": ");
-                finalTextBuilder.AppendFormat("{0:N1}", SoloPVP.PlayerDF[lpc.PlayerId]);
+                finalTextBuilder.Append($"{SoloPVP.PlayerDF[lpc.PlayerId]:N1}");
                 finalTextBuilder.Append("\r\n");
                 finalTextBuilder.Append(GetString("PVP.RCO"));
                 finalTextBuilder.Append(": ");
-                finalTextBuilder.AppendFormat("{0:N1}", SoloPVP.PlayerHPReco[lpc.PlayerId]);
+                finalTextBuilder.Append($"{SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}");
                 finalTextBuilder.Append("\r\n");
 
                 finalTextBuilder.Append("<size=80%>");

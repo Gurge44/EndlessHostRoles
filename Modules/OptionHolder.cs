@@ -1031,8 +1031,8 @@ public static class Options
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | Hidden |");
-            sb.AppendLine("|---------|-------------|-----------|-------------|------------|--------|");
+            sb.AppendLine("| Command | Description | Arguments | Usage Level | Usage Time | 'cmd' prefix<br>required |");
+            sb.AppendLine("|---------|-------------|-----------|-------------|------------|-------------|");
 
             foreach (Command command in Command.AllCommands)
             {

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EHR.Gamemodes;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -7,14 +8,14 @@ public class Locator : RoleBase, IHideAndSeekRole
 {
     public static bool On;
 
-    public static OptionItem ArrowFrequency;
-    public static OptionItem ArrowDuration;
-    public static OptionItem HidersKnowTheyAreLocated;
-    public static OptionItem Vision;
-    public static OptionItem Speed;
-    private byte LocatorId;
+    private static OptionItem ArrowFrequency;
+    private static OptionItem ArrowDuration;
+    private static OptionItem HidersKnowTheyAreLocated;
+    private static OptionItem Vision;
+    private static OptionItem Speed;
 
-    private LocateStatus Status;
+    private byte LocatorId;
+    private byte TargetId;
 
     public override bool IsEnable => On;
     public Team Team => Team.Impostor;
@@ -60,8 +61,43 @@ public class Locator : RoleBase, IHideAndSeekRole
     public override void Add(byte playerId)
     {
         On = true;
-        Status = new();
+        TargetId = byte.MaxValue;
+        int arrowDuration = ArrowDuration.GetInt();
+        int arrowFrequency = ArrowFrequency.GetInt();
+        var timer = new CountdownTimer(8 + arrowFrequency, OnElapsed, cancelOnMeeting: false);
         LocatorId = playerId;
+        return;
+
+        void OnElapsed()
+        {
+            PlayerControl pc = Utils.GetPlayerById(playerId);
+            if (pc == null || !pc.IsAlive()) return;
+
+            PlayerControl target = CustomHnS.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
+
+            if (target != null)
+            {
+                TargetId = target.PlayerId;
+                TargetArrow.Add(pc.PlayerId, target.PlayerId);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                if (HidersKnowTheyAreLocated.GetBool()) target.Notify(Translator.GetString("LocatorNotify"));
+                
+                timer = new CountdownTimer(arrowFrequency + arrowDuration, OnElapsed, cancelOnMeeting: false);
+                
+                LateTask.New(() =>
+                {
+                    if (timer.IsCanceled())
+                    {
+                        timer.Dispose();
+                        return;
+                    }
+                    
+                    TargetArrow.Remove(pc.PlayerId, TargetId);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    TargetId = byte.MaxValue;
+                }, arrowDuration);
+            }
+        }
     }
 
     public override void Init()
@@ -69,44 +105,9 @@ public class Locator : RoleBase, IHideAndSeekRole
         On = false;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!pc.IsAlive()) return;
-
-        if (Status.TargetId == byte.MaxValue)
-        {
-            if (Status.LastArrowEndTime + ArrowFrequency.GetInt() < Utils.TimeStamp)
-            {
-                PlayerControl target = CustomHnS.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
-
-                if (target != null)
-                {
-                    Status.TargetId = target.PlayerId;
-                    Status.LastArrowEndTime = Utils.TimeStamp + ArrowDuration.GetInt();
-                    TargetArrow.Add(pc.PlayerId, target.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    if (HidersKnowTheyAreLocated.GetBool()) target.Notify(Translator.GetString("LocatorNotify"));
-                }
-            }
-        }
-        else if (Status.LastArrowEndTime < Utils.TimeStamp)
-        {
-            TargetArrow.Remove(pc.PlayerId, Status.TargetId);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            Status.TargetId = byte.MaxValue;
-        }
-    }
-
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || hud || seer.PlayerId != LocatorId) return string.Empty;
-
-        return Status.TargetId == byte.MaxValue ? string.Empty : TargetArrow.GetArrows(seer, Status.TargetId);
-    }
-
-    private class LocateStatus
-    {
-        public byte TargetId { get; set; } = byte.MaxValue;
-        public long LastArrowEndTime { get; set; } = Utils.TimeStamp;
+        return TargetId == byte.MaxValue ? string.Empty : TargetArrow.GetArrows(seer, TargetId);
     }
 }

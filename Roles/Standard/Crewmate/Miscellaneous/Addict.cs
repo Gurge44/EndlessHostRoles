@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using UnityEngine;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -13,18 +12,15 @@ public class Addict : RoleBase
     private const int Id = 5200;
     private static List<byte> PlayerIdList = [];
 
-    public static OptionItem VentCooldown;
-    public static OptionItem TimeLimit;
+    private static OptionItem VentCooldown;
+    private static OptionItem TimeLimit;
+    private static OptionItem ImmortalTimeAfterVent;
+    private static OptionItem SpeedWhileImmortal;
+    private static OptionItem FreezeTimeAfterImmortal;
 
-    public static OptionItem ImmortalTimeAfterVent;
-
-    public static OptionItem SpeedWhileImmortal;
-    public static OptionItem FreezeTimeAfterImmortal;
-
-    private static float DefaultSpeed;
-    private float ImmortalTimer = 420f;
-
-    private float SuicideTimer = -10f;
+    private CountdownTimer ImmortalTimer;
+    private CountdownTimer SuicideTimer;
+    private byte AddictId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -51,17 +47,37 @@ public class Addict : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        SuicideTimer = -10f;
-        ImmortalTimer = 420f;
-        DefaultSpeed = 0;
     }
 
     public override void Add(byte playerId)
     {
+        AddictId = playerId;
         PlayerIdList.Add(playerId);
-        SuicideTimer = -10f;
-        ImmortalTimer = 420f;
-        DefaultSpeed = Main.AllPlayerSpeed[playerId];
+        SuicideTimer = new CountdownTimer(TimeLimit.GetFloat(), () =>
+        {
+            var player = playerId.GetPlayer();
+            if (player == null || !player.IsAlive()) return;
+            
+            player.Suicide();
+            SuicideTimer = null;
+
+            if (player.AmOwner)
+                Achievements.Type.OutOfTime.Complete();
+        }, onTick: () =>
+        {
+            var player = playerId.GetPlayer();
+            
+            if (player == null || !player.IsAlive())
+            {
+                SuicideTimer.Dispose();
+                SuicideTimer = null;
+                return;
+            }
+
+            if (SuicideTimer.Remaining is { Minutes: 0, Seconds: 8 })
+                player.Notify(Translator.GetString("AddictWarning"), 8f);
+        }, onCanceled: () => SuicideTimer = null);
+        ImmortalTimer = null;
     }
 
     public override void Remove(byte playerId)
@@ -69,52 +85,45 @@ public class Addict : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    private bool IsImmortal(PlayerControl player)
-    {
-        return player.Is(CustomRoles.Addict) && ImmortalTimer <= ImmortalTimeAfterVent.GetFloat();
-    }
-
     public override void OnReportDeadBody()
     {
-        foreach (byte player in PlayerIdList.ToArray())
+        PlayerIdList.ForEach(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        SuicideTimer?.Dispose();
+        SuicideTimer = new CountdownTimer(TimeLimit.GetFloat(), () =>
         {
-            SuicideTimer = -10f;
-            ImmortalTimer = 420f;
-            Main.AllPlayerSpeed[player] = DefaultSpeed;
-        }
+            var player = AddictId.GetPlayer();
+            if (player == null || !player.IsAlive()) return;
+            
+            player.Suicide();
+            SuicideTimer = null;
+
+            if (player.AmOwner)
+                Achievements.Type.OutOfTime.Complete();
+        }, onTick: () =>
+        {
+            var player = AddictId.GetPlayer();
+            
+            if (player == null || !player.IsAlive())
+            {
+                SuicideTimer.Dispose();
+                SuicideTimer = null;
+                return;
+            }
+
+            if (SuicideTimer.Remaining is { Minutes: 0, Seconds: 8 })
+                player.Notify(Translator.GetString("AddictWarning"), 8f);
+        }, onCanceled: () => SuicideTimer = null);
+        ImmortalTimer?.Dispose();
+        ImmortalTimer = null;
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        return !IsImmortal(target);
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask || !IsEnable || Math.Abs(SuicideTimer - -10f) < 0.5f || !player.IsAlive()) return;
-
-        if (SuicideTimer >= TimeLimit.GetFloat())
-        {
-            player.Suicide();
-            SuicideTimer = -10f;
-
-            if (player.AmOwner)
-                Achievements.Type.OutOfTime.Complete();
-        }
-        else if (Mathf.Approximately(SuicideTimer + 8, TimeLimit.GetFloat()))
-            player.Notify(Translator.GetString("AddictWarning"), 8f);
-        else
-        {
-            SuicideTimer += Time.fixedDeltaTime;
-
-            if (IsImmortal(player))
-                ImmortalTimer += Time.fixedDeltaTime;
-            else if (Math.Abs(ImmortalTimer - 420f) > 0.5f && FreezeTimeAfterImmortal.GetFloat() > 0)
-            {
-                AddictGetDown(player);
-                ImmortalTimer = 420f;
-            }
-        }
+        return ImmortalTimer == null;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -125,10 +134,32 @@ public class Addict : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (!pc.Is(CustomRoles.Addict)) return;
+        SuicideTimer?.Dispose();
+        SuicideTimer = new CountdownTimer(TimeLimit.GetFloat(), () =>
+        {
+            pc.Suicide();
+            SuicideTimer = null;
 
-        SuicideTimer = 0f;
-        ImmortalTimer = 0f;
+            if (pc.AmOwner)
+                Achievements.Type.OutOfTime.Complete();
+        }, onTick: () =>
+        {
+            if (pc == null || !pc.IsAlive())
+            {
+                SuicideTimer.Dispose();
+                SuicideTimer = null;
+                return;
+            }
+            
+            if (SuicideTimer.Remaining is { Minutes: 0, Seconds: 8 })
+                pc.Notify(Translator.GetString("AddictWarning"), 8f);
+        }, onCanceled: () => SuicideTimer = null);
+        ImmortalTimer?.Dispose();
+        ImmortalTimer = new CountdownTimer(ImmortalTimeAfterVent.GetFloat(), () =>
+        {
+            ImmortalTimer = null;
+            if (FreezeTimeAfterImmortal.GetFloat() > 0) AddictGetDown(pc);
+        }, onCanceled: () => ImmortalTimer = null);
 
         Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
         pc.MarkDirtySettings();
@@ -142,7 +173,7 @@ public class Addict : RoleBase
 
         LateTask.New(() =>
         {
-            Main.AllPlayerSpeed[addict.PlayerId] = DefaultSpeed;
+            Main.AllPlayerSpeed[addict.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             ReportDeadBodyPatch.CanReport[addict.PlayerId] = true;
             addict.MarkDirtySettings();
         }, FreezeTimeAfterImmortal.GetFloat(), "AddictGetDown");

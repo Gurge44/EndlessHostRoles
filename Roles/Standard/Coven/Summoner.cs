@@ -142,6 +142,17 @@ public class Summoner : CovenBase
         ChatCommands.SummonCommand(pc, command, command.Split(' '));
     }
 
+    public override bool KnowRole(PlayerControl seer, PlayerControl target)
+    {
+        if (base.KnowRole(seer, target)) return true;
+        return seer.PlayerId == SummonedPlayerId && target.Is(Team.Coven);
+    }
+
+    public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        return !Instances.Exists(x => x.SummonedPlayerId == killer.PlayerId && target.Is(Team.Coven));
+    }
+
     public static void OnAnyoneMurder(PlayerControl killer)
     {
         foreach (Summoner instance in Instances)

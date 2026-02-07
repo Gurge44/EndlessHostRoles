@@ -76,19 +76,19 @@ public class Ignitor : RoleBase // Candle Lighter from TOHY
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        float Vision;
+        float vision;
 
         if (!Active)
-            Vision = OptionTasksFinishedVision.GetFloat();
+            vision = OptionTasksFinishedVision.GetFloat();
         else if (ElapsedTime > OptionTaskEndVisionTime.GetInt())
-            Vision = OptionTaskStartVision.GetFloat();
+            vision = OptionTaskStartVision.GetFloat();
         else
-            Vision = OptionTaskStartVision.GetFloat() * (ElapsedTime / OptionTaskEndVisionTime.GetInt());
+            vision = OptionTaskStartVision.GetFloat() * (ElapsedTime / OptionTaskEndVisionTime.GetInt());
 
-        if (Vision <= OptionTaskEndVision.GetFloat()) Vision = OptionTaskEndVision.GetFloat();
+        if (vision <= OptionTaskEndVision.GetFloat()) vision = OptionTaskEndVision.GetFloat();
 
-        opt.SetFloat(FloatOptionNames.CrewLightMod, Vision);
-        if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, Vision * 5);
+        opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
+        if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, vision * 5);
     }
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)

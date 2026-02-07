@@ -148,7 +148,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SetAlchemistTimer,
     SyncPostman,
     SyncChangeling,
     SyncTiger,
@@ -166,7 +165,6 @@ public enum CustomRPC
     Exclusionary,
     Deadlined,
     Blessed,
-    CountdownTimer,
 
     // Game Modes
     RoomRushDataSync,
@@ -1120,12 +1118,6 @@ internal static class RPCHandlerPatch
                 {
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Swooper)?.ReceiveRPC(reader);
-                }
-
-                    break;
-                case CustomRPC.SetAlchemistTimer:
-                {
-                    Alchemist.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetBkTimer:

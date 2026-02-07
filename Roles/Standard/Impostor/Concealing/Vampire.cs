@@ -96,7 +96,7 @@ public class Vampire : RoleBase
         if (target.Is(CustomRoles.Pestilence)) return true;
         if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) return true;
         if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted() && Opportunist.OppoImmuneToAttacksWhenTasksDone.GetBool()) return true;
-        if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return true;
+        if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)) return true;
         if (Medic.ProtectList.Contains(target.PlayerId)) return true;
 
         if (CanKillNormally) return killer.CheckDoubleTrigger(target, Bite);

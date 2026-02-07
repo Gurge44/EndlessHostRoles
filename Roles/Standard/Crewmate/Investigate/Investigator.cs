@@ -147,7 +147,6 @@ public class Investigator : RoleBase
     public static string GetRandomCrewRoleString()
     {
         CustomRoles randomRole = RandomRolesForTrickster.RandomElement();
-
         return $"<size={FontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
     }
 

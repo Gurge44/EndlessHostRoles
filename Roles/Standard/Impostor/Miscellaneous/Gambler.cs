@@ -176,7 +176,7 @@ public class Gambler : RoleBase
                     killer.Notify(GetString("GamblerGet.IgnoreDefense"));
 
                     if ((target.Is(CustomRoles.Pestilence) && IgnorePestilence.GetBool())
-                        || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && IgnoreVeteranAlert.GetBool())
+                        || (Veteran.VeteranInProtect.Contains(target.PlayerId) && IgnoreVeteranAlert.GetBool())
                         || (Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool())
                         || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && IgnoreCursedWolfAndJinx.GetBool()))
                     {
@@ -185,7 +185,7 @@ public class Gambler : RoleBase
                     }
 
                     if ((target.Is(CustomRoles.Pestilence) && !IgnorePestilence.GetBool())
-                        || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
+                        || (Veteran.VeteranInProtect.Contains(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
                         || (Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool())
                         || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool()))
                         break;

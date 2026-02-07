@@ -6,7 +6,7 @@ namespace EHR.Roles;
 
 internal class Witness : RoleBase
 {
-    public static Dictionary<byte, long> AllKillers = [];
+    public static HashSet<byte> AllKillers = [];
 
     public static bool On;
     public override bool IsEnable => On;
@@ -60,17 +60,12 @@ internal class Witness : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         killer.SetKillCooldown();
-        killer.Notify(AllKillers.ContainsKey(target.PlayerId) ? Translator.GetString("WitnessFoundKiller") : Translator.GetString("WitnessFoundInnocent"));
+        killer.Notify($"<size=3><#{(AllKillers.Contains(target.PlayerId) ? "ffff00>⚠" : "00ff00>✓")}</color></size>");
         return false;
     }
 
     public override void OnReportDeadBody()
     {
         AllKillers.Clear();
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (AllKillers.TryGetValue(pc.PlayerId, out long ktime) && ktime + WitnessTime.GetInt() < Utils.TimeStamp) AllKillers.Remove(pc.PlayerId);
     }
 }

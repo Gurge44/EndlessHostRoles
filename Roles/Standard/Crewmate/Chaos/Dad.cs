@@ -322,7 +322,9 @@ public class Dad : RoleBase
         Count = 0;
 
         Vector2 pos = pc.Pos();
-        if (UsingAbilities.Contains(Ability.Rage) && Main.EnumerateAlivePlayerControls().FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out PlayerControl target) && pc.RpcCheckAndMurder(target)) UsingAbilities.Remove(Ability.Rage);
+        
+        if (UsingAbilities.Contains(Ability.Rage) && Main.EnumerateAlivePlayerControls().FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out PlayerControl target) && pc.RpcCheckAndMurder(target))
+            UsingAbilities.Remove(Ability.Rage);
 
         bool notify = Vector2.Distance(pc.Pos(), Shop.transform.position) < 2f;
 
