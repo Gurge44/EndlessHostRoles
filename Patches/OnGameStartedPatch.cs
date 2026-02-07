@@ -250,8 +250,6 @@ internal static class ChangeRoleSettings
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
             Crewpostor.TasksDone = [];
-            Express.SpeedNormal = [];
-            Express.SpeedUp = [];
             Messenger.Sent = [];
             Lazy.BeforeMeetingPositions = [];
             Introvert.TeleportAwayDelays = [];

@@ -837,8 +837,6 @@ internal static class MeetingHudStartPatch
         if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 8f, "Meeting Start Notify");
 
         Main.SuperStarDead.Clear();
-        Express.SpeedNormal.Clear();
-        Express.SpeedUp.Clear();
         Forensic.ForensicNotify.Clear();
         Main.SleuthMsgs.Clear();
         Virus.VirusNotify.Clear();
