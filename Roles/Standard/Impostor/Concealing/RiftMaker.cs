@@ -84,7 +84,6 @@ public class RiftMaker : RoleBase
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
         if (Pelican.IsEaten(player.PlayerId) || !player.IsAlive()) return;
-        if (!player.Is(CustomRoles.RiftMaker)) return;
         if (Marks.Count != 2) return;
 
         if (Vector2.Distance(Marks[0], Marks[1]) <= 4f)
@@ -95,33 +94,16 @@ public class RiftMaker : RoleBase
             return;
         }
 
-        if (LastTP + 5 > TimeStamp) return;
+        long now = TimeStamp;
+        if (LastTP + 5 > now) return;
 
-        Vector2 position = player.Pos();
+        Vector2 pos = player.Pos();
+        if (!Marks.FindFirst(x => Vector2.Distance(x, pos) <= 1f, out Vector2 nearMark)) return;
 
-        var tp = false;
-        Vector2 from = Marks[0];
-
-        foreach (Vector2 mark in Marks)
-        {
-            float dis = Vector2.Distance(mark, position);
-            if (dis > 2f) continue;
-
-            tp = true;
-            from = mark;
-        }
-
-        if (tp)
-        {
-            LastTP = TimeStamp;
-
-            if (from == Marks[0])
-                player.TP(Marks[1]);
-            else if (from == Marks[1])
-                player.TP(Marks[0]);
-            else
-                Logger.Error($"Teleport failed - from: {from}", "RiftMakerTP");
-        }
+        int index = Marks.IndexOf(nearMark);
+        Vector2 target = Marks[1 - index];
+        player.TP(target);
+        LastTP = now;
     }
 
     public override void OnReportDeadBody()

@@ -62,8 +62,7 @@ public sealed class CountdownTimer : IDisposable
         }
     }
 
-    public bool IsRunning => _stopwatch.IsRunning;
-    public bool IsCompleted => _completed;
+    public Stopwatch Stopwatch => _stopwatch;
 
     public void Start()
     {

@@ -982,9 +982,7 @@ internal static class CustomRolesHelper
             CustomRoles.CTFPlayer or
             CustomRoles.Challenger or
             CustomRoles.BedWarsPlayer or
-            CustomRoles.Weatherman or
-            CustomRoles.Altruist or
-            CustomRoles.Duellist;
+            CustomRoles.Weatherman;
     }
 
     public static bool IsTaskBasedCrewmate(this CustomRoles role)

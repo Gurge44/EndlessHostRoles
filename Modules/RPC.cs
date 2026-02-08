@@ -126,7 +126,6 @@ public enum CustomRPC
     Guess,
     MeetingKill,
     NemesisRevenge,
-    SetSwooperTimer,
     SetBanditStealLimit,
     SetBkTimer,
     SyncFollowerTargetAndTimes,
@@ -136,6 +135,7 @@ public enum CustomRPC
     SetCurrentRevealTarget,
     RpcPassBomb,
     SyncPostman,
+    SyncChangeling,
     SetDoomsayerProgress = 209,
 
     /*
@@ -148,7 +148,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SyncChangeling,
     SyncTiger,
     SyncSentry,
     SyncBargainer,
@@ -1111,12 +1110,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.NemesisRevenge:
                 {
                     Nemesis.ReceiveRPC(reader, __instance);
-                    break;
-                }
-                case CustomRPC.SetSwooperTimer:
-                {
-                    byte id = reader.ReadByte();
-                    (Main.PlayerStates[id].Role as Swooper)?.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetBkTimer:

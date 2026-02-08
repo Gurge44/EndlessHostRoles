@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -12,8 +13,8 @@ public class Mastermind : RoleBase
 
     private static List<byte> PlayerIdList = [];
 
-    public static Dictionary<byte, long> ManipulatedPlayers = [];
-    public static Dictionary<byte, long> ManipulateDelays = [];
+    public static Dictionary<byte, CountdownTimer> ManipulatedPlayers = [];
+    public static Dictionary<byte, CountdownTimer> ManipulateDelays = [];
     private static Dictionary<byte, float> TempKCDs = [];
 
     private static OptionItem KillCooldown;
@@ -71,91 +72,74 @@ public class Mastermind : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsEnable) return false;
-        if (killer == null) return false;
-        if (target == null) return false;
-        
         if (Thanos.IsImmune(target)) return false;
 
         return killer.CheckDoubleTrigger(target, () =>
         {
             killer.RPCPlayCustomSound("Line");
             killer.SetKillCooldown(ManipulateCD);
-            ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
+
+            byte targetId = target.PlayerId;
+            ManipulateDelays.TryAdd(targetId, new CountdownTimer(Delay.GetInt(), () =>
+            {
+                ManipulateDelays.Remove(targetId);
+                if (target == null || !target.IsAlive()) return;
+                
+                ManipulatedPlayers.TryAdd(targetId, new CountdownTimer(TimeLimit.GetInt(), () =>
+                {
+                    ManipulatedPlayers.Remove(targetId);
+                    
+                    if (target == null || !target.IsAlive())
+                    {
+                        TempKCDs.Remove(targetId);
+                        return;
+                    }
+
+                    if (!TempKCDs.Remove(targetId)) target.RpcChangeRoleBasis(target.GetCustomRole());
+                    LateTask.New(() => target.Suicide(realKiller: killer), 0.2f);
+                    RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
+
+                    if (target.AmOwner)
+                        Achievements.Type.OutOfTime.Complete();
+                }, onTick: () =>
+                {
+                    if (target == null || !target.IsAlive() || !ManipulatedPlayers.TryGetValue(targetId, out var timer))
+                    {
+                        ManipulatedPlayers.Remove(targetId);
+                        TempKCDs.Remove(targetId);
+                        return;
+                    }
+                    
+                    target.Notify(string.Format(GetString("ManipulateNotify"), (int)timer.Remaining.TotalSeconds), 3f, true);
+                }, onCanceled: () =>
+                {
+                    ManipulatedPlayers.Remove(targetId);
+                    TempKCDs.Remove(targetId);
+                }));
+
+                if (target.HasKillButton()) TempKCDs.TryAdd(targetId, Main.KillTimers[targetId]);
+                else target.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+                
+                target.SetKillCooldown(1f);
+                NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            }, onCanceled: () => ManipulateDelays.Remove(targetId)));
+            
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         });
-    }
-
-    private long LastUpdate;
-
-    public override void OnFixedUpdate(PlayerControl _)
-    {
-        if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
-
-        long now = TimeStamp;
-        if (now == LastUpdate) return;
-        LastUpdate = now;
-
-        foreach (KeyValuePair<byte, long> x in ManipulateDelays)
-        {
-            PlayerControl pc = GetPlayerById(x.Key);
-
-            if (!pc.IsAlive())
-            {
-                ManipulateDelays.Remove(x.Key);
-                continue;
-            }
-
-            if (x.Value + Delay.GetInt() < now)
-            {
-                ManipulateDelays.Remove(x.Key);
-                ManipulatedPlayers.TryAdd(x.Key, now);
-
-                if (pc.HasKillButton()) TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
-                else pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
-                
-                pc.SetKillCooldown(1f);
-                NotifyRoles(SpecifySeer: MastermindPC, SpecifyTarget: pc);
-            }
-        }
-
-        foreach (KeyValuePair<byte, long> x in ManipulatedPlayers)
-        {
-            PlayerControl player = GetPlayerById(x.Key);
-
-            if (!player.IsAlive())
-            {
-                ManipulatedPlayers.Remove(x.Key);
-                TempKCDs.Remove(x.Key);
-                continue;
-            }
-
-            if (x.Value + TimeLimit.GetInt() < now)
-            {
-                ManipulatedPlayers.Remove(x.Key);
-                if (!TempKCDs.Remove(x.Key)) player.RpcChangeRoleBasis(player.GetCustomRole());
-                player.Suicide(realKiller: MastermindPC);
-                RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
-
-                if (player.AmOwner)
-                    Achievements.Type.OutOfTime.Complete();
-            }
-
-            long time = TimeLimit.GetInt() - (now - x.Value);
-
-            player.Notify(string.Format(GetString("ManipulateNotify"), time), 3f, true);
-        }
     }
 
     public override void OnReportDeadBody()
     {
         if (!IsEnable) return;
 
-        foreach (KeyValuePair<byte, long> x in ManipulatedPlayers)
+        foreach (KeyValuePair<byte, CountdownTimer> x in ManipulatedPlayers)
         {
+            x.Value.Dispose();
             PlayerControl pc = GetPlayerById(x.Key);
-            if (pc.IsAlive()) pc.Suicide(realKiller: MastermindPC);
+            if (pc != null && pc.IsAlive()) pc.Suicide(realKiller: MastermindPC);
         }
 
+        ManipulateDelays.Values.Do(x => x.Dispose());
         ManipulateDelays.Clear();
         ManipulatedPlayers.Clear();
         TempKCDs.Clear();
@@ -166,6 +150,7 @@ public class Mastermind : RoleBase
         if (killer == null) return false;
         if (target == null) return false;
 
+        ManipulatedPlayers[killer.PlayerId].Dispose();
         ManipulatedPlayers.Remove(killer.PlayerId);
 
         foreach (byte id in PlayerIdList) (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();

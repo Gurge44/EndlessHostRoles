@@ -76,42 +76,22 @@ public class Duellist : RoleBase
 
             duellist.RPCPlayCustomSound("Teleport");
             target.RPCPlayCustomSound("Teleport");
+
+            Main.Instance.StartCoroutine(Coroutine());
+
+            System.Collections.IEnumerator Coroutine()
+            {
+                while (GameStates.IsInTask && duellist.IsAlive() && target.IsAlive()) yield return null;
+                if (!GameStates.IsInTask) yield break;
+                
+                DuelPair.Remove(duellist.PlayerId);
+                if (duellist.IsAlive()) duellist.TPToRandomVent();
+                if (target.IsAlive()) target.TPToRandomVent();
+            }
         }
         else
             duellist.Notify(GetString("TargetCannotBeTeleported"));
 
         return false;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (DuelPair.Count == 0) return;
-
-        if (pc.IsAlive() && Count++ < 40) return;
-
-        Count = 0;
-
-        foreach (KeyValuePair<byte, byte> pair in DuelPair)
-        {
-            PlayerControl duellist = GetPlayerById(pair.Key);
-            PlayerControl target = GetPlayerById(pair.Value);
-            bool DAlive = duellist.IsAlive();
-            bool TAlive = target.IsAlive();
-
-            switch (DAlive)
-            {
-                case false when !TAlive:
-                    DuelPair.Remove(pair.Key);
-                    break;
-                case true when !TAlive:
-                    DuelPair.Remove(pair.Key);
-                    LateTask.New(() => duellist.TPToRandomVent(), 0.5f, log: false);
-                    break;
-                case false:
-                    DuelPair.Remove(pair.Key);
-                    LateTask.New(() => target.TPToRandomVent(), 0.5f, log: false);
-                    break;
-            }
-        }
     }
 }

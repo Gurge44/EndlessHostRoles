@@ -20,7 +20,6 @@ public sealed class Stealth : RoleBase
     public static bool On;
     public PlayerControl[] darkenedPlayers;
     private SystemTypes? darkenedRoom;
-    private float darkenTimer;
 
     private float darkenDuration;
     private bool excludeImpostors;
@@ -88,6 +87,12 @@ public sealed class Stealth : RoleBase
             Main.PlayerStates[player.PlayerId].IsBlackOut = true;
             player.MarkDirtySettings();
         }
+        
+        LateTask.New(() =>
+        {
+            if (ReportDeadBodyPatch.MeetingStarted || !GameStates.IsInTask || darkenedPlayers == null) return;
+            ResetDarkenState(false);
+        }, darkenDuration);
 
         if (!useLegacyVersion && Utils.DoRPC)
         {
@@ -121,7 +126,6 @@ public sealed class Stealth : RoleBase
         useLegacyVersion = UseLegacyVersion.GetBool();
         blindingRadius = OptionBlindingRadius.GetFloat();
         abilityCooldown = AbilityCooldown.GetInt();
-        darkenTimer = darkenDuration;
     }
 
     public override void Add(byte playerId)
@@ -130,20 +134,9 @@ public sealed class Stealth : RoleBase
         StealthPC = playerId.GetPlayer();
     }
 
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (darkenedPlayers != null)
-        {
-            darkenTimer -= Time.fixedDeltaTime;
-            if (darkenTimer <= 0) ResetDarkenState();
-        }
-    }
-
     public override void OnReportDeadBody()
     {
-        if (AmongUsClient.Instance.AmHost) ResetDarkenState();
+        if (AmongUsClient.Instance.AmHost) ResetDarkenState(true);
     }
 
     private void RpcDarken(SystemTypes? roomType)
@@ -174,31 +167,33 @@ public sealed class Stealth : RoleBase
         darkenedRoom = roomId == byte.MaxValue ? null : (SystemTypes)roomId;
     }
 
-    private void ResetDarkenState()
+    private void ResetDarkenState(bool meeting)
     {
         if (darkenedPlayers != null)
         {
-            foreach (PlayerControl player in darkenedPlayers)
+            if (!meeting)
             {
-                Main.PlayerStates[player.PlayerId].IsBlackOut = false;
-                player.MarkDirtySettings();
+                foreach (PlayerControl player in darkenedPlayers)
+                {
+                    Main.PlayerStates[player.PlayerId].IsBlackOut = false;
+                    player.MarkDirtySettings();
+                }
             }
 
             darkenedPlayers = null;
         }
 
-        darkenTimer = darkenDuration;
-
         if (!useLegacyVersion)
         {
             Utils.SendRPC(CustomRPC.SyncRoleData, StealthPC.PlayerId, 0);
             
-            if (!Options.UsePets.GetBool() || Options.UsePhantomBasis.GetBool())
+            if (!meeting && (!Options.UsePets.GetBool() || Options.UsePhantomBasis.GetBool()))
                 StealthPC.RpcResetAbilityCooldown();
         }
         else
             RpcDarken(null);
         
+        if (meeting) return;
         Utils.NotifyRoles(SpecifySeer: StealthPC);
     }
 
