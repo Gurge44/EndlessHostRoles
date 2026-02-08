@@ -253,17 +253,16 @@ public class Alchemist : RoleBase
             if (pc == null || !pc.IsAlive()) return;
             Main.EnumeratePlayerControls().Without(pc).Do(x => instance.RpcExitVentDesync(ventId, x));
             pc.Notify(GetString("SwooperInvisStateOut"));
-            Utils.SendRPC(CustomRPC.SyncRoleData, AlchemistId, false);
         }, onTick: pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("SwooperInvisStateCountdown"), (int)Math.Ceiling(InvisTimer.Remaining.TotalSeconds)), overrideAll: true), onCanceled: () => InvisTimer = null);
         
         pc.Notify(GetString("ChameleonInvisState"), invisDuration);
-        Utils.SendRPC(CustomRPC.SyncRoleData, AlchemistId, true);
+        Utils.SendRPC(CustomRPC.SyncRoleData, AlchemistId);
         return true;
     }
 
     public void ReceiveRPC(MessageReader reader)
     {
-        InvisTimer = reader.ReadBoolean() ? new CountdownTimer(InvisDuration.GetFloat(), onCanceled: () => InvisTimer = null) : null;
+        InvisTimer = new CountdownTimer(InvisDuration.GetFloat(), () => InvisTimer = null, onCanceled: () => InvisTimer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

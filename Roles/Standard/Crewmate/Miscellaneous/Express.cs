@@ -52,6 +52,7 @@ internal class Express : RoleBase
         }, onCanceled: () =>
         {
             Timer = null;
+            if (Main.RealOptionsData == null) return;
             Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         });
     }

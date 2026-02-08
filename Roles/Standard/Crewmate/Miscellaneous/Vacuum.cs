@@ -80,16 +80,15 @@ public class Vacuum : RoleBase
         Timer = new CountdownTimer(AbilityDuration.GetInt(), () =>
         {
             Timer = null;
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, false);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, onCanceled: () => Timer = null);
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, true);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public void ReceiveRPC(MessageReader reader)
     {
-        Timer = reader.ReadBoolean() ? new CountdownTimer(AbilityDuration.GetInt(), onCanceled: () => Timer = null) : null;
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public static bool BeforeMurderCheck(PlayerControl target)

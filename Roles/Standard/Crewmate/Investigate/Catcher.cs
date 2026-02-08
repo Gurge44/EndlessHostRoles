@@ -113,13 +113,12 @@ public class Catcher : RoleBase
         {
             PlaceTrap(pc);
             DelayTimer = null;
-            Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId, false);
         }, onTick: () =>
         {
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             pc.RpcResetAbilityCooldown();
         }, onCanceled: () => DelayTimer = null);
-        Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId, true);
+        Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId);
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
@@ -157,7 +156,7 @@ public class Catcher : RoleBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        DelayTimer = reader.ReadBoolean() ? new CountdownTimer(TrapPlaceDelay.GetInt(), onCanceled: () => DelayTimer = null) : null;
+        DelayTimer = new CountdownTimer(TrapPlaceDelay.GetInt(), () => DelayTimer = null, onCanceled: () => DelayTimer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

@@ -60,9 +60,8 @@ public class Goddess : CovenBase
             Timer = null;
             pc.RpcResetAbilityCooldown();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, false);
         }, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc), onCanceled: () => Timer = null);
-        Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId, true);
+        Utils.SendRPC(CustomRPC.SyncRoleData, GoddessId);
         return false;
     }
 
@@ -83,7 +82,7 @@ public class Goddess : CovenBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        Timer = reader.ReadBoolean() ? new CountdownTimer(AbilityDuration.GetInt(), onCanceled: () => Timer = null) : null;
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

@@ -434,7 +434,7 @@ internal static class ChatCommands
         }
 
         if (!Main.IsChatCommand && Astral.On && !PlayerControl.LocalPlayer.Is(CustomRoles.Astral))
-            LateTask.New(() => Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { BackTS: > 0 } && x.Player != null, x => ChatManager.ClearChat(x.Player)), 0.2f, log: false);
+            LateTask.New(() => Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { Timer: not null } && x.Player != null, x => ChatManager.ClearChat(x.Player)), 0.2f, log: false);
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
             goto Canceled;
@@ -3168,7 +3168,7 @@ internal static class ChatCommands
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
-            if (state.Role is Astral astral && astral.BackTS != 0 && state.Player != null && state.Player.PlayerId != player.PlayerId)
+            if (state.Role is Astral astral && astral.Timer != null && state.Player != null && state.Player.PlayerId != player.PlayerId)
             {
                 if (state.Player.AmOwner) canceled = true;
                 else ChatManager.ClearChat(state.Player);
@@ -3223,7 +3223,7 @@ internal static class ChatCommands
         }
 
         if (!commandEntered && Astral.On && !player.Is(CustomRoles.Astral))
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { BackTS: > 0 } && x.Player != null, x => ChatManager.ClearChat(x.Player));
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { Timer: not null } && x.Player != null, x => ChatManager.ClearChat(x.Player));
 
         if (CheckMute(player.PlayerId))
         {

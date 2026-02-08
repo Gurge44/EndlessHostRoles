@@ -84,15 +84,14 @@ public enum CustomRPC
     SetLibrarianMode,
     SyncYinYanger,
     DruidAddTrigger,
-    SyncBenefactorMarkedTask,
     SyncMafiosoData,
     SyncMafiosoPistolCD,
     SyncDamoclesTimer,
     SyncChronomancer,
+    PenguinSync,
 
     Sicko = 164,
 
-    PenguinSync,
     SyncInfection,
     SetAlchemistPotion,
     SetRicochetTarget,
@@ -136,6 +135,7 @@ public enum CustomRPC
     SetRevealedPlayer,
     SetCurrentRevealTarget,
     RpcPassBomb,
+    SyncPostman,
     SetDoomsayerProgress = 209,
 
     /*
@@ -148,7 +148,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SyncPostman,
     SyncChangeling,
     SyncTiger,
     SyncSentry,
@@ -183,7 +182,7 @@ public enum CustomRPC
     DeathraceSync
 
     // The total number of RPCs must not exceed 255
-    // Because HandleRpc accepts Rpc in byte (max 255) system and it will be impossible to use int
+    // Because HandleRpc accepts Rpc in byte (max 255) system, and it will be impossible to use int
 }
 
 public enum Sounds
@@ -1161,11 +1160,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SetDoppelgangerStealLimit:
                 {
                     Doppelganger.ReceiveRPC(reader);
-                    break;
-                }
-                case CustomRPC.SyncBenefactorMarkedTask:
-                {
-                    Benefactor.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SyncStressedTimer:

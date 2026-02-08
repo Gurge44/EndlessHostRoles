@@ -18,7 +18,6 @@ public class Adrenaline : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     
     private byte AdrenalineId;
-    private long LastUpdate;
     private CountdownTimer Timer;
     
     public override bool IsEnable => On;
@@ -64,7 +63,6 @@ public class Adrenaline : RoleBase
         On = true;
         AdrenalineId = playerId;
         Timer = null;
-        Utils.SendRPC(CustomRPC.SyncRoleData, playerId, Timer);
         playerId.SetAbilityUseLimit(MaxSurvives.GetFloat());
     }
 
@@ -77,17 +75,16 @@ public class Adrenaline : RoleBase
         {
             Timer = null;
             target.Suicide();
-            Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, false);
 
             if (target.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
         }, onTick: () => Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target), onCanceled: () =>
         {
             Timer = null;
+            if (Main.RealOptionsData == null) return;
             Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-            Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, false);
         });
-        Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, true);
+        Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId);
         Main.AllPlayerSpeed[target.PlayerId] += SpeedIncreaseDuringTimer.GetFloat();
         target.MarkDirtySettings();
         return false;
@@ -100,7 +97,7 @@ public class Adrenaline : RoleBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        Timer = reader.ReadBoolean() ? new CountdownTimer(Time.GetInt(), onCanceled: () => Timer = null) : null;
+        Timer = new CountdownTimer(Time.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
