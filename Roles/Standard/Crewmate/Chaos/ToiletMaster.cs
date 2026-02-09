@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -181,7 +182,7 @@ public class ToiletMaster : RoleBase
         try
         {
             Vector2 pos = pc.Pos();
-            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = Toilets.First(x => Vector2.Distance(x.Key, pos) <= ToiletUseRadius.GetFloat()).Value;
+            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = Toilets.First(x => FastVector2.DistanceWithinRange(x.Key, pos, ToiletUseRadius.GetFloat())).Value;
 
             if (toilet.Uses >= AbilityUses.GetInt()) return;
 
@@ -206,7 +207,7 @@ public class ToiletMaster : RoleBase
                     break;
                 case Poop.Green:
                     float radius = GreenPoopRadius.GetFloat();
-                    bool isKillerNearby = Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) <= radius && (x.IsImpostor() || x.IsNeutralKiller()));
+                    bool isKillerNearby = Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != pc.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && (x.IsImpostor() || x.IsNeutralKiller()));
                     Color color = isKillerNearby ? Color.red : Color.green;
                     string str = Translator.GetString(isKillerNearby ? "TM.GreenPoopKiller" : "TM.GreenPoop");
                     pc.Notify(Utils.ColorString(color, str));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -84,7 +85,7 @@ public class Whisperer : RoleBase
         if (pc.GetAbilityUseLimit() < 1 || Souls.Exists(x => x.IsQuestioning)) return;
 
         Vector2 pos = pc.Pos();
-        List<Soul> souls = Souls.FindAll(x => x.IsQuestionAble && Vector2.Distance(pos, x.Position) <= 1f);
+        List<Soul> souls = Souls.FindAll(x => x.IsQuestionAble && FastVector2.DistanceWithinRange(pos, x.Position, 1f));
         if (souls.Count == 0) return;
 
         Soul soul = souls.MinBy(x => Vector2.Distance(pos, x.Position));
@@ -103,7 +104,7 @@ public class Whisperer : RoleBase
 
         byte soulPlayerId = soul.Player.PlayerId;
 
-        if (Vector2.Distance(pc.Pos(), soul.Position) > 1.5f)
+        if (!FastVector2.DistanceWithinRange(pc.Pos(), soul.Position, 1.5f))
         {
             soul.QuestioningTime = 0f;
             Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 3, soulPlayerId, soul.QuestioningTime);
@@ -136,7 +137,7 @@ public class Whisperer : RoleBase
 
                 info = next switch
                 {
-                    0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(Utils.GetPlayerInfoById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
+                    0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(GameData.Instance.GetPlayerById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
                     1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - killer.TimeStamp).TotalSeconds)),
                     2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString() + (state.SubRoles.Count == 0 ? string.Empty : string.Join(' ', state.SubRoles.ConvertAll(x => x.ToColoredString())))),
                     3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), killerState.MainRole.ToColoredString() + (killerState.SubRoles.Count == 0 ? string.Empty : string.Join(' ', killerState.SubRoles.ConvertAll(x => x.ToColoredString())))),

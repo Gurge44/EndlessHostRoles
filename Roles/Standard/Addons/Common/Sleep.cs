@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -18,7 +19,7 @@ public class Sleep : IAddon
 
         Vector2 pos = pc.Pos();
 
-        if (Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoles.Glow) && Vector2.Distance(x.Pos(), pos) <= 1.5f))
+        if (Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoles.Glow) && FastVector2.DistanceWithinRange(x.Pos(), pos, 1.5f)))
         {
             Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Sleep);
             pc.MarkDirtySettings();

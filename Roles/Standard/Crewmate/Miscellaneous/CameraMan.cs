@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -121,7 +122,7 @@ public class CameraMan : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
+        if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || FastVector2.DistanceWithinRange(pc.Pos(), CameraPosition, DisableDevice.UsableDistance)) return;
 
         IsTeleported = false;
         LateTask.New(() => pc.TP(BasePos), 2f, "CameraMan Teleport Back");

@@ -351,30 +351,42 @@ public static class Mingle
             if (LastUpdateTS == now) return;
             LastUpdateTS = now;
 
-            if (TimeEndTS == now)
+            Main.Instance.StartCoroutine(Coroutine());
+            return;
+
+            IEnumerator Coroutine()
             {
-                Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
-                Main.EnumerateAlivePlayerControls().Do(x => x.SyncSettings());
-            }
-            else if (TimeEndTS < now)
-            {
-                KillPlayers();
-                StartNewRound();
-            }
-            else
-            {
-                Dictionary<SystemTypes, int> numPlayersInRoom = Main.EnumerateAlivePlayerControls().Select(x => (pc: x, room: x.GetPlainShipRoom())).GroupBy(x => x.room == null ? SystemTypes.Outside : x.room.RoomId).ToDictionary(x => x.Key, x => x.Count());
-                
-                if (RequiredPlayerCount.All(x => numPlayersInRoom.GetValueOrDefault(x.Key, 0) == x.Value))
+                if (TimeEndTS == now)
                 {
-                    Main.EnumerateAlivePlayerControls().NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
-                    Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
-                    StartNewRound();
-                    return;
+                    Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
+                    Main.EnumerateAlivePlayerControls().Do(x => x.SyncSettings());
                 }
+                else if (TimeEndTS < now)
+                {
+                    KillPlayers();
+                    yield return null;
+                    StartNewRound();
+                }
+                else
+                {
+                    Dictionary<SystemTypes, int> numPlayersInRoom = Main.EnumerateAlivePlayerControls().Select(x => (pc: x, room: x.GetPlainShipRoom())).GroupBy(x => x.room == null ? SystemTypes.Outside : x.room.RoomId).ToDictionary(x => x.Key, x => x.Count());
+
+                    yield return null;
+                    
+                    if (RequiredPlayerCount.All(x => numPlayersInRoom.GetValueOrDefault(x.Key, 0) == x.Value))
+                    {
+                        Main.EnumerateAlivePlayerControls().NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
+                        yield return null;
+                        Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
+                        StartNewRound();
+                        yield break;
+                    }
+                }
+
+                yield return null;
+                
+                Utils.NotifyRoles();
             }
-            
-            Utils.NotifyRoles();
         }
     }
 }

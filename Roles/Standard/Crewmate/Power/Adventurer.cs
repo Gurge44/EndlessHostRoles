@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Patches;
 using Hazel;
 using UnityEngine;
@@ -321,7 +322,7 @@ internal class Adventurer : RoleBase
 
         foreach ((Resource resource, Vector2 location) in ResourceLocations)
         {
-            if (Vector2.Distance(pc.Pos(), location) < 2f)
+            if (FastVector2.DistanceWithinRange(pc.Pos(), location, 2f))
             {
                 ResourceCounts[resource]++;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3, (int)resource);

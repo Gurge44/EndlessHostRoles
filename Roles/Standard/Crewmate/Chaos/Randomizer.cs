@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 using static EHR.Roles.Randomizer;
@@ -223,7 +224,7 @@ internal static class EffectExtenstions
                         {
                             foreach (KeyValuePair<Vector2, Vector2> rift2 in Rifts)
                             {
-                                if (rift1.Key != rift2.Key && Vector2.Distance(rift1.Key, rift2.Key) <= 4f)
+                                if (rift1.Key != rift2.Key && FastVector2.DistanceWithinRange(rift1.Key, rift2.Key, 4f))
                                     riftsToRemove.Add(rift2.Key);
                             }
                         }
@@ -749,14 +750,14 @@ internal class Randomizer : RoleBase
 
             foreach (KeyValuePair<Vector2, Vector2> rift in Rifts)
             {
-                if (Vector2.Distance(pos, rift.Key) < 2f)
+                if (FastVector2.DistanceWithinRange(pos, rift.Key, 2f))
                 {
                     pc.TP(rift.Value);
                     LastTP[pc.PlayerId] = now;
                     return;
                 }
 
-                if (Vector2.Distance(pos, rift.Value) < 2f)
+                if (FastVector2.DistanceWithinRange(pos, rift.Value, 2f))
                 {
                     pc.TP(rift.Key);
                     LastTP[pc.PlayerId] = now;

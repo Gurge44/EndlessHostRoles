@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -49,7 +50,7 @@ public class Car : RoleBase
         Count = 0;
 
         Vector2 pos = pc.Pos();
-        if (Vector2.Distance(pos, LastPosition) < 0.1f) return;
+        if (FastVector2.DistanceWithinRange(pos, LastPosition, 0.1f)) return;
 
         Direction direction = pos.x < LastPosition.x
             ? pos.y < LastPosition.y
@@ -103,7 +104,7 @@ public class Car : RoleBase
         float distance = PropelDistance.GetFloat();
         Collider2D collider = target.Collider;
 
-        for (Vector2 newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && GameStates.IsInTask; newPos += addVector)
+        for (Vector2 newPos = target.Pos(); FastVector2.DistanceWithinRange(pos, newPos, distance) && GameStates.IsInTask; newPos += addVector)
         {
             if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + (addVector * 2), Constants.ShipOnlyMask, false)) break;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -330,7 +331,7 @@ internal class Bargainer : RoleBase
         }
 
         bool wasInShop = InShop;
-        InShop = ShopLocations.Any(x => Vector2.Distance(pc.Pos(), x) < DisableDevice.UsableDistance);
+        InShop = ShopLocations.Any(x => FastVector2.DistanceWithinRange(pc.Pos(), x, DisableDevice.UsableDistance));
         Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, InShop);
 
         switch (wasInShop)

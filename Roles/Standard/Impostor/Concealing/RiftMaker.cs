@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
@@ -87,7 +88,7 @@ public class RiftMaker : RoleBase
         if (!player.Is(CustomRoles.RiftMaker)) return;
         if (Marks.Count != 2) return;
 
-        if (Vector2.Distance(Marks[0], Marks[1]) <= 4f)
+        if (FastVector2.DistanceWithinRange(Marks[0], Marks[1], 4f))
         {
             player.Notify(GetString("IncorrectMarks"));
             Marks.Clear();

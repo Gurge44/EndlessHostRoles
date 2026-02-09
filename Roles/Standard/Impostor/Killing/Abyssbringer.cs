@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -182,7 +183,7 @@ public class Abyssbringer : RoleBase
                     blackHole.Position = newPosition;
                 }
 
-                if (Vector2.Distance(pos, blackHole.Position) <= BlackHoleRadius.GetFloat() && !nearestPlayer.Is(CustomRoles.Pestilence))
+                if (FastVector2.DistanceWithinRange(pos, blackHole.Position, BlackHoleRadius.GetFloat()) && !nearestPlayer.Is(CustomRoles.Pestilence))
                 {
                     nearestPlayer.RpcExileV2();
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);

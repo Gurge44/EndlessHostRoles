@@ -887,7 +887,7 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
 
-            if (StopAndGo.RoundTime <= 0)
+            if (StopAndGo.RoundTime <= 0 || !StopAndGo.RoundTimer.IsRunning)
             {
                 var apc = Main.AllPlayerControls;
                 SetWinner(Main.GM.Value && apc.Count == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => StopAndGo.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
@@ -908,7 +908,7 @@ internal static class GameEndChecker
                     SetWinner(aapc[0]);
                     return true;
                 case 0:
-                    StopAndGo.RoundTime = 0;
+                    StopAndGo.RoundTimer.Stop();
                     Logger.Warn("No players alive. Force ending the game", "StopAndGo");
                     break;
             }

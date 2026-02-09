@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -166,7 +167,7 @@ public class Rogue : RoleBase
                 return;
             }
 
-            Moving = Vector2.Distance(pc.Pos(), LastPos.Value) >= 0.1f;
+            Moving = !FastVector2.DistanceWithinRange(pc.Pos(), LastPos.Value, 0.1f);
             LastPos = pc.Pos();
             if (!Moving) pc.Notify(Utils.ColorString(Color.red, "<size=4>x</size>"));
         }

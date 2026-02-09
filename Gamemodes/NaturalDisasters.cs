@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
@@ -146,7 +147,15 @@ public static class NaturalDisasters
 
     public static string SuffixText()
     {
-        string cb = string.Format(Translator.GetString("CollapsedBuildings"), BuildingCollapse.CollapsedBuildingsString);
+        var allRooms = ShipStatus.Instance.AllRooms;
+        var collapsedRooms = BuildingCollapse.CollapsedRooms;
+        string cb = allRooms.Count / 2 < collapsedRooms.Count
+            ? (string.Format(Translator.GetString("AvailableBuildings"), allRooms.Count != collapsedRooms.Count
+                ? allRooms.Select(x => x.RoomId).Except(collapsedRooms.ConvertAll(x => x.RoomId)).Select(x => Translator.GetString($"{x}")).Distinct().Join()
+                : $"<#ff0000>{Translator.GetString("None")}</color>"))
+            : (string.Format(Translator.GetString("CollapsedBuildings"), collapsedRooms.Count > 0
+                ? collapsedRooms.Select(x => Translator.GetString($"{x.RoomId}")).Distinct().Join()
+                : Translator.GetString("None")));
         string ts = ActiveDisasters.Exists(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
         return $"<size=70%>{cb}{ts}</size>";
     }
@@ -279,13 +288,14 @@ public static class NaturalDisasters
 
                 if (Main.LIMap)
                 {
-                    var plainShipRoom = ShipStatus.Instance.AllRooms.Where(x => x.RoomId is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.RoomId.ToString().Contains("Decontamination")).RandomElement();
+                    var plainShipRoom = ShipStatus.Instance.AllRooms.Where(x => x.RoomId is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.RoomId.ToString().Contains("Decontamination")).Except(BuildingCollapse.CollapsedRooms).RandomElement();
                     roomKvp = new KeyValuePair<SystemTypes, Vector2>(plainShipRoom.RoomId, plainShipRoom.transform.position);
                 }
                 else
                 {
                     roomKvp = RandomSpawn.SpawnMap.GetSpawnMap().Positions
                         .Where(x => x.Key is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.Key.ToString().Contains("Decontamination"))
+                        .ExceptBy(BuildingCollapse.CollapsedRooms.ConvertAll(x => x.RoomId), x => x.Key)
                         .RandomElement();
                 }
 
@@ -370,7 +380,7 @@ public static class NaturalDisasters
         {
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                if (Vector2.Distance(pc.Pos(), Position) <= range)
+                if (FastVector2.DistanceWithinRange(pc.Pos(), Position, range))
                     pc.Suicide(deathReason);
             }
         }
@@ -416,7 +426,7 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                float speed = (Vector2.Distance(pc.Pos(), Position) <= Range) switch
+                float speed = (FastVector2.DistanceWithinRange(pc.Pos(), Position, Range)) switch
                 {
                     true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
                     false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
@@ -693,7 +703,7 @@ public static class NaturalDisasters
                 {
                     foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
-                        if (Vector2.Distance(pc.Pos(), hit) <= Range / 2f)
+                        if (FastVector2.DistanceWithinRange(pc.Pos(), hit, Range / 2f))
                             pc.Suicide(PlayerState.DeathReason.Lightning);
                     }
                 }
@@ -753,7 +763,8 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                bool inRange = Vector2.Distance(pc.Pos(), Position) <= Range;
+                bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range);
+                
                 if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
                     pc.MarkDirtySettings();
             }
@@ -842,7 +853,7 @@ public static class NaturalDisasters
                     _ => false
                 };
 
-                if (Vector2.Distance(pos, Position) <= Range && inWay)
+                if (FastVector2.DistanceWithinRange(pos, Position, Range) && inWay)
                     pc.Suicide(PlayerState.DeathReason.Drowned);
             }
 
@@ -917,7 +928,7 @@ public static class NaturalDisasters
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < Sinkholes.Count; i++)
                 {
-                    if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
+                    if (FastVector2.DistanceWithinRange(pos, Sinkholes[i].Position, Range))
                         pc.Suicide(PlayerState.DeathReason.Sunken);
                 }
             }
@@ -955,10 +966,6 @@ public static class NaturalDisasters
             CollapsedRooms.Add(room);
             Utils.NotifyRoles();
         }
-
-        public static string CollapsedBuildingsString => CollapsedRooms.Count > 0
-            ? CollapsedRooms.Select(x => Translator.GetString($"{x.RoomId}")).Distinct().Join()
-            : Translator.GetString("None");
 
         public override void Update()
         {

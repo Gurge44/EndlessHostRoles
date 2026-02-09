@@ -5,6 +5,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Modules.Extensions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -1398,7 +1399,7 @@ internal static class CheckInvalidMovementPatch
 
         SetCurrentData();
 
-        if (Vector2.Distance(lastPosition, pos) > 10f && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
+        if (!FastVector2.DistanceWithinRange(lastPosition, pos, 10f) && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
         {
             if (ExemptedPlayers.Remove(__instance.PlayerId)) return;
 

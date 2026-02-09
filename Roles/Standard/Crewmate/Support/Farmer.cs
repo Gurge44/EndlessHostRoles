@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -68,7 +69,7 @@ public class Farmer : RoleBase
         Vector2 pos = pc.Pos();
         float range = HarvestRange.GetFloat();
 
-        if (SeedPositions.FindFirst(x => x.NetObject.Spawned && Vector2.Distance(pos, x.NetObject.Position) < range, out var existing))
+        if (SeedPositions.FindFirst(x => x.NetObject.Spawned && !FastVector2.DistanceWithinRange(pos, x.NetObject.Position, range), out var existing))
         {
             switch (existing.Seed)
             {

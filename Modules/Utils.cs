@@ -1169,7 +1169,7 @@ public static class Utils
             TaskState taskState = state.TaskState;
             if (!taskState.HasTasks || taskState.AllTasksCount == 0) return string.Empty;
 
-            NetworkedPlayerInfo info = GetPlayerInfoById(playerId);
+            NetworkedPlayerInfo info = GameData.Instance.GetPlayerById(playerId);
             bool hasTasks = HasTasks(info);
             Color taskCompleteColor;
             Color nonCompleteColor;
@@ -2476,17 +2476,18 @@ public static class Utils
         return playerRooms;
     }
 
-    public static readonly Dictionary<string, FieldInfo> CachedRoleSettings = new();
+    public static readonly Dictionary<(CustomRoles role, string settingName), float> CachedRoleSettings = [];
     
     public static float GetSettingNameAndValueForRole(CustomRoles role, string settingName)
     {
+        var cacheKey = (role, settingName);
+        if (CachedRoleSettings.TryGetValue(cacheKey, out var cache)) return cache;
+        
         const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
         
         var key = $"{role}{settingName}";
         Type[] types = Main.AllTypes;
-
-        if (!CachedRoleSettings.TryGetValue(key, out FieldInfo field))
-            field = types.SelectMany(x => x.GetFields(flags)).FirstOrDefault(x => x.Name == key);
+        FieldInfo field = types.SelectMany(x => x.GetFields(flags)).FirstOrDefault(x => x.Name == key);
 
         if (field == null)
         {
@@ -2526,6 +2527,7 @@ public static class Utils
                 add = float.MaxValue;
         }
 
+        CachedRoleSettings[cacheKey] = add;
         return add;
     }
 
@@ -2547,25 +2549,10 @@ public static class Utils
 
         if (playerId == PlayerControl.LocalPlayer.PlayerId) return PlayerControl.LocalPlayer;
 
-        for (int i = 0; i < PlayerControl.AllPlayerControls.Count; i++)
+        foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            PlayerControl pc = PlayerControl.AllPlayerControls[i];
-
             if (pc.PlayerId == playerId)
                 return pc;
-        }
-
-        return null;
-    }
-
-    public static NetworkedPlayerInfo GetPlayerInfoById(int playerId)
-    {
-        for (int i = 0; i < GameData.Instance.AllPlayers.Count; i++)
-        {
-            NetworkedPlayerInfo info = GameData.Instance.AllPlayers[i];
-
-            if (info.PlayerId == playerId)
-                return info;
         }
 
         return null;
@@ -4191,7 +4178,7 @@ public static class Utils
 
             if (taskState.HasTasks)
             {
-                NetworkedPlayerInfo info = GetPlayerInfoById(id);
+                NetworkedPlayerInfo info = GameData.Instance.GetPlayerById(id);
                 Color taskCompleteColor = HasTasks(info) ? Color.green : Color.cyan;
                 Color nonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
 
@@ -4689,7 +4676,7 @@ public static class Utils
 
     // Next 2: From MoreGamemodes by Rabek009
 
-    public static void CreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent)
+    private static void CreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent)
     {
         int baseColorId = deadBodyParent.Data.DefaultOutfit.ColorId;
         deadBodyParent.Data.DefaultOutfit.ColorId = colorId;

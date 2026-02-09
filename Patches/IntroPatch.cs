@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
@@ -1356,9 +1357,16 @@ internal static class IntroCutsceneDestroyPatch
         {
             foreach (PlayerControl player in Main.EnumeratePlayerControls())
                 Main.PlayerStates[player.PlayerId].InitTask(player);
-            
-            if (Options.CurrentGameMode == CustomGameMode.Snowdown)
-                Snowdown.GameStart();
+
+            switch (Options.CurrentGameMode)
+            {
+                case CustomGameMode.Snowdown:
+                    Snowdown.GameStart();
+                    break;
+                case CustomGameMode.StopAndGo:
+                    StopAndGo.RoundTimer = Stopwatch.StartNew();
+                    break;
+            }
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");

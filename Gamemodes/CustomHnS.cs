@@ -24,7 +24,6 @@ internal static class CustomHnS
 
     public static Dictionary<Team, Dictionary<CustomRoles, int>> HideAndSeekRoles = [];
     public static Dictionary<byte, (IHideAndSeekRole Interface, CustomRoles Role)> PlayerRoles = [];
-    public static Dictionary<byte, byte> ClosestImpostor = [];
     public static Dictionary<byte, int> Danger = [];
 
     public static List<CustomRoles> AllHnSRoles = [];
@@ -83,7 +82,6 @@ internal static class CustomHnS
             .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Enum, y => y.Interface.Count));
 
         PlayerRoles = [];
-        ClosestImpostor = [];
     }
 
     public static void StartSeekerBlindTime()
@@ -458,6 +456,10 @@ internal static class CustomHnS
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class FixedUpdatePatch
     {
+        private static Dictionary<byte, Vector2> Positions;
+        private static List<Vector2> ImpostorPositions;
+        private static List<byte> NonImpostors;
+        
         public static void Postfix()
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
@@ -468,15 +470,85 @@ internal static class CustomHnS
 
             TimeLeft--;
 
-            PlayerRoles = PlayerRoles.IntersectBy(Main.EnumeratePlayerControls().Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
+            try
+            {
+                var validIds = new HashSet<byte>();
+                
+                foreach (var pc in Main.EnumeratePlayerControls())
+                    validIds.Add(pc.PlayerId);
+
+                var toRemove = new List<byte>();
+
+                foreach (var id in PlayerRoles.Keys)
+                {
+                    if (!validIds.Contains(id))
+                        toRemove.Add(id);
+                }
+
+                foreach (var id in toRemove)
+                    PlayerRoles.Remove(id);
+            }
+            catch { }
 
             try
             {
-                Dictionary<byte, Vector2> idPosPairs = PlayerRoles.Join(Main.EnumeratePlayerControls(), x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
-                Dictionary<byte, Vector2> imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => idPosPairs[x.Key]);
-                KeyValuePair<byte, (IHideAndSeekRole Interface, CustomRoles Role)>[] nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
-                ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);
-                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(idPosPairs[x.Key], idPosPairs[ClosestImpostor[x.Key]]))) / 3) - 1, 0, 5));
+                Positions = new Dictionary<byte, Vector2>(PlayerRoles.Count);
+
+                foreach (var pc in Main.EnumeratePlayerControls())
+                    Positions[pc.PlayerId] = pc.Pos();
+
+                ImpostorPositions = [];
+                NonImpostors = [];
+
+                foreach ((byte id, (IHideAndSeekRole Interface, CustomRoles Role) role) in PlayerRoles)
+                {
+                    switch (role.Interface.Team)
+                    {
+                        case Team.Impostor:
+                            ImpostorPositions.Add(Positions[id]);
+                            break;
+                        case Team.Crewmate:
+                        case Team.Neutral:
+                            NonImpostors.Add(id);
+                            break;
+                    }
+                }
+
+                Danger = new Dictionary<byte, int>(NonImpostors.Count);
+
+                // Precomputed squared thresholds ( (3n+2)^2 )
+                const float d0 = 2f * 2f;   // 4
+                const float d1 = 5f * 5f;   // 25
+                const float d2 = 8f * 8f;   // 64
+                const float d3 = 11f * 11f; // 121
+                const float d4 = 14f * 14f; // 196
+
+                foreach (var nonImpId in NonImpostors)
+                {
+                    Vector2 p = Positions[nonImpId];
+                    float minSq = float.MaxValue;
+
+                    for (int i = 0; i < ImpostorPositions.Count; i++)
+                    {
+                        Vector2 imp = ImpostorPositions[i];
+                        float dx = imp.x - p.x;
+                        float dy = imp.y - p.y;
+                        float sq = dx * dx + dy * dy;
+
+                        if (sq < minSq)
+                            minSq = sq;
+                    }
+
+                    int danger =
+                        minSq <= d0 ? 0 :
+                        minSq <= d1 ? 1 :
+                        minSq <= d2 ? 2 :
+                        minSq <= d3 ? 3 :
+                        minSq <= d4 ? 4 : 5;
+
+                    Danger[nonImpId] = danger;
+                }
+
             }
             catch { }
 

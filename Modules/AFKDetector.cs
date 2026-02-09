@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules.Extensions;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -62,7 +63,7 @@ public static class AFKDetector
     {
         if (!EnableDetector.GetBool() || !GameStates.IsInTask || ExileController.Instance || Main.AllAlivePlayerControls.Count < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
 
-        if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f && !TempIgnoredPlayers.Contains(pc.PlayerId))
+        if (!FastVector2.DistanceWithinRange(pc.Pos(), data.LastPosition, 0.1f) && !TempIgnoredPlayers.Contains(pc.PlayerId))
         {
             SetNotAFK(pc.PlayerId);
             return;

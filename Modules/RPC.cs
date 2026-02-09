@@ -166,14 +166,12 @@ public enum CustomRPC
     Exclusionary,
     Deadlined,
     Blessed,
-    CountdownTimer,
 
     // Game Modes
     RoomRushDataSync,
     FFAKill,
     FFASync,
     QuizSync,
-    SAGSync,
     HotPotatoSync,
     SoloPVPSync,
     CTFSync,
@@ -1258,12 +1256,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.QuizSync:
                 {
                     Quiz.AllowKills = reader.ReadBoolean();
-                    break;
-                }
-                case CustomRPC.SAGSync:
-                {
-                    int roundTime = reader.ReadPackedInt32();
-                    StopAndGo.RoundTime = roundTime;
                     break;
                 }
                 case CustomRPC.HotPotatoSync:

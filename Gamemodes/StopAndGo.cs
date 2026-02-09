@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -83,7 +84,7 @@ internal class StopAndGoPlayerData(Counter[] counters, float positionX, float po
 
     public int Lives { get; private set; } = lives;
 
-    private float LostLifeCooldownTimer { get; set; }
+    private Stopwatch LostLifeCooldownTimer { get; set; }
 
     public override string ToString()
     {
@@ -100,8 +101,6 @@ internal class StopAndGoPlayerData(Counter[] counters, float positionX, float po
 
     public void UpdateCounters()
     {
-        if (LostLifeCooldownTimer > 0f) LostLifeCooldownTimer -= Time.deltaTime;
-
         LeftCounter.Update();
         MiddleCounter.Update();
         RightCounter.Update();
@@ -109,10 +108,10 @@ internal class StopAndGoPlayerData(Counter[] counters, float positionX, float po
 
     public bool RemoveLife(PlayerControl pc)
     {
-        if (pc.inVent || LostLifeCooldownTimer > 0f) return false;
+        if (pc.inVent || LostLifeCooldownTimer.ElapsedMilliseconds < 1000) return false;
 
         Lives--;
-        LostLifeCooldownTimer = 1f;
+        LostLifeCooldownTimer = Stopwatch.StartNew();
 
         if (Lives <= 0)
         {
@@ -169,9 +168,11 @@ internal static class StopAndGo
 
     private static IRandom Random => IRandom.Instance;
 
-    public static int RoundTime { get; set; }
+    public static Stopwatch RoundTimer { get; set; }
 
-    private static int TimeSinceStart => GameTime.GetInt() - RoundTime;
+    public static int RoundTime => GameTime.GetInt() - TimeSinceStart;
+
+    private static int TimeSinceStart => (int)RoundTimer.Elapsed.TotalSeconds;
 
     private static int ExtraGreenTime => Main.CurrentMap switch
     {
@@ -350,15 +351,14 @@ internal static class StopAndGo
         FixedUpdatePatch.LastSuffix = [];
         FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
-        RoundTime = GameTime.GetInt() + 14;
-        Utils.SendRPC(CustomRPC.SAGSync, RoundTime);
+        RoundTimer = Stopwatch.StartNew();
 
         FixedUpdatePatch.DoChecks = false;
     }
 
     public static void OnGameStart()
     {
-        RoundTime = GameTime.GetInt();
+        RoundTimer = Stopwatch.StartNew();
         FixedUpdatePatch.DoChecks = true;
 
         long now = Utils.TimeStamp;
@@ -571,14 +571,11 @@ internal static class StopAndGo
                 if (!IsEventActive || Event.Type != Events.FrozenTimers)
                     LastSuffix[pc.PlayerId] = GetSuffixText(pc);
 
-                bool IsCounterRed(Counter counter) => counter.IsRed && (pc.IsHost() || counter.Timer != counter.TotalRedTime);
+                bool IsCounterRed(Counter counter) => counter.IsRed && (pc.AmOwner || counter.Timer != counter.TotalRedTime);
             }
 
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
-
-            RoundTime--;
-            Utils.SendRPC(CustomRPC.SAGSync, RoundTime);
 
             Utils.NotifyRoles();
         }

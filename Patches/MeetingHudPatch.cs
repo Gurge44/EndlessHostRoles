@@ -291,7 +291,7 @@ internal static class CheckForEndVotingPatch
                 if (target != byte.MaxValue)
                 {
                     Logger.Info("Tiebreaker overrides evicted players", "Tiebreaker Vote");
-                    exiledPlayer = Utils.GetPlayerInfoById(target);
+                    exiledPlayer = GameData.Instance.GetPlayerById(target);
                     tie = false;
                     braked = true;
                 }

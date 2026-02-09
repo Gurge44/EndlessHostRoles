@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -138,7 +139,7 @@ public class Catcher : RoleBase
 
         Vector2 pos = pc.Pos();
         float range = CatchRange.GetFloat();
-        if (Traps.Keys.Any(x => Vector2.Distance(x, pos) <= range)) CaughtRoles[pc.PlayerId] = pc.GetCustomRole();
+        if (Traps.Keys.Any(x => FastVector2.DistanceWithinRange(x, pos, range))) CaughtRoles[pc.PlayerId] = pc.GetCustomRole();
     }
 
     public override void OnReportDeadBody()

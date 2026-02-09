@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Roles;
 using UnityEngine;
 
@@ -30,16 +31,16 @@ public static class Deathrace
     public static float EnergyDrinkSpeedIncreasement;
     public static float PowerUpPickupRange;
 
-    public static OptionItem ClockwiseOption;
-    public static OptionItem LapsToWinOption;
-    public static OptionItem EliminateLastToFinishEachLapOption;
-    public static OptionItem SpawnPowerUpsOption;
-    public static OptionItem PowerUpSpawnFrequencyOption;
-    public static OptionItem PowerUpEffectDurationOption;
-    public static OptionItem PowerUpEffectRangeOption;
-    public static OptionItem SmokeSpeedReductionOption;
-    public static OptionItem EnergyDrinkSpeedIncreasementOption;
-    public static OptionItem PowerUpPickupRangeOption;
+    private static OptionItem ClockwiseOption;
+    private static OptionItem LapsToWinOption;
+    private static OptionItem EliminateLastToFinishEachLapOption;
+    private static OptionItem SpawnPowerUpsOption;
+    private static OptionItem PowerUpSpawnFrequencyOption;
+    private static OptionItem PowerUpEffectDurationOption;
+    private static OptionItem PowerUpEffectRangeOption;
+    private static OptionItem SmokeSpeedReductionOption;
+    private static OptionItem EnergyDrinkSpeedIncreasementOption;
+    private static OptionItem PowerUpPickupRangeOption;
 
     public static readonly Dictionary<MapNames, List<SystemTypes>> Tracks = new()
     {
@@ -515,7 +516,7 @@ public static class Deathrace
                 
                 if (data.Player.inMovingPlat) continue;
 
-                if (SpawnedPowerUps.FindFirst(x => Vector2.Distance(data.Player.Pos(), x.Position) <= PowerUpPickupRange, out var powerUp))
+                if (SpawnedPowerUps.FindFirst(x => FastVector2.DistanceWithinRange(data.Player.Pos(), x.Position, PowerUpPickupRange), out var powerUp))
                 {
                     RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
                     data.PowerUps.Add(powerUp.PowerUp);
@@ -533,7 +534,7 @@ public static class Deathrace
                     continue;
                 }
 
-                if (coordinateCheck ? Vector2.Distance(coordinates, data.Player.Pos()) < 2f : room.RoomId == data.NextRoom)
+                if (coordinateCheck ? FastVector2.DistanceWithinRange(coordinates, data.Player.Pos(), 2f) : room.RoomId == data.NextRoom)
                 {
                     data.LastRoom = data.NextRoom;
                     int index = Track.IndexOf(data.NextRoom);

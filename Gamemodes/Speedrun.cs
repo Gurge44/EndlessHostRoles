@@ -186,7 +186,11 @@ public static class Speedrun
 
             Timers.AdjustAllValues(x => x - 1);
 
-            CanKill.RemoveWhere(x => x.GetPlayer() == null || !x.GetPlayer().IsAlive());
+            CanKill.RemoveWhere(x =>
+            {
+                PlayerControl player = x.GetPlayer();
+                return player == null || !player.IsAlive();
+            });
 
             var aapc = Main.AllAlivePlayerControls;
 

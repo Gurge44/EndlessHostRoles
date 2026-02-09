@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -320,7 +321,7 @@ public class Magician : RoleBase
 
         if (PortalMarks.Count == 2 && LastTP + 5 < TimeStamp)
         {
-            if (Vector2.Distance(PortalMarks[0], PortalMarks[1]) <= 4f)
+            if (FastVector2.DistanceWithinRange(PortalMarks[0], PortalMarks[1], 4f))
             {
                 pc.Notify(GetString("IncorrectMarks"));
                 PortalMarks.Clear();

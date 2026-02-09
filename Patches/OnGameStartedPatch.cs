@@ -308,6 +308,7 @@ internal static class ChangeRoleSettings
             Main.Invisible.Clear();
             ChatCommands.MutedPlayers.Clear();
             ExtendedPlayerControl.TempExiled.Clear();
+            Utils.CachedRoleSettings.Clear();
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);

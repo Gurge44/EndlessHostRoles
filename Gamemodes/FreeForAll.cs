@@ -420,8 +420,6 @@ internal static class FreeForAll
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                if (pc == null) return;
-
                 var sync = false;
 
                 if (FFADecreasedSpeedList.TryGetValue(pc.PlayerId, out long dstime) && dstime + FFAModifiedSpeedDuration.GetInt() < now)

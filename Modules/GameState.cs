@@ -352,7 +352,7 @@ public class PlayerState(byte playerId)
                 deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason);
-            Utils.CheckAndSpawnAdditionalRenegade(Utils.GetPlayerInfoById(PlayerId));
+            Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
         }
     }
 

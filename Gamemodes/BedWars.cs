@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Roles;
 using Hazel;
 using UnityEngine;
@@ -432,9 +434,11 @@ public static class BedWars
             Logger.Error("Cannot start BedWars game due to invalid game state.", "BedWars");
             yield break;
         }
+        
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Assign players to teams
-        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle().ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
@@ -445,11 +449,11 @@ public static class BedWars
             .Flatten()
             .ToDictionary(x => x.Key, x => x.Value);
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         Utils.SetChatVisibleForAll();
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         MapNames map = Main.CurrentMap;
         Dictionary<BedWarsTeam, Base> bases = Bases[map];
@@ -512,10 +516,10 @@ public static class BedWars
 
             Data[pc.PlayerId] = data;
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return WaitFrameIfNecessary();
         }
 
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return WaitFrameIfNecessary();
 
         if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby)
         {
@@ -542,14 +546,14 @@ public static class BedWars
             if (bed != null) AllNetObjects[team] = new(bed, new(itemShop), new(upgradeShop));
             rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString($"{room}")));
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return WaitFrameIfNecessary();
         }
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}", 20f, setName: false);
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         foreach ((Item item, List<Vector2> positions) in ItemGeneratorPositions[map])
         {
@@ -570,10 +574,22 @@ public static class BedWars
                 if (generator != null) ItemGenerators.Add(generator);
             });
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return WaitFrameIfNecessary();
         }
 
         GracePeriodEnd = Utils.TimeStamp + GracePeriod;
+        
+        yield break;
+
+        IEnumerator WaitFrameIfNecessary()
+        {
+            if (stopwatch.ElapsedMilliseconds >= 5)
+            {
+                stopwatch.Reset();
+                yield return null;
+                stopwatch.Start();
+            }
+        }
     }
 
     private static Dictionary<byte, PlayerData> Data = [];
@@ -649,7 +665,7 @@ public static class BedWars
                     }
                 }
 
-                if (InShop.TryGetValue(__instance.PlayerId, out Shop shop) && Vector2.Distance(pos, shop.NetObject.Position) > ShopAndItemGeneratorRange)
+                if (InShop.TryGetValue(__instance.PlayerId, out Shop shop) && !FastVector2.DistanceWithinRange(pos, shop.NetObject.Position, ShopAndItemGeneratorRange * 2f))
                 {
                     shop.ExitShop(__instance);
                     InShop.Remove(__instance.PlayerId);
@@ -659,13 +675,11 @@ public static class BedWars
 
                 if (!InShop.ContainsKey(__instance.PlayerId))
                 {
-                    (Shop shop, float distance) nearestShop = AllNetObjects.Values.SelectMany(x => new Shop[] { x.ItemShop, x.UpgradeShop }).Select(x => (shop: x, distance: Vector2.Distance(pos, x.NetObject.Position))).MinBy(x => x.distance);
-
-                    if (nearestShop.distance <= ShopAndItemGeneratorRange)
+                    if (FastVector2.TryGetClosestInRange(pos, AllNetObjects.Values.SelectMany(x => new Shop[] { x.ItemShop, x.UpgradeShop }).ToDictionary(x => x.NetObject.Position, x => x), ShopAndItemGeneratorRange, out Shop nearestShop))
                     {
-                        InShop[__instance.PlayerId] = nearestShop.shop;
-                        nearestShop.shop.EnterShop(__instance);
-                        Logger.Info($"{__instance.GetRealName()} entered {nearestShop.shop.GetType().Name}", "BedWars");
+                        InShop[__instance.PlayerId] = nearestShop;
+                        nearestShop.EnterShop(__instance);
+                        Logger.Info($"{__instance.GetRealName()} entered {nearestShop.GetType().Name}", "BedWars");
                         if (__instance.AmOwner) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }
                 }
@@ -674,7 +688,7 @@ public static class BedWars
 
                 if (data.Health < MaxHealth && data.LastHeal != now)
                 {
-                    bool healPool = hasUpgrades && upgrades.Contains(Upgrade.HealPool) && Vector2.Distance(pos, data.Base.BedPosition) <= HealPoolRange;
+                    bool healPool = hasUpgrades && upgrades.Contains(Upgrade.HealPool) && FastVector2.DistanceWithinRange(pos, data.Base.BedPosition, HealPoolRange);
                     bool shouldRegen = data.LastDamage + HealWaitAfterDamage <= now;
 
                     if (healPool || shouldRegen)
@@ -695,7 +709,7 @@ public static class BedWars
                     foreach ((byte id, PlayerData playerData) in Data)
                     {
                         PlayerControl player = id.GetPlayer();
-                        if (player == null || !player.IsAlive() || playerData.Team == data.Team || Vector2.Distance(player.Pos(), data.Base.BedPosition) > TrapTriggerRange) continue;
+                        if (player == null || !player.IsAlive() || playerData.Team == data.Team || !FastVector2.DistanceWithinRange(player.Pos(), data.Base.BedPosition, TrapTriggerRange)) continue;
                         enemy = player;
                         break;
                     }
@@ -1573,7 +1587,7 @@ public static class BedWars
             if (pc == null || !pc.IsAlive() || !Data.TryGetValue(pc.PlayerId, out PlayerData data)) return;
 
             Vector2 pos = pc.Pos();
-            bool nextToBed = AllNetObjects.FindFirst(x => !x.Value.Bed.IsBroken && Vector2.Distance(x.Value.Bed.Position, pos) <= BedBreakAndProtectRange, out KeyValuePair<BedWarsTeam, NetObjectCollection> bed);
+            bool nextToBed = AllNetObjects.FindFirst(x => !x.Value.Bed.IsBroken && FastVector2.DistanceWithinRange(x.Value.Bed.Position, pos, BedBreakAndProtectRange), out KeyValuePair<BedWarsTeam, NetObjectCollection> bed);
 
             if (SelectedSlot < 0 || SelectedSlot >= Items.Count)
             {
@@ -1806,7 +1820,7 @@ public static class BedWars
                         if (newStr != str) pc.Notify(newStr, 100f, true);
                     }
 
-                    if (!pc.IsAlive() || Vector2.Distance(pc.Pos(), Position) > BedBreakAndProtectRange)
+                    if (!pc.IsAlive() || !FastVector2.DistanceWithinRange(pc.Pos(), Position, BedBreakAndProtectRange))
                     {
                         Breaking.Remove(pc.PlayerId);
                         NameNotifyManager.Notifies.Remove(pc.PlayerId);

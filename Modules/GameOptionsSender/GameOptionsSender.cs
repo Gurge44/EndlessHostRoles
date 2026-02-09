@@ -158,7 +158,7 @@ public abstract class GameOptionsSender
         }
     }
 
-    public static Coroutine ActiveCoroutine = null;
+    public static Coroutine ActiveCoroutine;
     private static readonly Stopwatch Stopwatch = new();
     private const int FrameBudget = 4; // in milliseconds
     protected static bool ForceWaitFrame;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -63,7 +64,7 @@ internal class Beacon : RoleBase
         Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
 
-        switch (affectedPlayer: AffectedPlayers.Contains(pc.PlayerId), beaconNearby: Utils.IsActive(SystemTypes.Electrical) && Beacons.Any(x => Vector2.Distance(x.Pos(), pos) <= radius))
+        switch (affectedPlayer: AffectedPlayers.Contains(pc.PlayerId), beaconNearby: Utils.IsActive(SystemTypes.Electrical) && Beacons.Any(x => FastVector2.DistanceWithinRange(x.Pos(), pos, radius)))
         {
             case (affectedPlayer: true, beaconNearby: false):
             {

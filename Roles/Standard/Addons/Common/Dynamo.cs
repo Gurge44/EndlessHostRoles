@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Modules.Extensions;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -59,7 +60,7 @@ public class Dynamo : IAddon
     public static void OnFixedUpdate(PlayerControl player)
     {
         Vector2 pos = player.Pos();
-        bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0.1f || player.MyPhysics.Animations.IsPlayingRunAnimation();
+        bool moving = !FastVector2.DistanceWithinRange(pos, LastPos[player.PlayerId], 0.1f) || player.MyPhysics.Animations.IsPlayingRunAnimation();
         LastPos[player.PlayerId] = pos;
 
         float modulator = Modulator.GetFloat();
