@@ -774,7 +774,7 @@ public static class Utils
 
     public static bool IsRevivingRoleAlive()
     {
-        return Main.EnumerateAlivePlayerControls().Any(x => x.GetCustomRole() is CustomRoles.Altruist or CustomRoles.Occultist or CustomRoles.TimeMaster) || Main.PlayerStates.Values.Any(x => x.Role is Altruist { ReviveStartTS: > 0 });
+        return Main.EnumerateAlivePlayerControls().Any(x => x.GetCustomRole() is CustomRoles.Altruist or CustomRoles.Occultist or CustomRoles.TimeMaster) || Main.PlayerStates.Values.Any(x => x.Role is Altruist { ReviveTimer: not null });
     }
 
     public static bool HasTasks(NetworkedPlayerInfo p, bool forRecompute = true)
@@ -3910,7 +3910,7 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
-                case CustomRoles.Veteran when target.AmOwner && Veteran.VeteranInProtect.ContainsKey(target.PlayerId):
+                case CustomRoles.Veteran when target.AmOwner && Veteran.VeteranInProtect.Contains(target.PlayerId):
                     Achievements.Type.BadEncounter.Complete();
                     break;
                 case CustomRoles.Catalyst when Catalyst.RemoveGivenAddonsAfterDeath.GetBool():
@@ -4001,6 +4001,8 @@ public static class Utils
             Reaper.OnAnyoneDead(target);
             Wyrd.OnAnyoneDeath(target);
             Thanos.OnDeath(targetRealKiller, target, disconnect);
+            CovenMember.OnAnyoneDead();
+            Altruist.OnAnyoneDead();
 
             if (!onMeeting && !disconnect)
             {

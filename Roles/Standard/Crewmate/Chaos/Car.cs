@@ -9,6 +9,7 @@ namespace EHR.Roles;
 public class Car : RoleBase
 {
     public static bool On;
+    private static bool IsSkeld;
 
     private static OptionItem PropelDistance;
 
@@ -31,6 +32,7 @@ public class Car : RoleBase
     public override void Init()
     {
         On = false;
+        IsSkeld = Main.CurrentMap is MapNames.Skeld or MapNames.Dleks;
     }
 
     public override void Add(byte playerId)
@@ -106,6 +108,7 @@ public class Car : RoleBase
 
         for (Vector2 newPos = target.Pos(); FastVector2.DistanceWithinRange(pos, newPos, distance) && GameStates.IsInTask; newPos += addVector)
         {
+            if (IsSkeld && (target.IsInRoom(SystemTypes.LowerEngine) || target.IsInRoom(SystemTypes.UpperEngine))) break;
             if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + (addVector * 2), Constants.ShipOnlyMask, false)) break;
 
             target.TP(newPos, log: false);

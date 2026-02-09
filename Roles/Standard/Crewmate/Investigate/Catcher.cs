@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -18,10 +19,10 @@ public class Catcher : RoleBase
     public static OptionItem AbilityUseLimit;
     public static OptionItem AbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
+    
     private byte CatcherId;
     private Dictionary<byte, CustomRoles> CaughtRoles;
-    private long DelayStartTS;
-    private long LastUpdate;
+    private CountdownTimer DelayTimer;
     private Dictionary<Vector2, CatcherTrap> Traps;
 
     public override bool IsEnable => On;
@@ -75,8 +76,7 @@ public class Catcher : RoleBase
         On = true;
         CatcherId = playerId;
         Traps = [];
-        DelayStartTS = 0;
-        LastUpdate = Utils.TimeStamp;
+        DelayTimer = null;
         CaughtRoles = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
@@ -109,28 +109,16 @@ public class Catcher : RoleBase
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (Options.UsePets.GetBool()) return;
-        DelayStartTS = Utils.TimeStamp + 1;
-        SendRPC();
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Options.UsePets.GetBool() || DelayStartTS == 0) return;
-
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-
-        LastUpdate = now;
-
-        if (DelayStartTS + TrapPlaceDelay.GetInt() <= now)
+        DelayTimer = new CountdownTimer(TrapPlaceDelay.GetInt(), () =>
         {
             PlaceTrap(pc);
-            DelayStartTS = 0;
-            SendRPC();
-        }
-
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        pc.RpcResetAbilityCooldown();
+            DelayTimer = null;
+        }, onTick: () =>
+        {
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            pc.RpcResetAbilityCooldown();
+        }, onCanceled: () => DelayTimer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId);
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
@@ -166,20 +154,15 @@ public class Catcher : RoleBase
         }, 10f, "Send Catcher Caught Roles");
     }
 
-    private void SendRPC()
-    {
-        Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId, DelayStartTS);
-    }
-
     public void ReceiveRPC(MessageReader reader)
     {
-        DelayStartTS = long.Parse(reader.ReadString());
+        DelayTimer = new CountdownTimer(TrapPlaceDelay.GetInt(), () => DelayTimer = null, onCanceled: () => DelayTimer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || meeting || (seer.IsModdedClient() && !hud) || DelayStartTS == 0 || Options.UsePets.GetBool()) return string.Empty;
-        return string.Format(Translator.GetString("Catcher.Suffix"), TrapPlaceDelay.GetInt() - (Utils.TimeStamp - DelayStartTS));
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || meeting || (seer.IsModdedClient() && !hud) || DelayTimer == null || Options.UsePets.GetBool()) return string.Empty;
+        return string.Format(Translator.GetString("Catcher.Suffix"), (int)Math.Ceiling(DelayTimer.Remaining.TotalSeconds));
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

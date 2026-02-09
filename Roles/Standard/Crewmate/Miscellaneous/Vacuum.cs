@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -20,7 +21,7 @@ public class Vacuum : RoleBase
     private static OptionItem AbilityChargesWhenFinishedTasks;
 
     private byte VacuumId;
-    private long AbilityEndTS;
+    private CountdownTimer Timer;
 
     public override void SetupCustomOption()
     {
@@ -41,7 +42,7 @@ public class Vacuum : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        AbilityEndTS = 0;
+        Timer = null;
         VacuumId = playerId;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         Instances.Add(this);
@@ -50,7 +51,7 @@ public class Vacuum : RoleBase
     public override string GetProgressText(byte playerId, bool comms)
     {
         StringBuilder sb = new();
-        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, AbilityEndTS != 0));
+        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null));
         sb.Append(Utils.GetTaskCount(playerId, comms));
         return sb.ToString();
     }
@@ -76,23 +77,18 @@ public class Vacuum : RoleBase
     {
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
-        AbilityEndTS = Utils.TimeStamp + AbilityDuration.GetInt();
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, AbilityEndTS);
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-    }
-    
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (AbilityEndTS == 0) return;
-        if (AbilityEndTS > Utils.TimeStamp) return;
-        AbilityEndTS = 0;
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, AbilityEndTS);
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () =>
+        {
+            Timer = null;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onCanceled: () => Timer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public void ReceiveRPC(MessageReader reader)
     {
-        AbilityEndTS = long.Parse(reader.ReadString());
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public static bool BeforeMurderCheck(PlayerControl target)
@@ -103,7 +99,7 @@ public class Vacuum : RoleBase
             {
                 try
                 {
-                    if (instance.AbilityEndTS == 0) continue;
+                    if (instance.Timer == null) continue;
                     PlayerControl vacuum = instance.VacuumId.GetPlayer();
                     if (vacuum == null || !vacuum.IsAlive()) continue;
                     target.TP(vacuum);

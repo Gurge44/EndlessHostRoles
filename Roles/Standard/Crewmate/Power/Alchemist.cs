@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -25,18 +27,14 @@ public class Alchemist : RoleBase
 
     private byte AlchemistId;
     public bool FixNextSabo;
-    private long InvisTime = -10;
-
-    public bool IsProtected;
-
-    private long lastFixedTime;
-    public string PlayerName = string.Empty;
-    public byte PotionID = 10;
-    private int ventedId = -10;
+    private bool IsProtected;
+    private string PlayerName = string.Empty;
+    private byte PotionID = 10;
     public bool VisionPotionActive;
+    private CountdownTimer InvisTimer;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
-    private bool IsInvis => InvisTime != -10;
+    private bool IsInvis => InvisTimer != null;
 
     public override void SetupCustomOption()
     {
@@ -72,13 +70,6 @@ public class Alchemist : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        PotionID = 10;
-        PlayerName = string.Empty;
-        ventedId = -10;
-        InvisTime = -10;
-        FixNextSabo = false;
-        VisionPotionActive = false;
-        AlchemistId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
@@ -87,8 +78,7 @@ public class Alchemist : RoleBase
         PlayerName = Utils.GetPlayerById(playerId).GetRealName();
         AlchemistId = playerId;
         PotionID = 10;
-        ventedId = -10;
-        InvisTime = -10;
+        InvisTimer = null;
         FixNextSabo = false;
         VisionPotionActive = false;
     }
@@ -169,7 +159,7 @@ public class Alchemist : RoleBase
         DrinkPotion(pc);
     }
 
-    public static void DrinkPotion(PlayerControl player, bool isPet = false)
+    private static void DrinkPotion(PlayerControl player, bool isPet = false)
     {
         if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
@@ -239,24 +229,6 @@ public class Alchemist : RoleBase
         am.SendRPCData();
     }
 
-    private void SendRPC()
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetAlchemistTimer, SendOption.Reliable);
-        writer.Write(AlchemistId);
-        writer.Write(InvisTime.ToString());
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte id = reader.ReadByte();
-        if (Main.PlayerStates[id].Role is not Alchemist am) return;
-
-        am.InvisTime = long.Parse(reader.ReadString());
-    }
-
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
@@ -268,49 +240,29 @@ public class Alchemist : RoleBase
         if (PotionID != 6) return false;
 
         PotionID = 10;
-        PlayerControl pc = instance.myPlayer;
         if (!AmongUsClient.Instance.AmHost) return false;
-
-        ventedId = ventId;
+        PlayerControl pc = instance.myPlayer;
 
         LateTask.New(() => instance.RpcExitVentDesync(ventId, pc), 0.5f);
 
-        InvisTime = Utils.TimeStamp;
-        SendRPC();
-        pc.Notify(GetString("ChameleonInvisState"), InvisDuration.GetFloat());
-
+        float invisDuration = InvisDuration.GetFloat();
+        
+        InvisTimer = new CountdownTimer(invisDuration, () =>
+        {
+            InvisTimer = null;
+            if (pc == null || !pc.IsAlive()) return;
+            Main.EnumeratePlayerControls().Without(pc).Do(x => instance.RpcExitVentDesync(ventId, x));
+            pc.Notify(GetString("SwooperInvisStateOut"));
+        }, onTick: pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("SwooperInvisStateCountdown"), (int)Math.Ceiling(InvisTimer.Remaining.TotalSeconds)), overrideAll: true), onCanceled: () => InvisTimer = null);
+        
+        pc.Notify(GetString("ChameleonInvisState"), invisDuration);
+        Utils.SendRPC(CustomRPC.SyncRoleData, AlchemistId);
         return true;
     }
 
-    public override void OnFixedUpdate(PlayerControl player)
+    public void ReceiveRPC(MessageReader reader)
     {
-        if (!GameStates.IsInTask || !IsEnable) return;
-
-        long now = Utils.TimeStamp;
-
-        if (lastFixedTime != now && InvisTime != -10)
-        {
-            lastFixedTime = now;
-            var refresh = false;
-            long remainTime = InvisTime + (long)InvisDuration.GetFloat() - now;
-
-            switch (remainTime)
-            {
-                case < 0:
-                    int ventId = ventedId == -10 ? Main.LastEnteredVent[player.PlayerId].Id : ventedId;
-                    Main.EnumeratePlayerControls().Without(player).Do(x => player.MyPhysics.RpcExitVentDesync(ventId, x));
-                    player.Notify(GetString("SwooperInvisStateOut"));
-                    SendRPC();
-                    refresh = true;
-                    InvisTime = -10;
-                    break;
-                case <= 10 when !player.IsModdedClient():
-                    player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
-                    break;
-            }
-
-            if (refresh) SendRPC();
-        }
+        InvisTimer = new CountdownTimer(InvisDuration.GetFloat(), () => InvisTimer = null, onCanceled: () => InvisTimer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -321,8 +273,8 @@ public class Alchemist : RoleBase
 
         if (IsInvis)
         {
-            long remainTime = InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
-            sb.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
+            int remainTime = (int)Math.Ceiling(InvisTimer.Remaining.TotalSeconds);
+            sb.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime));
         }
         else
         {

@@ -266,7 +266,6 @@ public class ToiletMaster : RoleBase
 
         long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
-
         LastUpdate = now;
 
         int duration = ToiletDuration.GetInt();

@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -17,8 +19,7 @@ public class Astral : RoleBase
     private static OptionItem AbilityChargesWhenFinishedTasks;
 
     private byte AstralId;
-    public long BackTS;
-    private long LastNotifyTS;
+    public CountdownTimer Timer;
 
     public override bool IsEnable => On;
 
@@ -40,7 +41,7 @@ public class Astral : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        BackTS = 0;
+        Timer = null;
         AstralId = playerId;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
@@ -72,8 +73,8 @@ public class Astral : RoleBase
         if (pc.GetAbilityUseLimit() < 1f || ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
         pc.RpcRemoveAbilityUse();
 
-        BackTS = Utils.TimeStamp + AbilityDuration.GetInt() + 1;
-        Utils.SendRPC(CustomRPC.SyncRoleData, AstralId, BackTS);
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => BecomeAliveAgain(pc), onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc), onCanceled: () => Timer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, AstralId);
 
         pc.RpcSetRoleGlobal(RoleTypes.GuardianAngel);
         pc.MarkDirtySettings();
@@ -82,8 +83,8 @@ public class Astral : RoleBase
 
     void BecomeAliveAgain(PlayerControl pc, bool onMeeting = false)
     {
-        BackTS = 0;
-        Utils.SendRPC(CustomRPC.SyncRoleData, AstralId, BackTS);
+        Timer = null;
+        if (!pc.IsAlive()) return;
 
         GhostRolesManager.RemoveGhostRole(pc.PlayerId);
         pc.RpcSetRoleGlobal(Options.UsePets.GetBool() ? RoleTypes.Crewmate : RoleTypes.Engineer);
@@ -108,40 +109,30 @@ public class Astral : RoleBase
         }
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!pc.IsAlive() || BackTS == 0) return;
-
-        long now = Utils.TimeStamp;
-
-        if (BackTS > now)
-        {
-            if (LastNotifyTS != now)
-            {
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                LastNotifyTS = now;
-            }
-
-            return;
-        }
-
-        BecomeAliveAgain(pc);
-    }
-
     public override void OnReportDeadBody()
     {
-        if (BackTS != 0) BecomeAliveAgain(AstralId.GetPlayer(), true);
-        ChatManager.ClearChat(AstralId.GetPlayer());
+        PlayerControl astralPc = AstralId.GetPlayer();
+        if (astralPc == null) return;
+
+        if (Timer != null)
+        {
+            Timer.Dispose();
+            Timer = null;
+            BecomeAliveAgain(astralPc, true);
+        }
+
+        if (!astralPc.IsAlive()) return;
+        ChatManager.ClearChat(astralPc);
     }
 
     public void ReceiveRPC(MessageReader reader)
     {
-        BackTS = long.Parse(reader.ReadString());
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != AstralId || seer.PlayerId != target.PlayerId || hud || meeting || BackTS == 0) return string.Empty;
-        return string.Format(Translator.GetString("AstralSuffix"), BackTS - Utils.TimeStamp - 1);
+        if (seer.PlayerId != AstralId || seer.PlayerId != target.PlayerId || hud || meeting || Timer == null) return string.Empty;
+        return string.Format(Translator.GetString("AstralSuffix"), (int)Math.Ceiling(Timer.Remaining.TotalSeconds));
     }
 }

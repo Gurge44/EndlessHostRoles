@@ -2,14 +2,15 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 
 namespace EHR.Roles;
 
 internal class Grenadier : RoleBase
 {
-    public static Dictionary<byte, long> GrenadierBlinding = [];
-    public static Dictionary<byte, long> MadGrenadierBlinding = [];
+    public static HashSet<byte> GrenadierBlinding = [];
+    public static HashSet<byte> MadGrenadierBlinding = [];
 
     public static bool On;
     public override bool IsEnable => On;
@@ -69,7 +70,7 @@ internal class Grenadier : RoleBase
     {
         var progressText = new StringBuilder();
 
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, GrenadierBlinding.ContainsKey(playerId)));
+        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, GrenadierBlinding.Contains(playerId)));
         progressText.Append(Utils.GetTaskCount(playerId, comms));
 
         return progressText.ToString();
@@ -94,44 +95,34 @@ internal class Grenadier : RoleBase
         BlindPlayers(pc);
     }
 
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask) return;
-
-        byte playerId = player.PlayerId;
-        long now = Utils.TimeStamp;
-
-        if (GrenadierBlinding.TryGetValue(playerId, out long gtime) && gtime + GrenadierSkillDuration.GetInt() < now)
-        {
-            GrenadierBlinding.Remove(playerId);
-            player.RpcResetAbilityCooldown();
-            player.Notify(string.Format(Translator.GetString("GrenadierSkillStop"), (int)player.GetAbilityUseLimit()));
-            Utils.MarkEveryoneDirtySettingsV3();
-        }
-
-        if (MadGrenadierBlinding.TryGetValue(playerId, out long mgtime) && mgtime + GrenadierSkillDuration.GetInt() < now)
-        {
-            MadGrenadierBlinding.Remove(playerId);
-            player.RpcResetAbilityCooldown();
-            player.Notify(string.Format(Translator.GetString("GrenadierSkillStop"), (int)player.GetAbilityUseLimit()));
-            Utils.MarkEveryoneDirtySettingsV3();
-        }
-    }
-
     private static void BlindPlayers(PlayerControl pc)
     {
-        if (GrenadierBlinding.ContainsKey(pc.PlayerId) || MadGrenadierBlinding.ContainsKey(pc.PlayerId)) return;
+        if (GrenadierBlinding.Contains(pc.PlayerId) || MadGrenadierBlinding.Contains(pc.PlayerId)) return;
 
         if (pc.GetAbilityUseLimit() >= 1)
         {
             if (pc.Is(CustomRoles.Madmate))
             {
-                MadGrenadierBlinding[pc.PlayerId] = Utils.TimeStamp;
+                MadGrenadierBlinding.Add(pc.PlayerId);
+                _ = new CountdownTimer(GrenadierSkillDuration.GetInt(), () =>
+                {
+                    MadGrenadierBlinding.Remove(pc.PlayerId);
+                    pc.RpcResetAbilityCooldown();
+                    pc.Notify(string.Format(Translator.GetString("GrenadierSkillStop"), (int)pc.GetAbilityUseLimit()));
+                    Utils.MarkEveryoneDirtySettingsV3();
+                }, onCanceled: () => MadGrenadierBlinding.Remove(pc.PlayerId));
                 Main.EnumeratePlayerControls().Where(x => x.IsModdedClient()).Where(x => !x.GetCustomRole().IsImpostorTeam() && !x.Is(CustomRoles.Madmate)).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
             else
             {
-                GrenadierBlinding[pc.PlayerId] = Utils.TimeStamp;
+                GrenadierBlinding.Add(pc.PlayerId);
+                _ = new CountdownTimer(GrenadierSkillDuration.GetInt(), () =>
+                {
+                    GrenadierBlinding.Remove(pc.PlayerId);
+                    pc.RpcResetAbilityCooldown();
+                    pc.Notify(string.Format(Translator.GetString("GrenadierSkillStop"), (int)pc.GetAbilityUseLimit()));
+                    Utils.MarkEveryoneDirtySettingsV3();
+                }, onCanceled: () => GrenadierBlinding.Remove(pc.PlayerId));
                 Main.EnumeratePlayerControls().Where(x => x.IsModdedClient()).Where(x => x.IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
             }
 

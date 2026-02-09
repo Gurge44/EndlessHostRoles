@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -24,10 +26,12 @@ internal class Warlock : RoleBase
     public static Dictionary<byte, PlayerControl> CursedPlayers = [];
     public static Dictionary<byte, bool> IsCurseAndKill = [];
     public static bool IsCursed;
-    private float CurseCD;
 
-    private float KCD;
+    private CountdownTimer CurseCD;
+    private CountdownTimer KCD;
     private long LastNotify;
+    private byte WarlockId;
+
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -63,10 +67,12 @@ internal class Warlock : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        WarlockId = playerId;
         CursedPlayers[playerId] = null;
         IsCurseAndKill[playerId] = false;
-        KCD = KillCooldown.GetFloat();
-        CurseCD = CurseCooldown.GetFloat();
+        PlayerControl pc = playerId.GetPlayer();
+        KCD = new CountdownTimer(KillCooldown.GetFloat() + 8, () => KCD = null, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () => KCD = null);
+        CurseCD = new CountdownTimer(CurseCooldown.GetFloat() + 8, () => CurseCD = null, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () => CurseCD = null);
         LastNotify = 0;
     }
 
@@ -110,13 +116,16 @@ internal class Warlock : RoleBase
         if (!shapeshifting && curse) hud.AbilityButton?.OverrideText(Translator.GetString("WarlockShapeshiftButtonText"));
     }
 
-    private void ResetCooldowns(bool killCooldown = false, bool curseCooldown = false, bool shapeshiftCooldown = false, PlayerControl warlock = null)
+    private void ResetCooldowns(bool killCooldown = false, bool curseCooldown = false, bool shapeshiftCooldown = false, PlayerControl warlockPc = null)
     {
-        if (killCooldown) KCD = KillCooldown.GetFloat();
+        var warlock = warlockPc ?? WarlockId.GetPlayer();
+        if (warlock == null || !warlock.IsAlive()) return;
 
-        if (curseCooldown) CurseCD = CurseCooldown.GetFloat();
-
-        if (warlock == null) return;
+        float kcd = KillCooldown.GetFloat();
+        float ccd = CurseCooldown.GetFloat();
+        
+        if (killCooldown) KCD = new CountdownTimer(kcd, () => KCD = null, onTick: () => Utils.NotifyRoles(SpecifySeer: warlock, SpecifyTarget: warlock, SendOption: SendOption.None), onCanceled: () => KCD = null);
+        if (curseCooldown) CurseCD = new CountdownTimer(ccd, () => CurseCD = null, onTick: () => Utils.NotifyRoles(SpecifySeer: warlock, SpecifyTarget: warlock, SendOption: SendOption.None), onCanceled: () => CurseCD = null);
 
         if (shapeshiftCooldown)
         {
@@ -126,7 +135,7 @@ internal class Warlock : RoleBase
                 warlock.AddAbilityCD();
         }
 
-        if (KCD > 0f && CurseCD > 0f) LateTask.New(() => { warlock.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
+        if (killCooldown && curseCooldown) warlock.SetKillCooldown(Math.Min(kcd, ccd) - 1f);
 
         Utils.NotifyRoles(SpecifySeer: warlock, SpecifyTarget: warlock);
     }
@@ -139,7 +148,7 @@ internal class Warlock : RoleBase
 
         if (killer.CheckDoubleTrigger(target, () =>
         {
-            if (CurseCD > 0f) return;
+            if (CurseCD != null) return;
 
             IsCurseAndKill.TryAdd(killer.PlayerId, false);
 
@@ -155,7 +164,7 @@ internal class Warlock : RoleBase
                 WarlockTimer[killer.PlayerId] = 0f;
                 IsCurseAndKill[killer.PlayerId] = true;
 
-                ResetCooldowns(true, true, warlock: killer);
+                ResetCooldowns(true, true, warlockPc: killer);
 
                 return;
             }
@@ -163,7 +172,7 @@ internal class Warlock : RoleBase
             if (IsCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
         }))
         {
-            if (KCD > 0f) return false;
+            if (KCD != null) return false;
 
             ResetCooldowns(true, true, true, killer);
 
@@ -287,26 +296,6 @@ internal class Warlock : RoleBase
         }
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || !pc.IsAlive() || pc.inVent) return;
-
-        float beforeKCD = KCD;
-        float beforeCCD = CurseCD;
-
-        if (KCD > 0f) KCD -= Time.fixedDeltaTime;
-
-        if (CurseCD > 0f) CurseCD -= Time.fixedDeltaTime;
-
-        long now = Utils.TimeStamp;
-
-        if ((Math.Abs(KCD - beforeKCD) > 0.01f || Math.Abs(beforeCCD - CurseCD) > 0.01f) && LastNotify != now)
-        {
-            LastNotify = now;
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-    }
-
     public override void AfterMeetingTasks()
     {
         ResetCooldowns(true, true);
@@ -314,13 +303,11 @@ internal class Warlock : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.IsModdedClient() && !hud || Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl || seer.PlayerId != target.PlayerId) return string.Empty;
+        if (seer.PlayerId != WarlockId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var sb = new StringBuilder();
-        if (wl.KCD > 0f) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");
-
-        if (wl.CurseCD > 0f) sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.CurseCD)}s</color>");
-
+        if (KCD != null) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(KCD.Remaining.TotalSeconds)}s</color>");
+        if (CurseCD != null) sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(CurseCD.Remaining.TotalSeconds)}s</color>");
         return hud ? sb.ToString() : $"<size=1.7>{sb}</size>";
     }
 }

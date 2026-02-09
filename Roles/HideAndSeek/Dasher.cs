@@ -96,19 +96,6 @@ public class Dasher : RoleBase, IHideAndSeekRole
         }
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!DashStatus.IsDashing) return;
-
-        long now = Utils.TimeStamp;
-
-        if (DashStatus.DashEndTime <= now)
-        {
-            DashStatus.IsDashing = false;
-            pc.MarkDirtySettings();
-        }
-    }
-
     public override bool OnVanish(PlayerControl pc)
     {
         Dash(pc);
@@ -127,7 +114,11 @@ public class Dasher : RoleBase, IHideAndSeekRole
         if (DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
 
         DashStatus.IsDashing = true;
-        DashStatus.DashEndTime = Utils.TimeStamp + DashStatus.Duration;
+        DashStatus.Timer = new(DashStatus.Duration, () =>
+        {
+            DashStatus.IsDashing = false;
+            pc.MarkDirtySettings();
+        });
         pc.MarkDirtySettings();
         pc.RpcRemoveAbilityUse();
     }

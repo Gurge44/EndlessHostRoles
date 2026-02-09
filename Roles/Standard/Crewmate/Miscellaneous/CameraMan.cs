@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using UnityEngine;
 using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
@@ -92,13 +93,7 @@ public class CameraMan : RoleBase
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
-
-            LateTask.New(() =>
-            {
-                BasePos = pc.Pos();
-                pc.RPCPlayCustomSound("teleport");
-                if (pc.TP(CameraPosition)) IsTeleported = true;
-            }, 2f, "CameraMan Teleport");
+            LateTask.New(() => UseAbility(pc), 2f, "CameraMan Teleport");
         }
         else
             pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
@@ -111,21 +106,39 @@ public class CameraMan : RoleBase
         if (pc.GetAbilityUseLimit() >= 1)
         {
             pc.RpcRemoveAbilityUse();
-
-            BasePos = pc.Pos();
-            pc.RPCPlayCustomSound("teleport");
-            if (pc.TP(CameraPosition)) IsTeleported = true;
+            UseAbility(pc);
         }
         else
             pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    private void UseAbility(PlayerControl pc)
     {
-        if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || FastVector2.DistanceWithinRange(pc.Pos(), CameraPosition, DisableDevice.UsableDistance)) return;
+        BasePos = pc.Pos();
+        pc.RPCPlayCustomSound("teleport");
+            
+        if (pc.TP(CameraPosition))
+        {
+            IsTeleported = true;
+                
+            if (TPBackWhenMoveAway.GetBool())
+            {
+                Main.Instance.StartCoroutine(Coroutine());
 
-        IsTeleported = false;
-        LateTask.New(() => pc.TP(BasePos), 2f, "CameraMan Teleport Back");
+                System.Collections.IEnumerator Coroutine()
+                {
+                    yield return new WaitForSecondsRealtime(2f);
+                        
+                    while (GameStates.IsInTask && pc.IsAlive() && FastVector2.DistanceWithinRange(pc.Pos(), CameraPosition, DisableDevice.UsableDistance))
+                        yield return new WaitForSecondsRealtime(0.5f);
+                        
+                    if (!pc.IsAlive() || !GameStates.IsInTask) yield break;
+                        
+                    IsTeleported = false;
+                    pc.TP(BasePos);
+                }
+            }
+        }
     }
 
     public override void OnReportDeadBody()

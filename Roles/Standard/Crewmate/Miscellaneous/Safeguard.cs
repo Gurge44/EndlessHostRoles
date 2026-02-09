@@ -1,4 +1,5 @@
 ﻿using System;
+using EHR.Modules.Extensions;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -9,10 +10,9 @@ public class Safeguard : RoleBase
 
     private static OptionItem ShieldDuration;
     private static OptionItem MinTasks;
-    private byte SafeguardId;
 
-    private float Timer;
-    private bool Shielded => Timer > 0;
+    private byte SafeguardId;
+    private CountdownTimer Timer;
 
     public override bool IsEnable => On;
 
@@ -42,7 +42,7 @@ public class Safeguard : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        Timer = 0;
+        Timer = null;
         SafeguardId = playerId;
     }
 
@@ -52,36 +52,24 @@ public class Safeguard : RoleBase
 
         if (completedTaskCount + 1 >= MinTasks.GetInt())
         {
-            bool zero = !Shielded;
-            Timer += ShieldDuration.GetFloat();
-            if (zero) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!pc.IsAlive()) return;
-
-        if (Shielded)
-        {
-            Timer -= Time.fixedDeltaTime;
-
-            if (Timer <= 0)
+            bool shielded = Timer != null;
+            Timer = new CountdownTimer(ShieldDuration.GetFloat() + (shielded ? (float)Timer.Remaining.TotalSeconds : 0), () =>
             {
-                Timer = 0;
+                Timer = null;
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
+            }, onCanceled: () => Timer = null);
+            if (!shielded) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        return !Shielded;
+        return Timer == null;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModdedClient() && !hud) || !Shielded) return string.Empty;
-        return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(Timer)) : Translator.GetString("SafeguardSuffix");
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModdedClient() && !hud) || Timer == null) return string.Empty;
+        return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(Timer.Remaining.TotalSeconds)) : Translator.GetString("SafeguardSuffix");
     }
 }

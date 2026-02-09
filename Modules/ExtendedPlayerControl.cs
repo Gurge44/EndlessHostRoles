@@ -953,7 +953,7 @@ internal static class ExtendedPlayerControl
             case SchrodingersCat cat when realKiller != null:
                 cat.OnCheckMurderAsTarget(realKiller, pc);
                 return;
-            case Veteran when Veteran.VeteranInProtect.ContainsKey(pc.PlayerId):
+            case Veteran when Veteran.VeteranInProtect.Contains(pc.PlayerId):
             case Pestilence:
                 return;
         }

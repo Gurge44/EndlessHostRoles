@@ -88,22 +88,13 @@ public class Jet : RoleBase, IHideAndSeekRole
     {
         if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
         DashStatus.IsDashing = true;
-        DashStatus.DashEndTime = Utils.TimeStamp + DashStatus.Duration;
-        pc.MarkDirtySettings();
-        pc.RpcRemoveAbilityUse();
-        pc.AddAbilityCD(DashStatus.Cooldown + DashStatus.Duration);
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!DashStatus.IsDashing) return;
-
-        long now = Utils.TimeStamp;
-
-        if (DashStatus.DashEndTime <= now)
+        DashStatus.Timer = new(DashStatus.Duration, () =>
         {
             DashStatus.IsDashing = false;
             pc.MarkDirtySettings();
-        }
+        });
+        pc.MarkDirtySettings();
+        pc.RpcRemoveAbilityUse();
+        pc.AddAbilityCD(DashStatus.Cooldown + DashStatus.Duration);
     }
 }

@@ -417,12 +417,19 @@ internal static class CheckMurderPatch
             Notify("TiredReachedMaxKillsPerRound");
             return false;
         }
+        
+        if (!Summoner.OnAnyoneCheckMurder(killer, target)) 
+        {
+            Notify("SummonerCantKillCoven");
+            return false;
+        }
 
         if ((Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) ||
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
             Blessed.ShieldActive.Contains(target.PlayerId) ||
+            Benefactor.ShieldedPlayers.Contains(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
             !Farmer.OnAnyoneCheckMurder(target) ||
             !PotionMaster.OnAnyoneCheckMurder(target) ||
@@ -693,7 +700,11 @@ internal static class MurderPlayerPatch
 
             if (target.Is(CustomRoles.Stained)) Stained.OnDeath(target, killer);
 
-            Witness.AllKillers[killer.PlayerId] = TimeStamp;
+            {
+                Witness.AllKillers.Add(killer.PlayerId);
+                PlayerControl killer1 = killer;
+                LateTask.New(() => Witness.AllKillers.Remove(killer1.PlayerId), Options.WitnessTime.GetInt(), log: false);
+            }
 
             killer.AddKillTimerToDict();
 

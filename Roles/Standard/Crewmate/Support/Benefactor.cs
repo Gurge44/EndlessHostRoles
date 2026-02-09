@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EHR.Modules;
-using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Roles;
@@ -12,7 +10,7 @@ internal class Benefactor : RoleBase
     private static List<byte> PlayerIdList = [];
 
     private static Dictionary<byte, List<int>> TaskIndex = [];
-    private static Dictionary<byte, long> ShieldedPlayers = [];
+    public static HashSet<byte> ShieldedPlayers = [];
     private static int MaxTasksMarkedPerRound;
 
     private static OptionItem TaskMarkPerRoundOpt;
@@ -54,79 +52,12 @@ internal class Benefactor : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    private static void SendRPC(byte benefactorId, int taskIndex = -1, bool isShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
-    {
-        if (!Utils.DoRPC) return;
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, SendOption.Reliable);
-        writer.Write(benefactorId);
-        writer.Write(taskIndex);
-        writer.Write(isShield);
-        writer.Write(clearAll);
-        writer.Write(shieldExpire);
-        writer.Write(shieldedId);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte benefactorID = reader.ReadByte();
-        if (Main.PlayerStates[benefactorID].Role is not Benefactor { IsEnable: true }) return;
-
-        int taskInd = reader.ReadInt32();
-        bool IsShield = reader.ReadBoolean();
-        bool clearAll = reader.ReadBoolean();
-        bool shieldExpire = reader.ReadBoolean();
-        byte shieldedId = reader.ReadByte();
-
-        bool tryGetValue = TaskIndex.TryGetValue(benefactorID, out var list);
-
-        if (!IsShield)
-        {
-            if (!clearAll && !shieldExpire)
-            {
-                if (tryGetValue) list.Add(taskInd);
-                else TaskIndex[benefactorID] = [taskInd];
-            }
-        }
-        else if (tryGetValue)
-            list.Remove(taskInd);
-
-        if (clearAll && tryGetValue)
-            list.Clear();
-
-        if (IsShield)
-            ShieldedPlayers[shieldedId] = Utils.TimeStamp;
-        
-        if (shieldExpire)
-            ShieldedPlayers.Remove(shieldedId);
-
-        if (clearAll && ShieldedPlayers.Count > 0)
-            ShieldedPlayers.Clear();
-    }
-
     public override void AfterMeetingTasks()
     {
         if (!IsEnable) return;
 
         ShieldedPlayers.Clear();
-
-        foreach ((byte id, List<int> list) in TaskIndex)
-        {
-            list.Clear();
-            SendRPC(id, clearAll: true);
-        }
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!IsEnable) return;
-
-        foreach (KeyValuePair<byte, long> x in ShieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < Utils.TimeStamp).ToArray())
-        {
-            ShieldedPlayers.Remove(x.Key);
-            SendRPC(pc.PlayerId, shieldExpire: true, shieldedId: Utils.GetPlayerById(x.Key).PlayerId);
-        }
+        TaskIndex.SetAllValues([]);
     }
 
     public static void OnTaskComplete(PlayerControl player, PlayerTask task) // Special case for Benefactor
@@ -137,20 +68,12 @@ internal class Benefactor : RoleBase
 
         if (player.Is(CustomRoles.Benefactor))
         {
-            float abilityUseLimit = playerId.GetAbilityUseLimit();
-
-            if (abilityUseLimit < 1)
-            {
-                Logger.Info($"Max task per round ({abilityUseLimit}) reached for {player.GetNameWithRole()}", "Benefactor");
-                return;
-            }
-
-            playerId.SetAbilityUseLimit(abilityUseLimit - 1);
+            if (playerId.GetAbilityUseLimit() < 1) return;
+            player.RpcRemoveAbilityUse();
 
             if (TaskIndex.TryGetValue(playerId, out var list)) list.Add(task.Index);
             else TaskIndex[playerId] = [task.Index];
             
-            SendRPC(playerId, task.Index);
             player.Notify(GetString("BenefactorTaskMarked"));
         }
         else
@@ -164,7 +87,8 @@ internal class Benefactor : RoleBase
 
                     player.Notify(GetString("BenefactorTargetGotShieldNotify"));
                     TaskIndex[benefactorId].Remove(task.Index);
-                    SendRPC(benefactorId, task.Index, true, shieldedId: player.PlayerId);
+                    ShieldedPlayers.Add(playerId);
+                    LateTask.New(() => ShieldedPlayers.Remove(playerId), ShieldDuration.GetInt());
                     Logger.Info($"{player.GetAllRoleName()} got a shield because the task was marked by {benefactorPC.GetNameWithRole()}", "Benefactor");
                 }
             }

@@ -17,8 +17,11 @@ public sealed class CountdownTimer : IDisposable
 
     private event Action OnElapsed;
     private event Action OnTick;
+    private event Action OnCanceled;
+    
+    private readonly bool _hasTickEvent;
 
-    public CountdownTimer(float durationSeconds, Action onElapsed = null, bool autoStart = true, bool cancelOnMeeting = true, bool cancelOnGameEnd = true, Action onTick = null)
+    public CountdownTimer(float durationSeconds, Action onElapsed = null, bool autoStart = true, bool cancelOnMeeting = true, bool cancelOnGameEnd = true, Action onTick = null, Action onCanceled = null)
     {
         if (durationSeconds <= 0f)
             throw new ArgumentOutOfRangeException(nameof(durationSeconds));
@@ -31,9 +34,14 @@ public sealed class CountdownTimer : IDisposable
 
         if (onElapsed != null)
             OnElapsed += onElapsed;
+
+        _hasTickEvent = onTick != null;
         
-        if (onTick != null)
+        if (_hasTickEvent)
             OnTick += onTick;
+        
+        if (onCanceled != null)
+            OnCanceled += onCanceled;
         
         if (autoStart)
             Start();
@@ -54,8 +62,7 @@ public sealed class CountdownTimer : IDisposable
         }
     }
 
-    public bool IsRunning => _stopwatch.IsRunning;
-    public bool IsCompleted => _completed;
+    public Stopwatch Stopwatch => _stopwatch;
 
     public void Start()
     {
@@ -64,12 +71,13 @@ public sealed class CountdownTimer : IDisposable
 
         _completed = false;
         _stopwatch.Restart();
-        _coroutine = Main.Instance.StartCoroutine(Run());
+        _coroutine = Main.Instance.StartCoroutine(_hasTickEvent ? Run() : RunWithoutTicks());
     }
 
-    public void Stop()
+    private IEnumerator RunWithoutTicks()
     {
-        Dispose();
+        yield return new WaitForSecondsRealtime(_durationSeconds);
+        Complete();
     }
 
     private IEnumerator Run()
@@ -78,12 +86,12 @@ public sealed class CountdownTimer : IDisposable
 
         while (_stopwatch.Elapsed.TotalSeconds < _durationSeconds)
         {
-            if (IsCanceled()) break;
-            
             int remaining = (int)Math.Ceiling(Remaining.TotalSeconds);
 
             if (lastRemaining != remaining)
             {
+                if (IsCanceled()) break;
+            
                 try { OnTick?.Invoke(); }
                 catch (Exception e) { Utils.ThrowException(e); }
                 
@@ -99,7 +107,7 @@ public sealed class CountdownTimer : IDisposable
         Complete();
     }
 
-    private bool IsCanceled()
+    public bool IsCanceled()
     {
         if (_cancelOnMeeting && (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)) return true;
         return _cancelOnGameEnd && (GameStates.IsEnded || GameStates.IsLobby || !GameStates.InGame);
@@ -113,13 +121,12 @@ public sealed class CountdownTimer : IDisposable
         _completed = true;
         _stopwatch.Stop();
 
-        try { OnTick?.Invoke(); }
-        catch (Exception e) { Utils.ThrowException(e); }
-
         try
         {
             if (!IsCanceled())
                 OnElapsed?.Invoke();
+            else
+                OnCanceled?.Invoke();
         }
         catch (Exception e)
         {
@@ -142,5 +149,6 @@ public sealed class CountdownTimer : IDisposable
         _stopwatch.Stop();
         OnElapsed = null;
         OnTick = null;
+        OnCanceled = null;
     }
 }

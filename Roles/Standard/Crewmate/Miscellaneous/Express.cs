@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
 internal class Express : RoleBase
 {
-    public static Dictionary<byte, long> SpeedUp = [];
-    public static Dictionary<byte, float> SpeedNormal = [];
+    private CountdownTimer Timer;
 
     public static bool On;
     public override bool IsEnable => On;
@@ -26,6 +26,7 @@ internal class Express : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        Timer = null;
     }
 
     public override void Init()
@@ -35,25 +36,24 @@ internal class Express : RoleBase
 
     public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
     {
-        if (!SpeedUp.ContainsKey(player.PlayerId)) SpeedNormal[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId];
-
-        Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
-        SpeedUp[player.PlayerId] = Utils.TimeStamp;
-        player.MarkDirtySettings();
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask) return;
-
-        byte playerId = player.PlayerId;
-        long now = Utils.TimeStamp;
-
-        if (SpeedUp.TryGetValue(playerId, out long etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
+        if (Timer == null)
         {
-            SpeedUp.Remove(playerId);
-            Main.AllPlayerSpeed[playerId] = SpeedNormal[playerId];
+            Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
             player.MarkDirtySettings();
         }
+        else
+            Timer.Dispose();
+        
+        Timer = new CountdownTimer(Options.ExpressSpeedDur.GetInt(), () =>
+        {
+            Timer = null;
+            Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            player.MarkDirtySettings();
+        }, onCanceled: () =>
+        {
+            Timer = null;
+            if (Main.RealOptionsData == null) return;
+            Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+        });
     }
 }

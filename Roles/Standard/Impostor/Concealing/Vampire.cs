@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -12,7 +13,7 @@ public class Vampire : RoleBase
 {
     private const int Id = 4500;
     private static readonly List<byte> PlayerIdList = [];
-    private static readonly Dictionary<byte, BittenInfo> BittenPlayers = [];
+    private static readonly HashSet<byte> BittenPlayers = [];
 
     private static OptionItem Cooldown;
     private static OptionItem OptionKillDelay;
@@ -23,6 +24,8 @@ public class Vampire : RoleBase
     private bool IsPoisoner;
     private float KillCooldown;
     private float KillDelay;
+
+    private byte VampireId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -52,6 +55,7 @@ public class Vampire : RoleBase
     {
         PlayerIdList.Add(playerId);
 
+        VampireId = playerId;
         IsPoisoner = Main.PlayerStates[playerId].MainRole == CustomRoles.Poisoner;
 
         if (!IsPoisoner)
@@ -96,7 +100,7 @@ public class Vampire : RoleBase
         if (target.Is(CustomRoles.Pestilence)) return true;
         if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) return true;
         if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted() && Opportunist.OppoImmuneToAttacksWhenTasksDone.GetBool()) return true;
-        if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return true;
+        if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)) return true;
         if (Medic.ProtectList.Contains(target.PlayerId)) return true;
 
         if (CanKillNormally) return killer.CheckDoubleTrigger(target, Bite);
@@ -108,34 +112,15 @@ public class Vampire : RoleBase
         {
             killer.SetKillCooldown(KillCooldown + KillDelay);
             killer.RPCPlayCustomSound("Bite");
+            
+            BittenPlayers.Add(target.PlayerId);
 
-            if (!BittenPlayers.ContainsKey(target.PlayerId)) BittenPlayers.Add(target.PlayerId, new(killer.PlayerId, 0f));
-        }
-    }
-
-    public override void OnFixedUpdate(PlayerControl vampire)
-    {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance) return;
-
-        byte vampireID = vampire.PlayerId;
-
-        List<byte> targetList = [.. BittenPlayers.Where(b => b.Value.VampireId == vampireID).Select(b => b.Key)];
-
-        foreach (byte targetId in targetList.ToArray())
-        {
-            BittenInfo bitten = BittenPlayers[targetId];
-
-            if (bitten.KillTimer >= KillDelay)
+            _ = new CountdownTimer(KillDelay, () =>
             {
-                PlayerControl target = Utils.GetPlayerById(targetId);
-                KillBitten(vampire, target);
-                BittenPlayers.Remove(targetId);
-            }
-            else
-            {
-                bitten.KillTimer += Time.fixedDeltaTime;
-                BittenPlayers[targetId] = bitten;
-            }
+                if (target == null || !target.IsAlive()) return;
+                KillBitten(killer, target);
+                BittenPlayers.Remove(target.PlayerId);
+            }, onCanceled: BittenPlayers.Clear);
         }
     }
 
@@ -160,12 +145,12 @@ public class Vampire : RoleBase
     {
         try
         {
-            foreach (byte targetId in BittenPlayers.Keys)
+            foreach (byte targetId in BittenPlayers)
             {
                 try
                 {
                     PlayerControl target = Utils.GetPlayerById(targetId);
-                    PlayerControl vampire = Utils.GetPlayerById(BittenPlayers[targetId].VampireId);
+                    PlayerControl vampire = Utils.GetPlayerById(VampireId);
                     KillBitten(vampire, target, meeting: true);
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
@@ -180,11 +165,4 @@ public class Vampire : RoleBase
     {
         hud.KillButton.OverrideText(GetString(IsPoisoner ? "PoisonerKillButtonText" : "VampireBiteButtonText"));
     }
-
-    private class BittenInfo(byte vampierId, float killTimer)
-    {
-        public readonly byte VampireId = vampierId;
-        public float KillTimer = killTimer;
-    }
-
 }
