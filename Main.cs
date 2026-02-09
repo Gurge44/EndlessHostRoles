@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -496,6 +496,8 @@ public class Main : BasePlugin
                 { CustomRoles.TimeMaster, "#44baff" },
                 { CustomRoles.Crusader, "#C65C39" },
                 { CustomRoles.Speedrunner, "#800080" },
+                { CustomRoles.Unshifter, "#00b4eb" },
+                { CustomRoles.Scanner, "#42f5a7" },
                 // Neutrals
                 { CustomRoles.Arsonist, "#ff6633" },
                 { CustomRoles.Pyromaniac, "#ff6633" },

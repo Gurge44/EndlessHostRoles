@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -365,6 +365,9 @@ internal static class CustomRolesHelper
             CustomRoles.Lurker => CustomRoles.Impostor,
             CustomRoles.Doomsayer => CustomRoles.Crewmate,
             CustomRoles.Godfather => CustomRoles.Impostor,
+            CustomRoles.Unshifter => CustomRoles.Impostor,
+            CustomRoles.Scanner => CustomRoles.Phantom,
+            CustomRoles.Fakeshifter => CustomRoles.Shapeshifter,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() switch
             {
                 0 => CustomRoles.Impostor,
@@ -484,6 +487,8 @@ internal static class CustomRolesHelper
             CustomRoles.Deputy => UsePets && Deputy.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Bestower => UsePets && Bestower.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Retributionist => UsePets && Retributionist.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Unshifter => RoleTypes.Impostor,
+            CustomRoles.Scanner => RoleTypes.Phantom,
             CustomRoles.Arsonist => RoleTypes.Impostor,
             CustomRoles.Jackal => RoleTypes.Impostor,
             CustomRoles.Medusa => RoleTypes.Impostor,
@@ -825,7 +830,8 @@ internal static class CustomRolesHelper
             CustomRoles.Devourer or
             CustomRoles.Camouflager or
             CustomRoles.Twister or
-            CustomRoles.Lurker;
+            CustomRoles.Lurker or
+            CustomRoles.Fakeshifter;
     }
 
     public static bool IsNeutral(this CustomRoles role, bool check = false)
