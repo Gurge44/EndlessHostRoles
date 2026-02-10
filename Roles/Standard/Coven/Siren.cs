@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -37,7 +38,7 @@ public class Siren : CovenBase
         "ECMO.OriginalTeam"
     ];
 
-    private Dictionary<byte, long> EffectEndTS;
+    private HashSet<byte> AffectedPlayers;
     private byte SirenId;
 
     private Dictionary<byte, int> Stages;
@@ -75,7 +76,7 @@ public class Siren : CovenBase
     {
         On = true;
         Stages = [];
-        EffectEndTS = [];
+        AffectedPlayers = [];
         SirenId = playerId;
         Instances.Add(this);
     }
@@ -94,7 +95,7 @@ public class Siren : CovenBase
     {
         foreach (Siren instance in Instances)
         {
-            if (instance.EffectEndTS.ContainsKey(playerId))
+            if (instance.AffectedPlayers.Contains(playerId))
             {
                 float vision = ReducedVision.GetFloat();
                 opt.SetVision(false);
@@ -117,7 +118,7 @@ public class Siren : CovenBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(SingRange.GetFloat(), pc.Pos()).Without(pc).Where(x => !x.Is(Team.Coven)).ToArray();
+        PlayerControl[] nearbyPlayers = FastVector2.GetPlayersInRange(SingRange.GetFloat(), pc.Pos()).Without(pc).Where(x => !x.Is(Team.Coven)).ToArray();
 
         foreach (PlayerControl player in nearbyPlayers)
         {
@@ -129,13 +130,28 @@ public class Siren : CovenBase
             switch (stage)
             {
                 case 1:
-                    EffectEndTS[player.PlayerId] = Utils.TimeStamp + Stage1EffectsLength.GetInt();
+                    AffectedPlayers.Add(player.PlayerId);
+                    _ = new CountdownTimer(Stage1EffectsLength.GetInt(), () =>
+                    {
+                        AffectedPlayers.Remove(player.PlayerId);
+                        player.MarkDirtySettings();
+                    }, onCanceled: () => AffectedPlayers.Remove(player.PlayerId));
                     player.MarkDirtySettings();
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
                     break;
                 case 2:
+                    AffectedPlayers.Add(player.PlayerId);
+                    _ = new CountdownTimer(Stage2EffectsLength.GetInt(), () =>
+                    {
+                        AffectedPlayers.Remove(player.PlayerId);
+                        ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
+                        player.MarkDirtySettings();
+                    }, onCanceled: () =>
+                    {
+                        AffectedPlayers.Remove(player.PlayerId);
+                        ReportDeadBodyPatch.CanReport[player.PlayerId] = true;
+                    });
                     ReportDeadBodyPatch.CanReport[player.PlayerId] = false;
-                    EffectEndTS[player.PlayerId] = Utils.TimeStamp + Stage2EffectsLength.GetInt();
                     player.MarkDirtySettings();
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
                     break;
@@ -146,16 +162,6 @@ public class Siren : CovenBase
         }
 
         return false;
-    }
-
-    public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
-    {
-        if (lowLoad || !GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || !EffectEndTS.TryGetValue(pc.PlayerId, out var endTS) || endTS > Utils.TimeStamp) return;
-
-        ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
-        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-        EffectEndTS.Remove(pc.PlayerId);
-        pc.MarkDirtySettings();
     }
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)

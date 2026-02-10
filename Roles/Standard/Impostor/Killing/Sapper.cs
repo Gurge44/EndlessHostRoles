@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -131,7 +132,7 @@ public class Sapper : RoleBase
         foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp).ToArray())
         {
             var b = false;
-            IEnumerable<PlayerControl> players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
+            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(Radius.GetFloat(), bomb.Key);
 
             foreach (PlayerControl tg in players)
             {

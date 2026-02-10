@@ -216,7 +216,7 @@ public class ToiletMaster : RoleBase
                     int duration = RedPoopRoleBlockDuration.GetInt();
                     List<PlayerControl> affectedPlayers = [];
 
-                    Utils.GetPlayersInRadius(RedPoopRadius.GetFloat(), pos).Without(pc).Do(x =>
+                    FastVector2.GetPlayersInRange(RedPoopRadius.GetFloat(), pos).Without(pc).Do(x =>
                     {
                         x.BlockRole(duration);
                         Main.AllPlayerSpeed[x.PlayerId] = Main.MinSpeed;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -204,7 +205,7 @@ public class Empress : CovenBase
 
     public override void OnPet(PlayerControl pc)
     {
-        PlayerControl[] playersInRadius = Utils.GetPlayersInRadius(CoverageRange.GetFloat(), pc.Pos()).Where(x => x.Is(Team.Coven)).ToArray();
+        PlayerControl[] playersInRadius = FastVector2.GetPlayersInRange(CoverageRange.GetFloat(), pc.Pos()).Where(x => x.Is(Team.Coven)).ToArray();
         float duration = CoverageDuration.GetFloat();
         float delay = CoverageDelay.GetFloat();
         LateTask.New(() =>

@@ -2457,16 +2457,16 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
+            if (!pc.IsAlive()) return null;
 
+            Vector3 position = pc.Pos();
             Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
-            if (rooms == null) return null;
 
             foreach (PlainShipRoom room in rooms)
             {
-                if (!room.roomArea) continue;
-
-                if (!pc.Collider.IsTouching(room.roomArea)) continue;
+                var roomArea = room.roomArea;
+                if (!roomArea) continue;
+                if (!roomArea.bounds.Contains(position)) continue;
 
                 string roomName = GetString($"{room.RoomId}");
                 if (!playerRooms.TryAdd(roomName, 1)) playerRooms[roomName]++;

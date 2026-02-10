@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
@@ -2209,25 +2210,85 @@ internal static class ExtendedPlayerControl
         return killerId == byte.MaxValue ? null : GetPlayerById(killerId);
     }
 
+    private static readonly Dictionary<byte, PlainShipRoom> PlayerRoomCache = [];
+
+    [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
     public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
+        if (!pc.IsAlive()) return null;
 
-        Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
-        return rooms.Where(room => room.roomArea).FirstOrDefault(room => pc.Collider.IsTouching(room.roomArea));
+        byte id = pc.PlayerId;
+        Vector3 pos = pc.Pos();
+
+        if (PlayerRoomCache.TryGetValue(id, out var cached))
+        {
+            var area = cached.roomArea;
+            if (area && area.bounds.Contains(pos)) return cached;
+        }
+
+        var rooms = ShipStatus.Instance.AllRooms;
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            var room = rooms[i];
+            var area = room.roomArea;
+
+            if (area && area.bounds.Contains(pos))
+            {
+                PlayerRoomCache[id] = room;
+                return room;
+            }
+        }
+
+        PlayerRoomCache.Remove(id);
+        return null;
+    }
+
+    [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
+    public static PlainShipRoom GetPlainShipRoom(this Vector2 pos)
+    {
+        var rooms = ShipStatus.Instance.AllRooms;
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            var room = rooms[i];
+            var area = room.roomArea;
+
+            if (area && area.bounds.Contains(pos))
+                return room;
+        }
+
+        return null;
+    }
+    
+    public static bool IsInRoom(this Vector2 pos, PlainShipRoom room)
+    {
+        if (room == null) return false;
+        var roomArea = room.roomArea;
+        return roomArea && roomArea.bounds.Contains(pos);
+    }
+    
+    public static bool IsInRoom(this Vector2 pos, SystemTypes roomId)
+    {
+        PlainShipRoom room = roomId.GetRoomClass();
+        if (room == null) return false;
+        var roomArea = room.roomArea;
+        return roomArea && roomArea.bounds.Contains(pos);
     }
     
     public static bool IsInRoom(this PlayerControl pc, PlainShipRoom room)
     {
-        if (room == null || !room.roomArea) return false;
-        return pc.IsAlive() && pc.Collider.IsTouching(room.roomArea);
+        if (room == null) return false;
+        var roomArea = room.roomArea;
+        if (!roomArea) return false;
+        return pc.IsAlive() && roomArea.bounds.Contains(pc.Pos());
     }
     
     public static bool IsInRoom(this PlayerControl pc, SystemTypes roomId)
     {
         if (!pc.IsAlive()) return false;
         PlainShipRoom room = roomId.GetRoomClass();
-        return room != null && room.roomArea && pc.Collider.IsTouching(room.roomArea);
+        if (room == null) return false;
+        var roomArea = room.roomArea;
+        return roomArea && roomArea.bounds.Contains(pc.Pos());
     }
 
     public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)

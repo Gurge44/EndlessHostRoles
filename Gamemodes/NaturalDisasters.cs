@@ -695,12 +695,11 @@ public static class NaturalDisasters
             {
                 LastHit = now;
                 var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
-                var cno = new Lightning(hit);
 
-                if (cno.playerControl.GetPlainShipRoom() != null)
-                    cno.Despawn();
-                else
+                if (hit.GetPlainShipRoom() == null)
                 {
+                    _ = new Lightning(hit);
+                    
                     foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (FastVector2.DistanceWithinRange(pc.Pos(), hit, Range / 2f))
@@ -984,11 +983,9 @@ public static class NaturalDisasters
             {
                 if (pc.onLadder || pc.inMovingPlat || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation()) continue;
                 
-                PlainShipRoom room = pc.GetPlainShipRoom();
-
-                if (room != null && CollapsedRooms.Exists(x => x == room))
+                if (CollapsedRooms.FindFirst(x => pc.IsInRoom(x), out PlainShipRoom collapsedRoom))
                 {
-                    if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
+                    if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos) && !lastPos.IsInRoom(collapsedRoom))
                     {
                         RPC.PlaySoundRPC(pc.PlayerId, Sounds.ImpDiscovered);
                         pc.TP(lastPos);

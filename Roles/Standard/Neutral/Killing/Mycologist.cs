@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
@@ -152,7 +153,7 @@ internal class Mycologist : RoleBase
 
         LateTask.New(() =>
         {
-            InfectedPlayers.AddRange(GetPlayersInRadius(InfectRadius.GetFloat(), MycologistPC.Pos()).Select(x => x.PlayerId));
+            InfectedPlayers.AddRange(FastVector2.GetPlayersInRange(InfectRadius.GetFloat(), MycologistPC.Pos()).Select(x => x.PlayerId));
             SendRPC();
             NotifyRoles(SpecifySeer: MycologistPC);
         }, InfectTime.GetFloat(), "Mycologist Infect Time");

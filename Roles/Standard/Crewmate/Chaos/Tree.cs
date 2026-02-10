@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -84,7 +85,7 @@ public class Tree : RoleBase
             bool allKill = true;
             bool any = false;
             
-            Utils.GetPlayersInRadius(FallRadius.GetFloat(), pc.Pos()).Without(pc).Do(x =>
+            FastVector2.GetPlayersInRange(FallRadius.GetFloat(), pc.Pos()).Without(pc).Do(x =>
             {
                 any = true;
                 if (IRandom.Instance.Next(100) < chance) x.Suicide(PlayerState.DeathReason.Fall, pc);

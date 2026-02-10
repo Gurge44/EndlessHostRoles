@@ -14,6 +14,28 @@ public static class FastVector2
     }
     
     /// <summary>
+    /// Finds all living players from origin in a given range
+    /// </summary>
+    public static IEnumerable<PlayerControl> GetPlayersInRange(float range, Vector2 origin)
+    {
+        float rangeSq = range * range;
+
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        {
+            if (pc.inVent) continue;
+            
+            Vector2 p = pc.Pos();
+            float dx = p.x - origin.x;
+            float dy = p.y - origin.y;
+            float sq = dx * dx + dy * dy;
+
+            if (sq > rangeSq) continue;
+
+            yield return pc;
+        }
+    }
+    
+    /// <summary>
     /// Finds the closest position to origin within the given range.
     /// Returns true if one was found.
     /// </summary>
@@ -41,6 +63,43 @@ public static class FastVector2
             {
                 minSq = sq;
                 closest = p;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+    
+    /// <summary>
+    /// Finds the closest living player to origin within the given range.
+    /// Returns true if one was found.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool TryGetClosestPlayerInRange(
+        in Vector2 origin,
+        float range,
+        out PlayerControl closest)
+    {
+        float rangeSq = range * range;
+        float minSq = float.MaxValue;
+        bool found = false;
+        closest = null;
+
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        {
+            if (pc.inVent) continue;
+            
+            Vector2 p = pc.Pos();
+            float dx = p.x - origin.x;
+            float dy = p.y - origin.y;
+            float sq = dx * dx + dy * dy;
+
+            if (sq > rangeSq) continue;
+
+            if (sq < minSq)
+            {
+                minSq = sq;
+                closest = pc;
                 found = true;
             }
         }

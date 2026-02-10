@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Utils;
@@ -135,7 +136,7 @@ internal class Bubble : RoleBase
                 return;
             }
 
-            IEnumerable<PlayerControl> players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
+            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(ExplosionRadius.GetFloat(), encasedPc.Pos());
 
             var numDied = 0;
 

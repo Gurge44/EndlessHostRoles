@@ -1363,7 +1363,7 @@ public static class BedWars
                 }
             }
 
-            PlayerControl[] playersInRadius = Utils.GetPlayersInRadius(ShopAndItemGeneratorRange, NetObject.Position).ToArray();
+            PlayerControl[] playersInRadius = FastVector2.GetPlayersInRange(ShopAndItemGeneratorRange, NetObject.Position).ToArray();
 
             foreach (PlayerControl pc in playersInRadius)
             {

@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -67,13 +68,13 @@ public sealed class Stealth : RoleBase
         Collider2D roomArea = room.roomArea;
         SystemTypes roomName = room.RoomId;
         RpcDarken(roomName);
-        return Main.EnumerateAlivePlayerControls().Where(player => player != StealthPC && player.Collider.IsTouching(roomArea));
+        return Main.EnumerateAlivePlayerControls().Where(player => player != StealthPC && roomArea.bounds.Contains(player.Pos()));
     }
 
     private IEnumerable<PlayerControl> FindPlayersInRange()
     {
         var pos = StealthPC.Pos();
-        var inRange = Utils.GetPlayersInRadius(blindingRadius, pos).Without(StealthPC);
+        var inRange = FastVector2.GetPlayersInRange(blindingRadius, pos).Without(StealthPC);
         if (excludeImpostors) inRange = inRange.Where(p => !p.Is(CustomRoleTypes.Impostor));
         return inRange;
     }

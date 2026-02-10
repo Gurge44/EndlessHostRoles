@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -106,7 +107,7 @@ public class Explosivist : RoleBase
 
         if (Explosive != null && (ExplodeTS <= Utils.TimeStamp || !pc.IsAlive()))
         {
-            Utils.GetPlayersInRadius(ExplosionRadius.GetFloat(), Explosive.Position).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
+            FastVector2.GetPlayersInRange(ExplosionRadius.GetFloat(), Explosive.Position).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
 
             pc.RevertFreeze(RealPosition);
             

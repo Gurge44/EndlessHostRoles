@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -61,7 +62,7 @@ public class Banshee : CovenBase
     {
         float radius = Radius.GetFloat();
         Vector2 pos = pc.Pos();
-        IEnumerable<PlayerControl> nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc);
+        IEnumerable<PlayerControl> nearbyPlayers = FastVector2.GetPlayersInRange(radius, pos).Without(pc);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
         else nearbyPlayers.Do(x => x.Suicide(PlayerState.DeathReason.Deafened, pc));

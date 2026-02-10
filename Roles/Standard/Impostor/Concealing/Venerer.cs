@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -133,7 +134,7 @@ public class Venerer : RoleBase
                             yield break;
                         }
 
-                        HashSet<byte> nearbyPlayers = Utils.GetPlayersInRadius(radius, pc.Pos()).Without(pc).Select(x => x.PlayerId).ToHashSet();
+                        HashSet<byte> nearbyPlayers = FastVector2.GetPlayersInRange(radius, pc.Pos()).Without(pc).Select(x => x.PlayerId).ToHashSet();
                         frozenPlayers.Except(nearbyPlayers).Do(x =>
                         {
                             PlayerControl p = Utils.GetPlayerById(x);

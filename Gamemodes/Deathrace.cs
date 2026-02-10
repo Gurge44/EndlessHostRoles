@@ -397,7 +397,7 @@ public static class Deathrace
         PowerUp powerUp = data.PowerUps[0];
         pc.RPCPlayCustomSound("Line");
         data.PowerUps.RemoveAt(0);
-        PlayerControl[] playersInRange = Utils.GetPlayersInRadius(PowerUpEffectRange, pc.Pos()).Without(pc).ToArray();
+        PlayerControl[] playersInRange = FastVector2.GetPlayersInRange(PowerUpEffectRange, pc.Pos()).Without(pc).ToArray();
 
         switch (powerUp)
         {

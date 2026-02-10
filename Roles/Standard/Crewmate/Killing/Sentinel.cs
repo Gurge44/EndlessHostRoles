@@ -26,7 +26,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
 
     private CountdownTimer Timer;
 
-    public IEnumerable<PlayerControl> NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && (!Sentinel.IsMadmate() || !x.Is(Team.Impostor)) && SentinelId != x.PlayerId);
+    public IEnumerable<PlayerControl> NearbyKillers => FastVector2.GetPlayersInRange(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && (!Sentinel.IsMadmate() || !x.Is(Team.Impostor)) && SentinelId != x.PlayerId);
     
     public void SetPlayer()
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -52,7 +53,7 @@ public class Leery : RoleBase
 
         Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
-        PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc).ToArray();
+        PlayerControl[] nearbyPlayers = FastVector2.GetPlayersInRange(radius, pos).Without(pc).ToArray();
 
         if (nearbyPlayers.Length == 0)
         {
