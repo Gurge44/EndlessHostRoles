@@ -6,7 +6,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
-using UnityEngine;
 using static EHR.Roles.Randomizer;
 
 namespace EHR.Roles;

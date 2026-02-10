@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
-using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR.Roles;

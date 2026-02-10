@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Roles;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
 using EHR.Gamemodes;
