@@ -940,7 +940,10 @@ internal static class ShapeshiftPatch
     {
         if (!Main.ProcessShapeshifts || !GameStates.IsInTask || __instance == null || target == null) return;
 
-        bool animated = !(Options.DisableShapeshiftAnimations.GetBool() || Options.DisableAllShapeshiftAnimations.GetBool()) || !__instance.GetCustomRole().IsNoAnimationShifter();
+        bool animated = !Options.DisableShapeshiftAnimations.GetBool()
+                && !Options.DisableAllShapeshiftAnimations.GetBool()
+                && !__instance.GetCustomRole().IsNoAnimationShifter();
+
         float ssTimer = animated ? 1.2f : 0.5f;
 
         LateTask.New(() =>
