@@ -205,7 +205,7 @@ public class Empress : CovenBase
 
     public override void OnPet(PlayerControl pc)
     {
-        PlayerControl[] playersInRadius = FastVector2.GetPlayersInRange(CoverageRange.GetFloat(), pc.Pos()).Where(x => x.Is(Team.Coven)).ToArray();
+        PlayerControl[] playersInRadius = FastVector2.GetPlayersInRange(pc.Pos(), CoverageRange.GetFloat()).Where(x => x.Is(Team.Coven)).ToArray();
         float duration = CoverageDuration.GetFloat();
         float delay = CoverageDelay.GetFloat();
         LateTask.New(() =>

@@ -240,7 +240,7 @@ internal static class EffectExtenstions
                     int bombTime = IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration);
                     Bombs.TryAdd(randomPlayerPos, new CountdownTimer(bombTime, () =>
                     {
-                        foreach (PlayerControl pc in FastVector2.GetPlayersInRange(RandomFloat, randomPlayerPos))
+                        foreach (PlayerControl pc in FastVector2.GetPlayersInRange(randomPlayerPos, RandomFloat))
                             pc.Suicide(PlayerState.DeathReason.RNG, randomizer);
 
                         Bombs.Remove(randomPlayerPos);

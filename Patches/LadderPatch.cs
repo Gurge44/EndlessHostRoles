@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EHR.Modules.Extensions;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -38,7 +39,7 @@ public class FallFromLadder
     {
         if (player.Data.Disconnected) return;
 
-        if (TargetLadderData.TryGetValue(player.PlayerId, out Vector3 targetLadderData) && Vector2.Distance(targetLadderData, player.Pos()) < 0.5f)
+        if (TargetLadderData.TryGetValue(player.PlayerId, out Vector3 targetLadderData) && FastVector2.DistanceWithinRange(targetLadderData, player.Pos(), 0.5f))
         {
             if (player.Data.IsDead || !player.IsAlive()) return;
 

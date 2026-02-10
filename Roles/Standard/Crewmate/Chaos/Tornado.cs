@@ -140,7 +140,7 @@ internal class Tornado : RoleBase
 
             foreach (KeyValuePair<(Vector2 Location, string RoomName), long> tornado in Tornados)
             {
-                if (Vector2.Distance(tornado.Key.Location, pc.Pos()) <= tornadoRange)
+                if (FastVector2.DistanceWithinRange(tornado.Key.Location, pc.Pos(), tornadoRange))
                 {
                     if (!CanUseMap || Random.Next(0, 100) < 50)
                         pc.TPToRandomVent();

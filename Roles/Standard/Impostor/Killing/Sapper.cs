@@ -132,7 +132,7 @@ public class Sapper : RoleBase
         foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp).ToArray())
         {
             var b = false;
-            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(Radius.GetFloat(), bomb.Key);
+            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(bomb.Key, Radius.GetFloat());
 
             foreach (PlayerControl tg in players)
             {

@@ -134,7 +134,7 @@ public class Venerer : RoleBase
                             yield break;
                         }
 
-                        HashSet<byte> nearbyPlayers = FastVector2.GetPlayersInRange(radius, pc.Pos()).Without(pc).Select(x => x.PlayerId).ToHashSet();
+                        HashSet<byte> nearbyPlayers = FastVector2.GetPlayersInRange(pc.Pos(), radius).Without(pc).Select(x => x.PlayerId).ToHashSet();
                         frozenPlayers.Except(nearbyPlayers).Do(x =>
                         {
                             PlayerControl p = Utils.GetPlayerById(x);

@@ -136,7 +136,7 @@ internal class Bubble : RoleBase
                 return;
             }
 
-            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(ExplosionRadius.GetFloat(), encasedPc.Pos());
+            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(encasedPc.Pos(), ExplosionRadius.GetFloat());
 
             var numDied = 0;
 

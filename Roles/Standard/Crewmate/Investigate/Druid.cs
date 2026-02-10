@@ -168,7 +168,7 @@ public class Druid : RoleBase
 
         foreach (KeyValuePair<Vector2, string> trigger in Triggers.ToArray())
         {
-            if (Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f)
+            if (FastVector2.DistanceWithinRange(trigger.Key, pc.Pos(), 1.5f))
             {
                 Triggers.Remove(trigger.Key);
                 DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));

@@ -118,7 +118,7 @@ public class Siren : CovenBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        PlayerControl[] nearbyPlayers = FastVector2.GetPlayersInRange(SingRange.GetFloat(), pc.Pos()).Without(pc).Where(x => !x.Is(Team.Coven)).ToArray();
+        PlayerControl[] nearbyPlayers = FastVector2.GetPlayersInRange(pc.Pos(), SingRange.GetFloat()).Without(pc).Where(x => !x.Is(Team.Coven)).ToArray();
 
         foreach (PlayerControl player in nearbyPlayers)
         {

@@ -1233,17 +1233,6 @@ public static class Utils
         messages.SendMultipleMessages();
     }
 
-    /// <summary>
-    ///     Gets all players within a specified radius from the specified location
-    /// </summary>
-    /// <param name="radius">The radius</param>
-    /// <param name="from">The location which the radius is counted from</param>
-    /// <returns>A list containing all PlayerControls within the specified range from the specified location</returns>
-    public static IEnumerable<PlayerControl> GetPlayersInRadius(float radius, Vector2 from)
-    {
-        return from tg in Main.EnumerateAlivePlayerControls() let dis = Vector2.Distance(@from, tg.Pos()) where !Pelican.IsEaten(tg.PlayerId) && !tg.inVent where dis <= radius select tg;
-    }
-
     public static void ShowActiveSettings(byte playerId = byte.MaxValue)
     {
         if (Options.HideGameSettings.GetBool() && playerId != byte.MaxValue)

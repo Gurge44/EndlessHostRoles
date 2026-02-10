@@ -83,7 +83,7 @@ internal class Bloodmoon : IGhostRole
             if (pc.RpcCheckAndMurder(player, true)) player.Suicide(PlayerState.DeathReason.LossOfBlood, pc);
         }
 
-        FastVector2.GetPlayersInRange(7f, pc.Pos()).DoIf(x => !x.Is(Team.Impostor), x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None));
+        FastVector2.GetPlayersInRange(pc.Pos(), 7f).DoIf(x => !x.Is(Team.Impostor), x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None));
     }
 
     public static void OnMeetingStart()

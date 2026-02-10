@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
@@ -191,26 +192,28 @@ internal static class ExternalRpcPetPatch
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
         Vector2 pos = pc.Pos();
-        List<(PlayerControl pc, float distance)> players = Main.EnumerateAlivePlayerControls().Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 3.5f).OrderBy(x => x.distance).ToList();
-        PlayerControl target = players.Count > 0 ? players[0].pc : null;
+        PlayerControl target = FastVector2.TryGetClosestPlayerInRange(pos, 3.5f, out PlayerControl closest, x => x.PlayerId != pc.PlayerId) ? closest : null;
 
-        if (target != null && target.Is(CustomRoles.Detour))
+        if (target != null)
         {
-            PlayerControl tempTarget = target;
-            target = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
-            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
-
-            if (tempTarget.AmOwner)
+            if (target.Is(CustomRoles.Detour))
             {
-                Detour.TotalRedirections++;
-                if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
-            }
-        }
+                PlayerControl tempTarget = target;
+                target = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
+                Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-        if (target != null && Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
-        {
-            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
-            target = newTarget;
+                if (tempTarget.AmOwner)
+                {
+                    Detour.TotalRedirections++;
+                    if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                }
+            }
+            
+            if (Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
+            {
+                Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+                target = newTarget;
+            }
         }
 
         return target;

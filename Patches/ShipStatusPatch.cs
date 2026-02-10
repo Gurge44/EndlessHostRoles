@@ -121,9 +121,9 @@ internal static class RepairSystemPatch
             {
                 if (Main.NormalOptions.MapId == 4)
                 {
-                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.Pos(), new(-12.93f, -11.28f)) <= 2f) return false;
-                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.Pos(), new(13.92f, 6.43f)) <= 2f) return false;
-                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.Pos(), new(30.56f, 2.12f)) <= 2f) return false;
+                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && FastVector2.DistanceWithinRange(player.Pos(), new(-12.93f, -11.28f), 2f)) return false;
+                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && FastVector2.DistanceWithinRange(player.Pos(), new(13.92f, 6.43f), 2f)) return false;
+                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && FastVector2.DistanceWithinRange(player.Pos(), new(30.56f, 2.12f), 2f)) return false;
                 }
 
                 var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();

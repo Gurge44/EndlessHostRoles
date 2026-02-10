@@ -107,7 +107,7 @@ public class Explosivist : RoleBase
 
         if (Explosive != null && (ExplodeTS <= Utils.TimeStamp || !pc.IsAlive()))
         {
-            FastVector2.GetPlayersInRange(ExplosionRadius.GetFloat(), Explosive.Position).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
+            FastVector2.GetPlayersInRange(Explosive.Position, ExplosionRadius.GetFloat()).Without(pc).Do(x => x.Suicide(PlayerState.DeathReason.Bombed, pc));
 
             pc.RevertFreeze(RealPosition);
             

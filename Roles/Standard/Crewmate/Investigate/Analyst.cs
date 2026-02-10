@@ -153,7 +153,7 @@ internal class Analyst : RoleBase
         PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
         if (target == null) return;
 
-        if (Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
+        if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f)))
         {
             CurrentTarget.ID = byte.MaxValue;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);

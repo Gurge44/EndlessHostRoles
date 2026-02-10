@@ -8,6 +8,7 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Roles;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -2073,7 +2074,7 @@ internal static class ExtendedPlayerControl
                 if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
                 Vector2 pos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
 
-                if (Vector2.Distance(pos, Pelican.GetBlackRoomPS()) > 2f)
+                if (!FastVector2.DistanceWithinRange(pos, Pelican.GetBlackRoomPS(), 2f))
                 {
                     foreach (PlayerState ps in Main.PlayerStates.Values)
                     {

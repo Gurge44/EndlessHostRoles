@@ -55,7 +55,7 @@ public class Allergic : IAddon
 
         PlayerControl target = targetId.GetPlayer();
 
-        if (target == null || !target.IsAlive() || Vector2.Distance(pc.Pos(), target.Pos()) > Range.GetFloat())
+        if (target == null || !target.IsAlive() || !FastVector2.DistanceWithinRange(pc.Pos(), target.Pos(), Range.GetFloat()))
         {
             if (AllergyMaxTS.Remove(pc.PlayerId))
             {

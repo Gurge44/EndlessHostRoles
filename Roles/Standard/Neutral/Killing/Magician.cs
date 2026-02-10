@@ -192,7 +192,7 @@ public class Magician : RoleBase
             case 1: // Slowness for everyone nearby
                 if (TempSpeeds.Count > 0) RevertSpeedChanges(true);
 
-                IEnumerable<PlayerControl> list = FastVector2.GetPlayersInRange(SlownessRadius.GetFloat(), pc.Pos());
+                IEnumerable<PlayerControl> list = FastVector2.GetPlayersInRange(pc.Pos(), SlownessRadius.GetFloat());
 
                 foreach (PlayerControl x in list)
                 {
@@ -260,7 +260,7 @@ public class Magician : RoleBase
 
                 break;
             case 6: // Blind everyone nearby
-                IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(BlindRadius.GetFloat(), pc.Pos());
+                IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(pc.Pos(), BlindRadius.GetFloat());
 
                 foreach (PlayerControl x in players)
                 {
@@ -370,7 +370,7 @@ public class Magician : RoleBase
             foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp).ToArray())
             {
                 var b = false;
-                IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(BombRadius.GetFloat(), bomb.Key);
+                IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(bomb.Key, BombRadius.GetFloat());
 
                 foreach (PlayerControl tg in players)
                 {

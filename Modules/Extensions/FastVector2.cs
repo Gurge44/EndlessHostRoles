@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace EHR.Modules.Extensions;
@@ -16,13 +17,14 @@ public static class FastVector2
     /// <summary>
     /// Finds all living players from origin in a given range
     /// </summary>
-    public static IEnumerable<PlayerControl> GetPlayersInRange(float range, Vector2 origin)
+    public static IEnumerable<PlayerControl> GetPlayersInRange(Vector2 origin, float range, Predicate<PlayerControl> predicate = null)
     {
+        predicate ??= _ => true;
         float rangeSq = range * range;
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
-            if (pc.inVent) continue;
+            if (pc.inVent || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();
             float dx = p.x - origin.x;
@@ -71,6 +73,41 @@ public static class FastVector2
     }
     
     /// <summary>
+    /// Finds the closest living player to origin.
+    /// Returns true if one was found.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool TryGetClosestPlayer(
+        in Vector2 origin,
+        out PlayerControl closest,
+        Predicate<PlayerControl> predicate = null)
+    {
+        predicate ??= _ => true;
+        float minSq = float.MaxValue;
+        bool found = false;
+        closest = null;
+
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        {
+            if (pc.inVent || !predicate(pc)) continue;
+            
+            Vector2 p = pc.Pos();
+            float dx = p.x - origin.x;
+            float dy = p.y - origin.y;
+            float sq = dx * dx + dy * dy;
+
+            if (sq < minSq)
+            {
+                minSq = sq;
+                closest = pc;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+    
+    /// <summary>
     /// Finds the closest living player to origin within the given range.
     /// Returns true if one was found.
     /// </summary>
@@ -78,8 +115,10 @@ public static class FastVector2
     public static bool TryGetClosestPlayerInRange(
         in Vector2 origin,
         float range,
-        out PlayerControl closest)
+        out PlayerControl closest,
+        Predicate<PlayerControl> predicate = null)
     {
+        predicate ??= _ => true;
         float rangeSq = range * range;
         float minSq = float.MaxValue;
         bool found = false;
@@ -87,7 +126,7 @@ public static class FastVector2
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
-            if (pc.inVent) continue;
+            if (pc.inVent || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();
             float dx = p.x - origin.x;

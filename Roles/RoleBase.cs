@@ -7,6 +7,7 @@ global using Vector2 = UnityEngine.Vector2;
 global using File = System.IO.File;
 global using StringBuilder = System.Text.StringBuilder;
 global using Logger = EHR.Logger;
+global using FastVector2 = EHR.Modules.Extensions.FastVector2;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

@@ -74,7 +74,7 @@ public sealed class Stealth : RoleBase
     private IEnumerable<PlayerControl> FindPlayersInRange()
     {
         var pos = StealthPC.Pos();
-        var inRange = FastVector2.GetPlayersInRange(blindingRadius, pos).Without(StealthPC);
+        var inRange = FastVector2.GetPlayersInRange(pos, blindingRadius).Without(StealthPC);
         if (excludeImpostors) inRange = inRange.Where(p => !p.Is(CustomRoleTypes.Impostor));
         return inRange;
     }

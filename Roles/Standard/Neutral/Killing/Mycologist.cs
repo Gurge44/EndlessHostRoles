@@ -153,7 +153,7 @@ internal class Mycologist : RoleBase
 
         LateTask.New(() =>
         {
-            InfectedPlayers.AddRange(FastVector2.GetPlayersInRange(InfectRadius.GetFloat(), MycologistPC.Pos()).Select(x => x.PlayerId));
+            InfectedPlayers.AddRange(FastVector2.GetPlayersInRange(MycologistPC.Pos(), InfectRadius.GetFloat()).Select(x => x.PlayerId));
             SendRPC();
             NotifyRoles(SpecifySeer: MycologistPC);
         }, InfectTime.GetFloat(), "Mycologist Infect Time");

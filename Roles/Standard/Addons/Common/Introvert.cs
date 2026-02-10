@@ -36,7 +36,7 @@ public class Introvert : IAddon
 
         Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
-        bool anyoneNear = Main.EnumerateAlivePlayerControls().Without(pc).Any(x => Vector2.Distance(pos, x.Pos()) <= radius);
+        bool anyoneNear = FastVector2.GetPlayersInRange(pos, radius).Any(x => x.PlayerId != pc.PlayerId);
 
         if (!anyoneNear)
         {

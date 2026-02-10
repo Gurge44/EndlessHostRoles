@@ -115,8 +115,7 @@ public class Summoner : CovenBase
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);
                 summoned.SyncGeneralOptions();
                 summoned.SyncSettings();
-                Vector2 pos = summoned.Pos();
-                summoned.TP(Main.EnumerateAlivePlayerControls().MinBy(x => Vector2.Distance(x.Pos(), pos)));
+                summoned.TP(FastVector2.TryGetClosestPlayer(summoned.Pos(), out PlayerControl closest) ? closest : PlayerControl.LocalPlayer);
                 LateTask.New(() => summoned.SetKillCooldown(10f), 0.2f);
                 
                 Utils.SendRPC(CustomRPC.SyncRoleData, SummonerId, 1, SummonedPlayerId);
