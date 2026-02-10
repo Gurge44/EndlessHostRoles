@@ -1205,11 +1205,11 @@ internal static class IntroCutsceneDestroyPatch
 
                 StartGameHostPatch.RpcSetRoleReplacer.SetActualSelfRolesAfterOverride();
                 
-                var doubleAgents = Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.DoubleAgent)).ToList();
+                var doubleAgents = aapc.Where(x => x.Is(CustomRoles.DoubleAgent)).ToList();
 
                 if (doubleAgents.Count > 0)
                 {
-                    Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(Team.Impostor), x =>
+                    aapc.DoIf(x => x.Is(Team.Impostor), x =>
                     {
                         var sender = CustomRpcSender.Create("Double Agent", SendOption.Reliable);
                         doubleAgents.ForEach(da => sender.RpcSetRole(da, RoleTypes.Impostor, x.OwnerId, changeRoleMap: true));
@@ -1311,6 +1311,9 @@ internal static class IntroCutsceneDestroyPatch
 
             switch (Options.CurrentGameMode)
             {
+                case CustomGameMode.Standard:
+                    Blessed.AfterMeetingTasks();
+                    break;
                 case CustomGameMode.KingOfTheZones:
                     Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
                     break;
