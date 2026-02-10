@@ -229,7 +229,7 @@ internal static class ChatCommands
             new("UIScale", "{scale}", GetString("CommandDescription.UIScale"), Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new("Fabricate", "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
             new("Start", "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
-            new("Summon", "{id}", GetString("CommandDescription.Summon"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true),
+            new("Summon", "{id}", GetString("CommandDescription.Summon"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true, [GetString("CommandArgs.Summon.Id")]),
             
             new("ConfirmAuth", "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -404,7 +404,7 @@ internal static class ChatCommands
 
         if (text.StartsWith('/'))
         {
-            Utils.CheckServerCommand(ref text, out _);
+            Utils.CheckServerCommand(ref text, out bool spamRequired);
             string[] args = text.Split(' ');
             
             foreach (Command command in Command.AllCommands)
@@ -420,13 +420,13 @@ internal static class ChatCommands
                 if (!AmongUsClient.Instance.AmHost && command.UsageLevel != Command.UsageLevels.Modded && command.Key != "ChemistInfo")
                 {
                     RequestCommandProcessingFromHost(text, command.Key);
-                    if (command.IsCanceled) goto Canceled;
+                    if (command.IsCanceled || command.AlwaysHidden || !spamRequired) goto Canceled;
                     break;
                 }
                 
                 command.Action(PlayerControl.LocalPlayer, text, args);
 
-                if (command.IsCanceled) goto Canceled;
+                if (command.IsCanceled || command.AlwaysHidden || !spamRequired) goto Canceled;
                 break;
             }
 
