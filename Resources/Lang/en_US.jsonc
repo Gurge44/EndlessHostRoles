@@ -3458,7 +3458,7 @@
   "BewilderVision": "<color=#c894f5>Bewilder</color> Vision",
   "Blessed": "Blessed",
   "BlessedInfo": "Shielded Temporarily After Meetings",
-  "BlessedInfoLong": "(Add-ons):\\nAs the Blessed, you get a shield after every meeting for a defined number of seconds.",
+  "BlessedInfoLong": "(Add-ons):\\nAs the Blessed, you get a shield after every meeting (and at the start of the game) for a defined number of seconds.",
   "Blessed.MinLivingPlayersToActivateShield": "Minimum Living Players for the Shield to Activate",
   "Blind": "Blind",
   "BlindInfo": "You Can't See Arrows",
