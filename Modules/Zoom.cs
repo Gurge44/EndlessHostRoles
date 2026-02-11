@@ -15,7 +15,7 @@ public static class Zoom
     {
         try
         {
-            if (Camera.main == null) return;
+            if (!Camera.main) return;
 
             if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {

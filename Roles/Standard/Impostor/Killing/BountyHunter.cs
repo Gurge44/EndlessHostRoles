@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
-using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR.Roles;
@@ -21,11 +21,10 @@ public class BountyHunter : RoleBase
     private static float SuccessKillCooldown;
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
-    private byte BountyId;
-    private float ChangeTimer;
-    private byte Target;
 
-    private int Timer;
+    private byte BountyHunterId;
+    private CountdownTimer Timer;
+    private byte Target;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -52,27 +51,18 @@ public class BountyHunter : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-
-        Target = byte.MaxValue;
-        ChangeTimer = OptionTargetChangeTime.GetFloat();
-        Timer = OptionTargetChangeTime.GetInt();
-        BountyId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        BountyId = playerId;
+        BountyHunterId = playerId;
+        Target = byte.MaxValue;
 
         TargetChangeTime = OptionTargetChangeTime.GetFloat();
         SuccessKillCooldown = OptionSuccessKillCooldown.GetFloat();
         FailureKillCooldown = OptionFailureKillCooldown.GetFloat();
         ShowTargetArrow = OptionShowTargetArrow.GetBool();
-
-        Timer = (int)TargetChangeTime;
-
-        Target = byte.MaxValue;
-        ChangeTimer = TargetChangeTime;
 
         if (AmongUsClient.Instance.AmHost) ResetTarget(Utils.GetPlayerById(playerId));
     }
@@ -87,12 +77,12 @@ public class BountyHunter : RoleBase
         if (!Utils.DoRPC) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBountyTarget, SendOption.Reliable);
-        writer.Write(BountyId);
+        writer.Write(BountyHunterId);
         writer.Write(Target);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public void ReceiveRPC(byte bountyId, byte targetId)
+    public void ReceiveRPC(byte targetId)
     {
         Target = targetId;
     }
@@ -118,44 +108,6 @@ public class BountyHunter : RoleBase
         return base.OnCheckMurder(killer, target);
     }
 
-    public override void OnReportDeadBody()
-    {
-        ChangeTimer = TargetChangeTime;
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask || float.IsNaN(ChangeTimer) || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks) return;
-
-        if (!player.IsAlive())
-            ChangeTimer = float.NaN;
-        else
-        {
-            byte targetId = GetTarget(player);
-
-            if (ChangeTimer >= TargetChangeTime)
-            {
-                byte newTargetId = ResetTarget(player);
-                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: Utils.GetPlayerById(newTargetId));
-            }
-
-            if (ChangeTimer >= 0)
-            {
-                ChangeTimer += Time.fixedDeltaTime;
-                int tempTimer = Timer;
-                Timer = (int)(TargetChangeTime - ChangeTimer);
-                if (tempTimer != Timer && Timer <= 15 && !player.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            }
-
-            if (Utils.GetPlayerById(targetId)?.IsAlive() == false)
-            {
-                ResetTarget(player);
-                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}'s target was reset because the previous target died", "BountyHunter");
-                Utils.NotifyRoles(SpecifySeer: player);
-            }
-        }
-    }
-
     public byte GetTarget(PlayerControl player)
     {
         if (player == null) return 0xff;
@@ -170,8 +122,34 @@ public class BountyHunter : RoleBase
 
         byte playerId = player.PlayerId;
 
-        ChangeTimer = 0f;
-        Timer = (int)TargetChangeTime;
+        Timer?.Dispose();
+        Timer = new CountdownTimer(TargetChangeTime, () =>
+        {
+            byte newTargetId = ResetTarget(player);
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: Utils.GetPlayerById(newTargetId));
+        }, onTick: () =>
+        {
+            if (player == null || !player.IsAlive())
+            {
+                Timer.Dispose();
+                Timer = null;
+                Utils.SendRPC(CustomRPC.SyncRoleData, playerId, false);
+                return;
+            }
+            
+            var currentTarget = GetTarget(player).GetPlayer();
+
+            if (currentTarget == null || !currentTarget.IsAlive())
+            {
+                byte newTargetId = ResetTarget(player);
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: Utils.GetPlayerById(newTargetId));
+            }
+
+            if (Timer.Remaining.TotalSeconds > 15) return;
+            
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: SendOption.None);
+        });
+        Utils.SendRPC(CustomRPC.SyncRoleData, playerId, true);
 
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: Reset Target", "BountyHunter");
 
@@ -196,29 +174,32 @@ public class BountyHunter : RoleBase
         return targetId;
     }
 
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Timer = reader.ReadBoolean() ? new CountdownTimer(TargetChangeTime, () => Timer = null, onCanceled: () => Timer = null) : null;
+    }
+
     public override void AfterMeetingTasks()
     {
-        foreach (byte id in PlayerIdList)
+        if (!Main.PlayerStates[BountyHunterId].IsDead)
         {
-            if (!Main.PlayerStates[id].IsDead)
-            {
-                ChangeTimer = 0f;
-                Timer = (int)TargetChangeTime;
-
-                if (Utils.GetPlayerById(id).GetCustomRole() == CustomRoles.BountyHunter)
-                {
-                    Main.AllPlayerKillCooldown[id] = Options.AdjustedDefaultKillCooldown;
-                    Utils.GetPlayerById(id).SyncSettings();
-                }
-            }
+            PlayerControl bh = Utils.GetPlayerById(BountyHunterId);
+            if (bh == null) return;
+            
+            ResetTarget(bh);
         }
+    }
+
+    public override void OnReportDeadBody()
+    {
+        Main.AllPlayerKillCooldown[BountyHunterId] = Options.AdjustedDefaultKillCooldown;
     }
 
     public override string GetProgressText(byte playerId, bool comms)
     {
         if (!AmongUsClient.Instance.AmHost) return string.Empty;
-        if (Timer > 15) return base.GetProgressText(playerId, comms);
-        return $"{base.GetProgressText(playerId, comms)} <#777777>-</color> {string.Format(GetString("BountyHunterSwapTimer"), Timer)}";
+        if (Timer.Remaining.TotalSeconds > 15) return base.GetProgressText(playerId, comms);
+        return $"{base.GetProgressText(playerId, comms)} <#777777>-</color> {string.Format(GetString("BountyHunterSwapTimer"), (int)Timer.Remaining.TotalSeconds)}";
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

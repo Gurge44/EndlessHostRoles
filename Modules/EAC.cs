@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
@@ -17,7 +18,7 @@ internal static class EAC
 {
     public static int DeNum;
     public static readonly HashSet<string> InvalidReports = [];
-    public static readonly Dictionary<byte, float> TimeSinceLastTaskCompletion = [];
+    public static readonly Dictionary<byte, Stopwatch> TimeSinceLastTaskCompletion = [];
 
     public static void WarnHost(int denum = 1)
     {
@@ -330,7 +331,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (TimeSinceLastTaskCompletion.TryGetValue(pc.PlayerId, out float time) && time < 0.1f)
+                    if (TimeSinceLastTaskCompletion.TryGetValue(pc.PlayerId, out Stopwatch timer) && timer.ElapsedMilliseconds < 100)
                     {
                         WarnHost();
                         Report(pc, "Auto complete tasks");
@@ -348,7 +349,7 @@ internal static class EAC
                         return true;
                     }
 
-                    TimeSinceLastTaskCompletion[pc.PlayerId] = 0f;
+                    TimeSinceLastTaskCompletion[pc.PlayerId] = Stopwatch.StartNew();
                     break;
                 }
                 case RpcCalls.SetStartCounter:

@@ -28,7 +28,7 @@ public static class HudSpritePatch
         try
         {
             PlayerControl player = PlayerControl.LocalPlayer;
-            if (player == null) return;
+            if (!player) return;
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
             if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive()) return;

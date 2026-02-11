@@ -42,9 +42,9 @@ internal static class HudManagerPatch
             LoadingScreen.Update();
 
             PlayerControl player = PlayerControl.LocalPlayer;
-            if (player == null) return;
+            if (!player) return;
 
-            if (__instance == null) return;
+            if (!__instance) return;
 
             if (GameStates.IsLobby)
             {

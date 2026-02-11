@@ -36,7 +36,6 @@ public static class FixedUpdateCaller
                 measure = true;
             }
             
-            InnerNetClientFixedUpdatePatch.Postfix();
             if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (1)", "debug");
 
             var amongUsClient = AmongUsClient.Instance;
@@ -45,7 +44,6 @@ public static class FixedUpdateCaller
 
             if (shipStatus)
             {
-                ShipFixedUpdatePatch.Postfix();
                 if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (2)", "debug");
                 ShipStatusFixedUpdatePatch.Postfix(shipStatus);
                 if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (3)", "debug");
@@ -94,12 +92,6 @@ public static class FixedUpdateCaller
             }
 
             if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (12)", "debug");
-            try
-            {
-                foreach (byte key in EAC.TimeSinceLastTaskCompletion.Keys.ToArray())
-                    EAC.TimeSinceLastTaskCompletion[key] += Time.fixedDeltaTime;
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
 
             if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (13)", "debug");
             if (!PlayerControl.LocalPlayer) return;

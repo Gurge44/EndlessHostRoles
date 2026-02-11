@@ -818,27 +818,6 @@ internal static class PlayerControlCheckNamePatch
     }
 }
 
-//[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
-internal static class InnerNetClientFixedUpdatePatch
-{
-    private static float Timer;
-
-    public static void Postfix()
-    {
-        try
-        {
-            if (GameStates.IsLocalGame || !GameStates.IsLobby || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Count < 7) return;
-
-            Timer += Time.fixedDeltaTime;
-            if (Timer < 25f) return;
-            Timer = 0f;
-
-            AmongUsClient.Instance.KickNotJoinedPlayers();
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-    }
-}
-
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
 internal static class SetColorPatch
 {

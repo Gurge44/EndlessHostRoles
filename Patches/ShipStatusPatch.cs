@@ -12,28 +12,6 @@ using UnityEngine;
 
 namespace EHR;
 
-//[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
-internal static class ShipFixedUpdatePatch
-{
-    public static void Postfix( /*ShipStatus __instance*/)
-    {
-        try
-        {
-            if (!AmongUsClient.Instance.AmHost) return;
-
-            if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
-                Main.RefixCooldownDelay -= Time.fixedDeltaTime;
-            else if (!float.IsNaN(Main.RefixCooldownDelay))
-            {
-                Utils.MarkEveryoneDirtySettingsV4();
-                Main.RefixCooldownDelay = float.NaN;
-                Logger.Info("Refix Cooldown", "CoolDown");
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-    }
-}
-
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
 {
@@ -718,8 +696,6 @@ internal static class ShipStatusFixedUpdatePatch
                 try
                 {
                     Vent closestVent = pc.GetClosestVent();
-                    if (closestVent == null) continue;
-
                     int ventId = closestVent.Id;
                     bool canUseVent = pc.CanUseVent(ventId);
 

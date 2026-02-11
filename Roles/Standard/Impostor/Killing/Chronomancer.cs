@@ -114,15 +114,11 @@ public class Chronomancer : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc == null) return;
-
-        if (!pc.Is(CustomRoles.Chronomancer)) return;
-
         if (!GameStates.IsInTask) return;
 
-        if (LastUpdate >= Utils.TimeStamp) return;
-
-        LastUpdate = Utils.TimeStamp;
+        long now = Utils.TimeStamp;
+        if (LastUpdate >= now) return;
+        LastUpdate = now;
 
         var notify = false;
         int beforeCharge = ChargePercent;
