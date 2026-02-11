@@ -11,7 +11,6 @@ public class Unshifter : RoleBase
     private static OptionItem Cooldown;
     private static OptionItem UseLimit;
     private static OptionItem TargetKnows;
-    private static OptionItem ResetShiftedCD;
     private static bool On;
 
     public override bool IsEnable => On;
@@ -21,8 +20,7 @@ public class Unshifter : RoleBase
         StartSetup(Id)
             .AutoSetupOption(ref Cooldown, 25f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds, overrideName: "UnshifterCooldown")
             .AutoSetupOption(ref UseLimit, 3, new IntegerValueRule(0, 20, 1), OptionFormat.Times, overrideName: "UnshifterUseLimit")
-            .AutoSetupOption(ref TargetKnows, true, overrideName: "UnshifterTargetKnows")
-            .AutoSetupOption(ref ResetShiftedCD, false, overrideName: "UnshifterResetShifterCD");
+            .AutoSetupOption(ref TargetKnows, true, overrideName: "UnshifterTargetKnows");
     }
 
     public override void Init()
@@ -63,6 +61,7 @@ public class Unshifter : RoleBase
         }
 
         target.RpcShapeshift(target, true);
+        target.RpcResetAbilityCooldown();
 
         killer.RpcRemoveAbilityUse();
         killer.SetKillCooldown();
@@ -72,9 +71,6 @@ public class Unshifter : RoleBase
 
         if (TargetKnows.GetBool() && target.AmOwner)
             target.Notify(GetString("UnshifterTargetNotify"));
-
-        if (ResetShiftedCD.GetBool())
-            target.RpcResetAbilityCooldown();
 
         Logger.Info($"Unshifter: {killer.GetNameWithRole()} unshifted {target.GetNameWithRole()}", "Unshifter");
         return false;

@@ -1531,7 +1531,6 @@
   "UnshifterTargetNotShifted": "Target is not Shapeshifted.",
   "UnshifterSuccess": "Target was Shapeshifted! Unshift successful!",
   "UnshifterTargetNotify": "You've been unshifted by an <color=#00b4eb>Unshifter</color>!",
-  "UnshifterResetShifterCD": "Reset Shifted Player Cooldowns after Unshift",
   "Vacuum": "Vacuum",
   "VacuumInfo": "Suck In Dead Bodies",
   "VacuumInfoLong": "(Crewmates):\\nAs the Vacuum, while using your ability, all kills' bodies will teleport to you.",

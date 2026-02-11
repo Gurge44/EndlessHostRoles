@@ -815,7 +815,14 @@ internal static class CheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
-        return ShapeshiftPatch.ProcessShapeshift(__instance, target); // return false to cancel the shapeshift
+        if (ShapeshiftPatch.ProcessShapeshift(__instance, target))
+        {
+            bool animated = !Options.DisableShapeshiftAnimations.GetBool()
+                && !Options.DisableAllShapeshiftAnimations.GetBool()
+                && !__instance.GetCustomRole().IsNoAnimationShifter();
+            __instance.RpcShapeshift(target, animated);
+        }
+        return false;
     }
 }
 
