@@ -256,6 +256,7 @@ public class Main : BasePlugin
 
     public override void Load()
     {
+        EmbeddedDeps.Install();
         Instance = this;
 
         //Client Options
