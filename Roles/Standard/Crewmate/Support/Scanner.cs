@@ -63,7 +63,7 @@ public class Scanner : RoleBase
     }
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc != PlayerControl.LocalPlayer || !AbilityActive || !AmongUsClient.Instance.AmHost) return;
+        if (!AbilityActive || !AmongUsClient.Instance.AmHost) return;
 
         foreach (var apc in Main.AllAlivePlayerControls)
         {
