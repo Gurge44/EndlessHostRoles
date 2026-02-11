@@ -132,15 +132,13 @@ jobs:
           cp artifacts/ehr/EHR.dll epic/BepInEx/plugins/
           cp artifacts/ehr/EHR.dll steam/BepInEx/plugins/
 
-      - name: Copy configs to BepInEx config
+      - name: Download modded regions DLL
+        run: curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o packaging/BepInEx/plugins/Mini.RegionInstall.dll
+
+      - name: Copy packaging files to BepInEx config
         run: |
           cp -r packaging/* epic/
           cp -r packaging/* steam/
-
-      - name: Download modded regions DLL to plugins
-        run: |
-          curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o epic/BepInEx/plugins/Mini.RegionInstall.dll
-          cp epic/BepInEx/plugins/Mini.RegionInstall.dll steam/BepInEx/plugins/Mini.RegionInstall.dll
 
       - name: Steam App ID
         run : echo "945360" > steam_appid.txt
