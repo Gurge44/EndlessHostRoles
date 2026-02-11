@@ -134,10 +134,8 @@ jobs:
 
       - name: Copy configs to BepInEx config
         run: |
-          mkdir -p epic/BepInEx/config/
-          mkdir -p steam/BepInEx/config/
-          cp packaging/* epic/BepInEx/config/
-          cp packaging/* steam/BepInEx/config/
+          cp -r packaging/* epic/
+          cp -r packaging/* steam/
 
       - name: Download modded regions DLL to plugins
         run: |
