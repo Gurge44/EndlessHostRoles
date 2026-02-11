@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;

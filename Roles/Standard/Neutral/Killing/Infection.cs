@@ -216,8 +216,7 @@ public class Infection : RoleBase
                 if (oldRate >= 100) continue;
 
                 // Exclude players outside the range
-                float distance = Vector2.Distance(player.Pos(), target.Pos());
-                if (distance > InfectDistance) continue;
+                if (!FastVector2.DistanceWithinRange(player.Pos(), target.Pos(), InfectDistance)) continue;
 
                 float newRate = oldRate + (Time.fixedDeltaTime / InfectTime * 100);
                 newRate = Math.Clamp(newRate, 0, 100);

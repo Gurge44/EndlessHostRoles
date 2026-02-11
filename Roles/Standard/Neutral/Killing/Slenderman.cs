@@ -82,7 +82,7 @@ public class Slenderman : RoleBase
             return;
         }
 
-        bool inRange = Vector2.Distance(pc.Pos(), SlendermanPC.Pos()) <= BlindRange.GetFloat();
+        bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), SlendermanPC.Pos(), BlindRange.GetFloat());
 
         if ((inRange && Blinded.Add(pc.PlayerId)) || (!inRange && Blinded.Remove(pc.PlayerId)))
         {

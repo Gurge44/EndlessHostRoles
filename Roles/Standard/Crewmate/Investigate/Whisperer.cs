@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -83,12 +82,7 @@ public class Whisperer : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1 || Souls.Exists(x => x.IsQuestioning)) return;
-
-        Vector2 pos = pc.Pos();
-        List<Soul> souls = Souls.FindAll(x => x.IsQuestionAble && FastVector2.DistanceWithinRange(pos, x.Position, 1f));
-        if (souls.Count == 0) return;
-
-        Soul soul = souls.MinBy(x => Vector2.Distance(pos, x.Position));
+        if (!FastVector2.TryGetClosestInRange(pc.Pos(), Souls.FindAll(x => x.IsQuestionAble).ToDictionary(x => x.Position, x => x), 1f, out Soul soul)) return;
         soul.QuestioningTime = Duration.GetInt();
         CurrentlyQuestioning.Name = soul.Player.PlayerId.ColoredPlayerName();
         Utils.SendRPC(CustomRPC.SyncRoleData, WhispererId, 1, CurrentlyQuestioning.Name);

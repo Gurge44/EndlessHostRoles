@@ -123,7 +123,8 @@ public class Librarian : RoleBase
             PlayerControl pc = GetPlayerById(id);
             if (pc == null || !pc.IsAlive()) continue;
 
-            if (Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius) librarian = pc;
+            if (FastVector2.DistanceWithinRange(pc.Pos(), reporter.Pos(), silenceRadius))
+                librarian = pc;
         }
 
         if (librarian == null) return true;

@@ -52,7 +52,7 @@ internal class Scavenger : RoleBase
             {
                 while (dur > 0)
                 {
-                    if (killer == null || target == null || Vector2.Distance(killer.Pos(), target.Pos()) > 2f) yield break;
+                    if (killer == null || target == null || !FastVector2.DistanceWithinRange(killer.Pos(), target.Pos(), 2f)) yield break;
                     dur -= Time.fixedDeltaTime;
                     yield return null;
                 }

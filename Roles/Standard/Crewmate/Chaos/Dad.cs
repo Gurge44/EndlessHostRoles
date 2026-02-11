@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;

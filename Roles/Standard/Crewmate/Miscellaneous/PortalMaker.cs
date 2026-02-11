@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 using Color = UnityEngine.Color;
 

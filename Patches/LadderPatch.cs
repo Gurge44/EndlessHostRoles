@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EHR.Modules.Extensions;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;

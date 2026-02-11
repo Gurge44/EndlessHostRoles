@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -169,9 +168,7 @@ public class Abyssbringer : RoleBase
                     continue;
             }
 
-            PlayerControl nearestPlayer = Main.EnumerateAlivePlayerControls().Without(pc).MinBy(x => Vector2.Distance(x.Pos(), blackHole.Position));
-
-            if (nearestPlayer != null)
+            if (FastVector2.TryGetClosestPlayer(blackHole.Position, out PlayerControl nearestPlayer, x => x.PlayerId != pc.PlayerId))
             {
                 Vector2 pos = nearestPlayer.Pos();
 

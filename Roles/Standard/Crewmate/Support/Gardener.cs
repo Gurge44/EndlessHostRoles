@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 

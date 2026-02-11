@@ -164,8 +164,7 @@ public class Fireworker : RoleBase
                 {
                     foreach (Vector3 pos in fireworksPosition)
                     {
-                        float dis = Vector2.Distance(pos, target.Pos());
-                        if (dis > FireworksRadius) continue;
+                        if (!FastVector2.DistanceWithinRange(pos, target.Pos(), FireworksRadius)) continue;
 
                         if (target == pc)
                             suicide = true;

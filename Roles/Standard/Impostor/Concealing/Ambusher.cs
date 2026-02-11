@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -117,12 +116,7 @@ public class Ambusher : RoleBase
 
         if (!DontCheck)
         {
-            Vector2 pos = pc.Pos();
-            float radius = FollowRadius.GetFloat();
-            (PlayerControl pc, float distance)[] nearPlayers = Main.EnumerateAlivePlayerControls().Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= radius).ToArray();
-            PlayerControl closestPlayer = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
-
-            if (closestPlayer == null)
+            if (!FastVector2.TryGetClosestPlayerInRange(pc.Pos(), FollowRadius.GetFloat(), out PlayerControl closestPlayer, x => x.PlayerId != pc.PlayerId))
             {
                 TargetId = byte.MaxValue;
                 TargetTimer = FollowDuration.GetFloat();

@@ -44,7 +44,7 @@ public static class FastVector2
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryGetClosestInRange(
         in Vector2 origin,
-        IReadOnlyList<Vector2> positions,
+        IEnumerable<Vector2> positions,
         float range,
         out Vector2 closest)
     {
@@ -73,6 +73,37 @@ public static class FastVector2
     }
     
     /// <summary>
+    /// Finds the closest position to origin.
+    /// Returns true if one was found.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool TryGetClosest(
+        in Vector2 origin,
+        IEnumerable<Vector2> positions,
+        out Vector2 closest)
+    {
+        float minSq = float.MaxValue;
+        bool found = false;
+        closest = default(Vector2);
+
+        foreach (Vector2 p in positions)
+        {
+            float dx = p.x - origin.x;
+            float dy = p.y - origin.y;
+            float sq = dx * dx + dy * dy;
+
+            if (sq < minSq)
+            {
+                minSq = sq;
+                closest = p;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+    
+    /// <summary>
     /// Finds the closest living player to origin.
     /// Returns true if one was found.
     /// </summary>
@@ -80,7 +111,7 @@ public static class FastVector2
     public static bool TryGetClosestPlayer(
         in Vector2 origin,
         out PlayerControl closest,
-        Predicate<PlayerControl> predicate = null)
+        [Annotations.InstantHandle] Predicate<PlayerControl> predicate = null)
     {
         predicate ??= _ => true;
         float minSq = float.MaxValue;

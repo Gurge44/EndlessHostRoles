@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
@@ -199,7 +197,7 @@ internal static class ExternalRpcPetPatch
             if (target.Is(CustomRoles.Detour))
             {
                 PlayerControl tempTarget = target;
-                target = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
+                FastVector2.TryGetClosestPlayer(target.Pos(), out target, x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)

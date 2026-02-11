@@ -255,8 +255,7 @@ public class Pelican : RoleBase
             if (target == null) continue;
 
             Vector2 pos = GetBlackRoomPS();
-            float dis = Vector2.Distance(pos, target.Pos());
-            if (dis < 2f) continue;
+            if (FastVector2.DistanceWithinRange(pos, target.Pos(), 2f)) continue;
 
             target.TP(pos, log: false);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);

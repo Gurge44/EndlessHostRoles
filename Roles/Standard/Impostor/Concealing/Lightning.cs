@@ -168,8 +168,7 @@ public class Lightning : RoleBase
             if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.Lightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
             {
                 Vector3 pos = gs.Pos();
-                float dis = Vector2.Distance(pos, pc.Pos());
-                if (dis > 0.3f) continue;
+                if (!FastVector2.DistanceWithinRange(pos, pc.Pos(), 0.3f)) continue;
 
                 deList.Add(gs.PlayerId);
                 gs.Suicide(PlayerState.DeathReason.Quantization, RealKiller[gs.PlayerId]);

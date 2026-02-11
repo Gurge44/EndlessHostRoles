@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Modules.Extensions;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;

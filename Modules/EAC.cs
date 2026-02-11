@@ -5,7 +5,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-using EHR.Modules.Extensions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;

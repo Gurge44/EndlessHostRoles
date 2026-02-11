@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
@@ -99,7 +98,7 @@ public class RiftMaker : RoleBase
         if (LastTP + 5 > now) return;
 
         Vector2 pos = player.Pos();
-        if (!Marks.FindFirst(x => Vector2.Distance(x, pos) <= 1f, out Vector2 nearMark)) return;
+        if (!Marks.FindFirst(x => FastVector2.DistanceWithinRange(x, pos, 1f), out Vector2 nearMark)) return;
 
         int index = Marks.IndexOf(nearMark);
         Vector2 target = Marks[1 - index];

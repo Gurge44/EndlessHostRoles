@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;

@@ -194,7 +194,7 @@ public class WeaponMaster : RoleBase
                     {
                         if (Pelican.IsEaten(player.PlayerId) || player == killer || target == player || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.Contains(target.PlayerId)) continue;
 
-                        if (Vector2.Distance(killer.Pos(), player.Pos()) <= Radius.GetFloat())
+                        if (FastVector2.DistanceWithinRange(killer.Pos(), player.Pos(), Radius.GetFloat()))
                             player.Suicide(PlayerState.DeathReason.Kill, killer);
                         
                         if (killer.AmOwner && player.Is(CustomRoles.Tree))

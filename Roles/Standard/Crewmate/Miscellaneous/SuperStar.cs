@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using static EHR.Options;
+﻿using static EHR.Options;
 
 namespace EHR.Roles;
 
@@ -37,7 +36,7 @@ internal class SuperStar : RoleBase
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        return !Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId && Vector2.Distance(x.Pos(), target.Pos()) < 2f);
+        return !FastVector2.TryGetClosestPlayerInRange(target.Pos(), 2f, out _, x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId);
     }
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)

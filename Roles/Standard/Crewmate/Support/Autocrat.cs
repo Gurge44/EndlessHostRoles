@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace EHR.Roles;
+﻿namespace EHR.Roles;
 
 internal class Autocrat : RoleBase
 {
@@ -26,6 +24,6 @@ internal class Autocrat : RoleBase
     {
         if (!pc.IsAlive()) return;
 
-        Main.EnumerateAlivePlayerControls().OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId)?.TP(pc);
+        (FastVector2.TryGetClosestPlayer(pc.Pos(), out PlayerControl closest, x => x.PlayerId != pc.PlayerId) ? closest : pc).TP(pc);
     }
 }

@@ -160,12 +160,10 @@ internal class Tiger : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        if (float.IsNaN(EnrageTimer)) return;
+        if (float.IsNaN(EnrageTimer) || !FastVector2.TryGetClosestPlayerInRange(killer.Pos(), Radius.GetFloat(), out PlayerControl victim, x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId)) return;
 
-        PlayerControl victim = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId).MinBy(x => Vector2.Distance(killer.Pos(), x.Pos()));
-        if (victim == null || Vector2.Distance(killer.Pos(), victim.Pos()) > Radius.GetFloat()) return;
-
-        if (killer.RpcCheckAndMurder(victim, true)) victim.Suicide(realKiller: killer);
+        if (killer.RpcCheckAndMurder(victim, true))
+            victim.Suicide(realKiller: killer);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

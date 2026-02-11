@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 

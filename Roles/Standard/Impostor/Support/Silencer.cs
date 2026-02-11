@@ -125,11 +125,8 @@ public class Silencer : RoleBase
     {
         if (SilenceMode.GetValue() == 2)
         {
-            var pos = pc.Pos();
             var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-            var nearPlayers = Main.EnumerateAlivePlayerControls().Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
-            PlayerControl target = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
-            if (target == null) return false;
+            if (!FastVector2.TryGetClosestPlayerInRange(pc.Pos(), killRange, out PlayerControl target, x => x.PlayerId != pc.PlayerId)) return false;
             
             ForSilencer = [target.PlayerId];
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, target.PlayerId);

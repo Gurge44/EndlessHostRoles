@@ -48,17 +48,12 @@ internal class Crewpostor : RoleBase
 
         SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
-        PlayerControl[] list = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())).ToArray();
-
-        if (list.Length == 0)
+        if (!FastVector2.TryGetClosestPlayer(player.Pos(), out PlayerControl target, x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())))
             Logger.Info("No target to kill", "Crewpostor");
         else if (TasksDone[player.PlayerId] % CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
             Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");
         else
         {
-            list = [.. list.OrderBy(x => Vector2.Distance(player.Pos(), x.Pos()))];
-            PlayerControl target = list[0];
-
             if (!target.Is(CustomRoles.Pestilence))
             {
                 if (!CrewpostorLungeKill.GetBool())

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using EHR.Patches;
 using Hazel;
 using UnityEngine;
@@ -245,8 +244,7 @@ internal class Adventurer : RoleBase
 
                         RemoveAndNotify();
                         break;
-                    case Weapon.Prediction:
-                        PlayerControl closest = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(pc.Pos(), x.Pos()));
+                    case Weapon.Prediction when FastVector2.TryGetClosestPlayer(pc.Pos(), out PlayerControl closest, x => x.PlayerId != pc.PlayerId):
                         RevealedPlayers.Add(closest.PlayerId);
                         RemoveAndNotify(closest);
                         break;
@@ -297,7 +295,7 @@ internal class Adventurer : RoleBase
             Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
         }
 
-        if (LastGroupingResourceTimeStamp + 20 <= now && Main.EnumerateAlivePlayerControls().Count(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pc.Pos()) < 2f) >= 2)
+        if (LastGroupingResourceTimeStamp + 20 <= now && Main.EnumerateAlivePlayerControls().Count(x => x.PlayerId != pc.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pc.Pos(), 2f)) >= 2)
         {
             if (ResourceLocations.TryGetValue(Resource.Grouping, out Vector2 location))
             {

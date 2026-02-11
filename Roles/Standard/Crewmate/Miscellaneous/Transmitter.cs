@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace EHR.Roles;
+﻿namespace EHR.Roles;
 
 public class Transmitter : RoleBase
 {
@@ -24,6 +22,6 @@ public class Transmitter : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        pc.TP(Main.EnumerateAlivePlayerControls().OrderBy(x => Vector2.Distance(x.Pos(), pc.Pos())).FirstOrDefault(x => x.PlayerId != pc.PlayerId) ?? pc);
+        pc.TP(FastVector2.TryGetClosestPlayer(pc.Pos(), out PlayerControl closest, x => x.PlayerId != pc.PlayerId) ? closest : pc);
     }
 }

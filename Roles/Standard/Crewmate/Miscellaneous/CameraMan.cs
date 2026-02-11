@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
-using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 

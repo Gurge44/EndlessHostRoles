@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 using static EHR.Utils;
@@ -171,7 +170,7 @@ internal class Bubble : RoleBase
 
         if (ts + NotifyDelay.GetInt() < now)
         {
-            Main.EnumerateAlivePlayerControls().Where(x => (!LastUpdates.TryGetValue(x.PlayerId, out long la) || la != now) && Vector2.Distance(x.Pos(), encasedPc.Pos()) < 5f).Do(x =>
+            Main.EnumerateAlivePlayerControls().Where(x => (!LastUpdates.TryGetValue(x.PlayerId, out long la) || la != now) && FastVector2.DistanceWithinRange(x.Pos(), encasedPc.Pos(), 5f)).Do(x =>
             {
                 NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc);
                 LastUpdates[x.PlayerId] = now;

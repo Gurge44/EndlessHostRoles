@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -335,8 +334,7 @@ public class Magician : RoleBase
 
                 foreach (Vector2 mark in PortalMarks.ToArray())
                 {
-                    float dis = Vector2.Distance(mark, position);
-                    if (dis > 2f) continue;
+                    if (!FastVector2.DistanceWithinRange(mark, position, 2f)) continue;
 
                     isTP = true;
                     from = mark;

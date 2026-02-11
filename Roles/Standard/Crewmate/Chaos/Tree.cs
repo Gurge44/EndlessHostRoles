@@ -1,6 +1,5 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
