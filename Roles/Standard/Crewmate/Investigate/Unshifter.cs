@@ -66,10 +66,9 @@ public class Unshifter : RoleBase
         killer.RpcRemoveAbilityUse();
         killer.SetKillCooldown();
 
-        if (killer.AmOwner)
-            killer.Notify(GetString("UnshifterSuccess"));
+        killer.Notify(GetString("UnshifterSuccess"));
 
-        if (TargetKnows.GetBool() && target.AmOwner)
+        if (TargetKnows.GetBool())
             target.Notify(GetString("UnshifterTargetNotify"));
 
         Logger.Info($"Unshifter: {killer.GetNameWithRole()} unshifted {target.GetNameWithRole()}", "Unshifter");
