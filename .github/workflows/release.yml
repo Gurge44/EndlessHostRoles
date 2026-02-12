@@ -132,17 +132,15 @@ jobs:
           cp artifacts/ehr/EHR.dll epic/BepInEx/plugins/
           cp artifacts/ehr/EHR.dll steam/BepInEx/plugins/
 
-      - name: Copy configs to BepInEx config
-        run: |
-          mkdir -p epic/BepInEx/config/
-          mkdir -p steam/BepInEx/config/
-          cp packaging/* epic/BepInEx/config/
-          cp packaging/* steam/BepInEx/config/
-
-      - name: Download modded regions DLL to plugins
+      - name: Download modded regions DLL
         run: |
           curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o epic/BepInEx/plugins/Mini.RegionInstall.dll
           cp epic/BepInEx/plugins/Mini.RegionInstall.dll steam/BepInEx/plugins/Mini.RegionInstall.dll
+
+      - name: Copy packaging files to BepInEx config
+        run: |
+          cp -r packaging/* epic/
+          cp -r packaging/* steam/
 
       - name: Steam App ID
         run : echo "945360" > steam_appid.txt
@@ -226,12 +224,3 @@ jobs:
           MODNEWS_API_URL: ${{ secrets.MODNEWS_API_URL }}
           MODNEWS_API_TOKEN: ${{ secrets.MODNEWS_API_TOKEN }}
         run: python release_to_modnews.py
-      # -----------------------------
-      # Ping Release Channel
-      # -----------------------------
-      - name: Notify Discord
-        run: |
-          curl -H "Content-Type: application/json" \
-            -X POST \
-            -d "{\"content\": \"<@&1170671991343288391>\nEHR v${{ github.event.inputs.version }}\nhttps://github.com/${{ github.repository }}/releases/tag/v${{ github.event.inputs.version }}\"}" \
-            ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
