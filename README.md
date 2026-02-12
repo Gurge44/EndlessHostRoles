@@ -38,7 +38,7 @@
 
 # Installation
 
-- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/guides/installation/)
+- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/en/guides/installation/)
 - Or watch the tutorial by AnonWorks: [YouTube](https://youtu.be/AOLqWCbbrHM?si=nRRsNgz5-Z8XvFrs)
 
 <br>
@@ -703,3 +703,4 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+
