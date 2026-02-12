@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -812,7 +812,14 @@ internal static class CheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
-        return ShapeshiftPatch.ProcessShapeshift(__instance, target); // return false to cancel the shapeshift
+        if (ShapeshiftPatch.ProcessShapeshift(__instance, target))
+        {
+            bool animated = !Options.DisableShapeshiftAnimations.GetBool()
+                && !Options.DisableAllShapeshiftAnimations.GetBool()
+                && !__instance.GetCustomRole().IsNoAnimationShifter();
+            __instance.RpcShapeshift(target, animated);
+        }
+        return false;
     }
 }
 
@@ -936,6 +943,21 @@ internal static class ShapeshiftPatch
     public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!Main.ProcessShapeshifts || !GameStates.IsInTask || __instance == null || target == null) return;
+
+        bool animated = !Options.DisableShapeshiftAnimations.GetBool()
+                && !Options.DisableAllShapeshiftAnimations.GetBool()
+                && !__instance.GetCustomRole().IsNoAnimationShifter();
+
+        float ssTimer = animated ? 1.2f : 0.5f;
+
+        LateTask.New(() =>
+        {
+            if (AmongUsClient.Instance.AmHost)
+            {
+                __instance.RpcSetName(Main.AllPlayerNames[target.PlayerId]);
+                NotifyRoles(NoCache: true);
+            }
+        }, ssTimer, "PlayerControl.Shapeshift Prefix Patch - Force Name");
 
         bool shapeshifting = __instance.PlayerId != target.PlayerId;
 

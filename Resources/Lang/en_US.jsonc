@@ -1,4 +1,4 @@
-{
+﻿{
   /* ==============================
     CORE & FREQUENTLY USED STRINGS       
   ============================== */
@@ -1279,6 +1279,15 @@
   "SafeguardInfoLong": "(Crewmates):\\nAs the Safeguard, you get a temporary shield with each task you complete.",
   "SafeguardSuffix": "<#00ffa5>You're shielded</color>",
   "SafeguardSuffixTimer": "<#00ffa5>You're shielded for</color> <b>{0}</b>s",
+  "Scanner": "Scanner",
+  "ScannerInfo": "Scan for Invisble Players and Make them Visible Again",
+  "ScannerInfoLong": "(Crewmates)\nAs the Scanner, Vanish to activate your ability. If any invisible player stays near you by a certain amount of time, they become visible again.",
+  "ScannerCooldown": "Ability Cooldown",
+  "ScannerDuration": "Ability Duration",
+  "ScannerAbilityRange": "Ability Range",
+  "ScannerTimeLimit": "Time Limit for invisible players on range to appear",
+  "ScannerWarningInRange": "A <color=#42f5a7>Scanner</color> is near you! If you don't get away in {0}s, you will become visible again!",
+  "ScannerNowVisible": "The <color=#42f5a7>Scanner</color> has made you visible again!",
   "ScientistEHR": "Scientist",
   "ScientistEHRInfo": "Access portable vitals from anywhere",
   "ScientistEHRInfoLong": "(Crewmates):\\nAs the Scientist, you have a portable tablet with the crew's vitals on it. Use this any way you'd like. Catching self-reports, extra intel on body age, etc.",
@@ -1513,6 +1522,15 @@
   "TunnelerInfoLong": "(Crewmates):\\nAs the Tunneler, you may mark a position by petting, and then you can teleport back to the marked position by petting again.",
   "UndercoverInfo": "Impostors see you as their partner",
   "UndercoverInfoLong": "(Crewmates):\\nThe Impostors knows who Undercover is and sees him as a teammate, but Undercover himself does not know who the Impostors are.",
+  "Unshifter": "Unshifter",
+  "UnshifterInfo": "Unshift Shapeshifted Players",
+  "UnshifterInfoLong": "(Crewmates)\nAs the Unshifter(Credits to Dechis), you may use your kill button on someone to unshift them if they are shapeshifted. Using the kill button in Non-Shifted players does nothing but a message. Depending on settings, the target may receive a notification.",
+  "UnshifterCooldown": "Unshift Cooldown",
+  "UnshifterUseLimit": "Maximum Unshift Attempts",
+  "UnshifterTargetKnows": "Target Knows they're being unshifted",
+  "UnshifterTargetNotShifted": "Target is not Shapeshifted.",
+  "UnshifterSuccess": "Target was Shapeshifted! Unshift successful!",
+  "UnshifterTargetNotify": "You've been unshifted by an <color=#00b4eb>Unshifter</color>!",
   "Vacuum": "Vacuum",
   "VacuumInfo": "Suck In Dead Bodies",
   "VacuumInfoLong": "(Crewmates):\\nAs the Vacuum, while using your ability, all kills' bodies will teleport to you.",
@@ -1826,6 +1844,10 @@
   "FabricatorInfoLong": "(Impostors):\\nAs the Fabricator, you can use <b>/cmd fabricate {deathreason}</b> to set the death reason for your next kill. Replace '{deathreason}' with one of the available death reasons in the mod.",
   "Fabricator.InvalidDeathReason": "<#ff5555>X <#bb0000>Invalid death reason '<#ffffff>{0}</color>'!",
   "Fabricator.SetDeathReason": "<#00ff00>✓ <#00bb00>Your next kill will have the death reason: <#ffffff>{0}</color>",
+  "Fakeshifter": "Fakeshifter",
+  "FakeshifterInfo": "Make a Player Fake-Shapeshift",
+  "FakeshifterInfoLong": "(Impostors):\nAs the Fakeshifter, you can use your shapeshift menu to mark a player. That player will appear for everyone, except themselves, as a random player. After some time, that same player will shapeshift back to their original appearance, and play the egg animation for everyone.",
+  "FakeshifterAbilityDuration": "Delay for the target to shapeshift back",
   "Fireworker": "Fireworker",
   "FireworkerInfo": "Go out with a BANG",
   "FireworkerInfoLong": "(Impostors):\\nAs a Fireworker, you can plant up to three firework bombs using vanish/by petting. If you're the last impostor standing, you can use vanish/pet to detonate the bombs and cause area damage. But be careful, the bombs can also harm you. If the bombs eliminate all surviving players, it's a victory for the impostors.",
@@ -4390,7 +4412,7 @@
   "HotPotato_Time": "The Holder of the Hot Potato is Killed Every",
   "HotPotato_TimeLeftSuffix": "<#00ffa5>Kill in </color>",
   // King Of The Zones - KOTZ
-  "KingOfTheZones": "KING OF THE ZONES", 
+  "KingOfTheZones": "KING OF THE ZONES",
   "ModeKingOfTheZones": "Gamemode: King Of The Zones",
   "ModeDescribe.KingOfTheZones": "In the King Of The Zones gamemode, players are split into teams. Some rooms on the map represent a zone. If a team has more players in a room than all other teams, they control the zone. Every second, each team gets 1 point for each zone controlled. Gain as many points as possible, since the team with the highest score wins!\\n\\nPlayers can tag others using the kill button. Tagged players are teleported outside of the map for a few seconds, then teleport back.\\n\\nDepending on the settings, zones may move during the game. If so, this will be indicated by a timer. When a zone moves, it may have a downtime. This is the case if the timer is gray.",
   "KOTZ.EndScreen.Statistics": "Points: <#ffff44>{0}</color>",
@@ -4510,7 +4532,7 @@
   "Quiz.Tutorial.Basics": "The current game mode is <#CF2472>Quiz</color>.\\n<size=90%>You'll get questions, each with 5 choices: A, B, C, D, E.\\nYou must answer the questions correctly within the time limit\\nby entering the room corresponding to the correct answer.\\nThe rooms on this map are:\\n{0}</size>",
   "Quiz.Tutorial.OnCorrectAnswer": "<size=90%>If you answer <#00ff00>correctly</color>, you get to survive.</size>",
   "Quiz.Tutorial.OnWrongAnswer": "<size=90%>If you answer <#ff0000>incorrectly</color>, you will most likely die.</size>",
-  "Quiz.Tutorial.TestRound": "<size=90%>We'll play a test round to show you how it works.</size>",  
+  "Quiz.Tutorial.TestRound": "<size=90%>We'll play a test round to show you how it works.</size>",
   "Quiz.Questions.Test.0": "Which map are we on?",
   "Quiz.Questions.Test.0.Answer.A": "The Skeld/dlekS ehT",
   "Quiz.Questions.Test.0.Answer.B": "Mira HQ",
@@ -8481,7 +8503,7 @@
   "AirshipAdditionalSpawn": "Additional Spawn Locations (<color=#ed0007>Airship</color>)",
   "AirshipReactorTimeLimit": "<color=#ed0007>Airship</color> Reactor Time Limit",
   "AirshipVariableElectrical": "Variable Electrical (<color=#ed0007>Airship</color>)",
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "AllAliveMeeting": "Meeting When No One is Dead",
@@ -8490,20 +8512,20 @@
 
 
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Maximum Arrow show-up delay",
   "ArrowDelayMin": "Minimum Arrow show-up delay",
 
-  
+
   /* ==============================
   General Settings           
   ============================== */
   "AutoFactionMinMaxSettings.Applied": "[Auto Team Sizes] {0} players (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
   "AutoFactionMinMaxSettings.PlayerCap": "Minimum Player Threshold for These Settings to Apply (0 = unused)",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "AutoPlayAgainCountdown": "Delay before Auto Re-Entering Lobby",
@@ -8512,7 +8534,7 @@
   "AutoStartTimer": "Initial Countdown for auto-starting",
   "BKProtectDuration": "Protection Duration",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "BMAE.AfterMeeting": "After Meeting",
@@ -8527,30 +8549,30 @@
   "BlackHolePlaceCooldown": "Black Hole Place Cooldown",
   "BlackHoleRadius": "Black Hole Consuming Radius",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "BlackScreenFixCompleteNotify": "<#00ff00>Black Screen Fix Code Executed</color>",
   "BlackmailedSuffix": "<#ffa500>BLACKMAILED</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "BlockDisturbancesToSwitches": "Block Switches When They Are Up",
   "BlockVentMovement": "Block Movement Between Vents (while in a vent)",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "BombCooldown": "Bomb Cooldown",
   "BombExplodeCooldown": "Bomb explode cooldown",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CL.Enabled": "Enabled",
 
-/* ==============================
+  /* ==============================
     Custom Team Alliances          
   ============================== */
   "CustomTeamHelp": "You are in the {0}! ({1})\\nWork with your team members to win together!",
@@ -8580,7 +8602,7 @@
   "CamerasAndAdmin": "Cameras & Admin",
   "CamerasDisabledNotify": "<color=#ffff00>Cameras are globally disabled by the host</color>",
 
-/* ==============================
+  /* ==============================
     Camouflage           
   ============================== */
   "CamouflageCooldown": "Camouflage Cooldown",
@@ -8591,12 +8613,12 @@
   "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
   "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "CanBeGuessed": "Can Be Guessed",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanBeInLove": "Can be <color=#ff9ace>in love</color>",
@@ -8605,7 +8627,7 @@
   "CanCountNeutralKiller": "When <color=#8cffff>Crewmates</color> win by killing a <color=#ffab1b>Neutral</color> player, they can snatch the victory",
   "CanGetImpostorOnlyAddons": "Can get <#ff1919>Impostor-only</color> add-ons",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "CanGuess": "Can Guess in Guesser Mode",
@@ -8613,7 +8635,7 @@
   "CanGuessDuringDiscussionTime": "Guessers Can Guess During Discussion Time",
   "CanGuessTarget": "Can Guess their Target",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanHandcuffSheriff": "Can Handcuff <color=#f8cd46>Sheriff</color>",
@@ -8629,28 +8651,28 @@
   "CanNotTrialJailed": "You can not trial the target.",
   "CanNotTrialProtected": "You can not trial protected players.",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanOnlyUseWhileAnyWatch": "Can Only Use Ability When There is a Device Usage Alert",
   "CanPickPartnerRole": "Can Pick Roles that Already Exist in the Game",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "CanSabotage": "Can Sabotage",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanShapeshift": "Can <color=#ff1919>Shapeshift</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "CanSwapSelfVotes": "<color=#922348>Swapper</color> Can Swap Themselves",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanTargetCoven": "Can target <color=#7b3fbb>Coven</color>",
@@ -8660,24 +8682,24 @@
   "CantGuessJailed": "You can not guess the target",
 
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "CanUseSabotage": "Can Sabotage",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanVent": "Can Vent",
   "CanVentAfterNecronomicon": "Can Vent <#00ffff>After</color> Receiving The <#7b3fbb>Necronomicon</color>",
   "CanVentBeforeNecronomicon": "Can Vent <#00a5ff>Before</color> Receiving The <#7b3fbb>Necronomicon</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "CanVote": "Can Vote",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CanWinAfterDeath": "Can win after death",
@@ -8685,12 +8707,12 @@
   "CancelSwap1": "First Swap Target Cancelled",
   "CancelSwap2": "Second Swap Target Cancelled",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "CannotCallEmergencyMeetingWhileSabotage": "Emergency meetings cannot be called during crisis",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CannotCleanWhenKCDIsntUp": "Cannot Clean Bodies When Kill Cooldown Isn't Up",
@@ -8699,7 +8721,7 @@
 
 
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CantSwapSelf": "You can't swap yourself",
@@ -8707,24 +8729,24 @@
   "CantUse.lastresult": "Unable to use /lastresult during a game.",
   "CantUse.lastroles": "Unable to use /lastroles during a game.",
 
-/* ==============================
+  /* ==============================
     Teams / Alignments           
   ============================== */
   "ChanceOfSeeingAllAlignmentsOnStart": "Chance Of Seeing All Alignments On Game Start",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "ChargeInterval": "Charge Percentage Gained Each Second When Kill Cooldown Is Up",
   "ChargeLossInterval": "Charge Percentage Lost Each Second While Killing",
 
-/* ==============================
+  /* ==============================
     EAC           
   ============================== */
   "CheatResponses": "When a cheating player is found",
 
 
-/* ==============================
+  /* ==============================
     Combos           
   ============================== */
   "ComboAdd": "{0} and {1} will now always spawn together.",
@@ -9153,27 +9175,27 @@
   "ConfirmEjectionsMode": "Confirm Ejections Mode",
   "ConfirmLoversOnEject": "Confirm <color=#ff9ace>Lovers</color> on ejection",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "ControlCooldown": "Control Cooldown",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ConvertedAddonCanBeGuessed": "{role} can be guessed",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "CooldownsResetEachOther": "Ability Cooldown and Kill Cooldown Reset Each Other",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "CopyCrewVarEvenIfDisabled": "Can copy the crew variant even if that role is disabled",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CountdownText": "<color=#00ffa5>Re-Entering Lobby in</color> <b>{0}</b>s",
@@ -9181,13 +9203,13 @@
   "CovenCanBeRole": "<color=#7b3fbb>Coven</color> can become {role}",
   "CovenCanFindMarshall": "Reveal to <#7b3fbb>Coven</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "CovenCanGuess": "<color=#7b3fbb>Coven</color> can guess",
   "CovenReceiveNecronomiconAfterNumMeetings": "Number of Meetings after which the <color=#7b3fbb>Coven</color> will start receiving the <color=#7b3fbb>Necronomicon</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "CrewCanBeEgoist": "<color=#8cffff>Crewmates</color> can become <color=#5600ff>Egoist</color>",
@@ -9199,17 +9221,17 @@
   "CrewmatesCanGuess": "<color=#8cffff>Crewmates</color> can guess",
   "CurrentActiveSettingsHelp": "Current Active Settings Help",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "CurseCooldown": "Curse Cooldown",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "CustomSabotage.GrabOxygenMask": "Grab Oxygen Mask",
   "CustomSabotage.GrabOxygenMask.Done": "<#00ff00>Oxygen Mask Grabbed! You are safe.</color>",
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "DCNotify.Auth": "You are not authenticated.\\n\\nYou may need to restart your game.",
@@ -9225,7 +9247,7 @@
   "DCNotify.InvalidSettings": "Game settings have been detected to be invalid.\\n\\nEnter local play to reset them, then try again.",
   "DCNotify.Kicked": "You were <color=#ffff00>kicked</color> from this lobby.\\n\\nYou may still rejoin.",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "DCanGuessAdt": "Can Guess Add-Ons",
@@ -9236,24 +9258,24 @@
   "DGRM.OnMeeting": "On Meeting",
 
 
-  
+
   /* ==============================
   Cooldowns and Timers           
   ============================== */
   "DGResetMode": "Skin Reset Mode",
   "DGResetTimer": "If Resetting Skin by Timer, Reset Skin After",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "DIYGameSettings": "Enable only custom /n messages",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "DeactivationAfterMeeting": "After Meeting",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "DeadCrewCantSabotage": "<color=#8cffff>Crewmates</color> can't sabotage after they've died",
@@ -9334,7 +9356,7 @@
 
   "DebugMode": "Debug Mode",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "DecontaminationDoorOpenTimeOnMiraHQ": "Decontamination Door Open Time On <color=#e84b56>MIRA HQ</color>",
@@ -9342,29 +9364,29 @@
   "DecontaminationTimeOnMiraHQ": "Decontamination Time On <color=#e84b56>MIRA HQ</color>",
   "DecontaminationTimeOnPolus": "Decontamination Time On <color=#a167c0>Polus</color>",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "DecreasedKillCooldown": "Decreased Kill Cooldown",
   "DefaultShapeshiftCooldown": "Default Shapeshift Cooldown",
   "DeliverCooldown": "Deliver Cooldown",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "DetectiveSuspectLimit": "Suspects Per Case",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "DevourCooldown": "Devour Cooldown",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "DiedR1Warning": "<#ffff00>(Died First in Last Game)</color>",
 
-/* ==============================
+  /* ==============================
     Task Settings          
   ============================== */
   "Disable8ballCommand": "Disable /8ball command",
@@ -9513,45 +9535,45 @@
   "DisabledByProgram": "Public rooms have been disabled by the program",
   "DisabledBySettings": "Disabled by Settings",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "DoesntSpawnOnFungle": "Doesn't Spawn When the Map is <color=#ffa646>Fungle</color>",
   "DoorsResetMode": "Mode",
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "DoYourTasksPlease": "Please do your tasks!",
 
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "DualVotes": "Duplicate votes",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "DynamicTaskCountColor": "Dynamic Task Count Color",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "E2Block": "Block Erase",
 
-/* ==============================
+  /* ==============================
     EAC           
   ============================== */
   "EAC.CheatDetected.EAC": "Cheating usage detected (Using AUM)",
   "EAC.CheatDetected.HighLevel": "Warning: EAC detected High Level of cheats.",
   "EAC.CheatDetected.LowLevel": "Warning: EAC detected Low Level of cheats. One of the players is hacking.",
 
-/* ==============================
+  /* ==============================
     Teams / Alignments           
   ============================== */
   "ECMO.OriginalTeam": "Original Team",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "EGCanGuessAdt": "Can Guess Add-Ons",
@@ -9609,17 +9631,17 @@
   "UnsupportedVersion": "Unsupported Among Us version.\\nPlease update Among Us.",
   "downloadFailed": "Failed to upload file! \\nPlease try again later or restart the game...",
   "updateFailed": "Update failed.",
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "EVote": "Vote",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "EightBallDisabled": "<#ff0000>X</color> The /8ball command is disabled in this lobby.",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "EnableAFKDetector": "Enable AFK Detector (Also Used To Detect And Fix Black Screens)",
@@ -9638,25 +9660,25 @@
   "EnableSpurtCharge": "Display The Charge",
   "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game.",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "EnterVentWinCountDown": "Enter vent within <b>{0}</b> seconds to win!",
   "EnteredBlockedVent": "<color=#ffff00>This vent is blocked by the Ventguard</color>",
   "EraseLimit": "Max Erases",
-  
-  
-/* ==============================
+
+
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "EvenKillCooldown": "Even-Numbered kill cooldown",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "EveryoneCanVent": "Everyone Can Vent",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ExiledExeTarget": "{0} was {1}.\\nBut they were also the <color=#611c3a>Executioner</color>'s target!\\nGG!",
@@ -9665,19 +9687,19 @@
   "ExiledInnocentTargetInOneLine": "{0} was {1}.\\nBut looking back, there's the <color=#8f815e>Innocent</color> counting the money in their hands....\\nGG!",
   "ExiledJester": "You're all fools!\\n{0} the {1} laughing out loud tricked you into ejecting them.\\nGG!",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "ExtraKillCooldownOnAirship": "Extra Kill Cooldown on <color=#ed0007>Airship</color>",
   "ExtraKillCooldownOnFungle": "Extra Kill Cooldown on <color=#ffa646>Fungle</color>",
   "ExtraKillCooldownOnPolus": "Extra Kill Cooldown on <color=#a167c0>Polus</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ExtraVotesPT": "<#00a5ff>(<#00ffff>+<#00ffa5>{0}</color> votes</color>)</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "FactionLimits.Coven.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Coven Roles",
@@ -9687,39 +9709,39 @@
   "FactionLimits.Neutral.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Neutral Roles",
   "FactionLimits.Neutral.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Neutral Roles",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "FakeTask": "Fake Tasks:",
 
-/* ==============================
+  /* ==============================
     AFK Detector              
   ============================== */
   "FixBlackScreenWaitForDead": "Everyone is alive, and the black screen fix requires a ghost, so it will wait until someone dies.",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Reset First Kill Cooldown",
 
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "FreezeCooldown": "Freeze Cooldown",
   "FreezeDuration": "Freeze Duration",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "FungleMushroomMixupDuration": "<color=#ffa646>The Fungle</color> Mushroom Mixup Duration",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "FungleReactorTimeLimit": "<color=#ffa646>The Fungle</color> Reactor Time Limit",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "GCanGuessAdt": "Can guess Add-ons",
@@ -9730,7 +9752,7 @@
   "GGCanGuessCrew": "Can Guess <color=#8cffff>Crewmate</color> Roles",
   "GGGuessMax": "You've reached the limit of maximum guesses, you can't guess anymore!",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "GSInfo.ConvertedCount": "<#ffab1b>Converted Players</color> <size=70%>(excluding <#ff1919>Madmates</color>)</size>: {0}",
@@ -9738,29 +9760,29 @@
   "GSInfo.CrewCount": "<#8cffff>Crewmates:</color> {0}",
   "GSInfo.ImpCount": "<#ff1919>Impostors:</color> {0}",
 
-/* ==============================
+  /* ==============================
     Lovers           
   ============================== */
   "GSInfo.LoversState": "Number of <#ff9ace>Lovers</color> Alive: {0}",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "GSInfo.MadmateCount": "<#ff1919>Madmates:</color> {0}",
   "GSInfo.NKCount": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>: {0}",
   "GSInfo.NNKCount": "<#ffff00>Non-Killing</color> <#ffab1b>Neutrals</color>: {0}",
 
-/* ==============================
+  /* ==============================
     Lovers           
   ============================== */
   "GSInfo.RomanticState": "{0}",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "GSInfo.Tasks": "<#00ffa5>Completed Tasks:</color> {0}/{1}",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "GanInvestigatorCanBeMadmate": "<color=#BA55D3>Investigator</color> can be converted",
@@ -9768,12 +9790,12 @@
   "GanMarshallCanBeMadmate": "<color=#5573AA>Marshall</color> can be converted",
   "GanMayorCanBeMadmate": "<color=#204d42>Mayor</color> can be converted",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "GanNGuesserCanBeMadmate": "<color=#eede26>Nice Guesser</color> can be converted",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "GanPresidentCanBeMadmate": "<color=#30916f>President</color> can be converted",
@@ -9781,22 +9803,22 @@
   "GhostCanSeeDeathReason": "Ghost Can See Cause Of Death",
   "GhostCanSeeOtherRoles": "Ghosts Can See Other Roles",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "GhostCanSeeOtherVotes": "Ghosts Can See Vote Colors",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "GhostIgnoreTasks": "Ghosts Exempt From Tasks",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "GotGhostRoleNotify": "<#ffff00>You were assigned a ghost role!</color>",
 
-/* ==============================
+  /* ==============================
     Guess Options         
   ============================== */
   "GuessAbility": "Guessers Can Guess <color=#ff9ace>Lovers</color>",
@@ -9838,27 +9860,27 @@
   "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessVanillaCrewmate": "Host settings don't allow to guess someone as the vanilla Crewmate",
   "GuessWorkaholic": "Sorry, you can't guess a revealed Workaholic as that would be unfair.",
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "HideDualVotes": "Hide duplicated votes",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "HideGameSettings": "Hide Game Settings",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "HnSUnloadWarning": "<#ffff00><b>WARNING:</b></color>\\nEHR doesn't support vanilla Hide And Seek and will unload if you enable it.\\nYou can use EHR's Custom Hide And Seek game mode with unique roles instead.",
 
-/* ==============================
+  /* ==============================
     Teams / Alignments           
   ============================== */
   "IfSelectedTeamIsDead": "If the selected team is dead, then the winning team is",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "ImpCanBeEgoist": "An <color=#ff1919>Impostor</color> can become Egoist",
@@ -9867,22 +9889,22 @@
   "ImpCanBeRole": "<color=#ff1919>Impostors</color> can become {role}",
   "ImpCanFindMarshall": "Reveal to <#ff1919>Impostors</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ImpCanGuessImp": "<color=#ff1919>Impostors</color> Can Guess <color=#ff1919>Impostor</color> Roles",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "ImpCanKillMadmate": "<color=#ff1919>Impostors</color> can kill <color=#ff1919>Madmates</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ImpostorsCanGuess": "<color=#ff1919>Impostors</color> can guess",
 
-/* ==============================
+  /* ==============================
     Teams / Alignments           
   ============================== */
   "InVentVisionForTeam": "Vision While In Vent For {team}",
@@ -9890,12 +9912,12 @@
   "IncompatibleMod": "Incompatible Mod",
   "IncompatibleNeutralMode": "If neutral is incompatible, turn into",
 
-/* ==============================
+  /* ==============================
     Achievements           
   ============================== */
   "IncompleteAchievementsTitle": "<#ff0000>ACHIEVEMENTS TO BE UNLOCKED</color>",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "IncreasedSpeedDuration": "Increased Speed Duration",
@@ -9903,12 +9925,12 @@
 
 
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "KCD": "<color=#ff1919>Kill Cooldown:</color> <color=#ffffff><b>{0}</b>s</color>",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KPDCamouflageMode": "Camouflage Appearance",
@@ -9917,13 +9939,13 @@
   "KickBecauseDiffrentVersionOrMod": "<b>{0}</b> was kicked because they had a different version of the mod",
   "KickBecauseLowLevel": "<b>{0}</b> was kicked because their level was too low",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "KickCommandDisabled": "The kick command is currently disabled.",
 
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Kick players whose level is lower than",
@@ -9931,14 +9953,14 @@
   "KickNotJoinedPlayersRegularly": "Kick players who haven't joined the game every 25s in lobby",
 
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickPlayStationPlayer": "<b>{0}</b> was kicked due to playing on PlayStation.",
   "KickPlayerFriendCodeNotExist": "Kick players who are not logged in",
   "KickSlowJoiningPlayers": "Kick Players Who Join Slowly To Prevent Disconnects (if they take more than 5 seconds to send their own data, they will be kicked automatically)",
   "KickXboxPlayer": "<b>{0}</b> was kicked due to playing on Xbox.",
-  
+
   /* ==============================
   Cooldowns and Timers           
   ============================== */
@@ -9948,34 +9970,34 @@
   "KillCooldownAfterStoneGazing": "Kill Cooldown On Stone Gaze",
   "KillCooldownNormally": "Kill Cooldown Without Sabotage",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "KillCount": " Kills: {0}",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "KillFlashDuration": "Kill-Flash Duration",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "LaughToWhoGuessSelf": "Tried to guess, who tried to self-guess! It's you! Ahah!",
   "LaughToWhoMurderSelf": "Hahaha, who would've thought someone was stupid enough to murder themselves?\\n\\nGuess it happens to be... YOU!",
   "LaughToWhoTrialSelf": "God, I didn't think the Judges would be so blind that they wouldn't even see that they had sentenced themselves.",
 
-/* ==============================
+  /* ==============================
     Lovers           
   ============================== */
   "LegacyLovers": "Legacy <color=#ff9ace>Lovers</color>",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "LightsOutSpecialSettings": "Fix Lights Special Settings",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "LimitPerGame": "Limit Per Game",
@@ -10034,40 +10056,40 @@
   "LoadingHint.44": "Did you know?\nThe Dev's favorite number is 44",
   "LoadingHint.45": "Did you know that you can use the yield statement in an iterator to provide the next value or signal the end of an iteration in a loop since async doesn't work in BepInEx?\nYeah, me neither",
   "LoadingWithPercentage": "<b><color=#ffff00>{0}%</color></b>\\n<size=2>{1}</size>\\n<size=1>{2}</size>",
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "LobbyCloseTimer": "Lobby Closing Timer: {0}",
   "LobbyTimer": "Lobby closes in {0}m {1}s",
   "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Fix Lag",
 
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "MadSnitchTasks": "<color=#b8fb4f>Snitch</color> Tasks",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "MadTimeManagerLimitMeetingTime": "<color=#ff1919>Mad</color> <color=#6495ed>Time Manager</color> - Minimum Voting Time",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MadmateCanFindMarshall": "Reveal to <#ff1919>MadMates</color>",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "MadmateCanFixSabotage": "<color=#ff1919>Madmates</color> Can Fix Sabotages",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MadmateCanKillImp": "<color=#ff1919>Madmates</color> can kill <color=#ff1919>Impostors</color>",
@@ -10076,14 +10098,14 @@
   "MadmateCountMode.Imp": "<color=#ff1919>Impostors</color>",
   "MadmateCountMode.None": "Nothing",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "MadmateSpawnMode": "<color=#ff1919>Madmate</color> spawning mode",
   "MadmateSpawnMode.Assign": "Assign",
   "MadmateSpawnMode.FirstKill": "First Kill",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "MadmateSpawnMode.SelfVote": "Self Vote",
@@ -10091,17 +10113,17 @@
   "MainMenu.ExitGameButton": "Quit",
   "MainMenu.InventoryButton": "Inventory",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MainMenu.SettingsButton": "Settings",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "ManipulateNotify": "\\n<color=#ff1919>You were manipulated by the Mastermind!</color>\\n<color=#ffff00>You must kill someone within <color=#ffa500>{0}s</color> or you die!</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MaxAttemptsBlocked": "Maximum Distinct Guessing Attempts Blocked",
@@ -10111,18 +10133,18 @@
   "MaxInspectorCheckLimit": "Max inspections per game",
   "MaxMadmateRoles": "<#00a5ff>Maximum</color> amount of <#ff1919>Madmate</color> Roles",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MaxNNKs": "<#00a5ff>Maximum</color> amount of <#ffff00>Non-Killing</color> <#ffab1b>Neutral Roles</color> <#888888>(Benign, Evil, Pariah)</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MaxWaitAutoStart": "Force start when Lobby Timer goes below (in minutes)",
   "Maximum": "Max",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "Message.AddedPlayerToBanList": "Added <b>{0}</b> to the ban list",
@@ -10153,12 +10175,12 @@
   "Message.LobbyShareFailed": "EHR-Chan does not seem to be online (failed to share lobby)",
   "Message.LobbyShared": "The lobby has successfully been shared!",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "Message.MadmateSelfVoteModeNotify": "Please note: The current Madness generation mode is <b>{0}</b>\\n Voting for yourself means you want to be Madmate. If you meet the conditions to become Madmate and there are still spaces left, you will immediately become Madmate",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "Message.MessageWaitHelp": "Specify the first argument in seconds.",
@@ -10187,7 +10209,7 @@
   "MessageRpcSizeLimit": "Message RPC Size Limit (Higher limit = increased risk of disconnects but fewer message splits - if you never disconnect randomly, up to 15000 can be safe)",
   "MessageTooLong": "Failed to send chat message. The size of the RPC would've exceeded the limit specified in System Settings.",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MinMadmateRoles": "<#00ffa5>Minimum</color> amount of <#ff1919>Madmate</color> Roles",
@@ -10197,33 +10219,33 @@
   "MinPlayersForFungle": "Minimum Players for <color=#ffa646>The Fungle</color>",
   "MinPlayersForGameStateCommand": "Minimum alive players to use this command",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "MinTasksToActivateAbility": "Minimum Number of Tasks Completed to Activate Ability",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MinWaitAutoStart": "Minutes to wait before auto-starting",
   "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "MiraO2TimeLimit": "<color=#e84b56>MIRA HQ</color> O2 Time Limit",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "MiraReactorTimeLimit": "<color=#e84b56>MIRA HQ</color> Reactor Time Limit",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "ModBrokenMessage": "The MOD file is damaged.\\nPlease reinstall.",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "ModLanguage": "Mod Language",
@@ -10231,13 +10253,13 @@
   "ModeratorMuted": "Moderator {0} has muted {1} for <#00ffa5>{2}</color> seconds.",
   "ModeratorTag": "<#8000ff>Moderator</color>",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "Modifier": "\nModifier: ",
   "Modifiers": "\nModifiers: ",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "MurderHelp": "Command: <b>/cmd tl [player ID]</b>\\nYou can see the players' IDs before the players' names.\\nOr use <b>/cmd id</b> to view the list of all player IDs.",
@@ -10247,76 +10269,76 @@
   "MurderMaxGame": "You've reached your maximum murders limit for this game, so it was blocked.",
   "MurderNull": "Please choose a living player to murder.",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>You're muted and cannot send messages. The mute will expire in <#ffff00>{0}</color> seconds.</color>",
 
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "NGuesserCanBeMadmate": "<color=#eede26>Nice Guesser</color> can become <color=#ff1919>Madmate</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "NKCanFindMarshall": "Reveal to <#ffab1b>Neutral Killers</color>",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "NKWinsBySabotageIfNoImpAlive": "The team that wins by critical sabotage time limit if there are no <#ff1919>Impostors</color> alive",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "NNKCanFindMarshall": "Reveal to <#ffff00>Neutral Non-Killers</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "NegativeEffectDuration": "Lower Vision/Speed Duration",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "NeutralCanBeInLove": "<color=#ffab1b>Neutrals</color> can be <color=#ff9ace>in love</color>",
   "NeutralCanBeRole": "<color=#ffab1b>Neutrals</color> can become {role}",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "NeutralKillersCanGuess": "<color=#ffab1b>Neutral Killers</color> can guess",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "NoLimitAddonsNumMax": "Max Add-ons Per Player",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "NoMoreEmergencyMeetingsLeft": "You have no more emergency meetings left",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "NoPetActionMsgCrewTaskDone": "You are free",
   "NoPetActionMsgCrewWithTasksLeft": "You realize you still have tasks to do",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "NoWhisperAsRole": "<#ff0000>X</color> You cannot use the 'whisper' command as this role.",
   "NoWhisperDuringCourt": "<#ff0000>X</color> The 'whisper' command is disabled during court.",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "NoisemakerAlertDuration": "Alert Duration",
@@ -10324,12 +10346,12 @@
   "NotifyGameEnding": "<#ff0000>GAME END NOTIFY</color>\\n<#ffff00>This game has already ended. If it didn't end for you, please leave the game and rejoin the lobby. This is a vanilla bug. Sorry for the inconvenience.</color>",
   "NotifyGodAlive": "Inform players at meetings that God is still alive",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "NukeCooldown": "Nuke Cooldown",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "NumGuessersOn.Coven.Max": "Maximum Number of Coven Guessers",
@@ -10341,56 +10363,56 @@
   "NumGuessersOn.Neutral.Max": "Maximum Number of Neutral Guessers",
   "NumGuessersOn.Neutral.Min": "Minimum Number of Neutral Guessers",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "NumOfTasks": "Number of Tasks to Finish",
 
-/* ==============================
+  /* ==============================
     Lovers           
   ============================== */
   "NumberOfLovers": "Number of <color=#ff9ace>Lover Pairs</color> (x2 members)",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "OddKillCooldown": "Odd-Numbered kill cooldown",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "OnlyCancel": "Cancel Action Only",
   "OnlyShowPart": "Shown only part",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "OverrideOtherCrewBasedRoles": "Override Other Crew Based Roles to Engineer (not just regular Crewmate)",
   "OverrideSpeedForEachMap": "Override Speed For Each Map",
   "OverrideVisionInVents": "Override Vision While In Vent",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "PassiveNeutralsCanGuess": "Passive <color=#ffab1b>Neutrals</color> can guess",
 
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "PetsForceEnabled": "The Speedrun game mode requires pets to be enabled, so they are forced on. You can disable it for future games under Game Modifiers.",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "PoisonCooldown": "Poison Cooldown",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "PolusReactorTimeLimit": "<color=#a167c0>Polus</color> Reactor Time Limit",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "PressF1ShowMainRoleDes": "F1: Show Full Role/Add-ons Info",
@@ -10399,7 +10421,7 @@
   "Promt.EnableRole": "<size=60%>({0}/{1}) {2}\\n</size><size=80%>Enable {3}?</size><size=60%>\\n\\n{4}</size>",
   "Promt.ResetAllOptions": "Are you sure you want to reset all options? This action is irreversible and may take few minutes.",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "RandomMapsMode": "Random Maps Mode",
@@ -10410,7 +10432,7 @@
   "AirshipChance": "Chance that the map is <color=#ed0007>Airship</color>",
   "FungleChance": "Chance that the map is <color=#ffa646>The Fungle</color>",
 
-/* ==============================
+  /* ==============================
     Rates and Percentages
   ============================== */
   "Rate0": "<#662222>0%</color>",
@@ -10434,12 +10456,12 @@
   "Rate90": "<#00ffac>90%</color>",
   "Rate95": "<#00ffa6>95%</color>",
   "Rate100": "<#ffff44>100%</color>",
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "ReadyCheckMessage": "The Host/a Staff is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the Host/Staff know you're not AFK.",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "RemainingText.AnonymousEvilCount.Plural": "Evil Players",
@@ -10485,7 +10507,7 @@
   "RitualMaxCount": "Maximum Reveals",
 
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "Sabotage": "Sabotage",
@@ -10496,7 +10518,7 @@
   "SabotageTimeLimitWinners.Coven": "<#7b3fbb>Coven</color>",
   "SabotageTimeLimitWinners.Imps": "<#ff1919>Impostors</color>",
   "SabotageTimeLimitWinners.NKs": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>",
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "SeeEjectedRolesInMeeting": "See ejected roles in meetings",
@@ -10504,33 +10526,33 @@
   "SendRoleDescriptionFirstMeeting": "Show Role Descriptions to Unmodded Clients on First Meeting",
   "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "SettingsForRoleText": "Settings for",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "ShapeshiftCooldown": "<color=#ff1919>Shapeshift</color> Cooldown",
   "ShapeshiftDuration": "<color=#ff1919>Shapeshift</color> Duration",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "ShareLobbyMinPlayer": "Share Lobby Code When The Number Of Players Reaches",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "ShieldDuration": "Shield Duration",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ShipHasNoMoreMeetingsLeft": "The ship has no more emergency meetings left",
 
-/* ==============================
+  /* ==============================
     Teams / Alignments           
   ============================== */
   "ShortTeamName.Coven": "Coven",
@@ -10538,50 +10560,50 @@
   "ShortTeamName.Impostor": "Imp",
   "ShortTeamName.Neutral": "Neut",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "ShowAntiBlackoutWarning": "Show Anti-Blackout Warning When the Ejection Screen is Overridden",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "ShowArrows": "Has Arrows pointing toward bodies",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ShowCovenRemainOnEject": "Show remaining <color=#7b3fbb>Coven</color> on ejects",
   "ShowDifferentEjectionMessageForSomeRoles": "Show Different Ejection Message for Some Roles (<#ec62a5>Jester</color>, <#611c3a>Executioner</color>, <#8f815e>Innocent</color>, etc.)",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ShowImpRemainOnEject": "Show remaining <color=#ff1919>Impostors</color> on ejects",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ShowNKRemainOnEject": "Show remaining <color=#ffab1b>Neutral Killers</color> on ejects",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "ShowResults": "Show Results",
   "ShowSpecificRole": "Know specific roles on Task Completion",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "ShowTaskCountWhenAlive": "Show Task Count When Alive",
   "ShowTaskCountWhenDead": "Show Task Count When Dead",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "ShowTeamNextToRoleNameOnEject": "Show what team the ejected player's role is on",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "Skeld": "<#66a186>The Skeld</color>",
@@ -10591,33 +10613,33 @@
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "SkeldO2TimeLimit": "<color=#66a186>The Skeld</color> O2 Time Limit",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "SkeldReactorTimeLimit": "<color=#66a186>The Skeld</color> Reactor Time Limit",
   "SpawnAdditionalRenegadeMinAlivePlayers": "Minimum Number of Alive Players to Spawn",
 
-/* ==============================
+  /* ==============================
     Sabotage Settings           
   ============================== */
   "SpectateDisabled": "<#ff0000>X</color> The /spectate command is disabled in this lobby.",
 
-/* ==============================
+  /* ==============================
     Maps           
   ============================== */
   "SpeedForMap": "Player Speed on {map}",
 
-/* ==============================
+  /* ==============================
     Achievements           
   ============================== */
   "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
 
-/* ==============================
+  /* ==============================
     Submerged           
   ============================== */
   "Submerged": "<#3064ff>Submerged</color>",
@@ -10630,23 +10652,23 @@
   "SubmergedRoomName.134": "Lower Central",
   "SubmergedRoomName.135": "Lower Lobby",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "SupportsPetMessage": "\\n\\n<#00ff00>[✓] This role supports Pet button usage for ability triggers or other actions, maybe replacing venting, shapeshifting or killing.</color>",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "SyncButtonMode": "Sync Buttons Mode",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "SyncCustomSettingsRPC": "Synchronized RPC",
   "SyncedButtonCount": "Max Number of Emergency Meetings Allowed",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "TabGroup.GameSettings": "Mod Settings",
@@ -10661,42 +10683,42 @@
   "TabInfo.VanillaSettings": "Base game settings",
   "TargetCannotBeTeleported": "Target cannot be teleported",
 
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "TaskBasedCrewCanBeLazy": "Task based <color=#8cffff>crewmates</color> can be <color=#A4DFFE>Lazy</color>",
   "TasklessCrewCanBeLazy": "<color=#8cffff>Crewmates</color> without tasks can be <color=#A4DFFE>Lazy</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "TieMode.All": "Eject All",
   "TieMode.Default": "No ejects",
   "TieMode.Random": "Eject Random",
 
-/* ==============================
+  /* ==============================
     General Settings           
   ============================== */
   "TrackerCanGetArrowColor": "Can See Colored Arrows",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "TrackerCooldown": "Track Cooldown",
   "TrackerDuration": "Track Duration",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "TrackerHideVote": "Hide <color=#3CB371>Scout</color> Votes",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "TrackerLastRoomMessage": "The evaluation of your tracking showed that the last room in which your target was located was:<b>{0}</b>",
   "TransformationAnnouncementMessage": "The ship has been infected with a powerful disease, turning the <#e5f6b4>Plaguebearer</color> into <color=#343136>Pestilence</color>!",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "TrialHelp": "Command: <b>/cmd tl [player ID]</b>\\nYou can see the players' IDs before the players' names.\\nOr use <b>/cmd id</b> to view the list of all player IDs.",
@@ -10705,22 +10727,22 @@
   "TrialLimitPerMeeting": "Max Trials per Meeting",
   "TrialNull": "Please choose a living player for the trial",
 
-/* ==============================
+  /* ==============================
     AFK Detector              
   ============================== */
   "TryFixBlackScreen": "Try Fixing Black Screen",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "UntilNextMeeting": "Until Next Meeting",
 
-/* ==============================
+  /* ==============================
     Notifications and Messages           
   ============================== */
   "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "UseMeetingShapeshift": "Use Shapeshift Menu in Meetings to Select Targets Instead of Commands/Votes",
@@ -10730,12 +10752,12 @@
   "UseVoteCancellingAfterVote": "Can Vote Normally After Using Ability (Vote)",
   "UsesMeetingShapeshiftNotice": "<#ffff00>⚠ As this role, instead of commands and votes, you need to use the shapeshift menu in meetings to select your target!</color>",
 
-/* ==============================
+  /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "VIPTag": "<#ffff00>VIP</color>",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed",
@@ -10748,13 +10770,13 @@
   "VentLimit": "Vent Entering Limit",
   "VentPreventionMode": "Vent Prevention Mode",
 
-/* ==============================
+  /* ==============================
     Cooldowns and Timers           
   ============================== */
   "VitalsCooldown": "Vitals Cooldown",
   "VitalsDuration": "Vitals Duration",
 
-/* ==============================
+  /* ==============================
     Meeting Settings         
   ============================== */
   "VoteMode": "Voting Mode",
@@ -10857,13 +10879,13 @@
   "pet_poro": "Heimerdinger's Poro",
   "pet_spaceCat": "Space Cat",
   "pet_test": "Glitch Pet",
-/* ==============================
+  /* ==============================
     Task Settings           
   ============================== */
   "roleLongTasksNum": "Amount of Long Tasks for %role%",
   "roleShortTasksNum": "Amount of Short Tasks for %role%",
 
-/* ==============================
+  /* ==============================
     Formats           
   ============================== */
   "Format.Health": "{0}",
@@ -10880,7 +10902,7 @@
   "FormatNameModes.None": "Disable",
   "FormatNameModes.Snacks": "Random",
 
-/* ==============================
+  /* ==============================
     Remaining Text           
   ============================== */
   "RemainingText.CovenPlural": "Covens",
@@ -10893,7 +10915,7 @@
   "RemainingText.Prefix.Single": "​",
   "RemainingText.Suffix": " left",
 
-/* ==============================
+  /* ==============================
     Role Overview Titles           
   ============================== */
   "ROT.AddonType.Harmful": "★ Harmful Add-ons",
@@ -10921,7 +10943,7 @@
   "AllCrewRolesHaveVanillaColor": "All <#8cffff>Crewmate</color> roles have <#8cffff>the vanilla Crewmate color</color> <#ffff00>(REQUIRES RESTART)</color>",
   "ColoredOff": "<color=#ff4c6f><b>╳</b></color>",
   "ColoredOn": "<color=#00fefe><b>✓</b></color>",
-  "IllegalColor": "Please enter the correct color", 
+  "IllegalColor": "Please enter the correct color",
   "AADelay": "Time to Leave Device",
   "AADone": "The process has finished",
   "AGMR.Explicit": "Specified Explicitly",

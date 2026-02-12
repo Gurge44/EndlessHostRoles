@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -702,6 +702,23 @@ internal static class ExtendedPlayerControl
         }
 
         if (!forced) Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
+    }
+    public static void RpcShapeshiftDesync(this PlayerControl shapeshifter, PlayerControl target, PlayerControl seer, bool animate)
+    {
+        if (shapeshifter == null || target == null || seer == null) return;
+
+        int clientId = seer.OwnerId;
+
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            shapeshifter.Shapeshift(target, animate);
+            return;
+        }
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(shapeshifter.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable, clientId);
+        writer.WriteNetObject(target);
+        writer.Write(animate);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs
