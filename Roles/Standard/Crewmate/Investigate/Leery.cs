@@ -49,10 +49,7 @@ public class Leery : RoleBase
 
         Count = 0;
 
-        Vector2 pos = pc.Pos();
-        float radius = Radius.GetFloat();
-
-        if (!FastVector2.TryGetClosestPlayerInRange(pos, radius, out PlayerControl nearestPlayer, x => x.PlayerId != pc.PlayerId))
+        if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, Radius.GetFloat(), out PlayerControl nearestPlayer))
         {
             CurrentTarget = byte.MaxValue;
             InvestigationEndTS = 0;

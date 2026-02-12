@@ -152,13 +152,13 @@ public class Cultist : RoleBase
                               (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.Is(Team.Coven);
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public static void OnAnyoneDead(PlayerControl target)
     {
-        if (!CharmedDiesOnCultistDeath.GetBool() || !GameStates.IsInTask || !IsEnable) return;
+        if (!CharmedDiesOnCultistDeath.GetBool() || !target.Is(CustomRoles.Cultist)) return;
 
-        if (pc == null || pc.IsAlive()) return;
-
-        foreach (PlayerControl charmed in Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Charmed))) charmed.Suicide(realKiller: pc);
+        foreach (PlayerControl charmed in Main.EnumerateAlivePlayerControls())
+            if (charmed.Is(CustomRoles.Charmed))
+                charmed.Suicide(realKiller: target);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

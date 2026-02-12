@@ -48,7 +48,7 @@ public class Mortician : RoleBase
 
     public static void OnPlayerDead(PlayerControl target)
     {
-        LastPlayerName.TryAdd(target.PlayerId, FastVector2.TryGetClosestPlayerInRange(target.Pos(), 4f, out PlayerControl closest, x => x.PlayerId != target.PlayerId) ? closest.GetRealName() : string.Empty);
+        LastPlayerName.TryAdd(target.PlayerId, FastVector2.TryGetClosestPlayerInRangeTo(target, 4f, out PlayerControl closest) ? closest.GetRealName() : string.Empty);
     }
 
     public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)

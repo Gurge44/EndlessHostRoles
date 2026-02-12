@@ -23,7 +23,7 @@ public class Sonar : IAddon
     {
         if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent) return;
         
-        if (!FastVector2.TryGetClosestPlayer(seer.Pos(), out PlayerControl closest, x => x.PlayerId != seer.PlayerId)) return;
+        if (!FastVector2.TryGetClosestPlayerTo(seer, out PlayerControl closest)) return;
 
         if (Target.TryGetValue(seer.PlayerId, out byte targetId))
         {

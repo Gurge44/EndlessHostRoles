@@ -33,6 +33,7 @@ public class Jackal : RoleBase
     public static bool On;
 
     public byte SidekickId;
+    private byte JackalId;
 
     public override bool IsEnable => Instances.Count > 0;
 
@@ -113,6 +114,7 @@ public class Jackal : RoleBase
         Instances.Add(this);
         playerId.SetAbilityUseLimit(1);
         SidekickId = byte.MaxValue;
+        JackalId = playerId;
     }
 
     public override void Remove(byte playerId)
@@ -197,13 +199,6 @@ public class Jackal : RoleBase
         return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Bloodlust) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (pc.IsAlive()) return;
-
-        PromoteSidekick();
-    }
-
     public void PromoteSidekick()
     {
         try
@@ -217,6 +212,17 @@ public class Jackal : RoleBase
             if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public static void OnAnyoneDead()
+    {
+        Instances.ForEach(x =>
+        {
+            var pc = x.JackalId.GetPlayer();
+            if (pc == null || pc.IsAlive()) return;
+            
+            x.PromoteSidekick();
+        });
     }
 }
 

@@ -96,11 +96,10 @@ internal static class GeneratorStatic
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || pc == null || !pc.IsAlive()) return;
+            if (!GameStates.IsInTask || !pc.IsAlive()) return;
 
             long now = Utils.TimeStamp;
             if (now <= LastUpdate) return;
-
             LastUpdate = now;
 
             int beforeCharges = Charges;

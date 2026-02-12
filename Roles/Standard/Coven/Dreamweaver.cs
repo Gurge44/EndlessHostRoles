@@ -81,7 +81,7 @@ public class Dreamweaver : CovenBase
     {
         if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !pc.Is(CustomRoles.Insane) || Main.KillTimers[pc.PlayerId] > 0f) return;
 
-        if (!FastVector2.TryGetClosestPlayerInRange(pc.Pos(), 1.5f, out PlayerControl nearestPlayer)) return;
+        if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, 1.5f, out PlayerControl nearestPlayer)) return;
 
         RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
         Type type = roleBase.GetType();

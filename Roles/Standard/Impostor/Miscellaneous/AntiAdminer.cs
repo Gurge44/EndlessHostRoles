@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -34,7 +35,7 @@ internal class AntiAdminer : RoleBase
     private byte AntiAdminerId;
 
     private int Count;
-    private long ExtraAbilityStartTimeStamp;
+    private CountdownTimer ExtraAbilityTimer;
 
     private bool IsTelecommunication;
 
@@ -73,7 +74,7 @@ internal class AntiAdminer : RoleBase
     {
         PlayerIdList.Add(playerId);
         IsTelecommunication = Main.PlayerStates[playerId].MainRole == CustomRoles.Telecommunication;
-        ExtraAbilityStartTimeStamp = 0;
+        ExtraAbilityTimer = null;
         AntiAdminerId = playerId;
         if (IsTelecommunication && Main.CurrentMap != MapNames.MiraHQ) playerId.SetAbilityUseLimit(Telecommunication.UseLimitOpt.GetFloat());
     }
@@ -85,9 +86,21 @@ internal class AntiAdminer : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (IsTelecommunication || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
+        if (IsTelecommunication || ExtraAbilityTimer != null || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
 
-        ExtraAbilityStartTimeStamp = Utils.TimeStamp;
+        ExtraAbilityTimer = new CountdownTimer(Delay.GetInt(), () =>
+        {
+            ExtraAbilityTimer = null;
+            pc.RpcResetAbilityCooldown();
+            pc.Notify(Translator.GetString("AADone"));
+
+            foreach (PlayerControl player in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive() && pc.RpcCheckAndMurder(x, true)))
+                player.Suicide(realKiller: pc);
+        }, onTick: () =>
+        {
+            foreach (PlayerControl player in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()))
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        });
 
         pc.RpcResetAbilityCooldown();
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -131,33 +144,12 @@ internal class AntiAdminer : RoleBase
     {
         if (!IsEnable) return;
 
-        var notify = false;
-
-        if (!IsTelecommunication && ExtraAbilityStartTimeStamp > 0)
-        {
-            if (ExtraAbilityStartTimeStamp + Delay.GetInt() < Utils.TimeStamp)
-            {
-                ExtraAbilityStartTimeStamp = 0;
-                player.RpcResetAbilityCooldown();
-                player.Notify(Translator.GetString("AADone"));
-
-                foreach (PlayerControl pc in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive() && player.RpcCheckAndMurder(x, true)))
-                    pc.Suicide(realKiller: player);
-            }
-            else
-            {
-                notify = true;
-
-                foreach (PlayerControl pc in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()))
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
-        }
 
         Count--;
         if (Count > 0) return;
+        Count = ExtraAbilityTimer != null ? 1 : 5;
 
-        Count = notify || ExtraAbilityStartTimeStamp > 0 ? 1 : 5;
-
+        var notify = false;
         Dictionary<byte, HashSet<Device>> oldPlayersNearDevices = PlayersNearDevices.ToDictionary(x => x.Key, x => x.Value);
         PlayersNearDevices = [];
         bool admin = false, camera = false, doorLog = false, vital = false;
@@ -382,8 +374,8 @@ internal class AntiAdminer : RoleBase
     {
         if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == target.PlayerId && self.AntiAdminerId == seer.PlayerId)
         {
-            return self.ExtraAbilityStartTimeStamp > 0
-                ? $"<#ffffff>▩ {Delay.GetInt() - (Utils.TimeStamp - self.ExtraAbilityStartTimeStamp):N0}</color>"
+            return self.ExtraAbilityTimer != null
+                ? $"<#ffffff>▩ {(int)Math.Ceiling(self.ExtraAbilityTimer.Remaining.TotalSeconds)}</color>"
                 : string.Empty;
         }
 
@@ -393,14 +385,14 @@ internal class AntiAdminer : RoleBase
 
         foreach (byte id in PlayerIdList)
         {
-            if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsTelecommunication: false } x || x.ExtraAbilityStartTimeStamp == 0) continue;
+            if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsTelecommunication: false } x || x.ExtraAbilityTimer == null) continue;
 
-            if (aa != null && x.ExtraAbilityStartTimeStamp >= aa.ExtraAbilityStartTimeStamp) continue;
+            if (aa != null && x.ExtraAbilityTimer.Remaining.TotalSeconds >= aa.ExtraAbilityTimer.Remaining.TotalSeconds) continue;
 
             aa = x;
         }
 
-        return aa == null ? string.Empty : $"<#ffff00>\u26a0 {Delay.GetInt() - (Utils.TimeStamp - aa.ExtraAbilityStartTimeStamp):N0}</color>";
+        return aa == null ? string.Empty : $"<#ffff00>\u26a0 {(int)aa.ExtraAbilityTimer.Remaining.TotalSeconds}</color>";
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

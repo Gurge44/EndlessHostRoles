@@ -244,7 +244,7 @@ internal class Adventurer : RoleBase
 
                         RemoveAndNotify();
                         break;
-                    case Weapon.Prediction when FastVector2.TryGetClosestPlayer(pc.Pos(), out PlayerControl closest, x => x.PlayerId != pc.PlayerId):
+                    case Weapon.Prediction when FastVector2.TryGetClosestPlayerTo(pc, out PlayerControl closest):
                         RevealedPlayers.Add(closest.PlayerId);
                         RemoveAndNotify(closest);
                         break;

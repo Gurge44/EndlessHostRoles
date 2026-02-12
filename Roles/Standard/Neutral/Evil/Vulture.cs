@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -37,8 +40,7 @@ public class Vulture : RoleBase
         CustomRoles.Jester
     ];
 
-    private long LastNotifyTS;
-    private long CooldownFinishTS;
+    private CountdownTimer CooldownTimer;
     private int TotalEaten;
     private byte VultureId;
 
@@ -96,8 +98,7 @@ public class Vulture : RoleBase
 
         TotalEaten = 0;
         playerId.SetAbilityUseLimit(MaxEaten.GetFloat());
-        CooldownFinishTS = Utils.TimeStamp;
-        LastNotifyTS = Utils.TimeStamp;
+        CooldownTimer = null;
 
         VultureId = playerId;
     }
@@ -132,7 +133,12 @@ public class Vulture : RoleBase
             if (pc.IsAlive())
             {
                 id.SetAbilityUseLimit(MaxEaten.GetInt());
-                CooldownFinishTS = Utils.TimeStamp + VultureReportCD.GetInt();
+                CooldownTimer = new CountdownTimer(VultureReportCD.GetInt(), () =>
+                {
+                    CooldownTimer = null;
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                }, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () => CooldownTimer = null);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
             }
         }
     }
@@ -141,7 +147,7 @@ public class Vulture : RoleBase
     {
         if (pc.GetAbilityUseLimit() < 1f || target.Object == null || target.Object.Is(CustomRoles.Disregarded)) return true;
 
-        if (CooldownFinishTS > Utils.TimeStamp) return true;
+        if (CooldownTimer != null) return true;
 
         pc.RPCPlayCustomSound("Eat");
         TotalEaten++;
@@ -154,7 +160,12 @@ public class Vulture : RoleBase
         }
 
         pc.RpcRemoveAbilityUse();
-        CooldownFinishTS = Utils.TimeStamp + VultureReportCD.GetInt();
+        CooldownTimer = new CountdownTimer(VultureReportCD.GetInt(), () =>
+        {
+            CooldownTimer = null;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () => CooldownTimer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
 
         Vector2 bodyPos = Object.FindObjectsOfType<DeadBody>().First(x => x.ParentId == target.PlayerId).TruePosition;
         foreach (byte seerId in Main.PlayerStates.Keys) LocateArrow.Remove(seerId, bodyPos);
@@ -165,35 +176,37 @@ public class Vulture : RoleBase
         return false;
     }
 
+    public void ReceiveRPC(MessageReader reader)
+    {
+        CooldownTimer = new CountdownTimer(VultureReportCD.GetInt(), () => CooldownTimer = null, onCanceled: () => CooldownTimer = null);
+    }
+
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != VultureId || seer.PlayerId != target.PlayerId || hud || meeting) return string.Empty;
         string arrows = Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
-        bool hasCooldown = CooldownFinishTS > Utils.TimeStamp;
+        bool hasCooldown = CooldownTimer != null;
         if (arrows.Length > 0 && hasCooldown) arrows += "\n";
-        if (hasCooldown) arrows += string.Format(GetString("CDPT"), CooldownFinishTS - Utils.TimeStamp);
+        if (hasCooldown) arrows += string.Format(GetString("CDPT"), (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds));
         return arrows;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public static void OnAnyoneDead()
     {
-        if (!pc.IsAlive() || !Main.IntroDestroyed) return;
-
-        if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Count - 1 <= NumberOfReportsToWin.GetInt() - TotalEaten)
+        PlayerIdList.ForEach(x =>
         {
-            CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
-            pc.RpcSetCustomRole(role);
-            pc.RpcChangeRoleBasis(role);
-            return;
-        }
+            if (!Main.PlayerStates.TryGetValue(x, out PlayerState state) || state.Role is not Vulture vulture) return;
 
-        long now = Utils.TimeStamp;
+            var pc = x.GetPlayer();
+            if (pc == null || !pc.IsAlive()) return;
 
-        if (now != LastNotifyTS)
-        {
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            LastNotifyTS = now;
-        }
+            if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Count - 1 <= NumberOfReportsToWin.GetInt() - vulture.TotalEaten)
+            {
+                CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
+                pc.RpcSetCustomRole(role);
+                pc.RpcChangeRoleBasis(role);
+            }
+        });
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

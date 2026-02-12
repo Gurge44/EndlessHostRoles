@@ -189,15 +189,14 @@ internal static class ExternalRpcPetPatch
 
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
-        Vector2 pos = pc.Pos();
-        PlayerControl target = FastVector2.TryGetClosestPlayerInRange(pos, 3.5f, out PlayerControl closest, x => x.PlayerId != pc.PlayerId) ? closest : null;
+        PlayerControl target = FastVector2.TryGetClosestPlayerInRangeTo(pc, 3.5f, out PlayerControl closest) ? closest : null;
 
         if (target != null)
         {
             if (target.Is(CustomRoles.Detour))
             {
                 PlayerControl tempTarget = target;
-                FastVector2.TryGetClosestPlayer(target.Pos(), out target, x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId);
+                FastVector2.TryGetClosestPlayerTo(target, out target, x => x.PlayerId != pc.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)

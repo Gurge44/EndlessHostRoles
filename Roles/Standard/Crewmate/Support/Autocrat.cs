@@ -24,6 +24,6 @@ internal class Autocrat : RoleBase
     {
         if (!pc.IsAlive()) return;
 
-        (FastVector2.TryGetClosestPlayer(pc.Pos(), out PlayerControl closest, x => x.PlayerId != pc.PlayerId) ? closest : pc).TP(pc);
+        (FastVector2.TryGetClosestPlayerTo(pc, out PlayerControl closest) ? closest : pc).TP(pc);
     }
 }

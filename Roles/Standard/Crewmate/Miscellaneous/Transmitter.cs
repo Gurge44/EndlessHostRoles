@@ -22,6 +22,6 @@ public class Transmitter : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        pc.TP(FastVector2.TryGetClosestPlayer(pc.Pos(), out PlayerControl closest, x => x.PlayerId != pc.PlayerId) ? closest : pc);
+        pc.TP(FastVector2.TryGetClosestPlayerTo(pc, out PlayerControl closest) ? closest : pc);
     }
 }

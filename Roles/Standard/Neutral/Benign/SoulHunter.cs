@@ -198,7 +198,6 @@ internal class SoulHunter : RoleBase
 
         long now = TimeStamp;
         if (LastUpdate >= now) return;
-
         LastUpdate = now;
 
         PlayerControl target = GetPlayerById(CurrentTarget.ID);

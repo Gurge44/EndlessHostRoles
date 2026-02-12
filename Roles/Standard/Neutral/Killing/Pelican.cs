@@ -244,7 +244,6 @@ public class Pelican : RoleBase
 
         Count--;
         if (Count > 0) return;
-
         Count = 20;
 
         if (!EatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;

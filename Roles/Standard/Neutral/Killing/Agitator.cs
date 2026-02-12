@@ -198,7 +198,7 @@ public class Agitator : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
+                    float KillRange = GameManager.Instance.LogicOptions.GetKillDistance();
                     if (min.Value <= KillRange && player.CanMove && target.CanMove) PassBomb(player, target);
                 }
             }

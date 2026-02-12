@@ -125,8 +125,8 @@ public class Sharpshooter : RoleBase
         }
         else
         {
-            var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-            if (!FastVector2.TryGetClosestPlayerInRange(pc.Pos(), killRange, out PlayerControl closestPlayer, x => x.PlayerId != pc.PlayerId) || !pc.RpcCheckAndMurder(closestPlayer, check: true)) return;
+            var killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl closestPlayer) || !pc.RpcCheckAndMurder(closestPlayer, check: true)) return;
             if (!Options.UsePets.GetBool()) pc.RpcResetAbilityCooldown();
             RevertAbility();
             pc.SetKillCooldown();

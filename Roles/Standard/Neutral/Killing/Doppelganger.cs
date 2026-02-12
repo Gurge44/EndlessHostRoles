@@ -236,6 +236,19 @@ public class Doppelganger : RoleBase
         TotalSteals[killer.PlayerId]++;
 
         dg.StealTimeStamp = Utils.TimeStamp;
+        
+        LateTask.New(() =>
+        {
+            if (ResetMode.GetValue() == 2 && TotalSteals[killer.PlayerId] > 0 && target != null)
+            {
+                RpcChangeSkin(target, DoppelPresentSkin[target.PlayerId]);
+                RpcChangeSkin(killer, DoppelDefaultSkin[killer.PlayerId]);
+                DoppelVictim[killer.PlayerId] = string.Empty;
+
+                if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
+                    Utils.NotifyRoles();
+            }
+        }, ResetTimer.GetInt());
 
         string kname;
 
@@ -296,23 +309,6 @@ public class Doppelganger : RoleBase
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (ResetMode.GetValue() == 2 && TotalSteals[pc.PlayerId] > 0 && Utils.TimeStamp - StealTimeStamp > ResetTimer.GetInt())
-        {
-            PlayerControl currentTarget = Main.EnumeratePlayerControls().FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
-
-            if (currentTarget != null)
-            {
-                RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
-                RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
-                DoppelVictim[pc.PlayerId] = string.Empty;
-
-                if (GameStates.IsInTask) Utils.NotifyRoles();
-            }
-        }
     }
 
     public override string GetProgressText(byte playerId, bool comms)

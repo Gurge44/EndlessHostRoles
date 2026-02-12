@@ -3992,6 +3992,9 @@ public static class Utils
             Thanos.OnDeath(targetRealKiller, target, disconnect);
             CovenMember.OnAnyoneDead();
             Altruist.OnAnyoneDead();
+            Occultist.OnAnyoneDead();
+            Vulture.OnAnyoneDead();
+            Jackal.OnAnyoneDead();
 
             if (!onMeeting && !disconnect)
             {
@@ -4003,6 +4006,7 @@ public static class Utils
                 Dad.OnAnyoneDeath(target);
                 Roles.Sentry.OnAnyoneMurder(target);
                 Soothsayer.OnAnyoneDeath(targetRealKiller);
+                Cultist.OnAnyoneDead(target);
 
                 TargetDies(targetRealKiller, target);
             }
@@ -4012,6 +4016,7 @@ public static class Utils
                 Amogus.OnAnyoneDead(target);
                 Adventurer.OnAnyoneDead(target);
                 Whisperer.OnAnyoneDied(target);
+                Necromancer.OnAnyoneDead();
             }
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;

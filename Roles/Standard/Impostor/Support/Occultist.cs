@@ -1,19 +1,21 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
 public class Occultist : RoleBase
 {
     public static bool On;
+    private static List<Occultist> Instances = [];
 
     private static OptionItem AbilityUseLimit;
     private static OptionItem ReviveTime;
-    public static OptionItem ArrowsToBodies;
+    private static OptionItem ArrowsToBodies;
     private static OptionItem RevivedPlayersBodiesCanBeReported;
     private static OptionItem RevivedPlayers;
     private static OptionItem CanReviveImpostorsAndMadmates;
-    public static OptionItem AbilityUseGainWithEachKill;
+    private static OptionItem AbilityUseGainWithEachKill;
 
     private static readonly string[] RevivedPlayersModes =
     [
@@ -22,11 +24,10 @@ public class Occultist : RoleBase
     ];
 
     private static ActionSwitchModes ActionSwitchMode;
-    private static Dictionary<byte, ReviveData> Revives = [];
+    private static Dictionary<byte, CountdownTimer> Revives = [];
 
     private bool InRevivingMode;
 
-    private long LastUpdate;
     private PlayerControl OccultistPC;
 
     public override bool IsEnable => On;
@@ -50,6 +51,7 @@ public class Occultist : RoleBase
         On = false;
         ActionSwitchMode = Options.UsePhantomBasis.GetBool() ? ActionSwitchModes.Vanish : Options.UsePets.GetBool() ? ActionSwitchModes.Pet : ActionSwitchModes.Vent;
         Revives = [];
+        Instances = [];
     }
 
     public override void Add(byte playerId)
@@ -58,6 +60,12 @@ public class Occultist : RoleBase
         OccultistPC = playerId.GetPlayer();
         InRevivingMode = true;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
+        Instances.Add(this);
+    }
+
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
     }
 
     private void SwitchAction()
@@ -92,7 +100,27 @@ public class Occultist : RoleBase
         if (!InRevivingMode || reporter.GetAbilityUseLimit() < 1 || target.Disconnected || target.Object.IsAlive() || target.Object.Is(CustomRoles.Disregarded) || (target.Object.Is(Team.Impostor) && !CanReviveImpostorsAndMadmates.GetBool())) return true;
 
         InRevivingMode = false;
-        Revives[target.PlayerId] = new(Utils.TimeStamp, reporter.Pos(), false);
+        Vector2 pos = reporter.Pos();
+        Revives[target.PlayerId] = new CountdownTimer(ReviveTime.GetInt(), () =>
+        {
+            switch (target.Object.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon))
+            {
+                case false when !target.Object.Is(Team.Impostor):
+                    target.Object.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Renegade : CustomRoles.Madmate);
+                    break;
+                case true:
+                    target.Object.RpcSetCustomRole(convertedAddon);
+                    break;
+            }
+
+            target.Object.RpcRevive();
+            target.Object.TP(pos);
+            target.Object.Notify(Translator.GetString("RevivedByOccultist"), 15f);
+
+            Revives.Remove(target.PlayerId);
+
+            OccultistPC.Notify(string.Format(Translator.GetString("OccultistRevived"), target.PlayerId.ColoredPlayerName()));
+        }, onCanceled: () => Revives.Remove(target.PlayerId));
         reporter.RpcRemoveAbilityUse();
         reporter.Notify(string.Format(Translator.GetString("OccultistReviving"), target.PlayerId.ColoredPlayerName()), ReviveTime.GetInt());
 
@@ -105,53 +133,16 @@ public class Occultist : RoleBase
         return !Revives.ContainsKey(target.PlayerId);
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public static void OnAnyoneDead()
     {
-        if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive())
-        {
-            Revives.Clear();
-            return;
-        }
-
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-        LastUpdate = now;
-
-        foreach ((byte id, ReviveData data) in Revives)
-        {
-            if (data.Done) continue;
-
-            if (now - data.StartTimeStamp >= ReviveTime.GetInt())
-            {
-                PlayerControl player = id.GetPlayer();
-                if (player == null) continue;
-
-                switch (player.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon))
-                {
-                    case false when !player.Is(Team.Impostor):
-                        player.RpcSetCustomRole(RevivedPlayers.GetValue() == 0 ? CustomRoles.Renegade : CustomRoles.Madmate);
-                        break;
-                    case true:
-                        player.RpcSetCustomRole(convertedAddon);
-                        break;
-                }
-
-                player.RpcRevive();
-                player.TP(data.Position);
-                player.Notify(Translator.GetString("RevivedByOccultist"), 15f);
-
-                OccultistPC.Notify(string.Format(Translator.GetString("OccultistRevived"), player.PlayerId.ColoredPlayerName()));
-
-                data.Done = true;
-            }
-        }
-
-        if (Main.AllAlivePlayerControls.Count < 4) SwitchAction();
+        if (Main.AllAlivePlayerControls.Count < 4) Instances.ForEach(x => x.SwitchAction());
     }
 
     public override void OnReportDeadBody()
     {
         if (ArrowsToBodies.GetBool()) LocateArrow.RemoveAllTarget(OccultistPC.PlayerId);
+        Revives.Values.Do(x => x.Dispose());
+        Revives.Clear();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -167,12 +158,5 @@ public class Occultist : RoleBase
         Vent,
         Pet,
         Vanish
-    }
-
-    private class ReviveData(long startTimeStamp, Vector2 position, bool done)
-    {
-        public long StartTimeStamp { get; } = startTimeStamp;
-        public Vector2 Position { get; } = position;
-        public bool Done { get; set; } = done;
     }
 }

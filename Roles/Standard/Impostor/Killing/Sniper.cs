@@ -298,18 +298,10 @@ public class Sniper : RoleBase
 
     public override void OnFixedUpdate(PlayerControl sniper)
     {
-        if (!IsSniper(sniper.PlayerId) || !sniper.IsAlive()) return;
-
+        if (!sniper.IsAlive()) return;
         if (!AimAssist) return;
-
         if (!IsAim) return;
-
-        if (!GameStates.IsInTask)
-        {
-            IsAim = false;
-            AimTime = 0f;
-            return;
-        }
+        if (!GameStates.IsInTask) return;
 
         Vector3 pos = sniper.transform.position;
 
@@ -328,6 +320,8 @@ public class Sniper : RoleBase
     public override void OnReportDeadBody()
     {
         MeetingReset = true;
+        IsAim = false;
+        AimTime = 0f;
     }
 
     public static bool TryGetSniper(byte targetId, ref PlayerControl sniper)

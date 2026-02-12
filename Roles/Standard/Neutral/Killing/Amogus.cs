@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -21,15 +22,15 @@ public class Amogus : RoleBase
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem ImpostorVision;
-    private long AmogusFormEndTS;
 
+    private CountdownTimer AmogusFormEndTS;
     private byte AmogusID;
     private Levels CurrentLevel;
     public int ExtraVotes;
 
     public override bool IsEnable => On;
 
-    public override bool SeesArrowsToDeadBodies => CurrentLevel >= Levels.SuspiciousSus && SuspiciousSusArrowsToBodies.GetBool() && AmogusFormEndTS != 0;
+    public override bool SeesArrowsToDeadBodies => CurrentLevel >= Levels.SuspiciousSus && SuspiciousSusArrowsToBodies.GetBool() && AmogusFormEndTS != null;
 
     public override void SetupCustomOption()
     {
@@ -56,7 +57,7 @@ public class Amogus : RoleBase
         On = true;
         Instances.Add(this);
         AmogusID = playerId;
-        AmogusFormEndTS = 0;
+        AmogusFormEndTS = null;
         CurrentLevel = (Levels)StartingLevel.GetValue();
         ExtraVotes = 0;
     }
@@ -75,7 +76,7 @@ public class Amogus : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return AmogusFormEndTS == 0;
+        return AmogusFormEndTS == null;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -102,8 +103,13 @@ public class Amogus : RoleBase
         if (CurrentLevel >= Levels.SuspiciousSus)
             Main.EnumerateAlivePlayerControls().Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
 
-        AmogusFormEndTS = Utils.TimeStamp + AbilityDuration.GetInt();
-        Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1, AmogusFormEndTS);
+        AmogusFormEndTS = new CountdownTimer(AbilityDuration.GetInt(), () =>
+        {
+            if (pc == null || !pc.IsAlive()) return;
+            FormExpired();
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onCanceled: () => AmogusFormEndTS = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
@@ -113,26 +119,12 @@ public class Amogus : RoleBase
         return false;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive()) return;
-
-        long now = Utils.TimeStamp;
-
-        if (AmogusFormEndTS != 0 && AmogusFormEndTS <= now)
-        {
-            FormExpired();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-    }
-
     private void FormExpired()
     {
         TargetArrow.RemoveAllTarget(AmogusID);
         LocateArrow.RemoveAllTarget(AmogusID);
 
-        AmogusFormEndTS = 0;
-        Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1, AmogusFormEndTS);
+        AmogusFormEndTS = null;
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
@@ -162,12 +154,13 @@ public class Amogus : RoleBase
 
     public override void OnReportDeadBody()
     {
+        AmogusFormEndTS?.Dispose();
         FormExpired();
     }
 
     public static void OnAnyoneDead(PlayerControl target)
     {
-        Instances.DoIf(x => x.CurrentLevel >= Levels.SuspiciousSus && x.AmogusFormEndTS != 0, x => TargetArrow.Remove(x.AmogusID, target.PlayerId));
+        Instances.DoIf(x => x.CurrentLevel >= Levels.SuspiciousSus && x.AmogusFormEndTS != null, x => TargetArrow.Remove(x.AmogusID, target.PlayerId));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -175,7 +168,7 @@ public class Amogus : RoleBase
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                AmogusFormEndTS = long.Parse(reader.ReadString());
+                AmogusFormEndTS = new CountdownTimer(AbilityDuration.GetInt(), () => AmogusFormEndTS = null, onCanceled: () => AmogusFormEndTS = null);
                 break;
             case 2:
                 CurrentLevel = (Levels)reader.ReadPackedInt32();
@@ -191,7 +184,7 @@ public class Amogus : RoleBase
         if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var sb = new StringBuilder();
-        if (AmogusFormEndTS != 0) sb.Append($"\u25a9 ({Utils.TimeStamp - AmogusFormEndTS}s)\n");
+        if (AmogusFormEndTS != null) sb.Append($"\u25a9 ({(int)Math.Ceiling(AmogusFormEndTS.Remaining.TotalSeconds)}s)\n");
         if (!hud) sb.Append("<size=70%>");
         sb.Append(string.Format(Translator.GetString("Amogus.Suffix"), Translator.GetString($"Amogus.Levels.{CurrentLevel}")));
         if (!hud) sb.Append("</size>");

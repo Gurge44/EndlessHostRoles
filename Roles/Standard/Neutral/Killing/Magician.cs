@@ -267,6 +267,13 @@ public class Magician : RoleBase
 
                     BlindPpl.TryAdd(x.PlayerId, TimeStamp);
                     x.MarkDirtySettings();
+                    
+                    LateTask.New(() =>
+                    {
+                        BlindPpl.Remove(x.PlayerId);
+                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+                        x.MarkDirtySettings();
+                    }, BlindDur.GetInt());
                 }
 
                 CardId = byte.MaxValue;
@@ -312,13 +319,14 @@ public class Magician : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc == null) return;
         if (!GameStates.IsInTask) return;
         if (Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
-        if (PortalMarks.Count == 2 && LastTP + 5 < TimeStamp)
+        long now = TimeStamp;
+
+        if (PortalMarks.Count == 2 && LastTP + 5 < now)
         {
             if (FastVector2.DistanceWithinRange(PortalMarks[0], PortalMarks[1], 4f))
             {
@@ -329,52 +337,28 @@ public class Magician : RoleBase
             {
                 Vector2 position = pc.Pos();
 
-                var isTP = false;
-                Vector2 from = PortalMarks[0];
-
-                foreach (Vector2 mark in PortalMarks.ToArray())
+                if (PortalMarks.FindFirst(x => FastVector2.DistanceWithinRange(x, position, 1f), out Vector2 nearMark))
                 {
-                    if (!FastVector2.DistanceWithinRange(mark, position, 2f)) continue;
-
-                    isTP = true;
-                    from = mark;
+                    int index = PortalMarks.IndexOf(nearMark);
+                    Vector2 target = PortalMarks[1 - index];
+                    pc.TP(target);
+                    LastTP = now;
                 }
-
-                if (isTP)
-                {
-                    LastTP = TimeStamp;
-
-                    if (from == PortalMarks[0])
-                        pc.TP(PortalMarks[1]);
-                    else if (from == PortalMarks[1])
-                        pc.TP(PortalMarks[0]);
-                    else
-                        Logger.Error($"Teleport failed - from: {from}", "MagicianTP");
-                }
-            }
-        }
-
-        if (BlindPpl.Count > 0)
-        {
-            foreach (KeyValuePair<byte, long> x in BlindPpl.Where(x => x.Value + BlindDur.GetInt() < TimeStamp).ToArray())
-            {
-                BlindPpl.Remove(x.Key);
-                GetPlayerById(x.Key).MarkDirtySettings();
             }
         }
 
         if (Bombs.Count > 0)
         {
-            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp).ToArray())
+            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < now).ToArray())
             {
-                var b = false;
-                IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(bomb.Key, BombRadius.GetFloat());
-
-                foreach (PlayerControl tg in players)
+                foreach (PlayerControl tg in FastVector2.GetPlayersInRange(bomb.Key, BombRadius.GetFloat()))
                 {
                     if (tg.PlayerId == pc.PlayerId)
                     {
-                        b = true;
+                        LateTask.New(() =>
+                        {
+                            if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
+                        }, 0.5f, "Magician Bomb Suicide");
                         continue;
                     }
 
@@ -383,19 +367,11 @@ public class Magician : RoleBase
 
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
-
-                if (b)
-                {
-                    LateTask.New(() =>
-                    {
-                        if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
-                    }, 0.5f, "Magician Bomb Suicide");
-                }
             }
 
             var sb = new StringBuilder();
             long[] list = [.. Bombs.Values];
-            foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (TimeStamp - x) + 1));
+            foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (now - x) + 1));
 
             pc.Notify(sb.ToString());
         }

@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using UnityEngine;
+using EHR.Modules.Extensions;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -26,7 +27,7 @@ public class Deathpact : RoleBase
     private static OptionItem KillDeathpactPlayersOnMeeting;
 
     private byte DeathPactId;
-    private long DeathpactTime;
+    private CountdownTimer DeathpactTime;
     private List<PlayerControl> PlayersInDeathpact = [];
 
     public override bool IsEnable => Instances.Count > 0 || Randomizer.Exists;
@@ -69,7 +70,7 @@ public class Deathpact : RoleBase
     {
         Instances = [];
         PlayersInDeathpact = [];
-        DeathpactTime = 0;
+        DeathpactTime = null;
         ActiveDeathpacts = [];
         DeathPactId = byte.MaxValue;
     }
@@ -78,7 +79,7 @@ public class Deathpact : RoleBase
     {
         Instances.Add(this);
         PlayersInDeathpact = [];
-        DeathpactTime = 0;
+        DeathpactTime = null;
         DeathPactId = playerId;
     }
 
@@ -108,7 +109,8 @@ public class Deathpact : RoleBase
             return false;
         }
 
-        if (PlayersInDeathpact.All(b => b.PlayerId != target.PlayerId)) PlayersInDeathpact.Add(target);
+        if (PlayersInDeathpact.All(b => b.PlayerId != target.PlayerId))
+            PlayersInDeathpact.Add(target);
 
         if (PlayersInDeathpact.Count < NumberOfPlayersInPact.GetInt()) return false;
 
@@ -125,7 +127,25 @@ public class Deathpact : RoleBase
         }
 
         pc.Notify(GetString("DeathpactComplete"));
-        DeathpactTime = TimeStamp + DeathpactDuration.GetInt();
+        DeathpactTime = new CountdownTimer(DeathpactDuration.GetInt(), () =>
+        {
+            foreach (PlayerControl playerInDeathpact in PlayersInDeathpact)
+                KillPlayerInDeathpact(pc, playerInDeathpact);
+
+            ClearDeathpact(pc.PlayerId);
+            pc.Notify(GetString("DeathpactExecuted"));
+            DeathpactTime = null;
+        }, onTick: () =>
+        {
+            if (CheckCancelDeathpact(pc))
+            {
+                DeathpactTime.Dispose();
+                DeathpactTime = null;
+                return;
+            }
+            
+            PlayersInDeathpact.ForEach(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: x, SendOption: SendOption.None));
+        });
         ActiveDeathpacts.Add(pc.PlayerId);
 
         if (ShowArrowsToOtherPlayersInPact.GetBool())
@@ -155,23 +175,6 @@ public class Deathpact : RoleBase
         }
     }
 
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!IsEnable || !GameStates.IsInTask || player.GetCustomRole() is not CustomRoles.Deathpact and not CustomRoles.Randomizer) return;
-
-        if (!ActiveDeathpacts.Contains(player.PlayerId)) return;
-
-        if (CheckCancelDeathpact(player)) return;
-
-        if (DeathpactTime < TimeStamp && DeathpactTime != 0)
-        {
-            foreach (PlayerControl playerInDeathpact in PlayersInDeathpact) KillPlayerInDeathpact(player, playerInDeathpact);
-
-            ClearDeathpact(player.PlayerId);
-            player.Notify(GetString("DeathpactExecuted"));
-        }
-    }
-
     public static bool CheckCancelDeathpact(PlayerControl deathpact)
     {
         if (Main.PlayerStates[deathpact.PlayerId].Role is not Deathpact { IsEnable: true } dp) return true;
@@ -187,7 +190,7 @@ public class Deathpact : RoleBase
 
         foreach (PlayerControl player in dp.PlayersInDeathpact)
         {
-            float range = NormalGameOptionsV10.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+            float range = GameManager.Instance.LogicOptions.GetKillDistance();
             cancelDeathpact = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Select(otherPlayerInPact => Vector2.Distance(player.Pos(), otherPlayerInPact.Pos())).Aggregate(cancelDeathpact, (current, dis) => current && dis <= range);
         }
 
@@ -269,7 +272,7 @@ public class Deathpact : RoleBase
                 string otherPlayerNames = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Aggregate(string.Empty, (current, otherPlayerInPact) => current + otherPlayerInPact.name.ToUpper() + ",");
                 otherPlayerNames = otherPlayerNames.Remove(otherPlayerNames.Length - 1);
 
-                var countdown = (int)(dp.DeathpactTime - TimeStamp);
+                var countdown = (int)(dp.DeathpactTime.Remaining.TotalSeconds);
 
                 result += $"{ColorString(GetRoleColor(CustomRoles.Impostor), string.Format(GetString("DeathpactActiveDeathpact"), otherPlayerNames, countdown))}";
             }
@@ -282,7 +285,8 @@ public class Deathpact : RoleBase
     {
         if (Main.PlayerStates[deathpact].Role is not Deathpact { IsEnable: true } dp) return;
 
-        dp.DeathpactTime = 0;
+        dp.DeathpactTime?.Dispose();
+        dp.DeathpactTime = null;
         ActiveDeathpacts.Remove(deathpact);
         dp.PlayersInDeathpact.Clear();
 
@@ -315,6 +319,9 @@ public class Deathpact : RoleBase
 
             ClearDeathpact(deathpact);
         }
+        
+        DeathpactTime?.Dispose();
+        DeathpactTime = null;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

@@ -116,7 +116,7 @@ public class Ambusher : RoleBase
 
         if (!DontCheck)
         {
-            if (!FastVector2.TryGetClosestPlayerInRange(pc.Pos(), FollowRadius.GetFloat(), out PlayerControl closestPlayer, x => x.PlayerId != pc.PlayerId))
+            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, FollowRadius.GetFloat(), out PlayerControl closestPlayer))
             {
                 TargetId = byte.MaxValue;
                 TargetTimer = FollowDuration.GetFloat();

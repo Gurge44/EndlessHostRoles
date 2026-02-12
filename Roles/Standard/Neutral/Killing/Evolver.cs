@@ -146,9 +146,11 @@ public class Evolver : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive() || ChooseTimer == 0 || SelectedUpgradeIndex == -1 || Upgrades.Count == 0 || LastUpdate == Utils.TimeStamp) return;
+        if (!GameStates.IsInTask || !pc.IsAlive() || ChooseTimer == 0 || SelectedUpgradeIndex == -1 || Upgrades.Count == 0) return;
 
-        LastUpdate = Utils.TimeStamp;
+        long now = Utils.TimeStamp;
+        if (LastUpdate == now) return;
+        LastUpdate = now;
 
         ChooseTimer--;
         Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);

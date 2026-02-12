@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 using static EHR.Translator;
-using static EHR.Utils;
 
 namespace EHR.Roles;
 
@@ -20,11 +20,7 @@ public class Sapper : RoleBase
     private static OptionItem CanKill;
     private static OptionItem CooldownsResetEachOther;
 
-    private static Dictionary<Vector2, long> Bombs = [];
-
     public override bool IsEnable => PlayerIdList.Count > 0;
-
-    private long LastNotify;
 
     public override void SetupCustomOption()
     {
@@ -55,7 +51,6 @@ public class Sapper : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        Bombs = [];
     }
 
     public override void Add(byte playerId)
@@ -119,59 +114,35 @@ public class Sapper : RoleBase
     {
         if (pc == null) return false;
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
-        Bombs.TryAdd(pc.Pos(), TimeStamp);
         if (CanKill.GetBool() && CooldownsResetEachOther.GetBool()) pc.SetKillCooldown();
-        return false;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive()) return;
-
-        foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp).ToArray())
+        Vector2 pos = pc.Pos();
+        CountdownTimer timer = null;
+        timer = new CountdownTimer(Delay.GetInt(), () =>
         {
-            var b = false;
-            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(bomb.Key, Radius.GetFloat());
-
-            foreach (PlayerControl tg in players)
+            foreach (PlayerControl tg in FastVector2.GetPlayersInRange(pos, Radius.GetFloat()))
             {
                 if (tg.PlayerId == pc.PlayerId)
                 {
-                    b = true;
+                    LateTask.New(() =>
+                    {
+                        if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
+                    }, 0.5f, "Sapper Bomb Suicide");
                     continue;
                 }
 
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
-                
+
                 if (pc.AmOwner && tg.IsImpostor())
                     Achievements.Type.FriendlyFire.Complete();
             }
 
-            Bombs.Remove(bomb.Key);
             pc.Notify(GetString("MagicianBombExploded"));
-
-            if (b)
-            {
-                LateTask.New(() =>
-                {
-                    if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
-                }, 0.5f, "Sapper Bomb Suicide");
-            }
-        }
-
-        long now = TimeStamp;
-        if (LastNotify == now) return;
-        LastNotify = now;
-
-        var sb = new StringBuilder();
-        foreach (long x in Bombs.Values) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
-
-        pc.Notify(sb.ToString(), overrideAll: true);
-    }
-
-    public override void OnReportDeadBody()
-    {
-        Bombs.Clear();
+        }, onTick: () =>
+        {
+            // ReSharper disable once AccessToModifiedClosure
+            pc.Notify(string.Format(GetString("MagicianBombExlodesIn"), (int)Math.Ceiling(timer?.Remaining.TotalSeconds ?? 0)), 3f, overrideAll: true);
+        });
+        return false;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

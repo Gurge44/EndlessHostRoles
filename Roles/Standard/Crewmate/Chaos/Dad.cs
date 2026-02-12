@@ -318,12 +318,9 @@ public class Dad : RoleBase
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
         if (Count++ < 15) return;
-
         Count = 0;
 
-        Vector2 pos = pc.Pos();
-        
-        if (UsingAbilities.Contains(Ability.Rage) && FastVector2.TryGetClosestPlayerInRange(pos, 1.3f, out PlayerControl target, x => x.PlayerId != pc.PlayerId) && pc.RpcCheckAndMurder(target))
+        if (UsingAbilities.Contains(Ability.Rage) && FastVector2.TryGetClosestPlayerInRangeTo(pc, 1.3f, out PlayerControl target) && pc.RpcCheckAndMurder(target))
             UsingAbilities.Remove(Ability.Rage);
 
         bool notify = FastVector2.DistanceWithinRange(pc.Pos(), Shop.transform.position, 2f);

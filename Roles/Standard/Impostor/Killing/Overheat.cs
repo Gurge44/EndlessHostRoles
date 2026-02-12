@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -13,8 +14,6 @@ public class Overheat : RoleBase
     private static OptionItem OverheatChanceIncreaseFrequency;
     private static OptionItem OverheatRollChanceFrequency;
     private static OptionItem KCDDecreasePerIncreasedTemperature;
-    private float ChanceIncreaseTimer;
-    private float RollChanceTimer;
 
     public int Temperature;
 
@@ -59,9 +58,48 @@ public class Overheat : RoleBase
     {
         On = true;
         Temperature = StartingTemperature;
-        ChanceIncreaseTimer = -8f;
-        RollChanceTimer = -8f;
-        SendRPC(playerId);
+        if (!AmongUsClient.Instance.AmHost) return;
+        var chanceIncreaseTimer = new CountdownTimer(OverheatChanceIncreaseFrequency.GetFloat(), ChanceIncreaseElapsed, cancelOnMeeting: false);
+        var rollChanceTimer = new CountdownTimer(OverheatRollChanceFrequency.GetFloat(), RollElapsed, cancelOnMeeting: false);
+        return;
+
+        void ChanceIncreaseElapsed()
+        {
+            chanceIncreaseTimer = new CountdownTimer(OverheatChanceIncreaseFrequency.GetFloat(), ChanceIncreaseElapsed, cancelOnMeeting: false);
+            if (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
+
+            var pc = playerId.GetPlayer();
+
+            if (pc == null || !pc.IsAlive())
+            {
+                chanceIncreaseTimer?.Dispose();
+                chanceIncreaseTimer = null;
+                return;
+            }
+            
+            Temperature += OverheatChanceIncrease.GetInt();
+            SendRPC(playerId);
+            pc.ResetKillCooldown();
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+
+        void RollElapsed()
+        {
+            rollChanceTimer = new CountdownTimer(OverheatRollChanceFrequency.GetFloat(), RollElapsed, cancelOnMeeting: false);
+            if (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
+
+            var pc = playerId.GetPlayer();
+
+            if (pc == null || !pc.IsAlive())
+            {
+                rollChanceTimer?.Dispose();
+                rollChanceTimer = null;
+                return;
+            }
+            
+            if (IRandom.Instance.Next(100) < Temperature - StartingTemperature)
+                pc.Suicide();
+        }
     }
 
     public override void Init()
@@ -92,29 +130,6 @@ public class Overheat : RoleBase
         float kcd = Options.AdjustedDefaultKillCooldown;
         kcd -= KCDDecreasePerIncreasedTemperature.GetFloat() * (Temperature - StartingTemperature);
         Main.AllPlayerKillCooldown[id] = kcd;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance || AntiBlackout.SkipTasks || Main.IntroDestroyed) return;
-
-        ChanceIncreaseTimer += Time.fixedDeltaTime;
-        RollChanceTimer += Time.fixedDeltaTime;
-
-        if (ChanceIncreaseTimer >= OverheatChanceIncreaseFrequency.GetFloat())
-        {
-            ChanceIncreaseTimer = 0f;
-            Temperature += OverheatChanceIncrease.GetInt();
-            SendRPC(pc.PlayerId);
-            pc.ResetKillCooldown();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-
-        if (RollChanceTimer >= OverheatRollChanceFrequency.GetFloat())
-        {
-            RollChanceTimer = 0f;
-            if (IRandom.Instance.Next(100) < Temperature - StartingTemperature) pc.Suicide();
-        }
     }
 
     private void CoolDown(PlayerControl pc)

@@ -48,7 +48,7 @@ internal class Crewpostor : RoleBase
 
         SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
-        if (!FastVector2.TryGetClosestPlayer(player.Pos(), out PlayerControl target, x => x.PlayerId != player.PlayerId && (CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam())))
+        if (!FastVector2.TryGetClosestPlayerTo(player, out PlayerControl target, x => CrewpostorCanKillAllies.GetBool() || !x.GetCustomRole().IsImpostorTeam()))
             Logger.Info("No target to kill", "Crewpostor");
         else if (TasksDone[player.PlayerId] % CrewpostorKillAfterTask.GetInt() != 0 && TasksDone[player.PlayerId] != 0)
             Logger.Info($"Crewpostor task done but kill skipped, {TasksDone[player.PlayerId]} tasks completed, but it kills after {CrewpostorKillAfterTask.GetInt()} tasks", "Crewpostor");

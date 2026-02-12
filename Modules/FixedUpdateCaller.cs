@@ -80,15 +80,12 @@ public static class FixedUpdateCaller
             {
                 HudManager hudManager = HudManager.Instance;
 
-                if (hudManager)
-                {
-                    HudManagerPatch.Postfix(hudManager);
-                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (9)", "debug");
-                    Zoom.Postfix();
-                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (10)", "debug");
-                    HudSpritePatch.Postfix(hudManager);
-                    if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (11)", "debug");
-                }
+                HudManagerPatch.Postfix(hudManager);
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (9)", "debug");
+                Zoom.Postfix();
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (10)", "debug");
+                HudSpritePatch.Postfix(hudManager);
+                if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (11)", "debug");
             }
 
             if (measure) Logger.Warn($"Elapsed: {stopwatch.ElapsedMilliseconds} ms (12)", "debug");
@@ -114,8 +111,7 @@ public static class FixedUpdateCaller
                         }
                         : _ => true;
 
-                    List<PlayerControl> players = PlayerControl.LocalPlayer.GetPlayersInAbilityRangeSorted(predicate);
-                    PlayerControl closest = players.Count == 0 ? null : players[0];
+                    PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, GameManager.Instance.LogicOptions.GetKillDistance(), out PlayerControl closestPlayer, predicate) ? closestPlayer : null;
 
                     KillButton killButton = HudManager.Instance.KillButton;
 

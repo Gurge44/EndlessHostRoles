@@ -92,15 +92,16 @@ public class Patroller : RoleBase
 
         Count++;
         if (Count < 20) return;
-
         Count = 0;
 
         PlainShipRoom room = pc.GetPlainShipRoom();
-        if ((LastRoom != null && room != null && room == LastRoom) || (LastRoom == null && room == null)) return;
+        bool roomNull = room == null;
+        bool lastRoomNull = LastRoom == null;
+        if ((!lastRoomNull && !roomNull && room == LastRoom) || (lastRoomNull && roomNull)) return;
 
         LastRoom = room;
 
-        if (room != null)
+        if (!roomNull)
         {
             string roomName = Translator.GetString(room.RoomId.ToString());
 

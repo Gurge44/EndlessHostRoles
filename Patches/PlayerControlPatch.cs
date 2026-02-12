@@ -137,7 +137,7 @@ internal static class CheckMurderPatch
             if (target.Is(CustomRoles.Detour))
             {
                 PlayerControl tempTarget = target;
-                FastVector2.TryGetClosestPlayer(target.Pos(), out target, x => x.PlayerId != target.PlayerId && x.PlayerId != killer.PlayerId);
+                FastVector2.TryGetClosestPlayerTo(target, out target, x => x.PlayerId != killer.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)
@@ -559,10 +559,6 @@ internal static class CheckMurderPatch
             case CustomRoles.Medic when !check:
                 Medic.IsDead(target);
                 break;
-            case CustomRoles.Gambler when Gambler.IsShielded.ContainsKey(target.PlayerId):
-                Notify("SomeSortOfProtection");
-                killer.SetKillCooldown(5f);
-                return false;
             case CustomRoles.Spiritcaller when Spiritcaller.InProtect(target):
                 killer.RpcGuardAndKill(target);
                 Notify("SomeSortOfProtection");

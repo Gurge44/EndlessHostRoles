@@ -226,7 +226,7 @@ internal class Arsonist : RoleBase
                 }
                 else
                 {
-                    float range = NormalGameOptionsV10.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+                    float range = GameManager.Instance.LogicOptions.GetKillDistance();
 
                     if (FastVector2.DistanceWithinRange(player.Pos(), arTarget.Pos(), range))
                         ArsonistTimer[playerId] = (arTarget, arTime + Time.fixedDeltaTime);

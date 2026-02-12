@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
 
@@ -10,7 +11,7 @@ namespace EHR.Roles;
 public class Wildling : RoleBase
 {
     private const int Id = 4700;
-    public static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem ProtectDurationOpt;
     private static OptionItem CanVentOpt;
@@ -27,13 +28,13 @@ public class Wildling : RoleBase
     private float ShapeshiftCD;
     private float ShapeshiftDur;
 
-    private long TimeStamp;
+    private CountdownTimer Timer;
+    private byte WildlingId;
 
     private CustomRoles UsedRole;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    private bool InProtect => TimeStamp > Utils.TimeStamp;
 
     public override void SetupCustomOption()
     {
@@ -61,13 +62,14 @@ public class Wildling : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        TimeStamp = 0;
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-        TimeStamp = 0;
+        WildlingId = playerId;
+
+        Timer = null;
 
         UsedRole = Main.PlayerStates[playerId].MainRole;
 
@@ -120,38 +122,27 @@ public class Wildling : RoleBase
         return CanVent;
     }
 
-    private void SendRPC(byte playerId)
+    public void ReceiveRPC(MessageReader reader)
     {
-        if (!IsEnable || !Utils.DoRPC) return;
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBkTimer, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(TimeStamp.ToString());
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        string Time = reader.ReadString();
-
-        if (Main.PlayerStates[PlayerId].Role is not Wildling wl) return;
-
-        wl.TimeStamp = long.Parse(Time);
+        Timer = new CountdownTimer(ProtectionDuration, () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         if (killer.PlayerId == target.PlayerId) return;
 
-        TimeStamp = Utils.TimeStamp + (long)ProtectionDuration;
-        SendRPC(killer.PlayerId);
+        Timer = new CountdownTimer(ProtectionDuration, () =>
+        {
+            Timer = null;
+            killer.Notify(Translator.GetString("BKProtectOut"));
+        }, onTick: () => Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, SendOption: SendOption.None), onCanceled: () => Timer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId);
         killer.Notify(Translator.GetString("BKInProtect"));
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (InProtect)
+        if (Timer != null)
         {
             killer.RpcGuardAndKill(target);
             target.Notify(Translator.GetString("BKOffsetKill"));
@@ -161,28 +152,15 @@ public class Wildling : RoleBase
         return true;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask) return;
-
-        if (TimeStamp < Utils.TimeStamp && TimeStamp != 0)
-        {
-            TimeStamp = 0;
-            pc.Notify(Translator.GetString("BKProtectOut"));
-        }
-    }
-
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not Wildling wl) return string.Empty;
+        if (seer.PlayerId != WildlingId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var str = new StringBuilder();
 
-        if (wl.InProtect)
+        if (Timer != null)
         {
-            long remainTime = wl.TimeStamp - Utils.GetTimeStamp(DateTime.Now);
+            int remainTime = (int)Math.Ceiling(Timer.Remaining.TotalSeconds);
             str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
         }
         else

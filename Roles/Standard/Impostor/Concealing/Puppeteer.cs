@@ -201,7 +201,7 @@ internal class Puppeteer : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+                    float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
 
                     if (min.Value <= killRange && player.CanMove && target.CanMove)
                     {

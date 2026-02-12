@@ -36,7 +36,7 @@ internal class SuperStar : RoleBase
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        return !FastVector2.TryGetClosestPlayerInRange(target.Pos(), 2f, out _, x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId);
+        return !FastVector2.TryGetClosestPlayerInRangeTo(target, 2f, out _, x => x.PlayerId != killer.PlayerId);
     }
 
     public override bool KnowRole(PlayerControl seer, PlayerControl target)

@@ -127,7 +127,6 @@ public enum CustomRPC
     MeetingKill,
     NemesisRevenge,
     SetBanditStealLimit,
-    SetBkTimer,
     SyncFollowerTargetAndTimes,
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
@@ -1109,11 +1108,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.NemesisRevenge:
                 {
                     Nemesis.ReceiveRPC(reader, __instance);
-                    break;
-                }
-                case CustomRPC.SetBkTimer:
-                {
-                    Wildling.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SyncFollowerTargetAndTimes:
