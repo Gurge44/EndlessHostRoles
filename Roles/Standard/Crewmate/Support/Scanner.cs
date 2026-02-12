@@ -1,5 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using System.Collections.Generic;
+using System.Diagnostics;
+using EHR.Modules.Extensions;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -7,23 +9,25 @@ namespace EHR.Roles;
 
 public class Scanner : RoleBase
 {
+    private static bool On;
     private const int Id = 679900;
 
-    private static OptionItem Cooldown;
-    private static OptionItem Duration;
+    private static OptionItem AbilityCooldown;
+    private static OptionItem AbilityDuration;
     private static OptionItem Range;
     private static OptionItem TimeLimit;
-    private static bool On;
+    
+    private static Dictionary<byte, Stopwatch> InRangeTimers = [];
 
-    public bool AbilityActive;
-    public static readonly Dictionary<byte, float> InRangeTimers = [];
+    private bool AbilityActive;
+    
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         StartSetup(Id)
-            .AutoSetupOption(ref Cooldown, 30f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds, overrideName: "ScannerCooldown")
-            .AutoSetupOption(ref Duration, 10f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds, overrideName: "ScannerDuration")
+            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref AbilityDuration, 10f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref Range, 2.5f, new FloatValueRule(0.25f, 5f, 0.25f), OptionFormat.Multiplier, overrideName: "ScannerAbilityRange")
             .AutoSetupOption(ref TimeLimit, 5f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds, overrideName: "ScannerTimeLimit");
     }
@@ -31,12 +35,13 @@ public class Scanner : RoleBase
     public override void Init()
     {
         On = false;
+        InRangeTimers = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        AURoleOptions.PhantomCooldown = Cooldown.GetFloat();
+        AURoleOptions.PhantomCooldown = AbilityCooldown.GetFloat();
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -51,48 +56,48 @@ public class Scanner : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (!IsEnable || pc == null)
+        if (!IsEnable)
             return false;
 
         if (!AbilityActive)
         {
             AbilityActive = true;
-            LateTask.New(() => AbilityActive = false, Duration.GetFloat());
+            LateTask.New(() => AbilityActive = false, AbilityDuration.GetFloat());
         }
+        
         return false;
     }
+    
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!AbilityActive || !AmongUsClient.Instance.AmHost) return;
+        if (!AbilityActive) return;
 
-        foreach (var apc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl apc in Main.EnumerateAlivePlayerControls())
         {
-            if (apc == null || apc.PlayerId == pc.PlayerId) continue;
+            if (apc.PlayerId == pc.PlayerId) continue;
             if (!Main.Invisible.Contains(apc.PlayerId)) continue;
 
-            float distance = Vector2.Distance(pc.GetTruePosition(), apc.GetTruePosition());
-
-            if (distance <= Range.GetFloat())
+            if (FastVector2.DistanceWithinRange(pc.Pos(), apc.Pos(), Range.GetFloat()))
             {
                 if (!InRangeTimers.ContainsKey(apc.PlayerId))
-                    InRangeTimers[apc.PlayerId] = TimeLimit.GetFloat();
+                    InRangeTimers[apc.PlayerId] = Stopwatch.StartNew();
 
-                InRangeTimers[apc.PlayerId] -= Time.fixedDeltaTime / Time.timeScale;
-                apc.Notify(string.Format(GetString("ScannerWarningInRange"), Mathf.Round(InRangeTimers[apc.PlayerId])), time: 1f, overrideAll: true);
+                float time = TimeLimit.GetFloat();
+                apc.Notify(string.Format(GetString("ScannerWarningInRange"), Mathf.Round(InRangeTimers[apc.PlayerId].GetRemainingTime((int)time))), time: 1f, overrideAll: true);
 
-                if (InRangeTimers[apc.PlayerId] <= 0f)
+                if (InRangeTimers[apc.PlayerId].Elapsed.TotalSeconds >= time)
                 {
                     apc.RpcMakeVisible();
                     apc.Notify(GetString("ScannerNowVisible"), overrideAll: true);
 
-                    InRangeTimers[apc.PlayerId] = TimeLimit.GetFloat();
+                    InRangeTimers[apc.PlayerId] = Stopwatch.StartNew();
 
                     return;
                 }
             }
             else
             {
-                InRangeTimers[apc.PlayerId] = TimeLimit.GetFloat();
+                InRangeTimers[apc.PlayerId] = Stopwatch.StartNew();
             }
         }
     }

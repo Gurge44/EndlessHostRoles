@@ -1282,8 +1282,6 @@
   "Scanner": "Scanner",
   "ScannerInfo": "Scan for Invisble Players and Make them Visible Again",
   "ScannerInfoLong": "(Crewmates)\nAs the Scanner, Vanish to activate your ability. If any invisible player stays near you by a certain amount of time, they become visible again.",
-  "ScannerCooldown": "Ability Cooldown",
-  "ScannerDuration": "Ability Duration",
   "ScannerAbilityRange": "Ability Range",
   "ScannerTimeLimit": "Time Limit for invisible players on range to appear",
   "ScannerWarningInRange": "A <color=#42f5a7>Scanner</color> is near you! If you don't get away in {0}s, you will become visible again!",

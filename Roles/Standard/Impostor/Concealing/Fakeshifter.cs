@@ -6,14 +6,15 @@ namespace EHR.Roles;
 public class Fakeshifter : RoleBase
 {
     public static bool On;
-    public int Id => 697000;
+    private const int Id = 697000;
 
     public override bool IsEnable => On;
 
     private static OptionItem AbilityCooldown;
     private static OptionItem AbilityDuration;
     private static OptionItem AbilityUseLimit;
-    public byte MarkedId;
+    
+    private byte MarkedId;
 
     public override void SetupCustomOption()
     {
@@ -43,25 +44,24 @@ public class Fakeshifter : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifter != null && target != null && MarkedId == byte.MaxValue && target.IsAlive())
+        if (MarkedId == byte.MaxValue && target.IsAlive())
         {
             MarkedId = target.PlayerId;
-            PlayerControl randomPlayer = Main.AllAlivePlayerControls.ToArray().Where(p => p.PlayerId != target.PlayerId).RandomElement();
+            PlayerControl randomPlayer = Main.EnumerateAlivePlayerControls().Without(target).RandomElement();
             foreach (var pc in Main.AllAlivePlayerControls)
             {
                 if (pc.PlayerId == target.PlayerId) continue;
                 target.RpcShapeshiftDesync(randomPlayer, pc, false);
-                shapeshifter.RpcResetAbilityCooldown();
-                shapeshifter.RpcRemoveAbilityUse();
-                LateTask.New(() =>
-                {
-                    if (shapeshifter != null && target != null && target.IsAlive())
-                    {
-                        target.RpcShapeshift(target, true);
-                        MarkedId = byte.MaxValue;
-                    }
-                }, AbilityDuration.GetFloat(), "Fakeshifter Ability Finish");
             }
+            shapeshifter.RpcRemoveAbilityUse();
+            LateTask.New(() =>
+            {
+                if (target != null && target.IsAlive())
+                {
+                    target.RpcShapeshift(target, true);
+                    MarkedId = byte.MaxValue;
+                }
+            }, AbilityDuration.GetFloat(), "Fakeshifter Ability Finish");
         }
         return false;
     }

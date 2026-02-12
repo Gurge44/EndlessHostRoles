@@ -51,7 +51,7 @@ public class Unshifter : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0)
+        if (!IsEnable || killer.GetAbilityUseLimit() <= 0)
             return false;
 
         if (!target.IsShifted())
