@@ -63,7 +63,10 @@ public static class Translator
                         JsoncOptions);
 
                     if (jsonDictionary == null)
+                    {
+                        Logger.Warn($"Failed to deserialize JSON file: {jsonFileName}. Is it a vaild jsonc?", "Translator");
                         continue;
+                    }
 
                     // read LanguageID
                     if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) ||
