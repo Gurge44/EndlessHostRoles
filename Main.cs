@@ -256,7 +256,7 @@ public class Main : BasePlugin
 
     public override void Load()
     {
-        EmbeddedDeps.Install();
+        // EmbeddedDeps.Install();
         Instance = this;
 
         //Client Options
@@ -1194,3 +1194,4 @@ public enum TieMode
 }
 
 public class Coroutines : MonoBehaviour { }
+
