@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -6,12 +7,12 @@ public class Jet : RoleBase, IHideAndSeekRole
 {
     public static bool On;
 
-    public static OptionItem DashCooldown;
-    public static OptionItem DashDuration;
-    public static OptionItem DashSpeed;
-    public static OptionItem UseLimit;
-    public static OptionItem Vision;
-    public static OptionItem Speed;
+    private static OptionItem DashCooldown;
+    private static OptionItem DashDuration;
+    private static OptionItem DashSpeed;
+    private static OptionItem UseLimit;
+    private static OptionItem Vision;
+    private static OptionItem Speed;
 
     private DashStatus DashStatus;
 
@@ -88,7 +89,7 @@ public class Jet : RoleBase, IHideAndSeekRole
     {
         if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
         DashStatus.IsDashing = true;
-        DashStatus.Timer = new(DashStatus.Duration, () =>
+        _ = new CountdownTimer(DashStatus.Duration, () =>
         {
             DashStatus.IsDashing = false;
             pc.MarkDirtySettings();

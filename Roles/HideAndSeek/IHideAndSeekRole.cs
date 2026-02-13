@@ -13,7 +13,6 @@ internal interface IHideAndSeekRole
 
 public class DashStatus
 {
-    public CountdownTimer Timer { get; set; }
     public bool IsDashing { get; set; }
     public int Cooldown { get; init; } = 20;
     public int Duration { get; init; } = 5;

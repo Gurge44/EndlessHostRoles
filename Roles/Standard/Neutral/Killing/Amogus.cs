@@ -23,14 +23,14 @@ public class Amogus : RoleBase
     private static OptionItem CanVent;
     private static OptionItem ImpostorVision;
 
-    private CountdownTimer AmogusFormEndTS;
+    private CountdownTimer AmogusFormTimer;
     private byte AmogusID;
     private Levels CurrentLevel;
     public int ExtraVotes;
 
     public override bool IsEnable => On;
 
-    public override bool SeesArrowsToDeadBodies => CurrentLevel >= Levels.SuspiciousSus && SuspiciousSusArrowsToBodies.GetBool() && AmogusFormEndTS != null;
+    public override bool SeesArrowsToDeadBodies => CurrentLevel >= Levels.SuspiciousSus && SuspiciousSusArrowsToBodies.GetBool() && AmogusFormTimer != null;
 
     public override void SetupCustomOption()
     {
@@ -57,7 +57,7 @@ public class Amogus : RoleBase
         On = true;
         Instances.Add(this);
         AmogusID = playerId;
-        AmogusFormEndTS = null;
+        AmogusFormTimer = null;
         CurrentLevel = (Levels)StartingLevel.GetValue();
         ExtraVotes = 0;
     }
@@ -76,7 +76,7 @@ public class Amogus : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return AmogusFormEndTS == null;
+        return AmogusFormTimer == null;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -103,12 +103,12 @@ public class Amogus : RoleBase
         if (CurrentLevel >= Levels.SuspiciousSus)
             Main.EnumerateAlivePlayerControls().Do(x => TargetArrow.Add(AmogusID, x.PlayerId));
 
-        AmogusFormEndTS = new CountdownTimer(AbilityDuration.GetInt(), () =>
+        AmogusFormTimer = new CountdownTimer(AbilityDuration.GetInt(), () =>
         {
             if (pc == null || !pc.IsAlive()) return;
             FormExpired();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }, onCanceled: () => AmogusFormEndTS = null);
+        }, onCanceled: () => AmogusFormTimer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, AmogusID, 1);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
@@ -124,7 +124,7 @@ public class Amogus : RoleBase
         TargetArrow.RemoveAllTarget(AmogusID);
         LocateArrow.RemoveAllTarget(AmogusID);
 
-        AmogusFormEndTS = null;
+        AmogusFormTimer = null;
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
@@ -154,13 +154,13 @@ public class Amogus : RoleBase
 
     public override void OnReportDeadBody()
     {
-        AmogusFormEndTS?.Dispose();
+        AmogusFormTimer?.Dispose();
         FormExpired();
     }
 
     public static void OnAnyoneDead(PlayerControl target)
     {
-        Instances.DoIf(x => x.CurrentLevel >= Levels.SuspiciousSus && x.AmogusFormEndTS != null, x => TargetArrow.Remove(x.AmogusID, target.PlayerId));
+        Instances.DoIf(x => x.CurrentLevel >= Levels.SuspiciousSus && x.AmogusFormTimer != null, x => TargetArrow.Remove(x.AmogusID, target.PlayerId));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -168,7 +168,7 @@ public class Amogus : RoleBase
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                AmogusFormEndTS = new CountdownTimer(AbilityDuration.GetInt(), () => AmogusFormEndTS = null, onCanceled: () => AmogusFormEndTS = null);
+                AmogusFormTimer = new CountdownTimer(AbilityDuration.GetInt(), () => AmogusFormTimer = null, onCanceled: () => AmogusFormTimer = null);
                 break;
             case 2:
                 CurrentLevel = (Levels)reader.ReadPackedInt32();
@@ -184,7 +184,7 @@ public class Amogus : RoleBase
         if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         var sb = new StringBuilder();
-        if (AmogusFormEndTS != null) sb.Append($"\u25a9 ({(int)Math.Ceiling(AmogusFormEndTS.Remaining.TotalSeconds)}s)\n");
+        if (AmogusFormTimer != null) sb.Append($"\u25a9 ({(int)Math.Ceiling(AmogusFormTimer.Remaining.TotalSeconds)}s)\n");
         if (!hud) sb.Append("<size=70%>");
         sb.Append(string.Format(Translator.GetString("Amogus.Suffix"), Translator.GetString($"Amogus.Levels.{CurrentLevel}")));
         if (!hud) sb.Append("</size>");

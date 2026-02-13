@@ -115,7 +115,7 @@ public class Aid : RoleBase
     public void ReceiveRPC(MessageReader reader)
     {
         byte id = reader.ReadByte();
-        ShieldedPlayers[id] = new CountdownTimer(AidDur.GetInt(), onCanceled: () => ShieldedPlayers.Remove(id));
+        ShieldedPlayers[id] = new CountdownTimer(AidDur.GetInt(), () => ShieldedPlayers.Remove(id), onCanceled: () => ShieldedPlayers.Remove(id));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

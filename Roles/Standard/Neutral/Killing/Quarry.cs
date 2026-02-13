@@ -130,7 +130,7 @@ public class Quarry : RoleBase
             
             Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-        });
+        }, cancelOnMeeting: false, onCanceled: () => SeekTimer = null);
         TargetId = target.PlayerId;
         TargetKCD = Main.KillTimers[TargetId];
         Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 1, TargetId);

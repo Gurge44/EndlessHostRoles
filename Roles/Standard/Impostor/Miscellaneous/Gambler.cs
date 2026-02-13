@@ -162,14 +162,9 @@ public class Gambler : RoleBase
                     killer.Notify(string.Format(GetString("GamblerGet.DelayedKill"), KillDelay.GetInt()));
                     WaitingDelayedKills.TryAdd(target.PlayerId, new CountdownTimer(KillDelay.GetInt(), () =>
                     {
-                        if (target == null || !target.IsAlive())
-                        {
-                            WaitingDelayedKills.Remove(target.PlayerId);
-                            return;
-                        }
-
-                        target.Suicide(PlayerState.DeathReason.Poison, killer);
                         WaitingDelayedKills.Remove(target.PlayerId);
+                        if (target == null || !target.IsAlive()) return;
+                        target.Suicide(PlayerState.DeathReason.Poison, killer);
                     }));
                     return false;
                 case 2: // Shield

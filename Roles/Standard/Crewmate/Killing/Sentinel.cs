@@ -40,7 +40,11 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         StartingPosition = Sentinel.Pos();
         NearbyKillers.Do(x => x.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration)));
         Sentinel.MarkDirtySettings();
-        Timer = new CountdownTimer(PatrolDuration, FinishPatrolling, onTick: CheckPlayerPositions, onCanceled: () => IsPatrolling = false);
+        Timer = new CountdownTimer(PatrolDuration, FinishPatrolling, onTick: CheckPlayerPositions, onCanceled: () =>
+        {
+            Timer = null;
+            IsPatrolling = false;
+        });
     }
 
     private void CheckPlayerPositions()
@@ -64,6 +68,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
 
     private void FinishPatrolling()
     {
+        Timer = null;
         IsPatrolling = false;
         NearbyKillers.Do(x => x.Suicide(PlayerState.DeathReason.Patrolled, Sentinel));
         Sentinel.MarkDirtySettings();

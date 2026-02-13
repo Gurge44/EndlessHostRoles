@@ -42,7 +42,7 @@ public class NoteKiller : RoleBase
 
     public static Dictionary<byte, string> RealNames = [];
     private static Dictionary<byte, string> ShownClues = [];
-    private static CountdownTimer ShowClueEndTimeStamp;
+    private static CountdownTimer ShowClueTimer;
     public static int Kills;
     public static bool CanGuess;
 
@@ -72,7 +72,7 @@ public class NoteKiller : RoleBase
 
         RealNames = [];
         ShownClues = [];
-        ShowClueEndTimeStamp = null;
+        ShowClueTimer = null;
         Kills = 0;
 
         LateTask.New(() =>
@@ -155,14 +155,14 @@ public class NoteKiller : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 1, data.ID, shownClue);
         }
 
-        ShowClueEndTimeStamp = new CountdownTimer(ClueShowDuration.GetInt(), () =>
+        ShowClueTimer = new CountdownTimer(ClueShowDuration.GetInt(), () =>
         {
-            ShowClueEndTimeStamp = null;
+            ShowClueTimer = null;
             ShownClues.Clear();
             Utils.NotifyRoles(SpecifySeer: pc);
         }, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () =>
         {
-            ShowClueEndTimeStamp = null;
+            ShowClueTimer = null;
             ShownClues.Clear();
         });
         Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 2);
@@ -188,13 +188,13 @@ public class NoteKiller : RoleBase
                 ShownClues[reader.ReadByte()] = reader.ReadString();
                 break;
             case 2:
-                ShowClueEndTimeStamp = new CountdownTimer(ClueShowDuration.GetInt(), () =>
+                ShowClueTimer = new CountdownTimer(ClueShowDuration.GetInt(), () =>
                 {
-                    ShowClueEndTimeStamp = null;
+                    ShowClueTimer = null;
                     ShownClues.Clear();
                 }, onCanceled: () =>
                 {
-                    ShowClueEndTimeStamp = null;
+                    ShowClueTimer = null;
                     ShownClues.Clear();
                 });
                 break;
@@ -206,8 +206,8 @@ public class NoteKiller : RoleBase
         if (seer.PlayerId == target.PlayerId && CustomRoles.NoteKiller.RoleExist() && seer.PlayerId != NoteKillerID && !meeting && RealNames.TryGetValue(seer.PlayerId, out string ownName))
             return MeetingStates.FirstMeeting ? string.Format(Translator.GetString("NoteKiller.OthersSelfSuffix"), CustomRoles.NoteKiller.ToColoredString(), ownName) : string.Format(Translator.GetString("NoteKiller.OthersSelfSuffixShort"), ownName);
 
-        if (seer.PlayerId != NoteKillerID || meeting || ShowClueEndTimeStamp == null || ShownClues.Count == 0) return string.Empty;
+        if (seer.PlayerId != NoteKillerID || meeting || ShowClueTimer == null || ShownClues.Count == 0) return string.Empty;
         if (ShownClues.TryGetValue(target.PlayerId, out string clue)) return clue;
-        return seer.PlayerId == target.PlayerId ? $"\u25a9 ({(int)Math.Ceiling(ShowClueEndTimeStamp.Remaining.TotalSeconds)}s)" : string.Empty;
+        return seer.PlayerId == target.PlayerId ? $"\u25a9 ({(int)Math.Ceiling(ShowClueTimer.Remaining.TotalSeconds)}s)" : string.Empty;
     }
 }

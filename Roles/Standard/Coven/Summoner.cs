@@ -58,6 +58,7 @@ public class Summoner : CovenBase
         SummonerId = playerId;
         Changed = false;
         SummonedPlayerId = byte.MaxValue;
+        SummonedPlayerTimer = null;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
@@ -100,11 +101,12 @@ public class Summoner : CovenBase
             {
                 SummonedPlayerTimer = new(SummonedTimeToKill.GetFloat(), () =>
                 {
+                    SummonedPlayerTimer = null;
                     SummonedPlayerId = byte.MaxValue;
                     if (summoned == null || !summoned.IsAlive()) return;
                     state.SetDead();
                     summoned.RpcExileV2();
-                }, onTick: () => Utils.NotifyRoles(SpecifySeer: summoned, SpecifyTarget: summoned));
+                }, onTick: () => Utils.NotifyRoles(SpecifySeer: summoned, SpecifyTarget: summoned), onCanceled: () => SummonedPlayerTimer = null);
 
                 RPC.PlaySoundRPC(SummonedPlayerId, Sounds.SpawnSound);
                 GhostRolesManager.RemoveGhostRole(SummonedPlayerId);
@@ -158,7 +160,8 @@ public class Summoner : CovenBase
             if (instance.SummonedPlayerId == killer.PlayerId)
             {
                 AdditionalWinners.Add(instance.SummonedPlayerId);
-                instance.SummonedPlayerTimer.Dispose();
+                instance.SummonedPlayerTimer?.Dispose();
+                instance.SummonedPlayerTimer = null;
                 killer.RpcExileV2();
                 Main.PlayerStates[instance.SummonedPlayerId].SetDead();
                 instance.SummonedPlayerId = byte.MaxValue;
@@ -184,11 +187,11 @@ public class Summoner : CovenBase
         {
             case 1:
                 SummonedPlayerId = reader.ReadByte();
-                SummonedPlayerTimer = new(SummonedTimeToKill.GetFloat());
+                SummonedPlayerTimer = new(SummonedTimeToKill.GetFloat(), () => SummonedPlayerTimer = null, onCanceled: () => SummonedPlayerTimer = null);
                 break;
             case 2:
                 SummonedPlayerId = byte.MaxValue;
-                SummonedPlayerTimer.Dispose();
+                SummonedPlayerTimer?.Dispose();
                 SummonedPlayerTimer = null;
                 break;
         }

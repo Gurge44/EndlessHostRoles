@@ -53,17 +53,12 @@ public class Mercenary : RoleBase
         Timer?.Dispose();
         Timer = new CountdownTimer(TimeLimit.GetInt() + add, () =>
         {
+            Timer = null;
+            
             var player = MercenaryId.GetPlayer();
-
-            if (player == null || !player.IsAlive())
-            {
-                Timer.Dispose();
-                Timer = null;
-                return;
-            }
+            if (player == null || !player.IsAlive()) return;
 
             player.Suicide();
-            Timer = null;
 
             if (player.AmOwner)
                 Achievements.Type.OutOfTime.Complete();

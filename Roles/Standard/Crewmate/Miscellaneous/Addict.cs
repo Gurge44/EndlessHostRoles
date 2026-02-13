@@ -55,11 +55,12 @@ public class Addict : RoleBase
         PlayerIdList.Add(playerId);
         SuicideTimer = new CountdownTimer(TimeLimit.GetFloat(), () =>
         {
+            SuicideTimer = null;
+            
             var player = playerId.GetPlayer();
             if (player == null || !player.IsAlive()) return;
             
             player.Suicide();
-            SuicideTimer = null;
 
             if (player.AmOwner)
                 Achievements.Type.OutOfTime.Complete();
@@ -95,11 +96,12 @@ public class Addict : RoleBase
         SuicideTimer?.Dispose();
         SuicideTimer = new CountdownTimer(TimeLimit.GetFloat(), () =>
         {
+            SuicideTimer = null;
+            
             var player = AddictId.GetPlayer();
             if (player == null || !player.IsAlive()) return;
             
             player.Suicide();
-            SuicideTimer = null;
 
             if (player.AmOwner)
                 Achievements.Type.OutOfTime.Complete();

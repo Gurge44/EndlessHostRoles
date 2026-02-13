@@ -100,7 +100,7 @@ internal class AntiAdminer : RoleBase
         {
             foreach (PlayerControl player in PlayersNearDevices.Keys.ToValidPlayers().Where(x => x.IsAlive()))
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-        });
+        }, onCanceled: () => ExtraAbilityTimer = null);
 
         pc.RpcResetAbilityCooldown();
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

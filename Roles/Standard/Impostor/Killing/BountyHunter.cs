@@ -148,7 +148,7 @@ public class BountyHunter : RoleBase
             if (Timer.Remaining.TotalSeconds > 15) return;
             
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: SendOption.None);
-        });
+        }, onCanceled: () => Timer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, playerId, true);
 
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: Reset Target", "BountyHunter");

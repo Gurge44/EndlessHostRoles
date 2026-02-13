@@ -145,7 +145,7 @@ public class Deathpact : RoleBase
             }
             
             PlayersInDeathpact.ForEach(x => NotifyRoles(SpecifySeer: x, SpecifyTarget: x, SendOption: SendOption.None));
-        });
+        }, cancelOnMeeting: false, onCanceled: () => DeathpactTime = null);
         ActiveDeathpacts.Add(pc.PlayerId);
 
         if (ShowArrowsToOtherPlayersInPact.GetBool())

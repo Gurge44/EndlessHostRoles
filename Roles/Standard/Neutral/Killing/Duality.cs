@@ -100,6 +100,7 @@ public class Duality : RoleBase
             if (pc == null || !pc.IsAlive()) return;
             pc.Suicide();
             if (pc.AmOwner) Achievements.Type.OutOfTime.Complete();
+            Timer = null;
         }, onTick: () =>
         {
             if (pc == null || !pc.IsAlive())
@@ -109,7 +110,7 @@ public class Duality : RoleBase
             }
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        });
+        }, onCanceled: () => Timer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, DualityId, KillingPhase);
     }
 
@@ -117,7 +118,7 @@ public class Duality : RoleBase
     {
         KillingPhase = reader.ReadBoolean();
         Timer?.Dispose();
-        Timer = new CountdownTimer(Time.GetInt());
+        Timer = new CountdownTimer(Time.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

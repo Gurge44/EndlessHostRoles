@@ -91,7 +91,7 @@ public class Wasp : RoleBase
             {
                 target.Suicide(PlayerState.DeathReason.Stung, killer);
                 DelayedKills.Remove(target.PlayerId);
-            });
+            }, cancelOnMeeting: false, onCanceled: DelayedKills.Clear);
         else
             MeetingKills.Add(target.PlayerId);
 
@@ -154,7 +154,7 @@ public class Wasp : RoleBase
                     target.SyncSettings();
                     target.SetKillCooldown(StingCooldown.GetInt());
                 }
-            }, onTick: () => Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target));
+            }, onTick: () => Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target), cancelOnMeeting: false, onCanceled: () => SwarmModeEnd = null);
             Utils.SendRPC(CustomRPC.SyncRoleData, WaspPC.PlayerId);
             target.SyncSettings();
             target.SetKillCooldown(0.01f);
