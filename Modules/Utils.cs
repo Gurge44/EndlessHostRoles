@@ -4403,24 +4403,17 @@ public static class Utils
 
         return null;
     }
-
-    [SuppressMessage("ReSharper", "MustUseReturnValue")]
-    private static Texture2D LoadTextureFromResources(string path)
+    private static unsafe Texture2D LoadTextureFromResources(string path)
     {
         try
         {
             Texture2D texture = new(2, 2, TextureFormat.ARGB32, true);
-            var assembly = Assembly.GetExecutingAssembly();
+            Assembly assembly = Assembly.GetExecutingAssembly();
             Stream stream = assembly.GetManifestResourceStream(path);
-
-            if (stream != null)
-            {
-                using var ms = new MemoryStream();
-                stream.CopyTo(ms);
-
-                texture.LoadImage(ms.ToArray(), false);
-            }
-
+            var length = stream.Length;
+            var byteTexture = new Il2CppStructArray<byte>(length);
+            stream.Read(new Span<byte>(IntPtr.Add(byteTexture.Pointer, IntPtr.Size * 4).ToPointer(), (int)length));
+            ImageConversion.LoadImage(texture, byteTexture, false);
             return texture;
         }
         catch { Logger.Error($"Error loading texture: {path}", "LoadImage"); }
