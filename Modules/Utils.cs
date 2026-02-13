@@ -4403,6 +4403,7 @@ public static class Utils
 
         return null;
     }
+    
     private static unsafe Texture2D LoadTextureFromResources(string path)
     {
         try
@@ -4410,10 +4411,11 @@ public static class Utils
             Texture2D texture = new(2, 2, TextureFormat.ARGB32, true);
             Assembly assembly = Assembly.GetExecutingAssembly();
             Stream stream = assembly.GetManifestResourceStream(path);
-            var length = stream.Length;
+            var length = stream!.Length; // Assuming all resource paths are valid and exist, so we can skip null check here
             var byteTexture = new Il2CppStructArray<byte>(length);
+            // ReSharper disable once MustUseReturnValue - we know how many bytes we need to read, so we can skip the returned value check
             stream.Read(new Span<byte>(IntPtr.Add(byteTexture.Pointer, IntPtr.Size * 4).ToPointer(), (int)length));
-            ImageConversion.LoadImage(texture, byteTexture, false);
+            texture.LoadImage(byteTexture, false);
             return texture;
         }
         catch { Logger.Error($"Error loading texture: {path}", "LoadImage"); }
