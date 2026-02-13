@@ -1,7 +1,8 @@
-﻿using System.Linq;
+﻿using System;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using UnityEngine;
+using EHR.Modules.Extensions;
+using Hazel;
 
 namespace EHR.Roles;
 
@@ -18,9 +19,9 @@ internal class Tiger : RoleBase
 
     public static bool On;
 
-    private float CooldownTimer;
-    private int Count;
-    public float EnrageTimer;
+    private CountdownTimer CooldownTimer;
+    private CountdownTimer EnrageTimer;
+    private byte TigerId;
 
     public override bool IsEnable => On;
 
@@ -54,8 +55,9 @@ internal class Tiger : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        EnrageTimer = float.NaN;
-        CooldownTimer = 0f;
+        EnrageTimer = null;
+        CooldownTimer = null;
+        TigerId = playerId;
     }
 
     public override void Init()
@@ -88,10 +90,10 @@ internal class Tiger : RoleBase
 
     public override bool OnSabotage(PlayerControl pc)
     {
-        if (CooldownTimer <= 0f)
+        if (CooldownTimer == null)
         {
-            StartEnraging();
-            CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            StartEnraging(pc);
+            ResetCooldown(pc);
         }
 
         return pc.Is(CustomRoles.Mischievous);
@@ -99,15 +101,15 @@ internal class Tiger : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        StartEnraging();
+        StartEnraging(pc);
     }
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (CooldownTimer <= 0f)
+        if (CooldownTimer == null)
         {
-            StartEnraging();
-            CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            StartEnraging(pc);
+            ResetCooldown(pc);
         }
 
         return false;
@@ -117,58 +119,106 @@ internal class Tiger : RoleBase
     {
         if (!shapeshifting) return true;
 
-        if (CooldownTimer <= 0f)
+        if (CooldownTimer == null)
         {
-            StartEnraging();
-            CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            StartEnraging(shapeshifter);
+            ResetCooldown(shapeshifter);
         }
 
         return false;
     }
 
-    private void StartEnraging()
+    private void ResetCooldown(PlayerControl pc, bool addDuration = true)
     {
-        EnrageTimer = EnrageDuration.GetFloat();
+        CooldownTimer = new CountdownTimer(EnrageCooldown.GetFloat() + (addDuration ? EnrageDuration.GetFloat() : 0), () =>
+        {
+            CooldownTimer = null;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onTick: () =>
+        {
+            if (pc == null || !pc.IsAlive())
+            {
+                CooldownTimer.Dispose();
+                EnrageTimer?.Dispose();
+                CooldownTimer = null;
+                EnrageTimer = null;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2);
+                return;
+            }
+            
+            if (EnrageTimer.Remaining.TotalSeconds > 5) return;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onCanceled: () => CooldownTimer = null);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, addDuration);
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    private void StartEnraging(PlayerControl pc)
     {
-        if (CooldownTimer > 0f) CooldownTimer -= Time.fixedDeltaTime;
-
-        if (float.IsNaN(EnrageTimer)) return;
-
-        EnrageTimer -= Time.fixedDeltaTime;
-
-        Count++;
-        if (Count < 10) return;
-
-        Count = 0;
-
-        Utils.SendRPC(CustomRPC.SyncTiger, pc.PlayerId, EnrageTimer);
-
-        switch (EnrageTimer)
+        EnrageTimer = new CountdownTimer(EnrageDuration.GetFloat(), () =>
         {
-            case <= 0f:
-                EnrageTimer = float.NaN;
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                break;
-            case <= 5f:
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                break;
-        }
+            EnrageTimer = null;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onTick: () =>
+        {
+            if (pc == null || !pc.IsAlive())
+            {
+                EnrageTimer.Dispose();
+                CooldownTimer?.Dispose();
+                EnrageTimer = null;
+                CooldownTimer = null;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 4);
+                return;
+            }
+            
+            if (EnrageTimer.Remaining.TotalSeconds > 5) return;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onCanceled: () => EnrageTimer = null);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3);
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        if (float.IsNaN(EnrageTimer) || !FastVector2.TryGetClosestPlayerInRangeTo(killer, Radius.GetFloat(), out PlayerControl victim, x => x.PlayerId != target.PlayerId)) return;
+        if (EnrageTimer == null || !FastVector2.TryGetClosestPlayerInRangeTo(killer, Radius.GetFloat(), out PlayerControl victim, x => x.PlayerId != target.PlayerId)) return;
 
         if (killer.RpcCheckAndMurder(victim, true))
             victim.Suicide(realKiller: killer);
     }
 
+    public override void AfterMeetingTasks()
+    {
+        var pc = TigerId.GetPlayer();
+        if (pc == null || !pc.IsAlive()) return;
+        ResetCooldown(pc, false);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                CooldownTimer = new CountdownTimer(EnrageCooldown.GetFloat() + (reader.ReadBoolean() ? EnrageDuration.GetFloat() : 0), () => CooldownTimer = null, onCanceled: () => CooldownTimer = null);
+                break;
+            case 2:
+                CooldownTimer?.Dispose();
+                CooldownTimer = null;
+                break;
+            case 3:
+                EnrageTimer = new CountdownTimer(EnrageDuration.GetFloat(), () => EnrageTimer = null, onCanceled: () => EnrageTimer = null);
+                break;
+            case 4:
+                EnrageTimer?.Dispose();
+                EnrageTimer = null;
+                break;
+        }
+    }
+
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg || float.IsNaN(tg.EnrageTimer) || hud || meeting) return string.Empty;
-        return tg.EnrageTimer > 5 ? "\u25a9" : $"\u25a9 ({(int)(tg.EnrageTimer + 1)}s)";
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != TigerId || hud || meeting) return string.Empty;
+        if (EnrageTimer != null) return EnrageTimer.Remaining.TotalSeconds <= 5 || seer.IsModdedClient() ? $"\u25a9 ({(int)Math.Ceiling(EnrageTimer.Remaining.TotalSeconds)}s)" : "\u25a9";
+        if (CooldownTimer != null) return string.Format(Translator.GetString("CDPT"), CooldownTimer.Remaining.TotalSeconds <= 5 || seer.IsModdedClient() ? (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds) : "> 5s");
+        return string.Empty;
     }
 }

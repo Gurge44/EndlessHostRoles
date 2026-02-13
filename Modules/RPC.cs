@@ -120,7 +120,6 @@ public enum CustomRPC
     SetJailorTarget,
     SetDoppelgangerStealLimit,
     SetJailorExeLimit,
-    SetWwTimer,
     SetSwapperVotes,
     Judge,
     Guess,
@@ -135,6 +134,8 @@ public enum CustomRPC
     RpcPassBomb,
     SyncPostman,
     SyncChangeling,
+    SyncSentry,
+    SyncBargainer,
     SetDoomsayerProgress = 209,
 
     /*
@@ -147,9 +148,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SyncTiger,
-    SyncSentry,
-    SyncBargainer,
     SyncOverheat,
     SyncIntrovert,
     SyncAllergic,
@@ -680,13 +678,6 @@ internal static class RPCHandlerPatch
                     changeling.CurrentRole = (CustomRoles)reader.ReadPackedInt32();
                     break;
                 }
-                case CustomRPC.SyncTiger:
-                {
-                    if (Main.PlayerStates[reader.ReadByte()].Role is not Tiger tiger) break;
-
-                    tiger.EnrageTimer = reader.ReadSingle();
-                    break;
-                }
                 case CustomRPC.SyncSentry:
                 {
                     byte id = reader.ReadByte();
@@ -1172,12 +1163,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SetJailorTarget:
                 {
                     Jailor.ReceiveRPC(reader);
-                    break;
-                }
-                case CustomRPC.SetWwTimer:
-                {
-                    byte id = reader.ReadByte();
-                    (Main.PlayerStates[id].Role as Werewolf)?.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetSwapperVotes:

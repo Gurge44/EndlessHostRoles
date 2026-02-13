@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -19,20 +19,17 @@ public class Werewolf : RoleBase
     private static OptionItem RampageCDAfterNoKillRampage;
     private static OptionItem ResetToNormalCooldownAfterMeetings;
 
-    private static int CD;
-    private static long LastFixedTime;
-
+    private CountdownTimer CooldownTimer;
+    private CountdownTimer RampageTimer;
     private int KillsInLastRampage;
-    private long lastTime;
-    private long RampageTime;
     private byte WWId;
 
     private float UsedCooldown => KillsInLastRampage == 0 ? RampageCDAfterNoKillRampage.GetFloat() : RampageCD.GetFloat();
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    private bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
-    private bool IsRampaging => RampageTime != -10;
+    private bool CanRampage => GameStates.IsInTask && RampageTimer == null && CooldownTimer == null;
+    private bool IsRampaging => RampageTimer != null;
 
     public override void SetupCustomOption()
     {
@@ -64,10 +61,6 @@ public class Werewolf : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        RampageTime = -10;
-        lastTime = -10;
-        CD = 0;
-        WWId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
@@ -75,21 +68,49 @@ public class Werewolf : RoleBase
         PlayerIdList.Add(playerId);
         WWId = playerId;
 
-        RampageTime = -10;
-        lastTime = Utils.TimeStamp + 12;
+        RampageTimer = null;
         KillsInLastRampage = -10;
-        CD = 0;
 
+        if (!AmongUsClient.Instance.AmHost) return;
+        
+        StartCooldownTimer(playerId.GetPlayer(), 8);
+        
         LateTask.New(() =>
         {
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-                Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
+                Utils.GetPlayerById(playerId)?.RpcResetAbilityCooldown();
         }, 12f, log: false);
     }
 
     public override void Remove(byte playerId)
     {
         PlayerIdList.Remove(playerId);
+    }
+
+    void StartCooldownTimer(PlayerControl pc, int add = 0)
+    {
+        CooldownTimer = new CountdownTimer(UsedCooldown + add, () =>
+        {
+            CooldownTimer = null;
+            bool otherTrigger = UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool();
+
+            if (!pc.IsModdedClient())
+            {
+                pc.Notify(GetString(otherTrigger ? "WWCanRampageVanish" : "WWCanRampage"));
+                pc.RpcChangeRoleBasis(otherTrigger ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
+            }
+        }, onTick: () => pc.Notify(string.Format(GetString("CDPT"), (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds)), 3f, true), onCanceled: () => CooldownTimer = null);
+    }
+
+    void StartRampageTimer(PlayerControl pc)
+    {
+        RampageTimer = new CountdownTimer(RampageDur.GetFloat(), () =>
+        {
+            RampageTimer = null;
+            StartCooldownTimer(pc);
+            pc.Notify(GetString("WWRampageOut"));
+            if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+        }, onTick: pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("WWRampageCountdown"), (int)RampageTimer.Remaining.TotalSeconds), overrideAll: true), onCanceled: () => RampageTimer = null);
     }
 
     public override void SetKillCooldown(byte id)
@@ -118,87 +139,18 @@ public class Werewolf : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 0f;
     }
 
-    private void SendRPC()
-    {
-        if (!IsEnable || !Utils.DoRPC) return;
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, SendOption.Reliable);
-        writer.Write(WWId);
-        writer.Write(RampageTime.ToString());
-        writer.Write(lastTime.ToString());
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public void ReceiveRPC(MessageReader reader)
-    {
-        RampageTime = long.Parse(reader.ReadString());
-        lastTime = long.Parse(reader.ReadString());
-    }
-
     public override void AfterMeetingTasks()
     {
-        RampageTime = -10;
-        lastTime = Utils.TimeStamp;
-        SendRPC();
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !IsEnable || Main.HasJustStarted || player == null) return;
-
-        long now = Utils.TimeStamp;
-
-        if (lastTime != -10)
-        {
-            if (!player.IsModdedClient())
-            {
-                long cooldown = lastTime + (long)UsedCooldown - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 3f, true);
-
-                CD = (int)cooldown;
-            }
-
-            if (lastTime + (long)UsedCooldown < now)
-            {
-                lastTime = -10;
-                bool otherTrigger = UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool();
-
-                if (!player.IsModdedClient())
-                {
-                    player.Notify(GetString(otherTrigger ? "WWCanRampageVanish" : "WWCanRampage"));
-                    player.RpcChangeRoleBasis(otherTrigger ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
-                }
-
-                SendRPC();
-                CD = 0;
-            }
-        }
-
-        if (LastFixedTime != now && RampageTime != -10 && !player.inVent)
-        {
-            LastFixedTime = now;
-            long remainTime = RampageTime + (long)RampageDur.GetFloat() - now;
-
-            switch (remainTime)
-            {
-                case < 0:
-                    lastTime = now;
-                    player.Notify(GetString("WWRampageOut"));
-                    if (!player.IsModdedClient()) player.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
-                    RampageTime = -10;
-                    SendRPC();
-                    break;
-                case <= 10 when !player.IsModdedClient():
-                    player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1), overrideAll: true);
-                    break;
-            }
-        }
+        RampageTimer?.Dispose();
+        RampageTimer = null;
+        CooldownTimer?.Dispose();
+        var pc = WWId.GetPlayer();
+        if (pc == null || !pc.IsAlive()) return;
+        StartCooldownTimer(pc);
     }
 
     public override void OnExitVent(PlayerControl pc, Vent vent)
     {
-        if (pc == null) return;
-
         Rampage(pc);
     }
 
@@ -230,8 +182,7 @@ public class Werewolf : RoleBase
             if (CanRampage)
             {
                 KillsInLastRampage = 0;
-                RampageTime = Utils.TimeStamp;
-                SendRPC();
+                StartRampageTimer(pc);
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
                 if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
@@ -251,19 +202,19 @@ public class Werewolf : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[seer.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
+        if (!hud || meeting || seer.PlayerId != WWId) return string.Empty;
 
         var str = new StringBuilder();
 
-        if (ww.IsRampaging)
+        if (IsRampaging)
         {
-            long remainTime = ww.RampageTime + (long)RampageDur.GetFloat() - Utils.TimeStamp;
-            str.Append(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
+            int remainTime = (int)Math.Ceiling(RampageTimer.Remaining.TotalSeconds);
+            str.Append(string.Format(GetString("WWRampageCountdown"), remainTime));
         }
-        else if (ww.lastTime != -10)
+        else if (CooldownTimer != null)
         {
-            long cooldown = ww.lastTime + (long)UsedCooldown - Utils.TimeStamp;
-            str.Append(string.Format(GetString("WWCD"), cooldown + 1));
+            int cooldown = (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds);
+            str.Append(string.Format(GetString("WWCD"), cooldown));
         }
         else
             str.Append(GetString(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "WWCanRampageVanish" : "WWCanRampage"));
@@ -280,5 +231,4 @@ public class Werewolf : RoleBase
 
         return true;
     }
-
 }

@@ -559,7 +559,7 @@ internal static class CheckMurderPatch
             case CustomRoles.Medic when !check:
                 Medic.IsDead(target);
                 break;
-            case CustomRoles.Spiritcaller when Spiritcaller.InProtect(target):
+            case CustomRoles.Spiritcaller when Spiritcaller.Protected:
                 killer.RpcGuardAndKill(target);
                 Notify("SomeSortOfProtection");
                 return false;

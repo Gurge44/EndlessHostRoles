@@ -93,7 +93,7 @@ internal class Samurai : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance != null) return;
+        if (!GameStates.IsInTask || ExileController.Instance) return;
 
         long now = Utils.TimeStamp;
 

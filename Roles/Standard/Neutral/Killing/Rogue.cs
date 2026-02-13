@@ -155,7 +155,6 @@ public class Rogue : RoleBase
 
         Count++;
         if (Count < 30) return;
-
         Count = 0;
 
         if (DoCheck && Moving)

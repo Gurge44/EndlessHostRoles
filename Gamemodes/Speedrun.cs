@@ -16,7 +16,7 @@ public static class Speedrun
     private static OptionItem KillersCanKillTaskingPlayers;
 
     public static HashSet<byte> CanKill = [];
-    public static Dictionary<byte, int> Timers = [];
+    private static Dictionary<byte, int> Timers = [];
 
     public static int KCD => KillCooldown.GetInt();
     public static int TimeLimitValue => TimeLimit.GetInt();
@@ -109,9 +109,11 @@ public static class Speedrun
         string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
 
+        string timeStr = time > 90 ? "> 90s" : time.ToString();
+
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time) + arrows;
-        return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
+        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, timeStr) + arrows;
+        return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, timeStr);
     }
 
     public static bool CheckForGameEnd(out GameOverReason reason)

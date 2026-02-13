@@ -30,8 +30,7 @@ public class Quarry : RoleBase
     private byte QuarryId;
     public byte TargetId;
     private float TargetKCD;
-    private Stopwatch SeekTimer;
-    private long LastUpdate;
+    private CountdownTimer SeekTimer;
 
     public override void SetupCustomOption()
     {
@@ -61,8 +60,7 @@ public class Quarry : RoleBase
         QuarryId = playerId;
         TargetId = byte.MaxValue;
         TargetKCD = 0f;
-        SeekTimer = new();
-        LastUpdate = 0;
+        SeekTimer = null;
         Instances.Add(this);
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
@@ -114,8 +112,26 @@ public class Quarry : RoleBase
             target.TP(pos);
         }, 0.2f);
 
+        SeekTimer = new CountdownTimer(SeekTime.GetInt(), () =>
+        {
+            target.Suicide();
+            TargetId = byte.MaxValue;
+            SeekTimer = null;
+            Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 2);
+        }, onTick: () =>
+        {
+            if (target == null || !target.IsAlive())
+            {
+                TargetId = byte.MaxValue;
+                SeekTimer = null;
+                Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 2);
+                return;
+            }
+            
+            Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
+            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+        });
         TargetId = target.PlayerId;
-        SeekTimer = Stopwatch.StartNew();
         TargetKCD = Main.KillTimers[TargetId];
         Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 1, TargetId);
         Main.Instance.StartCoroutine(ContinuouslyResetAbilityCooldown());
@@ -149,38 +165,6 @@ public class Quarry : RoleBase
         }
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc.IsAlive() || TargetId == byte.MaxValue) return;
-
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-        LastUpdate = now;
-
-        PlayerControl target = TargetId.GetPlayer();
-
-        if (target == null || !target.IsAlive())
-        {
-            TargetId = byte.MaxValue;
-            SeekTimer.Reset();
-            Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 2);
-            return;
-        }
-
-        if (SeekTimer.GetRemainingTime(SeekTime.GetInt()) <= 0)
-        {
-            target.Suicide();
-            TargetId = byte.MaxValue;
-            SeekTimer.Reset();
-            Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 2);
-        }
-        else
-        {
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-        }
-    }
-
     public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)
     {
         foreach (Quarry instance in Instances)
@@ -193,7 +177,8 @@ public class Quarry : RoleBase
                 instance.QuarryId.GetPlayer()?.RpcResetAbilityCooldown();
                 instance.TargetId = byte.MaxValue;
                 instance.TargetKCD = 0f;
-                instance.SeekTimer.Reset();
+                instance.SeekTimer?.Dispose();
+                instance.SeekTimer = null;
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.QuarryId, 2);
                 return true;
             }
@@ -217,7 +202,8 @@ public class Quarry : RoleBase
         if (TargetId == byte.MaxValue) return;
         
         TargetId = byte.MaxValue;
-        SeekTimer.Reset();
+        SeekTimer?.Dispose();
+        SeekTimer = null;
         Utils.SendRPC(CustomRPC.SyncRoleData, QuarryId, 2);
         
         PlayerControl target = TargetId.GetPlayer();
@@ -240,11 +226,12 @@ public class Quarry : RoleBase
         {
             case 1:
                 TargetId = reader.ReadByte();
-                SeekTimer = Stopwatch.StartNew();
+                SeekTimer = new CountdownTimer(SeekTime.GetInt(), () => SeekTimer = null, onCanceled: () => SeekTimer = null);
                 break;
             case 2:
                 TargetId = byte.MaxValue;
-                SeekTimer.Reset();
+                SeekTimer?.Dispose();
+                SeekTimer = null;
                 break;
         }
     }
@@ -252,7 +239,7 @@ public class Quarry : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if ((seer.PlayerId != QuarryId && seer.PlayerId != TargetId) || seer.PlayerId != target.PlayerId || meeting || hud || TargetId == byte.MaxValue) return string.Empty;
-        string time = SeekTimer.GetRemainingTime(SeekTime.GetInt()).ToString();
+        string time = ((int)SeekTimer.Remaining.TotalSeconds).ToString();
         return seer.PlayerId == TargetId ? $"{TargetArrow.GetAllArrows(TargetId)}\n{string.Format(Translator.GetString("Quarry.TimeLeftSuffix"), time, CustomRoles.Quarry.ToColoredString())}" : time;
     }
 }

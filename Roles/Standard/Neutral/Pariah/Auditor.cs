@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -20,8 +19,8 @@ public class Auditor : RoleBase
 
     private AbilityTriggers AbilityTrigger;
     private byte AuditorID;
-    private Dictionary<byte, long> LoweredVisionPlayers = [];
     private Modes Mode;
+    private HashSet<byte> LoweredVisionPlayers = [];
     private HashSet<byte> RevealedPlayers = [];
 
     public override bool IsEnable => On;
@@ -72,7 +71,7 @@ public class Auditor : RoleBase
 
     public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)
     {
-        if (!Instances.Any(x => x.LoweredVisionPlayers.ContainsKey(id))) return;
+        if (!Instances.Exists(x => x.LoweredVisionPlayers.Contains(id))) return;
 
         opt.SetVision(false);
         float vision = LoweredVision.GetFloat();
@@ -98,9 +97,12 @@ public class Auditor : RoleBase
             }
             case Modes.Smokebombing:
             {
-                bool containsKey = LoweredVisionPlayers.ContainsKey(target.PlayerId);
-                LoweredVisionPlayers[target.PlayerId] = Utils.TimeStamp + LoweredVisionDuration.GetInt();
-                if (!containsKey) target.MarkDirtySettings();
+                if (LoweredVisionPlayers.Add(target.PlayerId)) target.MarkDirtySettings();
+                LateTask.New(() =>
+                {
+                    if (target == null || !LoweredVisionPlayers.Remove(target.PlayerId) || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+                    target.MarkDirtySettings();
+                }, LoweredVisionDuration.GetInt());
                 killer.SetKillCooldown(SmokebombCooldown.GetFloat());
                 break;
             }
@@ -140,19 +142,6 @@ public class Auditor : RoleBase
         Mode = Mode == Modes.Auditing ? Modes.Smokebombing : Modes.Auditing;
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, (int)Mode);
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || ExileController.Instance) return;
-
-        byte[] toRemove = LoweredVisionPlayers.Where(x => x.Value <= Utils.TimeStamp).Select(x => x.Key).ToArray();
-
-        foreach (byte id in toRemove)
-        {
-            LoweredVisionPlayers.Remove(id);
-            id.GetPlayer().MarkDirtySettings();
-        }
     }
 
     public override void OnReportDeadBody()
