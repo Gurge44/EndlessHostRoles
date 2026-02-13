@@ -170,7 +170,7 @@ internal static class CheckMurderPatch
                 return false;
             }
 
-            if (MeetingHud.Instance != null)
+            if (MeetingHud.Instance)
             {
                 Logger.Info("Kill during meeting, canceled", "CheckMurder");
                 return false;
@@ -640,7 +640,7 @@ internal static class MurderPlayerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, bool __state)
     {
-        if (__instance == null || target == null || __instance.PlayerId >= 254 || target.PlayerId >= 254 || !__state) return;
+        if (!__instance || !target || __instance.PlayerId >= 254 || target.PlayerId >= 254 || !__state) return;
 
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
@@ -847,7 +847,7 @@ internal static class ShapeshiftPatch
             return false;
         }
 
-        if (shapeshifter == null || target == null) return true;
+        if (!shapeshifter || !target) return true;
 
         Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
 
@@ -940,24 +940,21 @@ internal static class ShapeshiftPatch
     }
 
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
-        if (!Main.ProcessShapeshifts || !GameStates.IsInTask || __instance == null || target == null) return;
+        if (!Main.ProcessShapeshifts || !GameStates.IsInTask || !__instance || !target) return;
 
-        bool animated = !Options.DisableShapeshiftAnimations.GetBool()
-                && !Options.DisableAllShapeshiftAnimations.GetBool()
-                && !__instance.GetCustomRole().IsNoAnimationShifter();
-
-        float ssTimer = animated ? 1.2f : 0.5f;
-
-        LateTask.New(() =>
+        if (shouldAnimate)
         {
-            if (AmongUsClient.Instance.AmHost)
+            LateTask.New(() =>
             {
-                __instance.RpcSetName(Main.AllPlayerNames[target.PlayerId]);
-                NotifyRoles(NoCache: true);
-            }
-        }, ssTimer, "PlayerControl.Shapeshift Prefix Patch - Force Name");
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    __instance.RpcSetName(Main.AllPlayerNames[target.PlayerId]);
+                    NotifyRoles(NoCache: true);
+                }
+            }, 1.2f, "PlayerControl.Shapeshift Prefix Patch - Force Name");
+        }
 
         bool shapeshifting = __instance.PlayerId != target.PlayerId;
 
@@ -1457,7 +1454,7 @@ internal static class FixedUpdatePatch
     {
         try
         {
-            if (__instance == null || __instance.PlayerId >= 254) return;
+            if (__instance.PlayerId >= 254) return;
 
             CheckMurderPatch.Update(__instance.PlayerId);
 
@@ -1542,7 +1539,11 @@ internal static class FixedUpdatePatch
             Zoom.OnFixedUpdate();
             TextBoxPatch.CheckChatOpen();
 
-            if (!lowLoad) NameNotifyManager.OnFixedUpdate();
+            if (!lowLoad)
+            {
+                NameNotifyManager.OnFixedUpdate();
+                LastImpostor.SetSubRole();
+            }
         }
 
         if (!lowLoad)
@@ -1642,7 +1643,7 @@ internal static class FixedUpdatePatch
                     PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 
-                bool checkPos = inTask && !ExileController.Instance && !AntiBlackout.SkipTasks && player != null && alive && !Pelican.IsEaten(playerId) && Main.IntroDestroyed;
+                bool checkPos = inTask && !ExileController.Instance && !AntiBlackout.SkipTasks && alive && !Pelican.IsEaten(playerId) && Main.IntroDestroyed;
                 if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
 
                 foreach (PlayerState state in Main.PlayerStates.Values)
@@ -1736,7 +1737,7 @@ internal static class FixedUpdatePatch
 
         bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
-        if (player == null || (lowLoad && !shouldUpdateRegardlessOfLowLoad)) return;
+        if (lowLoad && !shouldUpdateRegardlessOfLowLoad) return;
 
         if (self) LastSelfNameUpdateTS = now;
 
@@ -1963,7 +1964,7 @@ internal static class FixedUpdatePatch
             Mark.Append(Snitch.GetWarningMark(seer, target));
             Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
-            Main.LoversPlayers.ToArray().DoIf(x => x == null, x => Main.LoversPlayers.Remove(x));
+            Main.LoversPlayers.RemoveAll(x => !x);
             if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
 
             if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == lpId) || !seer.IsAlive()))
@@ -2299,7 +2300,7 @@ internal static class PlayerControlCompleteTaskPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
-        if (GameStates.IsMeeting || __instance == null || !__instance.IsAlive()) return;
+        if (GameStates.IsMeeting || !__instance || !__instance.IsAlive()) return;
 
         Snitch.OnCompleteTask(__instance);
 
@@ -2555,6 +2556,6 @@ internal static class BootFromVentPatch
 {
     public static bool Prefix(PlayerPhysics __instance)
     {
-        return !GameStates.IsInTask || ExileController.Instance || __instance == null || __instance.myPlayer == null || !__instance.myPlayer.IsAlive() || !__instance.myPlayer.Is(CustomRoles.Nimble);
+        return !GameStates.IsInTask || ExileController.Instance || !__instance || !__instance.myPlayer || !__instance.myPlayer.IsAlive() || !__instance.myPlayer.Is(CustomRoles.Nimble);
     }
 }

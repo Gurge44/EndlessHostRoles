@@ -22,7 +22,6 @@ public class CameraMan : RoleBase
     private static Vector2 CameraPosition;
     private Vector2 BasePos;
 
-    private bool IsTeleported;
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -70,7 +69,6 @@ public class CameraMan : RoleBase
     {
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
-        IsTeleported = false;
     }
 
     public override void Remove(byte playerId)
@@ -116,33 +114,22 @@ public class CameraMan : RoleBase
         BasePos = pc.Pos();
         pc.RPCPlayCustomSound("teleport");
             
-        if (pc.TP(CameraPosition))
+        if (pc.TP(CameraPosition) && TPBackWhenMoveAway.GetBool())
         {
-            IsTeleported = true;
-                
-            if (TPBackWhenMoveAway.GetBool())
-            {
-                Main.Instance.StartCoroutine(Coroutine());
+            Main.Instance.StartCoroutine(Coroutine());
 
-                System.Collections.IEnumerator Coroutine()
-                {
-                    yield return new WaitForSecondsRealtime(2f);
+            System.Collections.IEnumerator Coroutine()
+            {
+                yield return new WaitForSecondsRealtime(2f);
                         
-                    while (GameStates.IsInTask && pc.IsAlive() && FastVector2.DistanceWithinRange(pc.Pos(), CameraPosition, DisableDevice.UsableDistance))
-                        yield return new WaitForSecondsRealtime(0.5f);
+                while (GameStates.IsInTask && pc.IsAlive() && FastVector2.DistanceWithinRange(pc.Pos(), CameraPosition, DisableDevice.UsableDistance))
+                    yield return new WaitForSecondsRealtime(0.5f);
                         
-                    if (!pc.IsAlive() || !GameStates.IsInTask) yield break;
-                        
-                    IsTeleported = false;
-                    pc.TP(BasePos);
-                }
+                if (!pc.IsAlive() || !GameStates.IsInTask) yield break;
+                
+                pc.TP(BasePos);
             }
         }
-    }
-
-    public override void OnReportDeadBody()
-    {
-        IsTeleported = false;
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

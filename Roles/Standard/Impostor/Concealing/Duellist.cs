@@ -14,8 +14,6 @@ public class Duellist : RoleBase
     private static Dictionary<byte, byte> DuelPair = [];
     private static OptionItem SSCD;
 
-    private int Count;
-
     public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
     public override void SetupCustomOption()

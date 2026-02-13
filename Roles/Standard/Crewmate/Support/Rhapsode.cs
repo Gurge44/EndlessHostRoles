@@ -21,7 +21,6 @@ public class Rhapsode : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     
     private CountdownTimer Timer;
-    private long LastUpdate;
     private byte RhapsodeId;
 
     public override bool IsEnable => On;
@@ -67,7 +66,6 @@ public class Rhapsode : RoleBase
         Instances.Add(this);
         RhapsodeId = playerId;
         Timer = null;
-        LastUpdate = 0;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 

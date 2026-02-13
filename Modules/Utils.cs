@@ -94,11 +94,6 @@ public static class Utils
     public static int AllAlivePlayersCount => Main.EnumerateAlivePlayerControls().Count(pc => !pc.Is(CountTypes.OutOfGame));
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
 
-    public static long GetTimeStamp(DateTime? dateTime = null)
-    {
-        return (long)((dateTime ?? DateTime.Now).ToUniversalTime() - Epoch).TotalSeconds;
-    }
-
     public static void ErrorEnd(string text)
     {
         if (AmongUsClient.Instance.AmHost)
@@ -227,7 +222,7 @@ public static class Utils
 
     public static ClientData GetClientById(int id)
     {
-        try { return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Id == id); }
+        try { return AmongUsClient.Instance.GetClient(id); }
         catch { return null; }
     }
 
@@ -249,64 +244,43 @@ public static class Utils
                 case SystemTypes.Electrical:
                 {
                     if (mapId == 5) return false;
-
-                    var switchSystem = systemType.CastFast<SwitchSystem>();
-                    return switchSystem is { IsActive: true };
+                    return systemType.TryCast<SwitchSystem>(out var switchSystem) && switchSystem.IsActive;
                 }
                 case SystemTypes.Reactor:
                 {
-                    switch (mapId)
+                    return mapId switch
                     {
-                        case 2:
-                            return false;
-                        case 4:
-                            var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
-                            return heliSabotageSystem != null && heliSabotageSystem.IsActive;
-                        default:
-                            var reactorSystemType = systemType.CastFast<ReactorSystemType>();
-                            return reactorSystemType is { IsActive: true };
-                    }
+                        2 => false,
+                        4 => systemType.TryCast<HeliSabotageSystem>(out var heliSabotageSystem) && heliSabotageSystem.IsActive,
+                        _ => systemType.TryCast<ReactorSystemType>(out var reactorSystemType) && reactorSystemType.IsActive
+                    };
                 }
                 case SystemTypes.Laboratory:
                 {
                     if (mapId != 2) return false;
-
-                    var reactorSystemType = systemType.CastFast<ReactorSystemType>();
-                    return reactorSystemType is { IsActive: true };
+                    return systemType.TryCast<ReactorSystemType>(out var reactorSystemType) && reactorSystemType.IsActive;
                 }
                 case SystemTypes.LifeSupp:
                 {
                     if (mapId is 2 or 4 or 5) return false;
-
-                    var lifeSuppSystemType = systemType.CastFast<LifeSuppSystemType>();
-                    return lifeSuppSystemType is { IsActive: true };
+                    return systemType.TryCast<LifeSuppSystemType>(out var lifeSuppSystemType) && lifeSuppSystemType.IsActive;
                 }
                 case SystemTypes.Comms:
                 {
                     if (mapId is 1 or 5)
-                    {
-                        var hqHudSystemType = systemType.TryCast<HqHudSystemType>();
-                        // ReSharper disable once MergeIntoPattern
-                        // For some reason, the game sometimes crashes here when trying to get_IsActive
-                        return hqHudSystemType != null && hqHudSystemType.IsActive;
-                    }
+                        return systemType.TryCast<HqHudSystemType>(out var hqHudSystemType) && hqHudSystemType.IsActive;
 
-                    var hudOverrideSystemType = systemType.CastFast<HudOverrideSystemType>();
-                    return hudOverrideSystemType is { IsActive: true };
+                    return systemType.TryCast<HudOverrideSystemType>(out var hudOverrideSystemType) && hudOverrideSystemType.IsActive;
                 }
                 case SystemTypes.HeliSabotage:
                 {
                     if (mapId != 4) return false;
-
-                    var heliSabotageSystem = systemType.CastFast<HeliSabotageSystem>();
-                    return heliSabotageSystem != null && heliSabotageSystem.IsActive;
+                    return systemType.TryCast<HeliSabotageSystem>(out var heliSabotageSystem) && heliSabotageSystem.IsActive;
                 }
                 case SystemTypes.MushroomMixupSabotage:
                 {
                     if (mapId != 5) return false;
-
-                    var mushroomMixupSabotageSystem = systemType.CastFast<MushroomMixupSabotageSystem>();
-                    return mushroomMixupSabotageSystem != null && mushroomMixupSabotageSystem.IsActive;
+                    return systemType.TryCast<MushroomMixupSabotageSystem>(out var mushroomMixupSabotageSystem) && mushroomMixupSabotageSystem.IsActive;
                 }
                 default:
                     return false;
@@ -1007,7 +981,7 @@ public static class Utils
 
     public static bool CanBeMadmate(this PlayerControl pc)
     {
-        return pc != null && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
+        return pc && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
                && !(
                    (pc.Is(CustomRoles.Sheriff) && !Options.SheriffCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Mayor) && !Options.MayorCanBeMadmate.GetBool()) ||
@@ -1748,7 +1722,7 @@ public static class Utils
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || CustomRoles.Renegade.RoleExist(true) || Main.EnumerateAlivePlayerControls() == null || Main.AllAlivePlayerControls.Count == 0 || Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool())))) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || !deadPlayer || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || CustomRoles.Renegade.RoleExist(true) || Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool())))) return;
 
             PlayerControl[] listToChooseFrom = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
@@ -1829,7 +1803,7 @@ public static class Utils
             Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1].Split('/')[^1]} at line {callerLineNumber}", "SendMessage");
 
             PlayerControl receiver = GetPlayerById(sendTo, false);
-            if (sendTo != byte.MaxValue && receiver == null || !force && title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
+            if (sendTo != byte.MaxValue && !receiver || !force && title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
 
             if (!AmongUsClient.Instance.AmHost)
             {
@@ -2348,7 +2322,7 @@ public static class Utils
     public static bool ApplySuffix(PlayerControl player, out string name)
     {
         name = string.Empty;
-        if (!AmongUsClient.Instance.AmHost || player == null) return false;
+        if (!AmongUsClient.Instance.AmHost || !player) return false;
 
         DevManager.TagInfo devUser = player.FriendCode.GetDevUser();
         bool admin = ChatCommands.IsPlayerAdmin(player.FriendCode);
@@ -2446,8 +2420,6 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
-            if (!pc.IsAlive()) return null;
-
             Vector3 position = pc.Pos();
             Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
 
@@ -2534,7 +2506,7 @@ public static class Utils
     {
         if (playerId is > byte.MaxValue or < byte.MinValue) return null;
 
-        if (fast && GameStates.InGame && Main.PlayerStates.TryGetValue((byte)playerId, out PlayerState state) && state.Player != null) return state.Player;
+        if (fast && GameStates.InGame && Main.PlayerStates.TryGetValue((byte)playerId, out PlayerState state) && state.Player) return state.Player;
 
         if (playerId == PlayerControl.LocalPlayer.PlayerId) return PlayerControl.LocalPlayer;
 
@@ -2648,11 +2620,11 @@ public static class Utils
         try
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
+            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
             var apc = Main.AllPlayerControls;
-            var seerList = SpecifySeer != null ? [SpecifySeer] : apc;
-            var targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
+            var seerList = SpecifySeer ? [SpecifySeer] : apc;
+            var targetList = SpecifyTarget ? [SpecifyTarget] : apc;
 
             var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
             var hasValue = false;
@@ -2693,7 +2665,7 @@ public static class Utils
 
         try
         {
-            if (seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby))
+            if (!seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby))
                 return false;
 
             sender ??= CustomRpcSender.Create("NotifyRoles", sendOption);
@@ -3977,7 +3949,7 @@ public static class Utils
                     break;
             }
 
-            if (target == null) return;
+            if (!target) return;
 
             if (!disconnect && !onMeeting) Randomizer.OnAnyoneDeath(target);
             if (Executioner.Target.ContainsValue(target.PlayerId)) Executioner.ChangeRoleByTarget(target);
@@ -4035,9 +4007,9 @@ public static class Utils
             Logger.Exception(ex, "AfterPlayerDeathTasks");
         }
 
-        if (target == null || (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive()) || Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (!target || (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive()) || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-        if (targetRealKiller != null)
+        if (targetRealKiller)
             target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), targetRealKiller.PlayerId.ColoredPlayerName(), (targetRealKiller.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + targetRealKiller.GetCustomRole().ToColoredString())}</color>", 10f);
     }
 
@@ -4045,15 +4017,6 @@ public static class Utils
     {
         try
         {
-            int aliveImpostorCount = Main.EnumerateAlivePlayerControls().Count(pc => pc.Is(CustomRoleTypes.Impostor));
-
-            if (Main.AliveImpostorCount != aliveImpostorCount)
-            {
-                Logger.Info("Number of living Impostors: " + aliveImpostorCount, "CountAliveImpostors");
-                Main.AliveImpostorCount = aliveImpostorCount;
-                LastImpostor.SetSubRole();
-            }
-
             if (sendLog)
             {
                 StringBuilder sb = new(100);
@@ -4085,7 +4048,7 @@ public static class Utils
 
         return num switch
         {
-            < 128 when player != null => player.GetNameWithRole().RemoveHtmlTags(),
+            < 128 when player => player.GetNameWithRole().RemoveHtmlTags(),
             253 => "Skip",
             254 => "None",
             255 => "Dead",
@@ -4096,7 +4059,7 @@ public static class Utils
     public static string PadRightV2(this object text, int num)
     {
         var t = text.ToString();
-        if (t == null) return string.Empty;
+        if (string.IsNullOrEmpty(t)) return string.Empty;
 
         int bc = t.Sum(c => Encoding.GetEncoding("UTF-8").GetByteCount(c.ToString()) == 1 ? 1 : 2);
 
@@ -4121,7 +4084,7 @@ public static class Utils
 
             if (!open) return;
 
-            if (PlayerControl.LocalPlayer != null && HudManager.InstanceExists)
+            if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
                 HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
             if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
@@ -4408,11 +4371,11 @@ public static class Utils
     {
         if (!HudManager.InstanceExists) return;
         HudManager hud = HudManager.Instance;
-        if (hud.FullScreen == null) return;
+        if (!hud.FullScreen) return;
 
         GameObject obj = hud.transform.FindChild("FlashColor_FullScreen")?.gameObject;
 
-        if (obj == null)
+        if (!obj)
         {
             obj = Object.Instantiate(hud.FullScreen.gameObject, hud.transform);
             obj.name = "FlashColor_FullScreen";
@@ -4496,7 +4459,7 @@ public static class Utils
             foreach (var pc in aapc)
             {
                 var dummyImp = aapc.FirstOrDefault(x => x != pc);
-                if (dummyImp != null) dummyImp.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
+                if (dummyImp) dummyImp.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
             }
         }
 
@@ -4514,7 +4477,7 @@ public static class Utils
         try
         {
             var panelThing = hud.TaskStuff.transform.FindChild("RolePanel");
-            if (panelThing != null) panelThing.gameObject.GetComponent<TaskPanelBehaviour>().open = open;
+            if (panelThing) panelThing.gameObject.GetComponent<TaskPanelBehaviour>().open = open;
         }
         catch (Exception e) { ThrowException(e); }
     }
@@ -4690,7 +4653,7 @@ public static class Utils
 
     public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent, SendOption sendOption = SendOption.Reliable)
     {
-        if (deadBodyParent == null || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost) return;
+        if (!deadBodyParent || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost) return;
         CreateDeadBody(position, colorId, deadBodyParent);
         PlayerControl playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
         playerControl.PlayerId = deadBodyParent.PlayerId;
@@ -4754,18 +4717,18 @@ public static class Utils
     public static MethodBase GetStateMachineMoveNext<T>(string methodName)
     {
         var typeName = typeof(T).FullName;
-        var showRoleStateMachine =
+        var stateMachine =
             typeof(T)
                 .GetNestedTypes()
-                .FirstOrDefault(x=>x.Name.Contains(methodName));
+                .FirstOrDefault(x => x.Name.Contains(methodName));
 
-        if (showRoleStateMachine == null)
+        if (stateMachine == null)
         {
             Logger.Error($"Failed to find {methodName} state machine for {typeName}", "GetStateMachineMoveNext");
             return null;
         }
 
-        var moveNext = AccessTools.Method(showRoleStateMachine, "MoveNext");
+        var moveNext = AccessTools.Method(stateMachine, "MoveNext");
         if (moveNext == null)
         {
             Logger.Error($"Failed to find MoveNext method for {typeName}.{methodName}", "GetStateMachineMoveNext");

@@ -390,8 +390,8 @@ internal static class HudManagerPatch
                 }
             }
 
-
-            if (Input.GetKeyDown(KeyCode.Y) && AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
+#if DEBUG
+            if (Input.GetKeyDown(KeyCode.Y))
             {
                 __instance.ToggleMapVisible(new()
                 {
@@ -428,6 +428,7 @@ internal static class HudManagerPatch
                 if (Input.GetKeyDown(KeyCode.Alpha9)) RepairSender.Input(9);
                 if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
             }
+#endif
         }
         catch (NullReferenceException e)
         {
@@ -1356,8 +1357,10 @@ internal static class TaskPanelBehaviourPatch
 
         __instance.taskText.text = taskList;
 
+#if DEBUG
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
+#endif
     }
 }
 
@@ -1374,6 +1377,7 @@ internal static class DialogueBoxShowPatch
     }
 }
 
+#if DEBUG
 internal static class RepairSender
 {
     public static bool Enabled;
@@ -1422,3 +1426,5 @@ internal static class RepairSender
         return SystemType + "(" + (SystemTypes)SystemType + ")\r\n" + Amount;
     }
 }
+
+#endif

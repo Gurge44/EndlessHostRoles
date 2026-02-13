@@ -29,7 +29,6 @@ internal class Warlock : RoleBase
 
     private CountdownTimer CurseCD;
     private CountdownTimer KCD;
-    private long LastNotify;
     private byte WarlockId;
 
     public override bool IsEnable => On;
@@ -73,7 +72,6 @@ internal class Warlock : RoleBase
         PlayerControl pc = playerId.GetPlayer();
         KCD = new CountdownTimer(KillCooldown.GetFloat() + 8, () => KCD = null, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () => KCD = null);
         CurseCD = new CountdownTimer(CurseCooldown.GetFloat() + 8, () => CurseCD = null, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () => CurseCD = null);
-        LastNotify = 0;
     }
 
     public override void Init()

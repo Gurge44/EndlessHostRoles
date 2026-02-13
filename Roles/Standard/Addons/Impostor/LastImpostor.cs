@@ -1,3 +1,4 @@
+using System.Linq;
 using Hazel;
 
 namespace EHR.Roles;
@@ -49,7 +50,7 @@ public class LastImpostor : IAddon
     {
         if (CurrentId != byte.MaxValue || !AmongUsClient.Instance.AmHost) return;
 
-        if (Options.CurrentGameMode != CustomGameMode.Standard || !CustomRoles.LastImpostor.IsEnable() || Main.AliveImpostorCount != 1) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard || !CustomRoles.LastImpostor.IsEnable() || Main.EnumerateAlivePlayerControls().Count(pc => pc.Is(CustomRoleTypes.Impostor)) != 1) return;
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {

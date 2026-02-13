@@ -16,7 +16,7 @@ public static class LobbyFixedUpdatePatch
     {
         try
         {
-            if (Paint == null)
+            if (!Paint)
             {
                 GameObject leftBox = GameObject.Find("Leftbox");
 
@@ -30,7 +30,7 @@ public static class LobbyFixedUpdatePatch
                 }
             }
 
-            if (LeftEngineSR == null || RightEngineSR == null)
+            if (!LeftEngineSR || !RightEngineSR)
             {
                 var leftEngine = GameObject.Find("LeftEngine");
                 if (leftEngine != null) LeftEngineSR = leftEngine.GetComponent<SpriteRenderer>();

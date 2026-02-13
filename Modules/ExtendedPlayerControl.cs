@@ -285,7 +285,7 @@ internal static class ExtendedPlayerControl
     /// </summary>
     public static CustomRoles GetCustomRole(this PlayerControl player)
     {
-        if (player == null)
+        if (!player)
         {
             MethodBase callerMethod = new StackFrame(1, false).GetMethod();
             string callerMethodName = callerMethod?.Name;
@@ -300,7 +300,7 @@ internal static class ExtendedPlayerControl
     {
         if (GameStates.IsLobby) return [];
 
-        if (player == null)
+        if (!player)
         {
             Logger.Warn("The player is null", "GetCustomSubRoles");
             return [];
@@ -311,7 +311,7 @@ internal static class ExtendedPlayerControl
 
     public static CountTypes GetCountTypes(this PlayerControl player)
     {
-        if (player == null)
+        if (!player)
         {
             StackFrame caller = new(1, false);
             MethodBase callerMethod = caller.GetMethod();
@@ -330,7 +330,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcResetTasks(this PlayerControl player, bool init = true)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !player) return;
 
         player.Data.RpcSetTasks(new Il2CppStructArray<byte>(0));
         if (init) Main.PlayerStates[player.PlayerId].InitTask(player);
@@ -430,7 +430,7 @@ internal static class ExtendedPlayerControl
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, bool setRoleMap = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (player == null) return;
+        if (!player) return;
 
         if (setRoleMap)
         {
@@ -470,7 +470,7 @@ internal static class ExtendedPlayerControl
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
     public static void RpcRevive(this PlayerControl player)
     {
-        if (player == null) return;
+        if (!player) return;
 
         if (!player.Data.IsDead)
         {
@@ -512,7 +512,7 @@ internal static class ExtendedPlayerControl
     {
         if (!forced)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !player || !player.IsAlive()) return;
 
             if (AntiBlackout.SkipTasks || ExileController.Instance)
             {
@@ -762,7 +762,7 @@ internal static class ExtendedPlayerControl
 
     public static void RpcExitVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)
     {
-        if (physics == null) return;
+        if (!physics) return;
 
         int clientId = seer.OwnerId;
 
@@ -785,7 +785,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsInsideMap(this PlayerControl player)
     {
-        if (player == null) return false;
+        if (!player) return false;
 
         var results = new Collider2D[10];
         int overlapPointNonAlloc = Physics2D.OverlapPointNonAlloc(player.Pos(), results, Constants.ShipOnlyMask);
@@ -808,7 +808,7 @@ internal static class ExtendedPlayerControl
 
     public static void KillFlash(this PlayerControl player)
     {
-        if (GameStates.IsLobby || player == null) return;
+        if (GameStates.IsLobby || !player) return;
 
         // Kill flash (blackout + reactor flash) processing
 
@@ -1003,7 +1003,7 @@ internal static class ExtendedPlayerControl
 
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
-        if (player == null) return;
+        if (!player) return;
 
         if (!Mathf.Approximately(time, -1f) && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
             time = Math.Max(time - reduction, 0.01f);
@@ -1185,7 +1185,7 @@ internal static class ExtendedPlayerControl
 
     public static void FixBlackScreen(this PlayerControl pc)
     {
-        if (pc == null || !AmongUsClient.Instance.AmHost) return;
+        if (!pc || !AmongUsClient.Instance.AmHost) return;
 
         if (MeetingStates.FirstMeeting)
         {
@@ -1315,7 +1315,7 @@ internal static class ExtendedPlayerControl
 
     public static void ReactorFlash(this PlayerControl pc, float delay = 0f, float flashDuration = float.NaN, bool canBlind = true)
     {
-        if (pc == null) return;
+        if (!pc) return;
 
         Logger.Info($"Reactor Flash for {pc.GetNameWithRole()}", "ReactorFlash");
 
@@ -1753,7 +1753,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Arsonist.IsDoused == null) return false;
+        if (!arsonist || !target) return false;
 
         Arsonist.IsDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
@@ -1761,7 +1761,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsDrawPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist == null || target == null || Revolutionist.IsDraw == null) return false;
+        if (!arsonist || !target) return false;
 
         Revolutionist.IsDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
         return isDraw;
@@ -1769,7 +1769,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player == null || target == null || Investigator.IsRevealed == null) return false;
+        if (!player || !target) return false;
 
         Investigator.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
@@ -2127,7 +2127,7 @@ internal static class ExtendedPlayerControl
 
     public static bool UsesPetInsteadOfKill(this PlayerControl pc)
     {
-        return pc != null && !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();
+        return pc && !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().UsesPetInsteadOfKill();
     }
 
     public static bool IsModdedClient(this PlayerControl player)
@@ -2413,7 +2413,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsAlive(this PlayerControl target)
     {
-        if (target == null || target.Is(CustomRoles.GM)) return false;
+        if (!target || target.Is(CustomRoles.GM)) return false;
 
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState ps) || !ps.IsDead;
     }

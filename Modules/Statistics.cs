@@ -313,7 +313,7 @@ public static class Statistics
 
             if (killer.AmOwner)
             {
-                if (Main.AliveImpostorCount == 0 && killer.IsCrewmate() && target.IsImpostor() && !Main.EnumerateAlivePlayerControls().Any(x => x.IsNeutralKiller()))
+                if (!Main.EnumerateAlivePlayerControls().Any(pc => pc.Is(CustomRoleTypes.Impostor)) && killer.IsCrewmate() && target.IsImpostor() && !Main.EnumerateAlivePlayerControls().Any(x => x.IsNeutralKiller()))
                     Achievements.Type.ImCrewISwear.Complete();
 
                 if ((killer.IsImpostor() && target.IsMadmate()) || (killer.IsMadmate() && target.IsImpostor()))
