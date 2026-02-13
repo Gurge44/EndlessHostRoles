@@ -1200,12 +1200,14 @@ internal static class ReportDeadBodyPatch
             MarkEveryoneDirtySettings();
         }, 3f, "RemoveBlackout");
 
-        try
+        foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
         {
-            foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
+            try
+            {
                 cno.OnMeeting();
+            }
+            catch (Exception e) { ThrowException(e); }
         }
-        catch (Exception e) { ThrowException(e); }
 
         if (HudManager.InstanceExists) HudManager.Instance.SetRolePanelOpen(false);
 

@@ -1356,9 +1356,15 @@ internal static class ChatCommands
 
     private static void DraftDescriptionCommand(PlayerControl player, string text, string[] args)
     {
-        if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
+        CustomRoles role;
+        try //Sometimes a System.ArgumentOutOfRangeException occurs here
+        {
+            if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
 
-        CustomRoles role = roles[chosenIndex - 1];
+            role = roles[chosenIndex - 1];
+        }
+        catch (Exception e) { Utils.ThrowException(e); return; }
+
         string coloredString = role.ToColoredString();
         string roleName = GetString(role.ToString());
         StringBuilder sb = new();
