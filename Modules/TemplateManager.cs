@@ -98,7 +98,7 @@ public static class TemplateManager
         return reader.ReadToEnd();
     }
 
-    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, SendOption sendOption = SendOption.Reliable)
+    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
     {
         CreateIfNotExists();
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
@@ -122,7 +122,7 @@ public static class TemplateManager
             if (playerId == 0xff)
                 HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
             else
-                Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId, sendOption: SendOption.None);
+                Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId, importance: MessageImportance.Low);
         }
         else
         {
@@ -131,7 +131,7 @@ public static class TemplateManager
             foreach (string x in sendList)
                 messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
 
-            messages.SendMultipleMessages(sendOption);
+            messages.SendMultipleMessages(importance);
         }
     }
 

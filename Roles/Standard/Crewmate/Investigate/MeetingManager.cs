@@ -32,30 +32,30 @@ public class MeetingManager : RoleBase
     public static void SendCommandUsedMessage(string command)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutCommand"), command), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutCommand"), command), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
     }
 
     public static void OnGuess(PlayerControl dp, PlayerControl pc)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(dp == pc ? string.Format(GetString("MeetingManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")) : string.Format(GetString("MeetingManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(dp == pc ? string.Format(GetString("MeetingManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")) : string.Format(GetString("MeetingManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
     }
 
     public static void OnTrial(PlayerControl dp, PlayerControl pc)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(dp == pc ? string.Format(GetString("MeetingManagerMessageAboutJudgeSuicide"), dp.GetRealName().Replace("\n", " + "), CustomRoles.Judge.ToColoredString()) : string.Format(GetString("MeetingManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(dp == pc ? string.Format(GetString("MeetingManagerMessageAboutJudgeSuicide"), dp.GetRealName().Replace("\n", " + "), CustomRoles.Judge.ToColoredString()) : string.Format(GetString("MeetingManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
     }
 
     public static void OnSwap(PlayerControl tg1, PlayerControl tg2)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutSwap"), CustomRoles.Swapper.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutSwap"), CustomRoles.Swapper.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
     }
 
     public static void OnCompare(PlayerControl tg1, PlayerControl tg2)
     {
         foreach (byte id in PlayerIdList)
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutCompare"), CustomRoles.Inspector.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle"))), 1f, "Meeting Manager Messages");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("MeetingManagerMessageAboutCompare"), CustomRoles.Inspector.ToColoredString(), tg1.GetRealName().Replace("\n", " + "), tg2.GetRealName().Replace("\n", " + ")), id, Utils.ColorString(Utils.GetRoleColor(CustomRoles.MeetingManager), GetString("MeetingManagerMessageTitle")), importance: MessageImportance.High), 1f, "Meeting Manager Messages");
     }
 }

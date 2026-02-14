@@ -1196,6 +1196,9 @@ internal static class ReportDeadBodyPatch
             Main.PlayerStates.Values.Do(x => x.IsBlackOut = false);
             MarkEveryoneDirtySettings();
         }, 3f, "RemoveBlackout");
+        
+        if (!Options.GameTimeLimitRunsDuringMeetings.GetBool())
+            Main.GameTimer.Stop();
 
         foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
         {
@@ -1229,7 +1232,7 @@ internal static class ReportDeadBodyPatch
                     PlayerControl killer = receiver.GetRealKiller();
                     if (killer == null) continue;
 
-                    SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), sendOption: SendOption.None);
+                    SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), importance: MessageImportance.Low);
                 }
             }
         }

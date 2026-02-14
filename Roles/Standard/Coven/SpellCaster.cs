@@ -122,7 +122,8 @@ public class SpellCaster : CovenBase
 
             Utils.SendMessage(string.Format(Translator.GetString("SpellCaster.WinConditionMet"), spellCasterStr),
                 byte.MaxValue,
-                $"<{Main.CovenColor}>{string.Format(Translator.GetString("SpellCaster.WinConditionMetTitle"), spellCasterStr)}</color>");
+                $"<{Main.CovenColor}>{string.Format(Translator.GetString("SpellCaster.WinConditionMetTitle"), spellCasterStr)}</color>",
+                importance: MessageImportance.High);
         }, 10f, log: false);
     }
 

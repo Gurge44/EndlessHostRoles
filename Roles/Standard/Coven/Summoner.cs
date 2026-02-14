@@ -176,7 +176,7 @@ public class Summoner : CovenBase
         try
         {
             if (!Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue)) return;
-            Utils.SendMessage(Translator.GetString("Summoner.SomeoneWillBeRevivedMessage"), title: CustomRoles.Summoner.ToColoredString());
+            Utils.SendMessage(Translator.GetString("Summoner.SomeoneWillBeRevivedMessage"), title: CustomRoles.Summoner.ToColoredString(), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

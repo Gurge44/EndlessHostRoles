@@ -202,7 +202,7 @@ public static class GameStartManagerPatch
                 Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
                 string msg = GetString("Error.InvalidColor");
                 msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
-                Utils.SendMessage(msg, sendOption: SendOption.None);
+                Utils.SendMessage(msg, importance: MessageImportance.Low);
             }
 
             if (Options.RandomMapsMode.GetBool())
@@ -520,7 +520,7 @@ public static class GameStartRandomMap
             Logger.SendInGame(GetString("Error.InvalidColorPreventStart"), Color.yellow);
             string msg = GetString("Error.InvalidColor");
             msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.GetRealName()}"));
-            Utils.SendMessage(msg, sendOption: SendOption.None);
+            Utils.SendMessage(msg, importance: MessageImportance.Low);
             return false;
         }
         

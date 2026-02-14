@@ -304,7 +304,7 @@ public static class ChatManager
             if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
                 byte to = toEveryone ? byte.MaxValue : receiver.PlayerId;
-                Utils.SendMessage("<size=32767>.", to, "\n", force: true, addToHistory: false);
+                Utils.SendMessage("<size=32767>.", to, "\n", force: true, addToHistory: false, importance: MessageImportance.High);
             }
             else
             {

@@ -729,7 +729,7 @@ internal static class MeetingHudStartPatch
 
             LateTask.New(() =>
             {
-                roleDescMsgs.SendMultipleMessages(SendOption.None);
+                roleDescMsgs.SendMultipleMessages(MessageImportance.Low);
 
                 LateTask.New(() =>
                 {
@@ -834,7 +834,7 @@ internal static class MeetingHudStartPatch
             }
         }
 
-        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title)), 8f, "Meeting Start Notify");
+        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title, importance: MessageImportance.High)), 8f, "Meeting Start Notify");
 
         Main.SuperStarDead.Clear();
         Forensic.ForensicNotify.Clear();
@@ -990,8 +990,8 @@ internal static class MeetingHudStartPatch
                     Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
                 }
 
-                TemplateManager.SendTemplate("OnMeeting", noErr: true, sendOption: SendOption.None);
-                if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, sendOption: SendOption.None);
+                TemplateManager.SendTemplate("OnMeeting", noErr: true, importance: MessageImportance.Low);
+                if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, importance: MessageImportance.Low);
             }, 6.5f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
@@ -1286,6 +1286,8 @@ internal static class MeetingHudOnDestroyPatch
 {
     public static void Postfix()
     {
+        if (!GameStates.InGame) return;
+        
         MeetingStates.FirstMeeting = false;
         Logger.Info("------------End of meeting------------", "Phase");
 

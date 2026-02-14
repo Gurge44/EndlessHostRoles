@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using EHR.Gamemodes;
 using EHR.Patches;
@@ -24,7 +22,6 @@ public static class FixedUpdateCaller
     {
         try
         {
-            long now = Utils.TimeStamp;
             var amongUsClient = AmongUsClient.Instance;
             var lobbyBehaviour = LobbyBehaviour.Instance;
 
@@ -33,7 +30,7 @@ public static class FixedUpdateCaller
                 LobbyFixedUpdatePatch.Postfix();
                 LobbyBehaviourUpdatePatch.Postfix(lobbyBehaviour);
 
-                //long now = Utils.TimeStamp;
+                long now = Utils.TimeStamp;
 
                 if (now - LastFileLoadTS > 10)
                 {
@@ -44,7 +41,7 @@ public static class FixedUpdateCaller
                 if (Options.EnableAutoMessage.GetBool() && now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
                 {
                     LastAutoMessageSendTS = now;
-                    TemplateManager.SendTemplate("Notification", sendOption: SendOption.None);
+                    TemplateManager.SendTemplate("Notification", importance: MessageImportance.Low);
                 }
             }
 
@@ -127,6 +124,9 @@ public static class FixedUpdateCaller
                         FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != index);
 
                         if (lobby) continue;
+                        
+                        if (NonLowLoadPlayerIndex == index && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                            Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
 
                         switch (currentGameMode)
                         {
@@ -197,19 +197,14 @@ public static class FixedUpdateCaller
 
                 try
                 {
-                    if (amongUsClient.AmHost && Options.EnableGameTimeLimit.GetBool())
+                    if (amongUsClient.AmHost && Main.GameTimer.IsRunning && Options.EnableGameTimeLimit.GetBool() && Main.GameTimer.Elapsed.TotalSeconds > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
                     {
-                        Main.GameTimer += Time.fixedDeltaTime;
+                        Main.GameTimer.Reset();
+                        Main.GameEndDueToTimer = true;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                         
-                        if (Main.GameTimer > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
-                        {
-                            Main.GameTimer = 0f;
-                            Main.GameEndDueToTimer = true;
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                        
-                            if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
-                                CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId));
-                        }
+                        if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                            CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId));
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

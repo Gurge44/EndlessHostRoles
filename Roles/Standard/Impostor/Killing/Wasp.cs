@@ -123,7 +123,7 @@ public class Wasp : RoleBase
                 string stung = string.Join(", ", MeetingKills.Select(x => x.ColoredPlayerName()));
                 string role = CustomRoles.Wasp.ToColoredString();
                 string text = string.Format(Translator.GetString("WaspStungPlayersMessage"), stung, role);
-                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"));
+                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"), importance: MessageImportance.High);
             }, 10f, "Wasp Stung Players Notify");
         }
 

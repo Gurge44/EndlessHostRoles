@@ -90,6 +90,6 @@ public class Assumer : RoleBase
         if (assumer == null || assumer.HasAssumed) return;
 
         assumer.Assumption = (id, num);
-        Utils.SendMessage("\n", assumerId, string.Format(Translator.GetString("Assumer.AssumedMessage"), id.ColoredPlayerName(), num));
+        Utils.SendMessage("\n", assumerId, string.Format(Translator.GetString("Assumer.AssumedMessage"), id.ColoredPlayerName(), num), importance: MessageImportance.High);
     }
 }

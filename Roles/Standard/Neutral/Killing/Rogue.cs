@@ -199,7 +199,7 @@ public class Rogue : RoleBase
         SendRPC();
 
         if (chatMessage)
-            LateTask.New(() => Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")), 8f, log: false);
+            LateTask.New(() => Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted"), importance: MessageImportance.High), 8f, log: false);
         else
             Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
     }

@@ -33,7 +33,7 @@ public abstract class CovenBase : RoleBase
         {
             string[] holders = Main.PlayerStates.Where(s => s.Value.Role is CovenBase { HasNecronomicon: true }).Select(s => s.Key.ColoredPlayerName()).ToArray();
             Main.EnumeratePlayerControls().Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders))));
-            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor));
+            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor), importance: MessageImportance.High);
         }, 12f, log: false);
     }
 

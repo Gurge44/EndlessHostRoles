@@ -103,7 +103,7 @@ public static class SpamManager
                     kick = true;
                 }
 
-                if (msg != string.Empty && msg != "") Utils.SendMessage(msg, sendOption: SendOption.None);
+                if (msg != string.Empty && msg != "") Utils.SendMessage(msg, importance: MessageImportance.Low);
 
                 if (kick) AmongUsClient.Instance.KickPlayer(player.OwnerId, Options.AutoKickStartAsBan.GetBool());
 
@@ -134,12 +134,12 @@ public static class SpamManager
         if (msg != string.Empty && msg != "")
         {
             if (kick || !GameStates.IsInGame)
-                Utils.SendMessage(msg, sendOption: SendOption.None);
+                Utils.SendMessage(msg, importance: MessageImportance.Low);
             else
             {
                 foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     if (pc.IsAlive() == player.IsAlive())
-                        Utils.SendMessage(msg, pc.PlayerId, sendOption: SendOption.None);
+                        Utils.SendMessage(msg, pc.PlayerId, importance: MessageImportance.Low);
             }
         }
 

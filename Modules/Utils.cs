@@ -1211,13 +1211,13 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && playerId != byte.MaxValue)
         {
-            SendMessage(GetString("Message.HideGameSettings"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("Message.HideGameSettings"), playerId, importance: MessageImportance.Low);
             return;
         }
 
         if (Options.DIYGameSettings.GetBool())
         {
-            SendMessage(GetString("Message.NowOverrideText"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("Message.NowOverrideText"), playerId, importance: MessageImportance.Low);
             return;
         }
 
@@ -1241,13 +1241,13 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && playerId != byte.MaxValue)
         {
-            SendMessage(GetString("Message.HideGameSettings"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("Message.HideGameSettings"), playerId, importance: MessageImportance.Low);
             return;
         }
 
         if (Options.DIYGameSettings.GetBool())
         {
-            SendMessage(GetString("Message.NowOverrideText"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("Message.NowOverrideText"), playerId, importance: MessageImportance.Low);
             return;
         }
 
@@ -1343,7 +1343,7 @@ public static class Utils
     {
         if (Options.HideGameSettings.GetBool() && playerId != byte.MaxValue)
         {
-            SendMessage(GetString("Message.HideGameSettings"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("Message.HideGameSettings"), playerId, importance: MessageImportance.Low);
             return;
         }
 
@@ -1420,7 +1420,7 @@ public static class Utils
     {
         if (AmongUsClient.Instance.IsGameStarted)
         {
-            SendMessage(GetString("CantUse.lastroles"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("CantUse.lastroles"), playerId, importance: MessageImportance.Low);
             return;
         }
 
@@ -1549,7 +1549,7 @@ public static class Utils
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.killlog"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("CantUse.killlog"), playerId, importance: MessageImportance.Low);
             return;
         }
 
@@ -1560,7 +1560,7 @@ public static class Utils
     {
         if (GameStates.IsInGame)
         {
-            SendMessage(GetString("CantUse.lastresult"), playerId, sendOption: SendOption.None);
+            SendMessage(GetString("CantUse.lastresult"), playerId, importance: MessageImportance.Low);
             return;
         }
 
@@ -1791,12 +1791,12 @@ public static class Utils
         { "black",  (  0,   0,   0) }
     };
 
-    public static void SendMultipleMessages(this IEnumerable<Message> messages, SendOption sendOption = SendOption.Reliable)
+    public static void SendMultipleMessages(this IEnumerable<Message> messages, MessageImportance importance = MessageImportance.Medium)
     {
-        messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, sendOption: sendOption));
+        messages.Do(x => SendMessage(x.Text, x.SendTo, x.Title, importance: importance));
     }
 
-    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, SendOption sendOption = SendOption.Reliable, bool addToHistory = true, bool force = false, bool noNumberSplit = false, bool numberSplitFinal = false, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
+    public static CustomRpcSender SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false, CustomRpcSender writer = null, bool final = false, bool multiple = false, MessageImportance importance = MessageImportance.Medium, bool addToHistory = true, bool force = false, bool noNumberSplit = false, bool numberSplitFinal = false, [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = 0)
     {
         try
         {
@@ -1813,6 +1813,25 @@ public static class Utils
                 return writer;
             }
 
+            text = text.Replace("color=#", "#");
+            title = title.Replace("color=", string.Empty);
+
+            bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+
+            SendOption sendOption = SendOption.Reliable;
+
+            if (vanilla)
+            {
+                if (importance != MessageImportance.High && GameStates.InGame && !title.Contains("#ffff00") && !title.Contains('⚠') && !text.Contains('⚠') && title != GetString("NoSpamAnymoreUseCmd"))
+                    sendOption = SendOption.None;
+                
+                text = ReplaceHexColorsWithSafeColors(text);
+                text = ReplaceDigitsOutsideRichText(text);
+            }
+            
+            if (importance == MessageImportance.Low)
+                sendOption = SendOption.None;
+
             if (title == "") title = GetString("DefaultSystemMessageTitle");
 
             if (title.Count(x => x == '\u2605') == 2 && !title.Contains('\n'))
@@ -1823,16 +1842,7 @@ public static class Utils
                     title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
             }
 
-            text = text.Replace("color=#", "#");
-            title = title.Replace("color=", string.Empty);
-
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-            {
-                text = ReplaceHexColorsWithSafeColors(text);
-                text = ReplaceDigitsOutsideRichText(text);
-            }
-
-            PlayerControl sender = !addToHistory || GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+            PlayerControl sender = !addToHistory || vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
 
             if (sendTo != byte.MaxValue && receiver.AmOwner)
             {
@@ -1867,7 +1877,7 @@ public static class Utils
                     IEnumerator DelaySend()
                     {
                         yield return new WaitForSecondsRealtime(0.3f);
-                        SendMessage(text, sendTo, title, noSplit, writer, final, multiple, sendOption, addToHistory);
+                        SendMessage(text, sendTo, title, noSplit, writer, final, multiple, importance, addToHistory);
                     }
                 }
 
@@ -1902,14 +1912,14 @@ public static class Utils
                 }
             }
             
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !noSplit && !noNumberSplit)
+            if (vanilla && !noSplit && !noNumberSplit)
             {
                 var parts = SplitByNumberLimit(text);
 
                 if (parts.Count > 1)
                 {
-                    writer = parts.Take(parts.Count - 1).Aggregate(writer, (current, part) => SendMessage(part, sendTo, title, writer: current, final: false, multiple: true, sendOption: sendOption, addToHistory: addToHistory, noNumberSplit: true));
-                    return SendMessage(parts[^1], sendTo, title, false, writer, final, multiple, sendOption, addToHistory, noNumberSplit: true, numberSplitFinal: true);
+                    writer = parts.Take(parts.Count - 1).Aggregate(writer, (current, part) => SendMessage(part, sendTo, title, writer: current, final: false, multiple: true, importance: importance, addToHistory: addToHistory, noNumberSplit: true));
+                    return SendMessage(parts[^1], sendTo, title, false, writer, final, multiple, importance, addToHistory, noNumberSplit: true, numberSplitFinal: true);
                 }
             }
 
@@ -2048,8 +2058,8 @@ public static class Utils
                     }
 
                     writer = shortenedText.Length * 2 >= textRpcSizeLimit
-                        ? shortenedText.Chunk(textRpcSizeLimit).Aggregate(writer, (current, chunk) => SendMessage(new(chunk), sendTo, title, true, current, sendOption: sendOption))
-                        : SendMessage(shortenedText, sendTo, title, true, writer, sendOption: sendOption);
+                        ? shortenedText.Chunk(textRpcSizeLimit).Aggregate(writer, (current, chunk) => SendMessage(new(chunk), sendTo, title, true, current, importance: importance))
+                        : SendMessage(shortenedText, sendTo, title, true, writer, importance: importance);
 
                     string sentText = shortenedText;
                     shortenedText = line + "\n";
@@ -2061,7 +2071,7 @@ public static class Utils
                     }
                 }
 
-                if (shortenedText.Length > 0 && !shortenedText.IsNullOrWhiteSpace()) writer = SendMessage(shortenedText, sendTo, title, true, writer, true, sendOption: sendOption);
+                if (shortenedText.Length > 0 && !shortenedText.IsNullOrWhiteSpace()) writer = SendMessage(shortenedText, sendTo, title, true, writer, true, importance: importance);
                 else
                 {
                     writer.AutoStartRpc(sender.NetId, RpcCalls.SetName, targetClientId)
@@ -2070,7 +2080,7 @@ public static class Utils
                         .EndRpc();
 
                     if (!multiple) writer.SendMessage();
-                    else RestartMessageIfTooLong();
+                    else RestartMessageIfTooLong(sendOption);
                 }
 
                 return writer;
@@ -2119,17 +2129,17 @@ public static class Utils
                     .EndRpc();
 
                 if (!multiple) writer.SendMessage();
-                else RestartMessageIfTooLong();
+                else RestartMessageIfTooLong(sendOption);
             }
             else
-                RestartMessageIfTooLong();
+                RestartMessageIfTooLong(sendOption);
         }
         catch (Exception e) { ThrowException(e); }
 
         if (addToHistory) ChatUpdatePatch.LastMessages.Add((text, sendTo, title, TimeStamp));
         return writer;
 
-        void RestartMessageIfTooLong()
+        void RestartMessageIfTooLong(SendOption sendOption)
         {
             if (writer.stream.Length > 500)
             {
@@ -2619,6 +2629,7 @@ public static class Utils
     {
         try
         {
+            if (!ForMeeting && !NoCache && !ForceLoop && !CamouflageIsForMeeting && !GuesserIsForMeeting && !MushroomMixup && GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
             if (!AmongUsClient.Instance.AmHost) return;
             if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
@@ -4740,4 +4751,11 @@ public class Message(string text, byte sendTo = byte.MaxValue, string title = ""
     public string Text { get; } = text;
     public byte SendTo { get; } = sendTo;
     public string Title { get; } = title;
+}
+
+public enum MessageImportance
+{
+    Low,
+    Medium,
+    High
 }

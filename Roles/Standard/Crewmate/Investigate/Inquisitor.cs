@@ -53,7 +53,7 @@ public class Inquisitor : RoleBase
         else
             result = string.Join(", ", knownRoles.Select(x => x.Id.ColoredPlayerName()));
         
-        Utils.SendMessage("\n", voter.PlayerId, string.Format(Translator.GetString("InquisitorVoteResult"), target.PlayerId.ColoredPlayerName(), result));
+        Utils.SendMessage("\n", voter.PlayerId, string.Format(Translator.GetString("InquisitorVoteResult"), target.PlayerId.ColoredPlayerName(), result), importance: MessageImportance.High);
         
         voter.RpcRemoveAbilityUse();
         Main.DontCancelVoteList.Add(voter.PlayerId);

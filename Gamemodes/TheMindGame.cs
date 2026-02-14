@@ -564,8 +564,8 @@ public static class TheMindGame
 
             WinningBriefcaseHolderId = Main.EnumerateAlivePlayerControls().RandomElement().PlayerId;
 
-            Utils.SendMessage("\n", WinningBriefcaseHolderId, Translator.GetString("TMG.Message.YouHoldTheWinningBriefcase"));
-            Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId).Without(WinningBriefcaseHolderId).Do(x => Utils.SendMessage("\n", x, Translator.GetString("TMG.Message.YouHoldAnEmptyBriefcase")));
+            Utils.SendMessage("\n", WinningBriefcaseHolderId, Translator.GetString("TMG.Message.YouHoldTheWinningBriefcase"), importance: MessageImportance.High);
+            Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId).Without(WinningBriefcaseHolderId).Do(x => Utils.SendMessage("\n", x, Translator.GetString("TMG.Message.YouHoldAnEmptyBriefcase"), importance: MessageImportance.High));
 
             while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
@@ -795,12 +795,12 @@ public static class TheMindGame
                                 WinningBriefcaseHolderId = pc.PlayerId;
                                 LateTask.New(() =>
                                 {
-                                    Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
+                                    Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>", importance: MessageImportance.High);
                                     Utils.SendMessage(Translator.GetString("TMG.Message.LassoedWinningBriefcase"), id, "<#ffff00>⚠</color>");
                                 }, 0.2f);
                             }
                             else
-                                LateTask.New(() => Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>"), 0.2f);
+                                LateTask.New(() => Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.LassoedEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>", importance: MessageImportance.High), 0.2f);
 
                             break;
                         }
@@ -821,7 +821,7 @@ public static class TheMindGame
                             if (IRandom.Instance.Next(100) < MindDetectiveFailChance)
                                 pick = IRandom.Instance.Next(1, Main.AllAlivePlayerControls.Count + 1);
 
-                            Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.MindDetective"), id.ColoredPlayerName(), pick), pc.PlayerId, "<#00ff00>✓</color>");
+                            Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.MindDetective"), id.ColoredPlayerName(), pick), pc.PlayerId, "<#00ff00>✓</color>", importance: MessageImportance.High);
                             break;
                         }
                     }
@@ -832,7 +832,7 @@ public static class TheMindGame
                 {
                     if (WinningBriefcaseLastHolderId != pc.PlayerId)
                     {
-                        if (Round == 4) Utils.SendMessage(Translator.GetString("TMG.Message.StealBackNotLastHolder"), pc.PlayerId, "<#ff0000>X</color>");
+                        if (Round == 4) Utils.SendMessage(Translator.GetString("TMG.Message.StealBackNotLastHolder"), pc.PlayerId, "<#ff0000>X</color>", importance: MessageImportance.High);
                         break;
                     }
 
@@ -843,13 +843,13 @@ public static class TheMindGame
                     {
                         WinningBriefcaseHolderId = pc.PlayerId;
                         WinningBriefcaseLastHolderId = byte.MaxValue;
-                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>");
-                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackWinningBriefcase"), pc.PlayerId.ColoredPlayerName()), id, "<#ffff00>⚠</color>");
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackWinningBriefcaseSelf"), id.ColoredPlayerName()), pc.PlayerId, "<#00ff00>✓</color>", importance: MessageImportance.High);
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackWinningBriefcase"), pc.PlayerId.ColoredPlayerName()), id, "<#ffff00>⚠</color>", importance: MessageImportance.High);
                     }
                     else
                     {
                         WinningBriefcaseLastHolderId = byte.MaxValue;
-                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>");
+                        Utils.SendMessage(string.Format(Translator.GetString("TMG.Message.StealBackEmptyBriefcase"), id.ColoredPlayerName()), pc.PlayerId, "<#ffa500>-</color>", importance: MessageImportance.High);
                     }
 
                     break;

@@ -114,7 +114,7 @@ public class Councillor : RoleBase
 
         if (!pc.IsAlive())
         {
-            Utils.SendMessage(GetString("CouncillorDead"), pc.PlayerId, sendOption: SendOption.None);
+            Utils.SendMessage(GetString("CouncillorDead"), pc.PlayerId, importance: MessageImportance.Low);
             return true;
         }
 
@@ -218,9 +218,9 @@ public class Councillor : RoleBase
                         LateTask.New(() =>
                         {
                             if (!MakeEvilJudgeClear.GetBool())
-                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")));
+                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")), importance: MessageImportance.High);
                             else
-                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Councillor), GetString("MurderKillTitle")));
+                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Councillor), GetString("MurderKillTitle")), importance: MessageImportance.High);
                         }, 0.6f, "Guess Msg");
                         
                     }, 0.2f, "Murder Kill");

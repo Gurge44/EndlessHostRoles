@@ -73,7 +73,7 @@ public class Captain : RoleBase
         LateTask.New(() =>
         {
             string msg = string.Format(Translator.GetString("Captain.TargetInfo"), TargetId.ColoredPlayerName(), string.Join(" ➡ ", TargetRooms.ConvertAll(x => Translator.GetString(x.ToString()))));
-            Utils.SendMessage(msg, CaptainId, CustomRoles.Captain.ToColoredString());
+            Utils.SendMessage(msg, CaptainId, CustomRoles.Captain.ToColoredString(), importance: MessageImportance.High);
             TargetRooms = [];
         }, 10f, "Captain Message");
     }

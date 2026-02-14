@@ -41,7 +41,7 @@ internal static class OnGameJoinedPatch
         GameStates.InGame = false;
         ErrorText.Instance?.Clear();
         ChatCommands.VotedToStart = [];
-        Main.GameTimer = 0f;
+        Main.GameTimer.Reset();
 
         Utils.DirtyName = [];
 
@@ -682,9 +682,9 @@ internal static class InnerNetClientSpawnPatch
             LateTask.New(() =>
             {
                 if (Main.OverrideWelcomeMsg != "")
-                    Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId, sendOption: SendOption.None);
+                    Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId, importance: MessageImportance.Low);
                 else
-                    TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true, sendOption: SendOption.None);
+                    TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true, importance: MessageImportance.Low);
             }, GameStates.CurrentServerType == GameStates.ServerType.Niko ? 7f : 3f, "Welcome Message");
 
             if (GameStates.IsOnlineGame && !client.Character.IsHost())

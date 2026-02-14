@@ -145,10 +145,10 @@ public class Catcher : RoleBase
             if (CaughtRoles.Count >= MinPlayersTrappedToShowInfo.GetInt())
             {
                 string roles = string.Join(", ", CaughtRoles.Values.Select(x => x.ToColoredString()));
-                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.CaughtRoles") + roles);
+                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.CaughtRoles") + roles, importance: MessageImportance.High);
             }
             else
-                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.NotEnoughCaughtRoles"), sendOption: SendOption.None);
+                Utils.SendMessage("\n", CatcherId, Translator.GetString("Catcher.NotEnoughCaughtRoles"), importance: MessageImportance.Low);
 
             CaughtRoles = [];
         }, 10f, "Send Catcher Caught Roles");

@@ -1377,7 +1377,7 @@ internal static class IntroCutsceneDestroyPatch
 
         LateTask.New(() =>
         {
-            Main.GameTimer = 0f;
+            Main.GameTimer.Restart();
             
             if (AmongUsClient.Instance.AmHost && SubmergedCompatibility.IsSubmerged())
                 Main.EnumerateAlivePlayerControls().DoIf(x => !x.IsInRoom((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.LowerCentral) && !x.IsInRoom((SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.UpperCentral), x => x.TP(new Vector2(3.32f, -26.57f)));

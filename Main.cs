@@ -152,7 +152,7 @@ public class Main : BasePlugin
     public static int MadmateNum;
     public static uint LobbyBehaviourNetId;
     
-    public static float GameTimer;
+    public static Stopwatch GameTimer = new();
     public static bool GameEndDueToTimer;
 
     public static bool ShowResult = true;

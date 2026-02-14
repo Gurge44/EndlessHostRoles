@@ -11363,6 +11363,7 @@
   "GameOverReason.ImpostorsBySabotage": "<color=#ff1919><color=#8cffff>Crewmates</color> failed to fix a critical sabotage</color>",
   "GameTimeLimit": "Game Time Limit",
   "GameTimerEnded": "Game Time Limit Ended",
+  "GameTimeLimitRunsDuringMeetings": "Game Time Limit Runs During Meetings",
   "Infectious": "Infectious",
   "InfectiousInfo": "Infect everyone",
   "InfectiousBiteCooldown": "Infect Cooldown",

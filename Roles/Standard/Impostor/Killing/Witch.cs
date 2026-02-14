@@ -223,7 +223,7 @@ public class Witch : RoleBase
                 string cursed = string.Join(", ", spelledPlayers.Select(x => x.ColoredPlayerName()));
                 string role = IsHM ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
                 string text = string.Format(GetString("WitchCursedPlayersMessage"), cursed, role);
-                Utils.SendMessage(text, title: GetString("MessageTitle.Attention"));
+                Utils.SendMessage(text, title: GetString("MessageTitle.Attention"), importance: MessageImportance.High);
             }, 10f, "Witch Cursed Players Notify");
         }
     }

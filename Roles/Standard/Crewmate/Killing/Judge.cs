@@ -97,7 +97,7 @@ public class Judge : RoleBase
 
         if (!pc.IsAlive())
         {
-            Utils.SendMessage(GetString("JudgeDead"), pc.PlayerId, sendOption: SendOption.None);
+            Utils.SendMessage(GetString("JudgeDead"), pc.PlayerId, importance: MessageImportance.Low);
             return true;
         }
 
@@ -113,7 +113,7 @@ public class Judge : RoleBase
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {
-                    Utils.SendMessage(error, pc.PlayerId, sendOption: SendOption.None);
+                    Utils.SendMessage(error, pc.PlayerId, importance: MessageImportance.Low);
                     return true;
                 }
 
@@ -157,7 +157,7 @@ public class Judge : RoleBase
                     if (pc.PlayerId == target.PlayerId)
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")), sendOption: SendOption.None);
+                            Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")), importance: MessageImportance.Low);
                         else
                             pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoTrialSelf"));
 
@@ -196,7 +196,7 @@ public class Judge : RoleBase
                         MeetingManager.OnTrial(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle"))), 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")), importance: MessageImportance.High), 0.6f, "Guess Msg");
                     }, 0.2f, "Trial Kill");
                 }
 

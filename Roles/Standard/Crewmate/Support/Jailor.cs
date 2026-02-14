@@ -134,7 +134,7 @@ public class Jailor : RoleBase
         PlayerControl tpc = Utils.GetPlayerById(JailorTarget);
         if (tpc == null) return;
 
-        if (tpc.IsAlive()) LateTask.New(() => Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))), 0.3f, "JailorNotifyJailed");
+        if (tpc.IsAlive()) LateTask.New(() => Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")), importance: MessageImportance.High), 0.3f, "JailorNotifyJailed");
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

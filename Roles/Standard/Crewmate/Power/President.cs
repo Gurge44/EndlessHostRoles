@@ -168,18 +168,18 @@ public class President : RoleBase
 
                 if ((!DecreeSettings[decree][2].GetBool() && pc.IsConverted()) || pc.Is(CustomRoles.Bloodlust)) return;
 
-                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
-                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.RevealMessage"), pc.PlayerId.ColoredPlayerName()));
+                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
+                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.RevealMessage"), pc.PlayerId.ColoredPlayerName()), importance: MessageImportance.High);
                 break;
             case Decree.Finish:
                 MeetingHudRpcClosePatch.AllowClose = true;
                 MeetingHud.Instance?.RpcClose();
-                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
+                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 break;
             case Decree.Declassification:
                 president.IsDeclassification = true;
                 Utils.MarkEveryoneDirtySettings();
-                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
+                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 break;
             case Decree.GovernmentSupport:
                 foreach (PlayerControl player in Main.EnumeratePlayerControls())
@@ -197,10 +197,10 @@ public class President : RoleBase
                     }
                 }
 
-                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
+                Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 break;
             case Decree.Investigation:
-                Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(showAll: true));
+                Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(showAll: true), importance: MessageImportance.High);
                 break;
             case Decree.GovernmentRecruiting:
                 if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == pc.PlayerId)?.DidVote == true) return;
@@ -253,7 +253,7 @@ public class President : RoleBase
         target.RpcSetCustomRole(role);
         target.RpcChangeRoleBasis(role);
 
-        Utils.SendMessage("\n", target.PlayerId, Translator.GetString("President.Recruit.TargetNotifyMessage"));
+        Utils.SendMessage("\n", target.PlayerId, Translator.GetString("President.Recruit.TargetNotifyMessage"), importance: MessageImportance.High);
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;
     }

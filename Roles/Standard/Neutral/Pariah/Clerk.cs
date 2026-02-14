@@ -57,7 +57,7 @@ public class Clerk : RoleBase
         if (DidTaskThisRound.Contains(target.PlayerId) || !ts.HasTasks || ts.IsTaskFinished)
         {
             HasBoost.Add(target.PlayerId);
-            Utils.SendMessage(string.Format(Translator.GetString("Clerk.DidTax"), target.PlayerId.ColoredPlayerName()), voter.PlayerId, CustomRoles.Clerk.ToColoredString());
+            Utils.SendMessage(string.Format(Translator.GetString("Clerk.DidTax"), target.PlayerId.ColoredPlayerName()), voter.PlayerId, CustomRoles.Clerk.ToColoredString(), importance: MessageImportance.High);
         }
         else if (!target.Is(CustomRoles.Pestilence))
         {
@@ -68,7 +68,7 @@ public class Clerk : RoleBase
             Medic.IsDead(target);
             target.RpcExileV2();
             Utils.AfterPlayerDeathTasks(target, true);
-            Utils.SendMessage(string.Format(Translator.GetString("Clerk.Killed"), target.PlayerId.ColoredPlayerName()), title: CustomRoles.Clerk.ToColoredString());
+            Utils.SendMessage(string.Format(Translator.GetString("Clerk.Killed"), target.PlayerId.ColoredPlayerName()), title: CustomRoles.Clerk.ToColoredString(), importance: MessageImportance.High);
             
             if (voter.AmOwner) Achievements.Type.PayUp.Complete();
         }

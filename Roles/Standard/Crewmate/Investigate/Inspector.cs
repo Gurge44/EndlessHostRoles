@@ -127,7 +127,7 @@ public class Inspector : RoleBase
 
         if (!pc.IsAlive())
         {
-            Utils.SendMessage(GetString("InspectorDead"), pc.PlayerId, sendOption: SendOption.None);
+            Utils.SendMessage(GetString("InspectorDead"), pc.PlayerId, importance: MessageImportance.Low);
             return true;
         }
 
@@ -238,7 +238,7 @@ public class Inspector : RoleBase
                             string format = string.Format(GetString("InspectorCheckTrue"), target1.GetRealName(), target2.GetRealName());
 
                             if (!isUI)
-                                Utils.SendMessage(format, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
+                                Utils.SendMessage(format, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")), importance: MessageImportance.High);
                             else
                                 pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), format) + "\n" + GetString("InspectorCheckTitle"));
 
@@ -252,7 +252,7 @@ public class Inspector : RoleBase
                             string format = string.Format(GetString("InspectorCheckFalse"), target1.GetRealName(), target2.GetRealName());
                             
                             if (!isUI)
-                                Utils.SendMessage(format, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
+                                Utils.SendMessage(format, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")), importance: MessageImportance.High);
                             else
                                 pc.ShowPopUp($"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), format)}\n{GetString("InspectorCheckTitle")}");
 
@@ -274,8 +274,8 @@ public class Inspector : RoleBase
 
                         LateTask.New(() =>
                         {
-                            Utils.SendMessage(textToSend, target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
-                            Utils.SendMessage(textToSend1, target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
+                            Utils.SendMessage(textToSend, target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")), importance: MessageImportance.High);
+                            Utils.SendMessage(textToSend1, target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")), importance: MessageImportance.High);
                             Logger.Msg("Check attempt, targets notified", "Inspector");
                         }, 0.2f, "Inspector 7");
 
@@ -283,8 +283,8 @@ public class Inspector : RoleBase
                         {
                             LateTask.New(() =>
                             {
-                                Utils.SendMessage(string.Format(GetString("InspectorTargetReveal"), target2.GetRealName(), GetString(target2.GetTeam().ToString())), target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
-                                Utils.SendMessage(string.Format(GetString("InspectorTargetReveal"), target1.GetRealName(), GetString(target1.GetTeam().ToString())), target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")));
+                                Utils.SendMessage(string.Format(GetString("InspectorTargetReveal"), target2.GetRealName(), GetString(target2.GetTeam().ToString())), target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")), importance: MessageImportance.High);
+                                Utils.SendMessage(string.Format(GetString("InspectorTargetReveal"), target1.GetRealName(), GetString(target1.GetTeam().ToString())), target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Inspector), GetString("InspectorCheckTitle")), importance: MessageImportance.High);
                             }, 0.3f, "Inspector 6");
                         }
                     }

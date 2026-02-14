@@ -155,7 +155,8 @@ internal static class ExitGamePatch
         if (__instance is not AmongUsClient) return;
         
         Logger.Msg("Exiting game", "ExitGamePatch.Prefix");
-        
+
+        GameStates.InGame = false;
         Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
         
         if (SetUpRoleTextPatch.IsInIntro)

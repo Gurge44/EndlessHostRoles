@@ -189,7 +189,7 @@ public class Gaslighter : RoleBase
                 string cursed = string.Join(", ", spelledPlayers.Select(x => x.ColoredPlayerName()));
                 string role = IRandom.Instance.Next(2) == 0 ? CustomRoles.HexMaster.ToColoredString() : CustomRoles.Witch.ToColoredString();
                 string text = string.Format(Translator.GetString("WitchCursedPlayersMessage"), cursed, role);
-                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"));
+                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"), importance: MessageImportance.High);
             }, 10f, "Gaslighter Cursed Players Notify");
         }
     }

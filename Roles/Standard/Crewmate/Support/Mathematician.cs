@@ -39,7 +39,7 @@ internal class Mathematician : RoleBase
             State.MathematicianPlayerId = pc.PlayerId;
 
             string question = string.Format(Translator.GetString("MathematicianQuestionString"), num1, num2);
-            LateTask.New(() => Utils.SendMessage(question, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mathematician), Translator.GetString("Mathematician"))), 0.2f, log: false);
+            LateTask.New(() => Utils.SendMessage(question, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mathematician), Translator.GetString("Mathematician")), importance: MessageImportance.High), 0.2f, log: false);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -54,7 +54,7 @@ internal class Mathematician : RoleBase
             {
                 State.ProtectedPlayerId = pc.PlayerId;
                 pc.RpcIncreaseAbilityUseLimitBy(1f);
-                Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mathematician), Translator.GetString("Mathematician")));
+                Utils.SendMessage(string.Format(Translator.GetString("MathematicianAnsweredString"), pc.GetRealName(), answer), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mathematician), Translator.GetString("Mathematician")), importance: MessageImportance.High);
                 State.AskedQuestion = false;
 
                 if (pc.AmOwner)

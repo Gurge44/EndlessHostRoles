@@ -91,7 +91,7 @@ public class Swapper : RoleBase
             {
                 if (!pc.IsAlive())
                 {
-                    if (!isUI) Utils.SendMessage(GetString("SwapDead"), pc.PlayerId, sendOption: SendOption.None);
+                    if (!isUI) Utils.SendMessage(GetString("SwapDead"), pc.PlayerId, importance: MessageImportance.Low);
                     pc.ShowPopUp(GetString("SwapDead"));
                     return true;
                 }
@@ -126,7 +126,7 @@ public class Swapper : RoleBase
                 {
                     SwapTargets.Item1 = target.PlayerId;
 
-                    if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
+                    if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId, importance: MessageImportance.High);
 
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
                 }
@@ -135,7 +135,7 @@ public class Swapper : RoleBase
                 {
                     SwapTargets.Item2 = target.PlayerId;
 
-                    if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
+                    if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId, importance: MessageImportance.High);
 
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
                 }
@@ -144,7 +144,7 @@ public class Swapper : RoleBase
                 {
                     SwapTargets.Item1 = byte.MaxValue;
 
-                    if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
+                    if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId, importance: MessageImportance.High);
 
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
                 }
@@ -153,7 +153,7 @@ public class Swapper : RoleBase
                 {
                     SwapTargets.Item2 = byte.MaxValue;
 
-                    if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
+                    if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId, importance: MessageImportance.High);
 
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
                 }
@@ -218,7 +218,7 @@ public class Swapper : RoleBase
                     state.VotedForId = SwapTargets.Item1;
             }
 
-            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Swapper), GetString("SwapTitle")));
+            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Swapper), GetString("SwapTitle")), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

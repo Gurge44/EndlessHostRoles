@@ -304,16 +304,16 @@ internal class QuizMaster : RoleBase
 
             if (CurrentQuestion.CorrectAnswerIndex == index)
             {
-                RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-                Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"));
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+                if (pc != null) RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
+                Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
 
                 Logger.Info($"Player {name} answered correctly", "QuizMaster");
             }
             else if (index != -1)
             {
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"));
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
 
                 if (pc.Is(CustomRoles.Pestilence)) return;
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
