@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
@@ -25,7 +26,6 @@ internal static class CustomHnS
     public static Dictionary<Team, Dictionary<CustomRoles, int>> HideAndSeekRoles = [];
     public static Dictionary<byte, (IHideAndSeekRole Interface, CustomRoles Role)> PlayerRoles = [];
     public static Dictionary<byte, int> Danger = [];
-
     public static List<CustomRoles> AllHnSRoles = [];
 
     public static int SeekerNum => Math.Max(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
@@ -248,6 +248,8 @@ internal static class CustomHnS
             byte agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
             PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
         }
+
+        SendRPC();
     }
 
     public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
@@ -303,9 +305,39 @@ internal static class CustomHnS
         return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
     }
 
+    public static string GetTaskBarText()
+    {
+        string text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+        return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
+
+        static string GetStateText(KeyValuePair<byte, PlayerState> state)
+        {
+            string name = Main.AllPlayerNames.GetValueOrDefault(state.Key, $"ID {state.Key}");
+            name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
+            bool isSeeker = PlayerRoles[state.Key].Interface.Team == Team.Impostor;
+            bool alive = !state.Value.IsDead;
+
+            TaskState ts = state.Value.TaskState;
+            var stateText = string.Empty;
+
+            if (PlayersSeeRoles.GetBool())
+                stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
+            else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
+
+            if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
+
+            stateText = $"{name}{stateText}";
+            return stateText;
+
+            CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
+
+            string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
+        }
+    }
+
     public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
+        if (Main.HasJustStarted || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || TimeLeft < 0) return string.Empty;
 
         string dangerMeter = GetDangerMeter(seer);
 
@@ -354,6 +386,53 @@ internal static class CustomHnS
         return $"<size=90%>{Utils.ColorString(Utils.GetRoleColor(seer.GetCustomRole()), seer.GetRoleInfo())}</size>";
     }
 
+    public static void SendRPC()
+    {
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.HNSSync, SendOption.Reliable);
+        writer.Write(TimeLeft);
+        writer.Write(Danger.Count);
+        foreach (var kv in Danger)
+        {
+            writer.Write(kv.Key);
+            writer.Write(kv.Value);
+        }
+        writer.Write(PlayerRoles.Count);
+        foreach (var kv in PlayerRoles)
+        {
+            writer.Write(kv.Key);
+            writer.Write((int)kv.Value.Role);
+        }
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        TimeLeft = reader.ReadInt32();
+
+        int dangerCount = reader.ReadInt32();
+        Danger.Clear();
+        for (int i = 0; i < dangerCount; i++)
+        {
+            byte id = reader.ReadByte();
+            int danger = reader.ReadInt32();
+            Danger[id] = danger;
+        }
+
+        int roleCount = reader.ReadInt32();
+        PlayerRoles.Clear();
+        for (int i = 0; i < roleCount; i++)
+        {
+            byte id = reader.ReadByte();
+            CustomRoles role = (CustomRoles)reader.ReadInt32();
+
+            var roleInterface = (IHideAndSeekRole)Activator.CreateInstance(Main.AllTypes.First(t => t.Name == role.ToString()));
+
+            PlayerRoles[id] = (roleInterface, role);
+        }
+
+        Main.HasJustStarted = false;
+        Utils.MarkEveryoneDirtySettingsV4();
+    }
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
@@ -402,36 +481,6 @@ internal static class CustomHnS
 
         CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Fox);
         CustomWinnerHolder.WinnerIds.UnionWith(foxes);
-    }
-
-    public static string GetTaskBarText()
-    {
-        string text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
-        return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
-
-        static string GetStateText(KeyValuePair<byte, PlayerState> state)
-        {
-            string name = Main.AllPlayerNames.GetValueOrDefault(state.Key, $"ID {state.Key}");
-            name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
-            bool isSeeker = PlayerRoles[state.Key].Interface.Team == Team.Impostor;
-            bool alive = !state.Value.IsDead;
-
-            TaskState ts = state.Value.TaskState;
-            var stateText = string.Empty;
-
-            if (PlayersSeeRoles.GetBool())
-                stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
-            else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
-
-            if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
-
-            stateText = $"{name}{stateText}";
-            return stateText;
-
-            CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
-
-            string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
-        }
     }
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -554,6 +603,8 @@ internal static class CustomHnS
 
             if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60)
                 Utils.NotifyRoles();
+
+            SendRPC();
         }
     }
 }
