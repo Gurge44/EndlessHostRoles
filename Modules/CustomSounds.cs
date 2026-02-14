@@ -87,15 +87,12 @@ public static class CustomSoundsManager
         }
 
         if (clip != null)
-        {
             SoundManager.Instance.PlaySoundImmediate(clip, false, volume);
-        }
     }
 
     public static AudioClip LoadWav(string path)
     {
         byte[] fileData = File.ReadAllBytes(path);
-
         WAV wav = new(fileData);
 
         AudioClip clip = AudioClip.Create(Path.GetFileNameWithoutExtension(path), wav.SampleCount, 1, wav.Frequency, false, false); 
@@ -104,46 +101,47 @@ public static class CustomSoundsManager
         return clip;
     }
 
-    public class WAV  {
-
-		// convert two bytes to one float in the range -1 to 1
-		static float BytesToFloat(byte firstByte, byte secondByte) {
-			// convert two bytes to one short (little endian)
+    public class WAV
+    {
+		// Convert two bytes to one float in the range -1 to 1
+		static float BytesToFloat(byte firstByte, byte secondByte)
+        {
+			// Convert two bytes to one short (little endian)
 			short s = (short)((secondByte << 8) | firstByte);
-			// convert to range from -1 to (just below) 1
+			// Convert to range from -1 to (just below) 1
 			return s / 32768.0F;
 		}
 
-		static int BytesToInt(byte[] bytes, int offset = 0){
-			int value=0;
-			for (int i=0;i<4;i++)
-            {
-				value |= bytes[offset + i] << (i*8);
-			}
+		static int BytesToInt(byte[] bytes, int offset = 0)
+        {
+			int value = 0;
+            
+			for (int i = 0; i <4; i++)
+                value |= bytes[offset + i] << (i*8);
 			return value;
 		}
 
-		private static byte[] GetBytes(string filename){
+		private static byte[] GetBytes(string filename)
+        {
 			return File.ReadAllBytes(filename);
 		}
-		// properties
-		public float[] LeftChannel{get; internal set;}
-		public float[] RightChannel{get; internal set;}
-		public int ChannelCount {get; internal set;}
-		public int SampleCount {get; internal set;}
-		public int Frequency {get; internal set;}
+        
+		// Properties
+		public float[] LeftChannel { get; internal set; }
+		public float[] RightChannel { get; internal set; }
+		public int ChannelCount { get; internal set; }
+		public int SampleCount { get; internal set; }
+		public int Frequency { get; internal set; }
 		
 		// Returns left and right double arrays. 'right' will be null if sound is mono.
-		public WAV(string filename):
-			this(GetBytes(filename)) {}
+		public WAV(string filename) : this(GetBytes(filename)) { }
 
-		public WAV(byte[] wav){
+		public WAV(byte[] wav)
+        {
 			// Determine if mono or stereo
-			ChannelCount = wav[22];     // Forget byte 23 as 99.999% of WAVs are 1 or 2 channels
-
+			ChannelCount = wav[22]; // Forget byte 23 as 99.999% of WAVs are 1 or 2 channels
 			// Get the frequency
 			Frequency = BytesToInt(wav, 24);
-			
 			// Get past all the other sub chunks to get to the data subchunk:
 			int pos = 12;   // First Subchunk ID from 12 to 16
 			
@@ -154,13 +152,14 @@ public static class CustomSoundsManager
 				int chunkSize = wav[pos] + wav[pos + 1] * 256 + wav[pos + 2] * 65536 + wav[pos + 3] * 16777216;
 				pos += 4 + chunkSize;
 			}
-			pos += 4;                     // skip "data"
+            
+			pos += 4; // skip "data"
             int dataSize = BytesToInt(wav, pos);
-            pos += 4;                     // now at PCM data
+            pos += 4; // now at PCM data
 			
 			// Pos is now positioned to start of actual sound data.
-			SampleCount = dataSize / 2;     // 2 bytes per sample (16 bit sound mono)
-			if (ChannelCount == 2) SampleCount /= 2;        // 4 bytes per sample (16 bit stereo)
+			SampleCount = dataSize / 2; // 2 bytes per sample (16 bit sound mono)
+			if (ChannelCount == 2) SampleCount /= 2; // 4 bytes per sample (16 bit stereo)
 			
 			// Allocate memory (right will be null if only mono sound)
 			LeftChannel = new float[SampleCount];
@@ -168,12 +167,12 @@ public static class CustomSoundsManager
 			else RightChannel = null;
 
             int end = pos + dataSize;
-			
 			// Write to double array/s:
 			int i = 0;
-			while (pos + (ChannelCount * 2) <= end && i < SampleCount) {
+            
+			while (pos + (ChannelCount * 2) <= end && i < SampleCount)
+            {
 				LeftChannel[i] = BytesToFloat(wav[pos], wav[pos + 1]);
-
      		    pos += 2;
 
      		    if (ChannelCount == 2) 
