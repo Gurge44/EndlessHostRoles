@@ -5,7 +5,6 @@ using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using UnityEngine;
 
 namespace EHR.Modules;
 
