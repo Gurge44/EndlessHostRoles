@@ -232,11 +232,15 @@ public abstract class OptionItem
 
     public bool IsCurrentlyHidden()
     {
-        for (OptionItem current = this; current != null; current = current.Parent)
+        try
         {
-            if (Hidden(current))
-                return true;
+            for (OptionItem current = this; current != null; current = current.Parent)
+            {
+                if (Hidden(current))
+                    return true;
+            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         return false;
 

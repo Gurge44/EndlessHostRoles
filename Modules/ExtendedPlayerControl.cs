@@ -1585,8 +1585,8 @@ internal static class ExtendedPlayerControl
     public static void RpcMakeInvisible(this PlayerControl player, bool phantom = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.Invisible.Add(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (!Main.Invisible.Add(player.PlayerId)) return;
         
         player.RpcSetPet("");
         
@@ -1634,8 +1634,8 @@ internal static class ExtendedPlayerControl
     public static void RpcMakeVisible(this PlayerControl player, bool phantom = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.Invisible.Remove(player.PlayerId)) return;
         if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (!Main.Invisible.Remove(player.PlayerId)) return;
         
         if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
         

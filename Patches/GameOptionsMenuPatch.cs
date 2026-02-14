@@ -140,84 +140,88 @@ public static class GameOptionsMenuPatch
     
             foreach (var option in OptionItem.AllOptions)
             {
-                if (option.Tab != modTab) continue;
-
-                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
-
-                if (option is TextOptionItem toi)
-                {
-                    CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(__instance.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
-                    categoryHeaderMasked.SetHeader(StringNames.RolesCategory, 20);
-                    categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ');
-                    categoryHeaderMasked.Background.color = categoryHeaderMasked.Divider.color = option.NameColor;
-                    categoryHeaderMasked.transform.localScale = Vector3.one * 0.63f;
-                    categoryHeaderMasked.transform.localPosition = new(-0.903f, num, posZ);
-                    var chmText = categoryHeaderMasked.transform.FindChild("HeaderText").GetComponent<TextMeshPro>();
-                    chmText.fontStyle = FontStyles.Bold | FontStyles.SmallCaps;
-                    chmText.fontWeight = FontWeight.Black;
-                    chmText.outlineWidth = 0.17f;
-                    var chmCollider = categoryHeaderMasked.gameObject.AddComponent<BoxCollider2D>();
-                    chmCollider.size = new Vector2(7, 0.7f);
-                    chmCollider.offset = new Vector2(1.5f, -0.3f);
-                    var chmButton = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
-                    chmButton.ClickSound = __instance.BackButton.GetComponent<PassiveButton>().ClickSound;
-                    chmButton.OnMouseOver = new();
-                    chmButton.OnMouseOut = new();
-                    chmButton.OnClick.AddListener((UnityAction)(() =>
-                    {
-                        toi.CollapsesSection = !toi.CollapsesSection;
-                        ReCreateSettings(__instance);
-                    }));
-                    chmButton.SetButtonEnableState(true);
-                    categoryHeaderMasked.gameObject.SetActive(enabled);
-                    ModGameOptionsMenu.CategoryHeaderList.TryAdd(option.Id, categoryHeaderMasked);
-
-                    if (enabled) num -= 0.63f;
-                    header = toi;
-                    continue;
-                }
-
-                option.Header = header;
-
-                if (option.IsHeader && enabled)
-                    num -= 0.18f;
-
-                BaseGameSetting baseGameSetting = GetSetting(option);
-                if (baseGameSetting == null) continue;
-
-
-                OptionBehaviour optionBehaviour;
-
                 try
                 {
-                    optionBehaviour = baseGameSetting.Type switch
+                    if (option.Tab != modTab) continue;
+
+                    bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+
+                    if (option is TextOptionItem toi)
                     {
-                        OptionTypes.Checkbox => Object.Instantiate(__instance.checkboxOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
-                        OptionTypes.String => Object.Instantiate(__instance.stringOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
-                        OptionTypes.Float or OptionTypes.Int => Object.Instantiate(__instance.numberOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
-                        _ => throw new Exception("Skipped option type")
-                    };
+                        CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(__instance.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer);
+                        categoryHeaderMasked.SetHeader(StringNames.RolesCategory, 20);
+                        categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ');
+                        categoryHeaderMasked.Background.color = categoryHeaderMasked.Divider.color = option.NameColor;
+                        categoryHeaderMasked.transform.localScale = Vector3.one * 0.63f;
+                        categoryHeaderMasked.transform.localPosition = new(-0.903f, num, posZ);
+                        var chmText = categoryHeaderMasked.transform.FindChild("HeaderText").GetComponent<TextMeshPro>();
+                        chmText.fontStyle = FontStyles.Bold | FontStyles.SmallCaps;
+                        chmText.fontWeight = FontWeight.Black;
+                        chmText.outlineWidth = 0.17f;
+                        var chmCollider = categoryHeaderMasked.gameObject.AddComponent<BoxCollider2D>();
+                        chmCollider.size = new Vector2(7, 0.7f);
+                        chmCollider.offset = new Vector2(1.5f, -0.3f);
+                        var chmButton = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
+                        chmButton.ClickSound = __instance.BackButton.GetComponent<PassiveButton>().ClickSound;
+                        chmButton.OnMouseOver = new();
+                        chmButton.OnMouseOut = new();
+                        chmButton.OnClick.AddListener((UnityAction)(() =>
+                        {
+                            toi.CollapsesSection = !toi.CollapsesSection;
+                            ReCreateSettings(__instance);
+                        }));
+                        chmButton.SetButtonEnableState(true);
+                        categoryHeaderMasked.gameObject.SetActive(enabled);
+                        ModGameOptionsMenu.CategoryHeaderList.TryAdd(option.Id, categoryHeaderMasked);
+
+                        if (enabled) num -= 0.63f;
+                        header = toi;
+                        continue;
+                    }
+
+                    option.Header = header;
+
+                    if (option.IsHeader && enabled)
+                        num -= 0.18f;
+
+                    BaseGameSetting baseGameSetting = GetSetting(option);
+                    if (baseGameSetting == null) continue;
+
+
+                    OptionBehaviour optionBehaviour;
+
+                    try
+                    {
+                        optionBehaviour = baseGameSetting.Type switch
+                        {
+                            OptionTypes.Checkbox => Object.Instantiate(__instance.checkboxOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
+                            OptionTypes.String => Object.Instantiate(__instance.stringOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
+                            OptionTypes.Float or OptionTypes.Int => Object.Instantiate(__instance.numberOptionOrigin, Vector3.zero, Quaternion.identity, __instance.settingsContainer),
+                            _ => throw new Exception("Skipped option type")
+                        };
+                    }
+                    catch { continue; }
+
+                    optionBehaviour.transform.localPosition = new(posX, num, posZ);
+                    OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
+
+                    if (!ModGameOptionsMenu.OptionList.ContainsValue(option.Id) && option.Name == "Preset")
+                        GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
+
+                    optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
+                    optionBehaviour.SetClickMask(__instance.ButtonClickMask);
+                    optionBehaviour.SetUpFromData(baseGameSetting, 20);
+                    ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour.GetHashCode(), option.Id);
+                    ModGameOptionsMenu.BehaviourList.TryAdd(option.Id, optionBehaviour);
+                    optionBehaviour.gameObject.SetActive(enabled);
+                    optionBehaviour.OnValueChanged = new Action<OptionBehaviour>(__instance.ValueChanged);
+                    __instance.Children.Add(optionBehaviour);
+
+                    option.OptionBehaviour = optionBehaviour;
+
+                    if (enabled) num -= 0.45f;
                 }
-                catch { continue; }
-
-                optionBehaviour.transform.localPosition = new(posX, num, posZ);
-                OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
-
-                if (!ModGameOptionsMenu.OptionList.ContainsValue(option.Id) && option.Name == "Preset")
-                    GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
-
-                optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
-                optionBehaviour.SetClickMask(__instance.ButtonClickMask);
-                optionBehaviour.SetUpFromData(baseGameSetting, 20);
-                ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour.GetHashCode(), option.Id);
-                ModGameOptionsMenu.BehaviourList.TryAdd(option.Id, optionBehaviour);
-                optionBehaviour.gameObject.SetActive(enabled);
-                optionBehaviour.OnValueChanged = new Action<OptionBehaviour>(__instance.ValueChanged);
-                __instance.Children.Add(optionBehaviour);
-
-                option.OptionBehaviour = optionBehaviour;
-
-                if (enabled) num -= 0.45f;
+                catch (Exception e) { Utils.ThrowException(e); }
 
                 if (stopwatch.ElapsedMilliseconds >= frameBudget)
                 {
