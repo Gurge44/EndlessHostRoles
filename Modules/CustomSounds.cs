@@ -67,9 +67,9 @@ public static class CustomSoundsManager
                 return;
             }
 
-            FileStream fs = File.Create(path);
-            stream.CopyTo(fs);
-            fs.Close();
+            FileStream fileStream = File.Create(path);
+            stream.CopyTo(fileStream);
+            fileStream.Close();
         }
 
         StartPlay(path, volume, pitch);
