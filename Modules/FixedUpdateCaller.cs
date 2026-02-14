@@ -112,6 +112,7 @@ public static class FixedUpdateCaller
                     NonLowLoadPlayerIndex = Math.Min(0, -(30 - count));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
+                bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
                 for (var index = 0; index < count; index++)
                 {
@@ -124,8 +125,8 @@ public static class FixedUpdateCaller
                         FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != index);
 
                         if (lobby) continue;
-                        
-                        if (NonLowLoadPlayerIndex == index && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+
+                        if (vanilla && NonLowLoadPlayerIndex == index)
                             Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
 
                         switch (currentGameMode)
