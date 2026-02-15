@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -401,13 +401,14 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
     public virtual void Update()
     {
         bool chatIsOpen = HudManager.Instance.Chat.IsOpenOrOpening;
+        bool gameMenuIsOpen = HudManager.Instance.GameMenu.IsOpen;
         
         if (Input.touchSupported)
         {
             foreach (Touch touch in Input.touches)
             {
                 if (touch.phase != TouchPhase.Moved) continue;
-                if (chatIsOpen) break;
+                if (chatIsOpen || gameMenuIsOpen) break;
 
                 if (touch.deltaPosition.y > 0f)
                 {
@@ -422,9 +423,9 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || (!chatIsOpen && Input.mouseScrollDelta.y > 0f))
+        if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.mouseScrollDelta.y > 0f))
             Cycle(false);
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || (!chatIsOpen && Input.mouseScrollDelta.y < 0f))
+        else if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.mouseScrollDelta.y < 0f))
             Cycle(true);
     }
 

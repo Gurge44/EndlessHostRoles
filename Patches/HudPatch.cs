@@ -275,7 +275,7 @@ internal static class HudManagerPatch
                         CustomGameMode.FFA => FreeForAll.GetHudText(),
                         CustomGameMode.StopAndGo => StopAndGo.GetHudText(),
                         CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
-                        CustomGameMode.HideAndSeek when player.IsHost() => CustomHnS.GetSuffixText(player, player, true),
+                        CustomGameMode.HideAndSeek => CustomHnS.GetSuffixText(player, player, true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
                         CustomGameMode.Snowdown => Snowdown.GetHudText(),
@@ -1172,7 +1172,7 @@ internal static class TaskPanelBehaviourPatch
                 finalTextBuilder.Append("\r\n\r\n").Append(string.Join('\n', summaryText4));
                 break;
             }
-            case CustomGameMode.HideAndSeek when AmongUsClient.Instance.AmHost:
+            case CustomGameMode.HideAndSeek:
             {
                 finalTextBuilder.Append("\r\n\r\n").Append(CustomHnS.GetTaskBarText());
                 break;
@@ -1426,5 +1426,4 @@ internal static class RepairSender
         return SystemType + "(" + (SystemTypes)SystemType + ")\r\n" + Amount;
     }
 }
-
 #endif

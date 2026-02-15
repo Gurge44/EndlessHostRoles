@@ -166,6 +166,7 @@ public enum CustomRPC
     FFAKill,
     FFASync,
     QuizSync,
+    HNSSync,
     HotPotatoSync,
     SoloPVPSync,
     CTFSync,
@@ -1217,6 +1218,11 @@ internal static class RPCHandlerPatch
                     Quiz.AllowKills = reader.ReadBoolean();
                     break;
                 }
+                case CustomRPC.HNSSync:
+                {
+                    CustomHnS.ReceiveRPC(reader);
+                    break;
+                }
                 case CustomRPC.HotPotatoSync:
                 {
                     HotPotato.ReceiveRPC(reader);
@@ -1690,5 +1696,4 @@ internal static class PlayerPhysicsRPCHandlerPatch
 
         return true;
     }
-
 }
