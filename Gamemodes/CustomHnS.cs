@@ -433,6 +433,7 @@ internal static class CustomHnS
         Main.HasJustStarted = false;
         Utils.MarkEveryoneDirtySettingsV4();
     }
+
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
