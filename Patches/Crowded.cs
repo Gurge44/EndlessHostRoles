@@ -425,7 +425,7 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
 
         if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.mouseScrollDelta.y > 0f))
             Cycle(false);
-        else if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.mouseScrollDelta.y > 0f))
+        else if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.mouseScrollDelta.y < 0f))
             Cycle(true);
     }
 
