@@ -52,7 +52,7 @@ public class Hypocrite : RoleBase
 
             LateTask.New(() =>
             {
-                foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                 {
                     if (!player.Is(Team.Impostor))
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);

@@ -1146,7 +1146,7 @@ internal static class ChatCommands
 
         string coloredRole = CustomRoles.Listener.ToColoredString();
 
-        foreach (PlayerControl listener in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl listener in Main.CachedAlivePlayerControls())
         {
             if (!listener.Is(CustomRoles.Listener) || IRandom.Instance.Next(100) >= Listener.WhisperHearChance.GetInt()) continue;
             string message = IRandom.Instance.Next(100) < Listener.FullMessageHearChance.GetInt() ? string.Format(GetString("Listener.FullMessage"), coloredRole, fromName, toName, msg) : string.Format(GetString("Listener.FromTo"), coloredRole, fromName, toName);
@@ -1607,7 +1607,7 @@ internal static class ChatCommands
         {
             if (PollVotes.Count == 0) yield break;
 
-            bool notEveryoneVoted = Main.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
+            bool notEveryoneVoted = Main.CachedAllPlayerControls().Count - 1 > PollVotes.Values.Sum();
 
             var resendTimer = 0f;
 
@@ -1615,7 +1615,7 @@ internal static class ChatCommands
             {
                 if (!GameStates.IsLobby) yield break;
 
-                notEveryoneVoted = Main.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
+                notEveryoneVoted = Main.CachedAllPlayerControls().Count - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
@@ -2073,7 +2073,7 @@ internal static class ChatCommands
         string toVote = text[6..].Replace(" ", string.Empty);
         if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
 
-        if (voteId > Main.AllPlayerControls.Count) return;
+        if (voteId > Main.CachedAllPlayerControls().Count) return;
 
         PlayerControl votedPlayer = voteId.GetPlayer();
         if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
@@ -2405,7 +2405,7 @@ internal static class ChatCommands
 
     private static void KCountCommand(PlayerControl player, string text, string[] args)
     {
-        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Count < Options.MinPlayersForGameStateCommand.GetInt())
+        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.CachedAlivePlayerControls().Count < Options.MinPlayersForGameStateCommand.GetInt())
         {
             Utils.SendMessage(GetString("Message.CommandUnavailable"), player.PlayerId, importance: MessageImportance.Low);
             return;

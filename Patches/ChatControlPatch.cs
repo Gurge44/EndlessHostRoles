@@ -218,7 +218,7 @@ public static class ChatManager
 
         Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         if (aapc.Count == 0) return;
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
@@ -290,7 +290,7 @@ public static class ChatManager
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
-        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControls.Count) SendEmptyMessage(null);
+        if (targets.Count == 0 || targets.Count >= Main.CachedAlivePlayerControls().Count) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 

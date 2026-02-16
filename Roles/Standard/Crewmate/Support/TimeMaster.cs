@@ -144,7 +144,7 @@ internal class TimeMaster : RoleBase
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
             
-            foreach (PlayerControl player in Main.EnumeratePlayerControls())
+            foreach (PlayerControl player in Main.CachedAllPlayerControls())
             {
                 if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
                 player.ReactorFlash(flashDuration: length * delay + 0.55f);

@@ -223,8 +223,8 @@ public class Main : BasePlugin
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
 
-    public static IReadOnlyList<PlayerControl> AllPlayerControls => EnumeratePlayerControls().ToArray();
-    public static IReadOnlyList<PlayerControl> AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
+    //public static PlayerControl[] AllPlayerControls => EnumeratePlayerControls().ToArray();
+    //public static PlayerControl[] AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
 
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
@@ -238,10 +238,56 @@ public class Main : BasePlugin
     public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
         return EnumeratePlayerControls()
-            .Where(pc => pc.IsAlive()
-                         && pc.Data
-                         && (!pc.Data.Disconnected || !IntroDestroyed)
-                         && !Pelican.IsEaten(pc.PlayerId));
+            .Where(pc => pc.IsAliveWithConditions());
+    }
+
+    private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
+    private static long LastAllPlayerControlUpdated = -1;
+    public static List<PlayerControl> CachedAllPlayerControls()
+    {
+        if (LastAllPlayerControlUpdated == Utils.TimeStamp)
+            return CachedAllPlayerControlsList;
+
+        LastAllPlayerControlUpdated = Utils.TimeStamp;
+        var players = PlayerControl.AllPlayerControls;
+        int playerCount = players.Count;
+
+        CachedAllPlayerControlsList.Clear();
+        for (byte playerId = 0; playerId < playerCount; playerId++)
+        {
+            PlayerControl pc = players[playerId];
+            if (!pc || pc.PlayerId >= 254)
+                continue;
+
+            CachedAllPlayerControlsList.Add(pc);
+        }
+
+        Logger.Warn($"All: {Utils.TimeStamp} - {LastAllPlayerControlUpdated}", "Debug");
+        return CachedAllPlayerControlsList;
+    }
+
+    private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
+    private static long LastAlivePlayerControlUpdated = -1;
+    public static List<PlayerControl> CachedAlivePlayerControls()
+    {
+        if (LastAlivePlayerControlUpdated == Utils.TimeStamp)
+            return CachedAlivePlayerControlsList;
+
+        LastAlivePlayerControlUpdated = Utils.TimeStamp;
+        var players = PlayerControl.AllPlayerControls;
+        int playerCount = players.Count;
+
+        CachedAlivePlayerControlsList.Clear();
+        for (byte playerId = 0; playerId < playerCount; playerId++)
+        {
+            PlayerControl pc = players[playerId];
+            if (!pc || pc.PlayerId >= 254 || !pc.IsAliveWithConditions())
+                continue;
+
+            CachedAlivePlayerControlsList.Add(pc);
+        }
+        Logger.Warn($"Alive: {Utils.TimeStamp} - {LastAlivePlayerControlUpdated}", "Debug");
+        return CachedAlivePlayerControlsList;
     }
 
     // ReSharper disable once InconsistentNaming

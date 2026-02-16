@@ -53,7 +53,7 @@ internal class Revolutionist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.EnumeratePlayerControls())
+        foreach (PlayerControl ar in Main.CachedAllPlayerControls())
             IsDraw.Add((playerId, ar.PlayerId), false);
     }
 
@@ -144,7 +144,7 @@ internal class Revolutionist : RoleBase
         {
             PlayerControl rvTarget = value.Player;
 
-            if (!player.IsAlive() || Pelican.IsEaten(playerId))
+            if (!player.IsAliveWithConditions())
             {
                 RevolutionistTimer.Remove(playerId);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);

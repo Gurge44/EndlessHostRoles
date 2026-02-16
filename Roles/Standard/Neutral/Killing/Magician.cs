@@ -320,7 +320,7 @@ public class Magician : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask) return;
-        if (Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive()) return;
+        if (!pc.IsAliveWithConditions()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
@@ -412,7 +412,7 @@ public class Magician : RoleBase
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl target in Main.CachedAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 

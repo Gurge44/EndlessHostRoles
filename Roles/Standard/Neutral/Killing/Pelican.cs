@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -107,16 +108,13 @@ public class Pelican : RoleBase
         }
     }
 
-    public static bool IsEaten(PlayerControl pc, byte id)
-    {
-        return EatenList.TryGetValue(pc.PlayerId, out List<byte> list) && list.Contains(id);
-    }
+    public static bool IsEaten(PlayerControl pc, byte id) => EatenList.TryGetValue(pc.PlayerId, out List<byte> list) && list.Contains(id);
 
     public static bool IsEaten(byte id)
     {
-        foreach (KeyValuePair<byte, List<byte>> el in EatenList)
+        foreach (List<byte> el in EatenList.Values)
         {
-            if (el.Value.Contains(id))
+            if (el.Contains(id))
                 return true;
         }
 
@@ -128,7 +126,7 @@ public class Pelican : RoleBase
         if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting) return false;
 
         PlayerControl target = Utils.GetPlayerById(id);
-        return target != null && target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && !IsEaten(pc, id) && !IsEaten(id);
+        return target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && !IsEaten(pc, id) && !IsEaten(id);
     }
 
     public static Vector2 GetBlackRoomPS()

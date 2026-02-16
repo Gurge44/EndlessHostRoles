@@ -296,7 +296,7 @@ public static class KingOfTheZones
 
         yield return new WaitForSecondsRealtime(3f);
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Count / 2;
         NameNotifyManager.Reset();
 
@@ -862,7 +862,7 @@ public static class KingOfTheZones
 
                 yield return null;
 
-                foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                 {
                     try
                     {

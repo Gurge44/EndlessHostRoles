@@ -119,7 +119,7 @@ internal class Commander : RoleBase
                     target.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
                 else
                 {
-                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                     {
                         if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
@@ -136,7 +136,7 @@ internal class Commander : RoleBase
 
                 break;
             case Mode.DontSabotage:
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
@@ -149,7 +149,7 @@ internal class Commander : RoleBase
                     target.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
                 else
                 {
-                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                     {
                         if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
@@ -175,7 +175,7 @@ internal class Commander : RoleBase
             return;
         }
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander)) continue;
 

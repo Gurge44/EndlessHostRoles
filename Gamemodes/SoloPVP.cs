@@ -102,7 +102,7 @@ internal static class SoloPVP
         RoundTime = SoloPVP_GameTime.GetInt() + 8;
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
             PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
@@ -197,7 +197,7 @@ internal static class SoloPVP
             rank += PlayerScore.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Count; }
+        catch { return Main.CachedAllPlayerControls().Count; }
     }
 
     public static string GetHudText()

@@ -145,13 +145,13 @@ internal class Bomber : RoleBase
 
         var murderCount = 0;
 
-        foreach (PlayerControl tg in Main.EnumeratePlayerControls())
+        foreach (PlayerControl tg in Main.CachedAllPlayerControls())
         {
             try
             {
                 if (!tg.IsModdedClient()) tg.KillFlash();
 
-                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
+                if (!tg.IsAliveWithConditions() || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
                 if (!FastVector2.DistanceWithinRange(pc.Pos(), tg.Pos(), radius)) continue;
                 if (tg.PlayerId == pc.PlayerId) continue;
 
@@ -166,7 +166,7 @@ internal class Bomber : RoleBase
 
         LateTask.New(() =>
         {
-            int totalAlive = Main.AllAlivePlayerControls.Count;
+            int totalAlive = Main.CachedAlivePlayerControls().Count;
 
             if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                 pc.Suicide(PlayerState.DeathReason.Bombed);

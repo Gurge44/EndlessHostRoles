@@ -43,7 +43,7 @@ internal static class CustomRoleSelector
     {
         RoleResult = [];
 
-        if (Main.GM.Value && Main.AllPlayerControls.Count == 1) return;
+        if (Main.GM.Value && Main.CachedAllPlayerControls().Count == 1) return;
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
@@ -64,7 +64,7 @@ internal static class CustomRoleSelector
         }
 
         var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Count;
+        int playerCount = Main.CachedAlivePlayerControls().Count;
 
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
 
@@ -397,7 +397,7 @@ internal static class CustomRoleSelector
 
         void AssignRoleToEveryone(CustomRoles role)
         {
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {

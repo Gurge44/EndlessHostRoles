@@ -265,7 +265,7 @@ internal static class ChangeRoleSettings
             
             SabotageMapPatch.TimerTexts = [];
             MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
-            ReportDeadBodyPatch.CanReport = [];
+            ReportDeadBodyPatch.CanReport.Clear();
             
             GuessManager.Guessers = [];
             ChatCommands.VotedToStart = [];
@@ -344,16 +344,16 @@ internal static class ChangeRoleSettings
 
             RoleResult = [];
 
-            foreach (PlayerControl target in Main.EnumeratePlayerControls())
+            foreach (PlayerControl target in Main.CachedAllPlayerControls())
             {
-                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
                 {
                     (byte, byte) pair = (target.PlayerId, seer.PlayerId);
                     Main.LastNotifyNames[pair] = target.name;
                 }
             }
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 int colorId = pc.Data.DefaultOutfit.ColorId;
                 if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
@@ -730,7 +730,7 @@ internal static class StartGameHostPatch
 
                 if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn || examinerSpawn || venomSpawn)
                 {
-                    foreach (PlayerControl player in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl player in Main.CachedAllPlayerControls())
                     {
                         if (IsBasisChangingPlayer(player.PlayerId, CustomRoles.Bloodlust)) continue;
 
@@ -868,7 +868,7 @@ internal static class StartGameHostPatch
 
         try
         {
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (!Main.PlayerStates.ContainsKey(pc.PlayerId)) Main.PlayerStates[pc.PlayerId] = new PlayerState(pc.PlayerId);
                 
@@ -986,7 +986,7 @@ internal static class StartGameHostPatch
                 }
             }
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 try
                 {
@@ -995,7 +995,7 @@ internal static class StartGameHostPatch
 
                     if (pc.AmOwner && pc.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
                     {
-                        foreach (PlayerControl target in Main.EnumeratePlayerControls())
+                        foreach (PlayerControl target in Main.CachedAllPlayerControls())
                         {
                             target.Data.Role.CanBeKilled = true;
 
@@ -1059,7 +1059,7 @@ internal static class StartGameHostPatch
 
             HudManager.Instance.SetHudActive(true);
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 pc.ResetKillCooldown(false);
 
 
@@ -1207,7 +1207,7 @@ internal static class StartGameHostPatch
             RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
             // Set Desync role for self and for others
-            foreach (PlayerControl target in Main.EnumeratePlayerControls())
+            foreach (PlayerControl target in Main.CachedAllPlayerControls())
             {
                 try
                 {
@@ -1222,7 +1222,7 @@ internal static class StartGameHostPatch
             }
 
             // Set Desync role for others
-            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
             {
                 try
                 {
@@ -1248,9 +1248,9 @@ internal static class StartGameHostPatch
     {
         try
         {
-            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
             {
-                foreach (PlayerControl target in Main.EnumeratePlayerControls())
+                foreach (PlayerControl target in Main.CachedAllPlayerControls())
                 {
                     try
                     {
@@ -1389,7 +1389,7 @@ internal static class StartGameHostPatch
         {
             try
             {
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     try
                     {
@@ -1471,7 +1471,7 @@ internal static class StartGameHostPatch
                             StoragedData[playerId] = roleType;
                             doneIds.Add(playerId);
 
-                            foreach (PlayerControl target in Main.EnumeratePlayerControls())
+                            foreach (PlayerControl target in Main.CachedAllPlayerControls())
                             {
                                 try
                                 {
@@ -1496,7 +1496,7 @@ internal static class StartGameHostPatch
 
                 try
                 {
-                    foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                     {
                         try
                         {
@@ -1504,7 +1504,7 @@ internal static class StartGameHostPatch
                             {
                                 StoragedData[pc.PlayerId] = RoleTypes.Crewmate;
 
-                                foreach (PlayerControl target in Main.EnumeratePlayerControls())
+                                foreach (PlayerControl target in Main.CachedAllPlayerControls())
                                 {
                                     try
                                     {

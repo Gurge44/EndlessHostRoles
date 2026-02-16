@@ -166,28 +166,29 @@ internal class Puppeteer : RoleBase
 
         byte playerId = player.PlayerId;
         long now = Utils.TimeStamp;
+        long pupetDelay = PuppeteerDelayList[playerId];
 
         if (GameStates.IsInTask && PuppeteerList.ContainsKey(playerId))
         {
-            if (!player.IsAlive() || Pelican.IsEaten(playerId))
+            if (!player.IsAliveWithConditions())
             {
                 PuppeteerList.Remove(playerId);
                 PuppeteerDelayList.Remove(playerId);
                 PuppeteerDelay.Remove(playerId);
             }
-            else if (PuppeteerDelayList[playerId] + PuppeteerManipulationEndsAfterTime.GetInt() < now && PuppeteerManipulationEndsAfterFixedTime.GetBool())
+            else if (pupetDelay + PuppeteerManipulationEndsAfterTime.GetInt() < now && PuppeteerManipulationEndsAfterFixedTime.GetBool())
             {
                 PuppeteerList.Remove(playerId);
                 PuppeteerDelayList.Remove(playerId);
                 PuppeteerDelay.Remove(playerId);
                 Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
             }
-            else if (PuppeteerDelayList[playerId] + PuppeteerDelay[playerId] < now)
+            else if (pupetDelay + PuppeteerDelay[playerId] < now)
             {
                 Vector2 puppeteerPos = player.Pos();
                 Dictionary<byte, float> targetDistance = [];
 
-                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl target in Main.CachedAlivePlayerControls())
                 {
                     if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
                     if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;

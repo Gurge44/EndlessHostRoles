@@ -143,7 +143,7 @@ internal static class EndGamePatch
                 case CustomGameMode.Deathrace:
                     MapNames map = Main.CurrentMap;
                     
-                    foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                     {
                         if (!Deathrace.PlayedMaps.TryGetValue(pc.FriendCode, out var maps))
                             Deathrace.PlayedMaps[pc.FriendCode] = [map];

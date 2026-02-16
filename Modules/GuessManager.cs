@@ -1370,7 +1370,7 @@ public static class GuessManager
                 namePlateIds = namePlateIds.Prepend("nameplate_candyCanePlate");
 
                 (string choice, string namePlateId)[] data = choices.Zip(namePlateIds, (choice, namePlateId) => (choice, namePlateId)).ToArray();
-                var alivePlayerControls = Main.AllAlivePlayerControls;
+                var alivePlayerControls = Main.CachedAlivePlayerControls();
                 int alivePlayerControlsLength = alivePlayerControls.Count - 1;
 
                 Logger.Info($"Set Up Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")}, {CurrentState})", "Meeting Shapeshift For Guessing");

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -9,6 +6,10 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using Rewired.Utils.Platforms.Windows;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -575,7 +576,7 @@ public static class GameStartRandomMap
             _ => 0
         });
         
-        int playerCount = Main.AllPlayerControls.Count;
+        int playerCount = Main.CachedAllPlayerControls().Count;
         if (playerCount < Options.MinPlayersForAirship.GetInt()) chance.Remove(4);
         if (playerCount < Options.MinPlayersForFungle.GetInt()) chance.Remove(5);
         

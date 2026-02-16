@@ -362,7 +362,7 @@ internal static class StopAndGo
 
         long now = Utils.TimeStamp;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
@@ -394,7 +394,7 @@ internal static class StopAndGo
             rank += Main.PlayerStates.Values.Where(x => x.TaskState.CompletedTasksCount == ms).ToList().IndexOf(state);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Count; }
+        catch { return Main.CachedAllPlayerControls().Count; }
     }
 
     public static string GetSuffixText(PlayerControl pc)

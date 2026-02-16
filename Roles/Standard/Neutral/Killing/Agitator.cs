@@ -183,7 +183,7 @@ public class Agitator : RoleBase
                 Vector2 agitatorPos = player.Pos();
                 Dictionary<byte, float> targetDistance = [];
 
-                foreach (PlayerControl target in PlayerControl.AllPlayerControls)
+                foreach (PlayerControl target in Main.CachedAllPlayerControls())
                 {
                     if (!target.IsAlive()) continue;
 

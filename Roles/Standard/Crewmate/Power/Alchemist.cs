@@ -183,7 +183,7 @@ public class Alchemist : RoleBase
             case 3: // TP to random player
                 LateTask.New(() =>
                 {
-                    player.TP(Main.EnumerateAlivePlayerControls().Without(player).Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList().RandomElement());
+                    player.TP(Main.EnumerateAlivePlayerControls().Without(player).Where(x => !x.inVent && !x.onLadder).ToList().RandomElement());
                     player.RPCPlayCustomSound("Teleport");
                 }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
                 break;

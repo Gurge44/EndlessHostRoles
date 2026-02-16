@@ -155,7 +155,7 @@ internal class AntiAdminer : RoleBase
         bool admin = false, camera = false, doorLog = false, vital = false;
         float usableDistance = DisableDevice.UsableDistance;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.inVent || (pc.IsImpostor() && !IsTelecommunication)) continue;
 

@@ -62,7 +62,7 @@ static class CoShowIntroPatch
                     ShipStatus.Instance.Begin();
 
                     GameOptionsSender.AllSenders.Clear();
-                    foreach (PlayerControl pc in Main.EnumeratePlayerControls()) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
+                    foreach (PlayerControl pc in Main.CachedAllPlayerControls()) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
                 }
             }
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
@@ -356,7 +356,7 @@ internal static class SetUpRoleTextPatch
 
         sb.Append("------------Display Names------------\n");
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text.Trim()} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})\n");
             pc.cosmetics.nameText.text = pc.name;
@@ -366,14 +366,14 @@ internal static class SetUpRoleTextPatch
 
         sb.Append("------------Roles------------\n");
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
 
         yield return null;
 
         sb.Append("------------Platforms------------\n");
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             try
             {
@@ -430,7 +430,7 @@ internal static class SetUpRoleTextPatch
         }
 
         sb.Append("-------------Other Information-------------\n");
-        sb.Append($"Number of players: {Main.AllPlayerControls.Count}\n");
+        sb.Append($"Number of players: {Main.CachedAllPlayerControls().Count}\n");
         sb.Append($"Game mode: {GetString(Options.CurrentGameMode.ToString())}\n");
         sb.Append($"Map: {Main.CurrentMap}\n");
         sb.Append($"Server: {Utils.GetRegionName()}");
@@ -477,7 +477,7 @@ internal static class BeginCrewmatePatch
         {
             teamToDisplay = new();
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (pc.Is(Team.Coven))
                     teamToDisplay.Add(pc);
@@ -500,7 +500,7 @@ internal static class BeginCrewmatePatch
             {
                 teamToDisplay = new();
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
@@ -512,7 +512,7 @@ internal static class BeginCrewmatePatch
         {
             teamToDisplay = new();
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (FreeForAll.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && team == ffaTeam)
                     teamToDisplay.Add(pc);
@@ -862,7 +862,7 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                 __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
@@ -1047,7 +1047,7 @@ internal static class BeginImpostorPatch
 
         if (PlayerControl.LocalPlayer.IsImpostor() && Options.ImpKnowWhosMadmate.GetBool())
         {
-            foreach (var pc in Main.EnumeratePlayerControls())
+            foreach (var pc in Main.CachedAllPlayerControls())
             {
                 if (pc.IsMadmate() && !pc.AmOwner)
                     yourTeam.Add(pc);
@@ -1061,7 +1061,7 @@ internal static class BeginImpostorPatch
 
             if (Options.MadmateKnowWhosImp.GetBool())
             {
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.IsImpostor() && !pc.AmOwner)
                         yourTeam.Add(pc);
@@ -1070,7 +1070,7 @@ internal static class BeginImpostorPatch
 
             if (Options.MadmateKnowWhosMadmate.GetBool())
             {
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.IsMadmate() && !pc.AmOwner)
                         yourTeam.Add(pc);
@@ -1139,7 +1139,7 @@ internal static class IntroCutsceneDestroyPatch
         {
             Main.EnumeratePlayerControls().DoIf(x => x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM));
             
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
 
             Utils.NumSnapToCallsThisRound = aapc.Count;
             
@@ -1292,7 +1292,7 @@ internal static class IntroCutsceneDestroyPatch
                 {
                     lp.Data.Role.AffectedByLightAffectors = false;
 
-                    foreach (PlayerControl target in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl target in Main.CachedAllPlayerControls())
                     {
                         try
                         {
@@ -1359,7 +1359,7 @@ internal static class IntroCutsceneDestroyPatch
         }
         else
         {
-            foreach (PlayerControl player in Main.EnumeratePlayerControls())
+            foreach (PlayerControl player in Main.CachedAllPlayerControls())
                 Main.PlayerStates[player.PlayerId].InitTask(player);
 
             switch (Options.CurrentGameMode)

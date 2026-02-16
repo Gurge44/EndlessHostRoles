@@ -204,7 +204,7 @@ internal static class RepairSystemPatch
         {
             bool petcd = !Options.UsePhantomBasis.GetBool();
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Wiper))
                 {
@@ -349,7 +349,7 @@ internal static class ShipStatusBeginPatch
     {
         if (RolesIsAssigned && !Main.IntroDestroyed)
         {
-            foreach (PlayerControl player in Main.EnumeratePlayerControls()) Main.PlayerStates[player.PlayerId].InitTask(player);
+            foreach (PlayerControl player in Main.CachedAllPlayerControls()) Main.PlayerStates[player.PlayerId].InitTask(player);
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
@@ -704,7 +704,7 @@ internal static class ShipStatusFixedUpdatePatch
                 continue;
             }
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 try
                 {

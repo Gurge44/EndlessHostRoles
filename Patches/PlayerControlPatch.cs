@@ -218,7 +218,7 @@ internal static class CheckMurderPatch
                     return false;
                 case CustomGameMode.HotPotato:
                     (byte holderID, byte lastHolderID) = HotPotato.GetState();
-                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControls.Count <= 2))
+                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.CachedAlivePlayerControls().Count <= 2))
                         HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                     return false;
                 case CustomGameMode.Mingle:
@@ -532,7 +532,7 @@ internal static class CheckMurderPatch
 
         if (Crusader.ForCrusade.Contains(target.PlayerId))
         {
-            foreach (PlayerControl player in Main.EnumeratePlayerControls())
+            foreach (PlayerControl player in Main.CachedAllPlayerControls())
             {
                 if (player.Is(CustomRoles.Crusader) && player.IsAlive())
                 {
@@ -958,7 +958,7 @@ internal static class ShapeshiftPatch
 
         bool shapeshifting = __instance.PlayerId != target.PlayerId;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
             string room = GetString(plainShipRoom != null ? plainShipRoom.RoomId.ToString() : "Outside");
@@ -989,7 +989,7 @@ internal static class RpcShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
 internal static class ReportDeadBodyPatch
 {
-    public static Dictionary<byte, bool> CanReport;
+    public static readonly Dictionary<byte, bool> CanReport = [];
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
     public static bool MeetingStarted;
 
@@ -1320,7 +1320,7 @@ internal static class ReportDeadBodyPatch
         }
         catch (Exception e) { ThrowException(e); }
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             try
             {
@@ -1402,7 +1402,7 @@ internal static class ReportDeadBodyPatch
         {
             Main.ProcessShapeshifts = false;
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 try
                 {
@@ -1536,6 +1536,9 @@ internal static class FixedUpdatePatch
         bool inTask = GameStates.IsInTask;
         bool alive = player.IsAlive();
 
+        var playerState = Main.PlayerStates.GetValueOrDefault(playerId);
+        var localPlayerState = Main.PlayerStates.GetValueOrDefault(lpId);
+
         if (self)
         {
             CustomSabotage.UpdateAll();
@@ -1573,7 +1576,7 @@ internal static class FixedUpdatePatch
                 AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low-level people
-            if (!lowLoad && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && GameStates.IsLobby && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
+            if (!lowLoad && GameStates.IsLobby && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
                 (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
                 player.Data.FriendCode == string.Empty
             ))
@@ -1625,8 +1628,8 @@ internal static class FixedUpdatePatch
 
                 SabotageSystemTypeRepairDamagePatch.SabotageDoubleTrigger.Update(Time.deltaTime);
 
-                if (Main.PlayerStates.TryGetValue(playerId, out PlayerState s) && s.Role.IsEnable)
-                    s.Role.OnFixedUpdate(player);
+                if (playerState.Role.IsEnable)
+                    playerState.Role.OnFixedUpdate(player);
 
                 if (inTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
                 {
@@ -1634,10 +1637,9 @@ internal static class FixedUpdatePatch
                     player.Notify(GetString("PlagueBearerToPestilence"));
                     player.RpcGuardAndKill(player);
 
-                    var state = Main.PlayerStates[playerId];
-                    state.SubRoles
+                    playerState.SubRoles
                         .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Beartrap or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
-                        .ForEach(x => state.RemoveSubRole(x));
+                        .ForEach(playerState.RemoveSubRole);
 
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
@@ -1658,7 +1660,7 @@ internal static class FixedUpdatePatch
                     }
                 }
 
-                if (Main.PlayerStates.TryGetValue(playerId, out PlayerState playerState) && inTask && alive)
+                if (inTask && alive && playerState != null)
                 {
                     List<CustomRoles> subRoles = playerState.SubRoles;
 
@@ -1711,7 +1713,7 @@ internal static class FixedUpdatePatch
         if (!lowLoad)
         {
             // Ability Use Gain every 5 seconds
-            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out PlayerState state) && state.TaskState.IsTaskFinished && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
+            if (inTask && alive && playerState.TaskState.IsTaskFinished && (!LastAddAbilityTime.TryGetValue(playerId, out long ts) || ts + 5 < now))
             {
                 LastAddAbilityTime[playerId] = now;
                 AddExtraAbilityUsesOnFinishedTasks(player);
@@ -1725,7 +1727,7 @@ internal static class FixedUpdatePatch
 
             if (self && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
             {
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Ninja) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
                         Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
@@ -1808,7 +1810,7 @@ internal static class FixedUpdatePatch
                 return;
             }
 
-            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true })
+            if (playerState.Role is Tree { TreeSpriteActive: true })
             {
                 target.cosmetics.nameText.text = Tree.Sprite;
                 return;
@@ -1825,7 +1827,7 @@ internal static class FixedUpdatePatch
             if (target.Is(CustomRoles.BananaMan))
                 realName = realName.Insert(0, $"{GetString("Prefix.BananaMan")} ");
 
-            if (!self && Main.PlayerStates.TryGetValue(target.PlayerId, out var tState) && tState.Role is Venerer { ChangedSkin: true })
+            if (!self && playerState.Role is Venerer { ChangedSkin: true })
                 realName = string.Empty;
 
             if (target.AmOwner && inTask)
@@ -1917,10 +1919,10 @@ internal static class FixedUpdatePatch
                         Mark.Append($"<color={GetRoleColorCode(CustomRoles.Investigator)}>○</color>");
 
                     break;
-                case CustomRoles.Analyst when (Main.PlayerStates[lpId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
+                case CustomRoles.Analyst when (localPlayerState.Role as Analyst).CurrentTarget.ID == target.PlayerId:
                     Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
                     break;
-                case CustomRoles.Samurai when (Main.PlayerStates[lpId].Role as Samurai).Target.Id == target.PlayerId:
+                case CustomRoles.Samurai when (localPlayerState.Role as Samurai).Target.Id == target.PlayerId:
                     Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
                     break;
                 case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(lpId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
@@ -1967,8 +1969,11 @@ internal static class FixedUpdatePatch
             Mark.Append(Snitch.GetWarningMark(seer, target));
             Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
-            Main.LoversPlayers.RemoveAll(x => !x);
-            if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
+            if (!lowLoad)
+            {
+                Main.LoversPlayers.RemoveAll(x => !x);
+                if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
+            }
 
             if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == lpId) || !seer.IsAlive()))
                 Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
@@ -2184,7 +2189,7 @@ internal static class EnterVentPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Count <= 2:
+            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.CachedAlivePlayerControls().Count <= 2:
                 pc.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
@@ -2237,7 +2242,7 @@ internal static class EnterVentPatch
 
             if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
             {
-                foreach (PlayerControl ventguard in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl ventguard in Main.CachedAlivePlayerControls())
                 {
                     if (ventguard.Is(CustomRoles.Ventguard))
                         ventguard.Notify(GetString("VentguardNotify"));

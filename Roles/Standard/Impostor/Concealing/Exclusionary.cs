@@ -51,7 +51,7 @@ public class Exclusionary : RoleBase
                 
                 if (target.AmOwner)
                 {
-                    foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                    foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                     {
                         if (player.AmOwner) continue;
                         player.SetPet("");
@@ -75,7 +75,7 @@ public class Exclusionary : RoleBase
                 var sender = CustomRpcSender.Create("Exclusionary", SendOption.Reliable);
                 sender.StartMessage(target.OwnerId);
 
-                foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                 {
                     if (target == player) continue;
 
@@ -129,7 +129,7 @@ public class Exclusionary : RoleBase
     {
         if (pc.AmOwner)
         {
-            foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl player in Main.CachedAlivePlayerControls())
             {
                 if (player.AmOwner) continue;
                 if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
@@ -155,7 +155,7 @@ public class Exclusionary : RoleBase
         var sender = CustomRpcSender.Create("Exclusionary Revert", SendOption.Reliable);
         sender.StartMessage(pc.OwnerId);
 
-        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
         {
             if (pc == player) continue;
 

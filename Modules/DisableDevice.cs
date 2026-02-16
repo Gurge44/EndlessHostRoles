@@ -61,10 +61,13 @@ internal static class DisableDevice
 
         if (!DoDisable && !rogueForce) return;
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        var players = Main.CachedAllPlayerControls();
+        int playerCount = players.Count;
+        for (byte playerId = 0; playerId < playerCount; playerId++)
         {
             try
             {
+                PlayerControl pc = players[playerId];
                 if (pc.IsModdedClient()) continue;
 
                 var doComms = false;

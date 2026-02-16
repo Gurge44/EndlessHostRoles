@@ -80,7 +80,7 @@ internal static class CustomTeamManager
         UpdateEnabledTeams();
         if (EnabledCustomTeams.Count == 0) return;
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         
         CustomTeamPlayerIds = Main.PlayerStates
             .IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key)
@@ -172,7 +172,7 @@ internal static class CustomTeamManager
 
         try
         {
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
 
             if (aapc.Count == 1)
             {

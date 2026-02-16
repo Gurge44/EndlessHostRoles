@@ -156,7 +156,7 @@ public class Sniper : RoleBase
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl target in Main.CachedAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 

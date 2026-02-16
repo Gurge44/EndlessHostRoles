@@ -59,7 +59,7 @@ internal class Arsonist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.EnumeratePlayerControls()) IsDoused.Add((playerId, ar.PlayerId), false);
+        foreach (PlayerControl ar in Main.CachedAllPlayerControls()) IsDoused.Add((playerId, ar.PlayerId), false);
     }
 
     public override void Init()
@@ -139,13 +139,13 @@ internal class Arsonist : RoleBase
             {
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (pc != physics.myPlayer)
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                 }
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                     pc.KillFlash();
 
                 if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor)
@@ -163,7 +163,7 @@ internal class Arsonist : RoleBase
                 {
                     if (douseCount > ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
 
-                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                     {
                         if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
@@ -171,7 +171,7 @@ internal class Arsonist : RoleBase
 
                     physics.myPlayer.KillFlash();
 
-                    int apc = Main.AllAlivePlayerControls.Count;
+                    int apc = Main.CachedAlivePlayerControls().Count;
 
                     switch (apc)
                     {
@@ -203,7 +203,7 @@ internal class Arsonist : RoleBase
         {
             PlayerControl arTarget = value.Player;
 
-            if (!player.IsAlive() || Pelican.IsEaten(playerId))
+            if (!player.IsAliveWithConditions())
             {
                 ArsonistTimer.Remove(playerId);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);

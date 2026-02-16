@@ -127,7 +127,7 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
     {
         Logger.Info(" IsActive", "MushroomMixupSabotageSystem.UpdateSystem.Postfix");
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
             {
@@ -184,7 +184,7 @@ public static class MushroomMixupSabotageSystemPatch
                 ReportDeadBodyPatch.CanReport.SetAllValues(true);
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
@@ -256,7 +256,7 @@ public static class ElectricTaskInitializePatch
 
         if (GameStates.IsInTask)
         {
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true, SendOption: SendOption.None);
@@ -280,7 +280,7 @@ public static class ElectricTaskCompletePatch
 
         if (GameStates.IsInTask)
         {
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 CustomRoles role = pc.GetCustomRole();
 
@@ -477,8 +477,6 @@ public static class SabotageSystemTypeRepairDamagePatch
             player.Notify(BlockedAction.Sabotage.GetBlockNotify());
             return false;
         }
-        
-        if (Pelican.IsEaten(player.PlayerId)) return false;
 
         if (!Rhapsode.CheckAbilityUse(player) || Stasis.IsTimeFrozen || TimeMaster.Rewinding) return false;
 
@@ -509,7 +507,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             if (Main.CurrentMap == MapNames.Skeld)
                 LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Sensor) && pc.GetAbilityUseLimit() >= 1f)
                 {

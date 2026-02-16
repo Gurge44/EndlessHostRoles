@@ -75,7 +75,7 @@ public class FortuneTeller : RoleBase
 
         LateTask.New(() =>
         {
-            var players = Main.AllPlayerControls;
+            var players = Main.CachedAllPlayerControls();
             int rolesNeeded = players.Count * (RolesPerCategory - 1);
 
             (List<CustomRoles> RoleList, PlayerControl Player)[] roleList = Main.CustomRoleValues

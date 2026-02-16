@@ -458,7 +458,7 @@ internal static class CustomHnS
     {
         reason = GameOverReason.ImpostorsByKill;
 
-        var alivePlayers = Main.AllAlivePlayerControls;
+        var alivePlayers = Main.CachedAlivePlayerControls();
 
         // If there are 0 players alive, the game is over and only foxes win
         if (alivePlayers.Count == 0)
@@ -544,7 +544,7 @@ internal static class CustomHnS
             {
                 var validIds = new HashSet<byte>();
                 
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                     validIds.Add(pc.PlayerId);
 
                 var toRemove = new List<byte>();
@@ -567,7 +567,7 @@ internal static class CustomHnS
             {
                 Positions = new Dictionary<byte, Vector2>(PlayerRoles.Count);
 
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                     Positions[pc.PlayerId] = pc.Pos();
 
                 ImpostorPositions = [];

@@ -82,7 +82,7 @@ public class Devourer : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
+        if (!shapeshifting || !pc.IsAliveWithConditions()) return false;
 
         if (!PlayerSkinsCosumed.Contains(target.PlayerId))
         {

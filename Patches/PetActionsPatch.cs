@@ -63,7 +63,7 @@ internal static class ExternalRpcPetPatch
         PlayerControl pc = __instance.myPlayer;
         PlayerPhysics physics = __instance;
 
-        if (pc == null || !pc.IsAlive()) return;
+        if (!pc.IsAlive()) return;
 
         AFKDetector.SetNotAFK(pc.PlayerId);
 

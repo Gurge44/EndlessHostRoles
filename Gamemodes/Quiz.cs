@@ -171,7 +171,7 @@ public static class Quiz
 
         if (FFAEndTS == 0)
         {
-            int numPlayers = Main.AllAlivePlayerControls.Count;
+            int numPlayers = Main.CachedAlivePlayerControls().Count;
             
             if (QuestionTimeLimitEndTS != 0)
             {
@@ -257,7 +257,7 @@ public static class Quiz
         AllowKills = false;
         NoSuffix = true;
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             NumCorrectAnswers[pc.PlayerId] = new Dictionary<Difficulty, int[]>
             {
@@ -273,7 +273,7 @@ public static class Quiz
         if (Chat) yield return new WaitForSecondsRealtime(1f);
 
         NoSuffix = true;
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         bool showTutorial = !SubmergedCompatibility.IsSubmerged() && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count / 2;
 
         var usedRooms = string.Join('\n', UsedRooms[Main.CurrentMap].Select(x => $"{x.Key}: {GetString(x.Value.ToString())}"));
@@ -360,7 +360,7 @@ public static class Quiz
         time -= NumAllCorrectAnswers;
         QuestionTimeLimitEndTS = Utils.TimeStamp + time;
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         if (aapc.Count is 3 or 2 && CurrentDifficulty > Difficulty.Test)
             aapc.Do(x => x.RpcMakeInvisible());
@@ -447,7 +447,7 @@ public static class Quiz
     {
         QuestionsAsked++;
         QuestionTimeLimitEndTS = 0;
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
         DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null && x.Room.RoomId != SystemTypes.Hallway : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
         if (DyingPlayers.Count == 0) NumAllCorrectAnswers++;

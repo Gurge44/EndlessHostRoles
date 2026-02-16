@@ -113,7 +113,7 @@ public class Gaslighter : RoleBase
 
             List<byte> curseDeathList = [];
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 foreach (Gaslighter instance in Instances)
                 {

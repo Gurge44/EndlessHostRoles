@@ -212,7 +212,7 @@ public static class RoomRush
 
         yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
         PointsToWinValue = PointsToWin.GetInt() * aapc.Count;
@@ -471,7 +471,7 @@ public static class RoomRush
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                PointsToWinValue = PointsToWin.GetInt() * Main.AllAlivePlayerControls.Count;
+                PointsToWinValue = PointsToWin.GetInt() * Main.CachedAlivePlayerControls().Count;
                 int ventLimit = VentTimes.GetInt();
                 VentLimit = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => ventLimit);
                 if (WinByPointsInsteadOfDeaths.GetBool()) Points = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => 0);
@@ -505,7 +505,7 @@ public static class RoomRush
             if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || GameStates.IsEnded || !Main.IntroDestroyed) return;
 
             long now = Utils.TimeStamp;
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
 
             if (WinByPointsInsteadOfDeaths.GetBool())
             {
@@ -573,7 +573,7 @@ public static class RoomRush
             if (TimeLimitEndTS > now) return;
 
             Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
-            var lateAapc = Main.AllAlivePlayerControls;
+            var lateAapc = Main.CachedAlivePlayerControls();
             PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
             bool everyoneDies = playersOutsideRoom.Length == lateAapc.Count;
 

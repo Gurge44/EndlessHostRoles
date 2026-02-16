@@ -83,7 +83,7 @@ public class RiftMaker : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
-        if (Pelican.IsEaten(player.PlayerId) || !player.IsAlive()) return;
+        if (!player.IsAliveWithConditions()) return;
         if (Marks.Count != 2) return;
 
         if (FastVector2.DistanceWithinRange(Marks[0], Marks[1], 4f))

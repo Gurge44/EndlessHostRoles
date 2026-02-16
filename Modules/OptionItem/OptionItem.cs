@@ -325,7 +325,7 @@ public abstract class OptionItem
     public static void SyncAllOptions(int targetId = -1)
     {
         if (
-                Main.AllPlayerControls.Count <= 1
+                Main.CachedAllPlayerControls().Count <= 1
                 || !AmongUsClient.Instance.AmHost
                 || PlayerControl.LocalPlayer == null
             )

@@ -82,6 +82,8 @@ public static class Utils
     private static readonly StringBuilder TargetSuffix = new();
     private static readonly StringBuilder TargetMark = new(20);
 
+    private static readonly StringBuilder ContAliveLog = new(100);
+
     private static readonly Dictionary<string, Sprite> CachedSprites = [];
 
     private static long LastNotifyRolesErrorTS = TimeStamp;
@@ -312,7 +314,7 @@ public static class Utils
 
         CustomRoles targetRole = target.GetCustomRole();
 
-        foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+        foreach (PlayerControl seer in Main.CachedAllPlayerControls())
         {
             if (KillFlashCheck(killer, target, seer))
             {
@@ -441,7 +443,7 @@ public static class Utils
 
     public static string GetRoleMode(CustomRoles role, bool parentheses = true)
     {
-        if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Count > 1) return string.Empty;
+        if (Options.HideGameSettings.GetBool() && Main.CachedAllPlayerControls().Count > 1) return string.Empty;
 
         string mode;
 
@@ -1706,7 +1708,7 @@ public static class Utils
 
         if (taskState.IsTaskFinished && (!Main.PlayerStates[terrorist.PlayerId].IsSuicide || Terrorist.CanTerroristSuicideWin.GetBool()))
         {
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (pc.Is(CustomRoles.Terrorist))
                     Main.PlayerStates[pc.PlayerId].deathReason = Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote ? PlayerState.DeathReason.etc : PlayerState.DeathReason.Suicide;
@@ -1722,7 +1724,7 @@ public static class Utils
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || !deadPlayer || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || CustomRoles.Renegade.RoleExist(true) || Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool())))) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || !deadPlayer || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() || Main.CachedAlivePlayerControls().Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || CustomRoles.Renegade.RoleExist(true) || Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool())))) return;
 
             PlayerControl[] listToChooseFrom = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
@@ -2444,7 +2446,7 @@ public static class Utils
     {
         Dictionary<string, int> playerRooms = [];
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             Vector3 position = pc.Pos();
             Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
@@ -2555,7 +2557,7 @@ public static class Utils
 
             int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
 
-            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
             {
                 try
                 {
@@ -2619,7 +2621,7 @@ public static class Utils
 
         const int frameBudget = 4; // milliseconds per frame
         var stopwatch = new Stopwatch();
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         foreach (PlayerControl seer in aapc)
         {
@@ -2649,15 +2651,17 @@ public static class Utils
             if (!AmongUsClient.Instance.AmHost) return;
             if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
-            var apc = Main.AllPlayerControls;
-            var seerList = SpecifySeer ? [SpecifySeer] : apc;
-            var targetList = SpecifyTarget ? [SpecifyTarget] : apc;
+            var apc = Main.CachedAllPlayerControls();
+            List<PlayerControl> seerList = SpecifySeer ? [SpecifySeer] : apc;
+            List<PlayerControl> targetList = SpecifyTarget ? [SpecifyTarget] : apc;
 
             var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
             var hasValue = false;
 
-            foreach (PlayerControl seer in seerList)
+            int seerCount = seerList.Count;
+            for (byte seerId = 0; seerId < seerCount; seerId++)
             {
+                PlayerControl seer = seerList[seerId];
                 hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, seerList, targetList, out bool senderWasCleared, SendOption);
                 if (senderWasCleared) hasValue = false;
 
@@ -2684,7 +2688,7 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
-    public static bool WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, IReadOnlyList<PlayerControl> seerList, IReadOnlyList<PlayerControl> targetList, out bool senderWasCleared, SendOption sendOption = SendOption.Reliable)
+    public static bool WriteSetNameRpcsToSender(ref CustomRpcSender sender, bool forMeeting, bool noCache, bool forceLoop, bool camouflageIsForMeeting, bool guesserIsForMeeting, bool mushroomMixup, PlayerControl seer, List<PlayerControl> seerList, List<PlayerControl> targetList, out bool senderWasCleared, SendOption sendOption = SendOption.Reliable)
     {
         long now = TimeStamp;
         var hasValue = false;
@@ -3011,8 +3015,10 @@ public static class Utils
             // Run the second loop only when necessary, such as when the seer is dead
             if (!seer.IsAlive() || noCache || camouflageIsForMeeting || mushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || forceLoop || seerList.Count == 1 || targetList.Count == 1)
             {
-                foreach (PlayerControl target in targetList)
+                int targetCount = targetList.Count;
+                for (byte targetId = 0; targetId < targetCount; targetId++)
                 {
+                    PlayerControl target = targetList[targetId];
                     try
                     {
                         if (target.PlayerId == seer.PlayerId) continue;
@@ -3532,7 +3538,7 @@ public static class Utils
         if (CustomRoles.Romantic.RoleExist(true)) nums[Options.GameStateInfo.RomanticState] = 1;
         if (Romantic.HasPickedPartner) nums[Options.GameStateInfo.RomanticState] = 2;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!Forger.Forges.ContainsKey(pc.PlayerId))
             {
@@ -3747,7 +3753,7 @@ public static class Utils
         }
         catch (Exception e) { ThrowException(e); }
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             try
             {
@@ -4040,27 +4046,28 @@ public static class Utils
             target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), targetRealKiller.PlayerId.ColoredPlayerName(), (targetRealKiller.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + targetRealKiller.GetCustomRole().ToColoredString())}</color>", 10f);
     }
 
+    private static readonly CountTypes[] CountTypesArray = Enum.GetValues<CountTypes>();
     public static void CountAlivePlayers(bool sendLog = false)
     {
         try
         {
             if (sendLog)
             {
-                StringBuilder sb = new(100);
-
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    foreach (CountTypes countTypes in Enum.GetValues<CountTypes>())
+                    int countTypesCount = CountTypesArray.Length;
+                    for (int countTypeId = 0; countTypeId < countTypesCount; countTypeId++)
                     {
+                        CountTypes countTypes = CountTypesArray[countTypeId];
                         int playersCount = PlayersCount(countTypes);
                         if (playersCount == 0) continue;
 
-                        sb.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
+                        ContAliveLog.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
                     }
                 }
 
-                sb.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
-                Logger.Info(sb.ToString(), "CountAlivePlayers");
+                ContAliveLog.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
+                Logger.Info(ContAliveLog.ToString(), "CountAlivePlayers");
             }
 
             if (AmongUsClient.Instance.AmHost && Main.IntroDestroyed)
@@ -4123,7 +4130,7 @@ public static class Utils
     {
         int doused = 0, all = 0;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.PlayerId == playerId) continue;
 
@@ -4139,7 +4146,7 @@ public static class Utils
     public static (int Drawn, int All) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
     {
         int all = Revolutionist.RevolutionistDrawCount.GetInt();
-        int max = Main.AllAlivePlayerControls.Count;
+        int max = Main.CachedAlivePlayerControls().Count;
 
         if (!Main.PlayerStates[playerId].IsDead) max--;
         if (all > max) all = max;
@@ -4285,7 +4292,7 @@ public static class Utils
 
         if (!impShow && !nkShow && !covenShow && !anonymousCount) return string.Empty;
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             bool exclude = excludeId != byte.MaxValue && pc.PlayerId == excludeId;
 
@@ -4391,7 +4398,7 @@ public static class Utils
     public static string RemoveHtmlTags(this string str)
     {
         if (string.IsNullOrEmpty(str)) return string.Empty;
-        return Regex.Replace(str, "<[^>]*?>", string.Empty);
+        return /*Il2CppSystem.Text.RegularExpressions.*/Regex.Replace(str, "<[^>]*?>", string.Empty);
     }
 
     public static void FlashColor(Color color, float duration = 1f)
@@ -4474,7 +4481,7 @@ public static class Utils
     {
         if (!GameStates.IsInGame) return;
         
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         
         if (Options.CurrentGameMode is CustomGameMode.Mingle or CustomGameMode.Quiz or CustomGameMode.NaturalDisasters) 
         {
@@ -4625,7 +4632,7 @@ public static class Utils
         var count = 0;
         // ReSharper disable once LoopCanBeConvertedToQuery
         // We want less memory allocation here
-        foreach (var pc in Main.EnumerateAlivePlayerControls())
+        foreach (var pc in Main.CachedAlivePlayerControls())
         {
             if (pc.Is(countTypes))
                 count++;

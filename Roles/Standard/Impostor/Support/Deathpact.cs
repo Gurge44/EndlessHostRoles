@@ -101,9 +101,9 @@ public class Deathpact : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
+        if (!shapeshifting || !pc.IsAliveWithConditions()) return false;
 
-        if (!target.IsAlive() || Pelican.IsEaten(target.PlayerId))
+        if (!target.IsAliveWithConditions())
         {
             pc.Notify(GetString("DeathpactCouldNotAddTarget"));
             return false;

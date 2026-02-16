@@ -471,7 +471,7 @@ public class TaskState
                 Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);

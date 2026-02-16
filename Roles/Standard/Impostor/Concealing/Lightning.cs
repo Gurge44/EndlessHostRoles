@@ -125,7 +125,7 @@ public class Lightning : RoleBase
     {
         LateTask.New(() =>
         {
-            if (GameStates.IsInGame && GameStates.IsInTask && !GameStates.IsMeeting && target.IsAlive() && !Pelican.IsEaten(target.PlayerId))
+            if (GameStates.IsInGame && GameStates.IsInTask && !GameStates.IsMeeting && target.IsAliveWithConditions())
             {
                 GhostPlayer.Add(target.PlayerId);
                 SendRPC(target.PlayerId);
@@ -159,13 +159,13 @@ public class Lightning : RoleBase
         {
             PlayerControl gs = Utils.GetPlayerById(ghost);
 
-            if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
+            if (!gs.IsAlive() || gs.Data.Disconnected)
             {
                 //deList.Add(gs.PlayerId); // This will always result in a null reference exception
                 continue;
             }
 
-            if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.Lightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
+            if (pc.PlayerId != gs.PlayerId && pc.IsAliveWithConditions() && !pc.Is(CustomRoles.Lightning) && !IsGhost(pc))
             {
                 Vector3 pos = gs.Pos();
                 if (!FastVector2.DistanceWithinRange(pos, pc.Pos(), 0.3f)) continue;

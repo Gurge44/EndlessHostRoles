@@ -175,7 +175,7 @@ internal static class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() != null && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
-                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControls.Count > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
+                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.CachedAlivePlayerControls().Count > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
                 {
@@ -272,7 +272,7 @@ internal static class CheckForEndVotingPatch
             if (tie)
             {
                 var target = byte.MaxValue;
-                int playerNum = Main.AllPlayerControls.Count;
+                int playerNum = Main.CachedAllPlayerControls().Count;
 
                 foreach (KeyValuePair<byte, int> data in votingData.Where(x => x.Key < playerNum && x.Value == max))
                 {
@@ -391,7 +391,7 @@ internal static class CheckForEndVotingPatch
             goto EndOfSession;
         }
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc == exiledPlayer.Object) continue;
 
@@ -502,7 +502,7 @@ internal static class CheckForEndVotingPatch
 
                 name += (impnum, neutralnum, covennum) switch
                 {
-                    (0, 0, 0) when sum == 0 && !Main.EnumerateAlivePlayerControls().Any(x => x.IsConverted()) && !(Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() && (Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool() || neutralnum == 0) && Main.AllAlivePlayerControls.Count >= Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt()) => "\n" + GetString("GG"),
+                    (0, 0, 0) when sum == 0 && !Main.EnumerateAlivePlayerControls().Any(x => x.IsConverted()) && !(Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() && (Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool() || neutralnum == 0) && Main.CachedAlivePlayerControls().Count >= Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt()) => "\n" + GetString("GG"),
                     (0, 0, 0) when sum > 0 => string.Empty,
                     _ => "\n" + Utils.GetRemainingKillers(true, excludeId: exileId)
                 };
@@ -640,7 +640,7 @@ internal static class ExtendedMeetingHud
                 }
 
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
-                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControls.Count > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
+                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.CachedAlivePlayerControls().Count > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) voteNum += Magistrate.ExtraVotes.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
@@ -690,7 +690,7 @@ internal static class MeetingHudStartPatch
         {
             List<Message> roleDescMsgs = [];
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.IsModdedClient()) continue;
 
@@ -779,7 +779,7 @@ internal static class MeetingHudStartPatch
 
         var mimicMsg = string.Empty;
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             if (pc.Is(CustomRoles.Nemesis) && !pc.IsAlive()) AddMsg(GetString("NemesisDeadMsg"), pc.PlayerId);
 
@@ -827,7 +827,7 @@ internal static class MeetingHudStartPatch
         {
             mimicMsg = GetString("MimicDeadMsg") + "\n" + mimicMsg;
 
-            foreach (PlayerControl ipc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl ipc in Main.CachedAllPlayerControls())
             {
                 if (ipc.GetCustomRole().IsImpostorTeam())
                     AddMsg(mimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
@@ -1000,11 +1000,11 @@ internal static class MeetingHudStartPatch
             {
                 var sender = CustomRpcSender.Create("RpcSetNameEx on meeting start", SendOption.Reliable);
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     string name = pc.GetRealName(true);
 
-                    foreach (PlayerControl seerPc in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl seerPc in Main.CachedAllPlayerControls())
                     {
                         try { Main.LastNotifyNames[(pc.PlayerId, seerPc.PlayerId)] = name; }
                         catch { }
@@ -1025,7 +1025,7 @@ internal static class MeetingHudStartPatch
                 {
                     if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
 
-                    var aapc = Main.AllAlivePlayerControls;
+                    var aapc = Main.CachedAlivePlayerControls();
                     bool restrictions = Options.GuesserNumRestrictions.GetBool();
                     bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
 
@@ -1259,7 +1259,7 @@ internal static class MeetingHudUpdatePatch
         {
             Logger.Fatal(ex.ToString(), "MeetingHudUpdatePatch.Postfix");
             Logger.Warn("All Players and their info:", "Debug for Fatal Error");
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls()) Logger.Info($" {(pc.IsAlive() ? "Alive" : $"Dead ({Main.PlayerStates[pc.PlayerId].deathReason})")}, {Utils.GetProgressText(pc)}, {Utils.GetVitalText(pc.PlayerId)}", $"{pc.GetNameWithRole()} / {pc.PlayerId}");
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls()) Logger.Info($" {(pc.IsAlive() ? "Alive" : $"Dead ({Main.PlayerStates[pc.PlayerId].deathReason})")}, {Utils.GetProgressText(pc)}, {Utils.GetVitalText(pc.PlayerId)}", $"{pc.GetNameWithRole()} / {pc.PlayerId}");
 
             Logger.Warn("-----------------", "Debug for Fatal Error");
             Logger.SendInGame("An error occured with this meeting. Please use /dump and send the log to the developer.\nSorry for the inconvenience.", Color.red);
@@ -1316,7 +1316,7 @@ internal static class MeetingHudOnDestroyPatch
             {
                 bool restrictions = Options.GuesserNumRestrictions.GetBool();
 
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (pc.UsesMeetingShapeshift() || (meetingSSForGuessing && !pc.IsModdedClient() && GuessManager.StartMeetingPatch.CanGuess(pc, restrictions)))
                         pc.RpcSetRoleDesync(pc.GetRoleTypes(), pc.OwnerId);

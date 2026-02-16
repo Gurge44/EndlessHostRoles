@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
@@ -284,7 +285,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix(ref SecurityLogger __instance)
         {
-            __instance.Timers = new float[127];
+            __instance.Timers = new Il2CppStructArray<float>(127);
         }
     }
 

@@ -21,8 +21,8 @@ public static class Statistics
     {
         try
         {
-            var apc = Main.AllPlayerControls;
-            var aapc = Main.AllAlivePlayerControls;
+            var apc = Main.CachedAllPlayerControls();
+            var aapc = Main.CachedAlivePlayerControls();
 
             WinCountsForOutro = string.Empty;
 
@@ -227,7 +227,7 @@ public static class Statistics
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.CachedAllPlayerControls().Count <= MinPlayers) return;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -274,7 +274,7 @@ public static class Statistics
             {
                 if (GameStates.IsEnded) return;
 
-                var aapc = Main.AllAlivePlayerControls;
+                var aapc = Main.CachedAlivePlayerControls();
 
                 if (aapc.Count == 2 && lp.IsAlive() && aapc.All(x => x.IsNeutralKiller() || x.IsImpostor()))
                     Achievements.Type.Duel.Complete();
@@ -287,7 +287,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.CachedAllPlayerControls().Count <= MinPlayers) return;
 
             const float delay = 15f;
 
@@ -309,7 +309,7 @@ public static class Statistics
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.CachedAllPlayerControls().Count <= MinPlayers) return;
 
             if (killer.AmOwner)
             {
@@ -367,7 +367,7 @@ public static class Statistics
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.CachedAllPlayerControls().Count <= MinPlayers) return;
 
             if (shapeshifter.AmOwner && shapeshifting && animated)
             {

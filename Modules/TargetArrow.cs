@@ -112,6 +112,7 @@ internal static class TargetArrow
         return TargetArrows.Keys.Where(ai => ai.From == seer).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
     }
 
+    private static readonly List<ArrowInfo> ArrowList = [];
     /// <summary>
     ///     Check target arrow every FixedUpdate
     ///     Issue NotifyRoles when there are updates
@@ -123,13 +124,19 @@ internal static class TargetArrow
 
         bool seerIsDead = !seer.IsAlive();
 
-        List<ArrowInfo> arrowList = new(TargetArrows.Keys.Where(a => a.From == seer.PlayerId));
-        if (arrowList.Count == 0) return;
+        ArrowList.Clear();
+        foreach (var arrowInfo in TargetArrows.Keys)
+        {
+            if (arrowInfo.From == seer.PlayerId)
+                ArrowList.Add(arrowInfo);
+        }
+        int arrowCount = ArrowList.Count;
+        if (arrowCount == 0) return;
 
         var update = false;
-
-        foreach (ArrowInfo arrowInfo in arrowList.ToArray())
+        for (int arrowId = 0; arrowId < arrowCount; arrowId++)
         {
+            ArrowInfo arrowInfo = ArrowList[arrowId];
             byte targetId = arrowInfo.To;
             PlayerControl target = Utils.GetPlayerById(targetId);
 

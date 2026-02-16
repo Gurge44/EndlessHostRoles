@@ -182,7 +182,7 @@ public class President : RoleBase
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 break;
             case Decree.GovernmentSupport:
-                foreach (PlayerControl player in Main.EnumeratePlayerControls())
+                foreach (PlayerControl player in Main.CachedAllPlayerControls())
                 {
                     if (!player.IsCrewmate()) continue;
 

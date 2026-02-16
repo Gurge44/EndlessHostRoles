@@ -119,7 +119,7 @@ public class Postman : RoleBase
 
         var tempTarget = byte.MaxValue;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (WereTargets.Contains(pc.PlayerId) || pc.Is(CustomRoles.Postman)) continue;
 

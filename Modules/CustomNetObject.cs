@@ -314,7 +314,7 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.AmOwner) continue;
 
@@ -374,8 +374,12 @@ namespace EHR
 
         public static void FixedUpdate()
         {
-            foreach (CustomNetObject cno in AllObjects.ToArray())
+            int objectsCount = AllObjects.Count;
+            for (byte objectId = 0; objectId < objectsCount; objectId++)
+            {
+                CustomNetObject cno = AllObjects[objectId];
                 cno?.OnFixedUpdate();
+            }
         }
 
         public static CustomNetObject Get(int id)

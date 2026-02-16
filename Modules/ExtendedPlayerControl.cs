@@ -85,7 +85,7 @@ internal static class ExtendedPlayerControl
         {
             case CustomGameMode.RoomRush:
                 return true;
-            case CustomGameMode.Standard when Options.DisableVentingOn1v1.GetBool() && Main.AllAlivePlayerControls.Count == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
+            case CustomGameMode.Standard when Options.DisableVentingOn1v1.GetBool() && Main.CachedAlivePlayerControls().Count == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
             case CustomGameMode.StopAndGo:
                 return StopAndGo.IsEventActive && StopAndGo.Event.Type == StopAndGo.Events.VentAccess;
@@ -182,7 +182,7 @@ internal static class ExtendedPlayerControl
     {
         if (!AmongUsClient.Instance.AmHost) return;
         
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc == player || pc.AmOwner) continue;
             CustomRpcSender sender = CustomRpcSender.Create($"SnapTo Freeze ({player.GetNameWithRole()})", SendOption.Reliable);
@@ -569,7 +569,7 @@ internal static class ExtendedPlayerControl
             // Desync role to normal role
             case (true, false):
             {
-                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
                 {
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
@@ -619,7 +619,7 @@ internal static class ExtendedPlayerControl
             // Normal role to desync role
             case (false, true):
             {
-                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
                 {
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
@@ -668,7 +668,7 @@ internal static class ExtendedPlayerControl
             {
                 bool playerIsDesync = player.HasDesyncRole();
 
-                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
                 {
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
@@ -688,11 +688,11 @@ internal static class ExtendedPlayerControl
 
         if (loggerRoleMap)
         {
-            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
             {
                 NetworkedPlayerInfo seerData = seer.Data;
 
-                foreach (PlayerControl target in Main.EnumeratePlayerControls())
+                foreach (PlayerControl target in Main.CachedAllPlayerControls())
                 {
                     NetworkedPlayerInfo targetData = target.Data;
                     (RoleTypes roleType, CustomRoles customRole) = seer.GetRoleMap(targetData.PlayerId);
@@ -1440,7 +1440,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseKillButton(this PlayerControl pc)
     {
-        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || IntroCutsceneDestroyPatch.PreventKill || !pc.IsAlive()) return false;
+        if (AntiBlackout.SkipTasks || TimeMaster.Rewinding || !Main.IntroDestroyed || IntroCutsceneDestroyPatch.PreventKill || !pc.IsAliveWithConditions()) return false;
 
         switch (Options.CurrentGameMode)
         {
@@ -1461,7 +1461,6 @@ internal static class ExtendedPlayerControl
 
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
         if (Penguin.IsVictim(pc)) return false;
-        if (Pelican.IsEaten(pc.PlayerId)) return false;
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         if (pc.Is(CustomRoles.Bloodlust)) return true;
 
@@ -1837,7 +1836,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,
             CustomRoles.SnowdownPlayer => 1f,
-            _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Count <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
+            _ when player.Is(CustomRoles.Underdog) => Main.CachedAlivePlayerControls().Count <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
 
@@ -2416,6 +2415,13 @@ internal static class ExtendedPlayerControl
         if (!target || target.Is(CustomRoles.GM)) return false;
 
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState ps) || !ps.IsDead;
+    }
+    public static bool IsAliveWithConditions(this PlayerControl target)
+    {
+        return target.IsAlive()
+            && target.Data
+            && (!target.Data.Disconnected || !Main.IntroDestroyed)
+            && !Pelican.IsEaten(target.PlayerId);
     }
 
     public static bool IsProtected(this PlayerControl self)

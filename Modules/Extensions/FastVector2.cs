@@ -22,8 +22,11 @@ public static class FastVector2
         predicate ??= _ => true;
         float rangeSq = range * range;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        var players = Main.CachedAlivePlayerControls();
+        int playerCount = players.Count;
+        for (byte playerId = 0; playerId < playerCount; playerId++)
         {
+            PlayerControl pc = players[playerId];
             if (pc.inVent || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();
@@ -118,8 +121,11 @@ public static class FastVector2
         bool found = false;
         closest = null;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        var players = Main.CachedAlivePlayerControls();
+        int playerCount = players.Count;
+        for (byte playerId = 0; playerId < playerCount; playerId++)
         {
+            PlayerControl pc = players[playerId];
             if (pc.inVent || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();
@@ -154,8 +160,11 @@ public static class FastVector2
         bool found = false;
         closest = null;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        var players = Main.CachedAlivePlayerControls();
+        int playerCount = players.Count;
+        for (byte playerId = 0; playerId < playerCount; playerId++)
         {
+            PlayerControl pc = players[playerId];
             if (pc.inVent || pc.PlayerId == source.PlayerId || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();
@@ -192,8 +201,11 @@ public static class FastVector2
         bool found = false;
         closest = null;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        var players = Main.CachedAlivePlayerControls();
+        int playerCount = players.Count;
+        for (byte playerId = 0; playerId < playerCount; playerId++)
         {
+            PlayerControl pc = players[playerId];
             if (pc.inVent || pc.PlayerId == source.PlayerId || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();
@@ -231,8 +243,11 @@ public static class FastVector2
         bool found = false;
         closest = null;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        var players = Main.CachedAlivePlayerControls();
+        int playerCount = players.Count;
+        for (byte playerId = 0; playerId < playerCount; playerId++)
         {
+            PlayerControl pc = players[playerId];
             if (pc.inVent || !predicate(pc)) continue;
             
             Vector2 p = pc.Pos();

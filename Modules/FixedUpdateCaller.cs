@@ -11,7 +11,7 @@ namespace EHR.Modules;
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
 public static class FixedUpdateCaller
 {
-    private static int NonLowLoadPlayerIndex;
+    private static int NonLowLoadPlayerId;
 
     private static long LastFileLoadTS;
     private static long LastAutoMessageSendTS;
@@ -103,29 +103,30 @@ public static class FixedUpdateCaller
 
             if (lobby || (Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))
             {
-                NonLowLoadPlayerIndex++;
+                NonLowLoadPlayerId++;
 
-                int count = PlayerControl.AllPlayerControls.Count;
+                var players = Main.CachedAllPlayerControls();
+                int playerCount = players.Count;
 
-                if (NonLowLoadPlayerIndex >= count)
-                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - count));
+                if (NonLowLoadPlayerId >= playerCount)
+                    NonLowLoadPlayerId = Math.Min(0, -(30 - playerCount));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
                 bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
-                for (var index = 0; index < count; index++)
+                for (byte playerId = 0; playerId < playerCount; playerId++)
                 {
                     try
                     {
-                        PlayerControl pc = PlayerControl.AllPlayerControls[index];
+                        PlayerControl pc = players[playerId];
 
                         if (!pc || pc.PlayerId >= 254) continue;
 
-                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != index);
+                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerId != playerId);
 
                         if (lobby) continue;
 
-                        if (vanilla && NonLowLoadPlayerIndex == index)
+                        if (vanilla && NonLowLoadPlayerId == playerId)
                             Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
 
                         switch (currentGameMode)

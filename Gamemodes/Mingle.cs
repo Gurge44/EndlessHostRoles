@@ -110,7 +110,7 @@ public static class Mingle
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !GameGoing || TimeEndTS > Utils.TimeStamp) return false;
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         switch (aapc.Count)
         {
@@ -275,7 +275,7 @@ public static class Mingle
         if (GameStates.IsEnded) return;
 
         RequiredPlayerCount = [];
-        int playerCount = Main.AllAlivePlayerControls.Count;
+        int playerCount = Main.CachedAlivePlayerControls().Count;
         bool last2 = playerCount <= 2;
 
         while (playerCount > 0)
@@ -294,7 +294,7 @@ public static class Mingle
 
     private static void KillPlayers()
     {
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         Dictionary<PlayerControl, SystemTypes> playerRooms = aapc.Select(x => (pc: x, room: x.GetPlainShipRoom())).ToDictionary(x => x.pc, x => x.room == null ? SystemTypes.Outside : x.room.RoomId);
         Dictionary<SystemTypes, int> playerCount = [];
         HashSet<PlayerControl> toKill = [];

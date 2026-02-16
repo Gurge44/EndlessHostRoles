@@ -213,17 +213,17 @@ internal class Warlock : RoleBase
                 Vector2 cppos = cp.Pos();
                 Dictionary<PlayerControl, float> cpdistance = [];
 
-                foreach (PlayerControl p in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl p in Main.CachedAlivePlayerControls())
                 {
                     if (p.PlayerId == cp.PlayerId) continue;
-
+                    
                     if (!WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
 
                     if (!WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
 
                     if (p.Is(CustomRoles.Pestilence)) continue;
 
-                    if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
+                    if (Medic.ProtectList.Contains(p.PlayerId)) continue;
 
                     float dis = Vector2.Distance(cppos, p.Pos());
                     cpdistance[p] = dis;

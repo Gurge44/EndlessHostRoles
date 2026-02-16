@@ -265,7 +265,7 @@ public class Witch : RoleBase
 
             var spelledIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 foreach (byte witchId in PlayerIdList)
                 {

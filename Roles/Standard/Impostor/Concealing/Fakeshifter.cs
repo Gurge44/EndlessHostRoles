@@ -48,7 +48,7 @@ public class Fakeshifter : RoleBase
         {
             MarkedId = target.PlayerId;
             PlayerControl randomPlayer = Main.EnumerateAlivePlayerControls().Without(target).RandomElement();
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.PlayerId == target.PlayerId) continue;
                 target.RpcShapeshiftDesync(randomPlayer, pc, false);
