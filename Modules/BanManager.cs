@@ -192,50 +192,61 @@ public static class BanManager
             Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
         }
 
-        if (GameStates.CurrentServerType is GameStates.ServerType.Modded or GameStates.ServerType.Niko or GameStates.ServerType.Local) return;
+        if (GameStates.CurrentServerType is GameStates.ServerType.Local) return;
+
+        if (GameStates.CurrentServerType is not GameStates.ServerType.Vanilla)
+        {
+            if (player.ProductUserId.IsNullOrWhiteSpace() || player.ProductUserId.Length != 32)
+            {
+                return;
+            }
+        }
 
         string friendcode = player.FriendCode.Replace(':', '#');
 
-        if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
+        if (friendcode != string.Empty)
         {
-            AmongUsClient.Instance.KickPlayer(player.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
-            Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
-            return;
-        }
+            if (friendcode.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
+            {
+                AmongUsClient.Instance.KickPlayer(player.Id, false);
+                Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
+                Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
+                return;
+            }
 
-        if (friendcode.Count(c => c == '#') != 1)
-        {
-            AmongUsClient.Instance.KickPlayer(player.Id, false);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
-            Logger.Info($"{player.PlayerName} EAC Banned because friendcode contains more than 1 #", "EAC");
-            return;
-        }
+            if (friendcode.Count(c => c == '#') != 1)
+            {
+                AmongUsClient.Instance.KickPlayer(player.Id, false);
+                Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
+                Logger.Info($"{player.PlayerName} EAC Banned because friendcode contains more than 1 #", "EAC");
+                return;
+            }
 
-        // Contains any non-word character or digits
-        const string pattern = @"[\W\d]";
+            // Contains any non-word character or digits
+            const string pattern = @"[\W\d]";
 
-        if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
-        {
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
-            Logger.Info($"{player.PlayerName} was banned because of a spoofed friend code", "EAC");
-            return;
-        }
+            if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
+            {
+                AmongUsClient.Instance.KickPlayer(player.Id, true);
+                Logger.SendInGame(string.Format(GetString("Message.InvalidFriendCode"), player.PlayerName), Color.yellow);
+                Logger.Info($"{player.PlayerName} was banned because of a spoofed friend code", "EAC");
+                return;
+            }
 
-        if (CheckBanList(friendcode, player.GetHashedPuid()))
-        {
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName), Color.yellow);
-            Logger.Info($"{player.PlayerName} is banned because he has been banned in the past.", "BAN");
-            return;
-        }
+            if (CheckBanList(friendcode, player.GetHashedPuid()))
+            {
+                AmongUsClient.Instance.KickPlayer(player.Id, true);
+                Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName), Color.yellow);
+                Logger.Info($"{player.PlayerName} is banned because he has been banned in the past.", "BAN");
+                return;
+            }
 
-        if (CheckEACList(friendcode, player.GetHashedPuid()))
-        {
-            AmongUsClient.Instance.KickPlayer(player.Id, true);
-            Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName), Color.yellow);
-            Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
+            if (CheckEACList(friendcode, player.GetHashedPuid()))
+            {
+                AmongUsClient.Instance.KickPlayer(player.Id, true);
+                Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName), Color.yellow);
+                Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
+            }
         }
     }
 
