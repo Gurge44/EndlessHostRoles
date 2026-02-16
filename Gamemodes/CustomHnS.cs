@@ -292,7 +292,7 @@ internal static class CustomHnS
 
         if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) role)) return false;
 
-        return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;
+        return (role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator) && role.Role != CustomRoles.GM;
     }
 
     public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
@@ -317,7 +317,7 @@ internal static class CustomHnS
             bool isSeeker = PlayerRoles[state.Key].Interface.Team == Team.Impostor;
             bool alive = !state.Value.IsDead;
 
-            TaskState ts = state.Value.TaskState;
+            TaskState taskState = state.Value.TaskState;
             var stateText = string.Empty;
 
             if (PlayersSeeRoles.GetBool())
@@ -331,7 +331,7 @@ internal static class CustomHnS
 
             CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
 
-            string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
+            string GetTaskCount() => state.Value.MainRole == CustomRoles.GM || CustomRoles.Agent.IsEnable() || !taskState.HasTasks ? string.Empty : $" ({taskState.CompletedTasksCount}/{taskState.AllTasksCount})";
         }
     }
 
@@ -425,8 +425,7 @@ internal static class CustomHnS
             byte id = reader.ReadByte();
             CustomRoles role = (CustomRoles)reader.ReadInt32();
 
-            var roleInterface = (IHideAndSeekRole)Activator.CreateInstance(Main.AllTypes.First(t => t.Name == role.ToString()));
-
+            var roleInterface = role == CustomRoles.GM ? new Hider() : (IHideAndSeekRole)Activator.CreateInstance(Main.AllTypes.First(t => t.Name == role.ToString()));
             PlayerRoles[id] = (roleInterface, role);
         }
 
