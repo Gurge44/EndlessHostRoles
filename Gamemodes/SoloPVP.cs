@@ -35,7 +35,7 @@ internal static class SoloPVP
 
     public static void SetupCustomOption()
     {
-        SoloPVP_GameTime = new IntegerOptionItem(66_233_001, "SoloPVP_GameTime", new(30, 300, 5), 180, TabGroup.GameSettings)
+        SoloPVP_GameTime = new IntegerOptionItem(66_233_001, "SoloPVP_GameTime", new(30, 600, 5), 180, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -56,7 +56,7 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
 
-        SoloPVP_RecoverPerSecond = new FloatOptionItem(66_233_005, "SoloPVP_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
+        SoloPVP_RecoverPerSecond = new FloatOptionItem(66_233_005, "SoloPVP_RecoverPerSecond", new(0f, 180f, 1f), 2f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
@@ -71,7 +71,7 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        SoloPVP_KillBonusMultiplier = new FloatOptionItem(66_233_007, "SoloPVP_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
+        SoloPVP_KillBonusMultiplier = new FloatOptionItem(66_233_007, "SoloPVP_KillBonusMultiplier", new(0f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
