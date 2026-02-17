@@ -270,11 +270,6 @@ internal static class ExtendedPlayerControl
         catch { return null; }
     }
 
-    public static int GetClientId(this PlayerControl player)
-    {
-        return !player ? -1 : player.OwnerId;
-    }
-
     public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
     {
         return (!player || !player.Object) ? CustomRoles.Crewmate : player.Object.GetCustomRole();

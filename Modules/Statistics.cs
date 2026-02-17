@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Gamemodes;
 using EHR.Roles;
+using InnerNet;
 
 namespace EHR.Modules;
 
@@ -31,12 +32,11 @@ public static class Statistics
             PlayerControl lp = PlayerControl.LocalPlayer;
             CustomRoles role = lp.GetCustomRole();
             List<CustomRoles> addons = lp.GetCustomSubRoles();
-
             bool won = CustomWinnerHolder.WinnerIds.Contains(lp.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(role) || (CustomWinnerHolder.WinnerTeam == CustomWinner.Bloodlust && addons.Contains(CustomRoles.Bloodlust));
-
             CustomGameMode gm = Options.CurrentGameMode;
-
-            if (GameStates.CurrentServerType is not GameStates.ServerType.Modded and not GameStates.ServerType.Niko)
+            ClientData randomClient = apc[1].GetClient();
+            
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla || (randomClient != null && !randomClient.ProductUserId.IsNullOrWhiteSpace() && randomClient.ProductUserId.Length == 32))
             {
                 try
                 {

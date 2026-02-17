@@ -1804,7 +1804,7 @@ public static class Utils
         {
             Logger.Info($"SendMessage called from {callerFilePath.Split('\\')[^1].Split('/')[^1]} at line {callerLineNumber}", "SendMessage");
 
-            PlayerControl receiver = GetPlayerById(sendTo, false);
+            PlayerControl receiver = GetPlayerById(sendTo, GameStates.InGame);
             if (sendTo != byte.MaxValue && !receiver || !force && title.RemoveHtmlTags().Trim().Length == 0 && text.RemoveHtmlTags().Trim().Length == 0) return writer;
 
             if (!AmongUsClient.Instance.AmHost)
