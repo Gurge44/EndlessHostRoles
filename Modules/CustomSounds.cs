@@ -1,8 +1,9 @@
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -92,7 +93,7 @@ public static class CustomSoundsManager
 
     private static AudioClip LoadWAV(string path)
     {
-        byte[] fileData = File.ReadAllBytes(path);
+        var fileData = Il2CppSystem.IO.File.ReadAllBytes(path);
         WAV wav = new(fileData);
 
         Logger.Info($"[WAV: LeftChannel={wav.LeftChannel}, RightChannel={wav.RightChannel}, ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
@@ -114,7 +115,7 @@ public static class CustomSoundsManager
             return s / 32768.0F;
         }
 
-        private static int BytesToInt(byte[] bytes, int offset = 0)
+        private static int BytesToInt(Il2CppStructArray<byte> bytes, int offset = 0)
         {
             int value = 0;
 
@@ -124,13 +125,13 @@ public static class CustomSoundsManager
         }
 
         // Properties
-        public float[] LeftChannel { get; }
-        public float[] RightChannel { get; }
+        public Il2CppStructArray<float> LeftChannel { get; }
+        public Il2CppStructArray<float> RightChannel { get; }
         public int ChannelCount { get; }
         public int SampleCount { get; }
         public int Frequency { get; }
 
-        public WAV(byte[] wav)
+        public WAV(Il2CppStructArray<byte> wav)
         {
             // Determine if mono or stereo
             ChannelCount = wav[22]; // Forget byte 23 as 99.999% of WAVs are 1 or 2 channels
@@ -156,8 +157,8 @@ public static class CustomSoundsManager
             if (ChannelCount == 2) SampleCount /= 2; // 4 bytes per sample (16 bit stereo)
 
             // Allocate memory (right will be null if only mono sound)
-            LeftChannel = new float[SampleCount];
-            if (ChannelCount == 2) RightChannel = new float[SampleCount];
+            LeftChannel = new Il2CppStructArray<float>(SampleCount);
+            if (ChannelCount == 2) RightChannel = new Il2CppStructArray<float>(SampleCount);
             else RightChannel = null;
 
             int end = pos + dataSize;
@@ -179,11 +180,11 @@ public static class CustomSoundsManager
         }
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
-        public float[] GetStereoData()
+        public Il2CppStructArray<float> GetStereoData()
         {
             if (RightChannel == null) return LeftChannel;
 
-            float[] stereoData = new float[SampleCount * 2];
+            var stereoData = new Il2CppStructArray<float>(SampleCount * 2);
 
             for (int i = 0; i < SampleCount; i++)
             {
