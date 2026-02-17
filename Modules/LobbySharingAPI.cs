@@ -150,11 +150,11 @@ public enum LobbyStatus
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
 internal static class ExitGamePatch
 {
-    public static void Prefix(InnerNetClient __instance)
+    public static void Prefix(InnerNetClient __instance, DisconnectReasons reason)
     {
         if (__instance is not AmongUsClient) return;
         
-        Logger.Msg("Exiting game", "ExitGamePatch.Prefix");
+        Logger.Msg($"Exiting game - reason: {reason}", "ExitGamePatch.Prefix");
 
         GameStates.InGame = false;
         Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
