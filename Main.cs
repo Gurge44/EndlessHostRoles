@@ -242,7 +242,7 @@ public class Main : BasePlugin
     }
 
     private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
-    private static long LastAllPlayerControlUpdated = -1;
+    public static long LastAllPlayerControlUpdated = -1;
     public static List<PlayerControl> CachedAllPlayerControls()
     {
         if (LastAllPlayerControlUpdated == Utils.TimeStamp)
@@ -261,13 +261,12 @@ public class Main : BasePlugin
 
             CachedAllPlayerControlsList.Add(pc);
         }
-
-        Logger.Warn($"All: {Utils.TimeStamp} - {LastAllPlayerControlUpdated}", "Debug");
+        //Logger.Warn($"All: {Utils.TimeStamp} - {LastAllPlayerControlUpdated}", "Debug");
         return CachedAllPlayerControlsList;
     }
 
     private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
-    private static long LastAlivePlayerControlUpdated = -1;
+    public static long LastAlivePlayerControlUpdated = -1;
     public static List<PlayerControl> CachedAlivePlayerControls()
     {
         if (LastAlivePlayerControlUpdated == Utils.TimeStamp)
@@ -281,12 +280,12 @@ public class Main : BasePlugin
         for (byte playerId = 0; playerId < playerCount; playerId++)
         {
             PlayerControl pc = players[playerId];
-            if (!pc || pc.PlayerId >= 254 || !pc.IsAliveWithConditions())
+            if (pc.PlayerId >= 254 || !pc.IsAliveWithConditions())
                 continue;
 
             CachedAlivePlayerControlsList.Add(pc);
         }
-        Logger.Warn($"Alive: {Utils.TimeStamp} - {LastAlivePlayerControlUpdated}", "Debug");
+        //Logger.Warn($"Alive: {Utils.TimeStamp} - {LastAlivePlayerControlUpdated}", "Debug");
         return CachedAlivePlayerControlsList;
     }
 

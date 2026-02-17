@@ -1534,6 +1534,8 @@ internal static class FixedUpdatePatch
         bool self = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
 
         bool inTask = GameStates.IsInTask;
+        bool IsInGame = GameStates.IsInGame;
+        bool isLobby = GameStates.IsLobby;
         bool alive = player.IsAlive();
 
         var playerState = Main.PlayerStates.GetValueOrDefault(playerId);
@@ -1541,14 +1543,18 @@ internal static class FixedUpdatePatch
 
         if (self)
         {
-            CustomSabotage.UpdateAll();
             Zoom.OnFixedUpdate();
             TextBoxPatch.CheckChatOpen();
 
-            if (!lowLoad)
+            if (!isLobby)
             {
-                NameNotifyManager.OnFixedUpdate();
-                LastImpostor.SetSubRole();
+                CustomSabotage.UpdateAll();
+
+                if (!lowLoad)
+                {
+                    NameNotifyManager.OnFixedUpdate();
+                    LastImpostor.SetSubRole();
+                }
             }
         }
 
@@ -1572,11 +1578,11 @@ internal static class FixedUpdatePatch
         {
             AFKDetector.OnFixedUpdate(player);
 
-            if (GameStates.IsLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
+            if (isLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
                 AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low-level people
-            if (!lowLoad && GameStates.IsLobby && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
+            if (!lowLoad && isLobby && GameSettingMenuPatch.LastPresetChange + 5 < TimeStamp && !player.AmOwner && Options.KickLowLevelPlayer.GetInt() != 0 && (
                 (player.Data.PlayerLevel != 0 && player.Data.PlayerLevel < Options.KickLowLevelPlayer.GetInt()) ||
                 player.Data.FriendCode == string.Empty
             ))
@@ -1603,7 +1609,7 @@ internal static class FixedUpdatePatch
                 }
             }
 
-            if (!GameStates.IsLobby)
+            if (!isLobby)
             {
                 if (player.Is(CustomRoles.Spurt) && !Mathf.Approximately(Main.AllPlayerSpeed[playerId], Spurt.StartingSpeed[playerId]) && !inTask && !GameStates.IsMeeting) // fix ludicrous bug
                 {
@@ -1660,24 +1666,21 @@ internal static class FixedUpdatePatch
                     }
                 }
 
-                if (inTask && alive && playerState != null)
+                if (!lowLoad && inTask && alive && playerState != null)
                 {
                     List<CustomRoles> subRoles = playerState.SubRoles;
 
-                    if (!lowLoad)
-                    {
-                        if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
-                        if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-                        if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
-                        if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
-                        if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
-                    }
+                    if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
+                    if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
+                    if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
+                    if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
+                    if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
                 }
 
                 if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))
@@ -1722,16 +1725,13 @@ internal static class FixedUpdatePatch
             if (AmongUsClient.Instance.AmHost && inTask && alive && Options.LadderDeath.GetBool())
                 FallFromLadder.FixedUpdate(player);
 
-            if (inTask && self && Options.DisableDevices.GetBool())
-                DisableDevice.FixedUpdate();
+            if (inTask && Options.DisableDevices.GetBool())
+                DisableDevice.FixedUpdate(player);
 
-            if (self && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
+            if (IsInGame && Main.RefixCooldownDelay <= 0)
             {
-                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
-                {
-                    if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Ninja) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
-                        Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
-                }
+                if (player.Is(CustomRoles.Vampire) || player.Is(CustomRoles.Warlock) || player.Is(CustomRoles.Ninja) || player.Is(CustomRoles.Undertaker) || player.Is(CustomRoles.Poisoner))
+                    Main.AllPlayerKillCooldown[player.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
             }
 
             if (!Main.DoBlockNameChange && ApplySuffix(player, out var name))
@@ -1746,7 +1746,7 @@ internal static class FixedUpdatePatch
 
         if (self) LastSelfNameUpdateTS = now;
 
-        if (GameStates.IsLobby && !player.IsHost())
+        if (isLobby && !player.IsHost())
         {
             if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
             {
@@ -1761,7 +1761,7 @@ internal static class FixedUpdatePatch
                 player.cosmetics.nameText.text = Main.ShowPlayerInfoInLobby.Value && !player.AmOwner ? $"<#888888><size=1.2>{player.GetClient().PlatformData.Platform} | {player.FriendCode} | {player.GetClient().GetHashedPuid()}</size></color>\n{player.Data?.PlayerName}" : player.Data?.PlayerName;
         }
 
-        if (GameStates.IsInGame)
+        if (IsInGame)
         {
             if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard) return;
 
