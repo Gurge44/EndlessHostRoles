@@ -216,6 +216,16 @@ public class Main : BasePlugin
     public static ConfigEntry<string> Preset8 { get; private set; }
     public static ConfigEntry<string> Preset9 { get; private set; }
     public static ConfigEntry<string> Preset10 { get; private set; }
+    public static ConfigEntry<string> Preset11 { get; private set; }
+    public static ConfigEntry<string> Preset12 { get; private set; }
+    public static ConfigEntry<string> Preset13 { get; private set; }
+    public static ConfigEntry<string> Preset14 { get; private set; }
+    public static ConfigEntry<string> Preset15 { get; private set; }
+    public static ConfigEntry<string> Preset16 { get; private set; }
+    public static ConfigEntry<string> Preset17 { get; private set; }
+    public static ConfigEntry<string> Preset18 { get; private set; }
+    public static ConfigEntry<string> Preset19 { get; private set; }
+    public static ConfigEntry<string> Preset20 { get; private set; }
 
     // Other Configs
     public static ConfigEntry<string> WebhookUrl { get; private set; }
@@ -324,6 +334,16 @@ public class Main : BasePlugin
         Preset8 = Config.Bind("Preset Name Options", "Preset8", "Preset_8");
         Preset9 = Config.Bind("Preset Name Options", "Preset9", "Preset_9");
         Preset10 = Config.Bind("Preset Name Options", "Preset10", "Preset_10");
+        Preset11 = Config.Bind("Preset Name Options", "Preset11", "Preset_11");
+        Preset12 = Config.Bind("Preset Name Options", "Preset12", "Preset_12")
+        Preset13 = Config.Bind("Preset Name Options", "Preset13", "Preset_13")
+        Preset14 = Config.Bind("Preset Name Options", "Preset14", "Preset_14")
+        Preset15 = Config.Bind("Preset Name Options", "Preset15", "Preset_15")
+        Preset16 = Config.Bind("Preset Name Options", "Preset16", "Preset_16")
+        Preset17 = Config.Bind("Preset Name Options", "Preset17", "Preset_17")
+        Preset18 = Config.Bind("Preset Name Options", "Preset18", "Preset_18")
+        Preset19 = Config.Bind("Preset Name Options", "Preset19", "Preset_19")
+        Preset20 = Config.Bind("Preset Name Options", "Preset20", "Preset_20")
         WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
@@ -1193,4 +1213,5 @@ public enum TieMode
 }
 
 public class Coroutines : MonoBehaviour { }
+
 
