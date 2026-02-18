@@ -22,13 +22,16 @@ internal static class HudManagerPatch
     private static TextMeshPro OverriddenRolesText;
     private static TextMeshPro SettingsText;
     private static TextMeshPro AutoGMRotationStatusText;
+    private static TaskPanelBehaviour RoleTab;
 
     public static long AutoGMRotationCooldownTimerEndTS;
     private static long LastNullError;
     public static Color? CooldownTimerFlashColor = null;
     public static string AchievementUnlockedText = string.Empty;
 
-    public static TaskPanelBehaviour RoleTab;
+    private static readonly Dictionary<byte, string> ResultText = [];
+    private static readonly StringBuilder Sb = new();
+    private static readonly List<string> Suffixes = [];
 
     public static void ClearLowerInfoText()
     {
@@ -40,11 +43,13 @@ internal static class HudManagerPatch
     {
         try
         {
+            Sb.Clear();
+            ResultText.Clear();
+
             LoadingScreen.Update();
 
             PlayerControl player = PlayerControl.LocalPlayer;
             if (!player) return;
-
             if (!__instance) return;
 
             if (GameStates.IsLobby)
@@ -96,25 +101,23 @@ internal static class HudManagerPatch
                 int countSetAddOns = Main.SetAddOns.Count;
                 if (countSetRoles > 0 || countSetAddOns > 0)
                 {
-                    StringBuilder sb = new();
-                    Dictionary<byte, string> resultText = [];
-                    var first = true;
+                    bool first = true;
 
                     for (byte id = 0; id < countSetRoles; id++)
                     {
                         if (!Main.SetRoles.TryGetValue(id, out var Role)) continue;
 
                         PlayerControl pc = Utils.GetPlayerById(id);
-                        sb.Clear();
-                        sb.Append(first ? string.Empty : "\n");
-                        sb.Append($"{(id == 0 ? "Host" : $"{(pc == null ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(Role, "#ffffff")}>{GetString(Role.ToString())}</color>");
-                        resultText[id] = sb.ToString();
+                        Sb.Clear();
+                        Sb.Append(first ? string.Empty : "\n");
+                        Sb.Append($"{(id == 0 ? "Host" : $"{(pc == null ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(Role, "#ffffff")}>{GetString(Role.ToString())}</color>");
+                        ResultText[id] = Sb.ToString();
                         first = false;
                     }
 
                     if (countSetRoles == 0) first = true;
 
-                    sb.Clear();
+                    Sb.Clear();
                     for (byte id = 0; id < countSetAddOns; id++)
                     {
                         if (!Main.SetAddOns.TryGetValue(id, out var roles)) continue;
@@ -124,24 +127,24 @@ internal static class HudManagerPatch
                         {
                             CustomRoles role = roles[r];
                             PlayerControl pc = Utils.GetPlayerById(id);
-                            sb.Clear();
+                            Sb.Clear();
 
-                            if (resultText.ContainsKey(id))
+                            if (ResultText.ContainsKey(id))
                             {
-                                sb.Append($" <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
-                                resultText[id] += sb.ToString();
+                                Sb.Append($" <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
+                                ResultText[id] += Sb.ToString();
                             }
                             else
                             {
-                                sb.Append(first ? string.Empty : "\n");
-                                sb.Append($"{(id == 0 ? "Host" : $"{(pc == null ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
-                                resultText[id] = sb.ToString();
+                                Sb.Append(first ? string.Empty : "\n");
+                                Sb.Append($"{(id == 0 ? "Host" : $"{(pc == null ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
+                                ResultText[id] = Sb.ToString();
                                 first = false;
                             }
                         }
                     }
 
-                    OverriddenRolesText.text = string.Join(string.Empty, resultText.Values);
+                    OverriddenRolesText.text = string.Join(string.Empty, ResultText.Values);
                 }
                 else
                     OverriddenRolesText.text = string.Empty;
@@ -174,14 +177,11 @@ internal static class HudManagerPatch
             }
             else if (GameStates.IsLobby)
             {
-                new ActionButton[]
-                {
-                    __instance.ReportButton,
-                    __instance.KillButton,
-                    __instance.AbilityButton,
-                    __instance.ImpostorVentButton,
-                    __instance.SabotageButton
-                }.Do(x => x?.Hide());
+                __instance.ReportButton?.Hide();
+                __instance.KillButton?.Hide();
+                __instance.AbilityButton?.Hide();
+                __instance.ImpostorVentButton?.Hide();
+                __instance.SabotageButton?.Hide();
             }
             else if (Options.CurrentGameMode != CustomGameMode.Standard) __instance.ReportButton?.Hide();
 
@@ -260,7 +260,7 @@ internal static class HudManagerPatch
                         case CustomRoles.CTFPlayer:
                             __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                             break;
-                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ventLimit):
+                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(player.PlayerId, out int ventLimit):
                             __instance.AbilityButton?.SetUsesRemaining(ventLimit);
                             break;
                         case CustomRoles.SnowdownPlayer:
@@ -268,8 +268,34 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality and not CustomRoles.Witch and not CustomRoles.Silencer && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()) && !role.ToString().EndsWith("EHR") && !role.IsVanilla())
+                    if (ShouldHideAbilityButton(role, player))
+                    {
                         __instance.AbilityButton?.Hide();
+                    }
+
+                    bool ShouldHideAbilityButton(CustomRoles role, PlayerControl player)
+                    {
+                        if (!role.PetActivatedAbility() 
+                            || role.IsVanilla()
+                            || Options.CurrentGameMode != CustomGameMode.Standard
+                            || player.GetRoleTypes() == RoleTypes.Engineer
+                            || role.OnlySpawnsWithPets() || role.AlwaysUsesPhantomBase()) return true;
+
+                        if (role is CustomRoles.Changeling or CustomRoles.Ninja or CustomRoles.Duality
+                                 or CustomRoles.Witch or CustomRoles.Silencer) return true;
+                        if (role.ToString().EndsWith("EHR")) return true;
+
+                        var subRoles = player.GetCustomSubRoles();
+                        for (int i = 0; i < subRoles.Count; i++)
+                        {
+                            if (StartGameHostPatch.BasisChangingAddons.ContainsKey(subRoles[i])) return true;
+                        }
+
+                        if (role.SimpleAbilityTrigger() && Options.UsePhantomBasis.GetBool())
+                            if (player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool()) return true;
+
+                        return Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift();
+                    }
 
                     if (LowerInfoText == null)
                     {
@@ -298,20 +324,42 @@ internal static class HudManagerPatch
 
                     string GetAddonSuffixes()
                     {
-                        string[] suffixes = state.SubRoles.Select(s => s switch
-                        {
-                            CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
-                            CustomRoles.Spurt => Spurt.GetSuffix(player, true),
-                            CustomRoles.Dynamo => Dynamo.GetSuffix(player, true),
-                            CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
-                            CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
-                            CustomRoles.Blessed => Blessed.GetSuffix(player),
-                            _ => string.Empty
-                        }).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+                        Sb.Clear();
+                        Suffixes.Clear();
+                        string suffixText = string.Empty;
 
-                        return suffixes.Length > 0
-                            ? $"\n{string.Join('\n', suffixes)}"
-                            : string.Empty;
+                        var subRoles = state.SubRoles;
+                        for (int i = 0; i < subRoles.Count; i++)
+                        {
+                            suffixText = subRoles[i] switch
+                            {
+                                CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
+                                CustomRoles.Spurt => Spurt.GetSuffix(player, true),
+                                CustomRoles.Dynamo => Dynamo.GetSuffix(player, true),
+                                CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
+                                CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
+                                CustomRoles.Blessed => Blessed.GetSuffix(player),
+                                _ => string.Empty
+                            };
+
+                            if (!string.IsNullOrWhiteSpace(suffixText))
+                            {
+                                Suffixes.Add(suffixText);
+                            }
+                        }
+
+                        if (Suffixes.Count > 0)
+                        {
+                            Sb.Append('\n');
+                            for (int i = 0; i < Suffixes.Count; i++)
+                            {
+                                Sb.Append(Suffixes[i]);
+                                if (i < Suffixes.Count - 1) Sb.Append('\n');
+                            }
+                            return Sb.ToString();
+                        }
+
+                        return string.Empty;
                     }
 
                     string cdHUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) CD)

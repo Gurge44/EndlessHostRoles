@@ -1177,6 +1177,8 @@ public static class Options
             .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
     }
 
+    private static string PathUserData;
+    private static readonly List<string> Errors = [];
     public static void LoadUserData()
     {
         try
@@ -1191,9 +1193,9 @@ public static class Options
                 File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData(), new JsonSerializerOptions { WriteIndented = true }));
             }
 
-            List<string> errors = [];
+            Errors.Clear();
 
-            foreach (string file in Directory.GetFiles(path, "*.txt"))
+            foreach (string file in Directory.GetFiles(PathUserData, "*.txt"))
             {
                 try
                 {
@@ -1205,14 +1207,14 @@ public static class Options
                 }
                 catch (Exception e)
                 {
-                    errors.Add($"{file}: {e.Message}");
+                    Errors.Add($"{file}: {e.Message}");
                 }
             }
             
-            if (errors.Count > 0)
+            if (Errors.Count > 0)
             {
-                errors.Insert(0, "The following errors occurred while loading user data files:");
-                Logger.Error(string.Join('\n', errors), "Options", multiLine: true);
+                Errors.Insert(0, "The following errors occurred while loading user data files:");
+                Logger.Error(string.Join('\n', Errors), "Options", multiLine: true);
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }

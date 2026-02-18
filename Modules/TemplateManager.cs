@@ -98,12 +98,15 @@ public static class TemplateManager
         return reader.ReadToEnd();
     }
 
+    private static readonly List<string> SendList = [];
+    private static readonly HashSet<string> Tags = [];
+    private static readonly List<Message> Messages = [];
     public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
     {
         CreateIfNotExists();
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
-        List<string> sendList = [];
-        HashSet<string> tags = [];
+        SendList.Clear();
+        Tags.Clear();
 
         while (sr.ReadLine() is { } text)
         {
@@ -111,27 +114,27 @@ public static class TemplateManager
 
             if (tmp.Length > 1 && tmp[1] != "")
             {
-                tags.Add(tmp[0]);
+                Tags.Add(tmp[0]);
                 if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
-                    sendList.Add(string.Join(':', tmp[1..]).Replace("\\n", "\n"));
+                    SendList.Add(string.Join(':', tmp[1..]).Replace("\\n", "\n"));
             }
         }
 
-        if (sendList.Count == 0 && !noErr)
+        if (SendList.Count == 0 && !noErr)
         {
             if (playerId == 0xff)
-                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
+                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, Tags.Join(delimiter: ", ")));
             else
                 Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId, importance: MessageImportance.Low);
         }
         else
         {
-            List<Message> messages = [];
+            Messages.Clear();
 
-            foreach (string x in sendList)
-                messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
+            foreach (string x in SendList)
+                Messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
 
-            messages.SendMultipleMessages(importance);
+            Messages.SendMultipleMessages(importance);
         }
     }
 
