@@ -100,7 +100,7 @@ public class Damocles : IAddon
 
         if (pev.Count > 0)
         {
-            foreach (int vent in pev.ToArray())
+            foreach (int vent in pev)
                 writer.Write(vent);
         }
 

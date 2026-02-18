@@ -127,7 +127,7 @@ public class Mafioso : RoleBase
 
         if (PreviouslyUsedVents.Count > 0)
         {
-            foreach (int vent in PreviouslyUsedVents.ToArray())
+            foreach (int vent in PreviouslyUsedVents)
                 writer.Write(vent);
         }
 

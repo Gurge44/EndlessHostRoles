@@ -1410,7 +1410,14 @@ internal static class CustomRolesHelper
 
     public static bool RoleExist(this CustomRoles role, bool countDead = false)
     {
-        return Main.EnumeratePlayerControls().Any(x => x.Is(role) && (countDead || x.IsAlive()));
+        var players = Main.CachedAllPlayerControls();
+        for (int i = 0; i < players.Count; i++)
+        {
+            var player = players[i];
+            if (player.Is(role) && (countDead || player.IsAlive()))
+                return true; 
+        }
+        return false;
     }
 
     public static int GetCount(this CustomRoles role)

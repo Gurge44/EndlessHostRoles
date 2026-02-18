@@ -409,7 +409,7 @@ internal static class ExtendedPlayerControl
 
             if (setRoleMap)
             {
-                foreach ((byte seerID, byte targetID) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap.Keys.ToArray())
+                foreach ((byte seerID, byte targetID) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap.Keys)
                 {
                     if (targetID == player.PlayerId)
                     {

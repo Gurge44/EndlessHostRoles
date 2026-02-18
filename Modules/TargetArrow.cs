@@ -72,7 +72,7 @@ internal static class TargetArrow
     {
         ArrowInfo arrowInfo = new(seer, target);
         List<ArrowInfo> removeList = new(TargetArrows.Keys.Where(k => k.Equals(arrowInfo)));
-        foreach (ArrowInfo a in removeList.ToArray()) TargetArrows.Remove(a);
+        foreach (ArrowInfo a in removeList) TargetArrows.Remove(a);
 
         Utils.SendRPC(CustomRPC.Arrow, true, 2, seer, target);
         Logger.Info($"Removed target arrow: {seer} ({seer.GetPlayer()?.GetRealName()}) => {target} ({target.GetPlayer()?.GetRealName()})", "TargetArrow");
@@ -85,7 +85,7 @@ internal static class TargetArrow
     public static void RemoveAllTarget(byte seer)
     {
         List<ArrowInfo> removeList = new(TargetArrows.Keys.Where(k => k.From == seer));
-        foreach (ArrowInfo arrowInfo in removeList.ToArray()) TargetArrows.Remove(arrowInfo);
+        foreach (ArrowInfo arrowInfo in removeList) TargetArrows.Remove(arrowInfo);
 
         Utils.SendRPC(CustomRPC.Arrow, true, 3, seer);
         Logger.Info($"Removed all target arrows for {seer} ({seer.GetPlayer()?.GetRealName()})", "TargetArrow");

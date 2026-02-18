@@ -155,7 +155,7 @@ public class Lightning : RoleBase
 
         List<byte> deList = [];
 
-        foreach (byte ghost in GhostPlayer.ToArray())
+        foreach (byte ghost in GhostPlayer)
         {
             PlayerControl gs = Utils.GetPlayerById(ghost);
 
@@ -181,7 +181,7 @@ public class Lightning : RoleBase
         {
             GhostPlayer.RemoveAll(deList.Contains);
 
-            foreach (byte gs in deList.ToArray())
+            foreach (byte gs in deList)
             {
                 SendRPC(gs);
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(gs));
@@ -193,7 +193,7 @@ public class Lightning : RoleBase
     {
         if (!(IsEnable || CustomRoles.Lightning.IsEnable())) return;
 
-        foreach (byte ghost in GhostPlayer.ToArray())
+        foreach (byte ghost in GhostPlayer)
         {
             PlayerControl gs = Utils.GetPlayerById(ghost);
             if (gs == null) continue;

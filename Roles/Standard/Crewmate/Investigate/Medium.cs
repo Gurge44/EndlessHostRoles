@@ -60,8 +60,9 @@ public class Medium : RoleBase
         ContactPlayer = [];
         if (target == null || target.Object == null) return;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(x => PlayerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
+            if (!PlayerIdList.Contains(pc.PlayerId) || pc.PlayerId == target.PlayerId)
             if (pc.GetAbilityUseLimit() < 1) continue;
 
             pc.RpcRemoveAbilityUse();
