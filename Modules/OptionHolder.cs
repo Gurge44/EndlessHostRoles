@@ -1177,7 +1177,7 @@ public static class Options
             .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
     }
 
-    private static string PathUserData;
+    //private static string PathUserData;
     private static readonly List<string> Errors = [];
     public static void LoadUserData()
     {
@@ -1195,7 +1195,7 @@ public static class Options
 
             Errors.Clear();
 
-            foreach (string file in Directory.GetFiles(PathUserData, "*.txt"))
+            foreach (string file in Directory.GetFiles(path, "*.txt"))
             {
                 try
                 {
