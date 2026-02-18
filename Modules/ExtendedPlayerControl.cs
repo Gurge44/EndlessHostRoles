@@ -8,6 +8,7 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Roles;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -2227,30 +2228,94 @@ internal static class ExtendedPlayerControl
 
     private static readonly Dictionary<byte, PlainShipRoom> PlayerRoomCache = [];
 
+    // The Key is the larger room, its bounds overlap the Value room's bounds
+    // Additional check when something is inside the Key room's bounds: also check the Value room's bounds
+    // The Value room's bounds never overlap the Key room's bounds, so the check is only one way (unless it's also specified vice versa)
+    private static readonly Dictionary<MapNames, Dictionary<SystemTypes, SystemTypes>> OverlappingRooms = new()
+    {
+        [MapNames.MiraHQ] = new()
+        {
+            [SystemTypes.LockerRoom] = SystemTypes.Decontamination,
+            [SystemTypes.Cafeteria] = SystemTypes.Storage
+        },
+        [MapNames.Polus] = new()
+        {
+            [SystemTypes.Electrical] = SystemTypes.Security
+        }
+    };
+    private static readonly Dictionary<SystemTypes, SystemTypes> EmptyOverlap = [];
+
+    private static readonly Dictionary<MapNames, List<SystemTypes>> ProblematicRooms = new()
+    {
+        [MapNames.Polus] = [SystemTypes.LifeSupp, SystemTypes.Storage, SystemTypes.Laboratory, SystemTypes.Comms, SystemTypes.Weapons, SystemTypes.Admin, SystemTypes.Decontamination2, SystemTypes.Decontamination3],
+        [MapNames.Airship] = [SystemTypes.Electrical, SystemTypes.Security, SystemTypes.Engine, SystemTypes.Showers, SystemTypes.MainHall],
+        [MapNames.Fungle] = [SystemTypes.Dropship]
+    };
+
+    private static bool IsRoomProblematic(PlainShipRoom room)
+    {
+        if (SubmergedCompatibility.IsSubmerged() || Main.LIMap) return true;
+        return ProblematicRooms.TryGetValue(Main.CurrentMap, out var list) && list.Contains(room.RoomId);
+    }
+
+    private static bool Check(PlainShipRoom toCheck, Collider2D roomArea, PlayerControl pc, Vector2 pos, Dictionary<SystemTypes, SystemTypes> overlappingRooms, out (bool found, PlainShipRoom room) correctRoom)
+    {
+        correctRoom = (false, null);
+        if (IsRoomProblematic(toCheck)) return pc.Collider.IsTouching(roomArea);
+        if (!overlappingRooms.TryGetValue(toCheck.RoomId, out SystemTypes otherRoom)) return true;
+        PlainShipRoom otherRoomClass = otherRoom.GetRoomClass();
+        if (!otherRoomClass) return true;
+        Collider2D area = otherRoomClass.roomArea;
+        if (!area) return true;
+        correctRoom = (true, otherRoomClass);
+        return !area.bounds.Contains2D(pos);
+    }
+
     [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
     public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
     {
         if (!pc.IsAlive()) return null;
 
         byte id = pc.PlayerId;
-        Vector3 pos = pc.Pos();
+        Vector2 pos = pc.Pos();
+        Dictionary<SystemTypes, SystemTypes> overlappingRooms = OverlappingRooms.GetValueOrDefault(Main.CurrentMap, EmptyOverlap);
 
         if (PlayerRoomCache.TryGetValue(id, out var cached))
         {
             var area = cached.roomArea;
-            if (area && area.bounds.Contains(pos)) return cached;
+            if (area && area.bounds.Contains2D(pos))
+            {
+                if (Check(cached, area, pc, pos, overlappingRooms, out (bool found, PlainShipRoom room) correctRoom))
+                    return cached;
+                
+                if (correctRoom.found)
+                {
+                    PlayerRoomCache[id] = correctRoom.room;
+                    return correctRoom.room;
+                }
+            }
         }
 
         var rooms = ShipStatus.Instance.AllRooms;
         for (int i = 0; i < rooms.Count; i++)
         {
             var room = rooms[i];
+            if (room.RoomId is SystemTypes.Hallway or SystemTypes.Outside) continue;
             var area = room.roomArea;
 
-            if (area && area.bounds.Contains(pos))
+            if (area && area.bounds.Contains2D(pos))
             {
-                PlayerRoomCache[id] = room;
-                return room;
+                if (Check(room, area, pc, pos, overlappingRooms, out (bool found, PlainShipRoom room) correctRoom))
+                {
+                    PlayerRoomCache[id] = room;
+                    return room;
+                }
+                
+                if (correctRoom.found)
+                {
+                    PlayerRoomCache[id] = correctRoom.room;
+                    return correctRoom.room;
+                }
             }
         }
 
@@ -2258,6 +2323,7 @@ internal static class ExtendedPlayerControl
         return null;
     }
 
+    // WARNING: INACCURATE WITH NON-RECTANGLE ROOMS
     [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
     public static PlainShipRoom GetPlainShipRoom(this Vector2 pos)
     {
@@ -2265,45 +2331,35 @@ internal static class ExtendedPlayerControl
         for (int i = 0; i < rooms.Count; i++)
         {
             var room = rooms[i];
+            if (room.RoomId is SystemTypes.Hallway or SystemTypes.Outside) continue;
             var area = room.roomArea;
 
-            if (area && area.bounds.Contains(pos))
+            if (area && area.bounds.Contains2D(pos))
                 return room;
         }
 
         return null;
     }
     
-    public static bool IsInRoom(this Vector2 pos, PlainShipRoom room)
-    {
-        if (room == null) return false;
-        var roomArea = room.roomArea;
-        return roomArea && roomArea.bounds.Contains(pos);
-    }
-    
-    public static bool IsInRoom(this Vector2 pos, SystemTypes roomId)
-    {
-        PlainShipRoom room = roomId.GetRoomClass();
-        if (room == null) return false;
-        var roomArea = room.roomArea;
-        return roomArea && roomArea.bounds.Contains(pos);
-    }
-    
     public static bool IsInRoom(this PlayerControl pc, PlainShipRoom room)
     {
-        if (room == null) return false;
+        if (!room) return false;
         var roomArea = room.roomArea;
         if (!roomArea) return false;
-        return pc.IsAlive() && roomArea.bounds.Contains(pc.Pos());
+        if (!pc.IsAlive()) return false;
+        Vector2 pos = pc.Pos();
+        return roomArea.bounds.Contains2D(pos) && Check(room, roomArea, pc, pos, OverlappingRooms.GetValueOrDefault(Main.CurrentMap, EmptyOverlap), out _);
     }
     
     public static bool IsInRoom(this PlayerControl pc, SystemTypes roomId)
     {
         if (!pc.IsAlive()) return false;
         PlainShipRoom room = roomId.GetRoomClass();
-        if (room == null) return false;
+        if (!room) return false;
         var roomArea = room.roomArea;
-        return roomArea && roomArea.bounds.Contains(pc.Pos());
+        if (!roomArea) return false;
+        Vector2 pos = pc.Pos();
+        return roomArea.bounds.Contains2D(pos) && Check(room, roomArea, pc, pos, OverlappingRooms.GetValueOrDefault(Main.CurrentMap, EmptyOverlap), out _);
     }
 
     public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)

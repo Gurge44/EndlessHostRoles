@@ -1,11 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace EHR.Modules.Extensions;
 
 public static class FastVector2
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool Contains2D(this Bounds b, Vector2 p)
+    {
+        return
+            p.x >= b.min.x && p.x <= b.max.x &&
+            p.y >= b.min.y && p.y <= b.max.y;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool DistanceWithinRange(in Vector2 a, in Vector2 b, float range)
     {

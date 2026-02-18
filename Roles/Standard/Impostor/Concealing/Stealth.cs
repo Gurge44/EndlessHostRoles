@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -67,7 +68,7 @@ public sealed class Stealth : RoleBase
         Collider2D roomArea = room.roomArea;
         SystemTypes roomName = room.RoomId;
         RpcDarken(roomName);
-        return Main.EnumerateAlivePlayerControls().Where(player => player != StealthPC && roomArea.bounds.Contains(player.Pos()));
+        return Main.EnumerateAlivePlayerControls().Where(player => player != StealthPC && roomArea.bounds.Contains2D(player.Pos()));
     }
 
     private IEnumerable<PlayerControl> FindPlayersInRange()

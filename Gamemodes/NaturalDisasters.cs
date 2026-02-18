@@ -695,7 +695,7 @@ public static class NaturalDisasters
                 LastHit = now;
                 var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
 
-                if (hit.GetPlainShipRoom() == null)
+                if (!hit.GetPlainShipRoom())
                 {
                     _ = new Lightning(hit);
                     
@@ -984,7 +984,7 @@ public static class NaturalDisasters
                 
                 if (CollapsedRooms.FindFirst(x => pc.IsInRoom(x), out PlainShipRoom collapsedRoom))
                 {
-                    if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos) && !lastPos.IsInRoom(collapsedRoom))
+                    if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
                     {
                         RPC.PlaySoundRPC(pc.PlayerId, Sounds.ImpDiscovered);
                         pc.TP(lastPos);

@@ -15,6 +15,7 @@ using AmongUs.InnerNet.GameDataMessages;
 using BepInEx;
 using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
@@ -2448,14 +2449,13 @@ public static class Utils
 
         foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
-            Vector3 position = pc.Pos();
             Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
 
             foreach (PlainShipRoom room in rooms)
             {
                 var roomArea = room.roomArea;
                 if (!roomArea) continue;
-                if (!roomArea.bounds.Contains(position)) continue;
+                if (!pc.IsInRoom(room)) continue;
 
                 string roomName = GetString($"{room.RoomId}");
                 if (!playerRooms.TryAdd(roomName, 1)) playerRooms[roomName]++;
