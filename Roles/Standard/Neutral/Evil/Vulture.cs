@@ -198,7 +198,7 @@ public class Vulture : RoleBase
             if (!Main.PlayerStates.TryGetValue(x, out PlayerState state) || state.Role is not Vulture vulture) return;
 
             var pc = x.GetPlayer();
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
             if (ChangeRoleWhenCantWin.GetBool() && Main.CachedAlivePlayerControls().Count - 1 <= NumberOfReportsToWin.GetInt() - vulture.TotalEaten)
             {

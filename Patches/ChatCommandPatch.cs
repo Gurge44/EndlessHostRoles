@@ -524,8 +524,18 @@ internal static class ChatCommands
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Summoner sum || player.GetAbilityUseLimit() < 1) return;
         if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead) return;
 
+        bool reSummoned = !Summoner.AlreadySummoned.Add(targetId);
+
+        if (reSummoned && !Summoner.AllowSummoningTheSamePlayerTwice.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("Summoner.CantSummonSamePlayerTwice"));
+            return;
+        }
+        
         sum.SummonedPlayerId = targetId;
-        player.RpcRemoveAbilityUse();
+        
+        if (!reSummoned || Summoner.ReSummonTakesAbilityUse.GetBool())
+            player.RpcRemoveAbilityUse();
         
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Summoner.SummonSuccessMessage"), targetId.ColoredPlayerName()));
         

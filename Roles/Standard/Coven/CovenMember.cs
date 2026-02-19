@@ -45,7 +45,7 @@ public class CovenMember : CovenBase
             foreach (CovenMember instance in Instances)
             {
                 PlayerControl pc = Utils.GetPlayerById(instance.CovenMemberId);
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
                 pc.RpcSetCustomRole(CustomRoles.CovenLeader);
                 pc.RpcChangeRoleBasis(CustomRoles.CovenLeader);
                 pc.MarkDirtySettings();

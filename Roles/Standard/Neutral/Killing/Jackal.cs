@@ -196,7 +196,7 @@ public class Jackal : RoleBase
     {
         if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
         if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
-        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Bloodlust) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
+        return pc && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Bloodlust) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 
     public void PromoteSidekick()
@@ -206,7 +206,7 @@ public class Jackal : RoleBase
             if (!SKPromotesToJackal.GetBool()) return;
 
             PlayerControl sk = SidekickId.GetPlayer();
-            if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
+            if (!sk || !sk.Is(CustomRoles.Sidekick)) return;
 
             sk.RpcSetCustomRole(CustomRoles.Jackal);
             if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
@@ -219,7 +219,7 @@ public class Jackal : RoleBase
         Instances.ForEach(x =>
         {
             var pc = x.JackalId.GetPlayer();
-            if (pc == null || pc.IsAlive()) return;
+            if (!pc || pc.IsAlive()) return;
             
             x.PromoteSidekick();
         });

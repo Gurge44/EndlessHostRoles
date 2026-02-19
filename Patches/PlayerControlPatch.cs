@@ -653,7 +653,7 @@ internal static class MurderPlayerPatch
         {
             Infection.OnAnyMurder();
             
-            Summoner.OnAnyoneMurder(killer);
+            Summoner.OnAnyoneMurder(killer, target);
 
             // Replacement process when the actual killer and killer are different
             if (Sniper.TryGetSniper(target.PlayerId, ref killer)) Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Sniped;
@@ -1112,6 +1112,11 @@ internal static class ReportDeadBodyPatch
 
                     Notify("HypnosisNoMeeting");
                     return false;
+                }
+
+                if (!Summoner.OnAnyoneReport())
+                {
+                    Notify("SummonedPlayerAlive");
                 }
 
                 if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Report)) return false; // Player dies, no notify needed

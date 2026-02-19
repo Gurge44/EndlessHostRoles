@@ -128,7 +128,7 @@ public class Altruist : RoleBase
                 {
                     PlayerControl revivedPlayer = revived.GetPlayer();
 
-                    if (revivedPlayer == null || !revivedPlayer.IsAlive())
+                    if (!revivedPlayer || !revivedPlayer.IsAlive())
                     {
                         TargetArrow.Remove(pc.PlayerId, revived);
                         if (GameStates.IsMeeting || ExileController.Instance) continue;

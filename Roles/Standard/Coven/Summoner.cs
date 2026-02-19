@@ -12,7 +12,16 @@ public class Summoner : CovenBase
     public static bool On;
     public static List<Summoner> Instances = [];
     public static HashSet<byte> AdditionalWinners = [];
+    public static HashSet<byte> AlreadySummoned = [];
     
+    private static OptionItem SummonDelayAfterMeeting;
+    private static OptionItem SummonedKillCooldown;
+    private static OptionItem SummonedKnowsCoven;
+    private static OptionItem PlayersSeeSummonedPlayerWarning;
+    public static OptionItem AllowSummoningTheSamePlayerTwice;
+    public static OptionItem ReSummonTakesAbilityUse;
+    private static OptionItem SummonedKillsCountForSummoner;
+    private static OptionItem BlockMeetingsWhileSummonedPlayerAlive;
     private static OptionItem SummonedTimeToKill;
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachKill;
@@ -34,6 +43,14 @@ public class Summoner : CovenBase
     public override void SetupCustomOption()
     {
         StartSetup(658000)
+            .AutoSetupOption(ref SummonDelayAfterMeeting, 10f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref SummonedKillCooldown, 15f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref SummonedKnowsCoven, true)
+            .AutoSetupOption(ref PlayersSeeSummonedPlayerWarning, true)
+            .AutoSetupOption(ref AllowSummoningTheSamePlayerTwice, true)
+            .AutoSetupOption(ref ReSummonTakesAbilityUse, true, overrideParent: AllowSummoningTheSamePlayerTwice)
+            .AutoSetupOption(ref SummonedKillsCountForSummoner, true)
+            .AutoSetupOption(ref BlockMeetingsWhileSummonedPlayerAlive, true)
             .AutoSetupOption(ref SummonedTimeToKill, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.05f), OptionFormat.Times)
             .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.3f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
@@ -49,6 +66,7 @@ public class Summoner : CovenBase
         On = false;
         Instances = [];
         AdditionalWinners = [];
+        AlreadySummoned = [];
     }
 
     public override void Add(byte playerId)
@@ -91,22 +109,34 @@ public class Summoner : CovenBase
         return HasNecronomicon && CanVentAfterNecronomicon.GetBool();
     }
 
+    public static bool OnAnyoneReport()
+    {
+        return !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue);
+    }
+
     public override void AfterMeetingTasks()
     {
-        if (SummonedPlayerId != byte.MaxValue && Main.PlayerStates.TryGetValue(SummonedPlayerId, out var state))
+        LateTask.New(() =>
         {
-            var summoned = SummonedPlayerId.GetPlayer();
+            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+            if (SummonedPlayerId == byte.MaxValue || !Main.PlayerStates.TryGetValue(SummonedPlayerId, out var state)) return;
             
-            if (summoned != null && !summoned.IsAlive())
+            PlayerControl summoned = SummonedPlayerId.GetPlayer();
+            
+            if (summoned && !summoned.IsAlive())
             {
                 SummonedPlayerTimer = new(SummonedTimeToKill.GetFloat(), () =>
                 {
                     SummonedPlayerTimer = null;
                     SummonedPlayerId = byte.MaxValue;
-                    if (summoned == null || !summoned.IsAlive()) return;
+                    if (!summoned || !summoned.IsAlive()) return;
                     state.SetDead();
                     summoned.RpcExileV2();
-                }, onTick: () => Utils.NotifyRoles(SpecifySeer: summoned, SpecifyTarget: summoned), onCanceled: () => SummonedPlayerTimer = null);
+                }, onTick: () => Utils.NotifyRoles(SpecifySeer: summoned, SpecifyTarget: summoned), onCanceled: () =>
+                {
+                    SummonedPlayerTimer = null;
+                    SummonedPlayerId = byte.MaxValue;
+                });
 
                 RPC.PlaySoundRPC(SummonedPlayerId, Sounds.SpawnSound);
                 GhostRolesManager.RemoveGhostRole(SummonedPlayerId);
@@ -116,18 +146,18 @@ public class Summoner : CovenBase
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);
                 summoned.SyncGeneralOptions();
                 summoned.SyncSettings();
-                summoned.TP(FastVector2.TryGetClosestPlayerTo(summoned, out PlayerControl closest) ? closest : PlayerControl.LocalPlayer);
-                LateTask.New(() => summoned.SetKillCooldown(10f), 0.2f);
+                summoned.TPToRandomVent();
+                LateTask.New(() => summoned.SetKillCooldown(SummonedKillCooldown.GetFloat()), 0.2f);
                 
                 Utils.SendRPC(CustomRPC.SyncRoleData, SummonerId, 1, SummonedPlayerId);
             }
-        }
+        }, Math.Max(0, SummonDelayAfterMeeting.GetFloat() - 2f), "Summon Delay");
         
         
         if (!HasNecronomicon || Changed) return;
         
         var summoner = SummonerId.GetPlayer();
-        if (summoner == null || !summoner.IsAlive()) return;
+        if (!summoner || !summoner.IsAlive()) return;
             
         summoner.RpcChangeRoleBasis(CustomRoles.SerialKiller);
         summoner.ResetKillCooldown();
@@ -145,7 +175,7 @@ public class Summoner : CovenBase
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (base.KnowRole(seer, target)) return true;
-        return seer.PlayerId == SummonedPlayerId && target.Is(Team.Coven);
+        return SummonedKnowsCoven.GetBool() && seer.PlayerId == SummonedPlayerId && target.Is(Team.Coven);
     }
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
@@ -153,7 +183,7 @@ public class Summoner : CovenBase
         return !Instances.Exists(x => x.SummonedPlayerId == killer.PlayerId && target.Is(Team.Coven));
     }
 
-    public static void OnAnyoneMurder(PlayerControl killer)
+    public static void OnAnyoneMurder(PlayerControl killer, PlayerControl target)
     {
         foreach (Summoner instance in Instances)
         {
@@ -166,6 +196,7 @@ public class Summoner : CovenBase
                 Main.PlayerStates[instance.SummonedPlayerId].SetDead();
                 instance.SummonedPlayerId = byte.MaxValue;
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.SummonerId, 2);
+                if (SummonedKillsCountForSummoner.GetBool()) target.SetRealKiller(instance.SummonerId.GetPlayer());
                 return;
             }
         }
@@ -199,7 +230,9 @@ public class Summoner : CovenBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || SummonedPlayerId == byte.MaxValue || SummonedPlayerTimer == null) return string.Empty;
+        if (meeting || SummonedPlayerId == byte.MaxValue || SummonedPlayerTimer == null) return string.Empty;
+        if (target.PlayerId == SummonedPlayerId && seer.PlayerId != target.PlayerId && PlayersSeeSummonedPlayerWarning.GetBool()) return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Summoner), Translator.GetString("Summoner.SummonedWarningSuffix"));
+        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
         if (seer.PlayerId == SummonerId) return string.Format(Translator.GetString("Summoner.SelfSuffix"), SummonedPlayerId.ColoredPlayerName(), (int)SummonedPlayerTimer.Remaining.TotalSeconds);
         return seer.PlayerId == SummonedPlayerId ? string.Format(Translator.GetString("Summoner.SummonedPlayerSuffix"), SummonerId.ColoredPlayerName(), CustomRoles.Summoner.ToColoredString(), (int)SummonedPlayerTimer.Remaining.TotalSeconds) : string.Empty;
     }
