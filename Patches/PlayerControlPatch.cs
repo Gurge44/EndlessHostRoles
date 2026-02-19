@@ -1660,11 +1660,10 @@ internal static class FixedUpdatePatch
 
                 foreach (PlayerState state in Main.PlayerStates.Values)
                 {
-                    if (state.Role.IsEnable)
-                    {
-                        if (checkPos) state.Role.OnCheckPlayerPosition(player);
-                        state.Role.OnGlobalFixedUpdate(player, lowLoad);
-                    }
+                    if (!state.Role.IsEnable) continue;
+
+                    if (checkPos) state.Role.OnCheckPlayerPosition(player);
+                    state.Role.OnGlobalFixedUpdate(player, lowLoad);
                 }
 
                 if (!lowLoad && inTask && alive && playerState != null)
