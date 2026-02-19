@@ -10,16 +10,18 @@ namespace EHR;
 public static class Zoom
 {
     private static bool ResetButtons;
+    private static Camera Main;
 
     public static void Postfix()
     {
         try
         {
-            if (!Camera.main) return;
+            if (!Main) Main = Camera.main;
+            if (!Main) return;
 
             if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {
-                if (Camera.main.orthographicSize > 3.0f) ResetButtons = true;
+                if (Main.orthographicSize > 3.0f) ResetButtons = true;
 
                 if (Input.touchSupported)
                 {
@@ -39,7 +41,7 @@ public static class Zoom
                         {
                             case > 0:
                             {
-                                if (Camera.main.orthographicSize > 3.0f)
+                                if (Main.orthographicSize > 3.0f)
                                     SetZoomSize();
 
                                 break;
@@ -48,7 +50,7 @@ public static class Zoom
                             {
                                 if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
                                 {
-                                    if (Camera.main.orthographicSize < 18.0f)
+                                    if (Main.orthographicSize < 18.0f)
                                         SetZoomSize(true);
                                 }
 
@@ -62,7 +64,7 @@ public static class Zoom
                 {
                     case > 0:
                     {
-                        if (Camera.main.orthographicSize > 3.0f)
+                        if (Main.orthographicSize > 3.0f)
                             SetZoomSize();
 
                         break;
@@ -71,7 +73,7 @@ public static class Zoom
                     {
                         if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
                         {
-                            if (Camera.main.orthographicSize < 18.0f)
+                            if (Main.orthographicSize < 18.0f)
                                 SetZoomSize(true);
                         }
 
@@ -88,25 +90,25 @@ public static class Zoom
 
     public static void SetZoomSize(bool times = false, bool reset = false)
     {
-        if (!Camera.main || !HudManager.InstanceExists) return;
+        if (!Main || !HudManager.InstanceExists) return;
 
         var size = 1.5f;
         if (!times) size = 1 / size;
 
         if (reset)
         {
-            Camera.main.orthographicSize = 3.0f;
+            Main.orthographicSize = 3.0f;
             HudManager.Instance.UICamera.orthographicSize = 3.0f;
             HudManager.Instance.Chat.transform.localScale = Vector3.one;
             if (GameStates.IsMeeting) MeetingHud.Instance.transform.localScale = Vector3.one;
         }
         else
         {
-            Camera.main.orthographicSize *= size;
+            Main.orthographicSize *= size;
             HudManager.Instance.UICamera.orthographicSize *= size;
         }
 
-        HudManager.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
+        HudManager.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
 
         if (ResetButtons)
         {
@@ -117,9 +119,9 @@ public static class Zoom
 
     public static void OnFixedUpdate()
     {
-        if (!Camera.main || !HudManager.InstanceExists) return;
+        if (!Main || !HudManager.InstanceExists) return;
 
-        HudManager.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
+        HudManager.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
     }
 }
 

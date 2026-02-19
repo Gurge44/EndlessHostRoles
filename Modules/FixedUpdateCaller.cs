@@ -3,7 +3,6 @@ using System.Linq;
 using EHR.Gamemodes;
 using EHR.Patches;
 using HarmonyLib;
-using Hazel;
 using InnerNet;
 
 namespace EHR.Modules;
@@ -120,7 +119,7 @@ public static class FixedUpdateCaller
                     NonLowLoadPlayerId = Math.Min(0, -(30 - playerCount));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
-                bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+                //bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
                 for (byte playerId = 0; playerId < playerCount; playerId++)
                 {
@@ -134,8 +133,8 @@ public static class FixedUpdateCaller
 
                         if (lobby) continue;
 
-                        if (vanilla && NonLowLoadPlayerId == playerId)
-                            Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
+                        //if (vanilla && NonLowLoadPlayerId == playerId)
+                        //    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
 
                         switch (currentGameMode)
                         {

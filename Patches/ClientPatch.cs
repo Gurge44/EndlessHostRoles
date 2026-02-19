@@ -31,6 +31,15 @@ internal static class MakePublicPatch
     }
 }*/
 
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
+static class StartRpcImmediatelyPatch
+{
+    public static void Postfix(uint targetNetId, byte callId, Hazel.SendOption option, int targetClientId = -1)
+    {
+        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {targetNetId} with SendOption {option} to {targetClientId}", "StartRpcImmediately");
+    }
+}
+
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 // ReSharper disable once InconsistentNaming
 internal static class MMOnlineManagerStartPatch
@@ -130,7 +139,7 @@ internal static class SetResolutionManager
 {
     public static void Postfix()
     {
-        if (MainMenuManagerPatch.UpdateButton != null)
+        if (MainMenuManagerPatch.UpdateButton)
             MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
     }
 }
@@ -138,16 +147,9 @@ internal static class SetResolutionManager
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendAllStreamedObjects))]
 internal static class InnerNetObjectSerializePatch
 {
-    private static int Count;
-    
     public static void Prefix()
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (Count++ < 100) return;
-        Count = 0;
-
-        if (GameOptionsSender.ActiveCoroutine != null) return;
+        if (!AmongUsClient.Instance.AmHost || GameOptionsSender.ActiveCoroutine != null) return;
         GameOptionsSender.ActiveCoroutine = Main.Instance.StartCoroutine(GameOptionsSender.SendDirtyGameOptionsContinuously());
     }
 }

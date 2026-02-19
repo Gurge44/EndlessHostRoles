@@ -116,8 +116,6 @@ internal class Tornado : RoleBase
 
     public static void SpawnTornado(PlayerControl pc)
     {
-        if (pc == null) return;
-
         (Vector2 Location, string RoomName) info = pc.GetPositionInfo();
         long now = TimeStamp;
         Tornados.TryAdd(info, now);
@@ -127,27 +125,27 @@ internal class Tornado : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0 || pc == null) return;
+        if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0) return;
 
         long now = TimeStamp;
 
         if (!pc.Is(CustomRoles.Tornado))
         {
-            var Random = IRandom.Instance;
-            string NotifyString = GetString("TeleportedByTornado");
+            var random = IRandom.Instance;
+            string notifyString = GetString("TeleportedByTornado");
             float tornadoRange = TornadoRange.GetFloat();
             int tornadoDuration = TornadoDuration.GetInt();
 
-            foreach (KeyValuePair<(Vector2 Location, string RoomName), long> tornado in Tornados)
+            foreach (KeyValuePair<(Vector2 Location, string RoomName), long> tornado in Tornados.ToArray())
             {
                 if (FastVector2.DistanceWithinRange(tornado.Key.Location, pc.Pos(), tornadoRange))
                 {
-                    if (!CanUseMap || Random.Next(0, 100) < 50)
+                    if (!CanUseMap || random.Next(0, 100) < 50)
                         pc.TPToRandomVent();
                     else
                         Map.RandomTeleport(pc);
 
-                    pc.Notify(NotifyString);
+                    pc.Notify(notifyString);
                 }
 
                 if (tornado.Value + tornadoDuration < now)

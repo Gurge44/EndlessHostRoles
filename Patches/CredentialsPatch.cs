@@ -472,25 +472,27 @@ internal static class ModManagerLateUpdatePatch
 
         ChatBubbleShower.Update();
 
-        if (LobbySharingAPI.LastRoomCode != string.Empty && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
-            LobbySharingAPI.NotifyLobbyStatusChanged(PlayerControl.LocalPlayer == null ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
+        if (!string.IsNullOrEmpty(LobbySharingAPI.LastRoomCode) && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
+            LobbySharingAPI.NotifyLobbyStatusChanged(!PlayerControl.LocalPlayer ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
 
         return false;
     }
 
     public static void Postfix(ModManager __instance)
     {
-        __instance.localCamera = !HudManager.InstanceExists
-            ? Camera.main
-            : HudManager.Instance.GetComponentInChildren<Camera>();
-
-        if (__instance.localCamera != null)
+        if (__instance.localCamera)
         {
             float offsetY = HudManager.InstanceExists ? 1.1f : 0.9f;
 
             __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
                 __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
                 new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
+        }
+        else
+        {
+            __instance.localCamera = !HudManager.InstanceExists
+                ? Camera.main
+                : HudManager.Instance.GetComponentInChildren<Camera>();
         }
     }
 }

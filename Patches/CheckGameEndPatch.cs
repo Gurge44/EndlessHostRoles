@@ -335,14 +335,14 @@ internal static class GameEndChecker
                     WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
                 }
 
-                if (Options.NeutralWinTogether.GetBool() && (WinnerRoles.Any(x => x.IsNeutral()) || WinnerIds.Select(x => GetPlayerById(x)).Any(x => x != null && x.GetCustomRole().IsNeutral() && !x.IsMadmate())))
+                if (Options.NeutralWinTogether.GetBool() && (WinnerRoles.Any(x => x.IsNeutral()) || WinnerIds.Select(x => GetPlayerById(x)).Any(x => x && x.GetCustomRole().IsNeutral() && !x.IsMadmate())))
                     WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.GetCustomRole().IsNeutral()).Select(x => x.PlayerId));
                 else if (Options.NeutralRoleWinTogether.GetBool())
                 {
                     foreach (byte id in WinnerIds)
                     {
                         PlayerControl pc = GetPlayerById(id);
-                        if (pc == null || !pc.GetCustomRole().IsNeutral()) continue;
+                        if (!pc || !pc.GetCustomRole().IsNeutral()) continue;
 
                         foreach (PlayerControl tar in Main.CachedAllPlayerControls())
                         {
@@ -956,7 +956,7 @@ internal static class GameEndChecker
                 IEnumerable<HashSet<byte>> teams = FreeForAll.PlayerTeams.GroupBy(x => x.Value, x => x.Key).Select(x => x.Where(p =>
                 {
                     PlayerControl pc = GetPlayerById(p);
-                    return pc != null && !pc.Data.Disconnected;
+                    return pc && !pc.Data.Disconnected;
                 }).ToHashSet()).Where(x => x.Count > 0);
 
                 foreach (HashSet<byte> team in teams)
@@ -1015,7 +1015,7 @@ internal static class GameEndChecker
             if (StopAndGo.RoundTime <= 0 || !StopAndGo.RoundTimer.IsRunning)
             {
                 var apc = Main.CachedAllPlayerControls();
-                SetWinner(Main.GM.Value && apc.Count == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => StopAndGo.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
+                SetWinner(Main.GM.Value && apc.Count == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => StopAndGo.GetRankFromScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                 return true;
             }
 

@@ -35,7 +35,7 @@ internal static class HudManagerPatch
 
     public static void ClearLowerInfoText()
     {
-        if (LowerInfoText == null) return;
+        if (!LowerInfoText) return;
         LowerInfoText.text = string.Empty;
     }
 
@@ -50,11 +50,10 @@ internal static class HudManagerPatch
 
             PlayerControl player = PlayerControl.LocalPlayer;
             if (!player) return;
-            if (!__instance) return;
 
             if (GameStates.IsLobby)
             {
-                if (PingTrackerUpdatePatch.Instance != null && SettingsText == null)
+                if (PingTrackerUpdatePatch.Instance && !SettingsText)
                 {
                     SettingsText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     SettingsText.name = "EHR_SettingsText";
@@ -65,19 +64,19 @@ internal static class HudManagerPatch
                     SettingsText.overflowMode = TextOverflowModes.Overflow;
                     SettingsText.enableWordWrapping = false;
                 }
-                else if (PingTrackerUpdatePatch.Instance == null && SettingsText != null)
+                else if (!PingTrackerUpdatePatch.Instance && SettingsText)
                 {
                     Object.Destroy(SettingsText.gameObject);
                     SettingsText = null;
                 }
 
-                if (SettingsText != null)
+                if (SettingsText)
                 {
                     SettingsText.text = OptionShower.GetTextNoFresh();
                     SettingsText.enabled = SettingsText.text != string.Empty;
                 }
             }
-            else if (SettingsText != null)
+            else if (SettingsText)
             {
                 Object.Destroy(SettingsText.gameObject);
                 SettingsText = null;
@@ -85,7 +84,7 @@ internal static class HudManagerPatch
 
             if (AmongUsClient.Instance.AmHost)
             {
-                if (OverriddenRolesText == null)
+                if (!OverriddenRolesText)
                 {
                     OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
@@ -110,7 +109,7 @@ internal static class HudManagerPatch
                         PlayerControl pc = Utils.GetPlayerById(id);
                         Sb.Clear();
                         Sb.Append(first ? string.Empty : "\n");
-                        Sb.Append($"{(id == 0 ? "Host" : $"{(pc == null ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(Role, "#ffffff")}>{GetString(Role.ToString())}</color>");
+                        Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(Role, "#ffffff")}>{GetString(Role.ToString())}</color>");
                         ResultText[id] = Sb.ToString();
                         first = false;
                     }
@@ -137,7 +136,7 @@ internal static class HudManagerPatch
                             else
                             {
                                 Sb.Append(first ? string.Empty : "\n");
-                                Sb.Append($"{(id == 0 ? "Host" : $"{(pc == null ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
+                                Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
                                 ResultText[id] = Sb.ToString();
                                 first = false;
                             }
@@ -154,7 +153,7 @@ internal static class HudManagerPatch
 
                 if (Options.AutoGMRotationEnabled)
                 {
-                    if (AutoGMRotationStatusText == null)
+                    if (!AutoGMRotationStatusText)
                     {
                         AutoGMRotationStatusText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                         AutoGMRotationStatusText.alignment = TextAlignmentOptions.Left;
@@ -169,7 +168,7 @@ internal static class HudManagerPatch
                     AutoGMRotationStatusText.text = BuildAutoGMRotationStatusText(false);
                     AutoGMRotationStatusText.enabled = AutoGMRotationStatusText.text != string.Empty && GameStates.IsLobby;
                 }
-                else if (AutoGMRotationStatusText != null)
+                else if (AutoGMRotationStatusText)
                 {
                     AutoGMRotationStatusText.text = string.Empty;
                     AutoGMRotationStatusText.enabled = false;
@@ -209,7 +208,7 @@ internal static class HudManagerPatch
 
                     CustomRoles role = player.GetCustomRole();
 
-                    if (RoleTab == null) RoleTab = TaskPanelBehaviourPatch.CreateRoleTab(role);
+                    if (!RoleTab) RoleTab = TaskPanelBehaviourPatch.CreateRoleTab(role);
                     TaskPanelBehaviourPatch.UpdateRoleTab(RoleTab, role);
 
                     bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
@@ -260,7 +259,7 @@ internal static class HudManagerPatch
                         case CustomRoles.CTFPlayer:
                             __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
                             break;
-                        case CustomRoles.RRPlayer when __instance.AbilityButton != null && RoomRush.VentLimit.TryGetValue(player.PlayerId, out int ventLimit):
+                        case CustomRoles.RRPlayer when __instance.AbilityButton && RoomRush.VentLimit.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ventLimit):
                             __instance.AbilityButton?.SetUsesRemaining(ventLimit);
                             break;
                         case CustomRoles.SnowdownPlayer:
@@ -275,7 +274,7 @@ internal static class HudManagerPatch
 
                     bool ShouldHideAbilityButton(CustomRoles role, PlayerControl player)
                     {
-                        if (!role.PetActivatedAbility() 
+                        if (!role.PetActivatedAbility()
                             || role.IsVanilla()
                             || Options.CurrentGameMode != CustomGameMode.Standard
                             || player.GetRoleTypes() == RoleTypes.Engineer
@@ -297,7 +296,7 @@ internal static class HudManagerPatch
                         return Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift();
                     }
 
-                    if (LowerInfoText == null)
+                    if (!LowerInfoText)
                     {
                         LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                         LowerInfoText.alignment = TextAlignmentOptions.Center;
@@ -632,7 +631,7 @@ internal static class SetHudActivePatch
     {
         if (GameStates.IsLobby || !isActive) __instance?.ReportButton?.ToggleVisible(false);
 
-        if (__instance == null)
+        if (!__instance)
         {
             Logger.Fatal("HudManager __instance ended up being null", "SetHudActivePatch.Postfix");
             return;
@@ -703,7 +702,7 @@ internal static class SetHudActivePatch
         }
 
         PlayerControl player = PlayerControl.LocalPlayer;
-        if (player == null) return;
+        if (!player) return;
 
         switch (player.GetCustomRole())
         {
@@ -787,7 +786,7 @@ internal static class HudManagerStartPatch
     {
         foreach (AspectPosition aspect in HudManager.Instance.transform.FindChild("Buttons").GetComponentsInChildren<AspectPosition>(true))
         {
-            if (aspect.gameObject == null) continue;
+            if (!aspect.gameObject) continue;
             if (aspect.gameObject.transform.parent.name == "TopRight") continue;
             if (aspect.gameObject.transform.parent.transform.parent.name == "TopRight") continue;
 
@@ -798,7 +797,7 @@ internal static class HudManagerStartPatch
 
         foreach (ActionButton button in HudManager.Instance.GetComponentsInChildren<ActionButton>(true))
         {
-            if (button.gameObject == null) continue;
+            if (!button.gameObject) continue;
 
             button.gameObject.SetActive(!button.isActiveAndEnabled);
             button.gameObject.transform.localScale *= scaleFactor;
@@ -881,7 +880,7 @@ internal static class SabotageMapPatch
         for (int roomId = 0; roomId < countRooms; roomId++)
         {
             MapRoom mr = __instance.rooms[roomId];
-            if (mr.special == null || mr.special.transform == null) continue;
+            if (!mr.special || !mr.special.transform) continue;
 
             SystemTypes room = mr.room;
 
@@ -957,7 +956,7 @@ internal static class MapRoomDoorsUpdatePatch
                 {
                     var autoOpenDoor = door.TryCast<AutoOpenDoor>();
 
-                    if (autoOpenDoor != null)
+                    if (autoOpenDoor)
                     {
                         total = 30f;
                         timer = autoOpenDoor.CooldownTimer;
@@ -1459,7 +1458,7 @@ internal static class TaskPanelBehaviourPatch
 
         PlayerControl player = PlayerControl.LocalPlayer;
 
-        if (taskList == "None" || GameStates.IsLobby || player == null) return;
+        if (taskList == "None" || GameStates.IsLobby || !player) return;
 
         NetworkedPlayerInfo data = PlayerControl.LocalPlayer.Data;
         if (data && data.Role) taskList = taskList.Replace($"\n{data.Role.NiceName} {TranslationController.Instance.GetString(StringNames.RoleHint)}\n{data.Role.BlurbMed}", string.Empty);

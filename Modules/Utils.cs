@@ -15,7 +15,6 @@ using AmongUs.InnerNet.GameDataMessages;
 using BepInEx;
 using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Modules.Extensions;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
@@ -1725,9 +1724,12 @@ public static class Utils
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || !deadPlayer || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() || Main.CachedAlivePlayerControls().Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || CustomRoles.Renegade.RoleExist(true) || Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool())))) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || !deadPlayer || deadPlayer.Object.Is(CustomRoles.Renegade) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRenegadeOnImpsDead.GetBool()) return;
 
-            PlayerControl[] listToChooseFrom = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
+            var aapc = Main.CachedAlivePlayerControls();
+            if (aapc.Count < Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt() || aapc.Any(x => x.Is(CustomRoles.Renegade) || (x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool()))))) return;
+
+            PlayerControl[] listToChooseFrom = aapc.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
             if (listToChooseFrom.Length > 0)
             {
@@ -1747,7 +1749,7 @@ public static class Utils
                     IEnumerator WaitForMeetingEnd()
                     {
                         while (AntiBlackout.SkipTasks || GameStates.IsMeeting || ExileController.Instance) yield return null;
-                        if (GameStates.IsEnded || GameStates.IsLobby) yield break;
+                        if (GameStates.IsEnded || GameStates.IsLobby || !pc) yield break;
                         pc.RpcChangeRoleBasis(CustomRoles.Renegade);
                         pc.ResetKillCooldown();
                         pc.SetKillCooldown();
@@ -1825,8 +1827,8 @@ public static class Utils
 
             if (vanilla)
             {
-                if (importance != MessageImportance.High && GameStates.InGame && !title.Contains("#ffff00") && !title.Contains('⚠') && !text.Contains('⚠') && title != GetString("NoSpamAnymoreUseCmd"))
-                    sendOption = SendOption.None;
+                // if (importance != MessageImportance.High && GameStates.InGame && !title.Contains("#ffff00") && !title.Contains('⚠') && !text.Contains('⚠') && title != GetString("NoSpamAnymoreUseCmd"))
+                //     sendOption = SendOption.None;
                 
                 text = ReplaceHexColorsWithSafeColors(text);
                 text = ReplaceDigitsOutsideRichText(text);
@@ -2647,7 +2649,7 @@ public static class Utils
     {
         try
         {
-            if (!ForMeeting && !NoCache && !ForceLoop && !CamouflageIsForMeeting && !GuesserIsForMeeting && !MushroomMixup && GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
+            //if (!ForMeeting && !NoCache && !ForceLoop && !CamouflageIsForMeeting && !GuesserIsForMeeting && !MushroomMixup && GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
             if (!AmongUsClient.Instance.AmHost) return;
             if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 

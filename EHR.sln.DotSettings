@@ -1,6 +1,12 @@
 ﻿<wpf:ResourceDictionary xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xml:space="preserve">
 	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">SOLUTION</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ExtractCommonBranchingCode/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=Unity_002EPerformanceCriticalCodeCameraMain/@EntryIndexedValue">WARNING</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=Unity_002EPerformanceCriticalCodeInvocation/@EntryIndexedValue">HINT</s:String>
+	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=Unity_002EPerformanceCriticalCodeInvocation/@EntryIndexRemoved">True</s:Boolean>
+	
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=Unity_002EPerformanceCriticalCodeNullComparison/@EntryIndexedValue">WARNING</s:String>
+	
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/ThisQualifier/INSTANCE_MEMBERS_QUALIFY_DECLARED_IN/@EntryValue">BaseClass</s:String>
     <s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/ALIGN_MULTILINE_STATEMENT_CONDITIONS/@EntryValue">False</s:Boolean>
     <s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/BLANK_LINES_AFTER_MULTILINE_STATEMENTS/@EntryValue">0</s:Int64>
@@ -66,6 +72,7 @@
     <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/UserRules/=7590fd11_002D72c9_002D406a_002Db74b_002D13b6d7ffaeba/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeStyle/Naming/CSharpNaming/UserRules/=7590fd11_002D72c9_002D406a_002Db74b_002D13b6d7ffaeba/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/UserRules/=8a85b61a_002D1024_002D4f87_002Db9ef_002D1fdae19930a1/@EntryIndexedValue">&lt;Policy&gt;&lt;Descriptor Staticness="Any" AccessRightKinds="Any" Description="Parameters"&gt;&lt;ElementKinds&gt;&lt;Kind Name="PARAMETER" /&gt;&lt;/ElementKinds&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="True" WarnAboutPrefixesAndSuffixes="False" Prefix="" Suffix="" Style="aaBb"&gt;&lt;ExtraRule Prefix="__" Suffix="" Style="aaBb" /&gt;&lt;/Policy&gt;&lt;/Policy&gt;</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/UserRules/=d8b48811_002D4424_002D4f8e_002Da7a8_002D5dfc32a7a73f/@EntryIndexedValue">&lt;Policy&gt;&lt;Descriptor Staticness="Any" AccessRightKinds="Public" Description="Harmony Special Parameter Name"&gt;&lt;ElementKinds&gt;&lt;Kind Name="PARAMETER" /&gt;&lt;/ElementKinds&gt;&lt;/Descriptor&gt;&lt;Policy Inspect="True" WarnAboutPrefixesAndSuffixes="False" Prefix="" Suffix="" Style="aaBb"&gt;&lt;ExtraRule Prefix="__" Suffix="" Style="aaBb" /&gt;&lt;/Policy&gt;&lt;/Policy&gt;</s:String>
     <s:Boolean x:Key="/Default/dotCover/Editor/HighlightingEnabled/@EntryValue">False</s:Boolean>
     <s:Boolean x:Key="/Default/dotCover/Editor/ShowDocumentCoverageIndicator/@EntryValue">False</s:Boolean>
     <s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpKeepExistingMigration/@EntryIndexedValue">True</s:Boolean>

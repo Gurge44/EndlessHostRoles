@@ -1533,16 +1533,20 @@ internal static class ExtendedPlayerControl
     public static Vector2 Pos(this PlayerControl pc)
     {
         if (pc.AmOwner) return pc.transform.position;
+
+        try
+        {
+            var queue = pc.NetTransform.incomingPosQueue;
         
-        var queue = pc.NetTransform.incomingPosQueue;
-        
-        if (queue.Count > 0 && pc.NetTransform.isActiveAndEnabled && !pc.NetTransform.isPaused)
-        {        
-            var array = queue._array;
-            int tail = queue._tail;
-            int index = (tail - 1 + array.Length) % array.Length; // handle wrap-around
-            return array[index];
+            if (queue.Count > 0 && pc.NetTransform.isActiveAndEnabled && !pc.NetTransform.isPaused)
+            {        
+                var array = queue._array;
+                int tail = queue._tail;
+                int index = (tail - 1 + array.Length) % array.Length; // handle wrap-around
+                return array[index];
+            }
         }
+        catch (Exception e) { ThrowException(e); }
         
         return pc.transform.position;
     }

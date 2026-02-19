@@ -1,4 +1,4 @@
-﻿#nullable enable
+﻿/*#nullable enable
 using System;
 using System.IO;
 using System.Linq;
@@ -47,3 +47,4 @@ internal static class EmbeddedDeps
         return loaded;
     }
 }
+*/

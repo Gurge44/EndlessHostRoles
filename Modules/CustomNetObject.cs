@@ -436,6 +436,11 @@ namespace EHR
                 finally { Gone = true; }
             }
         }
+
+        public override void OnMeeting()
+        {
+            Despawn();
+        }
     }
 
     internal sealed class PlayerDetector : CustomNetObject

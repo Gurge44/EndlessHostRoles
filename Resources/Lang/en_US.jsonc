@@ -8885,7 +8885,7 @@
   "CommandArgs.Unmute.Id": "The player's ID to unmute",
   "CommandArgs.Up.Role": "The role to set",
   "CommandArgs.Vote.Id": "The player's ID to vote for",
-  "CommandArgs.Whisper.Id": "The player's ID to whisper to",
+  "CommandArgs.Whisper.Ids": "The players' IDs to whisper to, separated by commas (no space)",
   "CommandArgs.Whisper.Message": "The message to whisper",
   "CommandArgs.XOR.Role": "A main role that will never spawn in the same game with the other role",
   // Command Descriptions
@@ -8990,7 +8990,7 @@
   "CommandDescription.Version": "View the current version of EHR",
   "CommandDescription.Vote": "Vote for a player",
   "CommandDescription.VoteStart": "Vote to start the game",
-  "CommandDescription.Whisper": "Whisper a message to a player.",
+  "CommandDescription.Whisper": "Whisper a message privately to the specified players.",
   "CommandDescription.Winner": "View the winners of the last game",
   "CommandDescription.XOR": "Specify 2 roles that will never spawn in the same game.",
   // Command Forms

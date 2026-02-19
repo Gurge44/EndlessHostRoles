@@ -138,7 +138,7 @@ internal class Necromancer : RoleBase
     {
         if (!GameStates.IsInTask || ExileController.Instance) return;
 
-        if (!NecromancerPC.IsAlive() && Deathknight.DeathknightPC.IsAlive())
+        if ((NecromancerPC == null || !NecromancerPC.IsAlive()) && (Deathknight.DeathknightPC != null && Deathknight.DeathknightPC.IsAlive()))
         {
             Deathknight.DeathknightPC.RpcSetCustomRole(CustomRoles.Necromancer);
             Deathknight.DeathknightPC = null;

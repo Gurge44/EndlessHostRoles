@@ -456,11 +456,12 @@ internal static class SetEverythingUpPatch
 
         IEnumerator SetupPoolablePlayers()
         {
-            if (Camera.main == null) yield break;
+            Camera main = Camera.main;
+            if (!main) yield break;
 
             yield return null;
 
-            Vector3 pos = Camera.main.ViewportToWorldPoint(new(0f, 1f, Camera.main.nearClipPlane));
+            Vector3 pos = main.ViewportToWorldPoint(new(0f, 1f, main.nearClipPlane));
             GameObject roleSummaryObject = Object.Instantiate(__instance.WinText.gameObject);
             roleSummaryObject.transform.position = new(__instance.Navigation.ExitButton.transform.position.x + 0.1f, pos.y - 0.1f, -15f);
             roleSummaryObject.transform.localScale = new(1f, 1f, 1f);

@@ -8,19 +8,19 @@ using static EHR.Translator;
 
 namespace EHR.Gamemodes;
 
-public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, Func<char, int> randomRedTimeFunc, Func<char, int> randomGreenTimeFunc, bool isYellow = false)
+public class Counter(int totalGreenTime, int totalRedTime, char symbol, bool isRed, Func<char, int> randomRedTimeFunc, Func<char, int> randomGreenTimeFunc, bool isYellow = false)
 {
     private int TotalGreenTime { get; set; } = totalGreenTime;
     public int TotalRedTime { get; private set; } = totalRedTime;
-    public long StartTimeStamp { get; set; } = startTimeStamp;
+    public Stopwatch Stopwatch { get; } = Stopwatch.StartNew();
     private char Symbol { get; } = symbol;
     public bool IsRed { get; private set; } = isRed;
     private Func<char, int> RandomRedTime { get; } = randomRedTimeFunc;
     private Func<char, int> RandomGreenTime { get; } = randomGreenTimeFunc;
     private bool IsYellow { get; set; } = isYellow;
-    private static int TotalYellowTime => 3;
+    private const int TotalYellowTime = 3;
 
-    public int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp));
+    public int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Stopwatch.Elapsed.TotalSeconds;
 
     public string ColoredTimerString
     {
@@ -43,29 +43,28 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
 
     public void Update()
     {
-        if (Timer <= 0)
-        {
-            switch (IsRed)
-            {
-                // Change from green to yellow
-                case false when !IsYellow:
-                    IsYellow = true;
-                    break;
-                // Change from red to green
-                case true when !IsYellow:
-                    TotalGreenTime = RandomGreenTime(Symbol);
-                    IsRed = false;
-                    break;
-                // Change from yellow to red
-                case false when IsYellow:
-                    TotalRedTime = RandomRedTime(Symbol);
-                    IsYellow = false;
-                    IsRed = true;
-                    break;
-            }
+        if (!Stopwatch.IsRunning || Timer > 0) return;
 
-            StartTimeStamp = Utils.TimeStamp;
+        switch (IsRed, IsYellow)
+        {
+            // Change from green to yellow
+            case (IsRed: false, IsYellow: false):
+                IsYellow = true;
+                break;
+            // Change from red to green
+            case (IsRed: true, IsYellow: false):
+                TotalGreenTime = RandomGreenTime(Symbol);
+                IsRed = false;
+                break;
+            // Change from yellow to red
+            case (IsRed: false, IsYellow: true):
+                TotalRedTime = RandomRedTime(Symbol);
+                IsYellow = false;
+                IsRed = true;
+                break;
         }
+
+        Stopwatch.Restart();
     }
 }
 
@@ -347,7 +346,6 @@ internal static class StopAndGo
     {
         if (Options.CurrentGameMode != CustomGameMode.StopAndGo) return;
 
-        FixedUpdatePatch.LastSuffix = [];
         FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
         RoundTimer = Stopwatch.StartNew();
@@ -367,7 +365,7 @@ internal static class StopAndGo
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
 
-            Counter[] counters = new[] { '⬅', '⇅', '➡' }.Select(x => new Counter(startingGreenTime, RandomRedTime(x), now, x, false, RandomRedTime, RandomGreenTime)).ToArray();
+            Counter[] counters = new[] { '⬅', '⇅', '➡' }.Select(x => new Counter(startingGreenTime, RandomRedTime(x), x, false, RandomRedTime, RandomGreenTime)).ToArray();
             AllPlayerTimers[pc.PlayerId] = new(counters, pos.x, pos.y, PlayerLives.GetInt());
 
             float limit;
@@ -402,7 +400,7 @@ internal static class StopAndGo
         if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out StopAndGoPlayerData timers)) return string.Empty;
 
         string text = IsEventActive ? $"{string.Format(GetString("StopAndGo_EventActive"), GetString($"StopAndGo_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
-        text += IsEventActive && Event.Type == Events.FrozenTimers ? FixedUpdatePatch.LastSuffix[pc.PlayerId].Trim() : timers.ToString();
+        text += timers.ToString();
 
         if (TimeSinceStart < 20 && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode))
             text += $"\n\n{GetString("StopAndGo_Tutorial")}";
@@ -420,7 +418,6 @@ internal static class StopAndGo
     {
         public static bool DoChecks;
         private static long LastFixedUpdate;
-        public static Dictionary<byte, string> LastSuffix = [];
         public static Dictionary<byte, float> Limit = [];
 
         public static void Postfix(PlayerControl __instance)
@@ -480,7 +477,8 @@ internal static class StopAndGo
                         }
                         case Events.FrozenTimers:
                         {
-                            AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.StartTimeStamp += duration);
+                            AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.Stopwatch.Stop());
+                            LateTask.New(() => AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.Stopwatch.Start()), duration, log: false);
                             break;
                         }
                     }
@@ -566,17 +564,15 @@ internal static class StopAndGo
                 End:
 
                 data.UpdateCounters();
-
-                if (!IsEventActive || Event.Type != Events.FrozenTimers)
-                    LastSuffix[pc.PlayerId] = GetSuffixText(pc);
-
-                bool IsCounterRed(Counter counter) => counter.IsRed && (pc.AmOwner || counter.Timer != counter.TotalRedTime);
             }
 
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
             Utils.NotifyRoles();
+            return;
+
+            bool IsCounterRed(Counter counter) => counter.IsRed && (pc.AmOwner || counter.Timer != counter.TotalRedTime);
         }
     }
 }

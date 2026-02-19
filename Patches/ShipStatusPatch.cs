@@ -551,7 +551,7 @@ internal static class VentilationSystemDeterioratePatch
             {
                 int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
                 if (allPlayers.Count >= vents) continue;
-                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
                 writer.WritePacked(pc.OwnerId);

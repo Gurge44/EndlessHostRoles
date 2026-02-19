@@ -257,15 +257,15 @@ internal static class ControllerManagerUpdatePatch
                 Utils.ShowActiveSettings();
             }
 
+            if (!Options.NoGameEnd.GetBool()) return;
+#if DEBUG
+
             if (KeysDown(IsAlsoInGameKey))
             {
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
                 Logger.SendInGame($"In-game output log: {Logger.IsAlsoInGame}");
             }
 
-            if (!Options.NoGameEnd.GetBool()) return;
-
-#if DEBUG
             if (KeysDown(KillFlashKey))
             {
                 Utils.FlashColor(new(1f, 0f, 0f, 0.3f));

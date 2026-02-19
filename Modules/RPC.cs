@@ -467,8 +467,8 @@ internal static class RPCHandlerPatch
 
                         try
                         {
-                            if (option.Id == OptionItem.PresetId && option.CurrentValue != 9)
-                                option.SetValue(9, false, false);
+                            if (option.Id == OptionItem.PresetId && option.CurrentValue != 19)
+                                option.SetValue(19, false, false);
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }

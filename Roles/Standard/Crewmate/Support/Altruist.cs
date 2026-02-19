@@ -120,7 +120,7 @@ public class Altruist : RoleBase
     {
         try
         {
-            if (!ReviveTargetsKillerGetsArrow.GetBool()) return;
+            if (!On || !ReviveTargetsKillerGetsArrow.GetBool()) return;
         
             foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {

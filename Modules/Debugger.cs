@@ -16,9 +16,11 @@ internal static class Logger
 {
     private static bool IsEnable;
     private static readonly List<string> DisableList = [];
+#if DEBUG
     public static bool IsAlsoInGame;
+#endif
 
-    private static readonly HashSet<string> NowDetailedErrorLog = [];
+    private static readonly Dictionary<string, DateTime> NowDetailedErrorLog = [];
 
     public static void Enable()
     {
@@ -53,7 +55,7 @@ internal static class Logger
 
         NotificationPopper np = NotificationPopperPatch.Instance;
 
-        if (np != null)
+        if (np)
         {
             Warn(text, "SendInGame");
 
@@ -72,26 +74,31 @@ internal static class Logger
     {
         if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
 
+#if DEBUG
         if (IsAlsoInGame) SendInGame($"[{tag}]{text}");
+#endif
 
         string logText;
 
-        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && !NowDetailedErrorLog.Contains(tag))
+        DateTime now = DateTime.Now;
+
+        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && (!NowDetailedErrorLog.TryGetValue(tag, out DateTime dt) || dt.AddSeconds(3) < now))
         {
-            var t = DateTime.Now.ToString("HH:mm:ss");
+            var t = now.ToString("HH:mm:ss");
             StackFrame stack = new(2);
             string className = stack.GetMethod()?.ReflectedType?.Name;
             string memberName = stack.GetMethod()?.Name;
             logText = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
-            NowDetailedErrorLog.Add(tag);
-            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 3f, log: false);
+            NowDetailedErrorLog[tag] = now;
         }
         else
         {
             if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
 
-            var t = DateTime.Now.ToString("HH:mm:ss");
+            var t = now.ToString("HH:mm:ss");
             logText = $"[{t}][{tag}]{text}";
+
+            if (level == LogLevel.Message) NowDetailedErrorLog.Clear();
         }
 
         CustomLogger.Instance.Log(level.ToString(), logText, multiLine);

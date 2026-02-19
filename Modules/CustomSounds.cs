@@ -14,19 +14,15 @@ public static class CustomSoundsManager
 
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, float volume = 1f, float pitch = 1f, bool force = false)
     {
-        if (!force)
-        {
-            if (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())
-                return;
-        }
+        if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
 
         if (pc == null || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
         {
-            Play(sound);
+            Play(sound, volume, pitch);
             return;
         }
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, pc.OwnerId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None, pc.OwnerId);
         writer.Write(sound);
         writer.Write(volume);
         writer.Write(pitch);
@@ -37,10 +33,13 @@ public static class CustomSoundsManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable);
+        Play(sound, volume, pitch);
+        
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None);
         writer.Write(sound);
+        writer.Write(volume);
+        writer.Write(pitch);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
-        Play(sound);
     }
 
     public static void ReceiveRPC(MessageReader reader)
