@@ -335,7 +335,7 @@ internal static class SoloPVP
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            if (Main.AllAlivePlayerControls.Count <= 1)
+            if (Main.CachedAlivePlayerControls().Count <= 1)
             {
                 if (ExtendedPlayerControl.TempExiled.Count == 0)
                 {
