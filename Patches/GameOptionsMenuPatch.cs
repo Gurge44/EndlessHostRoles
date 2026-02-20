@@ -373,7 +373,7 @@ public static class GameOptionsMenuPatch
         __instance.scrollBar.SetYBoundsMax(-num - 1.65f);
     }
 
-    private static BaseGameSetting GetSetting(OptionItem item)
+    public static BaseGameSetting GetSetting(OptionItem item)
     {
         BaseGameSetting baseGameSetting;
 
