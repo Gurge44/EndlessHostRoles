@@ -1041,7 +1041,7 @@ internal static class ReportDeadBodyPatch
 
             if (target == null)
             {
-                if (CustomSabotage.Instances.Count > 0)
+                if (IsAnySabotageActive())
                 {
                     Notify("CannotCallEmergencyMeetingWhileSabotage");
                     return false;
@@ -1205,14 +1205,17 @@ internal static class ReportDeadBodyPatch
         if (!Options.GameTimeLimitRunsDuringMeetings.GetBool())
             Main.GameTimer.Stop();
 
-        foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
+        LateTask.New(() =>
         {
-            try
+            foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
             {
-                cno.OnMeeting();
+                try
+                {
+                    cno.OnMeeting();
+                }
+                catch (Exception e) { ThrowException(e); }
             }
-            catch (Exception e) { ThrowException(e); }
-        }
+        }, 2f, "CNO OnMeeting");
 
         if (HudManager.InstanceExists) HudManager.Instance.SetRolePanelOpen(false);
 
@@ -1232,10 +1235,10 @@ internal static class ReportDeadBodyPatch
                 foreach (byte id in Main.DiedThisRound)
                 {
                     PlayerControl receiver = id.GetPlayer();
-                    if (receiver == null) continue;
+                    if (!receiver) continue;
 
                     PlayerControl killer = receiver.GetRealKiller();
-                    if (killer == null) continue;
+                    if (!killer) continue;
 
                     SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), importance: MessageImportance.Low);
                 }
@@ -1248,7 +1251,7 @@ internal static class ReportDeadBodyPatch
         try { Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos()); }
         catch (Exception e) { ThrowException(e); }
 
-        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Exists(x => x != null && x.IsAlive())) LateTask.New(() => ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()), GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive() ? 3f : 0f); }
+        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Exists(x => x && x.IsAlive())) LateTask.New(() => ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()), GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive() ? 1.5f : 0f); }
         catch (Exception e) { ThrowException(e); }
 
         CustomSabotage.Reset();
@@ -1277,7 +1280,7 @@ internal static class ReportDeadBodyPatch
             {
                 PlayerControl tpc = target.Object;
 
-                if (tpc != null && !tpc.IsAlive())
+                if (tpc && !tpc.IsAlive())
                 {
                     if (player.Is(CustomRoles.Forensic) && player.PlayerId != target.PlayerId)
                         Forensic.OnReportDeadBody(player, target.Object);
@@ -1308,9 +1311,9 @@ internal static class ReportDeadBodyPatch
                 QuizMaster.Data.NumMeetings++;
             }
 
-            if (Main.LoversPlayers.Exists(x => x != null && x.IsAlive()) && Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1)
+            if (Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1 && Main.LoversPlayers.Exists(x => x && x.IsAlive()))
             {
-                PlayerControl aliveLover = Main.LoversPlayers.First(x => x != null && x.IsAlive());
+                PlayerControl aliveLover = Main.LoversPlayers.First(x => x && x.IsAlive());
 
                 switch (Lovers.LoverSuicideTime.GetValue())
                 {

@@ -734,7 +734,7 @@ internal static class MeetingHudStartPatch
                 LateTask.New(() =>
                 {
                     PlayerControl player = Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId);
-                    var sender = CustomRpcSender.Create("RpcSetNameEx on meeting start", SendOption.Reliable);
+                    var sender = CustomRpcSender.Create("Fix Sender Name", SendOption.Reliable);
                     {
                         sender.AutoStartRpc(player.NetId, 6);
                         {
@@ -745,7 +745,7 @@ internal static class MeetingHudStartPatch
                     }
                     sender.SendMessage();
                 }, 1f, "Fix Sender Name");
-            }, 7f, "Send Role Descriptions Round 1");
+            }, 8.5f, "Send Role Descriptions Round 1");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)
@@ -792,7 +792,7 @@ internal static class MeetingHudStartPatch
                 AddMsg(string.Format(GetString("SuperStarDead"), Main.AllPlayerNames[csId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), GetString("SuperStarNewsTitle")));
             }
 
-            if (pc != null && Silencer.ForSilencer.Contains(pc.PlayerId))
+            if (Silencer.ForSilencer.Contains(pc.PlayerId))
             {
                 string playername = pc.GetRealName();
                 if (Doppelganger.DoppelVictim.TryGetValue(pc.PlayerId, out string value)) playername = value;
@@ -834,7 +834,7 @@ internal static class MeetingHudStartPatch
             }
         }
 
-        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title, importance: MessageImportance.High)), 8f, "Meeting Start Notify");
+        if (msgToSend.Count > 0) LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title, importance: MessageImportance.High)), 9f, "Meeting Start Notify");
 
         Main.SuperStarDead.Clear();
         Forensic.ForensicNotify.Clear();
@@ -870,7 +870,7 @@ internal static class MeetingHudStartPatch
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl target = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (target == null) continue;
+            if (!target) continue;
 
             bool shouldSeeTargetAddons = seer.PlayerId == target.PlayerId || new[] { seer, target }.All(x => x.Is(Team.Impostor));
             (string, Color) roleTextData = Utils.GetRoleText(seer.PlayerId, target.PlayerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
@@ -954,7 +954,7 @@ internal static class MeetingHudStartPatch
             deathReasonTextMeeting.enableWordWrapping = false;
             deathReasonTextMeeting.enabled = seer.KnowDeathReason(target);
             Transform child = deathReasonTextMeeting.transform.FindChild("RoleTextMeeting");
-            if (child != null) Object.Destroy(child.gameObject);
+            if (child) Object.Destroy(child.gameObject);
 
             byte id = pva.TargetPlayerId;
             
@@ -992,7 +992,7 @@ internal static class MeetingHudStartPatch
 
                 TemplateManager.SendTemplate("OnMeeting", noErr: true, importance: MessageImportance.Low);
                 if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true, importance: MessageImportance.Low);
-            }, 6.5f, log: false);
+            }, 8f, log: false);
 
             NotifyRoleSkillOnMeetingStart();
 
@@ -1045,10 +1045,10 @@ internal static class MeetingHudStartPatch
 
         foreach (PlayerVoteArea pva in __instance.playerStates)
         {
-            if (pva == null) continue;
+            if (!pva) continue;
 
             PlayerControl target = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (target == null) continue;
+            if (!target) continue;
 
             if (seer.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
             {

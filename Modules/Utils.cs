@@ -3106,7 +3106,7 @@ public static class Utils
 
                             string targetRoleText =
                                 KnowsTargetRole(seer, target)
-                                    ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
+                                    ? $"<size={fontSize}>{GetRoleText(seer.PlayerId, target.PlayerId, seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))

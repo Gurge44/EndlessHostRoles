@@ -277,7 +277,7 @@ public static class CaptureTheFlag
             {
                 PlayerControl pc = key.GetPlayer();
 
-                if (pc != null && outfit != null)
+                if (pc && outfit != null)
                     Utils.RpcChangeSkin(pc, outfit);
             }
         }

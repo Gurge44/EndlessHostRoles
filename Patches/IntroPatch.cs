@@ -1176,7 +1176,7 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Quiz when Quiz.Chat:
                 case CustomGameMode.HideAndSeek when CustomHnS.Chat:
                 case CustomGameMode.NaturalDisasters when NaturalDisasters.Chat:
-                    Utils.SetChatVisibleForAll();
+                    LateTask.New(Utils.SetChatVisibleForAll, 4f);
                     break;
             }
 

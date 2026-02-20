@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -1233,8 +1234,7 @@ internal static class RPCHandlerPatch
                     switch (reader.ReadPackedInt32())
                     {
                         case 1:
-                            int roundTime = reader.ReadPackedInt32();
-                            SoloPVP.RoundTime = roundTime;
+                            SoloPVP.RoundTimer = Stopwatch.StartNew();
                             break;
                         case 2:
                             SoloPVP.PlayerScore[reader.ReadByte()] = reader.ReadPackedInt32();

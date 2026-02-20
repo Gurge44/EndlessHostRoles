@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
@@ -18,7 +19,8 @@ internal static class SoloPVP
     public static Dictionary<byte, float> PlayerDF = [];
 
     public static Dictionary<byte, int> PlayerScore = [];
-    public static int RoundTime;
+    public static Stopwatch RoundTimer;
+    public static int GameTime = 180;
 
     private static readonly Dictionary<byte, (string Text, long RemoveTimeStamp)> NameNotify = [];
 
@@ -99,8 +101,14 @@ internal static class SoloPVP
         LastCountdownTime = [];
         BackCountdown = [];
         PlayerScore = [];
-        RoundTime = SoloPVP_GameTime.GetInt() + 8;
-        Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
+        GameTime = SoloPVP_GameTime.GetInt();
+        RoundTimer = Stopwatch.StartNew();
+        LateTask.New(() =>
+        {
+            if (RoundTimer.IsRunning)
+                RoundTimer.Restart();
+        }, 3f);
+        Utils.SendRPC(CustomRPC.SoloPVPSync, 1);
 
         foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
@@ -175,8 +183,6 @@ internal static class SoloPVP
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.SoloPVP || player == null) return;
-
         if (BackCountdown.TryGetValue(player.PlayerId, out int value))
         {
             name = string.Format(Translator.GetString("SoloPVP_BackCountDown"), value);
@@ -202,17 +208,13 @@ internal static class SoloPVP
 
     public static string GetHudText()
     {
-        if (RoundTime == 60)
-        {
-            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
-        }
-        return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
+        int roundTime = GameTime - (int)RoundTimer.Elapsed.TotalSeconds;
+        return $"{roundTime / 60:00}:{roundTime % 60:00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.SoloPVP || !Main.IntroDestroyed) return;
+        if (!Main.IntroDestroyed) return;
 
         if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return;
 
@@ -228,7 +230,7 @@ internal static class SoloPVP
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
         float kcd = SoloPVP_ATKCooldown.GetFloat();
-        if (killer.IsHost()) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
+        if (killer.AmOwner) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
         killer.SetKillCooldown(kcd, target);
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
@@ -333,8 +335,22 @@ internal static class SoloPVP
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            RoundTime--;
-            Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
+            if (Main.AllAlivePlayerControls.Count <= 1)
+            {
+                if (ExtendedPlayerControl.TempExiled.Count == 0)
+                {
+                    RoundTimer.Reset();
+                    return;
+                }
+                
+                // apart from 1 player, everyone is waiting for revival.... stop the timer temporarily
+                RoundTimer.Stop();
+            }
+            else if (!RoundTimer.IsRunning)
+            {
+                // resume the timer
+                RoundTimer.Start();
+            }
 
             Utils.NotifyRoles(SendOption: SendOption.None);
         }
