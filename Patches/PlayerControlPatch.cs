@@ -2209,14 +2209,6 @@ internal static class EnterVentPatch
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.CachedAlivePlayerControls().Count <= 2:
-                pc.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
-                break;
-            case CustomGameMode.FFA when FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[pc.PlayerId] <= 0:
-                pc.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
-                pc.MyPhysics?.RpcExitVent(__instance.Id);
-                break;
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
             case CustomGameMode.CaptureTheFlag:
