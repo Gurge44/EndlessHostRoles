@@ -37,7 +37,7 @@ internal static class GameEndChecker
     public static bool ShouldNotCheck = false;
     public static bool Ended;
     public static bool LoadingEndScreen;
-    public static long LastUpdate = -1;
+    public static long LastGameEndCheckUpdated = -1;
 
     public static bool Prefix()
     {
@@ -46,10 +46,12 @@ internal static class GameEndChecker
 
     public static void CheckCustomEndCriteria()
     {
-        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted || LastUpdate == TimeStamp) return;
+        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted /*|| LastGameEndCheckUpdated == Time.frameCount*/) return;
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return;
+        var now = TimeStamp;
+        if (LastGameEndCheckUpdated == now) return;
 
-        LastUpdate = TimeStamp;
+        LastGameEndCheckUpdated = now;
         Ended = false;
 
         Predicate.CheckForGameEnd(out GameOverReason reason);
@@ -1317,22 +1319,47 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
             if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
-            if ((GameData.Instance.TotalTasks == 0 && GameData.Instance.CompletedTasks == 0) || !Main.PlayerStates.Values.Any(x => x.TaskState.HasTasks)) return false;
-            
+            if ((GameData.Instance.TotalTasks == 0 && GameData.Instance.CompletedTasks == 0)) return false;
+            bool anyHaveTask = false;
+            foreach (var playerState in Main.PlayerStates.Values)
+            {
+                if (playerState.TaskState.HasTasks)
+                {
+                    anyHaveTask = true;
+                    break;
+                }
+            }
+            if (!anyHaveTask) return false;
+
             var players = Main.CachedAlivePlayerControls();
             int playerCount = players.Count;
-            
-            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool())
+            bool anyCrewAlive = false;
+            bool allCrewConverted = true;
+
+            for (int pcId = 0; pcId < playerCount; pcId++)
             {
-                byte count = 0;
-                for (byte pcId = 0; pcId < playerCount; pcId++)
-                {
-                    PlayerControl pc = players[pcId];
-                    if (pc.Is(CustomRoleTypes.Crewmate)) count++;
-                }
-                if (count == 0) return false;
+                PlayerControl pc = players[pcId];
+                if (!pc.Is(Team.Crewmate)) continue;
+
+                anyCrewAlive = true;
+
+                RoleTypes role = pc.GetRoleTypes();
+                bool baseCrewRole =
+                    role == RoleTypes.Crewmate ||
+                    role == RoleTypes.Engineer ||
+                    role == RoleTypes.Scientist ||
+                    role == RoleTypes.Noisemaker ||
+                    role == RoleTypes.Tracker ||
+                    role == RoleTypes.Detective ||
+                    role == RoleTypes.CrewmateGhost ||
+                    role == RoleTypes.GuardianAngel;
+
+                if (baseCrewRole && !pc.IsConverted()) allCrewConverted = false;
+                if (anyCrewAlive && !allCrewConverted) break;
             }
-            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) return false;
+
+            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !anyCrewAlive) return false;
+            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && allCrewConverted) return false;
 
             if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
             {

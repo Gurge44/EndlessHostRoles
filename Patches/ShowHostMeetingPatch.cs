@@ -20,6 +20,9 @@ public static class ShowHostMeetingPatch
     {
         try
         {
+            Main.LastPlayerControlUpdated = -1;
+            GameEndChecker.LastGameEndCheckUpdated = -1;
+
             if (GameStates.IsInGame && HostControl == null)
             {
                 PlayerControl host = AmongUsClient.Instance.GetHost().Character;

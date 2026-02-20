@@ -16,6 +16,7 @@ internal static class Logger
 {
     private static bool IsEnable;
     private static readonly List<string> DisableList = [];
+    private static readonly StringBuilder LogText = new();
 #if DEBUG
     public static bool IsAlsoInGame;
 #endif
@@ -78,8 +79,7 @@ internal static class Logger
         if (IsAlsoInGame) SendInGame($"[{tag}]{text}");
 #endif
 
-        string logText;
-
+        LogText.Clear();
         DateTime now = DateTime.Now;
 
         if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && (!NowDetailedErrorLog.TryGetValue(tag, out DateTime dt) || dt.AddSeconds(3) < now))
@@ -88,20 +88,23 @@ internal static class Logger
             StackFrame stack = new(2);
             string className = stack.GetMethod()?.ReflectedType?.Name;
             string memberName = stack.GetMethod()?.Name;
-            logText = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
+            LogText.Append($"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}");
             NowDetailedErrorLog[tag] = now;
         }
         else
         {
-            if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
+            if (escapeCRLF && (text.Contains('\n') || text.Contains('\r')))
+            {
+                text = text.Replace("\r", "\\r").Replace("\n", "\\n");
+            }
 
             var t = now.ToString("HH:mm:ss");
-            logText = $"[{t}][{tag}]{text}";
+            LogText.Append($"[{t}][{tag}]{text}");
 
             if (level == LogLevel.Message) NowDetailedErrorLog.Clear();
         }
 
-        CustomLogger.Instance.Log(level.ToString(), logText, multiLine);
+        CustomLogger.Instance.Log(level.ToString(), LogText.ToString(), multiLine);
     }
 
     public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false)
@@ -230,13 +233,12 @@ public class CustomLogger
         if (message.Contains("<i")) message += "</i>";
         if (message.Contains("<s")) message += "</s>";
 
-        var logEntry = $"""
+        Builder.Append($"""
                         <div class='log-entry {level.ToLower()}'>
                             {message}
                         </div>
-                        """;
+                        """);
 
-        Builder.Append(logEntry);
 #if DEBUG
         Finish(false);
 #endif

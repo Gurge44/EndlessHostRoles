@@ -126,7 +126,7 @@ internal static class EndGamePatch
                     if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) Main.GamesPlayed.AddRange(Main.EnumeratePlayerControls().ToDictionary(x => x.FriendCode, _ => 0), false);
                     Main.GamesPlayed.AdjustAllValues(x => ++x);
                     Main.GotShieldAnimationInfoThisGame.Clear();
-                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].IsDead = false;
+                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetAlive();
                     break;
                 case CustomGameMode.StopAndGo:
                     Main.EnumeratePlayerControls().Do(x => StopAndGo.HasPlayed.Add(x.FriendCode));

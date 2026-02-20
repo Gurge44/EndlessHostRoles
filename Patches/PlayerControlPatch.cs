@@ -2325,6 +2325,7 @@ internal static class PlayerControlCompleteTaskPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
+        GameEndChecker.LastGameEndCheckUpdated = -1;
         if (GameStates.IsMeeting || !__instance || !__instance.IsAlive()) return;
 
         Snitch.OnCompleteTask(__instance);
@@ -2408,7 +2409,7 @@ static class PlayerControlRevivePatch
         {
             if (Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.IsDead)
             {
-                state.IsDead = false;
+                state.SetAlive();
                 var sender = CustomRpcSender.Create($"LIReviveSync:{__instance.GetRealName()}", SendOption.Reliable);
                 var hasValue = sender.SyncGeneralOptions(__instance);
                 sender.SendMessage(dispose: !hasValue);

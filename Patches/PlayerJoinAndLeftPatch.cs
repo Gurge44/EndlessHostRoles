@@ -477,9 +477,7 @@ internal static class OnPlayerJoinedPatch
     {
         Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / Hashed PUID: {client.GetHashedPuid()}) joined the lobby", "Session");
 
-        Main.LastAlivePlayerControlUpdated = -1;
-        Main.LastAllPlayerControlUpdated = -1;
-
+        Main.LastPlayerControlUpdated = -1;
         LateTask.New(() =>
         {
             try
@@ -545,9 +543,8 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            Main.LastAlivePlayerControlUpdated = -1;
-            Main.LastAllPlayerControlUpdated = -1;
-
+            Main.LastPlayerControlUpdated = -1;
+            GameEndChecker.LastGameEndCheckUpdated = -1;
             if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character != null)
             {
 

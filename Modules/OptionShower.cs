@@ -28,7 +28,11 @@ public static class OptionShower
         }
         catch (Exception e)
         {
-            if (!OnGameJoinedPatch.JoiningGame) Utils.ThrowException(e);
+            if (!OnGameJoinedPatch.JoiningGame)
+            {
+                Logger.Info($"Pages:{Pages.Count} - CurrentPage:{CurrentPage}", "GetTextNoFresh()");
+                Utils.ThrowException(e);
+            }
             return LastText;
         }
     }

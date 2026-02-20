@@ -251,51 +251,46 @@ public class Main : BasePlugin
             .Where(pc => pc.IsAliveWithConditions());
     }
 
+    public static long LastPlayerControlUpdated = -1;
     private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
-    public static long LastAllPlayerControlUpdated = -1;
-    public static List<PlayerControl> CachedAllPlayerControls()
+    private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
+    private static void RebuildCaches()
     {
-        if (LastAllPlayerControlUpdated == Utils.TimeStamp)
-            return CachedAllPlayerControlsList;
+        // Update every frame
 
-        LastAllPlayerControlUpdated = Utils.TimeStamp;
-        var players = PlayerControl.AllPlayerControls;
-        int playerCount = players.Count;
+        //if (LastPlayerControlUpdated == Time.frameCount) return;
+        //LastPlayerControlUpdated = Time.frameCount;
+
+        var now = Utils.TimeStamp;
+        if (LastPlayerControlUpdated == now) return;
+        LastPlayerControlUpdated = now;
+
+        //Logger.Warn($"Cached Player Controls", "Debug");
 
         CachedAllPlayerControlsList.Clear();
-        for (byte playerId = 0; playerId < playerCount; playerId++)
+        CachedAlivePlayerControlsList.Clear();
+
+        var players = PlayerControl.AllPlayerControls;
+        int count = players.Count;
+
+        for (byte playerId = 0; playerId < count; playerId++)
         {
             PlayerControl pc = players[playerId];
-            if (!pc || pc.PlayerId >= 254)
-                continue;
+            if (pc == null || pc.PlayerId >= 254) continue;
 
             CachedAllPlayerControlsList.Add(pc);
+            if (pc.IsAliveWithConditions())
+                CachedAlivePlayerControlsList.Add(pc);
         }
-        //Logger.Warn($"All: {Utils.TimeStamp} - {LastAllPlayerControlUpdated}", "Debug");
-        return CachedAllPlayerControlsList;
     }
-
-    private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
-    public static long LastAlivePlayerControlUpdated = -1;
+    public static List<PlayerControl> CachedAllPlayerControls()
+    {
+        RebuildCaches();
+        return CachedAllPlayerControlsList; 
+    }
     public static List<PlayerControl> CachedAlivePlayerControls()
     {
-        if (LastAlivePlayerControlUpdated == Utils.TimeStamp)
-            return CachedAlivePlayerControlsList;
-
-        LastAlivePlayerControlUpdated = Utils.TimeStamp;
-        var players = PlayerControl.AllPlayerControls;
-        int playerCount = players.Count;
-
-        CachedAlivePlayerControlsList.Clear();
-        for (byte playerId = 0; playerId < playerCount; playerId++)
-        {
-            PlayerControl pc = players[playerId];
-            if (pc.PlayerId >= 254 || !pc.IsAliveWithConditions())
-                continue;
-
-            CachedAlivePlayerControlsList.Add(pc);
-        }
-        //Logger.Warn($"Alive: {Utils.TimeStamp} - {LastAlivePlayerControlUpdated}", "Debug");
+        RebuildCaches();
         return CachedAlivePlayerControlsList;
     }
 

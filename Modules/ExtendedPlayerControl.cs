@@ -359,8 +359,7 @@ internal static class ExtendedPlayerControl
         }
 
         PlayerState state = Main.PlayerStates[player.PlayerId];
-        state.IsDead = false;
-        state.deathReason = PlayerState.DeathReason.etc;
+        state.SetAlive();
 
         player.RpcSetRoleGlobal(RoleTypes.Crewmate);
 
@@ -479,8 +478,7 @@ internal static class ExtendedPlayerControl
         RPC.PlaySoundRPC(player.PlayerId, Sounds.SpawnSound);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
         state.RealKiller = (DateTime.MinValue, byte.MaxValue);
-        state.IsDead = false;
-        state.deathReason = PlayerState.DeathReason.etc;
+        state.SetAlive();
         TempExiled.Remove(player.PlayerId);
         if (Options.CurrentGameMode == CustomGameMode.Standard) state.Role.OnRevived(player);
         var sender = CustomRpcSender.Create("RpcRevive", SendOption.Reliable);

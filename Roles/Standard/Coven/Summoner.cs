@@ -140,7 +140,7 @@ public class Summoner : CovenBase
 
                 RPC.PlaySoundRPC(SummonedPlayerId, Sounds.SpawnSound);
                 GhostRolesManager.RemoveGhostRole(SummonedPlayerId);
-                state.IsDead = false;
+                state.SetAlive();
                 ExtendedPlayerControl.TempExiled.Remove(SummonedPlayerId);
                 summoned.RpcSetCustomRole(CustomRoles.SerialKiller);
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);

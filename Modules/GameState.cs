@@ -345,6 +345,8 @@ public class PlayerState(byte playerId)
     public void SetDead()
     {
         IsDead = true;
+        Main.LastPlayerControlUpdated = -1;
+        GameEndChecker.LastGameEndCheckUpdated = -1;
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -353,6 +355,18 @@ public class PlayerState(byte playerId)
 
             RPC.SendDeathReason(PlayerId, deathReason);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
+        }
+    }
+    public void SetAlive()
+    {
+        IsDead = false;
+        deathReason = DeathReason.etc;
+        Main.LastPlayerControlUpdated = -1;
+        GameEndChecker.LastGameEndCheckUpdated = -1;
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            RPC.SendDeathReason(PlayerId, deathReason);
         }
     }
 

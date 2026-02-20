@@ -58,7 +58,17 @@ internal static class DisableDevice
         if (frame != 0) return;
         if (pc.IsModdedClient()) return;
 
-        bool rogueForce = Rogue.On && Main.PlayerStates.Values.Any(x => x.Role is Rogue { DisableDevices: true });
+        bool rogueForce = false;
+        if (Rogue.On)
+            foreach (var ps in Main.PlayerStates.Values)
+            {
+                var role = ps.Role;
+                if (role is Rogue rogue && rogue.DisableDevices)
+                {
+                    rogueForce = true;
+                    break;
+                }
+            }
 
         if (!DoDisable && !rogueForce) return;
 
