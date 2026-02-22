@@ -231,7 +231,7 @@ public static class GameOptionsMenuPatch
         }
     }
 
-    private static bool AllParentsEnabledAndVisible(OptionItem o)
+    public static bool AllParentsEnabledAndVisible(OptionItem o)
     {
         while (true)
         {
@@ -807,7 +807,7 @@ public static class StringOptionPatch
         icon.SetAsLastSibling();
     }
 
-    private static string GetGhostRoleTeam(CustomRoles role)
+    public static string GetGhostRoleTeam(CustomRoles role)
     {
         IGhostRole instance = GhostRolesManager.CreateGhostRoleInstance(role);
         if (instance == null) return string.Empty;
@@ -979,9 +979,9 @@ public static class GameSettingMenuPatch
     {
         try
         {
-            (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
-            MinImpsOnOpen = impLimits.MinSetting.GetInt();
-            MaxImpsOnOpen = impLimits.MaxSetting.GetInt();
+            (OptionItem MinSetting, OptionItem MaxSetting) = Options.FactionMinMaxSettings[Team.Impostor];
+            MinImpsOnOpen = MinSetting.GetInt();
+            MaxImpsOnOpen = MaxSetting.GetInt();
             NumImpsOnOpen = Main.NormalOptions.NumImpostors;
 
             VanillaKillCooldownOnOpen = Main.NormalOptions.KillCooldown;
@@ -1010,20 +1010,7 @@ public static class GameSettingMenuPatch
             label.color = Color.white;
             button.activeTextColor = button.inactiveTextColor = Color.white;
             button.selectedTextColor = new(0.7f, 0.7f, 0.7f);
-
-            Color color = tab switch
-            {
-                TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
-                TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
-                TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
-                TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
-                TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
-                TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
-                TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
-                TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
-                TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
-                _ => new(0.3f, 0.3f, 0.3f)
-            };
+            Color color = tab.GetTabColor();
 
             button.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
             button.activeSprites.GetComponent<SpriteRenderer>().color = color;
@@ -1431,12 +1418,12 @@ public static class GameSettingMenuPatch
         try
         {
             int numImpostors = Main.NormalOptions.NumImpostors;
-            (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+            (OptionItem MinSetting, OptionItem MaxSetting) = Options.FactionMinMaxSettings[Team.Impostor];
 
-            if (numImpostors != NumImpsOnOpen && MinImpsOnOpen == impLimits.MinSetting.GetInt() && MaxImpsOnOpen == impLimits.MaxSetting.GetInt())
+            if (numImpostors != NumImpsOnOpen && MinImpsOnOpen == MinSetting.GetInt() && MaxImpsOnOpen == MaxSetting.GetInt())
             {
-                impLimits.MinSetting.SetValue(numImpostors);
-                impLimits.MaxSetting.SetValue(numImpostors);
+                MinSetting.SetValue(numImpostors);
+                MaxSetting.SetValue(numImpostors);
                 Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
             }
 

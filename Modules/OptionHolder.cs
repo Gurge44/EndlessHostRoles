@@ -3363,7 +3363,8 @@ public static class Options
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
     {
-        var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab)
+            .SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 

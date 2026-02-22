@@ -1,14 +1,11 @@
-﻿using AmongUs.GameOptions;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
+﻿using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace EHR.Patches;
 
@@ -16,10 +13,10 @@ namespace EHR.Patches;
 public static class LobbyViewPanePatches
 {
     private static StringNames VanillaSettingsTabName => StringNames.OverviewCategory;
-    private static StringNames RolesTabName => StringNames.RolesCategory;
-    //private static StringNames ModSettingsTabName { get; } = StringNames.AgeVerificationMoreInfo; // Random StringName lol
+    private static StringNames VanillaRolesTabName => StringNames.RolesCategory;
 
-    private static readonly Dictionary<StringNames, PassiveButton> ModTabButtons = [];
+    private static StringNames LastTabPressed = StringNames.OverviewCategory;
+    private static readonly Dictionary<StringNames, PassiveButton> TabButtons = [];
     private static readonly Dictionary<StringNames, TabGroup> TabNames = [];
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.Awake))]
@@ -101,98 +98,136 @@ public static class LobbyViewPanePatches
 
             yield return null;
 
-            // Disabled closing a window when clicking outside the window
-            //__instance.transform.FindChild("ClickToClose").gameObject.SetActive(false);
+            __instance.transform.FindChild("ClickToClose").transform.FindChild("IgnoreClose").localScale = new(1f, 2f, 1f);
 
-            yield return null;
-
-            // Start positions:
+            // Start vanilla button positions:
             // taskTabButton  - x: -5.65 - y: 3.1 - z: 0
             // rolesTabButton - x: -3.2  - y: 3.1 - z: 0
 
             // x: +2.45
             // y: -0.6
 
+            // Set colors for vanilla setting tab
             __instance.taskTabButton.activeTextColor = __instance.taskTabButton.inactiveTextColor = Color.white;
             __instance.taskTabButton.selectedTextColor = Color.gray;
             __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
-            __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.gray;
+            __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.black;
             __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
+            __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.DefaultPlate.png", 135f);
             __instance.taskTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
             __instance.taskTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
             __instance.taskTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
             yield return null;
 
-            //__instance.rolesTabButton.activeTextColor = __instance.rolesTabButton.inactiveTextColor = Color.white;
-            //__instance.rolesTabButton.selectedTextColor = Color.gray;
+            // Set colors for role tab
+            __instance.rolesTabButton.activeTextColor = __instance.rolesTabButton.inactiveTextColor = Color.white;
+            __instance.rolesTabButton.selectedTextColor = Color.gray;
             //__instance.rolesTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
             //__instance.rolesTabButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.gray;
             //__instance.rolesTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
-            //__instance.rolesTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-            //__instance.rolesTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-            //__instance.rolesTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
+            __instance.rolesTabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.DefaultPlate.png", 135f);
+            //__instance.rolesTabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
+            //__instance.rolesTabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
+            __instance.rolesTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
+            __instance.rolesTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
+            __instance.rolesTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
+            yield return null;
+
+            var panelRole = __instance.infoPanelRoleOrigin;
+            var panelRoleTransform = panelRole.transform;
+
+            // Role name
+            panelRole.titleText.transform.localScale = new(1.5f, 1.5f, 1f);
+            panelRole.titleText.transform.localPosition = new(-2.85f, 0f, -2f);
+            panelRole.titleText.alignment = TextAlignmentOptions.Left;
+            panelRole.titleText.enableWordWrapping = false;
+            panelRole.titleText.overflowMode = TextOverflowModes.Overflow;
+            panelRole.titleText.fontWeight = FontWeight.Black;
+            panelRole.titleText.outlineColor = Color.black;
+            panelRole.titleText.outlineWidth = 0.23f;
+            panelRole.titleText.color = Color.white;
+
+            // "% Chance" title text
+            panelRole.chanceTitle.fontWeight = FontWeight.Black;
+            panelRole.chanceTitle.outlineColor = Color.black;
+            panelRole.chanceTitle.outlineWidth = 0.23f;
+            panelRole.chanceTitle.color = Color.white;
+            panelRole.chanceTitle.transform.localPosition = new(5.35f, -0.0225f, -2f);
+            panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
+
+            // Chance value
+            panelRole.chanceText.fontWeight = FontWeight.Black;
+            panelRole.chanceText.outlineColor = Color.black;
+            panelRole.chanceText.outlineWidth = 0.23f;
+            panelRole.chanceText.color = Color.white;
+
+            // Max count title
+            var settingTitle = Object.Instantiate(panelRole.chanceTitle, panelRoleTransform.transform);
+            settingTitle.name = "MaxCountTitle";
+            settingTitle.DestroyTranslator();
+            settingTitle.text = Translator.GetString("Maximum");
+            settingTitle.transform.localPosition = new(2.4f, -0.0225f, -2f);
+
+            // Max count sprite
+            panelRole.transform.FindChild("Value")?.localPosition = new(1.25f, 0f, -1f);
+
+            // Max count value
+            panelRole.settingText.fontWeight = FontWeight.Black;
+            panelRole.settingText.outlineColor = Color.black;
+            panelRole.settingText.outlineWidth = 0.23f;
+            panelRole.settingText.color = Color.white;
 
             __instance.rolesTabButton.transform.localPosition = new(-5.65f, 2.5f, 0);
-            //yield return null;
+            yield return null;
 
-            ModTabButtons.Add(VanillaSettingsTabName, __instance.taskTabButton);
-            ModTabButtons.Add(RolesTabName, __instance.rolesTabButton);
+            TabNames.Clear();
+            TabButtons.Clear();
+
+            TabButtons[VanillaSettingsTabName] = __instance.taskTabButton;
+            TabButtons[VanillaRolesTabName] = __instance.taskTabButton;
 
             __instance.gameModeText.DestroyTranslator();
             __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
             __instance.taskTabButton.buttonText.text = Translator.GetString("TabGroup.VanillaSettings");
 
-            int index = 1;
+            int indexSettings = 1;
+            int indexRoles = 0;
             foreach (var tabGroup in Enum.GetValues<TabGroup>())
             {
-                Color color = tabGroup switch
-                {
-                    TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
-                    TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
-                    TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
-                    TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
-                    TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
-                    TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
-                    TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
-                    TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
-                    TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
-                    _ => new(0.3f, 0.3f, 0.3f)
-                };
+                Vector3 newXPos;
+                var stringName = (StringNames)(5000 + tabGroup);
+                TabNames[stringName] = tabGroup;
+                Color color = tabGroup.GetTabColor();
+
                 switch (tabGroup)
                 {
                     case TabGroup.SystemSettings:
                     case TabGroup.GameSettings:
                     case TabGroup.TaskSettings:
-                        var cloneTabButton = Object.Instantiate(__instance.taskTabButton, __instance.taskTabButton.transform.parent);
-                        cloneTabButton.buttonText.DestroyTranslator();
-                        cloneTabButton.name = tabGroup.ToString();
-                        cloneTabButton.buttonText.text = Translator.GetString($"TabGroup.{tabGroup}");
+                        var cloneSettingTabButton = Object.Instantiate(__instance.taskTabButton, __instance.taskTabButton.transform.parent);
+                        cloneSettingTabButton.buttonText.DestroyTranslator();
+                        cloneSettingTabButton.name = tabGroup.ToString();
+                        cloneSettingTabButton.buttonText.text = Translator.GetString($"TabGroup.{tabGroup}");
 
-                        Vector3 newXTabPos = cloneTabButton.transform.localPosition;
-                        newXTabPos.x += 2.45f * index;
-                        cloneTabButton.transform.localPosition = newXTabPos;
+                        newXPos = cloneSettingTabButton.transform.localPosition;
+                        newXPos.x += 2.45f * indexSettings;
+                        cloneSettingTabButton.transform.localPosition = newXPos;
 
-                        cloneTabButton.activeTextColor = /*cloneTabButton.inactiveTextColor = */ Color.white;
-                        //LateTask.New(() => { cloneTabButton?.inactiveTextColor = Color.white; }, 2f, "SetInactiveTextColor", log: false);
-                        cloneTabButton.selectedTextColor = new(0.7f, 0.7f, 0.7f);
+                        cloneSettingTabButton.activeTextColor = cloneSettingTabButton.inactiveTextColor = Color.white;
+                        cloneSettingTabButton.selectedTextColor = new(0.7f, 0.7f, 0.7f);
 
-                        cloneTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
-                        cloneTabButton.activeSprites.GetComponent<SpriteRenderer>().color = color;
-                        cloneTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
+                        cloneSettingTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
+                        cloneSettingTabButton.activeSprites.GetComponent<SpriteRenderer>().color = color;
+                        cloneSettingTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
-                        cloneTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-                        cloneTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-                        cloneTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
-
-                        var stringName = (StringNames)(5000 + tabGroup);
-                        cloneTabButton.OnClick = new();
-                        cloneTabButton.OnClick.AddListener((UnityAction)(() =>
+                        cloneSettingTabButton.OnClick = new();
+                        cloneSettingTabButton.OnClick.AddListener((UnityAction)(() =>
                         {
                             __instance.ChangeTab(stringName);
                         }));
 
-                        ModTabButtons[stringName] = cloneTabButton;
-                        TabNames[stringName] = tabGroup;
+                        TabButtons[stringName] = cloneSettingTabButton;
+                        indexSettings++;
                         break;
                     case TabGroup.ImpostorRoles:
                     case TabGroup.CrewmateRoles:
@@ -200,12 +235,46 @@ public static class LobbyViewPanePatches
                     case TabGroup.CovenRoles:
                     case TabGroup.Addons:
                     case TabGroup.OtherRoles:
+                        var cloneRoleTabButton = Object.Instantiate(__instance.rolesTabButton, __instance.rolesTabButton.transform.parent);
+                        cloneRoleTabButton.buttonText.DestroyTranslator();
+                        cloneRoleTabButton.name = tabGroup.ToString();
+                        cloneRoleTabButton.buttonText.text = Translator.GetString($"TabGroup.{tabGroup}");
+
+                        if (indexRoles != 0)
+                        {
+                            newXPos = cloneRoleTabButton.transform.localPosition;
+                            newXPos.x += 2.45f * indexRoles;
+
+                            if (tabGroup is TabGroup.Addons)
+                                newXPos.y += 0.6f;
+                            else
+                                indexRoles++;
+
+                            cloneRoleTabButton.transform.localPosition = newXPos;
+                        }
+                        else indexRoles++;
+
+                        cloneRoleTabButton.activeTextColor = cloneRoleTabButton.inactiveTextColor = Color.white;
+                        cloneRoleTabButton.selectedTextColor = new(0.7f, 0.7f, 0.7f);
+
+                        cloneRoleTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
+                        cloneRoleTabButton.activeSprites.GetComponent<SpriteRenderer>().color = color;
+                        cloneRoleTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
+
+                        cloneRoleTabButton.OnClick = new();
+                        cloneRoleTabButton.OnClick.AddListener((UnityAction)(() =>
+                        {
+                            __instance.ChangeTab(stringName);
+                        }));
+
+                        TabButtons[stringName] = cloneRoleTabButton;
                         break;
                 }
-
-                index++;
                 yield return null;
             }
+            __instance.rolesTabButton.gameObject.SetActive(false); // Hide vanilla role tab
+
+            __instance.scrollBar.ContentXBounds.max = 1f;
             __instance.scrollBar.SetYBoundsMax(-2f);
         }
     }
@@ -221,26 +290,25 @@ public static class LobbyViewPanePatches
             __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.gray;
             __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
 
-            __instance.ChangeTab(StringNames.OverviewCategory);
-        }, 0.01f, "ChangeTab", log: false);
+            __instance.ChangeTab(LastTabPressed);
+        }, 0.3f, "ChangeTab", log: false);
     }
     [HarmonyPatch(nameof(LobbyViewSettingsPane.SetTab))]
     [HarmonyPrefix]
     public static bool SetTab_Prefix(LobbyViewSettingsPane __instance)
     {
-        if (__instance.currentTab == StringNames.RolesCategory)
+        if (__instance.currentTab == VanillaRolesTabName)
         {
             __instance.rolesTabButton.SelectButton(true);
             __instance.taskTabButton.SelectButton(false);
             __instance.DrawRolesTab();
             return false;
         }
-        if (__instance.currentTab == StringNames.OverviewCategory)
+        if (__instance.currentTab == VanillaSettingsTabName)
         {
             __instance.taskTabButton.SelectButton(true);
             __instance.rolesTabButton.SelectButton(false);
             __instance.DrawNormalTab();
-            __instance.scrollBar.SetYBoundsMax(-2f);
             return false;
         }
         __instance.taskTabButton.SelectButton(false);
@@ -250,58 +318,66 @@ public static class LobbyViewPanePatches
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.DrawNormalTab))]
     [HarmonyPrefix]
-    public static bool DrawNormalTabPatch(LobbyViewSettingsPane __instance)
+    public static bool DrawNormalTab_Prefix(LobbyViewSettingsPane __instance)
     {
         __instance.taskTabButton.inactiveTextColor = Color.white;
+        __instance.taskTabButton.selectedTextColor = Color.gray;
         return __instance.currentTab == VanillaSettingsTabName;
     }
 
-    //[HarmonyPatch(nameof(LobbyViewSettingsPane.DrawRolesTab))]
-    //[HarmonyPrefix]
-    public static bool DrawRolesTabPatch(LobbyViewSettingsPane __instance)
+    [HarmonyPatch(nameof(LobbyViewSettingsPane.DrawRolesTab))]
+    [HarmonyPrefix]
+    public static bool DrawRolesTab_Prefix(LobbyViewSettingsPane __instance)
     {
-        if (__instance.currentTab != RolesTabName) return false;
-
-
-        return true;
+        __instance.rolesTabButton.inactiveTextColor = Color.white;
+        return __instance.currentTab == VanillaRolesTabName;
     }
 
-    private static bool IsLoading = false;
     [HarmonyPatch(nameof(LobbyViewSettingsPane.ChangeTab))]
     [HarmonyPatch(nameof(LobbyViewSettingsPane.RefreshTab))]
     [HarmonyPostfix]
     public static void SetTabPatch_Postfix(LobbyViewSettingsPane __instance)
     {
-        // Prevent double loading
-        if (IsLoading) return;
-        if (TabNames.ContainsKey(__instance.currentTab) && ModTabButtons.ContainsKey(__instance.currentTab))
+        LastTabPressed = __instance.currentTab;
+        if (__instance.currentTab == VanillaSettingsTabName)
         {
-            IsLoading = true;
-            var tab = TabNames[__instance.currentTab];
-            var button = ModTabButtons[__instance.currentTab];
+            foreach (var tabs in TabButtons.Values)
+                tabs.SelectButton(false);
 
-            foreach (var buttons in ModTabButtons.Values)
-            {
-                //buttons.inactiveTextColor = Color.white;
+            __instance.taskTabButton.SelectButton(true);
+            __instance.scrollBar.SetYBoundsMax(4.2f);
+        }
+        else if (TabNames.TryGetValue(__instance.currentTab, out var tab)
+            && TabButtons.TryGetValue(__instance.currentTab, out var button))
+        {
+            foreach (var buttons in TabButtons.Values)
                 buttons.SelectButton(false);
-            }
 
             button.SelectButton(true);
-            DrawOptions(__instance, tab);
-        }
-        else
-            foreach (var tab in ModTabButtons.Values)
+
+            switch (tab)
             {
-                //tab.inactiveTextColor = Color.white;
-                tab.SelectButton(false);
+                case TabGroup.SystemSettings:
+                case TabGroup.GameSettings:
+                case TabGroup.TaskSettings:
+                    DrawOptions(__instance, tab);
+                    break;
+                case TabGroup.ImpostorRoles:
+                case TabGroup.CrewmateRoles:
+                case TabGroup.NeutralRoles:
+                case TabGroup.CovenRoles:
+                case TabGroup.Addons:
+                case TabGroup.OtherRoles:
+                    DrawRoles(__instance, tab);
+                    break;
             }
+        }
     }
-
-    private static void DrawOptions(LobbyViewSettingsPane menu, TabGroup tabName)
+    private static void DrawOptions(LobbyViewSettingsPane viewSettings, TabGroup tabName)
     {
-        // I tried using "StartCoroutine" but it doesn't work normaly
+        // I tried using "StartCoroutine()" but it doesn't work normaly
         // Some tabs are blank for about 2 seconds and then start loading
-
+        // But we don't need to use this, the settings are loaded quickly and without lag anyway
         float xPos;
         float yPos = 1.44f;
         bool firstTitle = true;
@@ -311,26 +387,26 @@ public static class LobbyViewPanePatches
             if (option.Tab != tabName) continue;
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
 
-            bool enable = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+            bool enable = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             // Title
             if (enable && data == null && option is TextOptionItem)
             {
                 if (!firstTitle) yPos -= 1.44f;
                 firstTitle = false;
-                CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(menu.categoryHeaderOrigin, menu.settingsContainer, true);
+                CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer, true);
                 categoryHeaderMasked.SetHeader(StringNames.Name, 61);
-                categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ');
+                categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
                 categoryHeaderMasked.Title.name = option.Name;
                 categoryHeaderMasked.transform.localScale = Vector3.one;
                 categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
-                menu.settingsInfo.Add(categoryHeaderMasked.gameObject);
+                viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
                 yPos -= 1.05f;
                 index = 0;
                 continue;
             }
             else if (enable)
             {
-                ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(menu.infoPanelOrigin, menu.settingsContainer, true);
+                ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, viewSettings.settingsContainer, true);
                 viewSettingsInfoPanel.name = option.Name;
                 viewSettingsInfoPanel.transform.localScale = Vector3.one;
 
@@ -371,21 +447,211 @@ public static class LobbyViewPanePatches
                         break;
                 }
                 viewSettingsInfoPanel.titleText.text = option.GetName();
-                menu.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+                viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
                 index++;
             }
         }
         yPos -= 0.85f;
-        menu.scrollBar.SetYBoundsMax(-yPos - 6f);
-        IsLoading = false;
+        viewSettings.scrollBar.SetYBoundsMax(-yPos - 6f);
     }
-    private static bool AllParentsEnabledAndVisible(OptionItem o)
+
+    private static readonly List<CustomRoles> RoleEnabledList = [];
+    private static void DrawRoles(LobbyViewSettingsPane viewSettings, TabGroup tabName)
     {
-        while (true)
+        float yPos = 1.3f;
+        float xPos = -6.53f;
+        RoleEnabledList.Clear();
+        Color roleColor = tabName.GetTabColor();
+
+        CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer);
+        categoryHeaderMasked.SetHeader(StringNames.RoleQuotaLabel, 61);
+        categoryHeaderMasked.Title.text = Translator.GetString($"TabGroup.{tabName}").Trim('★', ' ').RemoveHtmlTags();
+        categoryHeaderMasked.Title.fontWeight = FontWeight.Light;
+        categoryHeaderMasked.Title.outlineColor = Color.white;
+        categoryHeaderMasked.Title.outlineWidth = 0.04f;
+        categoryHeaderMasked.Background.color = roleColor;
+        categoryHeaderMasked.Title.color = Color.white;
+        categoryHeaderMasked.transform.localScale = Vector3.one;
+        categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
+        viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
+
+        for (int optId = 0; optId < OptionItem.AllOptions.Count; optId++)
         {
-            if (o == null) return true;
-            if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
-            o = o.Parent;
+            OptionItem option = OptionItem.AllOptions[optId];
+            if (option.Tab != tabName) continue;
+            bool enable = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
+            if (!enable) continue;
+            BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
+            string titleName = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
+            string realName = option.Name;
+
+            // Title
+            if (data == null && option is TextOptionItem)
+            {
+                CategoryHeaderRoleVariant categoryHeaderRoleVariant = Object.Instantiate(viewSettings.categoryHeaderRoleOrigin, viewSettings.settingsContainer);
+                categoryHeaderRoleVariant.SetHeader((tabName is TabGroup.ImpostorRoles) ? StringNames.ImpostorRolesHeader : StringNames.CrewmateRolesHeader, 61);
+                categoryHeaderRoleVariant.name = realName;
+
+                categoryHeaderRoleVariant.Title.fontWeight = FontWeight.Black;
+                categoryHeaderRoleVariant.Title.outlineColor = Color.white;
+                categoryHeaderRoleVariant.Title.outlineWidth = 0.2f;
+                categoryHeaderRoleVariant.Background.color = roleColor;
+                categoryHeaderRoleVariant.Title.color = Color.white;
+                categoryHeaderRoleVariant.Title.text = titleName;
+
+                yPos -= 0.4f;
+                categoryHeaderRoleVariant.transform.localScale = Vector3.one;
+                categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
+                viewSettings.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
+                yPos -= 0.7f;
+            }
+            // Roles
+            if (Enum.GetValues<CustomRoles>().FindFirst(x => x.ToString() == realName, out CustomRoles role))
+            {
+                try
+                {
+                    if (role == default || role is CustomRoles.CovenLeader) continue;
+                    ViewSettingsInfoPanelRoleVariant viewSettingsInfoPanelRoleVariant = Object.Instantiate(viewSettings.infoPanelRoleOrigin, viewSettings.settingsContainer);
+                    viewSettingsInfoPanelRoleVariant.name = realName;
+
+                    if (yPos == 1.3f) yPos -= 0.8f;
+                    viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
+                    viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(xPos, yPos, -2f);
+
+                    if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
+
+                    titleName = titleName.RemoveHtmlTags();
+
+                    switch (Options.UsePets.GetBool())
+                    {
+                        case true when role.PetActivatedAbility():
+                            titleName += Translator.GetString("SupportsPetIndicator");
+                            break;
+                        case false when role.OnlySpawnsWithPets():
+                            titleName += Translator.GetString("RequiresPetIndicator");
+                            break;
+                    }
+
+                    if (role.IsExperimental()) titleName += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
+                    if (role.IsGhostRole()) titleName += StringOptionPatch.GetGhostRoleTeam(role);
+                    if (role.IsDevFavoriteRole()) titleName += "  <size=2><#00ffff>★</color></size>";
+
+                    //titleName = $"<size=3.5>{titleName}</size>";
+                   
+                    int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out var valueOpt) ? valueOpt.GetChance() : 0;
+                    int numPerGame = Options.CustomRoleCounts.TryGetValue(role, out var valueInt) ? valueInt.GetInt() : 0;
+                    bool roleDisabled = chancePerGame == 0;
+                    if (roleDisabled)
+                    {
+                        viewSettingsInfoPanelRoleVariant.chanceBackground.color = Palette.DisabledGrey;
+                        viewSettingsInfoPanelRoleVariant.background.color = Palette.DisabledGrey;
+                    }
+                    else
+                    {
+                        viewSettingsInfoPanelRoleVariant.chanceBackground.color = option.NameColor;
+                        viewSettingsInfoPanelRoleVariant.background.color = option.NameColor;
+                        RoleEnabledList.Add(role);
+                    }
+
+                    viewSettingsInfoPanelRoleVariant.SetInfo(titleName, numPerGame, chancePerGame, 61, option.NameColor, RoleManager.Instance.AllRoles[0].RoleIconSolid /*<- Role Icon*/, tabName is not TabGroup.ImpostorRoles, roleDisabled);
+                    viewSettings.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
+                    yPos -= 0.65f;
+
+
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+            }
         }
+        if (RoleEnabledList.Count > 0)
+        {
+            CategoryHeaderMasked categoryHeaderMasked2 = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer);
+            categoryHeaderMasked2.SetHeader(StringNames.RoleSettingsLabel, 61);
+            categoryHeaderMasked2.transform.localScale = Vector3.one;
+            categoryHeaderMasked2.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
+            viewSettings.settingsInfo.Add(categoryHeaderMasked2.gameObject);
+            yPos -= 2.1f;
+            float xPosV2 = 0f;
+            for (int roleIndex = 0; roleIndex < RoleEnabledList.Count; roleIndex++)
+            {
+                float xPosRoleHeader;
+                if (roleIndex % 2 == 0)
+                {
+                    xPosRoleHeader = -5.8f;
+                    if (roleIndex > 0)
+                    {
+                        yPos -= xPosV2 + 0.85f;
+                        xPosV2 = 0f;
+                    }
+                }
+                else xPosRoleHeader = 0.14999962f;
+
+                float setUpXPos = viewSettings.SetUpCustomRoleSettings(RoleEnabledList[roleIndex], tabName, 0.85f, 61, xPosRoleHeader, yPos, roleIndex % 2 == 0);
+                if (setUpXPos == -1f) yPos += 0.85f;
+                else if (setUpXPos > xPosV2) xPosV2 = setUpXPos;
+            }
+        }
+        viewSettings.scrollBar.SetYBoundsMax(-yPos - 4f);
+    }
+    private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float yPosHeader, bool evenNumber)
+    {
+        float xPosV2 = -1f;
+        if (Options.CustomRoleSpawnChances.TryGetValue(role, out var optionRole) && optionRole.Children.Count > 1) // 1 child setting is "Max" setting
+        {
+            AdvancedRoleViewPanel advancedRoleViewPanel = Object.Instantiate(viewSettings.advancedRolePanelOrigin, viewSettings.settingsContainer);
+            advancedRoleViewPanel.name = role + "AdvancedPanel";
+            advancedRoleViewPanel.transform.localScale = Vector3.one;
+            advancedRoleViewPanel.transform.localPosition = new Vector3(xPosRoleHeader, yPosHeader, -2f);
+            advancedRoleViewPanel.header.SetHeader((StringNames)(6000 + role), maskLayer, tabName is not TabGroup.ImpostorRoles, null /*<- Role Icon*/);
+            advancedRoleViewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
+            advancedRoleViewPanel.header.Title.text = Translator.GetString(role.ToString());
+            viewSettings.settingsInfo.Add(advancedRoleViewPanel.gameObject);
+
+            int index = 0;
+            xPosV2 = 1.08f;
+            float xPos = evenNumber ? -8.9f : advancedRoleViewPanel.xPosStart;
+            float yPos = yPosHeader;
+            for (int parentsIndex = 0; parentsIndex < optionRole.Children.Count; parentsIndex++)
+            {
+                OptionItem option = optionRole.Children[parentsIndex];
+                bool show = option.Name != "Maximum";
+                if (!show) continue;
+
+                BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
+                Logger.Info($"data is null: {data == null}", "SetUpCustomRoles");
+                if (data == null) continue;
+
+                ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(advancedRoleViewPanel.infoPanelOrigin, advancedRoleViewPanel.transform.parent, true);
+                viewSettingsInfoPanel.name = option.Name;
+                viewSettingsInfoPanel.transform.localScale = Vector3.one;
+                viewSettingsInfoPanel.transform.localPosition = new Vector3(xPos, yPos, -2f);
+                switch (data.Type)
+                {
+                    case OptionTypes.Checkbox:
+                        viewSettingsInfoPanel.SetInfoCheckbox(data.Title, 61, option.GetBool());
+                        break;
+                    case OptionTypes.String:
+                        viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
+                        break;
+                    case OptionTypes.Float:
+                        viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetFloat()), 61);
+                        break;
+                    case OptionTypes.Int:
+                        viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetInt()), 61);
+                        break;
+                    default:
+                        viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
+                        break;
+                }
+                viewSettingsInfoPanel.titleText.text = option.GetName();
+                yPos -= spacingY;
+                if (index > 0)
+                {
+                    xPosV2 += 0.8f;
+                }
+                index++;
+                viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+            }
+        }
+        return xPosV2;
     }
 }
