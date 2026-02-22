@@ -1195,11 +1195,15 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
             if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
-
             if ((GameData.Instance.TotalTasks == 0 && GameData.Instance.CompletedTasks == 0) || !Main.PlayerStates.Values.Any(x => x.TaskState.HasTasks)) return false;
-            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoleTypes.Crewmate))) return false;
-            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) return false;
 
+            var alivePlayers = Main.EnumerateAlivePlayerControls();
+            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !alivePlayers.Any(x => x.Is(CustomRoleTypes.Crewmate))) return false;
+            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool())
+            {
+                var crewList = alivePlayers.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel);
+                if (crewList.Any() && crewList.All(x => x.IsConverted())) return false;
+            }
             if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
             {
                 reason = GameOverReason.CrewmatesByTask;
