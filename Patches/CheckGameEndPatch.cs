@@ -43,7 +43,11 @@ internal static class GameEndChecker
     {
         return !AmongUsClient.Instance.AmHost;
     }
-
+    public static void ForceCheckEnd()
+    {
+        LastGameEndCheckUpdated = -1;
+        CheckCustomEndCriteria();
+    }
     public static void CheckCustomEndCriteria()
     {
         if (Predicate == null || ShouldNotCheck || Main.HasJustStarted /*|| LastGameEndCheckUpdated == Time.frameCount*/) return;

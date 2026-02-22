@@ -345,8 +345,8 @@ public class PlayerState(byte playerId)
     public void SetDead()
     {
         IsDead = true;
-        Main.LastPlayerControlUpdated = -1;
-        GameEndChecker.LastGameEndCheckUpdated = -1;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -361,8 +361,8 @@ public class PlayerState(byte playerId)
     {
         IsDead = false;
         deathReason = DeathReason.etc;
-        Main.LastPlayerControlUpdated = -1;
-        GameEndChecker.LastGameEndCheckUpdated = -1;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
 
         if (AmongUsClient.Instance.AmHost)
         {

@@ -2320,7 +2320,6 @@ internal static class PlayerControlCompleteTaskPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
-        GameEndChecker.LastGameEndCheckUpdated = -1;
         if (GameStates.IsMeeting || !__instance || !__instance.IsAlive()) return;
 
         Snitch.OnCompleteTask(__instance);
@@ -2331,6 +2330,7 @@ internal static class PlayerControlCompleteTaskPatch
             Benefactor.OnTaskComplete(__instance, task);
         }
         catch (Exception e) { ThrowException(e); }
+        GameEndChecker.LastGameEndCheckUpdated = -1;
     }
 }
 

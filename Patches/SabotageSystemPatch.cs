@@ -52,6 +52,14 @@ public static class ReactorSystemTypePatch
                 return;
         }
     }
+    public static void Postfix(HeliSabotageSystem __instance)
+    {
+        if (__instance.IsActive && __instance.Countdown <= 0)
+        {
+            Main.ForceRebuildCachesPlayerControls();
+            GameEndChecker.ForceCheckEnd();
+        }
+    }
 }
 
 [HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
@@ -79,6 +87,14 @@ public static class HeliSabotageSystemPatch
         SetDurationForReactorSabotage = false;
 
         __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
+    }
+    public static void Postfix(HeliSabotageSystem __instance)
+    {
+        if (__instance.IsActive && __instance.Countdown <= 0)
+        {
+            Main.ForceRebuildCachesPlayerControls();
+            GameEndChecker.ForceCheckEnd();
+        }
     }
 }
 
@@ -116,6 +132,14 @@ public static class LifeSuppSystemTypePatch
                 return;
             default:
                 return;
+        }
+    }
+    public static void Postfix(HeliSabotageSystem __instance)
+    {
+        if (__instance.IsActive && __instance.Countdown <= 0)
+        {
+            Main.ForceRebuildCachesPlayerControls();
+            GameEndChecker.ForceCheckEnd();
         }
     }
 }

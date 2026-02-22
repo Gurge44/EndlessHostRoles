@@ -20,8 +20,8 @@ public static class ShowHostMeetingPatch
     {
         try
         {
-            Main.LastPlayerControlUpdated = -1;
-            GameEndChecker.LastGameEndCheckUpdated = -1;
+            Main.ForceRebuildCachesPlayerControls();
+            GameEndChecker.ForceCheckEnd();
 
             if (GameStates.IsInGame && HostControl == null)
             {

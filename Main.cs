@@ -255,6 +255,11 @@ public class Main : BasePlugin
     public static long LastPlayerControlUpdated = -1;
     private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
     private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
+    public static void ForceRebuildCachesPlayerControls()
+    {
+        LastPlayerControlUpdated = -1;
+        RebuildCaches();
+    }
     private static void RebuildCaches()
     {
         // Update every frame
