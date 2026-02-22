@@ -11,7 +11,7 @@ namespace EHR.Roles;
 public class Infection : RoleBase
 {
     private const int Id = 641700;
-    private static List<byte> PlayerIdList = [];
+    private static readonly List<byte> PlayerIdList = [];
 
     private static OptionItem OptionInfectLimit;
     private static OptionItem OptionInfectWhenKilled;
@@ -29,7 +29,8 @@ public class Infection : RoleBase
     private static bool CanInfectSelf;
     private static bool CanInfectVent;
 
-    private static Dictionary<byte, float> InfectInfos;
+    private static readonly List<PlayerControl> Updates = [];
+    private static readonly Dictionary<byte, float> InfectInfos = [];
     private static bool InfectActive;
     private static bool LateCheckWin;
 
@@ -66,8 +67,8 @@ public class Infection : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        InfectInfos = [];
+        PlayerIdList.Clear();
+        InfectInfos.Clear();
         InfectActive = false;
     }
 
@@ -201,7 +202,6 @@ public class Infection : RoleBase
             // In case of an infected person
             var changed = false;
             bool inVent = player.inVent;
-            List<PlayerControl> updates = [];
 
             foreach (PlayerControl target in Main.CachedAlivePlayerControls())
             {
@@ -225,7 +225,7 @@ public class Infection : RoleBase
                 if ((oldRate < 50 && newRate >= 50) || newRate >= 100)
                 {
                     changed = true;
-                    updates.Add(target);
+                    Updates.Add(target);
                     Logger.Info($"InfectRate [{target.GetNameWithRole()}]: {newRate}%", "Infection");
                     SendRPC(target.PlayerId, newRate);
                 }
@@ -235,7 +235,7 @@ public class Infection : RoleBase
             {
                 //If someone is infected
                 CheckWin();
-                foreach (PlayerControl x in updates) Utils.NotifyRoles(SpecifyTarget: x);
+                foreach (PlayerControl x in Updates) Utils.NotifyRoles(SpecifyTarget: x);
             }
         }
     }
@@ -320,25 +320,46 @@ public class Infection : RoleBase
         var apc = Main.CachedAllPlayerControls();
         var aapc = Main.CachedAlivePlayerControls();
 
-        if (aapc.All(p => p.Is(CustomRoles.Infection) || IsInfected(p.PlayerId)))
+        bool allInfected = true;
+        for (int i = 0; i < aapc.Count; i++)
         {
-            InfectActive = false;
-
-            PlayerControl pd = apc.FirstOrDefault(x => x.Is(CustomRoles.Infection));
-
-            foreach (PlayerControl player in aapc)
+            PlayerControl pc = aapc[i];
+            if (!pc.Is(CustomRoles.Infection) && !IsInfected(pc.PlayerId))
             {
-                if (player.Is(CustomRoles.Infection)) continue;
-                player.Suicide(PlayerState.DeathReason.Curse, pd);
+                allInfected = false;
+                break;
             }
+        }
+        if (!allInfected) return;
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Infection);
+        InfectActive = false;
 
-            foreach (PlayerControl infection in apc)
+        PlayerControl infectionSource = null;
+        for (int index = 0; index < apc.Count; index++)
+        {
+            PlayerControl pc = apc[index];
+            if (pc.Is(CustomRoles.Infection))
             {
-                if (infection.Is(CustomRoles.Infection))
-                    CustomWinnerHolder.WinnerIds.Add(infection.PlayerId);
+                infectionSource = pc;
+                break;
             }
+        }
+
+        for (int aliveIndex = 0; aliveIndex < aapc.Count; aliveIndex++)
+        {
+            PlayerControl player = aapc[aliveIndex];
+            if (player.Is(CustomRoles.Infection)) continue;
+
+            player.Suicide(PlayerState.DeathReason.Curse, infectionSource);
+        }
+
+        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Infection);
+        for (int index = 0; index < apc.Count; index++)
+        {
+            PlayerControl pc = apc[index];
+
+            if (pc.Is(CustomRoles.Infection))
+                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
     }
 

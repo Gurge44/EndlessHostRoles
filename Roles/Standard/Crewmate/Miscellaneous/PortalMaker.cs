@@ -70,10 +70,18 @@ public class PortalMaker : RoleBase
         if (!LastTP.TryGetValue(pc.PlayerId, out long lastTP) || lastTP + 5 > now) return;
 
         Vector2 pos = pc.Pos();
-        if (!Marks.FindFirst(x => FastVector2.DistanceWithinRange(x, pos, 1f), out Vector2 nearMark)) return;
+        int nearIndex = -1;
+        Vector2 mark0 = Marks[0];
+        if (FastVector2.DistanceWithinRange(mark0, pos, 1f)) nearIndex = 0;
+        else
+        {
+            Vector2 mark1 = Marks[1];
+            if (FastVector2.DistanceWithinRange(mark1, pos, 1f))
+                nearIndex = 1;
+        }
+        if (nearIndex == -1) return;
 
-        int index = Marks.IndexOf(nearMark);
-        Vector2 target = Marks[1 - index];
+        Vector2 target = Marks[1 - nearIndex];
         pc.TP(target);
         LastTP[pc.PlayerId] = now;
         

@@ -81,7 +81,7 @@ public static class FixedUpdateCaller
 
                     PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, GameManager.Instance.LogicOptions.GetKillDistance(), out PlayerControl closestPlayer, Predicate) ? closestPlayer : null;
 
-                    KillButton killButton = HudManager.Instance.KillButton;
+                    KillButton killButton = HudManager.KillButton;
 
                     if (killButton.currentTarget && killButton.currentTarget != closest)
                         killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);

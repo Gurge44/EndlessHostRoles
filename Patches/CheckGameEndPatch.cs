@@ -50,7 +50,7 @@ internal static class GameEndChecker
     }
     public static void CheckCustomEndCriteria()
     {
-        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted /*|| LastGameEndCheckUpdated == Time.frameCount*/) return;
+        if (Predicate == null || ShouldNotCheck || !AmongUsClient.Instance.AmHost || Main.HasJustStarted /*|| LastGameEndCheckUpdated == Time.frameCount*/) return;
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return;
         var now = TimeStamp;
         if (LastGameEndCheckUpdated == now) return;
@@ -1397,8 +1397,8 @@ internal static class GameEndChecker
             }
             if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool())
             {
-                bool foundCrew = false;
-                bool allConverted = true;
+                bool foundAnyCrew = false;
+                bool allCrewIsConverted = true;
                 foreach (var pc in alivePlayers)
                 {
                     if (!pc.Is(Team.Crewmate)) continue;
@@ -1413,16 +1413,16 @@ internal static class GameEndChecker
                         or RoleTypes.CrewmateGhost
                         or RoleTypes.GuardianAngel)
                     {
-                        foundCrew = true;
+                        foundAnyCrew = true;
 
                         if (!pc.IsConverted())
                         {
-                            allConverted = false;
+                            allCrewIsConverted = false;
                             break;
                         }
                     }
                 }
-                if (foundCrew && allConverted)
+                if (foundAnyCrew && allCrewIsConverted)
                     return false;
             }
 
