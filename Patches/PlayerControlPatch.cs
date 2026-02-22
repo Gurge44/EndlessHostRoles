@@ -1215,7 +1215,7 @@ internal static class ReportDeadBodyPatch
                 }
                 catch (Exception e) { ThrowException(e); }
             }
-        }, 2f, "CNO OnMeeting");
+        }, 5f, "CNO OnMeeting");
 
         if (HudManager.InstanceExists) HudManager.Instance.SetRolePanelOpen(false);
 

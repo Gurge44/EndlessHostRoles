@@ -2476,7 +2476,7 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && Input.GetKey(KeyCode.LeftShift) ? byte.MaxValue : player.PlayerId;
+        byte to = player.AmOwner && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) ? byte.MaxValue : player.PlayerId;
         SendRolesInfo(subArgs, to);
     }
 
@@ -3296,7 +3296,8 @@ internal static class ChatUpdatePatch
             chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
         }
 
-        LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
+        long now = Utils.TimeStamp;
+        LastMessages.RemoveAll(x => now - x.SendTimeStamp > 10);
     }
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)

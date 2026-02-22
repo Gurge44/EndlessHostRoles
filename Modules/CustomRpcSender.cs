@@ -709,6 +709,15 @@ public static class CustomRpcSenderExtensions
         return hasValue;
     }
 
+    public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl player)
+    {
+        player.Exiled();
+        sender.AutoStartRpc(player.NetId, RpcCalls.Exiled)
+            .EndRpc();
+        FixedUpdatePatch.LoversSuicide(player.PlayerId);
+        return true;
+    }
+
     public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)
     {
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)

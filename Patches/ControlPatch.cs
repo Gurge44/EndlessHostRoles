@@ -61,7 +61,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (hudManagerExists)
             {
-                if (PlayerControl.LocalPlayer != null)
+                if (PlayerControl.LocalPlayer)
                 {
                     if (Input.GetKeyDown(KeyCode.LeftControl))
                     {
@@ -75,8 +75,8 @@ internal static class ControllerManagerUpdatePatch
                             PlayerControl.LocalPlayer.Collider.offset = new(0f, -0.3636f);
                     }
                 }
-            
-                if (isLobby && (HudManager.Instance.Chat == null || !chatIsOpen))
+
+                if (isLobby && (!HudManager.Instance.Chat || !chatIsOpen))
                 {
                     if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
@@ -86,7 +86,7 @@ internal static class ControllerManagerUpdatePatch
                             OptionShower.CurrentPage = i;
                     }
 
-                    if (Input.GetKeyDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
+                    if (Input.GetKeyDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
                         GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
                 }
             }
@@ -153,6 +153,32 @@ internal static class ControllerManagerUpdatePatch
 
             if (!AmongUsClient.Instance.AmHost) return;
 
+            if (inGame)
+            {
+                if (KeysDown(SetChatVisibleForAllKey))
+                    Utils.SetChatVisibleForAll();
+
+                if (KeysDown(StartAndStopMeetingHudKey))
+                {
+                    if (GameStates.IsMeeting)
+                    {
+                        MeetingHudRpcClosePatch.AllowClose = true;
+                        MeetingHud.Instance.RpcClose();
+                    }
+                    else
+                        PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
+                }
+
+                if (KeysDown(HostKillSelfKey))
+                {
+                    PlayerControl.LocalPlayer.Data.IsDead = true;
+                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
+                    PlayerControl.LocalPlayer.RpcExileV2();
+                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                    Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, GameStates.IsMeeting);
+                    Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
+                }
+            }
             if (inGame)
             {
                 if (KeysDown(SetChatVisibleForAllKey))
@@ -436,7 +462,7 @@ public static class InGameRoleInfoMenu
 
     private static GameObject MainInfo;
     private static GameObject AddonsInfo;
-    public static bool Showing => Fill != null && Fill.active && Menu != null && Menu.active;
+    public static bool Showing => Fill && Fill.active && Menu && Menu.active;
     private static SpriteRenderer FillSp => Fill.GetComponent<SpriteRenderer>();
     private static TextMeshPro MainInfoTMP => MainInfo.GetComponent<TextMeshPro>();
     private static TextMeshPro AddonsInfoTMP => AddonsInfo.GetComponent<TextMeshPro>();
@@ -477,7 +503,7 @@ public static class InGameRoleInfoMenu
 
     public static void SetRoleInfoRef(PlayerControl player)
     {
-        if (player == null) return;
+        if (!player) return;
 
         if (!Fill || !Menu) Init();
 

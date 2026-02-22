@@ -154,18 +154,21 @@ internal class QuizMaster : RoleBase
         return CanVent.GetBool();
     }
 
-    public override void AfterMeetingTasks()
+    public static void OnMeetingEnd()
     {
         Data.NumPlayersDeadThisRound = 0;
-
-        if (Target != byte.MaxValue)
-        {
-            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.WrongAnswer, Target);
-            Target = byte.MaxValue;
-        }
-
         MessagesToSend = [];
-        CurrentQuestion = null;
+        
+        QuizMasters.ForEach(x =>
+        {
+            if (x.Target != byte.MaxValue)
+            {
+                CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.WrongAnswer, x.Target);
+                x.Target = byte.MaxValue;
+            }
+
+            x.CurrentQuestion = null;
+        });
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -304,7 +307,7 @@ internal class QuizMaster : RoleBase
 
             if (CurrentQuestion.CorrectAnswerIndex == index)
             {
-                if (pc != null) RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
+                if (pc) RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
                 Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
                 Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
 
@@ -315,9 +318,9 @@ internal class QuizMaster : RoleBase
                 Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
                 Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
 
-                if (pc.Is(CustomRoles.Pestilence)) return;
+                if (!pc || pc.Is(CustomRoles.Pestilence)) return;
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
-                pc?.RpcGuesserMurderPlayer();
+                pc.RpcGuesserMurderPlayer();
                 Utils.AfterPlayerDeathTasks(pc, true);
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");

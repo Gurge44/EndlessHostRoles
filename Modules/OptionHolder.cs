@@ -812,6 +812,7 @@ public static class Options
     public static OptionItem NameDisplayAddonsOnlyInMeetings;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
+    public static OptionItem AddonAssigningRolesIgnoreMaxAddonsLimit;
 
     public static OptionItem CharmedCanBeGuessed;
     public static OptionItem ContagiousCanBeGuessed;
@@ -1456,6 +1457,9 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
 
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard);
+        
+        AddonAssigningRolesIgnoreMaxAddonsLimit = new BooleanOptionItem(214, "AddonAssigningRolesIgnoreMaxAddonsLimit", false, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);
 
         CharmedCanBeGuessed = new StringOptionItem(213, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)

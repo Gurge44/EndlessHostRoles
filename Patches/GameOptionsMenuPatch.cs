@@ -51,21 +51,21 @@ public static class GameOptionsMenuPatch
     private static void InitializePostfix()
     {
         GameObject optionMenu = GameObject.Find("PlayerOptionsMenu(Clone)");
-        if (optionMenu == null) return;
+        if (!optionMenu) return;
 
         optionMenu.transform.FindChild("Background")?.gameObject.SetActive(false);
 
         // By TommyXL
         LateTask.New(() =>
         {
-            if (optionMenu == null) return;
+            if (!optionMenu) return;
 
             Transform menuDescription = optionMenu.transform.FindChild("What Is This?");
-            if (menuDescription == null) return;
+            if (!menuDescription) return;
 
             Transform infoImage = menuDescription.transform.FindChild("InfoImage");
 
-            if (infoImage != null)
+            if (infoImage)
             {
                 infoImage.transform.localPosition = new(-4.65f, 0.16f, -1f);
                 infoImage.transform.localScale = new(0.2202f, 0.2202f, 0.3202f);
@@ -73,7 +73,7 @@ public static class GameOptionsMenuPatch
 
             Transform infoText = menuDescription.transform.FindChild("InfoText");
 
-            if (infoText != null)
+            if (infoText)
             {
                 infoText.transform.localPosition = new(-3.5f, 0.83f, -2f);
                 infoText.transform.localScale = new(1f, 1f, 1f);
@@ -81,13 +81,13 @@ public static class GameOptionsMenuPatch
 
             Transform cubeObject = menuDescription.transform.FindChild("Cube");
 
-            if (cubeObject != null)
+            if (cubeObject)
             {
                 cubeObject.transform.localPosition = new(-3.2f, 0.55f, -0.1f);
                 cubeObject.transform.localScale = new(0.61f, 0.64f, 1f);
             }
 
-            if (GameSettingMenu.Instance != null && GameSettingMenu.Instance.MenuDescriptionText != null)
+            if (GameSettingMenu.Instance && GameSettingMenu.Instance.MenuDescriptionText)
                 GameSettingMenu.Instance.MenuDescriptionText.m_marginWidth = 2.5f;
         }, 0.2f, log: false);
     }
@@ -160,7 +160,7 @@ public static class GameOptionsMenuPatch
                         num -= 0.18f;
 
                     BaseGameSetting baseGameSetting = GetSetting(option);
-                    if (baseGameSetting == null) continue;
+                    if (!baseGameSetting) continue;
 
 
                     OptionBehaviour optionBehaviour;
@@ -429,7 +429,7 @@ public static class GameOptionsMenuPatch
                 break;
         }
 
-        if (baseGameSetting != null) baseGameSetting.Title = StringNames.Accept;
+        if (baseGameSetting) baseGameSetting.Title = StringNames.Accept;
 
         return baseGameSetting;
     }
@@ -438,7 +438,7 @@ public static class GameOptionsMenuPatch
     public static void ReloadUI()
     {
         int tab = ModGameOptionsMenu.TabIndex;
-        if (GameSettingMenu.Instance == null) return;
+        if (!GameSettingMenu.Instance) return;
         GameSettingMenu.Instance.Close();
         OptionsConsole optionsConsole = null;
 
@@ -789,10 +789,10 @@ public static class StringOptionPatch
 
                         GameObject gameObject = GameObject.Find("PlayerOptionsMenu(Clone)");
 
-                        if (gameObject != null)
+                        if (gameObject)
                         {
                             Transform findChild = gameObject.transform.FindChild("What Is This?");
-                            if (findChild != null) findChild.gameObject.SetActive(false);
+                            if (findChild) findChild.gameObject.SetActive(false);
                         }
 
                         GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(true));
@@ -1104,7 +1104,7 @@ public static class GameSettingMenuPatch
 
         minus.OnClick.AddListener((Action)(() =>
         {
-            if (PresetBehaviour == null)
+            if (!PresetBehaviour)
                 __instance.ChangeTab(3, false);
 
             LastPresetChange = Utils.TimeStamp;
@@ -1141,7 +1141,7 @@ public static class GameSettingMenuPatch
 
         plus.OnClick.AddListener((Action)(() =>
         {
-            if (PresetBehaviour == null)
+            if (!PresetBehaviour)
                 __instance.ChangeTab(3, false);
 
             LastPresetChange = Utils.TimeStamp;
@@ -1279,7 +1279,7 @@ public static class GameSettingMenuPatch
             HiddenBySearch = result;
             System.Collections.Generic.List<OptionItem> searchWinners = optionItems.Where(x => x.Parent == null && !x.IsCurrentlyHidden() && !result.Contains(x)).ToList();
 
-            if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || gameSettings == null)
+            if (searchWinners.Count == 0 || !ModSettingsTabs.TryGetValue(modTab, out GameOptionsMenu gameSettings) || !gameSettings)
             {
                 HiddenBySearch.Clear();
                 Logger.SendInGame(Translator.GetString("SearchNoResult"), Palette.Orange);
@@ -1329,7 +1329,7 @@ public static class GameSettingMenuPatch
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
 
-            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu gameSettings) && gameSettings != null)
+            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu gameSettings) && gameSettings)
                 GameOptionsMenuPatch.ReCreateSettings(gameSettings);
 
             HiddenBySearch.Clear();
@@ -1346,13 +1346,13 @@ public static class GameSettingMenuPatch
 
             foreach (TabGroup tab in tabGroups)
             {
-                if (ModSettingsTabs.TryGetValue(tab, out settingsTab) && settingsTab != null)
+                if (ModSettingsTabs.TryGetValue(tab, out settingsTab) && settingsTab)
                     settingsTab.gameObject.SetActive(false);
             }
 
             foreach (TabGroup tab in tabGroups)
             {
-                if (ModSettingsButtons.TryGetValue(tab, out button) && button != null)
+                if (ModSettingsButtons.TryGetValue(tab, out button) && button)
                     button.SelectButton(false);
             }
         }
@@ -1370,7 +1370,7 @@ public static class GameSettingMenuPatch
             __instance.GameSettingsButton.SelectButton(false);
             __instance.RoleSettingsButton.SelectButton(false);
 
-            if (ModSettingsTabs.TryGetValue(tabGroup, out settingsTab) && settingsTab != null)
+            if (ModSettingsTabs.TryGetValue(tabGroup, out settingsTab) && settingsTab)
             {
                 settingsTab.gameObject.SetActive(true);
                 __instance.MenuDescriptionText.DestroyTranslator();
@@ -1388,7 +1388,7 @@ public static class GameSettingMenuPatch
         __instance.ToggleLeftSideDarkener(true);
         __instance.ToggleRightSideDarkener(false);
 
-        if (ModSettingsButtons.TryGetValue(tabGroup, out button) && button != null) button.SelectButton(true);
+        if (ModSettingsButtons.TryGetValue(tabGroup, out button) && button) button.SelectButton(true);
 
         return false;
     }
@@ -1397,13 +1397,13 @@ public static class GameSettingMenuPatch
     [HarmonyPrefix]
     private static bool OnEnablePrefix(GameSettingMenu __instance)
     {
-        if (TemplateGameOptionsMenu == null)
+        if (!TemplateGameOptionsMenu)
         {
             TemplateGameOptionsMenu = Object.Instantiate(__instance.GameSettingsTab, __instance.GameSettingsTab.transform.parent);
             TemplateGameOptionsMenu.gameObject.SetActive(false);
         }
 
-        if (TemplateGameSettingsButton == null)
+        if (!TemplateGameSettingsButton)
         {
             TemplateGameSettingsButton = Object.Instantiate(__instance.GameSettingsButton, __instance.GameSettingsButton.transform.parent);
             TemplateGameSettingsButton.gameObject.SetActive(false);
@@ -1478,7 +1478,7 @@ public static class FixInputChatField
 {
     public static bool Prefix(FreeChatInputField __instance)
     {
-        if (GameSettingMenuPatch.InputField != null && __instance == GameSettingMenuPatch.InputField)
+        if (GameSettingMenuPatch.InputField && __instance == GameSettingMenuPatch.InputField)
         {
             Vector2 size = __instance.Background.size;
             size.y = Math.Max(0.62f, __instance.textArea.TextHeight + 0.2f);
@@ -1499,7 +1499,7 @@ public static class FixDarkThemeForSearchBar
 
         FreeChatInputField field = GameSettingMenuPatch.InputField;
 
-        if (field != null)
+        if (field)
         {
             field.background.color = new Color32(40, 40, 40, byte.MaxValue);
             field.textArea.compoText.Color(Color.white);

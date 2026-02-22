@@ -1235,7 +1235,7 @@
   "PortalMaker.PetToRemovePortals": "Can Pet To Remove Both Portals After Placing Them",
   "President": "President",
   "PresidentInfo": "Control The Game",
-  "PresidentInfoLong": "(Crewmates):\\nAs the President, you have 6 decrees each to be used once in the game. You can only use 1 decree in every meeting. To use a decree, type <b>/cmd decree {number}</b>, replacing {number} with the ID of the corresponding decree. To get a list of decrees and their IDs, type <b>/cmd decree</b>.<size=80%>\\n\\nList of decrees and what they do:\\n- Revealing: Reveals you as the President for everyone, makes you unguessable and cuts your vision in half for the rest of the game.\\n- Finishing: Ends the current meeting instantly without counting the votes.\\n- Declassification: Everyone will see voting colors at the end of the current meeting.\\n- Government Support: Gives all crewmates +1 ability use.\\n- Investigation: Get info about how many impostors and neutral killers are alive.\\n- Government Recruiting: After using, vote for someone to recruit them (your vote will be canceled and you'll be able to vote normally after this) to recruit that player to the role specified in the settings, if they're a crewmate.</size>",
+  "PresidentInfoLong": "(Crewmates):\\nAs the President, you have 6 decrees each to be used once in the game. You can only use 1 decree in every meeting. To use a decree, type <b>/cmd decree {number}</b>, replacing {number} with the ID of the corresponding decree. <size=80%>\\n\\nList of decrees and what they do:\\n1. Revealing: Reveals you as the President for everyone, makes you unguessable and cuts your vision in half for the rest of the game.\\n2. Finishing: Ends the current meeting instantly without counting the votes.\\n3. Declassification: Everyone will see voting colors at the end of the current meeting.\\n4. Government Support: Gives all crewmates +1 ability use.\\n5. Investigation: Get info about how many impostors and neutral killers are alive.\\n6. Government Recruiting: After using, vote for someone to recruit them (your vote will be canceled and you'll be able to vote normally after this) to recruit that player to the role specified in the settings, if they're a crewmate.</size>",
   "President.Decree.Declassification": "Declassification Decree",
   "President.Decree.Finish": "Finishing Decree",
   "President.Decree.GovernmentRecruiting": "Government Recruiting Decree",
@@ -2099,6 +2099,9 @@
   "PenguinTimerText": "Drag Timer",
   "PenguinVictimCanUseAbilities": "Victim Can Use Their Abilities While Being Dragged",
   "PenguinVictimKill": "As the victim of the Penguin/Goose, you cannot interact with others",
+  "Perplexer": "Perplexer",
+  "PerplexerInfo": "Invert a player's movement controls",
+  "PerplexerInfoLong": "(Impostors):\\nAs the Perplexer, use your shapeshift menu to select a player. That player will get their movement controls inverted for a certain amout of time.",
   "PhantomEHR": "Phantom",
   "PhantomEHRInfo": "Go invisible temporarily",
   "PhantomEHRInfoLong": "(Impostors):\\nAs the Phantom, you can go invisible for a short period. During this time, you can't be seen by Crewmates.",
@@ -10339,6 +10342,7 @@
     General Settings           
   ============================== */
   "NoLimitAddonsNumMax": "Max Add-ons Per Player",
+  "AddonAssigningRolesIgnoreMaxAddonsLimit": "Add-on Assigning Roles Ignore Max Add-ons Limit",
 
   /* ==============================
     Meeting Settings         

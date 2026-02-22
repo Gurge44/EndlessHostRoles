@@ -20,7 +20,7 @@ public static class LobbyFixedUpdatePatch
             {
                 GameObject leftBox = GameObject.Find("Leftbox");
 
-                if (leftBox != null)
+                if (leftBox)
                 {
                     Paint = Object.Instantiate(leftBox, leftBox.transform.parent.transform);
                     Paint.name = "Lobby Paint";
@@ -33,10 +33,10 @@ public static class LobbyFixedUpdatePatch
             if (!LeftEngineSR || !RightEngineSR)
             {
                 var leftEngine = GameObject.Find("LeftEngine");
-                if (leftEngine != null) LeftEngineSR = leftEngine.GetComponent<SpriteRenderer>();
+                if (leftEngine) LeftEngineSR = leftEngine.GetComponent<SpriteRenderer>();
 
                 var rightEngine = GameObject.Find("RightEngine");
-                if (rightEngine != null) RightEngineSR = rightEngine.GetComponent<SpriteRenderer>();
+                if (rightEngine) RightEngineSR = rightEngine.GetComponent<SpriteRenderer>();
             }
             else
             {
@@ -62,7 +62,7 @@ public static class HostInfoPanelSetUpPatch
     {
         try
         {
-            if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+            if (!HostText) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
             string name = AmongUsClient.Instance.GetHost().PlayerName.Split('\n')[^1];
             if (name == string.Empty) return;

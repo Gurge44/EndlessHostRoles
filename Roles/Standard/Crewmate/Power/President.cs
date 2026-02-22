@@ -147,11 +147,13 @@ public class President : RoleBase
 
         if (!Utils.GetPlayerById(president.PresidentId).IsAlive()) return;
 
-        if (!int.TryParse(message, out int num) || num > 5)
+        if (!int.TryParse(message, out int num) || num is > 6 or < 1)
         {
             Utils.SendMessage(GetHelpMessage(), pc.PlayerId);
             return;
         }
+
+        num--;
 
         var decree = (Decree)num;
 

@@ -95,7 +95,7 @@ public static class TextBoxPatch
             }
         }
 
-        if (flag) __instance.OnEnter.Invoke();
+        if (flag && !Input.GetKey(KeyCode.LeftShift)) __instance.OnEnter.Invoke();
         __instance.SetPipePosition();
         return false;
     }
@@ -282,6 +282,7 @@ public static class TextBoxPatch
                     bool IsInvalidArg() =>
                         arg != argName && argName switch
                         {
+                            "{uuid}" => arg.Length > 16,
                             "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out byte id) || Main.EnumeratePlayerControls().All(x => x.PlayerId != id),
                             "{ids}" => arg.Split(',').Any(x => !byte.TryParse(x, out _)),
                             "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out int num) || num < 0,
@@ -342,10 +343,10 @@ public static class TextBoxPatch
 
         void Destroy()
         {
-            if (PlaceHolderText != null) PlaceHolderText.enabled = false;
-            if (CommandInfoText != null) CommandInfoText.enabled = false;
+            if (PlaceHolderText) PlaceHolderText.enabled = false;
+            if (CommandInfoText) CommandInfoText.enabled = false;
 
-            if (AdditionalInfoText != null)
+            if (AdditionalInfoText)
             {
                 bool showLobbyCode = HudManager.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
                 AdditionalInfoText.enabled = showLobbyCode;
@@ -356,12 +357,12 @@ public static class TextBoxPatch
 
     public static void OnTabPress(ChatController __instance)
     {
-        if (PlaceHolderText == null || PlaceHolderText.text == "") return;
+        if (!PlaceHolderText || PlaceHolderText.text == "") return;
 
         __instance.freeChatField.textArea.SetText(PlaceHolderText.text);
         __instance.freeChatField.textArea.compoText = "";
 
-        if (AdditionalInfoText != null && AdditionalInfoText.text != "")
+        if (AdditionalInfoText && AdditionalInfoText.text != "")
             OptionShower.CurrentPage = 0;
     }
 
@@ -375,6 +376,13 @@ public static class TextBoxPatch
             AdditionalInfoText?.gameObject.SetActive(open);
         }
         catch { }
+    }
+
+    public static void OnMeetingStart()
+    {
+        PlaceHolderText?.transform.SetAsLastSibling();
+        CommandInfoText?.transform.SetAsLastSibling();
+        AdditionalInfoText?.transform.SetAsLastSibling();
     }
 
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.Update))]

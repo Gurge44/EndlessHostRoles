@@ -39,7 +39,7 @@ public class Fakeshifter : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetInt();
-        opt.SetVision(false);
+        AURoleOptions.ShapeshifterDuration = 0.1f;
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
