@@ -126,7 +126,6 @@ public static class FixedUpdateCaller
                     try
                     {
                         PlayerControl pc = players[playerId];
-
                         if (!pc || pc.PlayerId >= 254) continue;
 
                         FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerId != playerId);

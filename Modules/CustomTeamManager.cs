@@ -167,6 +167,7 @@ internal static class CustomTeamManager
     }
 
     private static readonly Dictionary<CustomTeam, HashSet<byte>> AliveTeamPlayers = [];
+    private static readonly HashSet<byte> AliveSet = [];
     public static bool CheckCustomTeamGameEnd()
     {
         if (EnabledCustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
@@ -174,12 +175,13 @@ internal static class CustomTeamManager
         try
         {
             var aapc = Main.CachedAlivePlayerControls();
-            int aapcCount = aapc.Count;
+            int aliveCount = aapc.Count;
 
-            if (aapcCount == 1)
+            if (aliveCount == 1)
             {
                 PlayerControl lastPlayer = aapc[0];
-                WinnerTeam = GetCustomTeam(lastPlayer.PlayerId);
+                CustomTeam lastTeam = GetCustomTeam(lastPlayer.PlayerId);
+                WinnerTeam = lastTeam;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
                 CustomWinnerHolder.WinnerIds = [lastPlayer.PlayerId];
                 return true;
@@ -187,44 +189,58 @@ internal static class CustomTeamManager
 
             foreach (var kvp in CustomTeamPlayerIds)
             {
-                kvp.Value.RemoveWhere(x =>
+                var teamPlayers = kvp.Value;
+
+                teamPlayers.RemoveWhere(p =>
                 {
-                    PlayerControl pc = Utils.GetPlayerById(x);
-                    return pc == null || pc.Data == null || pc.Data.Disconnected || !pc.IsAlive();
+                    PlayerControl pc = Utils.GetPlayerById(p);
+                    return !pc || !pc.Data || pc.Data.Disconnected;
                 });
             }
 
-            CustomTeam singleTeam = null;
-            int aliveTeamsCount = 0;
+            AliveTeamPlayers.Clear();
             foreach (var kvp in CustomTeamPlayerIds)
             {
-                if (kvp.Value.Count > 0)
+                CustomTeam teamKey = kvp.Key;
+                var originalSet = kvp.Value;
+                foreach (byte playerId in originalSet)
                 {
-                    aliveTeamsCount++;
-                    singleTeam = kvp.Key;
+                    PlayerControl pc = Utils.GetPlayerById(playerId);
+                    if (pc.IsAlive())
+                        AliveSet.Add(playerId);
                 }
+                if (AliveSet.Count > 0)
+                    AliveTeamPlayers[teamKey] = AliveSet;
             }
 
-            if (aliveTeamsCount == 1)
+            if (AliveTeamPlayers.Count == 1)
             {
-                bool allPlayersInSameTeam = true;
-                for (int i = 0; i < aapcCount; i++)
+                CustomTeam onlyTeam = null;
+                foreach (var kvp in AliveTeamPlayers)
                 {
-                    CustomTeam pTeam = GetCustomTeam(aapc[i].PlayerId);
-                    if (pTeam == null || !pTeam.Equals(singleTeam))
+                    onlyTeam = kvp.Key;
+                    break;
+                }
+                bool allSameTeam = true;
+                for (int i = 0; i < aapc.Count; i++)
+                {
+                    PlayerControl player = aapc[i];
+                    CustomTeam playerTeam = GetCustomTeam(player.PlayerId);
+                    if (playerTeam == null || !playerTeam.Equals(onlyTeam))
                     {
-                        allPlayersInSameTeam = false;
+                        allSameTeam = false;
                         break;
                     }
                 }
-
-                if (allPlayersInSameTeam)
+                if (allSameTeam)
                 {
-                    WinnerTeam = singleTeam;
+                    WinnerTeam = onlyTeam;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
-                    foreach (var id in CustomTeamPlayerIds[singleTeam])
-                        CustomWinnerHolder.WinnerIds.Add(id);
-                    
+                    foreach (var kvp in AliveTeamPlayers)
+                    {
+                        CustomWinnerHolder.WinnerIds = kvp.Value;
+                        break;
+                    }
                     return true;
                 }
             }
