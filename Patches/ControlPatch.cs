@@ -68,7 +68,11 @@ internal static class ControllerManagerUpdatePatch
 
             if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                if (Input.GetKey(KeyCode.F1))
+                // PS4/PS5: Touchpad
+                if (Input.GetKeyDown(KeyCode.JoystickButton13))
+                    TaskPanelBehaviourPatch.RolePanelButton.OnClick.Invoke();
+
+                if (Input.GetKey(KeyCode.F1) || Input.GetKey(KeyCode.JoystickButton11)) // PS4/PS5: R3 Stick
                 {
                     if (!InGameRoleInfoMenu.Showing) InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
 
@@ -221,7 +225,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (!Options.NoGameEnd.GetBool()) return;
 
-#if DEBUG
+#if DEBUG        
             if (KeysDown(KeyCode.F2, KeyCode.LeftControl))
             {
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
@@ -310,6 +314,45 @@ internal static class ControllerManagerUpdatePatch
             if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
                 VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
 
+            // How brilliantly Innersloth named the joystick buttons, lmao
+            //if (Input.GetKeyDown(KeyCode.JoystickButton1))
+            //    Logger.Info($"JoystickButton1", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton2))
+            //    Logger.Info($"JoystickButton2", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton3))
+            //    Logger.Info($"JoystickButton3", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton4))
+            //    Logger.Info($"JoystickButton4", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton5))
+            //    Logger.Info($"JoystickButton5", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton6))
+            //    Logger.Info($"JoystickButton6", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton7))
+            //    Logger.Info($"JoystickButton7", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton8))
+            //    Logger.Info($"JoystickButton8", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton9))
+            //    Logger.Info($"JoystickButton9", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton10))
+            //    Logger.Info($"JoystickButton10", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton11))
+            //    Logger.Info($"JoystickButton11", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton12))
+            //    Logger.Info($"JoystickButton12", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton13))
+            //    Logger.Info($"JoystickButton13", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton14))
+            //    Logger.Info($"JoystickButton14", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton15))
+            //    Logger.Info($"JoystickButton15", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton16))
+            //    Logger.Info($"JoystickButton16", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton17))
+            //    Logger.Info($"JoystickButton17", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton18))
+            //    Logger.Info($"JoystickButton18", "ControllerManager");
+            //if (Input.GetKeyDown(KeyCode.JoystickButton19))
+            //    Logger.Info($"JoystickButton19", "ControllerManager");
 #endif
         }
         catch { }
