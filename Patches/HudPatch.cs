@@ -950,6 +950,7 @@ internal static class TaskPanelBehaviourPatch
     public static PassiveButton RolePanelButton;
     public static TaskPanelBehaviour TaskPanel;
     public static TextMeshPro TabText;
+    public static TextMeshPro TabPanelName;
     internal static TaskPanelBehaviour CreateRoleTab(CustomRoles role)
     {
         TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
@@ -978,10 +979,10 @@ internal static class TaskPanelBehaviourPatch
 
     internal static void UpdateRoleTab(TaskPanelBehaviour panel, CustomRoles role)
     {
-        var tabText = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
+        if (!TabPanelName) TabPanelName = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
         if (!TaskPanel) TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
         string panelName = GetString(Options.CurrentGameMode != CustomGameMode.Standard ? "GameInfo" : "RoleInfo");
-        if (tabText.text != panelName) tabText.text = panelName;
+        if (TabPanelName.text != panelName) TabPanelName.text = panelName;
 
         bool taskingGm = Utils.IsTaskingGameMode();
         
