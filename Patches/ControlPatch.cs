@@ -66,13 +66,13 @@ internal static class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
 
-            if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
+            if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting))
             {
                 // PS4/PS5: Touchpad
                 if (Input.GetKeyDown(KeyCode.JoystickButton13))
-                    TaskPanelBehaviourPatch.RolePanelButton.OnClick.Invoke();
+                    TaskPanelBehaviourPatch.RolePanelButton?.OnClick.Invoke();
 
-                if (Input.GetKey(KeyCode.F1) || Input.GetKey(KeyCode.JoystickButton11)) // PS4/PS5: R3 Stick
+                if (Options.CurrentGameMode == CustomGameMode.Standard && (Input.GetKey(KeyCode.F1) || Input.GetKey(KeyCode.JoystickButton11))) // PS4/PS5: R3 Stick
                 {
                     if (!InGameRoleInfoMenu.Showing) InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
 
