@@ -1122,9 +1122,10 @@ internal static class ExtendedPlayerControl
         return pc.IsModdedClient() && !pc.IsHost();
     }
 
-    public static string GetDisplayRoleName(this PlayerControl player, bool pure = false, bool seeTargetBetrayalAddons = false)
+    public static string GetDisplayRoleName(this PlayerControl player, PlayerControl target = null, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
-        return Utils.GetDisplayRoleName(player.PlayerId, pure, seeTargetBetrayalAddons);
+        if (!target) target = player;
+        return Utils.GetDisplayRoleName(player.PlayerId, targetId: target.PlayerId, pure: pure, seeTargetBetrayalAddons: seeTargetBetrayalAddons);
     }
 
     public static string GetSubRoleNames(this PlayerControl player, bool forUser = false)
