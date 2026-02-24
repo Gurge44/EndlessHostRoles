@@ -2136,6 +2136,11 @@ internal static class ExtendedPlayerControl
         return player.AmOwner || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
     }
 
+    public static bool IsValidTarget(PlayerControl target)
+    {
+        return PlayerControl.LocalPlayer.Data.Role.IsValidTarget(target.Data);
+    }
+
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false)
     {
         return player.GetPlayersInAbilityRangeSorted(_ => true, ignoreColliders);

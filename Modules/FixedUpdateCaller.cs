@@ -64,12 +64,17 @@ public static class FixedUpdateCaller
                     Predicate<PlayerControl> predicate = amongUsClient.AmHost
                         ? Options.CurrentGameMode switch
                         {
+                            CustomGameMode.Standard => ExtendedPlayerControl.IsValidTarget,
                             CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
                             CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
                             CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
                             _ => _ => true
                         }
-                        : _ => true;
+                        : Options.CurrentGameMode switch
+                        {
+                            CustomGameMode.Standard => ExtendedPlayerControl.IsValidTarget,
+                            _ => _ => true
+                        };
 
                     PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, GameManager.Instance.LogicOptions.GetKillDistance(), out PlayerControl closestPlayer, predicate) ? closestPlayer : null;
 
