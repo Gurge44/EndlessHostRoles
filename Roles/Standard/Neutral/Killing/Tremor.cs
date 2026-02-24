@@ -85,10 +85,13 @@ public class Tremor : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-     when (IsDoom)
-        opt.SetFloat(FloatOptionNames.Vision, VisionDuringDoom.GetFloat());
+    if (IsDoom)
+    {
+    opt.SetFloat(FloatOptionNames.Vision, VisionDuringDoom.GetFloat());
+    }
     else
-        opt.SetVision(HasImpostorVision.GetBool());
+    {
+    opt.SetVision(HasImpostorVision.GetBool());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -102,7 +105,7 @@ public class Tremor : RoleBase
 
         bool wasDoom = IsDoom;
         long now = Utils.TimeStamp;
-        .Speed = SpeedDuringDoom.GetFloat();
+        Main.PlayerSpeed[player.PlayerId] = Options.SpeedDuringDoom.GetFloat();
 
         if (!IsDoom && LastUpdate != now)
         {
