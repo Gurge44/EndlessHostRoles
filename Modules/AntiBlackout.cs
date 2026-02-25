@@ -65,22 +65,22 @@ public static class AntiBlackout
         }
 
         // Set the temporarily revived crewmate back to dead.
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
-        {
-            try
-            {
-                if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
-                
-                NetworkedPlayerInfo data = pc.Data;
+        //foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        //{
+        //    try
+        //    {
+        //        if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
 
-                if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
-                {
-                    data.IsDead = true;
-                    data.SendGameData();
-                }
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-        }
+        //        NetworkedPlayerInfo data = pc.Data;
+
+        //        if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
+        //        {
+        //            data.IsDead = true;
+        //            data.SendGameData();
+        //        }
+        //    }
+        //    catch (Exception e) { Utils.ThrowException(e); }
+        //}
 
         // Reset the role types for all players.
         foreach (((byte seerId, byte targetId), (RoleTypes roleType, CustomRoles _)) in CachedRoleMap)
@@ -128,9 +128,7 @@ public static class AntiBlackout
                         if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
                         
                         // Ensure that the players who are considered dead by the mod are actually dead in the game.
-                        pc.Exiled();
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, 4, SendOption.Reliable);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        pc.RpcSetRoleGlobal(pc.GetGhostRoleBasis());
                         
                         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
                             pc.RpcResetAbilityCooldown();

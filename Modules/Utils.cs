@@ -3862,20 +3862,6 @@ public static class Utils
         CustomNetObject.AfterMeeting();
 
         RPCHandlerPatch.RemoveExpiredWhiteList();
-
-        LateTask.New(() =>
-        {
-            if (GameStates.IsEnded) return;
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.StartMessage(5);
-            writer.WritePacked(Main.LobbyBehaviourNetId);
-            writer.EndMessage();
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-        }, 3f, "Repeat Lobby Despawn");
         
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive())
             PlayerControl.LocalPlayer.RpcMakeInvisible();

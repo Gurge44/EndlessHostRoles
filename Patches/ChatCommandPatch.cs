@@ -1905,9 +1905,9 @@ internal static class ChatCommands
 
         if (pc != null)
         {
-            pc.Data.IsDead = true;
             Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
             pc.RpcExileV2();
+            pc.Data.IsDead = true;
             Main.PlayerStates[pc.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(pc, GameStates.IsMeeting);
 

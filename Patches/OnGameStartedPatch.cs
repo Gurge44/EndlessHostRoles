@@ -565,17 +565,7 @@ internal static class StartGameHostPatch
 
         if (LobbyBehaviour.Instance)
         {
-            Main.LobbyBehaviourNetId = LobbyBehaviour.Instance.NetId;
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(AUClient.GameId);
-            writer.StartMessage(5);
-            writer.WritePacked(LobbyBehaviour.Instance.NetId);
-            writer.EndMessage();
-            writer.EndMessage();
-            AUClient.SendOrDisconnect(writer);
-            writer.Recycle();
-            writer = MessageWriter.Get(SendOption.Reliable);
             writer.StartMessage(5);
             writer.Write(AUClient.GameId);
             writer.StartMessage(5);
@@ -590,7 +580,6 @@ internal static class StartGameHostPatch
         else
         {
             Logger.Fatal($"LobbyBehaviour.Instance is null in {nameof(StartGameHostPatch)}.{nameof(StartGameHost)}", "StartGameHost");
-            Main.LobbyBehaviourNetId = uint.MaxValue;
         }
 
         if (!ShipStatus.Instance)

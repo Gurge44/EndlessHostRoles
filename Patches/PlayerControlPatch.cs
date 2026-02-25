@@ -2484,16 +2484,7 @@ internal static class PlayerControlSetRolePatch
         if (!ShipStatus.Instance.enabled) return true;
 
         if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
-        {
-            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out var ghostRole))
-                roleType = ghostRole.Instance.RoleTypes;
-            else if (GhostRolesManager.ShouldHaveGhostRole(__instance))
-                roleType = RoleTypes.GuardianAngel;
-            else if (!(__instance.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(__instance.PlayerId, out var state) && state.Role.CanUseSabotage(__instance))
-                roleType = RoleTypes.ImpostorGhost;
-            else
-                roleType = RoleTypes.CrewmateGhost;
-        }
+            roleType = __instance.GetGhostRoleBasis();
 
         return true;
     }

@@ -43,7 +43,7 @@ internal static class ControllerManagerUpdatePatch
     private static readonly KeyCode[] RpcCompleteTaskKey = [KeyCode.Return, KeyCode.T, KeyCode.LeftShift];
 
     private static bool IsResetting;
-    
+
     public static bool Prepare()
     {
         return !OperatingSystem.IsAndroid(); // Disable on Android to prevent input issues
@@ -113,7 +113,7 @@ internal static class ControllerManagerUpdatePatch
             }
             else
                 InGameRoleInfoMenu.Hide();
-            
+
             if (KeysDown(ChangeReslutionsKey))
             {
                 ResolutionIndex++;
@@ -201,9 +201,9 @@ internal static class ControllerManagerUpdatePatch
 
                 if (KeysDown(HostKillSelfKey))
                 {
-                    PlayerControl.LocalPlayer.Data.IsDead = true;
                     Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
                     PlayerControl.LocalPlayer.RpcExileV2();
+                    PlayerControl.LocalPlayer.Data.IsDead = true;
                     Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
                     Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, GameStates.IsMeeting);
                     Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");

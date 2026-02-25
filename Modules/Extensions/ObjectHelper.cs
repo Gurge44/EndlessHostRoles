@@ -10,7 +10,7 @@ public static class ObjectHelper
 {
     public static void DestroyTranslator(this GameObject obj)
     {
-        if (obj == null) return;
+        if (!obj) return;
 
         obj.ForEachChild((Il2CppSystem.Action<GameObject>)(x => x.DestroyTranslator()));
         TextTranslatorTMP[] translator = obj.GetComponentsInChildren<TextTranslatorTMP>(true);
@@ -29,7 +29,7 @@ public static class ObjectHelper
         int pathIndex = pathParts.Length - 1;
         Transform current = obj.transform;
 
-        while (current != null)
+        while (current)
         {
             if (current.name == pathParts[pathIndex])
             {

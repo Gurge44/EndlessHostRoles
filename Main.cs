@@ -151,8 +151,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
-    public static uint LobbyBehaviourNetId;
-    
+
     public static Stopwatch GameTimer = new();
     public static bool GameEndDueToTimer;
 

@@ -99,6 +99,12 @@ public static class GameOptionsMenuPatch
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
         var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+        
+        if (modTab == TabGroup.PresetExplorer)
+        {
+            __instance.StartCoroutine(OnlinePresetsManager.CreatePresetExplorerUI(__instance).WrapToIl2Cpp());
+            return false;
+        }
 
         __instance.scrollBar.SetYBoundsMax(CalculateScrollBarYBoundsMax());
         __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
@@ -700,6 +706,8 @@ public static class StringOptionPatch
     [HarmonyPrefix]
     private static bool InitializePrefix(StringOption __instance)
     {
+        if (__instance.name.StartsWith(nameof(OnlinePresetsManager))) return true;
+        
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
         {
             OptionItem item = OptionItem.AllOptions[index];
@@ -745,7 +753,7 @@ public static class StringOptionPatch
 
     private static void SetupHelpIcon(CustomRoles role, StringOption option)
     {
-        Transform template = option.transform.FindChild("MinusButton");
+        Transform template = option.MinusBtn.transform;
         Transform icon = Object.Instantiate(template, template.parent, true);
         icon.name = $"{role}HelpIcon";
         var text = icon.GetComponentInChildren<TextMeshPro>();
@@ -840,6 +848,8 @@ public static class StringOptionPatch
     [HarmonyPrefix]
     private static bool UpdateValuePrefix(StringOption __instance)
     {
+        if (__instance.name.StartsWith(nameof(OnlinePresetsManager))) return false;
+        
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
         {
             OptionItem item = OptionItem.AllOptions[index];
@@ -891,6 +901,12 @@ public static class StringOptionPatch
     [HarmonyPrefix]
     private static bool FixedUpdatePrefix(StringOption __instance)
     {
+        if (__instance.name.StartsWith(nameof(OnlinePresetsManager)))
+        {
+            __instance.TitleText.text = __instance.name.Split(';')[1];
+            return false;
+        }
+
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
         {
             __instance.MinusBtn.SetInteractable(true);
@@ -958,7 +974,6 @@ public static class GameSettingMenuPatch
     private static System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
 
     public static NumberOption PresetBehaviour;
-
     public static long LastPresetChange;
 
     public static FreeChatInputField InputField;
@@ -1022,6 +1037,7 @@ public static class GameSettingMenuPatch
                 TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
                 TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
                 TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
+                TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
                 _ => new(0.3f, 0.3f, 0.3f)
             };
 
@@ -1070,7 +1086,7 @@ public static class GameSettingMenuPatch
         Transform parentLeftPanel = __instance.GamePresetsButton.transform.parent;
         GameObject preset = Object.Instantiate(GameObject.Find("ModeValue"), parentLeftPanel);
 
-        preset.transform.localPosition = new(-2.55f, 0f, -2f);
+        preset.transform.localPosition = new(-1.8f, 0f, -2f);
         preset.transform.localScale = new(0.65f, 0.63f, 1f);
         var renderer = preset.GetComponentInChildren<SpriteRenderer>();
         renderer.color = Color.white;
@@ -1360,6 +1376,18 @@ public static class GameSettingMenuPatch
         if (tabNum < 3) return true;
 
         var tabGroup = (TabGroup)(tabNum - 3);
+        
+        if (!OnlinePresetsManager.PresetsLoaded && tabGroup == TabGroup.PresetExplorer)
+        {
+            Main.Instance.StartCoroutine(
+                OnlinePresetsManager.FetchPresetList(list =>
+                {
+                    OnlinePresetsManager.CachedPresets = list;
+                    OnlinePresetsManager.PresetsLoaded = true;
+                    GameOptionsMenuPatch.ReloadUI();
+                })
+            );
+        }
 
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {

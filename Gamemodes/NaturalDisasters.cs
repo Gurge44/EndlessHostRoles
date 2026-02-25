@@ -953,7 +953,7 @@ public static class NaturalDisasters
             Update();
 
             PlainShipRoom room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
-            if (room == null) return;
+            if (!room) return;
 
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
@@ -982,7 +982,7 @@ public static class NaturalDisasters
             {
                 if (pc.onLadder || pc.inMovingPlat || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation()) continue;
                 
-                if (CollapsedRooms.FindFirst(x => pc.IsInRoom(x), out PlainShipRoom collapsedRoom))
+                if (CollapsedRooms.Exists(x => pc.IsInRoom(x)))
                 {
                     if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
                     {

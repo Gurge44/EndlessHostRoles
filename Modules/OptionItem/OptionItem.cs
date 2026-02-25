@@ -368,7 +368,8 @@ public enum TabGroup
     NeutralRoles,
     CovenRoles,
     Addons,
-    OtherRoles
+    OtherRoles,
+    PresetExplorer
 }
 
 public enum OptionFormat
