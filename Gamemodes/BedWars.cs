@@ -606,7 +606,7 @@ public static class BedWars
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return !Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team;
+        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
