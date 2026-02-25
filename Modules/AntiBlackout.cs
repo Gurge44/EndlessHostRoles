@@ -65,22 +65,22 @@ public static class AntiBlackout
         }
 
         // Set the temporarily revived crewmate back to dead.
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
-        {
-            try
-            {
-                if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
-                
-                NetworkedPlayerInfo data = pc.Data;
+        //foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        //{
+        //    try
+        //    {
+        //        if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
 
-                if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
-                {
-                    data.IsDead = true;
-                    data.SendGameData();
-                }
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-        }
+        //        NetworkedPlayerInfo data = pc.Data;
+
+        //        if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
+        //        {
+        //            data.IsDead = true;
+        //            data.SendGameData();
+        //        }
+        //    }
+        //    catch (Exception e) { Utils.ThrowException(e); }
+        //}
 
         // Reset the role types for all players.
         foreach (((byte seerId, byte targetId), (RoleTypes roleType, CustomRoles _)) in CachedRoleMap)

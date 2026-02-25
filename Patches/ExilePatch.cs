@@ -22,7 +22,7 @@ internal static class ExileControllerWrapUpPatch
 
         if (!Collector.CollectorWin(false) && exiled != null)
         {
-            exiled.IsDead = true;
+            //exiled.IsDead = true;
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
             CustomRoles role = exiled.GetCustomRole();
 
