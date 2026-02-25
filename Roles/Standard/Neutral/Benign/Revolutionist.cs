@@ -124,9 +124,9 @@ internal class Revolutionist : RoleBase
             PlayerControl tar = Utils.GetPlayerById(x.Key);
             if (tar == null || tar.Is(CustomRoles.Pestilence)) continue;
 
-            tar.Data.IsDead = true;
             Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
             tar.RpcExileV2();
+            tar.Data.IsDead = true;
             Main.PlayerStates[tar.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(tar, true);
         }
