@@ -105,7 +105,7 @@ public class Tremor : RoleBase
 
         bool wasDoom = IsDoom;
         long now = Utils.TimeStamp;
-        Main.PlayerSpeed[player.PlayerId] = Options.SpeedDuringDoom.GetFloat();
+        Main.PlayerSpeed[player.PlayerId] = SpeedDuringDoom.GetFloat();
 
         if (!IsDoom && LastUpdate != now)
         {
