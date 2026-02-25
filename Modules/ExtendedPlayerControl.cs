@@ -2138,7 +2138,7 @@ internal static class ExtendedPlayerControl
 
     public static bool IsValidTargetForKillButton(PlayerControl target)
     {
-        // Code from AU code for kill button check target, without distance check but check colladers
+        // Code from AU code for kill button check target, without distance check but check colliders
         if (PlayerControl.LocalPlayer.Data.Role.IsValidTarget(target.Data) && target.Collider.enabled)
         {
             Vector2 lpPos = PlayerControl.LocalPlayer.GetTruePosition();
