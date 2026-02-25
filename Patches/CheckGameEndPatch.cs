@@ -1402,7 +1402,7 @@ internal static class GameEndChecker
                 foreach (var pc in alivePlayers)
                 {
                     if (!pc.Is(Team.Crewmate)) continue;
-                    
+
                     var roleType = pc.GetRoleTypes();
                     if (roleType is RoleTypes.Crewmate
                         or RoleTypes.Engineer

@@ -131,6 +131,7 @@ roundframe#4949 | 914830596 | PeaceMaker | Toxic | The n word
 setbud#4013 | 99b904495 | cursed | Toxic | The n word
 jacksdeep#4118 | d5d97f4a8 | SIGMAMODE | Toxic | Extremely toxic player
 dimbottle#0386 | 607326ed0 | Bob | Toxic | Alt of banned user SIGMAMODE
+roundhour#1689 | 4be938470 | NateHigger | Racist | Racist Hostname
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 

@@ -1120,9 +1120,10 @@ internal static class ExtendedPlayerControl
         return pc.IsModdedClient() && !pc.IsHost();
     }
 
-    public static string GetDisplayRoleName(this PlayerControl player, bool pure = false, bool seeTargetBetrayalAddons = false)
+    public static string GetDisplayRoleName(this PlayerControl player, PlayerControl target = null, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
-        return Utils.GetDisplayRoleName(player.PlayerId, pure, seeTargetBetrayalAddons);
+        if (!target) target = player;
+        return Utils.GetDisplayRoleName(player.PlayerId, targetId: target.PlayerId, pure: pure, seeTargetBetrayalAddons: seeTargetBetrayalAddons);
     }
 
     public static string GetSubRoleNames(this PlayerControl player, bool forUser = false)
@@ -2130,6 +2131,22 @@ internal static class ExtendedPlayerControl
     public static bool IsModdedClient(this PlayerControl player)
     {
         return player.AmOwner || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
+    }
+
+    public static bool IsValidTargetForKillButton(PlayerControl target)
+    {
+        // Code from AU code for kill button check target, without distance check but check colliders
+        if (PlayerControl.LocalPlayer.Data.Role.IsValidTarget(target.Data) && target.Collider.enabled)
+        {
+            Vector2 lpPos = PlayerControl.LocalPlayer.GetTruePosition();
+            Vector2 vector = target.GetTruePosition() - lpPos;
+            float magnitude = vector.magnitude;
+            if (!PhysicsHelpers.AnyNonTriggersBetween(lpPos, vector.normalized, magnitude, Constants.ShipAndObjectsMask))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false)

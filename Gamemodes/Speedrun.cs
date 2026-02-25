@@ -109,7 +109,7 @@ public static class Speedrun
         string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
 
-        string timeStr = time > 90 ? "> 90s" : time.ToString();
+        string timeStr = time > 90 ? "> 90" : time.ToString();
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, timeStr) + arrows;

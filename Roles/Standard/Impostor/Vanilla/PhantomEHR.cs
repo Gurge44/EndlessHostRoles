@@ -31,4 +31,9 @@ public class PhantomEHR : RoleBase
         }, Main.RealOptionsData.GetFloat(FloatOptionNames.PhantomDuration), "PhantomEHR Appear");
         return false;
     }
+
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return !Main.Invisible.Contains(pc.PlayerId);
+    }
 }

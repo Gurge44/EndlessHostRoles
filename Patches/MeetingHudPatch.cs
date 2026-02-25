@@ -368,7 +368,7 @@ internal static class CheckForEndVotingPatch
 
         PlayerControl player = exiledPlayer.Object;
         CustomRoles crole = exiledPlayer.GetCustomRole();
-        string coloredRole = Utils.GetDisplayRoleName(exileId, true, true);
+        string coloredRole = Utils.GetDisplayRoleName(exileId, pure: true, seeTargetBetrayalAddons: true);
 
         if (crole == CustomRoles.LovingImpostor && !Options.ConfirmLoversOnEject.GetBool())
         {

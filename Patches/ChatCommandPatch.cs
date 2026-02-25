@@ -128,6 +128,8 @@ internal static class ChatCommands
 
     private static bool WaitingToSend;
 
+    private static long LastSetNameInLobby;
+
     public static void LoadCommands()
     {
         Command.AllCommands =
@@ -457,23 +459,16 @@ internal static class ChatCommands
             __instance.freeChatField.textArea.Clear();
             __instance.freeChatField.textArea.SetText(cancelVal);
         }
-        else
+        else if (GameStates.IsLobby && AmongUsClient.Instance.AmHost)
         {
-            if (GameStates.IsLobby && AmongUsClient.Instance.AmHost)
+            long now = Utils.TimeStamp;
+
+            if (LastSetNameInLobby + 3 < now)
             {
-                if (!Main.AllPlayerNames.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out string name))
-                    Utils.ApplySuffix(PlayerControl.LocalPlayer, out name);
-
-                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name, addToHistory: false, importance: MessageImportance.High);
-
-                canceled = true;
-                __instance.freeChatField.textArea.Clear();
-                __instance.freeChatField.textArea.SetText(string.Empty);
-
-                LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.2f, log: false);
+                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                PlayerControl.LocalPlayer.RpcSetName(name);
+                LastSetNameInLobby = now;
             }
-
-            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
         }
 
         if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Demon))

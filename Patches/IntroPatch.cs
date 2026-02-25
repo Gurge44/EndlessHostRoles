@@ -1131,13 +1131,16 @@ internal static class IntroCutsceneDestroyPatch
         PreventKill = true;
         LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
 
+        var apc = Main.CachedAllPlayerControls();
+
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
-        Main.EnumeratePlayerControls().Do(x => x.roleAssigned = false);
+        apc.Do(x => x.roleAssigned = false);
 
         if (AmongUsClient.Instance.AmHost)
         {
-            Main.EnumeratePlayerControls().DoIf(x => x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM));
+            apc.DoIf(x => x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM));
+            LateTask.New(() => apc.DoIf(x => x && x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
             
             var aapc = Main.CachedAlivePlayerControls();
 
@@ -1292,7 +1295,7 @@ internal static class IntroCutsceneDestroyPatch
                 {
                     lp.Data.Role.AffectedByLightAffectors = false;
 
-                    foreach (PlayerControl target in Main.CachedAllPlayerControls())
+                    foreach (PlayerControl target in apc)
                     {
                         try
                         {
@@ -1359,7 +1362,7 @@ internal static class IntroCutsceneDestroyPatch
         }
         else
         {
-            foreach (PlayerControl player in Main.CachedAllPlayerControls())
+            foreach (PlayerControl player in Main.EnumeratePlayerControls())
                 Main.PlayerStates[player.PlayerId].InitTask(player);
 
             switch (Options.CurrentGameMode)
