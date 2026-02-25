@@ -13,6 +13,7 @@ internal class Puppeteer : RoleBase
     public static Dictionary<byte, long> PuppeteerDelayList = [];
     private static Dictionary<byte, int> PuppeteerDelay = [];
     private static Dictionary<byte, int> PuppeteerMaxPuppets = [];
+    private static Dictionary<byte, float> TargetDistance = [];
 
     public static bool On;
 
@@ -166,66 +167,80 @@ internal class Puppeteer : RoleBase
 
         byte playerId = player.PlayerId;
         long now = Utils.TimeStamp;
+
+        if (!GameStates.IsInTask || !PuppeteerList.ContainsKey(playerId)) return;
+
         long pupetDelay = PuppeteerDelayList[playerId];
 
-        if (GameStates.IsInTask && PuppeteerList.ContainsKey(playerId))
+        void ClearPuppet()
         {
-            if (!player.IsAliveWithConditions())
+            PuppeteerList.Remove(playerId);
+            PuppeteerDelayList.Remove(playerId);
+            PuppeteerDelay.Remove(playerId);
+        }
+
+        if (!player.IsAliveWithConditions())
+        {
+            ClearPuppet();
+            return;
+        }
+        if (PuppeteerManipulationEndsAfterFixedTime.GetBool() && pupetDelay + PuppeteerManipulationEndsAfterTime.GetInt() < now)
+        {
+            ClearPuppet();
+
+            var alive = Main.CachedAlivePlayerControls();
+            for (int i = 0; i < alive.Count; i++)
             {
-                PuppeteerList.Remove(playerId);
-                PuppeteerDelayList.Remove(playerId);
-                PuppeteerDelay.Remove(playerId);
+                var x = alive[i];
+                if (x.Is(CustomRoles.Puppeteer))
+                    Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: player);
             }
-            else if (pupetDelay + PuppeteerManipulationEndsAfterTime.GetInt() < now && PuppeteerManipulationEndsAfterFixedTime.GetBool())
+            return;
+        }
+        if (pupetDelay + PuppeteerDelay[playerId] >= now) return;
+
+        Vector2 puppeteerPos = player.Pos();
+        float minDistance = float.MaxValue;
+        PlayerControl closestTarget = null;
+        var alivePlayers = Main.CachedAlivePlayerControls();
+
+        for (int targetIndex = 0; targetIndex < alivePlayers.Count; targetIndex++)
+        {
+            PlayerControl target = alivePlayers[targetIndex];
+            if (target.PlayerId == playerId) continue;
+            if (target.Is(CustomRoles.Pestilence)) continue;
+            if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
+            if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool()) continue;
+
+            float dis = Vector2.Distance(puppeteerPos, target.Pos());
+            if (dis < minDistance)
             {
-                PuppeteerList.Remove(playerId);
-                PuppeteerDelayList.Remove(playerId);
-                PuppeteerDelay.Remove(playerId);
-                Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
-            }
-            else if (pupetDelay + PuppeteerDelay[playerId] < now)
-            {
-                Vector2 puppeteerPos = player.Pos();
-                Dictionary<byte, float> targetDistance = [];
-
-                foreach (PlayerControl target in Main.CachedAlivePlayerControls())
-                {
-                    if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
-                    if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
-                    if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool()) continue;
-
-                    float dis = Vector2.Distance(puppeteerPos, player.Pos());
-                    targetDistance[target.PlayerId] = dis;
-                }
-
-                if (targetDistance.Count > 0)
-                {
-                    KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
-                    PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
-
-                    if (min.Value <= killRange && player.CanMove && target.CanMove)
-                    {
-                        if (player.RpcCheckAndMurder(target, true))
-                        {
-                            byte puppeteerId = PuppeteerList[playerId];
-                            RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
-                            PlayerControl puppeteer = Utils.GetPlayerById(puppeteerId);
-                            target.SetRealKiller(puppeteer);
-                            player.Kill(target);
-                            if (PuppetDiesAlongWithVictim.GetBool()) player.Suicide(realKiller: puppeteer);
-
-                            player.MarkDirtySettings();
-                            target.MarkDirtySettings();
-                            PuppeteerList.Remove(playerId);
-                            PuppeteerDelayList.Remove(playerId);
-                            PuppeteerDelay.Remove(playerId);
-                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-                        }
-                    }
-                }
+                minDistance = dis;
+                closestTarget = target;
             }
         }
+        if (closestTarget == null) return;
+
+        float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+        if (minDistance > killRange || !player.CanMove || !closestTarget.CanMove) return;
+        if (!player.RpcCheckAndMurder(closestTarget, true)) return;
+
+        byte puppeteerId = PuppeteerList[playerId];
+        RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
+        PlayerControl puppeteer = Utils.GetPlayerById(puppeteerId);
+
+        closestTarget.SetRealKiller(puppeteer);
+        player.Kill(closestTarget);
+
+        if (PuppetDiesAlongWithVictim.GetBool())
+            player.Suicide(realKiller: puppeteer);
+
+        player.MarkDirtySettings();
+        closestTarget.MarkDirtySettings();
+
+        ClearPuppet();
+
+        Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        Utils.NotifyRoles(SpecifySeer: closestTarget, SpecifyTarget: closestTarget);
     }
 }

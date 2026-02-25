@@ -862,7 +862,7 @@ internal static class GameEndChecker
                     Logger.Info($"Crew: {crew}, Imp: {imp}, Coven: {coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                     ResetAndSetWinner(winner.Value);
 
-                    if (winner == CustomWinner.Crewmate && aapc.All(x => x.GetCustomRole().IsNeutral()))
+                    if (winner == CustomWinner.Crewmate && aapc.TrueForAll(x => x.GetCustomRole().IsNeutral()))
                     {
                         AdditionalWinnerTeams.Add(AdditionalWinners.AliveNeutrals);
                         WinnerIds.UnionWith(aapc.Select(x => x.PlayerId));
