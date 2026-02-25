@@ -64,7 +64,7 @@ public static class FixedUpdateCaller
                     Predicate<PlayerControl> predicate = amongUsClient.AmHost
                         ? Options.CurrentGameMode switch
                         {
-                            CustomGameMode.Standard => ExtendedPlayerControl.IsValidTarget,
+                            CustomGameMode.Standard => ExtendedPlayerControl.IsValidTargetForKillButton,
                             CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
                             CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
                             CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
@@ -72,7 +72,7 @@ public static class FixedUpdateCaller
                         }
                         : Options.CurrentGameMode switch
                         {
-                            CustomGameMode.Standard => ExtendedPlayerControl.IsValidTarget,
+                            CustomGameMode.Standard => ExtendedPlayerControl.IsValidTargetForKillButton,
                             _ => _ => true
                         };
 

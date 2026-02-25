@@ -2136,9 +2136,20 @@ internal static class ExtendedPlayerControl
         return player.AmOwner || player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
     }
 
-    public static bool IsValidTarget(PlayerControl target)
+    public static bool IsValidTargetForKillButton(PlayerControl target)
     {
-        return PlayerControl.LocalPlayer.Data.Role.IsValidTarget(target.Data);
+        // Code from AU code for kill button check target, without distance check but check colladers
+        if (PlayerControl.LocalPlayer.Data.Role.IsValidTarget(target.Data) && target.Collider.enabled)
+        {
+            Vector2 lpPos = PlayerControl.LocalPlayer.GetTruePosition();
+            Vector2 vector = target.GetTruePosition() - lpPos;
+            float magnitude = vector.magnitude;
+            if (!PhysicsHelpers.AnyNonTriggersBetween(lpPos, vector.normalized, magnitude, Constants.ShipAndObjectsMask))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false)
