@@ -58,9 +58,11 @@ public class Damocles : IAddon
 
     public static void Update(PlayerControl pc)
     {
+        if (!pc || !GameStates.IsInTask) return;
+
         byte id = pc.PlayerId;
         long now = Utils.TimeStamp;
-        if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+        if (LastUpdate.TryGetValue(id, out long ts) && ts >= now) return;
 
         if (!pc.IsAlive())
         {

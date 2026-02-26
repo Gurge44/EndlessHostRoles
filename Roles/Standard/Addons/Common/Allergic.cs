@@ -62,7 +62,6 @@ public class Allergic : IAddon
                 Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
                 Utils.SendRPC(CustomRPC.SyncAllergic, 1, pc.PlayerId);
             }
-
             return;
         }
 
