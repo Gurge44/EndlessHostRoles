@@ -1362,7 +1362,7 @@ internal static class IntroCutsceneDestroyPatch
         }
         else
         {
-            foreach (PlayerControl player in Main.EnumeratePlayerControls())
+            foreach (PlayerControl player in apc)
                 Main.PlayerStates[player.PlayerId].InitTask(player);
 
             switch (Options.CurrentGameMode)
