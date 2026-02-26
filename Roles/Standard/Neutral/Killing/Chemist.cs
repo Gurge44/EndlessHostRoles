@@ -370,26 +370,71 @@ internal class Chemist : RoleBase
     {
         if (!GameStates.IsInTask || !pc.IsAlive()) return;
 
+        byte pcId = pc.PlayerId;
         Vector2 pos = pc.Pos();
 
-        if (AcidPlayers.TryGetValue(pc.PlayerId, out (HashSet<byte> OtherAcidPlayers, long TimeStamp) acidPlayers))
+        if (AcidPlayers.TryGetValue(pcId, out var acidData))
         {
-            Main.EnumerateAlivePlayerControls()
-                .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
-                .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, 2.5f))
-                .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
+            var otherAcidPlayers = acidData.OtherAcidPlayers;
+
+            var alivePlayers = Main.CachedAlivePlayerControls();
+            int count = alivePlayers.Count;
+            byte chemistId = ChemistPC.PlayerId;
+
+            for (int index = 0; index < count; index++)
+            {
+                PlayerControl target = alivePlayers[index];
+                byte targetId = target.PlayerId;
+
+                if (targetId == pcId || targetId == chemistId) continue;
+                if (otherAcidPlayers.Contains(targetId) || !FastVector2.DistanceWithinRange(target.Pos(), pos, 2.5f)) continue;
+
+                otherAcidPlayers.Add(targetId);
+            }
         }
 
-        if (Grenades.TryGetValue(pc.PlayerId, out long ts) && ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
+        if (Grenades.TryGetValue(pcId, out long ts))
         {
-            Grenades.Remove(pc.PlayerId);
+            if (ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
+            {
+                Grenades.Remove(pcId);
 
-            float radius = GrenadeExplodeRadius.GetFloat();
+                byte chemistId = ChemistPC.PlayerId;
+                float radius = GrenadeExplodeRadius.GetFloat();
+                var alivePlayers = Main.CachedAlivePlayerControls();
+                int count = alivePlayers.Count;
 
-            Main.EnumerateAlivePlayerControls()
-                .Where(x => x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && ChemistPC.RpcCheckAndMurder(x, true))
-                .Do(x => x.Suicide(realKiller: ChemistPC));
+                for (int index = 0; index < count; index++)
+                {
+                    PlayerControl target = alivePlayers[index];
+                    byte targetId = target.PlayerId;
+
+                    if (targetId == chemistId || !FastVector2.DistanceWithinRange(target.Pos(), pos, radius)) continue;
+                    if (!ChemistPC.RpcCheckAndMurder(target, true)) continue;
+
+                    target.Suicide(realKiller: ChemistPC);
+                }
+            }
         }
+
+        //if (AcidPlayers.TryGetValue(pc.PlayerId, out (HashSet<byte> OtherAcidPlayers, long TimeStamp) acidPlayers))
+        //{
+        //    Main.EnumerateAlivePlayerControls()
+        //        .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
+        //        .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, 2.5f))
+        //        .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
+        //}
+
+        //if (Grenades.TryGetValue(pc.PlayerId, out long ts) && ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
+        //{
+        //    Grenades.Remove(pc.PlayerId);
+
+        //    float radius = GrenadeExplodeRadius.GetFloat();
+
+        //    Main.EnumerateAlivePlayerControls()
+        //        .Where(x => x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && ChemistPC.RpcCheckAndMurder(x, true))
+        //        .Do(x => x.Suicide(realKiller: ChemistPC));
+        //}
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

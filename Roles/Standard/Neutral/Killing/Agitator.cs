@@ -172,36 +172,46 @@ public class Agitator : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
     {
+        if (lowLoad || !GameStates.IsInTask || !IsEnable || !AgitatorHasBombed) return;
+
         byte playerId = player.PlayerId;
+        if (CurrentBombedPlayer != playerId) return;
 
-        if (!lowLoad && GameStates.IsInTask && IsEnable && AgitatorHasBombed && CurrentBombedPlayer == playerId)
+        if (!player.IsAlive())
         {
-            if (!player.IsAlive())
-                ResetBomb();
-            else
+            ResetBomb();
+            return;
+        }
+
+        var players = Main.CachedAllPlayerControls();
+        Vector2 agitatorPos = player.Pos();
+        PlayerControl closestTarget = null;
+        float closestSqrDistance = float.MaxValue;
+
+        for (int index = 0; index < players.Count; index++)
+        {
+            PlayerControl target = players[index];
+            if (!target.IsAlive()) continue;
+            byte targetId = target.PlayerId;
+            if (targetId == playerId || targetId == LastBombedPlayer) continue;
+
+            Vector2 diff = target.Pos() - agitatorPos;
+            float sqrDist = diff.sqrMagnitude;
+
+            if (sqrDist < closestSqrDistance)
             {
-                Vector2 agitatorPos = player.Pos();
-                Dictionary<byte, float> targetDistance = [];
-
-                foreach (PlayerControl target in Main.CachedAllPlayerControls())
-                {
-                    if (!target.IsAlive()) continue;
-
-                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && target.IsAlive())
-                    {
-                        float dis = Vector2.Distance(agitatorPos, player.Pos());
-                        targetDistance[target.PlayerId] = dis;
-                    }
-                }
-
-                if (targetDistance.Count > 0)
-                {
-                    KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
-                    PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = GameManager.Instance.LogicOptions.GetKillDistance();
-                    if (min.Value <= KillRange && player.CanMove && target.CanMove) PassBomb(player, target);
-                }
+                closestSqrDistance = sqrDist;
+                closestTarget = target;
             }
+        }
+        if (closestTarget == null) return;
+
+        float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+        float killRangeSqr = killRange * killRange;
+
+        if (closestSqrDistance <= killRangeSqr && player.CanMove && closestTarget.CanMove)
+        {
+            PassBomb(player, closestTarget);
         }
     }
 

@@ -135,32 +135,41 @@ internal class Bubble : RoleBase
                 return;
             }
 
-            IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(encasedPc.Pos(), ExplosionRadius.GetFloat());
+            Vector2 center = encasedPc.Pos();
+            float radius = ExplosionRadius.GetFloat();
 
-            var numDied = 0;
+            var alivePlayers = Main.CachedAlivePlayerControls();
+            int count = alivePlayers.Count;
 
-            foreach (PlayerControl pc in players)
+            int numDied = 0;
+            byte bubbleId = BubbleId;
+            bool bubbleDies = BubbleDiesIfInRange.GetBool();
+            PlayerControl bubblePcCached = BubblePC;
+
+            for (int aliveIndex = 0; aliveIndex < count; aliveIndex++)
             {
-                if (pc == null) continue;
+                PlayerControl alive = alivePlayers[aliveIndex];
+                if (!FastVector2.DistanceWithinRange(alive.Pos(), center, radius)) continue;
 
-                if (pc.PlayerId == BubbleId)
+                byte aliveId = alive.PlayerId;
+                if (aliveId == bubbleId)
                 {
-                    if (BubbleDiesIfInRange.GetBool())
+                    if (bubbleDies)
                     {
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed);
+                            if (GameStates.IsInTask)
+                                alive.Suicide(PlayerState.DeathReason.Bombed);
                         }, 0.5f, log: false);
                     }
-
                     continue;
                 }
 
-                pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
+                alive.Suicide(PlayerState.DeathReason.Bombed, bubblePcCached);
                 numDied++;
             }
 
-            if (BubbleId == PlayerControl.LocalPlayer.PlayerId && numDied >= 5)
+            if (bubbleId == PlayerControl.LocalPlayer.PlayerId && numDied >= 5)
                 Achievements.Type.SorryToBurstYourBubble.CompleteAfterGameEnd();
 
             EncasedPlayers.Remove(id);
@@ -170,11 +179,23 @@ internal class Bubble : RoleBase
 
         if (ts + NotifyDelay.GetInt() < now)
         {
-            Main.EnumerateAlivePlayerControls().Where(x => (!LastUpdates.TryGetValue(x.PlayerId, out long la) || la != now) && FastVector2.DistanceWithinRange(x.Pos(), encasedPc.Pos(), 5f)).Do(x =>
+            Vector2 center = encasedPc.Pos();
+            const float notifyRange = 5f;
+
+            var alivePlayers = Main.CachedAlivePlayerControls();
+            int count = alivePlayers.Count;
+
+            for (int aliveIndex = 0; aliveIndex < count; aliveIndex++)
             {
-                NotifyRoles(SpecifySeer: x, SpecifyTarget: encasedPc);
-                LastUpdates[x.PlayerId] = now;
-            });
+                PlayerControl alive = alivePlayers[aliveIndex];
+                byte aliveId = alive.PlayerId;
+
+                if (LastUpdates.TryGetValue(aliveId, out long last) && last == now) continue;
+                if (!FastVector2.DistanceWithinRange(alive.Pos(), center, notifyRange)) continue;
+
+                NotifyRoles(SpecifySeer: alive, SpecifyTarget: encasedPc);
+                LastUpdates[aliveId] = now;
+            }
         }
     }
 
