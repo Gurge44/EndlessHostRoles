@@ -307,7 +307,7 @@ public static class CaptureTheFlag
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Assign players to teams
-        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle().ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 

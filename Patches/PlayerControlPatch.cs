@@ -153,7 +153,7 @@ internal static class CheckMurderPatch
                 target = newTarget;
             }
 
-            if (target.Data == null
+            if (!target.Data
                 || target.inVent
                 || target.inMovingPlat
                 || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
@@ -354,7 +354,7 @@ internal static class CheckMurderPatch
     {
         if (!AmongUsClient.Instance.AmHost) return false;
 
-        if (target == null) target = killer;
+        if (!target) target = killer;
 
         if (CustomTeamManager.AreInSameCustomTeam(killer.PlayerId, target.PlayerId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(killer.PlayerId, CTAOption.KillEachOther))
         {
@@ -755,7 +755,7 @@ internal static class MurderPlayerPatch
             if (target.Is(CustomRoles.Bait))
             {
                 var realKiller = target.GetRealKiller();
-                if (realKiller != null) killer = realKiller;
+                if (realKiller) killer = realKiller;
             
                 if (killer.AmOwner && Main.PlayerStates.TryGetValue(killer.PlayerId, out var ks) && ks.GetKillCount() <= 1)
                     Achievements.Type.OhNo.CompleteAfterGameEnd();
@@ -951,7 +951,7 @@ internal static class ShapeshiftPatch
                 if (AmongUsClient.Instance.AmHost)
                 {
                     __instance.RpcSetName(Main.AllPlayerNames[target.PlayerId]);
-                    NotifyRoles(NoCache: true);
+                    NotifyRoles(SpecifyTarget: __instance, NoCache: true);
                 }
             }, 1.2f, "PlayerControl.Shapeshift Prefix Patch - Force Name");
         }
@@ -961,7 +961,7 @@ internal static class ShapeshiftPatch
         foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
-            string room = GetString(plainShipRoom != null ? plainShipRoom.RoomId.ToString() : "Outside");
+            string room = GetString(plainShipRoom ? plainShipRoom.RoomId.ToString() : "Outside");
             if (pc.Is(CustomRoles.Shiftguard)) pc.Notify($"[<#00ffa5>{room}</color>] {GetString(shapeshifting ? "ShiftguardNotifySS" : "ShiftguardNotifyUnshift")}");
 
             switch (Main.PlayerStates[pc.PlayerId].Role)
@@ -1023,7 +1023,7 @@ internal static class ReportDeadBodyPatch
             // Next, check whether this meeting is allowed
             //=============================================
 
-            if (target == null && Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
+            if (!target && Main.NumEmergencyMeetingsUsed.TryGetValue(__instance.PlayerId, out int used))
             {
                 if (used >= Main.RealOptionsData.GetInt(Int32OptionNames.NumEmergencyMeetings))
                 {
@@ -1039,7 +1039,7 @@ internal static class ReportDeadBodyPatch
 
             if (Main.PlayerStates.Values.Any(x => x.Role is Tremor { IsDoom: true })) return false;
 
-            if (target == null)
+            if (!target)
             {
                 if (IsAnySabotageActive())
                 {
@@ -1074,11 +1074,11 @@ internal static class ReportDeadBodyPatch
                 if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Button)) return false; // Player dies, no notify needed
             }
 
-            if (target != null)
+            if (target)
             {
                 if (Coroner.UnreportablePlayers.Contains(target.PlayerId)
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)
-                    || (killer != null && killer.Is(CustomRoles.Goddess))
+                    || (killer && killer.Is(CustomRoles.Goddess))
                     || Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
                     || killerRole == CustomRoles.Scavenger
                     || Cleaner.CleanerBodies.Contains(target.PlayerId))
@@ -1117,6 +1117,7 @@ internal static class ReportDeadBodyPatch
                 if (!Summoner.OnAnyoneReport())
                 {
                     Notify("SummonedPlayerAlive");
+                    return false;
                 }
 
                 if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Report)) return false; // Player dies, no notify needed
@@ -1128,7 +1129,7 @@ internal static class ReportDeadBodyPatch
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
-                if (__instance.Is(CustomRoles.Unlucky) && (tpc == null || !tpc.Is(CustomRoles.Bait)))
+                if (__instance.Is(CustomRoles.Unlucky) && (!tpc || !tpc.Is(CustomRoles.Bait)))
                 {
                     if (IRandom.Instance.Next(0, 100) < Options.UnluckyReportSuicideChance.GetInt())
                     {
@@ -1150,7 +1151,7 @@ internal static class ReportDeadBodyPatch
                 }
             }
 
-            if (Options.SyncButtonMode.GetBool() && target == null)
+            if (Options.SyncButtonMode.GetBool() && !target)
             {
                 Logger.Info($"Max buttons: {Options.SyncedButtonCount.GetInt()}, used: {Options.UsedButtonCount}", "ReportDeadBody");
 
@@ -1202,7 +1203,7 @@ internal static class ReportDeadBodyPatch
             MarkEveryoneDirtySettings();
         }, 3f, "RemoveBlackout");
         
-        if (!Options.GameTimeLimitRunsDuringMeetings.GetBool())
+        if (Main.GameTimer.IsRunning && !Options.GameTimeLimitRunsDuringMeetings.GetBool())
             Main.GameTimer.Stop();
 
         LateTask.New(() =>
@@ -1258,7 +1259,7 @@ internal static class ReportDeadBodyPatch
 
         try
         {
-            if (target == null)
+            if (!target)
             {
                 switch (Main.PlayerStates[player.PlayerId].Role)
                 {
@@ -2118,7 +2119,7 @@ internal static class FixedUpdatePatch
         if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (Main.LoversPlayers.FindAll(x => x.IsAlive()).Count != 1 && !force)) return;
 
         PlayerControl partnerPlayer = Main.LoversPlayers.FirstOrDefault(player => player.PlayerId != deathId && player.IsAlive());
-        if (partnerPlayer == null) return;
+        if (!partnerPlayer) return;
 
         Main.IsLoversDead = true;
         

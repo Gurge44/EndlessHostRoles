@@ -603,7 +603,7 @@ internal static class GameEndChecker
 
             return CheckGameEndBySabotage(out reason) || CheckGameEndByTask(out reason) || CheckGameEndByLivingPlayers(out reason);
         }
-        
+
         // avoiding reallocations and too much resizing
         private static readonly Dictionary<(CustomRoles? Role, CustomWinner Winner), int> RoleCounts = new(64);
         private static readonly List<PlayerState> CrewStates = [];
@@ -637,11 +637,14 @@ internal static class GameEndChecker
 
                 switch (countType)
                 {
-                    case CountTypes.Impostor: imp++;
+                    case CountTypes.Impostor:
+                        imp++;
                         break;
-                    case CountTypes.Crew: crew++;
+                    case CountTypes.Crew:
+                        crew++;
                         break;
-                    case CountTypes.Coven: coven++;
+                    case CountTypes.Coven:
+                        coven++;
                         break;
                 }
 
@@ -760,7 +763,7 @@ internal static class GameEndChecker
                 if (skip) continue;
 
                 playerState.Role.ManipulateGameEndCheckCrew(playerState, out bool keepGameGoing, out int countsAs);
-                
+
                 if (keepGameGoing) crewKeepsGameGoing = true;
                 crew += countsAs - 1;
             }
@@ -777,7 +780,7 @@ internal static class GameEndChecker
                 CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
                 var keyWinner = (CustomWinner)role;
                 int value = 0;
-                
+
                 for (int j = 0; j < aliveCount; j++)
                     if (aapc[j].GetCountTypes() == countTypes) value++;
 
@@ -948,7 +951,7 @@ internal static class GameEndChecker
             }
             return true;
         }
-    }
+}
 
     private class SoloPVPGameEndPredicate : GameEndPredicate
     {
@@ -990,7 +993,7 @@ internal static class GameEndChecker
 
             if (FreeForAll.RoundTime <= 0)
             {
-                PlayerControl winner = Main.GM.Value && Main.CachedAllPlayerControls().Count == 1 ? PlayerControl.LocalPlayer : Main.EnumeratePlayerControls().Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => FreeForAll.GetRankFromScore(x.PlayerId)).First();
+                PlayerControl winner = Main.GM.Value && PlayerControl.AllPlayerControls.Count == 1 ? PlayerControl.LocalPlayer : Main.EnumeratePlayerControls().Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => FreeForAll.GetRankFromScore(x.PlayerId)).First();
                 byte winnerId = winner.PlayerId;
                 Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
                 WinnerIds = [winnerId];

@@ -111,7 +111,7 @@ internal static class ExtendedPlayerControl
 
         foreach (var vent in ShipStatus.Instance.AllVents)
         {
-            if (closest == null || Vector2.Distance(pos, vent.transform.position) < Vector2.Distance(pos, closest.transform.position))
+            if (!closest || Vector2.Distance(pos, vent.transform.position) < Vector2.Distance(pos, closest.transform.position))
                 closest = vent;
         }
 
@@ -133,7 +133,7 @@ internal static class ExtendedPlayerControl
             Vector2.Distance(playerpos, v1.transform.position)
                 .CompareTo(Vector2.Distance(playerpos, v2.transform.position)));
 
-        if ((player.walkingToVent || player.inVent) && ResultBuffer.Count > 0 && ResultBuffer[0] != null)
+        if ((player.walkingToVent || player.inVent) && ResultBuffer.Count > 0 && ResultBuffer[0])
         {
             var nearbyVents = ResultBuffer[0].NearbyVents;
             if (nearbyVents != null)
@@ -141,7 +141,7 @@ internal static class ExtendedPlayerControl
                 for (int i = nearbyVents.Length - 1; i >= 0; i--)
                 {
                     var v = nearbyVents[i];
-                    if (v != null)
+                    if (v)
                     {
                         ResultBuffer.Remove(v);
                         ResultBuffer.Insert(0, v);
@@ -790,9 +790,9 @@ internal static class ExtendedPlayerControl
         {
             MapNames.Fungle when overlapPointNonAlloc >= 2 => true,
             MapNames.MiraHQ when overlapPointNonAlloc >= 1 => true,
-            MapNames.MiraHQ when room != null && room.RoomId is SystemTypes.MedBay or SystemTypes.Comms => true,
+            MapNames.MiraHQ when room && room.RoomId is SystemTypes.MedBay or SystemTypes.Comms => true,
             MapNames.Airship when overlapPointNonAlloc >= 1 => true,
-            MapNames.Skeld or MapNames.Dleks when room != null => true,
+            MapNames.Skeld or MapNames.Dleks when room => true,
             MapNames.Polus when overlapPointNonAlloc >= 1 => true,
             MapNames.Polus when pos.y is >= -26.11f and <= -6.41f && pos.x is >= 3.56f and <= 32.68f => true,
             (MapNames)6 => true,
@@ -857,7 +857,7 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        if (target == null) target = killer;
+        if (!target) target = killer;
 
         // Check Observer
         if (!forObserver && !MeetingStates.FirstMeeting) Main.EnumeratePlayerControls().Where(x => x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId).Do(x => x.RpcGuardAndKill(target, true));
@@ -966,7 +966,7 @@ internal static class ExtendedPlayerControl
 
         switch (state.Role)
         {
-            case SchrodingersCat cat when realKiller != null:
+            case SchrodingersCat cat when realKiller:
                 cat.OnCheckMurderAsTarget(realKiller, pc);
                 return;
             case Veteran when Veteran.VeteranInProtect.Contains(pc.PlayerId):
@@ -979,7 +979,7 @@ internal static class ExtendedPlayerControl
 
         Medic.IsDead(pc);
 
-        if (realKiller != null)
+        if (realKiller)
         {
             pc.SetRealKiller(realKiller);
 
@@ -1017,7 +1017,7 @@ internal static class ExtendedPlayerControl
         if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return;
 
         player.AddKillTimerToDict(cd: time);
-        if (target == null) target = player;
+        if (!target) target = player;
 
         if (time >= 0f)
             Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
@@ -1164,7 +1164,7 @@ internal static class ExtendedPlayerControl
         catch (Exception e)
         {
             ThrowException(e);
-            return player == null || player.Data == null ? "Unknown Player" : player.Data.PlayerName;
+            return !player || !player.Data ? "Unknown Player" : player.Data.PlayerName;
         }
     }
 
@@ -1355,7 +1355,7 @@ internal static class ExtendedPlayerControl
         }
         catch (NullReferenceException nullReferenceException)
         {
-            Logger.Error($"{nullReferenceException.Message} - player is null? {player == null}", "GetRealName");
+            Logger.Error($"{nullReferenceException.Message} - player is null? {!player}", "GetRealName");
             return string.Empty;
         }
         catch (Exception exception)
@@ -1935,7 +1935,7 @@ internal static class ExtendedPlayerControl
     public static (Vector2 Location, string RoomName) GetPositionInfo(this PlayerControl pc)
     {
         PlainShipRoom room = pc.GetPlainShipRoom();
-        string roomName = GetString(room == null ? "Outside" : $"{room.RoomId}");
+        string roomName = GetString(!room ? "Outside" : $"{room.RoomId}");
         Vector2 pos = pc.Pos();
         return (pos, roomName);
     }
@@ -1990,7 +1990,7 @@ internal static class ExtendedPlayerControl
         
         if (Options.CurrentGameMode == CustomGameMode.SoloPVP || GameStates.IsLobby || !GameStates.InGame || !Main.IntroDestroyed) return;
 
-        if (target == null) target = killer;
+        if (!target) target = killer;
 
         CheckAndSpawnAdditionalRenegade(target.Data);
 
@@ -2010,7 +2010,7 @@ internal static class ExtendedPlayerControl
         target.SetRealKiller(killer, true);
         
         PlayerControl realKiller = Main.PlayerStates.TryGetValue(target.PlayerId, out PlayerState state) ? state.RealKiller.ID.GetPlayer() ?? killer : killer;
-        if (realKiller == null) realKiller = killer;
+        if (!realKiller) realKiller = killer;
 
         if (target.PlayerId == Godfather.GodfatherTarget)
             realKiller.RpcSetCustomRole(CustomRoles.Renegade);
@@ -2112,7 +2112,7 @@ internal static class ExtendedPlayerControl
                 {
                     foreach (PlayerState ps in Main.PlayerStates.Values)
                     {
-                        if (!ps.IsDead && ps.Role.SeesArrowsToDeadBodies && !ps.SubRoles.Contains(CustomRoles.Blind) && ps.Player != null)
+                        if (!ps.IsDead && ps.Role.SeesArrowsToDeadBodies && !ps.SubRoles.Contains(CustomRoles.Blind) && ps.Player)
                         {
                             LocateArrow.Add(ps.Player.PlayerId, pos);
                             NotifyRoles(SpecifySeer: ps.Player, SpecifyTarget: ps.Player);
@@ -2242,7 +2242,7 @@ internal static class ExtendedPlayerControl
 
     public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool notOverRide = false)
     {
-        if (target == null)
+        if (!target)
         {
             Logger.Info("target is null", "SetRealKiller");
             return;
@@ -2251,7 +2251,7 @@ internal static class ExtendedPlayerControl
         PlayerState state = Main.PlayerStates[target.PlayerId];
         if (state.RealKiller.TimeStamp != DateTime.MinValue && notOverRide) return; // Do not overwrite if value already exists
 
-        byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
+        byte killerId = !killer ? byte.MaxValue : killer.PlayerId;
         RPC.SetRealKiller(target.PlayerId, killerId);
     }
 
@@ -2306,7 +2306,6 @@ internal static class ExtendedPlayerControl
         return !area.bounds.Contains2D(pos);
     }
 
-    [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
     public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
     {
         if (!pc.IsAlive()) return null;
@@ -2331,10 +2330,8 @@ internal static class ExtendedPlayerControl
             }
         }
 
-        var rooms = ShipStatus.Instance.AllRooms;
-        for (int i = 0; i < rooms.Count; i++)
+        foreach (var room in ShipStatus.Instance.AllRooms)
         {
-            var room = rooms[i];
             if (room.RoomId is SystemTypes.Hallway or SystemTypes.Outside) continue;
             var area = room.roomArea;
 
@@ -2359,13 +2356,11 @@ internal static class ExtendedPlayerControl
     }
 
     // WARNING: INACCURATE WITH NON-RECTANGLE ROOMS
-    [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
     public static PlainShipRoom GetPlainShipRoom(this Vector2 pos)
     {
-        var rooms = ShipStatus.Instance.AllRooms;
-        for (int i = 0; i < rooms.Count; i++)
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var room in ShipStatus.Instance.AllRooms)
         {
-            var room = rooms[i];
             if (room.RoomId is SystemTypes.Hallway or SystemTypes.Outside) continue;
             var area = room.roomArea;
 

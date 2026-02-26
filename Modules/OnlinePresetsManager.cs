@@ -96,17 +96,45 @@ public static class OnlinePresetsManager
             row.MinusBtn.OnClick = new();
             row.MinusBtn.OnClick.AddListener((UnityAction)(() =>
             {
-                Main.Instance.StartCoroutine(
-                    DownloadPreset(preset.id, downloadedPreset =>
-                    {
-                        foreach ((int id, OptionItem optionItem) in OptionItem.FastOptions)
+                GameSettingMenu.Instance.Close();
+                
+                Prompt.Show(Translator.GetString("Promt.ApplyPreset"), () =>
+                {
+                    Logger.SendInGame(Translator.GetString("DownloadingPreset"));
+                    
+                    Main.Instance.StartCoroutine(
+                        DownloadPreset(preset.id, downloadedPreset =>
                         {
-                            if (optionItem.IsSingleValue) continue;
-                            if (!downloadedPreset.TryGetValue(id, out int newValue)) continue;
-                            optionItem.SetValue(newValue, doSave: false, doSync: false);
-                        }
-                    })
-                );
+                            foreach ((int id, OptionItem optionItem) in OptionItem.FastOptions)
+                            {
+                                if (optionItem.IsSingleValue) continue;
+                                if (!downloadedPreset.TryGetValue(id, out int newValue)) continue;
+                                optionItem.SetValue(newValue, doSave: false, doSync: false);
+                            }
+                            
+                            OptionItem.SyncAllOptions();
+                            OptionSaver.Save();
+                            
+                            Logger.SendInGame(Translator.GetString("PresetApplied"), Color.green);
+                        })
+                    );
+                }, () =>
+                {
+                    LateTask.New(() =>
+                    {
+                        if (!GameStates.IsLobby) return;
+                        GameObject.Find("Host Buttons").transform.FindChild("Edit").GetComponent<PassiveButton>().ReceiveClickDown();
+                    }, 0.1f);
+                    
+                    LateTask.New(() =>
+                    {
+                        if (!GameStates.IsLobby || !GameSettingMenu.Instance) return;
+                        const int index = (int)TabGroup.PresetExplorer + 3;
+                        GameSettingMenu.Instance.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
+                        ModGameOptionsMenu.TabIndex = index;
+                    }, 0.4f);
+                });
+                
             }));
             TextMeshPro text = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
             text.DestroyTranslator();
@@ -205,6 +233,8 @@ public static class OnlinePresetsManager
     private static IEnumerator DownloadPreset(string presetId, Action<Dictionary<int,int>> onSuccess)
     {
         UnityWebRequest request = UnityWebRequest.Get($"https://gurge44.pythonanywhere.com/presets/{presetId}");
+
+        request.timeout = 5;
 
         yield return request.SendWebRequest();
 

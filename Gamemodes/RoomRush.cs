@@ -421,7 +421,7 @@ public static class RoomRush
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
+        if (!GameGoing || Main.HasJustStarted) return string.Empty;
 
         StringBuilder sb = new();
         bool dead = !seer.IsAlive();

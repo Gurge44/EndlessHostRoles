@@ -377,7 +377,7 @@ public static class Deathrace
         target.MarkDirtySettings();
         LateTask.New(() =>
         {
-            if (target == null) return;
+            if (!target) return;
             Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
             target.MarkDirtySettings();
@@ -416,7 +416,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null) continue;
+                        if (!player) continue;
                         
                         if (Main.AllPlayerSpeed[player.PlayerId] < 0f) Main.AllPlayerSpeed[player.PlayerId] -= SmokeSpeedReduction;
                         else Main.AllPlayerSpeed[player.PlayerId] += SmokeSpeedReduction;
@@ -434,7 +434,7 @@ public static class Deathrace
                 
                 LateTask.New(() =>
                 {
-                    if (pc == null || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
+                    if (!pc || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
                     if (Main.AllPlayerSpeed[pc.PlayerId] < 0f) Main.AllPlayerSpeed[pc.PlayerId] += EnergyDrinkSpeedIncreasement;
                     else Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
                     pc.MarkDirtySettings();
@@ -455,7 +455,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || !state.IsBlackOut) continue;
+                        if (!player || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || !state.IsBlackOut) continue;
                         state.IsBlackOut = false;
                         RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                         player.MarkDirtySettings();
@@ -476,7 +476,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null || Main.AllPlayerSpeed[player.PlayerId] >= 0f) continue;
+                        if (!player || Main.AllPlayerSpeed[player.PlayerId] >= 0f) continue;
                         Main.AllPlayerSpeed[player.PlayerId] *= -1;
                         RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                         player.MarkDirtySettings();
@@ -507,7 +507,7 @@ public static class Deathrace
             
             foreach ((byte id, PlayerData data) in Data)
             {
-                if (data.Player == null || !data.Player.IsAlive())
+                if (!data.Player || !data.Player.IsAlive())
                 {
                     removeId = id;
                     continue;
@@ -525,9 +525,9 @@ public static class Deathrace
 
                 PlainShipRoom room = data.Player.GetPlainShipRoom();
                 bool coordinateCheck = CoordinateChecks.TryGetValue((int)data.NextRoom, out var coordinates);
-                if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
+                if (room && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
 
-                if ((room == null && !coordinateCheck) || (room != null && room.RoomId == data.LastRoom))
+                if ((!room && !coordinateCheck) || (room && room.RoomId == data.LastRoom))
                 {
                     CheckAndNotify(data);
                     continue;

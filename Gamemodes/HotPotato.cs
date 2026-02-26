@@ -139,7 +139,7 @@ internal static class HotPotato
 
             PlayerControl holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
-            if (holder == null || holder.Data.Disconnected || !holder.IsAlive())
+            if (!holder || holder.Data.Disconnected || !holder.IsAlive())
             {
                 PassHotPotato();
                 return;
@@ -218,7 +218,7 @@ internal static class HotPotato
 
                 PlayerControl lastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
 
-                if (lastHolder != null)
+                if (lastHolder)
                 {
                     if (CanPassViaKillButton && lastHolder.IsAlive()) lastHolder.RpcSetRoleGlobal(RoleTypes.Crewmate);
 

@@ -4426,7 +4426,7 @@
   "GameModeTutorial.HotPotato": "<size=90%>The current game mode is <#e8cd46>Hot Potato</color>.</size>\\n<size=80%>The person with a black name holds the hot potato.\\nThey can pass it to someone by going near them.\\nThe previous holder's name is colored in cyan, they cannot regain\\nthe hot potato until someone else got it, unless only 2 players remain.\\nWhen the time limit ends, the holder of the hot potato dies, and the timer resets,\\nthe hot potato is assigned to a random player. Be the last player alive to win!</size>",
   "HotPotato_ExtraTimeOnAirship": "Extra Time on <color=#ed0007>Airship</color>",
   "HotPotato_ExtraTimeOnFungle": "Extra Time on <color=#ffa646>Fungle</color>",
-  "HotPotato_HolderCanPassViaKillButton": "Holders Can Pass The Potato Via Kill Button",
+  "HotPotato_HolderCanPassViaKillButton": "Holders Pass The Potato Via Kill Button Instead Of Proximity",
   "HotPotato_HolderHasArrowToNearestPlayerIfPlayersLessThan": "Holder Has an Arrow to the Nearest Player If the Remaining Players Is Less Than",
   "HotPotato_HolderSpeed": "Speed of the Player Holding the Hot Potato",
   "HotPotato_HoldingNotify": "<#ffff00><size=2>You hold the Hot Potato! Pass it or die!</size></color>",
@@ -10440,6 +10440,9 @@
   ============================== */
   "PressF1ShowMainRoleDes": "F1: Show Full Role/Add-ons Info\\n<size=60%>On the joystick use the right stick (R3/RSB)</size>",
   "PromotedSKCanRecruit": "New <color=#00b4eb>Jackal</color> can recruit new <color=#00b4eb>Sidekick</color>",
+  "DownloadingPreset": "Downloading preset....",
+  "PresetApplied": "Preset applied successfully!",
+  "Promt.ApplyPreset": "<#ffff00>⚠ WARNING ⚠</color>\\nApplying this preset <b><u>OVERRIDES</u> your current preset</b>! Back it up if you need it or switch to an unused preset slot. It will be permanently deleted!\\nDo you wish to proceed?",
   "Promt.EnableAllRoles": "Enable all roles and add-ons?<size=80%>\\n\\n<b>Yes</b> - Enable all roles and add-ons\\n<b>No</b> - Enter the quick setup dialog of roles and add-ons</size>",
   "Promt.EnableRole": "<size=60%>({0}/{1}) {2}\\n</size><size=80%>Enable {3}?</size><size=60%>\\n\\n{4}</size>",
   "Promt.ResetAllOptions": "Are you sure you want to reset all options? This action is irreversible and may take few minutes.",

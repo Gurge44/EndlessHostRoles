@@ -130,7 +130,7 @@ internal static class ExileControllerWrapUpPatch
                 AntiBlackout.RevertToActualRoleTypes();
             }, 2f, "Revert AntiBlackout Measures");
             
-            if (!Options.GameTimeLimitRunsDuringMeetings.GetBool())
+            if (Options.EnableGameTimeLimit.GetBool() && !Options.GameTimeLimitRunsDuringMeetings.GetBool())
                 Main.GameTimer.Start();
         }
 

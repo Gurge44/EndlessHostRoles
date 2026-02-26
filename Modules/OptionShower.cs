@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,13 +25,8 @@ public static class OptionShower
             LastText = text;
             return text;
         }
-        catch (Exception e)
+        catch
         {
-            if (!OnGameJoinedPatch.JoiningGame)
-            {
-                Logger.Info($"Pages:{Pages.Count} - CurrentPage:{CurrentPage}", "GetTextNoFresh()");
-                Utils.ThrowException(e);
-            }
             return LastText;
         }
     }

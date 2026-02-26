@@ -17,7 +17,7 @@ internal class Hider : RoleBase, IHideAndSeekRole
     public override bool IsEnable => On;
     public Team Team => Team.Crewmate;
     public int Chance => 100;
-    public int Count => Main.CachedAllPlayerControls().Count;
+    public int Count => PlayerControl.AllPlayerControls.Count;
     public float RoleSpeed => Speed.GetFloat();
     public float RoleVision => Vision.GetFloat();
 

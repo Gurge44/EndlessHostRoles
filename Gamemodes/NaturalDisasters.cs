@@ -280,7 +280,12 @@ public static class NaturalDisasters
             {
                 LastDisaster = now;
                 List<Type> disasters = AllDisasters.ToList();
-                if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
+                
+                if (ActiveDisasters.Exists(x => x is Thunderstorm))
+                    disasters.RemoveAll(x => x.Name == "Thunderstorm");
+
+                if ((Main.LIMap ? ShipStatus.Instance.AllRooms.Count : RandomSpawn.SpawnMap.GetSpawnMap().Positions.Count - (Main.CurrentMap == MapNames.Polus ? 3 : 1)) <= BuildingCollapse.CollapsedRooms.Count)
+                    disasters.RemoveAll(x => x.Name == "BuildingCollapse");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
                 KeyValuePair<SystemTypes, Vector2> roomKvp;

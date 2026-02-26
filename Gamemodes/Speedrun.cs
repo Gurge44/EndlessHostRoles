@@ -103,7 +103,7 @@ public static class Speedrun
 
         int time = Timers[pc.PlayerId];
         int alive = Main.CachedAlivePlayerControls().Count;
-        int apc = Main.CachedAllPlayerControls().Count;
+        int apc = PlayerControl.AllPlayerControls.Count;
         int killers = CanKill.Count;
 
         string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
@@ -124,7 +124,7 @@ public static class Speedrun
         {
             PlayerControl player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
 
-            if (player != null)
+            if (player)
             {
                 CustomWinnerHolder.WinnerIds = [player.PlayerId];
                 reason = GameOverReason.CrewmatesByTask;
@@ -191,7 +191,7 @@ public static class Speedrun
             CanKill.RemoveWhere(x =>
             {
                 PlayerControl player = x.GetPlayer();
-                return player == null || !player.IsAlive();
+                return !player || !player.IsAlive();
             });
 
             var aapc = Main.CachedAlivePlayerControls();
