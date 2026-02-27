@@ -199,7 +199,7 @@ internal static class ControllerManagerUpdatePatch
                         PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
                 }
 
-                if (KeysDown(HostKillSelfKey))
+                if (KeysDown(HostKillSelfKey) && PlayerControl.LocalPlayer.IsAlive())
                 {
                     Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
                     PlayerControl.LocalPlayer.RpcExileV2();

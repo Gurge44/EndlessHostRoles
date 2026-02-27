@@ -1179,6 +1179,7 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Quiz when Quiz.Chat:
                 case CustomGameMode.HideAndSeek when CustomHnS.Chat:
                 case CustomGameMode.NaturalDisasters when NaturalDisasters.Chat:
+                case CustomGameMode.Standard when Options.ChatDuringGame.GetBool():
                     LateTask.New(Utils.SetChatVisibleForAll, 4f);
                     break;
             }
@@ -1316,6 +1317,9 @@ internal static class IntroCutsceneDestroyPatch
             {
                 case CustomGameMode.Standard:
                     Blessed.AfterMeetingTasks();
+                    break;
+                case CustomGameMode.FFA:
+                    LateTask.New(() => Main.EnumerateAlivePlayerControls().Do(x => x.RpcSetRoleDesync(RoleTypes.Impostor, x.OwnerId)), 6f);
                     break;
                 case CustomGameMode.KingOfTheZones:
                     Main.Instance.StartCoroutine(KingOfTheZones.GameStart());

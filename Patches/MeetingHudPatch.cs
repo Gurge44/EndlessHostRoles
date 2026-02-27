@@ -20,6 +20,8 @@ internal static class CheckForEndVotingPatch
     public static string EjectionText = string.Empty;
     public static NetworkedPlayerInfo TempExiledPlayer;
 
+    private static readonly List<MeetingHud.VoterState> StatesList = [];
+    private static MeetingHud.VoterState[] States = [];
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
@@ -33,8 +35,8 @@ internal static class CheckForEndVotingPatch
 
         try
         {
-            List<MeetingHud.VoterState> statesList = [];
-            MeetingHud.VoterState[] states;
+            StatesList.Clear();
+            States = [];
 
             foreach (PlayerVoteArea pva in __instance.playerStates)
             {
@@ -61,13 +63,13 @@ internal static class CheckForEndVotingPatch
                     PlayerControl voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, pc.PlayerId);
 
-                    statesList.Add(new()
+                    StatesList.Add(new()
                     {
                         VoterId = pva.TargetPlayerId,
                         VotedForId = pva.VotedFor
                     });
 
-                    states = [.. statesList];
+                    States = [.. StatesList];
 
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
@@ -76,9 +78,9 @@ internal static class CheckForEndVotingPatch
                     if (Main.LastVotedPlayerInfo != null)
                         ConfirmEjections(Main.LastVotedPlayerInfo, false);
 
-                    __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false);
+                    __instance.RpcVotingComplete(States.ToArray(), voteTarget.Data, false);
 
-                    Statistics.OnVotingComplete(states.ToArray(), voteTarget.Data, false, true);
+                    Statistics.OnVotingComplete(States.ToArray(), voteTarget.Data, false, true);
 
                     Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
@@ -206,7 +208,7 @@ internal static class CheckForEndVotingPatch
 
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Schizophrenic) && Options.DualVotes.GetBool())
                 {
-                    int count = statesList.Count(x => x.VoterId == ps.TargetPlayerId && x.VotedForId == ps.VotedFor);
+                    int count = StatesList.Count(x => x.VoterId == ps.TargetPlayerId && x.VotedForId == ps.VotedFor);
                     Loop.Times(count, _ => AddVote());
                 }
 
@@ -225,23 +227,23 @@ internal static class CheckForEndVotingPatch
                 continue;
 
                 void AddVote() =>
-                    statesList.Add(new()
+                    StatesList.Add(new()
                     {
                         VoterId = ps.TargetPlayerId,
                         VotedForId = ps.VotedFor
                     });
             }
 
-            Commited.OnVotingResultsShown(statesList);
+            Commited.OnVotingResultsShown(StatesList);
             Summoner.OnMeetingEnd();
             QuizMaster.OnMeetingEnd();
 
-            states = [.. statesList];
+            States = [.. StatesList];
 
             Dictionary<byte, int> votingData = __instance.CustomCalculateVotes();
 
-            Blackmailer.ManipulateVotingResult(votingData, states);
-            Swapper.ManipulateVotingResult(votingData, states);
+            Blackmailer.ManipulateVotingResult(votingData, States);
+            Swapper.ManipulateVotingResult(votingData, States);
             Assumer.OnVotingEnd(votingData);
             
             var exileId = byte.MaxValue;
@@ -334,9 +336,9 @@ internal static class CheckForEndVotingPatch
             if (Main.LastVotedPlayerInfo != null)
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
 
-            __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
+            __instance.RpcVotingComplete(States.ToArray(), exiledPlayer, tie);
 
-            Statistics.OnVotingComplete(states.ToArray(), exiledPlayer, tie, false);
+            Statistics.OnVotingComplete(States.ToArray(), exiledPlayer, tie, false);
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
             Utils.CheckAndSpawnAdditionalRenegade(exiledPlayer, ejection: true);

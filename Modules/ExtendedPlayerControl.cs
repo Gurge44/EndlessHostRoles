@@ -339,12 +339,11 @@ internal static class ExtendedPlayerControl
         if (!AmongUsClient.Instance.AmHost) return;
         if (!TempExiled.Add(pc.PlayerId)) return;
         
-        pc.Exiled();
-        Main.PlayerStates[pc.PlayerId].SetDead();
-        
         pc.RpcSetRoleGlobal(RoleTypes.GuardianAngel);
         LateTask.New(pc.SyncSettings, 0.1f, log: false);
         LateTask.New(pc.RpcResetAbilityCooldown, 0.2f, log: false);
+        
+        Main.PlayerStates[pc.PlayerId].SetDead();
     }
 
     // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy
@@ -1464,7 +1463,7 @@ internal static class ExtendedPlayerControl
             // Solo PVP
             CustomRoles.Challenger => pc.SoloAlive(),
             // FFA
-            CustomRoles.Killer => pc.IsAlive(),
+            CustomRoles.Killer => true,
             // Stop And Go
             CustomRoles.Tasker => false,
             // Hot Potato
@@ -1493,7 +1492,7 @@ internal static class ExtendedPlayerControl
 
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
+        if (!Main.IntroDestroyed || !pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
 
         if (pc.GetRoleTypes() == RoleTypes.Engineer) return false;
 

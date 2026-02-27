@@ -72,18 +72,11 @@ internal static class CmdCheckMurderPatch
     {
         if (AmongUsClient.Instance.AmHost)
             __instance.CheckMurder(target);
-        else if (Options.CurrentGameMode != CustomGameMode.FFA)
+        else
         {
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
             messageWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-        }
-        else
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FFAKill, SendOption.Reliable, AmongUsClient.Instance.HostId);
-            writer.WriteNetObject(__instance);
-            writer.WriteNetObject(target);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         return false;
@@ -299,7 +292,7 @@ internal static class CheckMurderPatch
                 {
                     case false when !CheckMurder():
                         return false;
-                    case true when killer.GetCustomRole().GetDYRole() == RoleTypes.Impostor:
+                    case true when killer.GetCustomRole().GetDYRole() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom:
                         if (killer.CheckDoubleTrigger(target, () =>
                         {
                             if (CheckMurder()) killer.RpcCheckAndMurder(target);
@@ -810,11 +803,12 @@ internal static class MurderPlayerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
 internal static class CheckShapeshiftPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
         if (ShapeshiftPatch.ProcessShapeshift(__instance, target))
         {
-            bool animated = !Options.DisableShapeshiftAnimations.GetBool()
+            bool animated = shouldAnimate
+                && !Options.DisableShapeshiftAnimations.GetBool()
                 && !Options.DisableAllShapeshiftAnimations.GetBool()
                 && !__instance.GetCustomRole().IsNoAnimationShifter();
             __instance.RpcShapeshift(target, animated);
@@ -826,9 +820,9 @@ internal static class CheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckShapeshift))]
 internal static class CmdCheckShapeshiftPatch
 {
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
-        return CheckShapeshiftPatch.Prefix(__instance, target /*, shouldAnimate*/);
+        return CheckShapeshiftPatch.Prefix(__instance, target, shouldAnimate);
     }
 }
 
@@ -838,6 +832,8 @@ internal static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
+        if (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.VoteStates.Results) return true;
+        
         bool meetingSS = Options.UseMeetingShapeshift.GetBool() && GameStates.IsMeeting;
         if ((!Main.ProcessShapeshifts && !meetingSS) || shapeshifter.PlayerId >= 254) return true;
 

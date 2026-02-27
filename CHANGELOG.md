@@ -4,7 +4,7 @@
 > **Use commands with a `/cmd ` prefix, otherwise your message gets leaked.** So if you were to type `/bt 4 snitch`, you would now type `/cmd bt 4 snitch`. The system will NOT spam the chat after command usage even if it would be required.
 
 ## Bug Fixes
-- Fixed host's kill button lighting up when it shouldn't (by TommyXL
+- Fixed host's kill button lighting up when it shouldn't (by TommyXL)
 - Natural Disasters: The same room can no longer collapse twice
 - Fixed Deadlined, Alchemist info not syncing for non-host modded clients
 - Fixed vanilla clients seeing Double Agent as impostor
@@ -38,7 +38,9 @@
 - Settings to have different player speeds for each map
 - Setting: `Game Time Limit Runs During Meetings`
 - Setting: `Add-on Assigning Roles Ignore the Maximum Add-ons Limit`
+- Setting: `Chat During Game` (for Standard) (by Wyzeris)
 - Onbound setting: `Maximum Distinct Guessing Attempts Blocked`
+- Tremor settings: `Tremor's Speed During Doom` & `Tremor's Vision During Doom` (by Wyzeris)
 
 ### Preset Explorer
 - New tab in the settings UI: PRESET EXPLORER

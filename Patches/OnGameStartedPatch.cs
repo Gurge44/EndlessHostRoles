@@ -1266,7 +1266,7 @@ internal static class StartGameHostPatch
     {
         try
         {
-            if (target == null) return;
+            if (!target) return;
 
             int targetClientId = target.OwnerId;
             if (targetClientId == -1) return;

@@ -1291,7 +1291,7 @@ internal static class ChatCommands
     {
         ReadyPlayers.Add(player.PlayerId);
     }
-
+    
     public static void DraftStartCommand(PlayerControl player, string text, string[] args)
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
