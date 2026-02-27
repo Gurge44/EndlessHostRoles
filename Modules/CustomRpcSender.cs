@@ -703,10 +703,17 @@ public static class CustomRpcSenderExtensions
     {
         senderWasCleared = false;
         newSender = sender;
-        if (!AmongUsClient.Instance.AmHost || seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
+        if (!AmongUsClient.Instance.AmHost || !seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
         var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
         newSender = sender;
         return hasValue;
+    }
+
+    public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl player)
+    {
+        sender.RpcSetRole(player, player.GetGhostRoleBasis());
+        FixedUpdatePatch.LoversSuicide(player.PlayerId);
+        return true;
     }
 
     public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)

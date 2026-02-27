@@ -30,7 +30,8 @@ namespace EHR;
 [BepInPlugin(PluginGuid, "EHR", PluginVersion)]
 [BepInIncompatibility("jp.ykundesu.supernewroles")]
 [BepInIncompatibility("MalumMenu")]
-[BepInIncompatibility("com.ten.thebetterroles")]
+[BepInIncompatibility("com.crewmod.oficial")]
+[BepInIncompatibility("com.crewmod.showcase")]
 [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
 [BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
@@ -150,8 +151,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
-    public static uint LobbyBehaviourNetId;
-    
+
     public static Stopwatch GameTimer = new();
     public static bool GameEndDueToTimer;
 

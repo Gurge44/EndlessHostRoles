@@ -138,7 +138,7 @@ public static class Translator
     private static string[] GetJsonFileNames(Assembly assembly, string directoryName)
     {
         string[] resourceNames = assembly.GetManifestResourceNames();
-        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".jsonc")).ToArray();
+        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && (resourceName.EndsWith(".jsonc") || resourceName.EndsWith(".json"))).ToArray();
     }
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)

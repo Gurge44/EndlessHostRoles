@@ -104,10 +104,10 @@ public class Thanos : RoleBase
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             ActiveStone = null;
             Utils.SendRPC(CustomRPC.SyncRoleData, ThanosId, 2);
-            target.Data.IsDead = true;
             target.SetRealKiller(killer);
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Scavenged;
             target.RpcExileV2();
+            target.Data.IsDead = true;
             Main.PlayerStates[target.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(target);
             target.SetRealKiller(killer);

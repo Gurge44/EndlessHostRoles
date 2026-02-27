@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
@@ -36,7 +37,8 @@ static class StartRpcImmediatelyPatch
 {
     public static void Postfix(uint targetNetId, byte callId, Hazel.SendOption option, int targetClientId = -1)
     {
-        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {targetNetId} with SendOption {option} to {targetClientId}", "StartRpcImmediately");
+        if (callId is 21) return;
+        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.AllPlayerControls.FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
     }
 }
 

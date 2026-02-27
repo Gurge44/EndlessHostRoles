@@ -138,7 +138,8 @@ internal class Trapster : RoleBase
         {
             Vector2 location = player.Pos();
             TrapsterBody.Add(player.PlayerId);
-            Utils.RpcCreateDeadBody(location, (byte)IRandom.Instance.Next(17), player);
+            PlayerControl randomPlayer = Main.EnumerateAlivePlayerControls().Without(player).RandomElement();
+            Utils.RpcCreateDeadBody(location, (byte)randomPlayer.CurrentOutfit.ColorId, randomPlayer);
             return false;
         }
 

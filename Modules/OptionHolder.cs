@@ -813,6 +813,7 @@ public static class Options
     public static OptionItem NameDisplayAddonsOnlyInMeetings;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
+    public static OptionItem AddonAssigningRolesIgnoreMaxAddonsLimit;
 
     public static OptionItem CharmedCanBeGuessed;
     public static OptionItem ContagiousCanBeGuessed;
@@ -1456,6 +1457,9 @@ public static class Options
 
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);
+        
+        AddonAssigningRolesIgnoreMaxAddonsLimit = new BooleanOptionItem(214, "AddonAssigningRolesIgnoreMaxAddonsLimit", false, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard);
 
         CharmedCanBeGuessed = new StringOptionItem(213, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
             .SetHeader(true)
@@ -1767,7 +1771,7 @@ public static class Options
         SendHashedPuidToUseLinkedAccount = new BooleanOptionItem(19501, "SendHashedPuidToUseLinkedAccount", true, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite);
         
-        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 600, 5), 30, TabGroup.SystemSettings)
+        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 30, 5), 30, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite)
             .SetValueFormat(OptionFormat.Seconds);
 

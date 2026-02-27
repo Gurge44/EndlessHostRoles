@@ -23,9 +23,9 @@ internal static class PingTrackerUpdatePatch
     {
         FpsSampler.TickFrame();
         
-        PingTracker instance = Instance == null ? __instance : Instance;
+        PingTracker instance = !Instance ? __instance : Instance;
 
-        if (AmongUsClient.Instance == null) return false;
+        if (!AmongUsClient.Instance) return false;
 
         if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
         {
@@ -40,7 +40,7 @@ internal static class PingTrackerUpdatePatch
             instance.text.text = Sb.ToString();
         }
 
-        if (Instance == null) Instance = __instance;
+        if (!Instance) Instance = __instance;
 
         long now = Utils.TimeStamp;
         if (now == LastUpdate) return false;
@@ -125,7 +125,7 @@ internal static class VersionShowerStartPatch
 
         ErrorText.Create(__instance.text);
 
-        if (Main.HasArgumentException && ErrorText.Instance != null)
+        if (Main.HasArgumentException && ErrorText.Instance)
             ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
 
         VersionChecker.Check();
@@ -146,7 +146,7 @@ public static class UpdateFriendCodeUIPatch
 
         GameObject friendCode = GameObject.Find("FriendCode");
 
-        if (friendCode != null && VersionShower == null)
+        if (friendCode && !VersionShower)
         {
             VersionShower = Object.Instantiate(friendCode, friendCode.transform.parent);
             VersionShower.name = "EHR Version Shower";
@@ -160,7 +160,7 @@ public static class UpdateFriendCodeUIPatch
 
         GameObject newRequest = GameObject.Find("NewRequest");
 
-        if (newRequest != null)
+        if (newRequest)
         {
             newRequest.transform.localPosition -= new Vector3(0f, 0f, 10f);
             newRequest.transform.localScale = new(0f, 0f, 0f);
@@ -168,7 +168,7 @@ public static class UpdateFriendCodeUIPatch
 
         GameObject friendsButton = GameObject.Find("FriendsButton");
 
-        if (friendsButton != null)
+        if (friendsButton)
         {
             friendsButton.transform.FindChild("Highlight").GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
             friendsButton.transform.FindChild("Inactive").GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
@@ -191,7 +191,7 @@ internal static class FriendsListUIOpenPatch
 
                 for (var index = 0; index < componentsInChildren.Length; ++index)
                 {
-                    if (componentsInChildren[index] != null)
+                    if (componentsInChildren[index])
                         Object.Destroy(componentsInChildren[index].gameObject);
                 }
 
@@ -199,7 +199,7 @@ internal static class FriendsListUIOpenPatch
                 __instance.currentSceneName = activeScene.name;
                 __instance.UpdateFriendCodeUI();
 
-                if ((HudManager.InstanceExists && HudManager.Instance != null && HudManager.Instance.Chat != null && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance != null)
+                if ((HudManager.InstanceExists && HudManager.InstanceExists && HudManager.Instance.Chat && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance)
                     return false;
 
                 __instance.friendBars = new();
@@ -340,7 +340,7 @@ internal static class TitleLogoPatch
         bool newYear = now is { Month: 1, Day: <= 6 };
         bool easter = IsEasterPeriod();
 
-        if (SpecialMessage == null && (holidays || christmas || newYear || easter))
+        if (!SpecialMessage && (holidays || christmas || newYear || easter))
         {
             SpecialMessage = new GameObject("SpecialMessage");
             SpecialMessage.transform.SetParent(__instance.transform);
@@ -356,7 +356,7 @@ internal static class TitleLogoPatch
             text.text = $"<b>{GetString(holidays ? "HolidayGreeting" : christmas ? "ChristmasGreeting" : newYear ? "NewYearGreeting" : "EasterGreeting")}</b>";
         }
 
-        if (CustomBG == null && (holidays || christmas || newYear || easter))
+        if (!CustomBG && (holidays || christmas || newYear || easter))
         {
             CustomBG = new GameObject("CustomBG");
             CustomBG.transform.SetParent(__instance.transform);
@@ -364,7 +364,7 @@ internal static class TitleLogoPatch
             var sr = CustomBG.AddComponent<SpriteRenderer>();
             sr.sprite = Utils.LoadSprite(easter ? "EHR.Resources.Images.EasterBG.jpg" : "EHR.Resources.Images.WinterBG.jpg", 180f);
             PlayerParticles pp = Object.FindObjectOfType<PlayerParticles>();
-            if (pp != null) pp.gameObject.SetActive(false);
+            if (pp) pp.gameObject.SetActive(false);
         }
 
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
@@ -373,7 +373,7 @@ internal static class TitleLogoPatch
 
         Ambience = GameObject.Find("Ambience");
 
-        if (Ambience != null)
+        if (Ambience)
         {
             try { __instance.playButton.transform.gameObject.SetActive(true); }
             catch (Exception ex) { Logger.Warn(ex.ToString(), "MainMenuLoader"); }
@@ -399,7 +399,7 @@ internal static class TitleLogoPatch
         foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)
             kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
 
-        try { mainButtons.Keys.Flatten().DoIf(x => x != null, x => x.buttonText.color = Color.white); }
+        try { mainButtons.Keys.Flatten().DoIf(x => x, x => x.buttonText.color = Color.white); }
         catch { }
 
         GameObject.Find("Divider")?.SetActive(false);
@@ -518,7 +518,7 @@ internal static class OptionsMenuBehaviourOpenPatch
         }
         else
         {
-            if (Minigame.Instance != null) Minigame.Instance.Close();
+            if (Minigame.Instance) Minigame.Instance.Close();
 
             __instance.OpenTabGroup(0);
             __instance.UpdateButtons();

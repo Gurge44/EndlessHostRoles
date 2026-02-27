@@ -148,7 +148,7 @@ public static class Mingle
         {
             int count = GetNumPlayersInRoom(room);
 
-            if (plainShipRoom != null && plainShipRoom.RoomId == room)
+            if (plainShipRoom && plainShipRoom.RoomId == room)
                 sb.Append(hud ? "➡ " : "<u>");
             
             if (DisplayCurrentPlayerCountInEachRoom)
@@ -176,7 +176,7 @@ public static class Mingle
                 sb.Append("</color>");
             }
 
-            if (plainShipRoom != null && plainShipRoom.RoomId == room && !hud)
+            if (plainShipRoom && plainShipRoom.RoomId == room && !hud)
                 sb.Append("</u>");
 
             sb.Append('\n');
@@ -194,7 +194,7 @@ public static class Mingle
             if (hud) sb.Append("</size></b>");
         }
         
-        if (plainShipRoom == null || !RequiredPlayerCount.ContainsKey(plainShipRoom.RoomId))
+        if (!plainShipRoom || !RequiredPlayerCount.ContainsKey(plainShipRoom.RoomId))
         {
             sb.Append('\n');
             sb.Append("<#ffff00><size=70%>");
@@ -295,7 +295,7 @@ public static class Mingle
     private static void KillPlayers()
     {
         var aapc = Main.AllAlivePlayerControls;
-        Dictionary<PlayerControl, SystemTypes> playerRooms = aapc.Select(x => (pc: x, room: x.GetPlainShipRoom())).ToDictionary(x => x.pc, x => x.room == null ? SystemTypes.Outside : x.room.RoomId);
+        Dictionary<PlayerControl, SystemTypes> playerRooms = aapc.Select(x => (pc: x, room: x.GetPlainShipRoom())).ToDictionary(x => x.pc, x => !x.room ? SystemTypes.Outside : x.room.RoomId);
         Dictionary<SystemTypes, int> playerCount = [];
         HashSet<PlayerControl> toKill = [];
 
@@ -369,7 +369,7 @@ public static class Mingle
                 }
                 else
                 {
-                    Dictionary<SystemTypes, int> numPlayersInRoom = Main.EnumerateAlivePlayerControls().Select(x => (pc: x, room: x.GetPlainShipRoom())).GroupBy(x => x.room == null ? SystemTypes.Outside : x.room.RoomId).ToDictionary(x => x.Key, x => x.Count());
+                    Dictionary<SystemTypes, int> numPlayersInRoom = Main.EnumerateAlivePlayerControls().Select(x => (pc: x, room: x.GetPlainShipRoom())).GroupBy(x => !x.room ? SystemTypes.Outside : x.room.RoomId).ToDictionary(x => x.Key, x => x.Count());
 
                     yield return null;
                     

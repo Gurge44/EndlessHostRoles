@@ -37,8 +37,9 @@ public class Summoner : CovenBase
 
     public byte SummonerId;
     public byte SummonedPlayerId;
-    private bool Changed;
+    private CustomRoles SummonedPlayerRole;
     private CountdownTimer SummonedPlayerTimer;
+    private bool Changed;
 
     public override void SetupCustomOption()
     {
@@ -76,6 +77,7 @@ public class Summoner : CovenBase
         SummonerId = playerId;
         Changed = false;
         SummonedPlayerId = byte.MaxValue;
+        SummonedPlayerRole = default(CustomRoles);
         SummonedPlayerTimer = null;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
@@ -125,6 +127,7 @@ public class Summoner : CovenBase
             
             if (summoned && !summoned.IsAlive())
             {
+                SummonedPlayerRole = state.MainRole;
                 SummonedPlayerTimer = new(SummonedTimeToKill.GetFloat(), () =>
                 {
                     SummonedPlayerTimer = null;
@@ -132,10 +135,13 @@ public class Summoner : CovenBase
                     if (!summoned || !summoned.IsAlive()) return;
                     state.SetDead();
                     summoned.RpcExileV2();
+                    summoned.RpcSetCustomRole(SummonedPlayerRole);
                 }, onTick: () => Utils.NotifyRoles(SpecifySeer: summoned, SpecifyTarget: summoned), onCanceled: () =>
                 {
                     SummonedPlayerTimer = null;
                     SummonedPlayerId = byte.MaxValue;
+                    if (!summoned || !summoned.IsAlive()) return;
+                    summoned.RpcSetCustomRole(SummonedPlayerRole);
                 });
 
                 RPC.PlaySoundRPC(SummonedPlayerId, Sounds.SpawnSound);
@@ -166,6 +172,20 @@ public class Summoner : CovenBase
         Changed = true;
     }
 
+    public override void OnReportDeadBody()
+    {
+        if (SummonedPlayerId == byte.MaxValue) return;
+        SummonedPlayerTimer?.Dispose();
+        SummonedPlayerTimer = null;
+        Main.PlayerStates[SummonedPlayerId].SetDead();
+        SummonedPlayerId = byte.MaxValue;
+        Utils.SendRPC(CustomRPC.SyncRoleData, SummonerId, 2);
+        PlayerControl summoned = SummonedPlayerId.GetPlayer();
+        if (!summoned || !summoned.IsAlive()) return;
+        summoned.RpcExileV2();
+        summoned.RpcSetCustomRole(SummonedPlayerRole);
+    }
+
     public override void OnVoteKick(PlayerControl pc, PlayerControl target)
     {
         string command = $"/summon {target.PlayerId}";
@@ -193,6 +213,7 @@ public class Summoner : CovenBase
                 instance.SummonedPlayerTimer?.Dispose();
                 instance.SummonedPlayerTimer = null;
                 killer.RpcExileV2();
+                killer.RpcSetCustomRole(instance.SummonedPlayerRole);
                 Main.PlayerStates[instance.SummonedPlayerId].SetDead();
                 instance.SummonedPlayerId = byte.MaxValue;
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.SummonerId, 2);

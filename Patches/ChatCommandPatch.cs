@@ -128,6 +128,8 @@ internal static class ChatCommands
 
     private static bool WaitingToSend;
 
+    private static long LastSetNameInLobby;
+
     public static void LoadCommands()
     {
         Command.AllCommands =
@@ -457,23 +459,16 @@ internal static class ChatCommands
             __instance.freeChatField.textArea.Clear();
             __instance.freeChatField.textArea.SetText(cancelVal);
         }
-        else
+        else if (GameStates.IsLobby && AmongUsClient.Instance.AmHost)
         {
-            if (GameStates.IsLobby && AmongUsClient.Instance.AmHost)
+            long now = Utils.TimeStamp;
+
+            if (LastSetNameInLobby + 3 < now)
             {
-                if (!Main.AllPlayerNames.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out string name))
-                    Utils.ApplySuffix(PlayerControl.LocalPlayer, out name);
-
-                Utils.SendMessage(text.Insert(0, new('\n', name.Count(x => x == '\n'))), title: name, addToHistory: false, importance: MessageImportance.High);
-
-                canceled = true;
-                __instance.freeChatField.textArea.Clear();
-                __instance.freeChatField.textArea.SetText(string.Empty);
-
-                LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.2f, log: false);
+                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                PlayerControl.LocalPlayer.RpcSetName(name);
+                LastSetNameInLobby = now;
             }
-
-            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
         }
 
         if (text.Contains("666") && PlayerControl.LocalPlayer.Is(CustomRoles.Demon))
@@ -1624,7 +1619,7 @@ internal static class ChatCommands
         {
             if (PollVotes.Count == 0) yield break;
 
-            bool notEveryoneVoted = Main.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
+            bool notEveryoneVoted = PlayerControl.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
 
             var resendTimer = 0f;
 
@@ -1632,7 +1627,7 @@ internal static class ChatCommands
             {
                 if (!GameStates.IsLobby) yield break;
 
-                notEveryoneVoted = Main.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
+                notEveryoneVoted = PlayerControl.AllPlayerControls.Count - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
                 resendTimer += Time.deltaTime;
 
@@ -1910,9 +1905,9 @@ internal static class ChatCommands
 
         if (pc != null)
         {
-            pc.Data.IsDead = true;
             Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
             pc.RpcExileV2();
+            pc.Data.IsDead = true;
             Main.PlayerStates[pc.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(pc, GameStates.IsMeeting);
 
@@ -2090,7 +2085,7 @@ internal static class ChatCommands
         string toVote = text[6..].Replace(" ", string.Empty);
         if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
 
-        if (voteId > Main.AllPlayerControls.Count) return;
+        if (voteId > PlayerControl.AllPlayerControls.Count) return;
 
         PlayerControl votedPlayer = voteId.GetPlayer();
         if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
@@ -2476,7 +2471,7 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && Input.GetKey(KeyCode.LeftShift) ? byte.MaxValue : player.PlayerId;
+        byte to = player.AmOwner && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) ? byte.MaxValue : player.PlayerId;
         SendRolesInfo(subArgs, to);
     }
 
@@ -3296,7 +3291,8 @@ internal static class ChatUpdatePatch
             chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
         }
 
-        LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
+        long now = Utils.TimeStamp;
+        LastMessages.RemoveAll(x => now - x.SendTimeStamp > 10);
     }
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)

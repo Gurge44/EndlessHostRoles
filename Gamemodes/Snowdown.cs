@@ -192,7 +192,7 @@ public static class Snowdown
                 if (GameEndsAfterTime && Utils.TimeStamp - GameStartTS >= GameEndTime)
                 {
                     int max = Data.Values.Max(x => x.Points);
-                    CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer() != null).Select(x => x.Key).ToHashSet();
+                    CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer()).Select(x => x.Key).ToHashSet();
                     Logger.Info($"Winners: {(string.Join(", ", CustomWinnerHolder.WinnerIds.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, "[Unknown player]"))))}", "Snowdown");
                     Main.DoBlockNameChange = true;
                     return true;
@@ -266,7 +266,7 @@ public static class Snowdown
             {
                 touchingSnowball.SetInactive();
                 
-                if (touchingSnowball.Thrower != null && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
+                if (touchingSnowball.Thrower && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
                     throwerData.Coins++;
             }
 

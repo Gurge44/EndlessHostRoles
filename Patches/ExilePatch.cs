@@ -5,6 +5,7 @@ using AmongUs.Data;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
+using Hazel;
 
 namespace EHR.Patches;
 
@@ -21,7 +22,7 @@ internal static class ExileControllerWrapUpPatch
 
         if (!Collector.CollectorWin(false) && exiled != null)
         {
-            exiled.IsDead = true;
+            //exiled.IsDead = true;
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
             CustomRoles role = exiled.GetCustomRole();
 
@@ -129,7 +130,7 @@ internal static class ExileControllerWrapUpPatch
                 AntiBlackout.RevertToActualRoleTypes();
             }, 2f, "Revert AntiBlackout Measures");
             
-            if (!Options.GameTimeLimitRunsDuringMeetings.GetBool())
+            if (Options.EnableGameTimeLimit.GetBool() && !Options.GameTimeLimitRunsDuringMeetings.GetBool())
                 Main.GameTimer.Start();
         }
 
@@ -169,7 +170,10 @@ internal static class ExileControllerWrapUpPatch
             return;
         }
 
-        Main.AfterMeetingDeathPlayers.Keys.ToValidPlayers().Do(x => x.RpcExileV2());
+        bool hasValue = false;
+        CustomRpcSender sender = CustomRpcSender.Create("Exile AfterMeetingDeathPlayers", SendOption.Reliable);
+        Main.AfterMeetingDeathPlayers.Keys.ToValidPlayers().Do(x => hasValue |= sender.RpcExileV2(x));
+        sender.SendMessage(dispose: !hasValue);
 
         foreach ((byte id, PlayerState.DeathReason deathReason) in Main.AfterMeetingDeathPlayers)
         {
@@ -181,7 +185,7 @@ internal static class ExileControllerWrapUpPatch
             state.deathReason = deathReason;
             state.SetDead();
 
-            if (player == null) continue;
+            if (!player) continue;
 
             if (deathReason == PlayerState.DeathReason.Suicide)
                 player.SetRealKiller(player, true);

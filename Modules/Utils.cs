@@ -346,7 +346,7 @@ public static class Utils
     {
         if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer)) return true;
 
-        if (!seer.IsAlive() || killer == seer || target == seer) { } //return false;
+        // if (!seer.IsAlive() || killer == seer || target == seer) return false;
 
         return false;
     }
@@ -428,9 +428,10 @@ public static class Utils
         }
     }
 
-    public static string GetDisplayRoleName(byte playerId, bool pure = false, bool seeTargetBetrayalAddons = false)
+    public static string GetDisplayRoleName(byte playerId, byte targetId = byte.MaxValue, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
-        (string, Color) textData = GetRoleText(playerId, playerId, pure, seeTargetBetrayalAddons);
+        if (targetId == byte.MaxValue) targetId = playerId;
+        (string, Color) textData = GetRoleText(playerId, targetId, pure, seeTargetBetrayalAddons);
         return ColorString(textData.Item2, textData.Item1);
     }
 
@@ -441,7 +442,7 @@ public static class Utils
 
     public static string GetRoleMode(CustomRoles role, bool parentheses = true)
     {
-        if (Options.HideGameSettings.GetBool() && Main.AllPlayerControls.Count > 1) return string.Empty;
+        if (Options.HideGameSettings.GetBool() && PlayerControl.AllPlayerControls.Count > 1) return string.Empty;
 
         string mode;
 
@@ -755,7 +756,7 @@ public static class Utils
     {
         if (GameStates.IsLobby) return false;
         if (p.Tasks == null) return false;
-        if (p.Role == null) return false;
+        if (!p.Role) return false;
 
         var hasTasks = true;
         PlayerState state = Main.PlayerStates[p.PlayerId];
@@ -1528,21 +1529,8 @@ public static class Utils
 
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-        sb.Clear();
-
-        foreach ((byte id, PlayerState state) in Main.PlayerStates)
-        {
-            if (state.RoleHistory.Count > 0)
-            {
-                string join = string.Join(" > ", state.RoleHistory.ConvertAll(x => x.ToColoredString()));
-                sb.AppendLine($"{id.ColoredPlayerName()}: {join} > {state.MainRole.ToColoredString()}");
-            }
-        }
-
-        if (sb.Length == 0) return;
-
-        sb.Insert(0, $"<size=70%>{GetString("RoleHistoryText")}\n");
-        SendMessage("\n", playerId, sb.ToString().Trim() + "</size>");
+        if (EndGamePatch.RoleChangeLog != string.Empty)
+            SendMessage("\n", playerId, EndGamePatch.RoleChangeLog);
     }
 
     public static void ShowKillLog(byte playerId = byte.MaxValue)
@@ -3100,7 +3088,7 @@ public static class Utils
 
                             string targetRoleText =
                                 KnowsTargetRole(seer, target)
-                                    ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
+                                    ? $"<size={fontSize}>{GetDisplayRoleName(seer.PlayerId, target.PlayerId, seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
@@ -3868,20 +3856,6 @@ public static class Utils
         CustomNetObject.AfterMeeting();
 
         RPCHandlerPatch.RemoveExpiredWhiteList();
-
-        LateTask.New(() =>
-        {
-            if (GameStates.IsEnded) return;
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.StartMessage(5);
-            writer.WritePacked(Main.LobbyBehaviourNetId);
-            writer.EndMessage();
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-        }, 3f, "Repeat Lobby Despawn");
         
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive())
             PlayerControl.LocalPlayer.RpcMakeInvisible();
@@ -4197,7 +4171,7 @@ public static class Utils
             else
                 taskCount = string.Empty;
 
-            var summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, true)}{taskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
+            var summary = $"{ColorString(Main.PlayerColors[id], name)} - {GetDisplayRoleName(id, pure: true)}{taskCount}{GetKillCountText(id)} ({GetVitalText(id, true)})";
 
             CustomTeamManager.CustomTeam customTeam = CustomTeamManager.GetCustomTeam(id);
             if (customTeam != null) summary += $" ({ColorString(customTeam.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(customTeam.RoleRevealScreenBackgroundColor, out Color color) ? Color.yellow : color, customTeam.RoleRevealScreenTitle == "*" ? customTeam.TeamName : customTeam.RoleRevealScreenTitle)})";
@@ -4263,7 +4237,7 @@ public static class Utils
                     break;
             }
 
-            return check && GetDisplayRoleName(id, true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
+            return check && GetDisplayRoleName(id, pure: true).RemoveHtmlTags().Contains("INVALID:NotAssigned")
                 ? "INVALID"
                 : disableColor
                     ? summary.RemoveHtmlTags()

@@ -604,7 +604,7 @@ internal static class GameEndChecker
 
             var aapc = Main.AllAlivePlayerControls;
 
-            List<CustomRoles> existingAliveRoles = aapc.Select(x => x.GetCustomRole()).ToList();
+            List<CustomRoles> existingAliveRoles = aapc.Select(x => x.Is(CustomRoles.Bloodlust) ? CustomRoles.Bloodlust : x.GetCustomRole()).ToList();
             List<CountTypes> existingAliveCountTypes = aapc.Select(x => x.GetCountTypes()).ToList();
 
             if (existingAliveRoles.Contains(CustomRoles.Sunnyboy) && aapc.Count > 1 && aapc.Any(x => x.CanUseKillButton() && !x.IsCrewmate())) return false;
@@ -709,7 +709,7 @@ internal static class GameEndChecker
                     Logger.Info($"Crew: {crew}, Imp: {imp}, Coven: {coven}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                     ResetAndSetWinner((CustomWinner)winner);
 
-                    if (winner == CustomWinner.Crewmate && aapc.All(x => x.GetCustomRole().IsNeutral()))
+                    if (winner == CustomWinner.Crewmate && existingAliveRoles.TrueForAll(x => x.IsNeutral()))
                     {
                         AdditionalWinnerTeams.Add(AdditionalWinners.AliveNeutrals);
                         WinnerIds.UnionWith(aapc.Select(x => x.PlayerId));
@@ -791,7 +791,7 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
 
-            if (SoloPVP.RoundTime > 0) return false;
+            if (SoloPVP.RoundTimer.IsRunning && SoloPVP.RoundTimer.Elapsed.TotalSeconds < SoloPVP.GameTime) return false;
 
             HashSet<byte> winners = [Main.EnumeratePlayerControls().FirstOrDefault(x => !x.Is(CustomRoles.GM) && SoloPVP.GetRankFromScore(x.PlayerId) == 1)?.PlayerId ?? Main.EnumerateAlivePlayerControls().First().PlayerId];
             int kills = SoloPVP.PlayerScore[winners.First()];
@@ -819,7 +819,7 @@ internal static class GameEndChecker
 
             if (FreeForAll.RoundTime <= 0)
             {
-                PlayerControl winner = Main.GM.Value && Main.AllPlayerControls.Count == 1 ? PlayerControl.LocalPlayer : Main.EnumeratePlayerControls().Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => FreeForAll.GetRankFromScore(x.PlayerId)).First();
+                PlayerControl winner = Main.GM.Value && PlayerControl.AllPlayerControls.Count == 1 ? PlayerControl.LocalPlayer : Main.EnumeratePlayerControls().Where(x => !x.Is(CustomRoles.GM)).OrderBy(x => FreeForAll.GetRankFromScore(x.PlayerId)).First();
                 byte winnerId = winner.PlayerId;
                 Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "FFA");
                 WinnerIds = [winnerId];
@@ -1195,10 +1195,16 @@ internal static class GameEndChecker
         {
             reason = GameOverReason.ImpostorsByKill;
             if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
-
             if ((GameData.Instance.TotalTasks == 0 && GameData.Instance.CompletedTasks == 0) || !Main.PlayerStates.Values.Any(x => x.TaskState.HasTasks)) return false;
-            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoleTypes.Crewmate))) return false;
-            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) return false;
+
+            if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoleTypes.Crewmate)))
+                return false;
+
+            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool())
+            {
+                var crewList = Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.Noisemaker or RoleTypes.Tracker or RoleTypes.Detective or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).ToList();
+                if (crewList.Count > 0 && crewList.TrueForAll(x => x.IsConverted())) return false;
+            }
 
             if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
             {

@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,9 +25,8 @@ public static class OptionShower
             LastText = text;
             return text;
         }
-        catch (Exception e)
+        catch
         {
-            if (!OnGameJoinedPatch.JoiningGame) Utils.ThrowException(e);
             return LastText;
         }
     }

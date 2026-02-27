@@ -147,7 +147,7 @@ internal static class CustomHnS
             try
             {
                 PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
-                if (pc == null) continue;
+                if (!pc) continue;
 
                 result[pc] = item.Value;
                 allPlayers.RemoveAll(x => x.PlayerId == item.Key);
@@ -189,7 +189,7 @@ internal static class CustomHnS
                     try
                     {
                         PlayerControl pc = playerTeams[team][0];
-                        if (pc == null) continue;
+                        if (!pc) continue;
 
                         result[pc] = role;
                         allPlayers.Remove(pc);
@@ -497,7 +497,7 @@ internal static class CustomHnS
 
     public static void AddFoxesToWinners()
     {
-        List<byte> foxes = Main.PlayerStates.Values.Where(x => x.MainRole == CustomRoles.Fox && x.Player != null && x.Player.IsAlive()).Select(x => x.Player.PlayerId).ToList();
+        List<byte> foxes = Main.PlayerStates.Values.Where(x => x.MainRole == CustomRoles.Fox && x.Player && x.Player.IsAlive()).Select(x => x.Player.PlayerId).ToList();
         if (foxes.Count == 0) return;
 
         CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Fox);
@@ -506,7 +506,7 @@ internal static class CustomHnS
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor || IsBlindTime) return;
+        if (PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor || IsBlindTime) return;
 
         killer.Kill(target);
 

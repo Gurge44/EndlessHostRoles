@@ -96,7 +96,7 @@ namespace EHR
 
             try
             {
-                if (playerControl != null)
+                if (playerControl)
                 {
                     MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                     writer.StartMessage(5);

@@ -6,7 +6,7 @@ namespace EHR;
 
 public class SimpleButton
 {
-    private static PassiveButton baseButton;
+    private static PassiveButton BaseButton;
     private readonly BoxCollider2D buttonCollider;
     private float _fontSize;
     private Vector2 _scale;
@@ -30,9 +30,9 @@ public class SimpleButton
         string label,
         bool isActive = true)
     {
-        if (baseButton == null) throw new InvalidOperationException("baseButtonが未設定");
+        if (!BaseButton) throw new InvalidOperationException("baseButton is null or destroyed");
 
-        Button = Object.Instantiate(baseButton, parent);
+        Button = Object.Instantiate(BaseButton, parent);
         Label = Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
         NormalSprite = Button.inactiveSprites.GetComponent<SpriteRenderer>();
         HoverSprite = Button.activeSprites.GetComponent<SpriteRenderer>();
@@ -73,28 +73,30 @@ public class SimpleButton
 
     public static void SetBase(PassiveButton passiveButton)
     {
-        if (baseButton != null || passiveButton == null) return;
+        if (BaseButton || !passiveButton) return;
 
-        baseButton = Object.Instantiate(passiveButton);
-        var label = baseButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
-        baseButton.gameObject.SetActive(false);
+        BaseButton = Object.Instantiate(passiveButton);
+        var label = BaseButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+        BaseButton.gameObject.SetActive(false);
 
-        Object.DontDestroyOnLoad(baseButton);
-        baseButton.name = "EHR_SimpleButtonBase";
+        Object.DontDestroyOnLoad(BaseButton);
+        BaseButton.name = "EHR_SimpleButtonBase";
 
-        Object.Destroy(baseButton.GetComponent<AspectPosition>());
+        Object.Destroy(BaseButton.GetComponent<AspectPosition>());
         label.DestroyTranslator();
         label.fontSize = label.fontSizeMax = label.fontSizeMin = 3.5f;
         label.enableWordWrapping = false;
         label.text = "EHR SIMPLE BUTTON BASE";
 
-        var buttonCollider = baseButton.GetComponent<BoxCollider2D>();
+        var buttonCollider = BaseButton.GetComponent<BoxCollider2D>();
         buttonCollider.offset = new(0f, 0f);
-        baseButton.OnClick = new();
+        BaseButton.OnClick = new();
     }
 
+/*
     public static bool IsNullOrDestroyed(SimpleButton button)
     {
         return button == null || button.Button == null;
     }
+*/
 }

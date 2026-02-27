@@ -227,7 +227,7 @@ public static class Statistics
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || PlayerControl.AllPlayerControls.Count <= MinPlayers) return;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
 
@@ -287,7 +287,7 @@ public static class Statistics
     {
         try
         {
-            if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (!CustomRoleSelector.RoleResult.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CustomRoles role) || PlayerControl.AllPlayerControls.Count <= MinPlayers) return;
 
             const float delay = 15f;
 
@@ -309,7 +309,7 @@ public static class Statistics
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || killer.PlayerId == target.PlayerId || PlayerControl.AllPlayerControls.Count <= MinPlayers) return;
 
             if (killer.AmOwner)
             {
@@ -367,7 +367,7 @@ public static class Statistics
     {
         try
         {
-            if (Options.CurrentGameMode != CustomGameMode.Standard || Main.AllPlayerControls.Count <= MinPlayers) return;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || PlayerControl.AllPlayerControls.Count <= MinPlayers) return;
 
             if (shapeshifter.AmOwner && shapeshifting && animated)
             {

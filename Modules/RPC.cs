@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -163,7 +164,6 @@ public enum CustomRPC
 
     // Game Modes
     RoomRushDataSync,
-    FFAKill,
     FFASync,
     QuizSync,
     HNSSync,
@@ -250,7 +250,7 @@ internal static class RPCHandlerPatch
     {
         if (id == 115) return true;
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.TMGSync or CustomRPC.InspectorCommand;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -1181,23 +1181,6 @@ internal static class RPCHandlerPatch
                     RoomRush.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.FFAKill:
-                {
-                    if (Options.CurrentGameMode != CustomGameMode.FFA)
-                    {
-                        EAC.WarnHost();
-                        EAC.Report(__instance, "FFA RPC when game mode is not FFA");
-                        break;
-                    }
-
-                    var killer = reader.ReadNetObject<PlayerControl>();
-                    var target = reader.ReadNetObject<PlayerControl>();
-
-                    if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
-
-                    FreeForAll.OnPlayerAttack(killer, target);
-                    break;
-                }
                 case CustomRPC.FFASync:
                 {
                     switch (reader.ReadPackedInt32())
@@ -1233,8 +1216,7 @@ internal static class RPCHandlerPatch
                     switch (reader.ReadPackedInt32())
                     {
                         case 1:
-                            int roundTime = reader.ReadPackedInt32();
-                            SoloPVP.RoundTime = roundTime;
+                            SoloPVP.RoundTimer = Stopwatch.StartNew();
                             break;
                         case 2:
                             SoloPVP.PlayerScore[reader.ReadByte()] = reader.ReadPackedInt32();

@@ -277,7 +277,7 @@ public static class CaptureTheFlag
             {
                 PlayerControl pc = key.GetPlayer();
 
-                if (pc != null && outfit != null)
+                if (pc && outfit != null)
                     Utils.RpcChangeSkin(pc, outfit);
             }
         }
@@ -307,7 +307,7 @@ public static class CaptureTheFlag
         Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Assign players to teams
-        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle().ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
@@ -375,7 +375,7 @@ public static class CaptureTheFlag
                 try
                 {
                     var pc1 = id1.GetPlayer();
-                    if (pc1 == null || pc1.AmOwner) continue;
+                    if (!pc1 || pc1.AmOwner) continue;
 
                     var sender = CustomRpcSender.Create("CTF Set Teams");
                     sender.StartMessage(pc1.OwnerId);
@@ -387,7 +387,7 @@ public static class CaptureTheFlag
                             if (id1 == id2) continue;
 
                             var pc2 = id2.GetPlayer();
-                            if (pc2 == null) continue;
+                            if (!pc2) continue;
 
                             sender.StartRpc(pc2.NetId, RpcCalls.SetRole)
                                 .Write((ushort)RoleTypes.Phantom)
@@ -496,7 +496,7 @@ public static class CaptureTheFlag
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return !PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam;
+        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam);
     }
 
     private static void SendRPC()
@@ -605,7 +605,7 @@ public static class CaptureTheFlag
 
                 PlayerControl flagCarrierPc = FlagCarrier.GetPlayer();
 
-                if (flagCarrierPc == null || !flagCarrierPc.IsAlive())
+                if (!flagCarrierPc || !flagCarrierPc.IsAlive())
                 {
                     DropFlag();
                     return;

@@ -26,6 +26,7 @@ public class CovenMember : CovenBase
         On = true;
         Instances.Add(this);
         CovenMemberId = playerId;
+        OnAnyoneDead();
     }
 
     public override void Remove(byte playerId)

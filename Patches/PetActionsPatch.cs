@@ -147,11 +147,11 @@ internal static class ExternalRpcPetPatch
 
         var hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
-        if (target != null) hasKillTarget = true;
+        if (target) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
         
-        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger() && !role.AlwaysUsesPhantomBase() && role != CustomRoles.Chemist) return;
         
         bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade or CustomRoles.Sidekick;
 
