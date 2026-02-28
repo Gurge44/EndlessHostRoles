@@ -1202,9 +1202,18 @@ internal static class ReportDeadBodyPatch
         if (Main.GameTimer.IsRunning && !Options.GameTimeLimitRunsDuringMeetings.GetBool())
             Main.GameTimer.Stop();
 
+        var allCNO = CustomNetObject.AllObjects.ToArray();
+        foreach (CustomNetObject cno in allCNO)
+        {
+            try
+            {
+                cno.playerControl.Data.SendGameData();
+            }
+            catch (Exception e) { ThrowException(e); }
+        }
         LateTask.New(() =>
         {
-            foreach (CustomNetObject cno in CustomNetObject.AllObjects.ToArray())
+            foreach (CustomNetObject cno in allCNO)
             {
                 try
                 {

@@ -120,18 +120,6 @@ public static class Speedrun
     {
         var aapc = Main.CachedAlivePlayerControls();
 
-        if (TaskFinishWins.GetBool())
-        {
-            PlayerControl player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
-
-            if (player)
-            {
-                CustomWinnerHolder.WinnerIds = [player.PlayerId];
-                reason = GameOverReason.CrewmatesByTask;
-                return true;
-            }
-        }
-
         switch (aapc.Count)
         {
             case 1:
@@ -142,6 +130,13 @@ public static class Speedrun
                 CustomWinnerHolder.WinnerIds = [];
                 reason = GameOverReason.CrewmateDisconnect;
                 return true;
+        }
+
+        if (TaskFinishWins.GetBool() && aapc.FindFirst(x => x.GetTaskState().IsTaskFinished, out PlayerControl winner))
+        {
+            CustomWinnerHolder.WinnerIds = [winner.PlayerId];
+            reason = GameOverReason.CrewmatesByTask;
+            return true;
         }
 
         reason = GameOverReason.ImpostorsByKill;

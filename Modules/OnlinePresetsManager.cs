@@ -93,6 +93,9 @@ public static class OnlinePresetsManager
             Object.Destroy(row.PlusBtn.gameObject);
 
             row.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
+            row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);
+            row.TitleText.GetComponent<RectTransform>().sizeDelta = new(5.7f, 0.37f);
+            row.MinusBtn.transform.localPosition += new Vector3(1.7f, 0f, 0f);
             row.MinusBtn.OnClick = new();
             row.MinusBtn.OnClick.AddListener((UnityAction)(() =>
             {

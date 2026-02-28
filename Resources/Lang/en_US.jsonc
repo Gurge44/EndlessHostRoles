@@ -11197,7 +11197,7 @@
   "NumOfRolesToKill": "Amount of Roles to Choose From",
   "NumRolesListedForEachPlayer": "Number of roles listed for each player",
   "OnDemolitionistDead": "You killed Demolitionist! Vent or die!",
-  "OnlinePresetInfo": "<b>{0}</b>\\n<size=70%>by {1}\\n{2} downloads</size>",
+  "OnlinePresetInfo": "<b>{0}</b>\\n<size=70%>by {1}  •  {2} downloads</size>",
   "OnSuperStarDead": "Warning: Super Star death!",
   "OtherRoles.Addons": "★ Add-Ons",
   "OtherRoles.CrewmateRoles": "★ Crewmate Roles",

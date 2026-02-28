@@ -980,6 +980,10 @@ public static class Options
                 optionItem.CallUpdateValueEvent(value, value);
             }
         }
+        
+        // these settings are hidden now and are not needed thanks to innersloth's /cmd addition
+        UseMeetingShapeshift.SetValue(0);
+        UseMeetingShapeshiftForGuessing.SetValue(0);
 
 #if DEBUG
         // Used for generating the table of roles for the README
@@ -2477,11 +2481,13 @@ public static class Options
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
         UseMeetingShapeshift = new BooleanOptionItem(23865, "UseMeetingShapeshift", true, TabGroup.TaskSettings)
+            .SetHidden(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(Palette.Orange);
 
         UseMeetingShapeshiftForGuessing = new BooleanOptionItem(23866, "UseMeetingShapeshiftForGuessing", false, TabGroup.TaskSettings)
+            .SetHidden(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UseMeetingShapeshift)
             .SetColor(Palette.Orange);
