@@ -16,9 +16,11 @@ internal static class Logger
 {
     private static bool IsEnable;
     private static readonly List<string> DisableList = [];
+#if DEBUG
     public static bool IsAlsoInGame;
+#endif
 
-    private static readonly HashSet<string> NowDetailedErrorLog = [];
+    private static readonly Dictionary<string, DateTime> NowDetailedErrorLog = [];
 
     public static void Enable()
     {
@@ -53,7 +55,7 @@ internal static class Logger
 
         NotificationPopper np = NotificationPopperPatch.Instance;
 
-        if (np != null)
+        if (np)
         {
             Warn(text, "SendInGame");
 
@@ -72,26 +74,31 @@ internal static class Logger
     {
         if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
 
+#if DEBUG
         if (IsAlsoInGame) SendInGame($"[{tag}]{text}");
+#endif
 
         string logText;
 
-        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && !NowDetailedErrorLog.Contains(tag))
+        DateTime now = DateTime.Now;
+
+        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && (!NowDetailedErrorLog.TryGetValue(tag, out DateTime dt) || dt.AddSeconds(3) < now))
         {
-            var t = DateTime.Now.ToString("HH:mm:ss");
+            var t = now.ToString("HH:mm:ss");
             StackFrame stack = new(2);
             string className = stack.GetMethod()?.ReflectedType?.Name;
             string memberName = stack.GetMethod()?.Name;
             logText = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
-            NowDetailedErrorLog.Add(tag);
-            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 3f, log: false);
+            NowDetailedErrorLog[tag] = now;
         }
         else
         {
             if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
 
-            var t = DateTime.Now.ToString("HH:mm:ss");
+            var t = now.ToString("HH:mm:ss");
             logText = $"[{t}][{tag}]{text}";
+
+            if (level == LogLevel.Message) NowDetailedErrorLog.Clear();
         }
 
         CustomLogger.Instance.Log(level.ToString(), logText, multiLine);
@@ -147,11 +154,7 @@ internal static class Logger
 
 public class CustomLogger
 {
-#if ANDROID
-    public static readonly string LOGFilePath = $"{Main.DataPath}/EHR/log.html";
-#else
-    public static readonly string LOGFilePath = $"{Main.DataPath}/BepInEx/log.html";
-#endif
+    public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR" : "BepInEx", "log.html");
 
     private const string HtmlHeader =
         """
@@ -192,9 +195,7 @@ public class CustomLogger
 
     private CustomLogger()
     {
-#if ANDROID
         Directory.CreateDirectory(Path.GetDirectoryName(LOGFilePath) ?? throw new InvalidOperationException());
-#endif
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
         else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
         {
@@ -255,7 +256,7 @@ public class CustomLogger
     public void Finish(bool dump = true)
     {
         var append = Builder.ToString();
-        if (string.IsNullOrEmpty(append.Trim())) return;
+        if (string.IsNullOrWhiteSpace(append)) return;
         if (dump) append += HtmlFooter;
         File.AppendAllText(LOGFilePath, append);
         PrivateInstance = null;

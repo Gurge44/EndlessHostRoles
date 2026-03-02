@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
-using InnerNet;
 using TMPro;
 using UnityEngine;
 
@@ -11,16 +9,18 @@ namespace EHR;
 public static class LobbyFixedUpdatePatch
 {
     private static GameObject Paint;
+    private static SpriteRenderer LeftEngineSR;
+    private static SpriteRenderer RightEngineSR;
 
     public static void Postfix()
     {
         try
         {
-            if (Paint == null)
+            if (!Paint)
             {
                 GameObject leftBox = GameObject.Find("Leftbox");
 
-                if (leftBox != null)
+                if (leftBox)
                 {
                     Paint = Object.Instantiate(leftBox, leftBox.transform.parent.transform);
                     Paint.name = "Lobby Paint";
@@ -28,6 +28,20 @@ public static class LobbyFixedUpdatePatch
                     var renderer = Paint.GetComponent<SpriteRenderer>();
                     renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
                 }
+            }
+
+            if (!LeftEngineSR || !RightEngineSR)
+            {
+                var leftEngine = GameObject.Find("LeftEngine");
+                if (leftEngine) LeftEngineSR = leftEngine.GetComponent<SpriteRenderer>();
+
+                var rightEngine = GameObject.Find("RightEngine");
+                if (rightEngine) RightEngineSR = rightEngine.GetComponent<SpriteRenderer>();
+            }
+            else
+            {
+                LeftEngineSR.color = Color.cyan;
+                RightEngineSR.color = Color.cyan;
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -48,7 +62,7 @@ public static class HostInfoPanelSetUpPatch
     {
         try
         {
-            if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+            if (!HostText) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
             string name = AmongUsClient.Instance.GetHost().PlayerName.Split('\n')[^1];
             if (name == string.Empty) return;
@@ -60,16 +74,6 @@ public static class HostInfoPanelSetUpPatch
             HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
         }
         catch { }
-    }
-}
-
-public static class LobbyPatch
-{
-    public static bool IsGlitchedRoomCode()
-    {
-        string roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId).ToUpper();
-        string[] badEndings = ["IJPG", "SZAF", "LDQG", "ALGG", "UMPG", "GFXG", "JTFG", "PATG", "WMPG", "FUGG", "YTHG", "UFLG", "FBGG", "ZCQG", "RGGG", "ZHLG", "PJDG", "KJQG", "VDXG", "LCAF"];
-        return badEndings.Any(roomCode.EndsWith);
     }
 }
 

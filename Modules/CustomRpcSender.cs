@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
@@ -40,6 +40,7 @@ public class CustomRpcSender
     private int currentRpcTarget;
 
     private State currentState = State.BeforeInit;
+    private int messages;
     public MessageWriter stream;
 
     private CustomRpcSender() { }
@@ -54,6 +55,7 @@ public class CustomRpcSender
         this.log = log;
         currentRpcTarget = -2;
         onSendDelegate = () => { };
+        messages = 0;
 
         currentState = State.Ready;
         if (log) Logger.Info($"\"{name}\" is ready", "CustomRpcSender");
@@ -112,6 +114,12 @@ public class CustomRpcSender
             // StartMessage processing
             if (currentState == State.InRootMessage)
                 EndMessage(startNew: true);
+            else if (messages > 0) // state is Ready
+            {
+                doneStreams.Add(stream);
+                stream = MessageWriter.Get(sendOption);
+                messages = 0;
+            }
 
             StartMessage(targetClientId);
         }
@@ -135,7 +143,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length >= 1500 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
+        if (stream.Length >= 1400 && sendOption == SendOption.Reliable && !dispose) Logger.Warn($"Large reliable packet \"{name}\" is sending ({stream.Length} bytes)", "CustomRpcSender");
         else if (log || stream.Length > 3) Logger.Info($"\"{name}\" is finished (Length: {stream.Length}, dispose: {dispose}, sendOption: {sendOption})", "CustomRpcSender");
 
         if (!dispose)
@@ -146,7 +154,7 @@ public class CustomRpcSender
 
                 doneStreams.ForEach(x =>
                 {
-                    if (x.Length >= 1500 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
+                    if (x.Length >= 1400 && sendOption == SendOption.Reliable) Logger.Warn($"Large reliable packet \"{name}\" is sending ({x.Length} bytes)", "CustomRpcSender");
                     else if (log || x.Length > 3) sb.Append($" | {x.Length}");
 
                     AmongUsClient.Instance.SendOrDisconnect(x);
@@ -203,6 +211,7 @@ public class CustomRpcSender
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
+            messages = 0;
         }
 
         if (targetClientId < 0)
@@ -242,6 +251,7 @@ public class CustomRpcSender
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
+            messages = 0;
         }
 
         currentRpcTarget = -2;
@@ -271,6 +281,14 @@ public class CustomRpcSender
             else
                 throw new InvalidOperationException(errorMsg);
         }
+
+        if (messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
+        {
+            EndMessage(startNew: true);
+            StartMessage(currentRpcTarget);
+        }
+
+        messages++;
 
         stream.StartMessage(2);
         stream.WritePacked(targetNetId);
@@ -439,7 +457,7 @@ public static class CustomRpcSenderExtensions
             case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
                 return;
             case true:
-                Main.AllPlayerControls.Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
+                Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
                 break;
             default:
                 Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
@@ -472,7 +490,7 @@ public static class CustomRpcSenderExtensions
         // Check Observer
         if (!forObserver && !MeetingStates.FirstMeeting)
         {
-            foreach (PlayerControl x in Main.AllPlayerControls)
+            foreach (PlayerControl x in Main.EnumeratePlayerControls())
             {
                 if (x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true))
                     returnValue = true;
@@ -514,7 +532,7 @@ public static class CustomRpcSenderExtensions
             else
                 player.AddAbilityCD((int)Math.Round(time));
 
-            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Refugee and not CustomRoles.Sidekick) return false;
+            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Renegade and not CustomRoles.Sidekick) return false;
         }
 
         if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return false;
@@ -554,7 +572,7 @@ public static class CustomRpcSenderExtensions
                 returnValue = true;
             }
 
-            foreach (PlayerControl x in Main.AllPlayerControls)
+            foreach (PlayerControl x in Main.EnumeratePlayerControls())
             {
                 if (x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true, true))
                     returnValue = true;
@@ -640,6 +658,8 @@ public static class CustomRpcSenderExtensions
 
     public static bool TP(this CustomRpcSender sender, PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
     {
+        if (!AmongUsClient.Instance.AmHost) return false;
+        
         CustomNetworkTransform nt = pc.NetTransform;
 
         if (!noCheckState)
@@ -652,22 +672,16 @@ public static class CustomRpcSenderExtensions
                 return false;
             }
 
-            if (Vector2.Distance(pc.Pos(), location) < 0.5f)
+            if (FastVector2.DistanceWithinRange(pc.Pos(), location, 0.5f))
             {
                 if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
                 return false;
             }
         }
 
-        switch (AmongUsClient.Instance.AmHost)
-        {
-            case true:
-                nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
-                nt.SetDirtyBit(uint.MaxValue);
-                break;
-            case false when !nt.AmOwner:
-                return false;
-        }
+        
+        nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
+        nt.SetDirtyBit(uint.MaxValue);
 
         var newSid = (ushort)(nt.lastSequenceId + 8);
 
@@ -689,10 +703,17 @@ public static class CustomRpcSenderExtensions
     {
         senderWasCleared = false;
         newSender = sender;
-        if (!AmongUsClient.Instance.AmHost || seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
+        if (!AmongUsClient.Instance.AmHost || !seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
         var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
         newSender = sender;
         return hasValue;
+    }
+
+    public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl player)
+    {
+        sender.RpcSetRole(player, player.GetGhostRoleBasis());
+        FixedUpdatePatch.LoversSuicide(player.PlayerId);
+        return true;
     }
 
     public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -21,7 +23,6 @@ internal static class CustomTeamManager
 
             CustomTeams = File.ReadAllLines($"{Main.DataPath}/EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
             RefreshCustomOptions();
-            UpdateEnabledTeams();
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -33,7 +34,7 @@ internal static class CustomTeamManager
 
         const int startId = 660000;
         const TabGroup tab = TabGroup.GameSettings;
-        CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (15 * i))).ToList();
+        CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (20 * i))).ToList();
         UpdateEnabledTeams();
 
         return;
@@ -43,21 +44,22 @@ internal static class CustomTeamManager
             var enabled = new BooleanOptionItem(id++, "CTA.FLAG" + team.TeamName, true, tab);
             var knowRoles = new BooleanOptionItem(id++, "CTA.KnowRoles", true, tab);
             var winWithOriginalTeam = new BooleanOptionItem(id++, "CTA.WinWithOriginalTeam", false, tab);
+            var originalWinCondition = new BooleanOptionItem(id++, "CTA.OriginalWinCondition", true, tab);
             var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
             var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
             var arrows = new BooleanOptionItem(id++, "CTA.Arrows", true, tab);
-            var maxPlayers = new IntegerOptionItem(id++, "CTA.MaxPlayersAssignedToTeam", new(1, 15, 1), 15, tab);
+            var maxPlayers = new IntegerOptionItem(id++, "CTA.MaxPlayersAssignedToTeam", new(0, 15, 1), 15, tab);
 
             var teamPlayerCounts = new Dictionary<Team, IntegerOptionItem[]>();
 
             foreach (Team teamType in Enum.GetValues<Team>()[1..])
             {
-                var min = new IntegerOptionItem(id++, "CTA.MinPlayers." + teamType, new(1, 15, 1), 1, tab);
-                var max = new IntegerOptionItem(id++, "CTA.MaxPlayers." + teamType, new(1, 15, 1), 15, tab);
+                var min = new IntegerOptionItem(id++, "CTA.MinPlayers." + teamType, new(0, 15, 1), 1, tab);
+                var max = new IntegerOptionItem(id++, "CTA.MaxPlayers." + teamType, new(0, 15, 1), 15, tab);
                 teamPlayerCounts[teamType] = [min, max];
             }
 
-            CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers, teamPlayerCounts);
+            CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, originalWinCondition, killEachOther, guessEachOther, arrows, maxPlayers, teamPlayerCounts);
             group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
             group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
             group.AllOptions.ForEach(x => x.SetGameMode(CustomGameMode.Standard));
@@ -78,8 +80,10 @@ internal static class CustomTeamManager
         UpdateEnabledTeams();
         if (EnabledCustomTeams.Count == 0) return;
 
+        var aapc = Main.AllAlivePlayerControls;
+        
         CustomTeamPlayerIds = Main.PlayerStates
-            .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
+            .IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key)
             .GroupBy(x => EnabledCustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
             .Where(x => x.Key != null)
             .ToDictionary(x => x.Key, x => TakeAsManyAsSet(x, x.Key));
@@ -105,6 +109,19 @@ internal static class CustomTeamManager
                     TargetArrow.Add(player, target);
                 }
             }
+        }
+
+        var imps = aapc.Where(x => x.IsImpostor() && !CustomTeamPlayerIds.Values.Any(l => l.Contains(x.PlayerId))).ToList();
+
+        if (imps.Count > 0)
+        {
+            CustomTeamPlayerIds.Values.Flatten().ToValidPlayers().DoIf(x => x != null && x.IsImpostor() && !IsSettingEnabledForPlayerTeam(x.PlayerId, CTAOption.WinWithOriginalTeam), ctp =>
+            {
+                imps.ForEach(imp => ctp.RpcSetRoleDesync(RoleTypes.Crewmate, imp.OwnerId, setRoleMap: true));
+                var sender = CustomRpcSender.Create("CustomTeamManager_SetImpostorDesync", SendOption.Reliable);
+                imps.ForEach(imp => sender.RpcSetRole(imp, RoleTypes.Crewmate, ctp.OwnerId, changeRoleMap: true));
+                sender.SendMessage();
+            });
         }
 
         return;
@@ -155,9 +172,9 @@ internal static class CustomTeamManager
 
         try
         {
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControls;
 
-            if (aapc.Length == 1)
+            if (aapc.Count == 1)
             {
                 PlayerControl lastPlayer = aapc[0];
                 CustomTeam lastTeam = GetCustomTeam(lastPlayer.PlayerId);
@@ -281,9 +298,9 @@ internal static class CustomTeamManager
     {
         public readonly List<OptionItem> AllOptions;
 
-        public CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows, IntegerOptionItem maxPlayers, Dictionary<Team, IntegerOptionItem[]> teamPlayerCounts)
+        public CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem originalWinCondition, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows, IntegerOptionItem maxPlayers, Dictionary<Team, IntegerOptionItem[]> teamPlayerCounts)
         {
-            AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows, maxPlayers];
+            AllOptions = [enabled, knowRoles, winWithOriginalTeam, originalWinCondition, killEachOther, guessEachOther, arrows, maxPlayers];
             AllOptions.AddRange(teamPlayerCounts.Values.Flatten());
             Team = team;
             Enabled = enabled;
@@ -303,6 +320,7 @@ public enum CTAOption
 {
     KnowRoles = 1,
     WinWithOriginalTeam,
+    OriginalWinCondition,
     KillEachOther,
     GuessEachOther,
     Arrows

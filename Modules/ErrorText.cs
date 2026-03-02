@@ -168,7 +168,7 @@ public class ErrorText : MonoBehaviour
 
         Frame = 0;
 
-        if (_camera != null && _camera1 != null) return;
+        if (_camera && _camera1) return;
 
         try
         {

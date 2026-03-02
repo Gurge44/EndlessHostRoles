@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,14 +14,12 @@ using BepInEx.Unity.IL2CPP;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
 using UnityEngine.Networking;
-#if !ANDROID
-using EHR.Patches;
-#endif
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
 [assembly: AssemblyInformationalVersion(Main.PluginVersion)]
@@ -32,7 +30,8 @@ namespace EHR;
 [BepInPlugin(PluginGuid, "EHR", PluginVersion)]
 [BepInIncompatibility("jp.ykundesu.supernewroles")]
 [BepInIncompatibility("MalumMenu")]
-[BepInIncompatibility("com.ten.thebetterroles")]
+[BepInIncompatibility("com.crewmod.oficial")]
+[BepInIncompatibility("com.crewmod.showcase")]
 [BepInIncompatibility("xyz.crowdedmods.crowdedmod")]
 [BepInDependency(SubmergedCompatibility.SubmergedGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
@@ -42,8 +41,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "6.8.0";
-    public const string PluginDisplayVersion = "6.8.0";
+    public const string PluginVersion = "7.3.0";
+    public const string PluginDisplayVersion = "7.3.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -60,18 +59,17 @@ public class Main : BasePlugin
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2025.9.9";
 
-    public static readonly string DataPath =
-#if ANDROID
-        Application.persistentDataPath;
-#else
-        ".";
-#endif
+    public static readonly string DataPath = OperatingSystem.IsAndroid() ? Application.persistentDataPath : ".";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
     //public static ManualLogSource Logger;
     public static bool HasArgumentException;
     public static string CredentialsText;
+
+    // Cache
+    public static readonly Type[] AllTypes = Assembly.GetExecutingAssembly().GetTypes();
+    public static readonly CustomRoles[] CustomRoleValues = Enum.GetValues<CustomRoles>();
 
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
@@ -112,7 +110,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> GuesserGuessed = [];
     public static Dictionary<byte, int> GuesserGuessedMeeting = [];
     public static bool HasJustStarted;
-    public static int AliveImpostorCount;
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
     public static bool VisibleTasksCount;
@@ -137,7 +134,8 @@ public class Main : BasePlugin
         [CustomGameMode.HideAndSeek] = [],
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
-        [CustomGameMode.NaturalDisasters] = []
+        [CustomGameMode.NaturalDisasters] = [],
+        [CustomGameMode.Snowdown] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -149,13 +147,12 @@ public class Main : BasePlugin
     public static List<byte> BaitAlive = [];
     public static Dictionary<byte, int> KilledDiseased = [];
     public static Dictionary<byte, int> KilledAntidote = [];
-    public static List<byte> BrakarVoteFor = [];
+    public static List<byte> TiebreakerVoteFor = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
-    public static uint LobbyBehaviourNetId;
-    
-    public static float GameTimer;
+
+    public static Stopwatch GameTimer = new();
     public static bool GameEndDueToTimer;
 
     public static bool ShowResult = true;
@@ -176,7 +173,7 @@ public class Main : BasePlugin
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
 
-    private Harmony Harmony { get; } = new(PluginGuid);
+    public Harmony Harmony { get; } = new(PluginGuid);
 
     public static NormalGameOptionsV10 NormalOptions => GameOptionsManager.Instance != null ? GameOptionsManager.Instance.currentNormalGameOptions : null;
 
@@ -195,6 +192,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> SwitchVanilla { get; private set; }
     public static ConfigEntry<bool> GodMode { get; private set; }
     public static ConfigEntry<bool> DarkTheme { get; private set; }
+    public static ConfigEntry<bool> DarkThemeForMeetingUI { get; private set; }
     public static ConfigEntry<bool> HorseMode { get; private set; }
     public static ConfigEntry<bool> LongMode { get; private set; }
     public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
@@ -218,56 +216,42 @@ public class Main : BasePlugin
     public static ConfigEntry<string> Preset8 { get; private set; }
     public static ConfigEntry<string> Preset9 { get; private set; }
     public static ConfigEntry<string> Preset10 { get; private set; }
+    public static ConfigEntry<string> Preset11 { get; private set; }
+    public static ConfigEntry<string> Preset12 { get; private set; }
+    public static ConfigEntry<string> Preset13 { get; private set; }
+    public static ConfigEntry<string> Preset14 { get; private set; }
+    public static ConfigEntry<string> Preset15 { get; private set; }
+    public static ConfigEntry<string> Preset16 { get; private set; }
+    public static ConfigEntry<string> Preset17 { get; private set; }
+    public static ConfigEntry<string> Preset18 { get; private set; }
+    public static ConfigEntry<string> Preset19 { get; private set; }
+    public static ConfigEntry<string> Preset20 { get; private set; }
 
     // Other Configs
     public static ConfigEntry<string> WebhookUrl { get; private set; }
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
-    public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
 
-    public static PlayerControl[] AllPlayerControls
+    public static IReadOnlyList<PlayerControl> AllPlayerControls => EnumeratePlayerControls().ToArray();
+    public static IReadOnlyList<PlayerControl> AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
+
+    public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
-        get
+        foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            int count = PlayerControl.AllPlayerControls.Count;
-            var result = new PlayerControl[count];
-            var i = 0;
-
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-            {
-                if (pc == null || pc.PlayerId >= 254) continue;
-
-                result[i++] = pc;
-            }
-
-            if (i == 0) return [];
-
-            Array.Resize(ref result, i);
-            return result;
+            if (!pc || pc.PlayerId >= 254) continue;
+            yield return pc;
         }
     }
 
-    public static PlayerControl[] AllAlivePlayerControls
+    public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
-        get
-        {
-            int count = PlayerControl.AllPlayerControls.Count;
-            var result = new PlayerControl[count];
-            var i = 0;
-
-            foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-            {
-                if (pc == null || pc.PlayerId >= 254 || !pc.IsAlive() || pc.Data == null || (pc.Data.Disconnected && IntroDestroyed) || Pelican.IsEaten(pc.PlayerId)) continue;
-
-                result[i++] = pc;
-            }
-
-            if (i == 0) return [];
-
-            Array.Resize(ref result, i);
-            return result;
-        }
+        return EnumeratePlayerControls()
+            .Where(pc => pc.IsAlive()
+                         && pc.Data
+                         && (!pc.Data.Disconnected || !IntroDestroyed)
+                         && !Pelican.IsEaten(pc.PlayerId));
     }
 
     // ReSharper disable once InconsistentNaming
@@ -277,8 +261,11 @@ public class Main : BasePlugin
 
     public static MapNames CurrentMap => (MapNames)NormalOptions.MapId;
 
+    public static bool LIMap => NormalOptions is { MapId: 7 };
+
     public override void Load()
     {
+        // EmbeddedDeps.Install();
         Instance = this;
 
         //Client Options
@@ -297,10 +284,11 @@ public class Main : BasePlugin
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", true);
+        DarkThemeForMeetingUI = Config.Bind("Client Options", "DarkThemeForMeetingUI", false);
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
         LongMode = Config.Bind("Client Options", "LongMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
-        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
+        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", true);
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
         ShowModdedClientText = Config.Bind("Client Options", "ShowModdedClientText", true);
         AutoHaunt = Config.Bind("Client Options", "AutoHaunt", false);
@@ -346,6 +334,16 @@ public class Main : BasePlugin
         Preset8 = Config.Bind("Preset Name Options", "Preset8", "Preset_8");
         Preset9 = Config.Bind("Preset Name Options", "Preset9", "Preset_9");
         Preset10 = Config.Bind("Preset Name Options", "Preset10", "Preset_10");
+        Preset11 = Config.Bind("Preset Name Options", "Preset11", "Preset_11");
+        Preset12 = Config.Bind("Preset Name Options", "Preset12", "Preset_12");
+        Preset13 = Config.Bind("Preset Name Options", "Preset13", "Preset_13");
+        Preset14 = Config.Bind("Preset Name Options", "Preset14", "Preset_14");
+        Preset15 = Config.Bind("Preset Name Options", "Preset15", "Preset_15");
+        Preset16 = Config.Bind("Preset Name Options", "Preset16", "Preset_16");
+        Preset17 = Config.Bind("Preset Name Options", "Preset17", "Preset_17");
+        Preset18 = Config.Bind("Preset Name Options", "Preset18", "Preset_18");
+        Preset19 = Config.Bind("Preset Name Options", "Preset19", "Preset_19");
+        Preset20 = Config.Bind("Preset Name Options", "Preset20", "Preset_20");
         WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
@@ -377,12 +375,12 @@ public class Main : BasePlugin
                 // Crewmates
                 { CustomRoles.DoubleAgent, "#ff1919" },
                 { CustomRoles.Luckey, "#b8d7a3" },
-                { CustomRoles.Needy, "#a4dffe" },
+                { CustomRoles.LazyGuy, "#a4dffe" },
                 { CustomRoles.Mechanic, "#3333ff" },
                 { CustomRoles.Snitch, "#b8fb4f" },
                 { CustomRoles.Marshall, "#5573aa" },
                 { CustomRoles.Mayor, "#204d42" },
-                { CustomRoles.Paranoia, "#c993f5" },
+                { CustomRoles.Paranoid, "#c993f5" },
                 { CustomRoles.Psychic, "#6F698C" },
                 { CustomRoles.Sheriff, "#ffb347" },
                 { CustomRoles.CopyCat, "#ffb2ab" },
@@ -401,7 +399,6 @@ public class Main : BasePlugin
                 { CustomRoles.Markseeker, "#f2a0f1" },
                 { CustomRoles.Sentinel, "#4bc8d6" },
                 { CustomRoles.Electric, "#fbff00" },
-                { CustomRoles.Philantropist, "#e3b384" },
                 { CustomRoles.Tornado, "#303030" },
                 { CustomRoles.Dad, "#037bfc" },
                 { CustomRoles.Insight, "#26ff38" },
@@ -424,6 +421,7 @@ public class Main : BasePlugin
                 { CustomRoles.Gardener, "#00ff00" },
                 { CustomRoles.Farmer, "#FFDE59" },
                 { CustomRoles.Vacuum, "#E44CD6" },
+                { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },
@@ -485,13 +483,13 @@ public class Main : BasePlugin
                 { CustomRoles.Lighter, "#eee5be" },
                 { CustomRoles.SecurityGuard, "#c3b25f" },
                 { CustomRoles.Medic, "#00ff97" },
-                { CustomRoles.Divinator, "#882c83" },
+                { CustomRoles.FortuneTeller, "#882c83" },
                 { CustomRoles.Glitch, "#39FF14" },
                 { CustomRoles.Judge, "#f8d85a" },
                 { CustomRoles.Mortician, "#333c49" },
-                { CustomRoles.Mediumshiper, "#a200ff" },
+                { CustomRoles.Medium, "#a200ff" },
                 { CustomRoles.Observer, "#a8e0fa" },
-                { CustomRoles.DovesOfNeace, "#ffffff" },
+                { CustomRoles.Pacifist, "#ffffff" },
                 { CustomRoles.Jailor, "#aa900d" },
                 { CustomRoles.Monarch, "#FFA500" },
                 { CustomRoles.Coroner, "#8B0000" },
@@ -501,9 +499,10 @@ public class Main : BasePlugin
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Telecommunication, "#7223DA" },
                 { CustomRoles.Deputy, "#df9026" },
+                { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
                 { CustomRoles.Cleanser, "#98FF98" },
-                { CustomRoles.NiceSwapper, "#922348" },
+                { CustomRoles.Swapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
                 { CustomRoles.Guardian, "#2E8B57" },
                 { CustomRoles.Addict, "#008000" },
@@ -516,6 +515,8 @@ public class Main : BasePlugin
                 { CustomRoles.TimeMaster, "#44baff" },
                 { CustomRoles.Crusader, "#C65C39" },
                 { CustomRoles.Speedrunner, "#800080" },
+                { CustomRoles.Unshifter, "#00b4eb" },
+                { CustomRoles.Scanner, "#42f5a7" },
                 // Neutrals
                 { CustomRoles.Arsonist, "#ff6633" },
                 { CustomRoles.Pyromaniac, "#ff6633" },
@@ -527,14 +528,13 @@ public class Main : BasePlugin
                 { CustomRoles.Lawyer, "#008080" },
                 { CustomRoles.God, "#f96464" },
                 { CustomRoles.Opportunist, "#4dff4d" },
-                { CustomRoles.Mario, "#ff6201" },
+                { CustomRoles.Vector, "#ff6201" },
                 { CustomRoles.Jackal, "#00b4eb" },
                 { CustomRoles.Sidekick, "#00b4eb" },
                 { CustomRoles.Innocent, "#8f815e" },
                 { CustomRoles.Pelican, "#34c84b" },
                 { CustomRoles.Revolutionist, "#ba4d06" },
                 { CustomRoles.Hater, "#414b66" },
-                { CustomRoles.Konan, "#4d4dff" },
                 { CustomRoles.Demon, "#68bc71" },
                 { CustomRoles.Stalker, "#483d8b" },
                 { CustomRoles.Workaholic, "#008b8b" },
@@ -554,7 +554,12 @@ public class Main : BasePlugin
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.Duality, "#8D6F64" },
                 { CustomRoles.Thanos, "#F9D401" },
+                { CustomRoles.Berserker, "#50538F" },
                 { CustomRoles.SerialKiller, "#233fcc" },
+                { CustomRoles.Quarry, "#c1fb2b" },
+                { CustomRoles.Accumulator, "#2bfbae" },
+                { CustomRoles.Spider, "#C9E44C" },
+                { CustomRoles.SoulCollector, "#6021A0" },
                 { CustomRoles.Sharpshooter, "#5901D4" },
                 { CustomRoles.Explosivist, "#ff5900" },
                 { CustomRoles.Slenderman, "#2c2e00" },
@@ -581,7 +586,7 @@ public class Main : BasePlugin
                 { CustomRoles.Bubble, "#ff38c3" },
                 { CustomRoles.Hookshot, "#32a852" },
                 { CustomRoles.Sprayer, "#ffc038" },
-                { CustomRoles.PlagueDoctor, "#ff6633" },
+                { CustomRoles.Infection, "#ff6633" },
                 { CustomRoles.Curser, "#510c91" },
                 { CustomRoles.Postman, "#00b893" },
                 { CustomRoles.Thief, "#44AF84" },
@@ -610,7 +615,7 @@ public class Main : BasePlugin
                 { CustomRoles.Pulse, "#ff00a5" },
                 { CustomRoles.Werewolf, "#964B00" },
                 { CustomRoles.Bandit, "#8B008B" },
-                { CustomRoles.Agitater, "#F4A460" },
+                { CustomRoles.Agitator, "#F4A460" },
                 { CustomRoles.BloodKnight, "#630000" },
                 { CustomRoles.Juggernaut, "#A41342" },
                 { CustomRoles.Cherokious, "#de4b9e" },
@@ -618,7 +623,7 @@ public class Main : BasePlugin
                 { CustomRoles.Parasite, "#ff1919" },
                 { CustomRoles.Crewpostor, "#ff1919" },
                 { CustomRoles.Hypocrite, "#ff1919" },
-                { CustomRoles.Refugee, "#ff1919" },
+                { CustomRoles.Renegade, "#ff1919" },
                 { CustomRoles.Virus, "#2E8B57" },
                 { CustomRoles.Investigator, "#BA55D3" },
                 { CustomRoles.Pursuer, "#617218" },
@@ -660,6 +665,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Blessed, "#7bfbff" },
                 { CustomRoles.Hidden, "#E2EAF4" },
                 { CustomRoles.Looter, "#F5D866" },
                 { CustomRoles.Tired, "#ff1919" },
@@ -684,7 +690,7 @@ public class Main : BasePlugin
                 { CustomRoles.Stained, "#e6bf91" },
                 { CustomRoles.Clumsy, "#b8b8b8" },
                 { CustomRoles.Mischievous, "#30221c" },
-                { CustomRoles.Flashman, "#ff8400" },
+                { CustomRoles.Flash, "#ff8400" },
                 { CustomRoles.Haste, "#f0ec22" },
                 { CustomRoles.Busy, "#32a852" },
                 { CustomRoles.Sleep, "#000000" },
@@ -701,7 +707,7 @@ public class Main : BasePlugin
                 { CustomRoles.Venom, "#ff1919" },
                 { CustomRoles.Torch, "#eee5be" },
                 { CustomRoles.Seer, "#61b26c" },
-                { CustomRoles.Brakar, "#1447af" },
+                { CustomRoles.Tiebreaker, "#1447af" },
                 { CustomRoles.Oblivious, "#424242" },
                 { CustomRoles.Bewilder, "#c894f5" },
                 { CustomRoles.Spurt, "#c9e8f5" },
@@ -710,11 +716,11 @@ public class Main : BasePlugin
                 { CustomRoles.Undead, "#ed9abd" },
                 { CustomRoles.Cleansed, "#98FF98" },
                 { CustomRoles.Fool, "#e6e7ff" },
-                { CustomRoles.Avanger, "#ffab1c" },
+                { CustomRoles.Avenger, "#ffab1c" },
                 { CustomRoles.Youtuber, "#fb749b" },
                 { CustomRoles.Egoist, "#5600ff" },
-                { CustomRoles.TicketsStealer, "#ff1919" },
-                { CustomRoles.DualPersonality, "#3a648f" },
+                { CustomRoles.Stealer, "#ff1919" },
+                { CustomRoles.Schizophrenic, "#3a648f" },
                 { CustomRoles.Mimic, "#ff1919" },
                 { CustomRoles.Guesser, "#f8cd46" },
                 { CustomRoles.Necroview, "#663399" },
@@ -726,11 +732,11 @@ public class Main : BasePlugin
                 { CustomRoles.Stressed, "#9403fc" },
                 { CustomRoles.Charmed, "#cf6acd" },
                 { CustomRoles.Bait, "#00f7ff" },
-                { CustomRoles.Trapper, "#5a8fd0" },
+                { CustomRoles.Beartrap, "#5a8fd0" },
                 { CustomRoles.Onbound, "#BAAAE9" },
                 { CustomRoles.Knighted, "#FFA500" },
                 { CustomRoles.Contagious, "#2E8B57" },
-                { CustomRoles.Unreportable, "#FF6347" },
+                { CustomRoles.Disregarded, "#FF6347" },
                 { CustomRoles.Lucky, "#b8d7a3" },
                 { CustomRoles.Unlucky, "#d7a3a3" },
                 { CustomRoles.DoubleShot, "#19fa8d" },
@@ -740,7 +746,6 @@ public class Main : BasePlugin
                 { CustomRoles.Autopsy, "#80ffdd" },
                 { CustomRoles.Loyal, "#B71556" },
                 { CustomRoles.Visionary, "#ff1919" },
-                { CustomRoles.Recruit, "#00b4eb" },
                 { CustomRoles.Glow, "#E2F147" },
                 { CustomRoles.Diseased, "#AAAAAA" },
                 { CustomRoles.Antidote, "#FF9876" },
@@ -749,7 +754,7 @@ public class Main : BasePlugin
                 { CustomRoles.Underdog, "#ff1919" },
 
                 // Solo PVP
-                { CustomRoles.KB_Normal, "#f55252" },
+                { CustomRoles.Challenger, "#f55252" },
                 // FFA
                 { CustomRoles.Killer, "#00ffff" },
                 // Stop And Go
@@ -776,6 +781,8 @@ public class Main : BasePlugin
                 { CustomRoles.Racer, "#AFAFAF" },
                 // Mingle
                 { CustomRoles.MinglePlayer, "#FE9900" },
+                // Snowdown
+                { CustomRoles.SnowdownPlayer, "#e4fdff" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -791,9 +798,8 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
-            allRoles.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
-            allRoles.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
+            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
+            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
         }
         catch (ArgumentException ex)
         {
@@ -822,11 +828,9 @@ public class Main : BasePlugin
         handler.Info($"{nameof(ThisAssembly.Git.Tag)}: {ThisAssembly.Git.Tag}");
 
         ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
-#if !ANDROID
         ClassInjector.RegisterTypeInIl2Cpp<MeetingHudPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<ShapeShifterPagingBehaviour>();
         ClassInjector.RegisterTypeInIl2Cpp<VitalsPagingBehaviour>();
-#endif
 
         NormalGameOptionsV10.RecommendedImpostors = NormalGameOptionsV10.MaxImpostors = Enumerable.Repeat(128, 128).ToArray();
         NormalGameOptionsV10.MinPlayers = Enumerable.Repeat(4, 128).ToArray();
@@ -835,6 +839,12 @@ public class Main : BasePlugin
         PrivateTagManager.LoadTagsFromFile();
 
         Harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+        if (!OperatingSystem.IsAndroid())
+        {
+            // there are some issues with TextBoxPatch on Android
+            Harmony.PatchAll(typeof(TextBoxPatch));
+        }
 
         if (!DebugModeManager.AmDebugger)
             ConsoleManager.DetachConsole();
@@ -858,16 +868,15 @@ public class Main : BasePlugin
             [CustomGameMode.TheMindGame] = Color.yellow,
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
-            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer)
+            [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
+            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
         {
             CustomLogger.ClearLog();
 
-#if !ANDROID
             StartCoroutine(ModNewsFetcher.FetchNews());
-#endif
 
             try { DevManager.StartFetchingTags(); }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -885,10 +894,9 @@ public class Main : BasePlugin
             Logger.Msg($"EHR Version: {PluginVersion}, Test Build: {TestBuild}", "Plugin Load");
         };
 
-#if !ANDROID
         try
         {
-            if (TryFixStuttering.Value && Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
+            if (TryFixStuttering.Value && OperatingSystem.IsWindows() && Environment.ProcessorCount >= 4)
             {
                 var process = Process.GetCurrentProcess();
                 OriginalAffinity = process.ProcessorAffinity;
@@ -896,7 +904,6 @@ public class Main : BasePlugin
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
-#endif
     }
 
     private static void HandleRoleColorFiles()
@@ -915,7 +922,7 @@ public class Main : BasePlugin
             try
             {
                 string json = File.ReadAllText(path);
-                if (string.IsNullOrEmpty(json) || json == serialized || json.Length < serialized.Length) return;
+                if (string.IsNullOrWhiteSpace(json) || json == serialized || json.Length < serialized.Length) return;
                 var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
                 RoleColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
             }
@@ -929,8 +936,7 @@ public class Main : BasePlugin
 
         try
         {
-            AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
-                .GetTypes()
+            AllRoleClasses.AddRange(AllTypes
                 .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
                 .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
 
@@ -939,18 +945,22 @@ public class Main : BasePlugin
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    public void StartCoroutine(IEnumerator coroutine)
+    public Coroutine StartCoroutine(IEnumerator coroutine)
     {
-        if (coroutine == null) return;
-
-        coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
     }
 
     public void StopCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null) return;
-
         coroutines.StopCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopCoroutine(Coroutine coroutine)
+    {
+        if (coroutine == null) return;
+        coroutines.StopCoroutine(coroutine);
     }
 
     public void StopAllCoroutines()
@@ -1039,7 +1049,7 @@ public enum CustomWinner
     Technician = CustomRoles.Technician,
     Jackal = CustomRoles.Jackal,
     God = CustomRoles.God,
-    Mario = CustomRoles.Mario,
+    Vector = CustomRoles.Vector,
     Innocent = CustomRoles.Innocent,
     Pelican = CustomRoles.Pelican,
     Youtuber = CustomRoles.Youtuber,
@@ -1056,6 +1066,11 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.SerialKiller,
+    Quarry = CustomRoles.Quarry,
+    Accumulator = CustomRoles.Accumulator,
+    Spider = CustomRoles.Spider,
+    SoulCollector = CustomRoles.SoulCollector,
+    Berserker = CustomRoles.Berserker,
     Sharpshooter = CustomRoles.Sharpshooter,
     Explosivist = CustomRoles.Explosivist,
     Thanos = CustomRoles.Thanos,
@@ -1083,14 +1098,14 @@ public enum CustomWinner
     Bubble = CustomRoles.Bubble,
     Hookshot = CustomRoles.Hookshot,
     Sprayer = CustomRoles.Sprayer,
-    PlagueDoctor = CustomRoles.PlagueDoctor,
+    Infection = CustomRoles.Infection,
     Reckless = CustomRoles.Reckless,
     Magician = CustomRoles.Magician,
     WeaponMaster = CustomRoles.WeaponMaster,
     Pyromaniac = CustomRoles.Pyromaniac,
     Eclipse = CustomRoles.Eclipse,
     HeadHunter = CustomRoles.HeadHunter,
-    Agitater = CustomRoles.Agitater,
+    Agitator = CustomRoles.Agitator,
     Vengeance = CustomRoles.Vengeance,
     Werewolf = CustomRoles.Werewolf,
     Juggernaut = CustomRoles.Juggernaut,
@@ -1197,6 +1212,6 @@ public enum TieMode
     Random
 }
 
-
 public class Coroutines : MonoBehaviour { }
+
 

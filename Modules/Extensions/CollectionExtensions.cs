@@ -237,7 +237,7 @@ public static class CollectionExtensions
     /// <typeparam name="T">The type of the elements in the collection</typeparam>
     /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
     [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
-    public static bool FindFirst<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
+    public static bool FindFirst<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Func<T, bool> predicate, out T element)
     {
         if (collection is List<T> list)
         {
@@ -278,7 +278,7 @@ public static class CollectionExtensions
         {
             hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
 
-            if (sender.stream.Length > 400)
+            if (sender.stream.Length > 500)
             {
                 sender.SendMessage();
                 sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
@@ -367,7 +367,9 @@ public static class CollectionExtensions
     /// <returns>A new, shuffled collection as a <see cref="List{T}" /></returns>
     public static List<T> Shuffle<T>(this IEnumerable<T> collection)
     {
-        List<T> list = collection.ToList();
+        if (collection is not List<T> list)
+            list = collection.ToList();
+        
         int n = list.Count;
         var r = IRandom.Instance;
 

@@ -38,9 +38,9 @@ public class FallFromLadder
     {
         if (player.Data.Disconnected) return;
 
-        if (TargetLadderData.TryGetValue(player.PlayerId, out Vector3 targetLadderData) && Vector2.Distance(targetLadderData, player.Pos()) < 0.5f)
+        if (TargetLadderData.TryGetValue(player.PlayerId, out Vector3 targetLadderData) && FastVector2.DistanceWithinRange(targetLadderData, player.Pos(), 0.5f))
         {
-            if (player.Data.IsDead) return;
+            if (player.Data.IsDead || !player.IsAlive()) return;
 
             // To insert LateTask, first enter the death judgment.
             player.Data.IsDead = true;
@@ -59,12 +59,12 @@ public class FallFromLadder
 
                 sender.AutoStartRpc(player.NetId, RpcCalls.MurderPlayer)
                     .WriteNetObject(player)
-                    .Write((byte)ExtendedPlayerControl.ResultFlags)
+                    .Write((int)MurderResultFlags.Succeeded)
                     .EndRpc();
 
                 sender.SendMessage();
                 player.NetTransform.SnapTo(targetPos);
-                player.MurderPlayer(player, ExtendedPlayerControl.ResultFlags);
+                player.MurderPlayer(player, MurderResultFlags.Succeeded);
                 Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Fall;
                 Main.PlayerStates[player.PlayerId].SetDead();
             }, 0.05f, "LadderFallTask");
@@ -73,10 +73,11 @@ public class FallFromLadder
 }
 
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.ClimbLadder))]
-internal class LadderPatch
+internal static class LadderPatch
 {
     public static void Postfix(PlayerPhysics __instance, Ladder source /*, byte climbLadderSid*/)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         FallFromLadder.OnClimbLadder(__instance, source);
     }
 }

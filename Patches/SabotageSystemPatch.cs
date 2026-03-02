@@ -1,10 +1,8 @@
 using System;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Impostor;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 
@@ -129,7 +127,7 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
     {
         Logger.Info(" IsActive", "MushroomMixupSabotageSystem.UpdateSystem.Postfix");
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
             {
@@ -181,12 +179,12 @@ public static class MushroomMixupSabotageSystemPatch
             LateTask.New(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
-                Main.AllAlivePlayerControls.DoIf(x => x.GetRoleTypes() != RoleTypes.Engineer, x => x.RpcResetAbilityCooldown());
+                Main.EnumerateAlivePlayerControls().DoIf(x => x.GetRoleTypes() == RoleTypes.Shapeshifter, x => x.RpcResetAbilityCooldown());
 
                 ReportDeadBodyPatch.CanReport.SetAllValues(true);
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
@@ -217,9 +215,9 @@ internal static class SwitchSystemUpdatePatch
         if (Main.CurrentMap == MapNames.Airship)
         {
             Vector2 pos = player.Pos();
-            if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(pos, new(-12.93f, -11.28f)) <= 2f) return false;
-            if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(pos, new(13.92f, 6.43f)) <= 2f) return false;
-            if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(pos, new(30.56f, 2.12f)) <= 2f) return false;
+            if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && FastVector2.DistanceWithinRange(pos, new(-12.93f, -11.28f), 2f)) return false;
+            if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && FastVector2.DistanceWithinRange(pos, new(13.92f, 6.43f), 2f)) return false;
+            if (Options.DisableAirshipCargoLightsPanel.GetBool() && FastVector2.DistanceWithinRange(pos, new(30.56f, 2.12f), 2f)) return false;
         }
 
         if (player.Is(CustomRoles.Fool)) return false;
@@ -258,7 +256,7 @@ public static class ElectricTaskInitializePatch
 
         if (GameStates.IsInTask)
         {
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true, SendOption: SendOption.None);
@@ -282,7 +280,7 @@ public static class ElectricTaskCompletePatch
 
         if (GameStates.IsInTask)
         {
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 CustomRoles role = pc.GetCustomRole();
 
@@ -311,7 +309,7 @@ internal static class SabotageSystemTypeAnyActivePatch
 {
     public static bool Prefix(SabotageSystemType __instance, ref bool __result)
     {
-        __result = __instance.specials.ToArray().Any(s => s.IsActive) || CustomSabotage.Instances.Count > 0;
+        __result = __instance.specials.Exists((Il2CppSystem.Predicate<IActivatable>)(s => s.IsActive)) || CustomSabotage.Instances.Count > 0;
         return false;
     }
 }
@@ -372,7 +370,7 @@ public static class SabotageSystemTypeRepairDamagePatch
     public static bool Prefix(SabotageSystemType __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         Instance = __instance;
-        if (Options.CurrentGameMode != CustomGameMode.Standard || __instance.Timer > 0f) return false;
+        if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.Snowdown) || __instance.Timer > 0f) return false;
 
         SystemTypes systemTypes;
         {
@@ -407,6 +405,8 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
     {
+        if (__instance is { Timer: > 0f }) return false;
+        
         if (Options.DisableSabotage.GetBool())
         {
             switch (systemTypes)
@@ -461,7 +461,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         if (SecurityGuard.BlockSabo.Count > 0) return false;
 
-        if (Doorjammer.BlockSabotagesFromJammedRooms.GetBool())
+        if (Doorjammer.BlockSabotagesFromJammedRooms.GetBool() && Doorjammer.JammedRooms.Count > 0)
         {
             var room = player.GetPlainShipRoom();
             
@@ -492,7 +492,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
             CustomRoles.Sidekick when Jackal.CanSabotageSK.GetBool() => true,
             CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
-            CustomRoles.Parasite or CustomRoles.Refugee when player.IsAlive() => true,
+            CustomRoles.Parasite or CustomRoles.Renegade when player.IsAlive() => true,
             _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player) && Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
         };
 
@@ -509,7 +509,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             if (Main.CurrentMap == MapNames.Skeld)
                 LateTask.New(DoorsReset.OpenAllDoors, 1f, "Opening All Doors On Sabotage (Skeld)");
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Sensor) && pc.GetAbilityUseLimit() >= 1f)
                 {

@@ -1,0 +1,72 @@
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
+
+namespace EHR.Roles;
+
+public class Ankylosaurus : RoleBase
+{
+    public static bool On;
+
+    private static OptionItem Speed;
+    private static OptionItem Vision;
+    private static OptionItem Lives;
+    private static OptionItem KCD;
+
+    private int LivesLeft;
+
+    public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
+    {
+        StartSetup(647100)
+            .AutoSetupOption(ref Speed, 0.8f, new FloatValueRule(0.05f, 3f, 0.05f), OptionFormat.Multiplier)
+            .AutoSetupOption(ref Vision, 0.25f, new FloatValueRule(0f, 1.3f, 0.05f), OptionFormat.Multiplier)
+            .AutoSetupOption(ref Lives, 3, new IntegerValueRule(1, 30, 1), OptionFormat.Health)
+            .AutoSetupOption(ref KCD, 8f, new FloatValueRule(0f, 60f, 0.5f), OptionFormat.Seconds, overrideName: "MedicResetCooldown");
+    }
+
+    public override void Init()
+    {
+        On = false;
+    }
+
+    public override void Add(byte playerId)
+    {
+        On = true;
+        LivesLeft = Lives.GetInt();
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        Main.AllPlayerSpeed[playerId] = Speed.GetFloat();
+
+        float vision = Vision.GetFloat();
+        opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
+        opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
+    }
+
+    public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+    {
+        bool survive = LivesLeft > 0;
+        
+        if (survive)
+        {
+            LivesLeft--;
+            Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, LivesLeft);
+            killer.SetKillCooldown(KCD.GetFloat());
+        }
+        
+        return survive;
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return base.GetProgressText(playerId, comms) + $" ({LivesLeft} \u2665)";
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        LivesLeft = reader.ReadPackedInt32();
+    }
+}

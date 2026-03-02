@@ -21,6 +21,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem EnableCustomSoundEffect;
     private static ClientOptionItem SwitchVanilla;
     private static ClientOptionItem DarkTheme;
+    private static ClientOptionItem DarkThemeForMeetingUI;
     private static ClientOptionItem HorseMode;
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
@@ -30,9 +31,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem AutoHaunt;
     private static ClientOptionItem ButtonCooldownInDecimalUnder10s;
     private static ClientOptionItem CancelPetAnimation;
-#if !ANDROID
     private static ClientOptionItem TryFixStuttering;
-#endif
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -122,7 +121,7 @@ public static class OptionsMenuBehaviourStartPatch
                 {
                     MainMenuManagerPatch.ShowRightPanelImmediately();
 
-                    Harmony.UnpatchAll();
+                    Main.Instance.Harmony.UnpatchSelf();
                     Main.Instance.Unload();
                 }
             }
@@ -130,6 +129,9 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (DarkTheme == null || DarkTheme.ToggleButton == null)
             DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
+        
+        if (DarkThemeForMeetingUI == null || DarkThemeForMeetingUI.ToggleButton == null)
+            DarkThemeForMeetingUI = ClientOptionItem.Create("DarkThemeForMeetingUI", Main.DarkThemeForMeetingUI, __instance);
 
         if (HorseMode == null || HorseMode.ToggleButton == null)
         {
@@ -141,7 +143,7 @@ public static class OptionsMenuBehaviourStartPatch
                 HorseMode.UpdateToggle();
                 LongMode.UpdateToggle();
 
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
                     pc.MyPhysics.SetBodyType(pc.BodyType);
                     if (pc.BodyType == PlayerBodyTypes.Normal) pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
@@ -159,7 +161,7 @@ public static class OptionsMenuBehaviourStartPatch
                 HorseMode.UpdateToggle();
                 LongMode.UpdateToggle();
 
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
                     pc.MyPhysics.SetBodyType(pc.BodyType);
                     if (pc.BodyType == PlayerBodyTypes.Normal) pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
@@ -171,7 +173,7 @@ public static class OptionsMenuBehaviourStartPatch
         {
             ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance, ShowPlayerInfoInLobbyButtonToggle);
 
-            static void ShowPlayerInfoInLobbyButtonToggle() => Utils.DirtyName.UnionWith(Main.AllPlayerControls.Select(x => x.PlayerId));
+            static void ShowPlayerInfoInLobbyButtonToggle() => Utils.DirtyName.UnionWith(Main.EnumeratePlayerControls().Select(x => x.PlayerId));
         }
 
         if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
@@ -199,18 +201,19 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (CancelPetAnimation == null || CancelPetAnimation.ToggleButton == null)
             CancelPetAnimation = ClientOptionItem.Create("CancelPetAnimation", Main.CancelPetAnimation, __instance);
-        
-#if !ANDROID
-        if (TryFixStuttering == null || TryFixStuttering.ToggleButton == null)
+
+        if (OperatingSystem.IsWindows() && (TryFixStuttering == null || TryFixStuttering.ToggleButton == null))
         {
             TryFixStuttering = ClientOptionItem.Create("TryFixStuttering", Main.TryFixStuttering, __instance, TryFixStutteringButtonToggle);
 
             [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
             static void TryFixStutteringButtonToggle()
             {
+                if (!OperatingSystem.IsWindows()) return;
+                
                 if (Main.TryFixStuttering.Value)
                 {
-                    if (Application.platform == RuntimePlatform.WindowsPlayer && Environment.ProcessorCount >= 4)
+                    if (Environment.ProcessorCount >= 4)
                     {
                         var process = Process.GetCurrentProcess();
                         Main.OriginalAffinity = process.ProcessorAffinity;
@@ -228,7 +231,6 @@ public static class OptionsMenuBehaviourStartPatch
                 }
             }
         }
-#endif
 
 #if DEBUG
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)

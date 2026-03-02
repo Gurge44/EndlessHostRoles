@@ -59,15 +59,15 @@ public abstract class CustomSabotage
 
         foreach (CustomSabotage sabotage in Instances)
         {
-            string tempSuffix = sabotage.GetSuffix(seer, target, hud, meeting).Trim();
+            string tempSuffix = sabotage.GetSuffix(seer, target, hud, meeting);
 
-            if (!string.IsNullOrEmpty(tempSuffix))
+            if (!string.IsNullOrWhiteSpace(tempSuffix))
                 suffix.Append($"{tempSuffix}\n");
         }
 
         var result = suffix.ToString();
 
-        if (seer.IsNonHostModdedClient())
+        if (seer.IsNonHostModdedClient() && suffix.Length > 0)
         {
             long now = Utils.TimeStamp;
             
@@ -135,24 +135,24 @@ public class GrabOxygenMaskSabotage : CustomSabotage
             _ => SystemTypes.Outside
         };
 
-        TimeLimit = GetDefaultSabotageTimeLimit(map);
+        TimeLimit = Math.Min(60, GetDefaultSabotageTimeLimit(map));
         AdjustTimeLimitBasedOnPlayerSpeed(ref TimeLimit);
 
         RoomPosition = RandomSpawn.SpawnMap.GetSpawnMap().Positions.GetValueOrDefault(TargetRoom, TargetRoom.GetRoomClass().transform.position);
-        Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, RoomPosition));
+        Main.EnumerateAlivePlayerControls().Do(x => LocateArrow.Add(x.PlayerId, RoomPosition));
     }
 
     protected override void Update()
     {
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        byte[] playersInRoom = aapc.Select(x => (id: x.PlayerId, room: x.GetPlainShipRoom())).Where(x => x.room != null && x.room.RoomId == TargetRoom).Select(x => x.id).ToArray();
+        var aapc = Main.AllAlivePlayerControls;
+        byte[] playersInRoom = aapc.Where(x => x.IsInRoom(TargetRoom)).Select(x => x.PlayerId).ToArray();
         playersInRoom.Except(HasMask).ToValidPlayers().NotifyPlayers(Translator.GetString("CustomSabotage.GrabOxygenMask.Done"));
         playersInRoom.Except(HasMask).Do(x => LocateArrow.Remove(x, RoomPosition));
         HasMask.UnionWith(playersInRoom);
 
         if (HasMask.IsSupersetOf(aapc.Select(x => x.PlayerId)))
         {
-            Main.AllPlayerControls.Do(x => LocateArrow.Remove(x.PlayerId, RoomPosition));
+            Main.EnumeratePlayerControls().Do(x => LocateArrow.Remove(x.PlayerId, RoomPosition));
             Fix();
             return;
         }
@@ -161,7 +161,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
 
         if (DeteriorateTS + TimeLimit <= now)
         {
-            Main.AllPlayerControls.Do(x => LocateArrow.Remove(x.PlayerId, RoomPosition));
+            Main.EnumeratePlayerControls().Do(x => LocateArrow.Remove(x.PlayerId, RoomPosition));
             aapc.ExceptBy(HasMask, x => x.PlayerId).Do(x => x.Suicide(PlayerState.DeathReason.OutOfOxygen));
             Fix();
             return;

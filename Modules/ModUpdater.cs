@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using TMPro;
 using Twitch;
 using UnityEngine;
+using UnityEngine.Events;
 using static EHR.Translator;
 
 namespace EHR;
@@ -24,7 +25,7 @@ public static class ModUpdater
     public static bool IsBroken;
     private static bool IsChecked;
     private static Version LatestVersion;
-    private static string LatestTitleModName = null;
+    private static string LatestTitleModName;
     private static string LatestTitle;
     public static string DownloadUrl;
     private static GenericPopup InfoPopup;
@@ -35,10 +36,13 @@ public static class ModUpdater
     [HarmonyPriority(2)]
     public static void Start_Prefix()
     {
-#if !ANDROID
-        NewVersionCheck();
-        DeleteOldFiles();
-#endif
+        if (!OperatingSystem.IsAndroid())
+        {
+            // Version checks are not handled on Android
+            NewVersionCheck();
+            DeleteOldFiles();
+        }
+        
         InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopup.name = "InfoPopup";
         InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
@@ -46,8 +50,7 @@ public static class ModUpdater
         InfoPopupV2 = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopupV2.name = "InfoPopupV2";
 
-#if !ANDROID
-        if (!IsChecked)
+        if (!OperatingSystem.IsAndroid() && !IsChecked)
         {
             bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
             Logger.Msg("done: " + done, "CheckRelease");
@@ -56,7 +59,6 @@ public static class ModUpdater
             Logger.Info("downloadUrl: " + DownloadUrl, "CheckRelease");
             Logger.Info("latestVersionl: " + LatestVersion, "CheckRelease");
         }
-#endif
     }
 
     public static void ShowAvailableUpdate()
@@ -65,7 +67,7 @@ public static class ModUpdater
         {
             FirstNotify = false;
             
-            if (!string.IsNullOrEmpty(LatestTitleModName))
+            if (!string.IsNullOrWhiteSpace(LatestTitleModName))
                 ShowPopupWithTwoButtons(string.Format(GetString("NewUpdateAvailable"), LatestTitleModName), GetString("updateButton"), onClickOnFirstButton: () => StartUpdate(DownloadUrl, true));
         }
     }
@@ -146,7 +148,7 @@ public static class ModUpdater
             Logger.Info("latestVersionl: " + LatestVersion, "GitHub");
             Logger.Info("latestTitle: " + LatestTitle, "GitHub");
 
-            if (string.IsNullOrEmpty(DownloadUrl))
+            if (string.IsNullOrWhiteSpace(DownloadUrl))
             {
                 Logger.Error("No Download URL", "CheckRelease");
                 return false;
@@ -167,6 +169,7 @@ public static class ModUpdater
 
     public static void StartUpdate(string url, bool github)
     {
+        if (OperatingSystem.IsAndroid()) return;
         ShowPopup(GetString("updatePleaseWait"), StringNames.Cancel, true, false);
         _ = !github ? DownloadDLL(url) : DownloadDLLGithub(url);
     }
@@ -348,8 +351,8 @@ public static class ModUpdater
                 firstButtonGetChild.GetComponent<TMP_Text>().text = firstButtonText;
                 firstButton.GetComponent<PassiveButton>().OnClick = new();
                 if (onClickOnFirstButton != null)
-                    firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
-                else firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => InfoPopupV2.Close()));
+                    firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
+                else firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
             }
             if (secondButton != null)
             {
@@ -361,7 +364,7 @@ public static class ModUpdater
                 var secondButtonGetChild = secondButton.GetChild(0);
                 secondButtonGetChild.GetComponent<TextTranslatorTMP>().TargetText = StringNames.Cancel;
                 secondButtonGetChild.GetComponent<TextTranslatorTMP>().ResetText();
-                if (!string.IsNullOrEmpty(secondButtonText))
+                if (!string.IsNullOrWhiteSpace(secondButtonText))
                 {
                     secondButtonGetChild.GetComponent<TextTranslatorTMP>().DestroyTranslator();
                     secondButtonGetChild.GetComponent<TextMeshPro>().text = secondButtonText;
@@ -369,8 +372,8 @@ public static class ModUpdater
                 }
                 secondButton.GetComponent<PassiveButton>().OnClick = new();
                 if (onClickOnSecondButton != null)
-                    secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
-                else secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityEngine.Events.UnityAction)(() => InfoPopupV2.Close()));
+                    secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
+                else secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
             }
         }
     }

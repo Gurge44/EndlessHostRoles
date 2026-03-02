@@ -12,7 +12,6 @@ using UnityEngine.Networking;
 
 namespace EHR;
 
-#if !ANDROID
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ModNews
 {
@@ -55,6 +54,8 @@ public static class ModNewsFetcher
 
     public static IEnumerator FetchNews()
     {
+        if (OperatingSystem.IsAndroid()) yield break;
+        
         UnityWebRequest request = UnityWebRequest.Get(NewsUrl);
         request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
 
@@ -81,6 +82,11 @@ public static class ModNewsHistory
 {
     public static List<ModNews> AllModNews = [];
 
+    public static bool Prepare()
+    {
+        return !OperatingSystem.IsAndroid();
+    }
+
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements))]
     [HarmonyPrefix]
     public static void SetModAnnouncements(ref Il2CppReferenceArray<Announcement> aRange)
@@ -101,4 +107,3 @@ public static class ModNewsHistory
             aRange[i] = finalAllNews[i];
     }
 }
-#endif

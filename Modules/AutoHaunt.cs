@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.GameMode.HideAndSeekRoles;
+using EHR.Gamemodes;
+using EHR.Roles;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -11,11 +12,11 @@ public static class AutoHaunt
 {
     private static PlayerControl GetPreferredHauntTarget()
     {
-        IEnumerable<PlayerControl> validPCs = Main.AllAlivePlayerControls.Where(x => !AFKDetector.PlayerData.ContainsKey(x.PlayerId));
+        IEnumerable<PlayerControl> validPCs = Main.EnumerateAlivePlayerControls().Where(x => !AFKDetector.PlayerData.ContainsKey(x.PlayerId));
 
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.Standard => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Workaholic or CustomRoles.Snitch).ThenByDescending(x => x.Is(CustomRoleTypes.Coven)).ThenByDescending(x => x.IsNeutralKiller()).ThenByDescending(x => x.IsImpostor()).ThenByDescending(x => x.GetCustomRole().IsNeutral()).FirstOrDefault(),
+            CustomGameMode.Standard => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Workaholic or CustomRoles.Snitch && x.GetTaskState().RemainingTasksCount <= 2).ThenByDescending(x => x.Is(CustomRoleTypes.Coven)).ThenByDescending(x => x.IsNeutralKiller()).ThenByDescending(x => x.IsImpostor()).ThenByDescending(x => x.GetCustomRole().IsNeutral()).FirstOrDefault(),
             CustomGameMode.SoloPVP => validPCs.Where(x => x.SoloAlive()).MinBy(x => SoloPVP.GetRankFromScore(x.PlayerId)),
             CustomGameMode.FFA => validPCs.MaxBy(x => FreeForAll.KillCount.GetValueOrDefault(x.PlayerId, 0)),
             CustomGameMode.StopAndGo => validPCs.MaxBy(x => x.GetTaskState().CompletedTasksCount),
@@ -26,6 +27,7 @@ public static class AutoHaunt
             CustomGameMode.RoomRush => RoomRush.PointsSystem ? validPCs.MaxBy(x => RoomRush.GetPoints(x.PlayerId)) : validPCs.RandomElement(),
             CustomGameMode.KingOfTheZones => validPCs.MaxBy(x => KingOfTheZones.GetZoneTime(x.PlayerId)),
             CustomGameMode.Deathrace => validPCs.MaxBy(x => Deathrace.Data.TryGetValue(x.PlayerId, out var drData) ? drData.Lap : 0),
+            CustomGameMode.Snowdown => validPCs.Where(x => Snowdown.Data.ContainsKey(x.PlayerId)).Select(x => (pc: x, data: Snowdown.Data[x.PlayerId])).OrderByDescending(x => x.data.Points).ThenBy(x => x.data.SnowballGainInterval).ThenByDescending(x => x.data.Coins).ThenByDescending(x => x.data.SnowballsReady).Select(x => x.pc).FirstOrDefault(),
             _ => validPCs.RandomElement()
         };
     }
@@ -53,7 +55,7 @@ public static class AutoHaunt
                         HudManager.Instance.AbilityButton.DoClick();
                 }
 
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSecondsRealtime(5f);
             }
 
             if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance != null)

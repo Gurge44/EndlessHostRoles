@@ -1,0 +1,5 @@
+<Project> 
+    <PropertyGroup> 
+        <AmongUsPath>D:\SteamLibrary\steamapps\common\Among Us</AmongUsPath> 
+    </PropertyGroup> 
+</Project>

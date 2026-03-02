@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(TextBoxTMP))]
 public static class TextBoxPatch
 {
     private static TextMeshPro PlaceHolderText;
@@ -18,8 +17,7 @@ public static class TextBoxPatch
 
     public static bool IsInvalidCommand;
 
-#if !ANDROID
-    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPrefix]
     public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
     {
@@ -97,13 +95,12 @@ public static class TextBoxPatch
             }
         }
 
-        if (flag) __instance.OnEnter.Invoke();
+        if (flag && !Input.GetKey(KeyCode.LeftShift)) __instance.OnEnter.Invoke();
         __instance.SetPipePosition();
         return false;
     }
-#endif
 
-    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
     public static void ShowCommandHelp(TextBoxTMP __instance)
     {
@@ -119,6 +116,9 @@ public static class TextBoxPatch
 
             string input = __instance.outputText.text.Trim().Replace("\b", "");
 
+            bool startsWithCmd = input.StartsWith("/cmd ");
+            if (startsWithCmd) input = "/" + input[5..];
+
             if (!input.StartsWith('/') || input.Length < 2)
             {
                 Destroy();
@@ -132,9 +132,9 @@ public static class TextBoxPatch
             var exactMatch = false;
             bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
 
-            foreach (Command cmd in ChatCommands.AllCommands)
+            foreach (Command cmd in Command.AllCommands)
             {
-                string[] commandForms = english ? cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii)).ToArray() : cmd.CommandForms;
+                string[] commandForms = english ? [.. cmd.CommandForms.TakeWhile(x => x.All(char.IsAscii))] : cmd.CommandForms;
 
                 foreach (string form in commandForms)
                 {
@@ -179,15 +179,16 @@ public static class TextBoxPatch
             {
                 Destroy();
                 IsInvalidCommand = true;
-                __instance.compoText.Color(Color.red);
-                __instance.outputText.color = Color.red;
+                Color textColor = input is "/c" or "/cm" or "/cmd" ? Palette.Orange : Color.red;
+                __instance.compoText.Color(textColor);
+                __instance.outputText.color = textColor;
                 return;
             }
 
             IsInvalidCommand = false;
             HudManager hud = HudManager.Instance;
 
-            if (PlaceHolderText == null)
+            if (!PlaceHolderText)
             {
                 PlaceHolderText = Object.Instantiate(__instance.outputText, __instance.outputText.transform.parent);
                 PlaceHolderText.name = "PlaceHolderText";
@@ -195,7 +196,7 @@ public static class TextBoxPatch
                 PlaceHolderText.transform.localPosition = __instance.outputText.transform.localPosition;
             }
 
-            if (CommandInfoText == null)
+            if (!CommandInfoText)
             {
                 CommandInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
                 CommandInfoText.name = "CommandInfoText";
@@ -210,7 +211,7 @@ public static class TextBoxPatch
                 CommandInfoText.transform.SetAsLastSibling();
             }
 
-            if (AdditionalInfoText == null)
+            if (!AdditionalInfoText)
             {
                 AdditionalInfoText = Object.Instantiate(hud.KillButton.cooldownTimerText, hud.transform.parent, true);
                 AdditionalInfoText.name = "AdditionalInfoText";
@@ -226,7 +227,7 @@ public static class TextBoxPatch
             }
 
             string inputForm = input.TrimStart('/');
-            string text = "/" + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
+            string text = "/" + (startsWithCmd ? "cmd " : string.Empty) + (exactMatch ? inputForm : command.CommandForms.TakeWhile(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
             var info = $"<b>{command.Description}</b>";
 
             if (!command.CanUseCommand(PlayerControl.LocalPlayer))
@@ -237,24 +238,24 @@ public static class TextBoxPatch
             if (exactMatch && command.Arguments.Length > 0)
             {
                 bool poll = command.CommandForms.Contains("poll");
-                bool say = command.CommandForms.Contains("say");
                 int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
-                if (say) spaces = Math.Min(spaces, 1);
 
                 var preText = $"{text} {command.Arguments}";
-                if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
+                if (!poll) text += " " + (spaces >= command.ArgsDescriptions.Length ? string.Empty : string.Join(' ', command.Arguments.Split(' ')[spaces..]));
 
-                string[] args = preText.Split(' ')[1..];
+                string[] split = preText.Split(' ');
+                string[] args = split[(startsWithCmd && split.Length > 2 ? 2 : 1)..];
 
                 for (var i = 0; i < args.Length; i++)
                 {
-                    if (command.ArgsDescriptions.Length <= i) break;
+                    int length = command.ArgsDescriptions.Length;
+                    if (length <= i) break;
 
                     int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
-                    string arg = say ? args[0] : poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
+                    string arg = poll ? i == 0 ? string.Join(' ', args[..++skip]) : args[spaces - 1 < i ? skip + i + spaces : skip + i] : spaces > length && i == length - 1 ? string.Join(' ', args[i..^length]) : args[spaces > i ? i : i + spaces];
 
                     string argName = command.Arguments.Split(' ')[i];
-                    bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
+                    bool current = spaces - 1 == i || spaces > length && i == length - 1, invalid = IsInvalidArg(), valid = IsValidArg();
 
                     info += "\n" + (invalid, current, valid) switch
                     {
@@ -271,7 +272,7 @@ public static class TextBoxPatch
 
                     if (additionalInfo.Length == 0 && argName.Replace('[', '{').Replace(']', '}') is "{id}" or "{id1}" or "{id2}")
                     {
-                        Dictionary<string, byte> allIds = Main.AllPlayerControls.ToDictionary(x => x.PlayerId.ColoredPlayerName(), x => x.PlayerId);
+                        Dictionary<byte, string> allIds = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.PlayerId.ColoredPlayerName());
                         additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
                         OptionShower.CurrentPage = 0;
                     }
@@ -281,7 +282,9 @@ public static class TextBoxPatch
                     bool IsInvalidArg() =>
                         arg != argName && argName switch
                         {
-                            "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out byte id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
+                            "{uuid}" => arg.Length > 16,
+                            "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out byte id) || Main.EnumeratePlayerControls().All(x => x.PlayerId != id),
+                            "{ids}" => arg.Split(',').Any(x => !byte.TryParse(x, out _)),
                             "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out int num) || num < 0,
                             "{team}" => arg is not "crew" and not "imp",
                             "{role}" => !ChatCommands.GetRoleByName(arg, out _),
@@ -296,7 +299,8 @@ public static class TextBoxPatch
                         argName switch
                         {
                             "{sourcepreset}" or "{targetpreset}" => int.TryParse(arg, out int preset) && preset is >= 1 and <= 10,
-                            "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out byte id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
+                            "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out byte id) && Main.EnumeratePlayerControls().Any(x => x.PlayerId == id),
+                            "{ids}" => arg.Split(',').All(x => byte.TryParse(x, out _)),
                             "{team}" => arg is "crew" or "imp",
                             "{role}" or "[role]" => ChatCommands.GetRoleByName(arg, out _),
                             "{addon}" => ChatCommands.GetRoleByName(arg, out CustomRoles role) && role.IsAdditionRole(),
@@ -311,12 +315,15 @@ public static class TextBoxPatch
                             : argName switch
                             {
                                 "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
+                                "{ids}" => $" ({string.Join(", ", arg.Split(',').Select(x => byte.Parse(x).ColoredPlayerName()))})",
                                 "{role}" or "{addon}" or "[role]" when ChatCommands.GetRoleByName(arg, out CustomRoles role) => $" ({role.ToColoredString()})",
                                 "{color}" when ColorUtility.TryParseHtmlString($"#{arg}", out Color color) => $" ({Utils.ColorString(color, "COLOR")})",
                                 _ => string.Empty
                             };
                 }
             }
+
+            additionalInfo += startsWithCmd && AmongUsClient.Instance.AmHost ? $"\n\n<#00a5ff>ⓘ <b>{Translator.GetString("HostMayOmitCmdPrefix")}</b></color>" : string.Empty;
 
             PlaceHolderText.text = text;
             CommandInfoText.text = info;
@@ -336,10 +343,10 @@ public static class TextBoxPatch
 
         void Destroy()
         {
-            if (PlaceHolderText != null) PlaceHolderText.enabled = false;
-            if (CommandInfoText != null) CommandInfoText.enabled = false;
+            if (PlaceHolderText) PlaceHolderText.enabled = false;
+            if (CommandInfoText) CommandInfoText.enabled = false;
 
-            if (AdditionalInfoText != null)
+            if (AdditionalInfoText)
             {
                 bool showLobbyCode = HudManager.Instance?.Chat?.IsOpenOrOpening == true && GameStates.IsLobby && Options.GetSuffixMode() == SuffixModes.Streaming && !Options.HideGameSettings.GetBool() && !DataManager.Settings.Gameplay.StreamerMode;
                 AdditionalInfoText.enabled = showLobbyCode;
@@ -350,12 +357,12 @@ public static class TextBoxPatch
 
     public static void OnTabPress(ChatController __instance)
     {
-        if (PlaceHolderText == null || PlaceHolderText.text == "") return;
+        if (!PlaceHolderText || PlaceHolderText.text == "") return;
 
         __instance.freeChatField.textArea.SetText(PlaceHolderText.text);
         __instance.freeChatField.textArea.compoText = "";
 
-        if (AdditionalInfoText != null && AdditionalInfoText.text != "")
+        if (AdditionalInfoText && AdditionalInfoText.text != "")
             OptionShower.CurrentPage = 0;
     }
 
@@ -371,8 +378,14 @@ public static class TextBoxPatch
         catch { }
     }
 
-#if !ANDROID
-    [HarmonyPatch(nameof(TextBoxTMP.Update))]
+    public static void OnMeetingStart()
+    {
+        PlaceHolderText?.transform.SetAsLastSibling();
+        CommandInfoText?.transform.SetAsLastSibling();
+        AdditionalInfoText?.transform.SetAsLastSibling();
+    }
+
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.Update))]
     [HarmonyPrefix]
     public static bool UpdatePatch(TextBoxTMP __instance)
     {
@@ -395,10 +408,9 @@ public static class TextBoxPatch
 
         return false;
     }
-#endif
 
     // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs
-    [HarmonyPatch(nameof(TextBoxTMP.SetText))]
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPrefix]
     public static void ModifyCharacterLimit(TextBoxTMP __instance)
     {
