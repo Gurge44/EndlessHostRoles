@@ -77,6 +77,13 @@ namespace EHR
             }
             writer.EndMessage();
 
+            writer.StartMessage(1);
+            {
+                writer.WritePacked(playerControl.Data.NetId);
+                playerControl.Data.Serialize(writer, false);
+            }
+            writer.EndMessage();
+
             sender.EndMessage();
             sender.SendMessage();
 
@@ -286,6 +293,13 @@ namespace EHR
                     {
                         writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
                         PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                    }
+                    writer.EndMessage();
+
+                    writer.StartMessage(1);
+                    {
+                        writer.WritePacked(playerControl.Data.NetId);
+                        playerControl.Data.Serialize(writer, false);
                     }
                     writer.EndMessage();
 
