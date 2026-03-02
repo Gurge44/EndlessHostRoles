@@ -42,7 +42,7 @@ public class Main : BasePlugin
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.3.0";
-    public const string PluginDisplayVersion = "7.3.0 Optimization Test V2";
+    public const string PluginDisplayVersion = "7.3.0";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -278,9 +278,9 @@ public class Main : BasePlugin
         var players = PlayerControl.AllPlayerControls;
         int count = players.Count;
 
-        for (byte playerId = 0; playerId < count; playerId++)
+        for (byte playerIndex = 0; playerIndex < count; playerIndex++)
         {
-            PlayerControl pc = players[playerId];
+            PlayerControl pc = players[playerIndex];
             if (pc == null || pc.PlayerId >= 254) continue;
 
             CachedAllPlayerControlsList.Add(pc);

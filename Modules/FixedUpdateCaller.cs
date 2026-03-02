@@ -126,14 +126,14 @@ public static class FixedUpdateCaller
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
                 //bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
-                for (byte playerId = 0; playerId < playerCount; playerId++)
+                for (byte playerIndex = 0; playerIndex < playerCount; playerIndex++)
                 {
                     try
                     {
-                        PlayerControl pc = players[playerId];
+                        PlayerControl pc = players[playerIndex];
                         if (!pc || pc.PlayerId >= 254) continue;
 
-                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerId != playerId);
+                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerId != playerIndex);
 
                         if (lobby) continue;
 

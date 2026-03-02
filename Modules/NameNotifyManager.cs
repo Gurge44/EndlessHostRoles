@@ -85,7 +85,7 @@ public static class NameNotifyManager
                 removedAny = true;
             }
 
-            if (removedAny && dict.Count > 0)
+            if (removedAny)
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
                 if (pc.IsAlive()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -103,7 +103,7 @@ public static class NameNotifyManager
         while (enumerator.MoveNext())
             NameList.Add(enumerator.Current);
 
-        NameList.Sort((a, b) => a.Value.CompareTo(b.Value));
+        if (NameList.Count >= 2) NameList.Sort((a, b) => a.Value.CompareTo(b.Value));
 
         Sb.Clear();
         for (int index = 0; index < NameList.Count; index++)

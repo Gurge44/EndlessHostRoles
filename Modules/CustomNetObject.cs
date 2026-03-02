@@ -374,8 +374,7 @@ namespace EHR
 
         public static void FixedUpdate()
         {
-            int objectsCount = AllObjects.Count;
-            for (byte objectId = 0; objectId < objectsCount; objectId++)
+            for (int objectId = 0; objectId < AllObjects.Count; objectId++)
             {
                 CustomNetObject cno = AllObjects[objectId];
                 cno?.OnFixedUpdate();

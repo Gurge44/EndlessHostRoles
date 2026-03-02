@@ -25,7 +25,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using static EHR.Translator;
-using static UnityEngine.GraphicsBuffer;
 using Tree = EHR.Roles.Tree;
 
 namespace EHR;
@@ -2619,18 +2618,15 @@ public static class Utils
             if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
             var apc = Main.CachedAllPlayerControls();
-            SeerList.Clear();
-            TargetList.Clear();
-            if (SpecifySeer) SeerList.Add(SpecifySeer); else SeerList = apc;
-            if (SpecifyTarget) TargetList.Add(SpecifyTarget); else TargetList = apc;
+            if (SpecifySeer) SeerList = [SpecifySeer]; else SeerList = apc;
+            if (SpecifyTarget) TargetList = [SpecifyTarget]; else TargetList = apc;
 
             var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
             var hasValue = false;
 
-            int seerCount = SeerList.Count;
-            for (byte seerId = 0; seerId < seerCount; seerId++)
+            for (byte seerIndex = 0; seerIndex < SeerList.Count; seerIndex++)
             {
-                PlayerControl seer = SeerList[seerId];
+                PlayerControl seer = SeerList[seerIndex];
                 hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, SeerList, TargetList, out bool senderWasCleared, SendOption);
                 if (senderWasCleared) hasValue = false;
 
@@ -2971,13 +2967,13 @@ public static class Utils
             // Devourer
             if (Devourer.HideNameOfConsumedPlayer.GetBool() && !camouflageIsForMeeting)
             {
-                var list = Devourer.PlayerIdList;
+                var devourerList = Devourer.PlayerIdList;
                 var states = Main.PlayerStates;
                 byte seerId = seer.PlayerId;
 
-                for (int index = 0; index < list.Count; index++)
+                for (int index = 0; index < devourerList.Count; index++)
                 {
-                    var state = states[list[index]];
+                    var state = states[devourerList[index]];
                     var role = state.Role;
 
                     if (role is Devourer dv && dv.IsEnable && dv.PlayerSkinsCosumed.Contains(seerId))
@@ -3311,13 +3307,13 @@ public static class Utils
                             // Devourer
                             if (Devourer.HideNameOfConsumedPlayer.GetBool() && !GameStates.IsLobby && !camouflageIsForMeeting)
                             {
-                                var list = Devourer.PlayerIdList;
+                                var devourerList = Devourer.PlayerIdList;
                                 var states = Main.PlayerStates;
                                 byte seerId = seer.PlayerId;
 
-                                for (int index = 0; index < list.Count; index++)
+                                for (int index = 0; index < devourerList.Count; index++)
                                 {
-                                    var state = states[list[index]];
+                                    var state = states[devourerList[index]];
                                     var role = state.Role;
 
                                     if (role is Devourer dv && dv.IsEnable && dv.PlayerSkinsCosumed.Contains(seerId))

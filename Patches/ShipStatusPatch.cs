@@ -10,6 +10,10 @@ using HarmonyLib;
 using Hazel;
 using UnityEngine;
 
+#if DEBUG
+using EHR.Patches;
+#endif
+
 namespace EHR;
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
