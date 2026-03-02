@@ -1356,13 +1356,13 @@ internal static class IntroCutsceneDestroyPatch
                     break;
             }
 
-            Utils.CheckAndSetVentInteractions();
-
             if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
 
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, "NotifyEveryoneAsync On Game Start");
             LateTask.New(Utils.MarkEveryoneDirtySettings, 0.5f, "SyncAllSettings On Game Start");
             LateTask.New(() => Main.Instance.StartCoroutine(ShipStatusFixedUpdatePatch.Postfix()), 5f, "ShipStatusFixedUpdatePatch Postfix Start");
+
+            Utils.CheckAndSetVentInteractions();
         }
         else
         {
