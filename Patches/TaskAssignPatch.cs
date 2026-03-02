@@ -16,7 +16,21 @@ internal static class AddTasksFromListPatch
 
     public static void Prefix([HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost ||
+            Options.CurrentGameMode is 
+                CustomGameMode.SoloPVP or 
+                CustomGameMode.FFA or 
+                CustomGameMode.HotPotato or 
+                CustomGameMode.NaturalDisasters or 
+                CustomGameMode.RoomRush or 
+                CustomGameMode.Quiz or 
+                CustomGameMode.CaptureTheFlag or 
+                CustomGameMode.KingOfTheZones or 
+                CustomGameMode.TheMindGame or 
+                CustomGameMode.BedWars or 
+                CustomGameMode.Deathrace or 
+                CustomGameMode.Mingle or 
+                CustomGameMode.Snowdown) return;
 
         if (DisableTasksSettings.Count == 0)
         {
@@ -133,6 +147,22 @@ internal static class RpcSetTasksPatch
     // Do not interfere with vanilla task allocation process itself
     public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
     {
+        // Skip some Gamemodes (Vanilla assign task itself)
+        if (Options.CurrentGameMode is
+                CustomGameMode.SoloPVP or
+                CustomGameMode.FFA or
+                CustomGameMode.HotPotato or
+                CustomGameMode.NaturalDisasters or
+                CustomGameMode.RoomRush or
+                CustomGameMode.Quiz or
+                CustomGameMode.CaptureTheFlag or
+                CustomGameMode.KingOfTheZones or
+                CustomGameMode.TheMindGame or
+                CustomGameMode.BedWars or
+                CustomGameMode.Deathrace or
+                CustomGameMode.Mingle or
+                CustomGameMode.Snowdown) return;
+
         // Null measures
         if (Main.RealOptionsData == null)
         {
@@ -175,7 +205,7 @@ internal static class RpcSetTasksPatch
         }
 
         // GM and Lazy Guy have no tasks
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.LazyGuy) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown)
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.LazyGuy))
         {
             hasCommonTasks = false;
             numShortTasks = 0;
@@ -283,7 +313,7 @@ internal static class RpcSetTasksPatch
         for (var i = 0; i < list.Count - 1; i++)
         {
             T obj = list[i];
-            int rand = Random.Range(i, list.Count);
+            int rand = IRandom.Instance.Next(i, list.Count);
             list[i] = list[rand];
             list[rand] = obj;
         }
