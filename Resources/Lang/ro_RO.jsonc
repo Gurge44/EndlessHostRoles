@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "Meeting Time When No One is Dead",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} has guessed the anagram correctly (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Maximum Arrow show-up delay",
   "ArrowDelayMin": "Minimum Arrow show-up delay",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "Can Win By Suicide",
   "CantGuessJailed": "You can not guess the target",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "Cannot Spawn as Solo Impostor",
   "CannotStoneGazeWhenKCDIsntUp": "Cannot Stone Gaze Bodies When Kill Cooldown Isn't Up",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "When a cheating player is found",
-
 
   /* ==============================
     Combos           
@@ -9279,8 +9272,6 @@
   "DCanGuessNeutrals": "Can Guess <color=#ffab1b>Neutrals</color>",
   "DGRM.OnMeeting": "On Meeting",
 
-
-
   /* ==============================
   Cooldowns and Timers           
   ============================== */
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "Please do your tasks!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>This vent is blocked by the Ventguard</color>",
   "EraseLimit": "Max Erases",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Reset First Kill Cooldown",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "Increased Speed Duration",
   "IncreasedVisionDuration": "Increased Vision Duration",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "The kick command is currently disabled.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Kick players whose level is lower than",
   "KickNintendoPlayer": "<b>{0}</b> was kicked due to playing on Nintendo Switch.",
   "KickNotJoinedPlayersRegularly": "Kick players who haven't joined the game every 25s in lobby",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Fix Lag",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>You're muted and cannot send messages. The mute will expire in <#ffff00>{0}</color> seconds.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "Spectate the chaos!",
   "GMInfoLong": "(Other):\\nThe Game Master is an observer role. Their presence does not affect the game; all players know who the Game Master is. The Game Master role will be assigned to the Host/Spectators, who will automatically become a ghost at the start of the game.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "EHR settings have been restored to default",
   "RevealMaxCount": "Maximum Reveals",
   "RitualMaxCount": "Maximum Reveals",
-
 
   /* ==============================
     Sabotage Settings           

@@ -8212,7 +8212,7 @@
   "ApplyModeratorList": "Moderator Listを適用する",
   "ApplyVIPList": "VIP Listを適用する",
   "AprilFoolsMode": "エープリールフール モード",
-  "AutoKickStart": ""start" と言う プレイヤーを追い出す",
+  "AutoKickStart": "\"start\" と言う プレイヤーを追い出す",
   "AutoKickStartAsBan": "彼らを追い出した後 プレイヤーをブロックする",
   "AutoKickStartTimes": "追い出す前の警告の回数",
   "AutoKickStopWords": "禁止ワードを書くプレイヤーを追い出す",
@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "誰も死んでいないときの会議時間",
   "Anagram.CorrectGuess": "<size=80%><#00ffa5>✓</color> {0}は アナグラムを正しく推測しました (<b>{1}</b>)！</size>",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "最大の矢印表示の遅れ",
   "ArrowDelayMin": "最小の矢印表示の遅れ",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "自殺によって勝利できる",
   "CantGuessJailed": "<size=80%>あなたは <#aa900d>看守</color>のターゲットを 推測できない</size>\n",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "ソロ<#ff1919>インポスター</color>として 出現できない",
   "CannotStoneGazeWhenKCDIsntUp": "キルのクールダウンが起きてないとき 死体を石化できない",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "不正行為が見つかったとき",
-
 
   /* ==============================
     Combos           
@@ -9115,7 +9108,7 @@
   "CommandForms.XOR": "xor",
   // Command Access
   "CommandList": "★ コマンドリスト:",
-  "Commands.ChangeSettingHelp": "<b><u>引数:</u></b><size=70%>\\n- map(マップ) (<#66a186>theskeld</color>/<#e84b56>mirahq</color>/<#a167c0>polus</color>/<#66a186>dlekseht</color>/<#ed0007>airship</color>/<#ffa646>thefungle</color>/custom)\\n- <#ff1919>impostors(インポスター数)</color> (数字)\\n- players(プレイヤー数) (数字)\\n- recommended(推奨設定) (on/off)\\n- confirmejects(追放確認) (on/off)\\n- emergencymeetings(緊急会議) (数字)\\n- anonymousvotes(匿名投票) (on/off)\\n- emergencycooldown(緊急会議のクールダウン) (数字)\\n- discussiontime(会議時間) (数字)\\n- votingtime(投票タイム) (数字)\\n- playerspeed(プレイヤーの速度) (float)\\n- <#8cffff>crewmatevision(クルーメイト ビジョン)</color> (float)\\n- <#ff1919>impostorvision(インポスター ビジョン)</color> (float)\\n- killcooldown(キルのクールダウン) (float)\\n- killdistance(キルの可能距離) (short/medium/long/custom)\\n- taskbarupdates(タスクバーのアップデート) (always(いつでも)/meetings(会議毎)/never(しない))\\n- visualtasks(視認タスク) (on/off)\\n- commontasks(通常タスク) (数字)\\n- longtasks(ロングタスク) (数字)\\n- shorttasks(ショートタスク) (数字)\\n- <#8cffff>scientistcount(科学者の数)</color> (数字)\\n- <#8cffff>scientistchance(科学者の確率)</color> (数字)\\n- <#8cffff>vitalsdisplaycooldown(バイタル画面のクールダウン)</color> (float)\\n- <#8cffff>batteryduration(バッテリーの持続時間)</color> (float)\\n- <#8cffff>engineercount(エンジニアの数)</color> (数字)\\n- <#8cffff>engineerchance(エンジニアの確率)</color> (数字)\\n- <#8cffff>ventusecooldown(通気口の使用のクールダウン)</color> (float)\\n- <#8cffff>maxtimeinvents(通気口内の最大時間)</color> (float)\\n- <#8cffff>guardianangelcount(守護天使の数)</color> (数字)\\n- <#8cffff>guardianangelchance(守護天使の確率)</color> (数字)\\n- <#8cffff>protectcooldown(保護のクールダウン)</color> (float)\\n- <#8cffff>protectduration(保護の継続時間)</color> (float)\\n- <#8cffff>protectvisibletoimpostors(保護は <#ff1919>インポスター</color>からも見える)</color> (on/off)\\n- <#ff1919>shapeshiftercount(シェイプシフターの数)</color> (数字)\\n- <#ff1919>shapeshifterchance(シェイプシフターの確率)</color> (数字)\\n- <#ff1919>shapeshiftduration(変身の持続時間)</color> (float)\\n- <#ff1919>shapeshiftcooldown(変身のクールダウン)</color> (float)\\n- <#ff1919>leaveshapeshiftevidence(変身の痕を残す)</color> (on/off)\\n- <#ff1919>phantomcount(亡霊の数)</color> (数字)\\n- <#ff1919>phantomchance(亡霊の確率)</color> (数字)\\n- <#ff1919>inviscooldown(消える クールダウン)</color> (float)\\n- <#ff1919>invisduration(消える 長さ)</color> (float)\\n- <#8cffff>noisemakercount(ノイズメーカーの数)</color> (数字)\\n- <#8cffff>noisemakerchance(ノイズメーカーの確率)</color> (数字)\\n- <#8cffff>noisemakerimpostoralert(<#ff1919>インポスター</color>にも警告する)</color> (on/off)\\n- <#8cffff>noisemakeralertduration(警告の長さ)</color> (数字)\\n- <#8cffff>trackercount(トラッカーの数)</color> (数字)\\n- <#8cffff>trackerchance(トラッカーの確率)</color> (数字)\\n- <#8cffff>trackduration(追跡の持続時間)</color> (float)\\n- <#8cffff>trackcooldown(追跡のクールダウン)</color> (float)\\n- <#8cffff>trackdelay(追跡の遅れ)</color> (float)\\n- ghostdotasks(幽霊のタスク) (on/off)\\n\\n<u><b>注意:</b></u>\\n1. 大文字 と 小文字は 重要\\n2. custom と書いているところは、当然ですが その後に 1つの数字の引数を置きます\\n3. float と書かれているところは 1.7 のような、1つの単精度浮動小数点です\\n4. 「ghostdotasks」を もし あなたが それをセットすると 問題が発生します。\\n5. 使用例:\\n   - "/cs map <#a167c0>polus</color>"\\n   - "/cs killdistance custom 4"\\n   - "/cs <#8cffff>trackdelay</color> 1,7"\\n   - "/cs confirmejects on",
+  "Commands.ChangeSettingHelp": "<b><u>引数:</u></b><size=70%>\\n- map(マップ) (<#66a186>theskeld</color>/<#e84b56>mirahq</color>/<#a167c0>polus</color>/<#66a186>dlekseht</color>/<#ed0007>airship</color>/<#ffa646>thefungle</color>/custom)\\n- <#ff1919>impostors(インポスター数)</color> (数字)\\n- players(プレイヤー数) (数字)\\n- recommended(推奨設定) (on/off)\\n- confirmejects(追放確認) (on/off)\\n- emergencymeetings(緊急会議) (数字)\\n- anonymousvotes(匿名投票) (on/off)\\n- emergencycooldown(緊急会議のクールダウン) (数字)\\n- discussiontime(会議時間) (数字)\\n- votingtime(投票タイム) (数字)\\n- playerspeed(プレイヤーの速度) (float)\\n- <#8cffff>crewmatevision(クルーメイト ビジョン)</color> (float)\\n- <#ff1919>impostorvision(インポスター ビジョン)</color> (float)\\n- killcooldown(キルのクールダウン) (float)\\n- killdistance(キルの可能距離) (short/medium/long/custom)\\n- taskbarupdates(タスクバーのアップデート) (always(いつでも)/meetings(会議毎)/never(しない))\\n- visualtasks(視認タスク) (on/off)\\n- commontasks(通常タスク) (数字)\\n- longtasks(ロングタスク) (数字)\\n- shorttasks(ショートタスク) (数字)\\n- <#8cffff>scientistcount(科学者の数)</color> (数字)\\n- <#8cffff>scientistchance(科学者の確率)</color> (数字)\\n- <#8cffff>vitalsdisplaycooldown(バイタル画面のクールダウン)</color> (float)\\n- <#8cffff>batteryduration(バッテリーの持続時間)</color> (float)\\n- <#8cffff>engineercount(エンジニアの数)</color> (数字)\\n- <#8cffff>engineerchance(エンジニアの確率)</color> (数字)\\n- <#8cffff>ventusecooldown(通気口の使用のクールダウン)</color> (float)\\n- <#8cffff>maxtimeinvents(通気口内の最大時間)</color> (float)\\n- <#8cffff>guardianangelcount(守護天使の数)</color> (数字)\\n- <#8cffff>guardianangelchance(守護天使の確率)</color> (数字)\\n- <#8cffff>protectcooldown(保護のクールダウン)</color> (float)\\n- <#8cffff>protectduration(保護の継続時間)</color> (float)\\n- <#8cffff>protectvisibletoimpostors(保護は <#ff1919>インポスター</color>からも見える)</color> (on/off)\\n- <#ff1919>shapeshiftercount(シェイプシフターの数)</color> (数字)\\n- <#ff1919>shapeshifterchance(シェイプシフターの確率)</color> (数字)\\n- <#ff1919>shapeshiftduration(変身の持続時間)</color> (float)\\n- <#ff1919>shapeshiftcooldown(変身のクールダウン)</color> (float)\\n- <#ff1919>leaveshapeshiftevidence(変身の痕を残す)</color> (on/off)\\n- <#ff1919>phantomcount(亡霊の数)</color> (数字)\\n- <#ff1919>phantomchance(亡霊の確率)</color> (数字)\\n- <#ff1919>inviscooldown(消える クールダウン)</color> (float)\\n- <#ff1919>invisduration(消える 長さ)</color> (float)\\n- <#8cffff>noisemakercount(ノイズメーカーの数)</color> (数字)\\n- <#8cffff>noisemakerchance(ノイズメーカーの確率)</color> (数字)\\n- <#8cffff>noisemakerimpostoralert(<#ff1919>インポスター</color>にも警告する)</color> (on/off)\\n- <#8cffff>noisemakeralertduration(警告の長さ)</color> (数字)\\n- <#8cffff>trackercount(トラッカーの数)</color> (数字)\\n- <#8cffff>trackerchance(トラッカーの確率)</color> (数字)\\n- <#8cffff>trackduration(追跡の持続時間)</color> (float)\\n- <#8cffff>trackcooldown(追跡のクールダウン)</color> (float)\\n- <#8cffff>trackdelay(追跡の遅れ)</color> (float)\\n- ghostdotasks(幽霊のタスク) (on/off)\\n\\n<u><b>注意:</b></u>\\n1. 大文字 と 小文字は 重要\\n2. custom と書いているところは、当然ですが その後に 1つの数字の引数を置きます\\n3. float と書かれているところは 1.7 のような、1つの単精度浮動小数点です\\n4. 「ghostdotasks」を もし あなたが それをセットすると 問題が発生します。\\n5. 使用例:\\n   - \"/cs map <#a167c0>polus</color>\"\\n   - \"/cs killdistance custom 4\"\\n   - \"/cs <#8cffff>trackdelay</color> 1,7\"\\n   - \"/cs confirmejects on",
   "Commands.NoAccess.Level.Host": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>ホスト</color>による 使用のみできます</color></size>",
   "Commands.NoAccess.Level.HostOrAdmin": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host & Admins",
   "Commands.NoAccess.Level.HostOrModerator": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>ホスト & モデレーター</color>による 使用のみできます</color></size>",
@@ -9278,8 +9271,6 @@
   "DCanGuessImpostors": "<color=#ff1919>インポスター</color>を推測できる",
   "DCanGuessNeutrals": "<color=#ffab1b>ニュートラル</color>を推測できる",
   "DGRM.OnMeeting": "会議時",
-
-
 
   /* ==============================
   Cooldowns and Timers           
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "あなたのタスクを行ってください！",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>この通気口は <#ffa5ff>ベントガード</color>によって 塞がれている</color>",
   "EraseLimit": "最大の消去数",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "初手のキルのクールダウンをリセットする",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "増加した速度の持続時間",
   "IncreasedVisionDuration": "増加した視力の持続時間",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "<size=80%>キック コマンドは現在無効です。</size>",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "以下のレベルのプレイヤーを 追い出す",
   "KickNintendoPlayer": "<b>{0}</b>は Nintendo Switchでのプレイにより 追い出された。",
   "KickNotJoinedPlayersRegularly": "ロビーで 25秒ごとに ゲームに参加していないプレイヤーを 追い出す",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "ラグを修正",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<size=80%><#ff0000>あなたは ミュートされているため メッセージが送信できません。\\nミュートが切れるまで  <#ffff00>{0}</color> 秒です。</size>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "混乱を見届けよう！",
   "GMInfoLong": "(<#ff5b70>ホストの役割</color>):\\n<size=80%>ゲームマスターは 監視をする役割です。\\n彼の存在は ゲームに影響を与えません; すべてのプレイヤーが 誰がゲームマスターであるかが分かります。\\nゲームマスターの役割は ホストに割り当てられ、ゲームの開始時に自動的に幽霊になります。</size>",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "<size=80%>EHRの設定が デフォルトに戻されました</size>",
   "RevealMaxCount": "最大の 公開の回数",
   "RitualMaxCount": "最大の 公開の回数",
-
 
   /* ==============================
     Sabotage Settings           

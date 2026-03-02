@@ -677,7 +677,7 @@
   "DonutDelivered-9": "\\nConsegnato!\\nLa amavano più di una schermata di vittoria!",
   "DonutDelivered-10": "\\nConsegna riuscita!\\nLa ciambella è stata un successo, non una mossa sospetta!",
   "DonutDelivered-11": "\\nCiambella consegnata senza un briciolo di sospetto!",
-  "DonutDelivered-12": "\\nFeedback positivo!\\nHanno detto che la ciambella era così buona da essere quasi "impostor-ibile"!",
+  "DonutDelivered-12": "\\nFeedback positivo!\\nHanno detto che la ciambella era così buona da essere quasi \"impostor-ibile\"!",
   "DonutDelivered-13": "\\nNon ti piace il gusto?\\nLa prossima volta, meglio restare sui venti latte...",
   "DonutDelivered-14": "\\nOpinione impopolare:\\nIl cioccolato non è piaciuto. Magari la prossima volta prova con gli zuccherini?",
   "DonutDelivered-15": "\\nLa ciambella era da urlo, proprio come il loro alibi.",
@@ -690,12 +690,12 @@
   "DonutDeliverSEEvilsDecreaseAmount": "Diminuisci velocità di",
   "DonutDeliverSEEvilsGetDecreased": "\\nI giocatori <#ff1919>Malvagi</color> ricevono velocità ridotta",
   "DonutDeliverSpeedEffect": "Bonus velocità per i giocatori che ricevono ciambelle",
-  "DonutGot-0": "Consegna speciale!\\nSei stato "ciambellato" dall\'addetto alla consegna delle ciambelle.\\nGoditi la dolcezza!",
-  "DonutGot-1": "Congratulazioni!\\nHai appena ricevuto una "buon-buco-tà" dall\'addetto alla consegna delle ciambelle.\\nViziati!",
+  "DonutGot-0": "Consegna speciale!\\nSei stato \"ciambellato\" dall\'addetto alla consegna delle ciambelle.\\nGoditi la dolcezza!",
+  "DonutGot-1": "Congratulazioni!\\nHai appena ricevuto una \"buon-buco-tà\" dall\'addetto alla consegna delle ciambelle.\\nViziati!",
   "DonutGot-2": "Consegna ciambelle qui!\\nIl tuo ordine di una deliziosa ciambella è stato spedito con successo.\\nGoditi un\'esplosione di gusto!",
   "DonutGot-3": "\\nSorpresa!\\nHai ricevuto la visita dell\'addetto alla consegna delle ciambelle.\\nÈ un dolcetto da urlo!",
   "DonutGot-4": "Ding-dong! Una ciambella è alla tua porta.\\nOfferta dall\'addetto alla consegna delle ciambelle.\\nGustati la dolcezza!",
-  "DonutGot-5": "\\nAvviso consegna speciale!\\nHai appena ricevuto una ciambella "micidiale" dall\'addetto alla consegna delle ciambelle.\\nGoditi la scena del crimine... volevo dire lo spuntino!",
+  "DonutGot-5": "\\nAvviso consegna speciale!\\nHai appena ricevuto una ciambella \"micidiale\" dall\'addetto alla consegna delle ciambelle.\\nGoditi la scena del crimine... volevo dire lo spuntino!",
   "Doorjammer": "Bloccaporte",
   "DoorjammerInfo": "Blocca stanze per impedire i sabotaggi",
   "DoorjammerInfoLong": "(Astronauti):\\nIn qualità di Bloccaporte, puoi accarezzare il tuo pet in una stanza per bloccarla. Nessuno potrà chiudere le porte in quella stanza e potrebbe non essere nemmeno possibile attivare sabotaggi da quel luogo.",
@@ -1147,7 +1147,7 @@
   "MoleInfoLong": "(Astronauti):\\nIn qualità di Talpa, quando entri in un condotto, vieni espulso e teletrasportato in un condotto casuale della mappa. / Pet per teletrasportarti in un condotto casuale.",
   "Monarch": "Monarca",
   "MonarchInfo": "Dai agli Astronauti un potere di voto extra!",
-  "MonarchInfoLong": "Astronauti:\\nIn qualità di Monarca, puoi nominare "Cavalieri" gli altri giocatori per conferire loro un voto extra durante le riunioni.\\nNon puoi nominare Cavaliere qualcuno che possiede già dei voti extra. I giocatori nominati appariranno con il nome color oro.",
+  "MonarchInfoLong": "Astronauti:\\nIn qualità di Monarca, puoi nominare \"Cavalieri\" gli altri giocatori per conferire loro un voto extra durante le riunioni.\\nNon puoi nominare Cavaliere qualcuno che possiede già dei voti extra. I giocatori nominati appariranno con il nome color oro.",
   "MonarchInvalidTarget": "Il bersaglio non può essere cavallerizzato",
   "MonarchKillButtonText": "Cavaliere",
   "MonarchKnightCooldown": "Ricarica Nomina Cavaliere",
@@ -1211,7 +1211,7 @@
   "Oxyman.Slow.BelowPercentage": "Lento Sotto",
   "Pacifist": "Pacifista",
   "PacifistInfo": "Usa i condotti/Tasto Accarezza per resettare la ricarica uccisione",
-  "PacifistInfoLong": "Astronauti:\\nIn qualità di Pacifista, puoi resettare il tempo di ricarica dell\'uccisione per tutti i giocatori che possiedono il tasto "uccidi" usando i condotti o accarezzando il tuo pet.\\nSe diventi un Follenauta, la tua abilità avrà effetto solo sugli Astronauti.",
+  "PacifistInfoLong": "Astronauti:\\nIn qualità di Pacifista, puoi resettare il tempo di ricarica dell\'uccisione per tutti i giocatori che possiedono il tasto \"uccidi\" usando i condotti o accarezzando il tuo pet.\\nSe diventi un Follenauta, la tua abilità avrà effetto solo sugli Astronauti.",
   "PacifistCooldown": "Ricarica Abilità",
   "PacifistMaxOfUsage": "Numero massimo di utilizzi abilità",
   "PacifistMaxUsage": "Limite uso abilità raggiunto",
@@ -1681,7 +1681,7 @@
   "BountyShowTargetArrow": "Mostra la freccia che punta verso l\'obiettivo",
   "Butcher": "Macellaio",
   "ButcherInfo": "Goditi il mio bellissimo lavoro",
-  "ButcherInfoLong": "(Impostori): In qualità di Macellaio, quando uccidi qualcuno, il bersaglio rilascerà 30 cadaveri, rendendo difficile capire chi sia morto effettivamente durante il round all\'inizio della riunione. Se uccidi un Vendicatore (Avenger), la partita termina istantaneamente con il messaggio "Tutti sono morti".",
+  "ButcherInfoLong": "(Impostori): In qualità di Macellaio, quando uccidi qualcuno, il bersaglio rilascerà 30 cadaveri, rendendo difficile capire chi sia morto effettivamente durante il round all\'inizio della riunione. Se uccidi un Vendicatore (Avenger), la partita termina istantaneamente con il messaggio \"Tutti sono morti\".",
   "ButcherButtonText": "Smembra",
   "Camouflager": "Camuffatore",
   "CamouflagerInfo": "Camuffa tutti per uccidere più facilmente",
@@ -1757,10 +1757,10 @@
   "ConvictInfoLong": "(Follenauti): In qualità di Galeotto, ora lavori per gli Impostori.",
   "Councillor": "Assessore",
   "CouncillorInfo": "Uccidi gli Astronauti durante le riunioni",
-  "CouncillorInfoLong": "(Impostori):\\n In qualità di Assessore, puoi uccidere i giocatori durante una riunione proprio come un Giudice.\\n\\n Quando uccidi durante una riunione, queste eliminazioni appariranno come un "processo" (trial) eseguito da un Giudice.\\n\\n Il comando per uccidere è /cmd tl [id giocatore].\\n Puoi vedere l\'Id di un giocatore prima del suo nome, oppure usare il comando /cmd id per visualizzare gli Id di tutti i giocatori.",
+  "CouncillorInfoLong": "(Impostori):\\n In qualità di Assessore, puoi uccidere i giocatori durante una riunione proprio come un Giudice.\\n\\n Quando uccidi durante una riunione, queste eliminazioni appariranno come un \"processo\" (trial) eseguito da un Giudice.\\n\\n Il comando per uccidere è /cmd tl [id giocatore].\\n Puoi vedere l\'Id di un giocatore prima del suo nome, oppure usare il comando /cmd id per visualizzare gli Id di tutti i giocatori.",
   "CouncillorCanMurderImpostor": "Può uccidere gli <color=#ff1919>Impostori</color>",
   "CouncillorCanMurderMadmate": "Può uccidere i <color=#ff1919>Follenauti</color>",
-  "CouncillorDead": " non puoi uccidere dai morti."",
+  "CouncillorDead": " non puoi uccidere dai morti.\"",
   "CouncillorMakeEvilJudgeClear": "Mostra processo come omicidio dell\'Assessore",
   "CouncillorMurderMax": "Siamo spiacenti, hai raggiunto la quantità massima di omicidi.",
   "CouncillorMurderMaxMeeting": "Non puoi uccidere più giocatori in questo incontro. Hai raggiunto il limite impostato dall\'host.",
@@ -1824,7 +1824,7 @@
   "EscapistAbilityButtonText": "Teletrasporto",
   "EvilEraser": "Revocatore",
   "EvilEraserInfo": "Cancella il ruolo del bersaglio votato",
-  "EvilEraserInfoLong": "(Impostori): Durante la riunione, il Revocatore può votare un qualsiasi membro dell\'equipaggio come bersaglio. I ruoli dei membri selezionati verranno cancellati al termine della riunione. È importante notare che i giocatori i cui ruoli sono stati revocati saranno sempre considerati come ruoli "vanilla" (senza poteri), inclusa la schermata dei risultati finali.",
+  "EvilEraserInfoLong": "(Impostori): Durante la riunione, il Revocatore può votare un qualsiasi membro dell\'equipaggio come bersaglio. I ruoli dei membri selezionati verranno cancellati al termine della riunione. È importante notare che i giocatori i cui ruoli sono stati revocati saranno sempre considerati come ruoli \"vanilla\" (senza poteri), inclusa la schermata dei risultati finali.",
   "EvilEraserHideVote": "Nascondi I Voti Del <color=#00a5ff>Revocatore</color>",
   "EvilGuesser": "Indovino Malvagio",
   "EvilGuesserInfo": "Indovina ruoli per uccidere nelle riunioni",
@@ -1933,7 +1933,7 @@
   "GodfatherInfoLong": "(Impostori): Come Padrino, voti qualcuno per renderlo il tuo bersaglio. Nel round successivo, se qualcuno uccide quel bersaglio, l\'assassino si trasformerà in un Rinnegato.",
   "Greedy": "Avaro",
   "GreedyInfo": "La tua Ricarica Uccisione cambia",
-  "GreedyInfoLong": "(Impostori): In qualità di Ingordo, il tuo tempo di ricarica (cooldown) dell\'uccisione cambia a seconda che si tratti di un\'uccisione di numero pari o dispari. Hai inoltre un cooldown separato dopo le riunioni. La tua prima uccisione dopo ogni meeting imposterà il tempo di ricarica sul "Cooldown Uccisioni Pari", la seconda sul "Cooldown Uccisioni Dispari", e il processo si ripeterà fino alla riunione successiva.",
+  "GreedyInfoLong": "(Impostori): In qualità di Ingordo, il tuo tempo di ricarica (cooldown) dell\'uccisione cambia a seconda che si tratti di un\'uccisione di numero pari o dispari. Hai inoltre un cooldown separato dopo le riunioni. La tua prima uccisione dopo ogni meeting imposterà il tempo di ricarica sul \"Cooldown Uccisioni Pari\", la seconda sul \"Cooldown Uccisioni Dispari\", e il processo si ripeterà fino alla riunione successiva.",
   "Hangman": "Impiccatore",
   "HangmanInfo": "Uccidi da trasformato per eludere gli scudi",
   "HangmanInfoLong": "(Impostori): L\'Impiccato uccide strangolando le sue vittime mentre è in forma di Mutaforma (shapeshift), ignorando tutte le abilità difensive del bersaglio. Il giocatore strangolato non lascia un cadavere e non attiva alcuna abilità passiva o reattiva, incluse quelle del Veterano, del Fortunato (Lucky) e del Veggente (Seer). Anche gli altri ruoli aggiuntivi subiscono lo stesso effetto.",
@@ -2116,7 +2116,7 @@
   "PsychopathInfoLong": "(Impostori):\\nIn qualità di Psicopatico, non appena il tempo di ricarica dell\'uccisione termina, ucciderai istantaneamente se qualcuno si trova nel tuo raggio d\'azione. C\'è anche la possibilità che tu accoltelli accidentalmente più persone nel raggio d\'azione contemporaneamente!",
   "Puppeteer": "Burattinaio",
   "PuppeteerInfo": "Costringi i giocatori a uccidere per te",
-  "PuppeteerInfoLong": "(Impostori): In qualità di Burattinaio, usa il tuo tasto UCCIDI per manipolare qualcuno. Dopo un certo periodo di tempo, la vittima ucciderà il primo giocatore che le si avvicinerà.\n\nEsistono molte impostazioni per questo ruolo, che ne variano ulteriormente le meccaniche: <size=80%>- Potresti essere in grado di uccidere normalmente cliccando due volte.\n\nLa manipolazione potrebbe terminare dopo un certo tempo, anche se il giocatore manipolato non ha ucciso nessuno.\n\nIl Pigro (Lazy Guy) e/o i giocatori con l\'add-on Lazy potrebbero non essere manipolabili.\n\nIl giocatore manipolato potrebbe persino uccidere altri Impostori o il Burattinaio stesso.\n\nIl numero massimo di volte in cui puoi manipolare qualcuno potrebbe essere limitato.\n\nPotresti morire dopo aver esaurito tutti i tuoi "burattini".\n\nI giocatori manipolati potrebbero morire insieme alla loro vittima.</size>",
+  "PuppeteerInfoLong": "(Impostori): In qualità di Burattinaio, usa il tuo tasto UCCIDI per manipolare qualcuno. Dopo un certo periodo di tempo, la vittima ucciderà il primo giocatore che le si avvicinerà.\n\nEsistono molte impostazioni per questo ruolo, che ne variano ulteriormente le meccaniche: <size=80%>- Potresti essere in grado di uccidere normalmente cliccando due volte.\n\nLa manipolazione potrebbe terminare dopo un certo tempo, anche se il giocatore manipolato non ha ucciso nessuno.\n\nIl Pigro (Lazy Guy) e/o i giocatori con l\'add-on Lazy potrebbero non essere manipolabili.\n\nIl giocatore manipolato potrebbe persino uccidere altri Impostori o il Burattinaio stesso.\n\nIl numero massimo di volte in cui puoi manipolare qualcuno potrebbe essere limitato.\n\nPotresti morire dopo aver esaurito tutti i tuoi \"burattini\".\n\nI giocatori manipolati potrebbero morire insieme alla loro vittima.</size>",
   "PuppeteerCD": "Ricarica Burattino",
   "PuppeteerCanKillNormally": "Può Uccidere Normalmente",
   "PuppeteerDiesAfterMaxPuppets": "Il <color=#ff1919>Burattinaio</color> muore dopo aver esaurito i burattini",
@@ -2315,7 +2315,7 @@
   "WitchSpellCooldown": "Ricarica Incantesimo",
   "YinYanger": "Istigatore",
   "YinYangerInfo": "Fai incontrare 2 giocatori a vicenda per ucciderli!",
-  "YinYangerInfoLong": "(Impostori):\\nCome Istigatore, dopo ogni riunione puoi "istigare" due giocatori. Dopo averli marchiati, puoi continuare a uccidere normalmente.\\nQuando i due giocatori istigati si avvicinano tra loro entrando nel raggio di uccisione, si suicideranno entrambi.",
+  "YinYangerInfoLong": "(Impostori):\\nCome Istigatore, dopo ogni riunione puoi \"istigare\" due giocatori. Dopo averli marchiati, puoi continuare a uccidere normalmente.\\nQuando i due giocatori istigati si avvicinano tra loro entrando nel raggio di uccisione, si suicideranno entrambi.",
   "YinYangCD": "Ricarica Istigazione",
   "YinYangMode": "Istiga",
   "YinYangModeNormal": "Uccidi",
@@ -4897,7 +4897,7 @@
   "Quiz.Questions.Easy.48.Answer.D": "4",
   "Quiz.Questions.Easy.48.Answer.E": "5",
   "Quiz.Questions.Easy.48.CorrectAnswer": "B",
-  "Quiz.Questions.Easy.49": "Cosa significa "www" nell\'URL di un sito web?",
+  "Quiz.Questions.Easy.49": "Cosa significa \"www\" nell\'URL di un sito web?",
   "Quiz.Questions.Easy.49.Answer.A": "Web Wide Web",
   "Quiz.Questions.Easy.49.Answer.B": "World Website Window",
   "Quiz.Questions.Easy.49.Answer.C": "World Wide Web",
@@ -5023,7 +5023,7 @@
   "Quiz.Questions.Easy.66.Answer.D": "Giove",
   "Quiz.Questions.Easy.66.Answer.E": "Saturno",
   "Quiz.Questions.Easy.66.CorrectAnswer": "E",
-  "Quiz.Questions.Easy.67": "Qual è il plurale di "Mouse"?",
+  "Quiz.Questions.Easy.67": "Qual è il plurale di \"Mouse\"?",
   "Quiz.Questions.Easy.67.Answer.A": "Mouses",
   "Quiz.Questions.Easy.67.Answer.B": "Mices",
   "Quiz.Questions.Easy.67.Answer.C": "Mice",
@@ -5352,7 +5352,7 @@
   "Quiz.Questions.Easy.113.Answer.D": "Si rompe",
   "Quiz.Questions.Easy.113.Answer.E": "I galli non depongono uova",
   "Quiz.Questions.Easy.113.CorrectAnswer": "E",
-  "Quiz.Questions.Easy.114": "Qual è corretta: "Il tuorlo dell\'uovo sono bianchi" o "Il tuorlo dell\'uovo è bianco"?",
+  "Quiz.Questions.Easy.114": "Qual è corretta: \"Il tuorlo dell\'uovo sono bianchi\" o \"Il tuorlo dell\'uovo è bianco\"?",
   "Quiz.Questions.Easy.114.Answer.A": "Sono bianchi",
   "Quiz.Questions.Easy.114.Answer.B": "È bianco",
   "Quiz.Questions.Easy.114.Answer.C": "Nessuno dei due",
@@ -5499,7 +5499,7 @@
   "Quiz.Questions.Easy.134.Answer.D": "4",
   "Quiz.Questions.Easy.134.Answer.E": "5",
   "Quiz.Questions.Easy.134.CorrectAnswer": "B",
-  "Quiz.Questions.Easy.135": "In quanti modi diversi puoi disporre le lettere della parola "MATH"?",
+  "Quiz.Questions.Easy.135": "In quanti modi diversi puoi disporre le lettere della parola \"MATH\"?",
   "Quiz.Questions.Easy.135.Answer.A": "12",
   "Quiz.Questions.Easy.135.Answer.B": "16",
   "Quiz.Questions.Easy.135.Answer.C": "24",
@@ -5576,7 +5576,7 @@
   "Quiz.Questions.Easy.145.Answer.D": "5/9",
   "Quiz.Questions.Easy.145.Answer.E": "3/10",
   "Quiz.Questions.Easy.145.CorrectAnswer": "B",
-  "Quiz.Questions.Easy.146": "In quanti modi diversi puoi disporre le lettere della parola "LEVEL"?",
+  "Quiz.Questions.Easy.146": "In quanti modi diversi puoi disporre le lettere della parola \"LEVEL\"?",
   "Quiz.Questions.Easy.146.Answer.A": "60",
   "Quiz.Questions.Easy.146.Answer.B": "30",
   "Quiz.Questions.Easy.146.Answer.C": "120",
@@ -5954,7 +5954,7 @@
   "Quiz.Questions.Easy.199.Answer.D": "18",
   "Quiz.Questions.Easy.199.Answer.E": "16",
   "Quiz.Questions.Easy.199.CorrectAnswer": "B",
-  "Quiz.Questions.Easy.200": "Chi ha scritto "Romeo e Giulietta"?",
+  "Quiz.Questions.Easy.200": "Chi ha scritto \"Romeo e Giulietta\"?",
   "Quiz.Questions.Easy.200.Answer.A": "Charles Dickens",
   "Quiz.Questions.Easy.200.Answer.B": "Leo Tolstoy",
   "Quiz.Questions.Easy.200.Answer.C": "William Shakespeare",
@@ -6318,7 +6318,7 @@
   "Quiz.Questions.Medium.28.Answer.D": "4",
   "Quiz.Questions.Medium.28.Answer.E": "6",
   "Quiz.Questions.Medium.28.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.29": "Cosa significa la parola "Magyar"?",
+  "Quiz.Questions.Medium.29": "Cosa significa la parola \"Magyar\"?",
   "Quiz.Questions.Medium.29.Answer.A": "Orientale",
   "Quiz.Questions.Medium.29.Answer.B": "Ungherese",
   "Quiz.Questions.Medium.29.Answer.C": "Uomo di montagna",
@@ -6360,7 +6360,7 @@
   "Quiz.Questions.Medium.34.Answer.D": "Rosso",
   "Quiz.Questions.Medium.34.Answer.E": "Blu",
   "Quiz.Questions.Medium.34.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.35": "Quale parte della tua lingua ha un sapore "dolce"?",
+  "Quiz.Questions.Medium.35": "Quale parte della tua lingua ha un sapore \"dolce\"?",
   "Quiz.Questions.Medium.35.Answer.A": "Punta",
   "Quiz.Questions.Medium.35.Answer.B": "Retro",
   "Quiz.Questions.Medium.35.Answer.C": "Lati",
@@ -6738,7 +6738,7 @@
   "Quiz.Questions.Medium.88.Answer.D": "4.73",
   "Quiz.Questions.Medium.88.Answer.E": "1.18",
   "Quiz.Questions.Medium.88.CorrectAnswer": "B",
-  "Quiz.Questions.Medium.89": "Quale dei seguenti artisti dipinse "La Notte Stellata"?",
+  "Quiz.Questions.Medium.89": "Quale dei seguenti artisti dipinse \"La Notte Stellata\"?",
   "Quiz.Questions.Medium.89.Answer.A": "Pablo Picasso",
   "Quiz.Questions.Medium.89.Answer.B": "Claude Monet",
   "Quiz.Questions.Medium.89.Answer.C": "Vincent van Gogh",
@@ -6927,7 +6927,7 @@
   "Quiz.Questions.Medium.115.Answer.D": "Olmo",
   "Quiz.Questions.Medium.115.Answer.E": "Quercia",
   "Quiz.Questions.Medium.115.CorrectAnswer": "E",
-  "Quiz.Questions.Medium.116": "Che cosa significa "PDF" in un nome di file?",
+  "Quiz.Questions.Medium.116": "Che cosa significa \"PDF\" in un nome di file?",
   "Quiz.Questions.Medium.116.Answer.A": "Printable Data File",
   "Quiz.Questions.Medium.116.Answer.B": "Public Document Format",
   "Quiz.Questions.Medium.116.Answer.C": "Page Design File",
@@ -6941,7 +6941,7 @@
   "Quiz.Questions.Medium.117.Answer.D": "Sputnik 1",
   "Quiz.Questions.Medium.117.Answer.E": "Soyuz",
   "Quiz.Questions.Medium.117.CorrectAnswer": "B",
-  "Quiz.Questions.Medium.118": "Cosa significa "CE" in date come "500 CE"?",
+  "Quiz.Questions.Medium.118": "Cosa significa \"CE\" in date come \"500 CE\"?",
   "Quiz.Questions.Medium.118.Answer.A": "Epoca Civile",
   "Quiz.Questions.Medium.118.Answer.B": "Era Cristiana",
   "Quiz.Questions.Medium.118.Answer.C": "Epoca Centrale",
@@ -6976,7 +6976,7 @@
   "Quiz.Questions.Medium.122.Answer.D": "Meteo",
   "Quiz.Questions.Medium.122.Answer.E": "Terremoti",
   "Quiz.Questions.Medium.122.CorrectAnswer": "E",
-  "Quiz.Questions.Medium.123": "Quale elemento chimico è rappresentato dal simbolo "K"?",
+  "Quiz.Questions.Medium.123": "Quale elemento chimico è rappresentato dal simbolo \"K\"?",
   "Quiz.Questions.Medium.123.Answer.A": "Kripton",
   "Quiz.Questions.Medium.123.Answer.B": "Zinco",
   "Quiz.Questions.Medium.123.Answer.C": "Calcio",
@@ -7151,7 +7151,7 @@
   "Quiz.Questions.Hard.24.Answer.D": "Fregata",
   "Quiz.Questions.Hard.24.Answer.E": "Gabbiano",
   "Quiz.Questions.Hard.24.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.25": "Che tipo di creatura è una "cobia"?",
+  "Quiz.Questions.Hard.25": "Che tipo di creatura è una \"cobia\"?",
   "Quiz.Questions.Hard.25.Answer.A": "Serpente",
   "Quiz.Questions.Hard.25.Answer.B": "Pesce",
   "Quiz.Questions.Hard.25.Answer.C": "Insetto",
@@ -7221,7 +7221,7 @@
   "Quiz.Questions.Hard.34.Answer.D": "Cannella",
   "Quiz.Questions.Hard.34.Answer.E": "Chiodi di garofano",
   "Quiz.Questions.Hard.34.CorrectAnswer": "B",
-  "Quiz.Questions.Hard.35": "Cosa significa la parola "lego" in danese?",
+  "Quiz.Questions.Hard.35": "Cosa significa la parola \"lego\" in danese?",
   "Quiz.Questions.Hard.35.Answer.A": "Pila",
   "Quiz.Questions.Hard.35.Answer.B": "Costruisci",
   "Quiz.Questions.Hard.35.Answer.C": "Gioca bene",
@@ -7242,7 +7242,7 @@
   "Quiz.Questions.Hard.37.Answer.D": "Giove",
   "Quiz.Questions.Hard.37.Answer.E": "Terra",
   "Quiz.Questions.Hard.37.CorrectAnswer": "B",
-  "Quiz.Questions.Hard.38": "Cosa significa la parola "karaoke" in giapponese?",
+  "Quiz.Questions.Hard.38": "Cosa significa la parola \"karaoke\" in giapponese?",
   "Quiz.Questions.Hard.38.Answer.A": "Voce silente",
   "Quiz.Questions.Hard.38.Answer.B": "Canta da solo",
   "Quiz.Questions.Hard.38.Answer.C": "Orchestra vuota",
@@ -7284,7 +7284,7 @@
   "Quiz.Questions.Hard.43.Answer.D": "Yo-Yo",
   "Quiz.Questions.Hard.43.Answer.E": "Cubo di Rubik",
   "Quiz.Questions.Hard.43.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.44": "Quale frutto una volta veniva chiamato una "mela d\'amore"?",
+  "Quiz.Questions.Hard.44": "Quale frutto una volta veniva chiamato una \"mela d\'amore\"?",
   "Quiz.Questions.Hard.44.Answer.A": "Fragola",
   "Quiz.Questions.Hard.44.Answer.B": "Pomodoro",
   "Quiz.Questions.Hard.44.Answer.C": "Melograno",
@@ -7340,7 +7340,7 @@
   "Quiz.Questions.Hard.51.Answer.D": "DELETE",
   "Quiz.Questions.Hard.51.Answer.E": "SELECT",
   "Quiz.Questions.Hard.51.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.52": "Qual è il nome del punto sopra una minuscola "i" o "j"?",
+  "Quiz.Questions.Hard.52": "Qual è il nome del punto sopra una minuscola \"i\" o \"j\"?",
   "Quiz.Questions.Hard.52.Answer.A": "Blip",
   "Quiz.Questions.Hard.52.Answer.B": "Tratto",
   "Quiz.Questions.Hard.52.Answer.C": "Morsetto",
@@ -7501,7 +7501,7 @@
   "Quiz.Questions.Hard.74.Answer.D": "Notonetta",
   "Quiz.Questions.Hard.74.Answer.E": "Iena",
   "Quiz.Questions.Hard.74.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.75": "Quale città europea ha un edificio coperto di piante viventi chiamato "Bosco Verticale"?",
+  "Quiz.Questions.Hard.75": "Quale città europea ha un edificio coperto di piante viventi chiamato \"Bosco Verticale\"?",
   "Quiz.Questions.Hard.75.Answer.A": "Parigi",
   "Quiz.Questions.Hard.75.Answer.B": "Milano",
   "Quiz.Questions.Hard.75.Answer.C": "Amsterdam",
@@ -7592,7 +7592,7 @@
   "Quiz.Questions.Hard.87.Answer.D": "12",
   "Quiz.Questions.Hard.87.Answer.E": "14",
   "Quiz.Questions.Hard.87.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.88": "Cosa significa "piano" in italiano?",
+  "Quiz.Questions.Hard.88": "Cosa significa \"piano\" in italiano?",
   "Quiz.Questions.Hard.88.Answer.A": "Liscio",
   "Quiz.Questions.Hard.88.Answer.B": "Leggero",
   "Quiz.Questions.Hard.88.Answer.C": "Tranquillo",
@@ -7655,7 +7655,7 @@
   "Quiz.Questions.Hard.96.Answer.D": "sqrt(a<sup>2</sup>+b<sup>2</sup>)e<sup>iarctan(b/a)</sup>",
   "Quiz.Questions.Hard.96.Answer.E": "sqrt(a<sup>2</sup>-b<sup>2</sup>)e<sup>iarcsin(a/b)</sup>",
   "Quiz.Questions.Hard.96.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.97": "Cosa significa letteralmente "tsunami" in giapponese?",
+  "Quiz.Questions.Hard.97": "Cosa significa letteralmente \"tsunami\" in giapponese?",
   "Quiz.Questions.Hard.97.Answer.A": "Grande onda",
   "Quiz.Questions.Hard.97.Answer.B": "Acqua gigante",
   "Quiz.Questions.Hard.97.Answer.C": "Maremoto",
@@ -7683,7 +7683,7 @@
   "Quiz.Questions.Hard.100.Answer.D": "Omicidio",
   "Quiz.Questions.Hard.100.Answer.E": "Stormo",
   "Quiz.Questions.Hard.100.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.101": "Cosa significa letteralmente "sushi" in giapponese?",
+  "Quiz.Questions.Hard.101": "Cosa significa letteralmente \"sushi\" in giapponese?",
   "Quiz.Questions.Hard.101.Answer.A": "Pesce crudo",
   "Quiz.Questions.Hard.101.Answer.B": "Piatto di frutti di mare",
   "Quiz.Questions.Hard.101.Answer.C": "Alga marina arrotolata",
@@ -7788,7 +7788,7 @@
   "Quiz.Questions.Hard.115.Answer.D": "Polso",
   "Quiz.Questions.Hard.115.Answer.E": "Clavicola",
   "Quiz.Questions.Hard.115.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.116": "Quale creatura è conosciuta come "fossile vivente"?",
+  "Quiz.Questions.Hard.116": "Quale creatura è conosciuta come \"fossile vivente\"?",
   "Quiz.Questions.Hard.116.Answer.A": "Celacanto",
   "Quiz.Questions.Hard.116.Answer.B": "Calamaro",
   "Quiz.Questions.Hard.116.Answer.C": "Ornitorinco",
@@ -7816,7 +7816,7 @@
   "Quiz.Questions.Hard.119.Answer.D": "Ariete",
   "Quiz.Questions.Hard.119.Answer.E": "Antilope",
   "Quiz.Questions.Hard.119.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.120": "Cosa significa letteralmente la parola "emoji" in giapponese?",
+  "Quiz.Questions.Hard.120": "Cosa significa letteralmente la parola \"emoji\" in giapponese?",
   "Quiz.Questions.Hard.120.Answer.A": "Piccola faccia",
   "Quiz.Questions.Hard.120.Answer.B": "Lettera iconica",
   "Quiz.Questions.Hard.120.Answer.C": "Marchio felice",
@@ -7830,7 +7830,7 @@
   "Quiz.Questions.Hard.121.Answer.D": "9",
   "Quiz.Questions.Hard.121.Answer.E": "Dipende dalla temperatura",
   "Quiz.Questions.Hard.121.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.122": "Cosa significa l\'acronimo "SIM" nella scheda SIM?",
+  "Quiz.Questions.Hard.122": "Cosa significa l\'acronimo \"SIM\" nella scheda SIM?",
   "Quiz.Questions.Hard.122.Answer.A": "Simple Internal Memory",
   "Quiz.Questions.Hard.122.Answer.B": "Signal Input Mechanism",
   "Quiz.Questions.Hard.122.Answer.C": "Secure Information Management",
@@ -7844,7 +7844,7 @@
   "Quiz.Questions.Hard.123.Answer.D": "Scisto",
   "Quiz.Questions.Hard.123.Answer.E": "Basalto",
   "Quiz.Questions.Hard.123.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.124": "Cosa significa la parola "origami" in giapponese?",
+  "Quiz.Questions.Hard.124": "Cosa significa la parola \"origami\" in giapponese?",
   "Quiz.Questions.Hard.124.Answer.A": "Piegatura leggera",
   "Quiz.Questions.Hard.124.Answer.B": "Arte della carta",
   "Quiz.Questions.Hard.124.Answer.C": "Forma a getto",
@@ -7872,7 +7872,7 @@
   "Quiz.Questions.Hard.127.Answer.D": "Anacardio",
   "Quiz.Questions.Hard.127.Answer.E": "Mandorla",
   "Quiz.Questions.Hard.127.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.128": "Qual è il termine scientifico per la tua "scatola vocale"?",
+  "Quiz.Questions.Hard.128": "Qual è il termine scientifico per la tua \"scatola vocale\"?",
   "Quiz.Questions.Hard.128.Answer.A": "Trachea",
   "Quiz.Questions.Hard.128.Answer.B": "Mandibola",
   "Quiz.Questions.Hard.128.Answer.C": "Bronco",
@@ -8002,7 +8002,7 @@
   // SoloPVP
   "SoloPVP": "SOLO PVP",
   "ModeSoloPVP": "Modalità Di Gioco: Solo PVP",
-  "ModeDescribe.SoloPVP": "Nella modalità Solo PVP, tutti hanno degli HP e possono usare il tasto Kill per infliggere danni agli altri giocatori. Quando la salute di un giocatore arriva a 0, quest\'ultimo "muore" e riappare dopo pochi secondi. Il giocatore (o i giocatori) con il maggior numero di uccisioni vince alla fine della partita.",
+  "ModeDescribe.SoloPVP": "Nella modalità Solo PVP, tutti hanno degli HP e possono usare il tasto Kill per infliggere danni agli altri giocatori. Quando la salute di un giocatore arriva a 0, quest\'ultimo \"muore\" e riappare dopo pochi secondi. Il giocatore (o i giocatori) con il maggior numero di uccisioni vince alla fine della partita.",
   "GameModeTutorial.SoloPVP": "<size=90%>La modalità di gioco attuale è <#f55252>Solo PVP</color>.</size>\\n<size=80%>Usa il tuo tasto kill per danneggiare gli altri. Se gli HP di qualcuno scendono sotto lo 0,\\nverrà teletrasportato fuori dalla mappa per un po\' di tempo, per poi rientrare.\\nQuando uccidi qualcuno, ottieni un piccolo buff e 1 punto.\\nLa persona con più punti allo scadere del tempo vince!</size>",
   "PVP.ATK": "Attacca",
   "PVP.DF": "Difendi",
@@ -8212,7 +8212,7 @@
   "ApplyModeratorList": "Applica Lista Moderatori",
   "ApplyVIPList": "Applica Lista VIP",
   "AprilFoolsMode": "Modalità Pesce d\'Aprile",
-  "AutoKickStart": "Espelli giocatori che dicono "Start"",
+  "AutoKickStart": "Espelli giocatori che dicono \"Start\"",
   "AutoKickStartAsBan": "Blocca giocatore dopo l\'espulsione",
   "AutoKickStartTimes": "Numero di avvertimenti prima dell\'espulsione",
   "AutoKickStopWords": "Espelli giocatori che scrivono parole proibite",
@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "Tempo della Riunione quando Nessuno è Morto",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} ha indovinato l\'anagramma correttamente (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Ritardo massimo di visualizzazione freccia",
   "ArrowDelayMin": "Ritardo Minimo di visualizzazione Freccia",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "Può Vincere tramite Suicidio",
   "CantGuessJailed": "Non puoi indovinare il bersaglio",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "Non può apparire come unico impostore",
   "CannotStoneGazeWhenKCDIsntUp": "Non può pietrificare i corpi quando il tempo di ricarica dell\'uccisione non è pronto",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "Quando viene trovato un giocatore che usa trucchi",
-
 
   /* ==============================
     Combos           
@@ -9115,7 +9108,7 @@
   "CommandForms.XOR": "xor",
   // Command Access
   "CommandList": "★ Elenco dei comandi:",
-  "Commands.ChangeSettingHelp": "<b><u>Argomenti:</u></b><size=70%>\\n-map(theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n-impostori(numero)\\n-giocatori(numero)\\n-raccomandato(on/off)\\n-confermaespulsioni(on/off)\\n-riunioniemergenza(numero)\\n-votianonimi(on/off)\\n-cooldownemergenza(numero)\\n-tempodiscussione(numero)\\n-tempovotazione(numero)\\n-velocitàgiocatori(float)\\n-visioneastronauti(float)\\n-visioneimpostori(float)\\n-cooldownuccisione(float)\\n-distanzauccisione(corta/media/lunga/custom)\\n-aggiornamentobarratask(sempre/riunioni/mai)\\n-taskvisuali(on/off)\\n-taskcomuni(numero)\\n-tasklunghe(numero)\\n-taskcorte(numero)\\n-contoscenziati(numero)\\n-probabilitàscienziati(numero)\\n-cooldownvisualizzazionevitali(float)\\n-duratabatteria(float)\\n-contoingegneri(numero)\\n-probabilitàingegneri(numero)\\n-cooldownusoareazione(float)\\n-tempmassimoinaireazione(float)\\n-contoguerrieriangeli(numero)\\n-probabilitàguerrieriangeli(numero)\\n-cooldownprotezione(float)\\n-durataprotezione(float)\\n-protezionevisibileagliimpostori(on/off)\\n-contomutaforma(numero)\\n-probabilitàmutaforma(numero)\\n-duratamutaforma(float)\\n-cooldownmutaforma(float)\\n-lasciarevidenzamutaforma(on/off)\\n-contospettri(numero)\\n-probabilitàspettri(numero)\\n-cooldowninvisibilità(float)\\n-duratainvisibilità(float)\\n-contorumoristi(numero)\\n-probabilitàrumoristi(numero)\\n-allertaimpostorerumorista(on/off)\\n-durataallertarumorista(numero)\\n-contotracciatori(numero)\\n-probabilitàtracciatori(numero)\\n-duratatraccia(float)\\n-cooldowntraccia(float)\\n-ritardotraccia(float)\\n-fantasmifannotask(on/off)\\n\\n<u><b>Note:</b></u>\\n1.MaIUSC_e_mInUsC_contano\\n2.Dove_c\'è_scritto_custom,ovviamente_metti_un_argomento_numerico_dopo_di_esso\\n3.Un_float_è_un_numero_decimale_a_precisione_singola,come_1.7\\n4."fantasmifannotask"_causa_problemi_se_lo_imposti\\n5.Esempi_di_utilizzo:\\n-"/cs map polus"\\n-"/cs killdistance custom 4"\\n-"/cs trackdelay 1,7"\\n-"/cs confirmejects on"",
+  "Commands.ChangeSettingHelp": "<b><u>Argomenti:</u></b><size=70%>\\n-map(theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n-impostori(numero)\\n-giocatori(numero)\\n-raccomandato(on/off)\\n-confermaespulsioni(on/off)\\n-riunioniemergenza(numero)\\n-votianonimi(on/off)\\n-cooldownemergenza(numero)\\n-tempodiscussione(numero)\\n-tempovotazione(numero)\\n-velocitàgiocatori(float)\\n-visioneastronauti(float)\\n-visioneimpostori(float)\\n-cooldownuccisione(float)\\n-distanzauccisione(corta/media/lunga/custom)\\n-aggiornamentobarratask(sempre/riunioni/mai)\\n-taskvisuali(on/off)\\n-taskcomuni(numero)\\n-tasklunghe(numero)\\n-taskcorte(numero)\\n-contoscenziati(numero)\\n-probabilitàscienziati(numero)\\n-cooldownvisualizzazionevitali(float)\\n-duratabatteria(float)\\n-contoingegneri(numero)\\n-probabilitàingegneri(numero)\\n-cooldownusoareazione(float)\\n-tempmassimoinaireazione(float)\\n-contoguerrieriangeli(numero)\\n-probabilitàguerrieriangeli(numero)\\n-cooldownprotezione(float)\\n-durataprotezione(float)\\n-protezionevisibileagliimpostori(on/off)\\n-contomutaforma(numero)\\n-probabilitàmutaforma(numero)\\n-duratamutaforma(float)\\n-cooldownmutaforma(float)\\n-lasciarevidenzamutaforma(on/off)\\n-contospettri(numero)\\n-probabilitàspettri(numero)\\n-cooldowninvisibilità(float)\\n-duratainvisibilità(float)\\n-contorumoristi(numero)\\n-probabilitàrumoristi(numero)\\n-allertaimpostorerumorista(on/off)\\n-durataallertarumorista(numero)\\n-contotracciatori(numero)\\n-probabilitàtracciatori(numero)\\n-duratatraccia(float)\\n-cooldowntraccia(float)\\n-ritardotraccia(float)\\n-fantasmifannotask(on/off)\\n\\n<u><b>Note:</b></u>\\n1.MaIUSC_e_mInUsC_contano\\n2.Dove_c\'è_scritto_custom,ovviamente_metti_un_argomento_numerico_dopo_di_esso\\n3.Un_float_è_un_numero_decimale_a_precisione_singola,come_1.7\\n4.\"fantasmifannotask\"_causa_problemi_se_lo_imposti\\n5.Esempi_di_utilizzo:\\n-\"/cs map polus\"\\n-\"/cs killdistance custom 4\"\\n-\"/cs trackdelay 1,7\"\\n-\"/cs confirmejects on\"",
   "Commands.NoAccess.Level.Host": "<#ff5555>X <#bb0000>Questo comando può essere usato solo da <#ffffff>Host",
   "Commands.NoAccess.Level.HostOrAdmin": "<#ff5555>X <#bb0000>Questo comando può essere utilizzato solo da <#ffffff>Host e Amministratori",
   "Commands.NoAccess.Level.HostOrModerator": "<#ff5555>X <#bb0000>Questo comando può essere utilizzato solo da <#ffffff>Host, Moderatori, Amministratori",
@@ -9278,8 +9271,6 @@
   "DCanGuessImpostors": "Può Indovinare gli <color=#ff1919>Impostori</color>",
   "DCanGuessNeutrals": "Puoi uccidere i <color=#ffab1b>Neutrali</color>",
   "DGRM.OnMeeting": "Nelle Riunioni",
-
-
 
   /* ==============================
   Cooldowns and Timers           
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "Per favore, fai i tuoi compiti!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>Questo condotto è bloccato dal Guardacondotti</color>",
   "EraseLimit": "Massimo Cancellazioni",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Resetta il Cooldown della Prima Uccisione",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "Durata Velocità Aumentata",
   "IncreasedVisionDuration": "Durata Visione Aumentata",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "Il comando di espulsione è attualmente disabilitato.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Espelli giocatore il cui livello è inferiore a",
   "KickNintendoPlayer": "<b>{0}</b> è stato espulso perchè gioca da Nintendo Switch.",
   "KickNotJoinedPlayersRegularly": "Espelli i giocatori che non sono entrati in gioco ogni 25s nella lobby.",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10045,7 +10029,7 @@
   "LoadingHint.11": "Lo sapevi?\nPuoi impostare il tuo ruolo/add-on per la prossima partita usando /setrole e /setaddon come host!",
   "LoadingHint.12": "Confuso sulla tua morte? Non sai chi ti ha ucciso?\nUsa /death o /d dopo la tua morte!",
   "LoadingHint.13": "Lo sapevi?\nPuoi usare /poll per porre una domanda ai tuoi giocatori e lasciarli votare!",
-  "LoadingHint.14": "Ti annoi ad aspettare in lobby o dopo essere morto presto?\nUsa /gno per giocare a un semplice minigioco "Indovina il Numero" per far passare il tempo!",
+  "LoadingHint.14": "Ti annoi ad aspettare in lobby o dopo essere morto presto?\nUsa /gno per giocare a un semplice minigioco \"Indovina il Numero\" per far passare il tempo!",
   "LoadingHint.15": "Schermata nera dopo una riunione?\nProva a premere CTRL + SHIFT + X per correggerla!",
   "LoadingHint.16": "Non sai cosa fa il tuo ruolo o add-on?\nPremi F1 invece di digitare i comandi!",
   "LoadingHint.17": "Lo sapevi?\nPuoi abilitare/disabilitare rapidamente i ruoli digitando /os {percentage} {role}!\n(Questo imposterà la possibilità di generare il ruolo alla percentuale specificata)",
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Aggiusta il lag",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>Sei silenziato e non puoi inviare messaggi. Il silenziamento scadrà in <#ff00>{0}</color> secondi.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "Goditi il caos!",
   "GMInfoLong": "(Altro):\\nLo Spettatore è un ruolo da osservatore. La sua presenza non influisce sul gioco; tutti i giocatori sanno chi è lo Spettatore. Il ruolo di Spettatore verrà assegnato all\'Host/Spettatori, che diventeranno automaticamente fantasmi all\'inizio della partita.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "Le impostazioni EHR sono state ripristinate al valore predefinito",
   "RevealMaxCount": "Rivelazioni Massime",
   "RitualMaxCount": "Rivelazioni Massime",
-
 
   /* ==============================
     Sabotage Settings           

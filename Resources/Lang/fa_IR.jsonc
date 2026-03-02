@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "زمان جلسه وقتی کسی نمرده است",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} has guessed the anagram correctly (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "حداکثر تأخیر در نمایش پیکان",
   "ArrowDelayMin": "حداقل تأخیر در نمایش پیکان",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "می‌تواند با خودکشی (Suicide) برنده شود",
   "CantGuessJailed": "You can not guess the target",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "Cannot Spawn as Solo Impostor",
   "CannotStoneGazeWhenKCDIsntUp": "Cannot Stone Gaze Bodies When Kill Cooldown Isn't Up",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "وقتی یک بازیکن متقلب پیدا می‌شود",
-
 
   /* ==============================
     Combos           
@@ -9115,7 +9108,7 @@
   "CommandForms.XOR": "xor",
   // Command Access
   "CommandList": "★ Command list:",
-  "Commands.ChangeSettingHelp": "<b><u>آرگومان‌ها:</u></b><size=70%>\\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n- impostors (عدد)\\n- players (عدد)\\n- recommended (on/off)\\n- confirmejects (on/off)\\n- emergencymeetings (عدد)\\n- anonymousvotes (on/off)\\n- emergencycooldown (عدد)\\n- discussiontime (عدد)\\n- votingtime (عدد)\\n- playerspeed (عدد اعشاری)\\n- crewmatevision (عدد اعشاری)\\n- impostorvision (عدد اعشاری)\\n- killcooldown (عدد اعشاری)\\n- killdistance (short/medium/long/custom)\\n- taskbarupdates (always/meetings/never)\\n- visualtasks (on/off)\\n- commontasks (عدد)\\n- longtasks (عدد)\\n- shorttasks (عدد)\\n- scientistcount (عدد)\\n- scientistchance (عدد)\\n- vitalsdisplaycooldown (عدد اعشاری)\\n- batteryduration (عدد اعشاری)\\n- engineercount (عدد)\\n- engineerchance (عدد)\\n- ventusecooldown (عدد اعشاری)\\n- maxtimeinvents (عدد اعشاری)\\n- guardianangelcount (عدد)\\n- guardianangelchance (عدد)\\n- protectcooldown (عدد اعشاری)\\n- protectduration (عدد اعشاری)\\n- protectvisibletoimpostors (on/off)\\n- shapeshiftercount (عدد)\\n- shapeshifterchance (عدد)\\n- shapeshiftduration (عدد اعشاری)\\n- shapeshiftcooldown (عدد اعشاری)\\n- leaveshapeshiftevidence (on/off)\\n- phantomcount (عدد)\\n- phantomchance (عدد)\\n- inviscooldown (عدد اعشاری)\\n- invisduration (عدد اعشاری)\\n- noisemakercount (عدد)\\n- noisemakerchance (عدد)\\n- noisemakerimpostoralert (on/off)\\n- noisemakeralertduration (عدد)\\n- trackercount (عدد)\\n- trackerchance (عدد)\\n- trackduration (عدد اعشاری)\\n- trackcooldown (عدد اعشاری)\\n- trackdelay (عدد اعشاری)\\n- ghostdotasks (on/off)\\n\\n<u><b>نکات:</b></u>\\n1. بزرگی و کوچکی حروف مهم است\\n2. هر جا که نوشته شده custom، شما باید به وضوح یک آرگومان عددی بعد از آن قرار دهید\\n3. یک float یک عدد اعشاری با دقت واحد است، مانند 1.7\\n4. اگر "ghostdotasks" را تنظیم کنید، باعث ایجاد مشکل می‌شود\\n5. مثال‌های استفاده:\\n   - "/cs map polus"\\n   - "/cs killdistance custom 4"\\n   - "/cs trackdelay 1,7"\\n   - "/cs confirmejects on"",
+  "Commands.ChangeSettingHelp": "<b><u>آرگومان‌ها:</u></b><size=70%>\\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n- impostors (عدد)\\n- players (عدد)\\n- recommended (on/off)\\n- confirmejects (on/off)\\n- emergencymeetings (عدد)\\n- anonymousvotes (on/off)\\n- emergencycooldown (عدد)\\n- discussiontime (عدد)\\n- votingtime (عدد)\\n- playerspeed (عدد اعشاری)\\n- crewmatevision (عدد اعشاری)\\n- impostorvision (عدد اعشاری)\\n- killcooldown (عدد اعشاری)\\n- killdistance (short/medium/long/custom)\\n- taskbarupdates (always/meetings/never)\\n- visualtasks (on/off)\\n- commontasks (عدد)\\n- longtasks (عدد)\\n- shorttasks (عدد)\\n- scientistcount (عدد)\\n- scientistchance (عدد)\\n- vitalsdisplaycooldown (عدد اعشاری)\\n- batteryduration (عدد اعشاری)\\n- engineercount (عدد)\\n- engineerchance (عدد)\\n- ventusecooldown (عدد اعشاری)\\n- maxtimeinvents (عدد اعشاری)\\n- guardianangelcount (عدد)\\n- guardianangelchance (عدد)\\n- protectcooldown (عدد اعشاری)\\n- protectduration (عدد اعشاری)\\n- protectvisibletoimpostors (on/off)\\n- shapeshiftercount (عدد)\\n- shapeshifterchance (عدد)\\n- shapeshiftduration (عدد اعشاری)\\n- shapeshiftcooldown (عدد اعشاری)\\n- leaveshapeshiftevidence (on/off)\\n- phantomcount (عدد)\\n- phantomchance (عدد)\\n- inviscooldown (عدد اعشاری)\\n- invisduration (عدد اعشاری)\\n- noisemakercount (عدد)\\n- noisemakerchance (عدد)\\n- noisemakerimpostoralert (on/off)\\n- noisemakeralertduration (عدد)\\n- trackercount (عدد)\\n- trackerchance (عدد)\\n- trackduration (عدد اعشاری)\\n- trackcooldown (عدد اعشاری)\\n- trackdelay (عدد اعشاری)\\n- ghostdotasks (on/off)\\n\\n<u><b>نکات:</b></u>\\n1. بزرگی و کوچکی حروف مهم است\\n2. هر جا که نوشته شده custom، شما باید به وضوح یک آرگومان عددی بعد از آن قرار دهید\\n3. یک float یک عدد اعشاری با دقت واحد است، مانند 1.7\\n4. اگر \"ghostdotasks\" را تنظیم کنید، باعث ایجاد مشکل می‌شود\\n5. مثال‌های استفاده:\\n   - \"/cs map polus\"\\n   - \"/cs killdistance custom 4\"\\n   - \"/cs trackdelay 1,7\"\\n   - \"/cs confirmejects on\"",
   "Commands.NoAccess.Level.Host": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host",
   "Commands.NoAccess.Level.HostOrAdmin": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host & Admins",
   "Commands.NoAccess.Level.HostOrModerator": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host & Moderators",
@@ -9278,8 +9271,6 @@
   "DCanGuessImpostors": "Can Guess <color=#ff1919>Impostors</color>",
   "DCanGuessNeutrals": "Can Guess <color=#ffab1b>Neutrals</color>",
   "DGRM.OnMeeting": "On Meeting",
-
-
 
   /* ==============================
   Cooldowns and Timers           
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "Please do your tasks!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>This vent is blocked by the Ventguard</color>",
   "EraseLimit": "Max Erases",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "ریست کردن کول‌داون اولین کیل",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "مدت زمانِ سرعت افزایش‌یافته",
   "IncreasedVisionDuration": "مدت زمانِ دید افزایش‌یافته",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "The kick command is currently disabled.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "کیک کردن بازیکنانی که سطحشان پایین‌تر است از",
   "KickNintendoPlayer": "<b>{0}</b> was kicked due to playing on Nintendo Switch.",
   "KickNotJoinedPlayersRegularly": "کیک کردن بازیکنانی که هنوز به بازی نپیوسته‌اند، هر 25 ثانیه در لابی",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Fix Lag",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>You're muted and cannot send messages. The mute will expire in <#ffff00>{0}</color> seconds.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "هرج و مرج را تماشا کن!",
   "GMInfoLong": "(هیچ‌کدام):\\nگیم مستر (The Game Master) یک نقش ناظر است. حضور آن‌ها تأثیری بر بازی ندارد؛ تمام بازیکنان می‌دانند چه کسی گیم مستر (Game Master) است. نقش گیم مستر (Game Master) به هاست اختصاص داده می‌شود، که به طور خودکار در شروع بازی به یک روح (ghost) تبدیل می‌شود.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "EHR settings have been restored to default",
   "RevealMaxCount": "Maximum Reveals",
   "RitualMaxCount": "Maximum Reveals",
-
 
   /* ==============================
     Sabotage Settings           
