@@ -1,8 +1,6 @@
 ﻿using System;
 using AmongUs.GameOptions;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Roles;
 using HarmonyLib;
 
 namespace EHR.Modules;

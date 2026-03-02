@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using InnerNet;
 using UnityEngine;
@@ -41,7 +42,7 @@ public static class LobbySharingAPI
     private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode, string hostHashedPuid)
     {
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\",\"hostHashedPuid\":\"{hostHashedPuid}\"}}";
@@ -54,7 +55,7 @@ public static class LobbySharingAPI
         };
 
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {hostName}");
+        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;
@@ -108,7 +109,7 @@ public static class LobbySharingAPI
         if (string.IsNullOrWhiteSpace(Token)) yield break;
 
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
-        if (timeSinceLastRequest < BufferTime) yield return new WaitForSeconds(BufferTime);
+        if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
@@ -149,12 +150,13 @@ public enum LobbyStatus
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
 internal static class ExitGamePatch
 {
-    public static void Prefix(InnerNetClient __instance)
+    public static void Prefix(InnerNetClient __instance, DisconnectReasons reason)
     {
         if (__instance is not AmongUsClient) return;
         
-        Logger.Msg("Exiting game", "ExitGamePatch.Prefix");
-        
+        Logger.Msg($"Exiting game - reason: {reason}", "ExitGamePatch.Prefix");
+
+        GameStates.InGame = false;
         Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
         
         if (SetUpRoleTextPatch.IsInIntro)

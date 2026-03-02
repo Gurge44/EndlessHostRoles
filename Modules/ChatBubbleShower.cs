@@ -77,11 +77,11 @@ public static class ChatBubbleShower
                     isColor1 = !isColor1;
                     var text = $"<b>{title}</b>\n<size=80%><color={color}>{message}</color></size>";
                     HudManagerPatch.AchievementUnlockedText = text;
-                    yield return new WaitForSeconds(0.2f);
+                    yield return new WaitForSecondsRealtime(0.2f);
                 }
 
                 HudManagerPatch.AchievementUnlockedText = $"<b>{title}</b>\n<size=80%>{message}</size>";
-                yield return new WaitForSeconds(7.25f);
+                yield return new WaitForSecondsRealtime(7.25f);
                 HudManagerPatch.AchievementUnlockedText = string.Empty;
             }
         }

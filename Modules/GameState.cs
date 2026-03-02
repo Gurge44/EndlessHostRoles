@@ -2,13 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.Coven;
-using EHR.Crewmate;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using InnerNet;
 
 namespace EHR;
@@ -356,7 +352,7 @@ public class PlayerState(byte playerId)
                 deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason);
-            Utils.CheckAndSpawnAdditionalRenegade(Utils.GetPlayerInfoById(PlayerId));
+            Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
         }
     }
 
@@ -439,20 +435,6 @@ public class TaskState
                 // Ability Use Gain with this task completed
                 if (alive && !Main.HasJustStarted)
                 {
-                    switch (player.GetCustomRole())
-                    {
-                        case CustomRoles.Hacker:
-                            if (!player.IsModdedClient() && Hacker.UseLimit.ContainsKey(player.PlayerId))
-                                Hacker.UseLimit[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            else if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId))
-                                Hacker.UseLimitSeconds[player.PlayerId] += Hacker.HackerAbilityUseGainWithEachTaskCompleted.GetInt() * Hacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
-
-                            if (Hacker.UseLimitSeconds.ContainsKey(player.PlayerId))
-                                Hacker.SendRPC(player.PlayerId, Hacker.UseLimitSeconds[player.PlayerId]);
-
-                            break;
-                    }
-
                     float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
                     
                     if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
@@ -489,7 +471,7 @@ public class TaskState
                 Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);

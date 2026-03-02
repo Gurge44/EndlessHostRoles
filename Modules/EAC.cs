@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
@@ -17,7 +18,7 @@ internal static class EAC
 {
     public static int DeNum;
     public static readonly HashSet<string> InvalidReports = [];
-    public static readonly Dictionary<byte, float> TimeSinceLastTaskCompletion = [];
+    public static readonly Dictionary<byte, Stopwatch> TimeSinceLastTaskCompletion = [];
 
     public static void WarnHost(int denum = 1)
     {
@@ -330,7 +331,7 @@ internal static class EAC
                         return true;
                     }
 
-                    if (TimeSinceLastTaskCompletion.TryGetValue(pc.PlayerId, out float time) && time < 0.1f)
+                    if (TimeSinceLastTaskCompletion.TryGetValue(pc.PlayerId, out Stopwatch timer) && timer.ElapsedMilliseconds < 100)
                     {
                         WarnHost();
                         Report(pc, "Auto complete tasks");
@@ -348,7 +349,7 @@ internal static class EAC
                         return true;
                     }
 
-                    TimeSinceLastTaskCompletion[pc.PlayerId] = 0f;
+                    TimeSinceLastTaskCompletion[pc.PlayerId] = Stopwatch.StartNew();
                     break;
                 }
                 case RpcCalls.SetStartCounter:
@@ -1084,12 +1085,12 @@ internal static class EAC
             case 3:
             {
                 (
-                    from player in Main.AllPlayerControls
+                    from player in Main.EnumeratePlayerControls()
                     where player.PlayerId != pc?.Data?.PlayerId
                     let message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text)
                     let title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"))
                     select new Message(message, player.PlayerId, title)
-                ).SendMultipleMessages(SendOption.None);
+                ).SendMultipleMessages(MessageImportance.Low);
                 break;
             }
             case 5:
@@ -1209,10 +1210,15 @@ internal enum GameDataTag : byte
     XboxDeclareXuid = 207
 }
 
-#if !ANDROID
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
 internal static class GameDataHandlerPatch
 {
+    public static bool Prepare()
+    {
+        // Disable EAC on Android.
+        return !OperatingSystem.IsAndroid();
+    }
+    
     private static IEnumerator EmptyCoroutine() // fixes errors if we return false
     {
         yield break;
@@ -1368,7 +1374,6 @@ internal static class StartGameHostPatchEAC
         if (ShipStatus.Instance != null) IsStartingAsHost = false;
     }
 }
-#endif
 
 //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
 internal static class CheckInvalidMovementPatch
@@ -1379,7 +1384,7 @@ internal static class CheckInvalidMovementPatch
 
     public static void Postfix(PlayerControl __instance)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || !Main.IntroDestroyed || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || !Main.IntroDestroyed || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || !__instance || __instance.PlayerId >= 254 || !__instance.IsAlive() || __instance.inVent) return;
 
         Vector2 pos = __instance.Pos();
         long now = Utils.TimeStamp;
@@ -1394,7 +1399,7 @@ internal static class CheckInvalidMovementPatch
 
         SetCurrentData();
 
-        if (Vector2.Distance(lastPosition, pos) > 10f && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
+        if (!FastVector2.DistanceWithinRange(lastPosition, pos, 10f) && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
         {
             if (ExemptedPlayers.Remove(__instance.PlayerId)) return;
 

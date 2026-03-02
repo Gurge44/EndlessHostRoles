@@ -1,6 +1,4 @@
-﻿#if !ANDROID
-using System;
-#endif
+﻿using System;
 
 namespace EHR;
 
@@ -10,9 +8,10 @@ public static class AddSteamID
 
     public static void AddSteamAppIdFile()
     {
-#if !ANDROID
         try
         {
+            if (OperatingSystem.IsAndroid()) return;
+            
             if (!File.Exists(FilePath))
             {
                 Logger.Warn("Creating a new steam_appid.txt file", "AddSteamID");
@@ -23,6 +22,5 @@ public static class AddSteamID
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
-#endif
     }
 }

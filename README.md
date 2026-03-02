@@ -38,7 +38,7 @@
 
 # Installation
 
-- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/guides/installation/)
+- Follow the manual guide on our website: [EHR Wiki](https://ehr-wiki.gurge44.eu/en/guides/installation/)
 - Or watch the tutorial by AnonWorks: [YouTube](https://youtu.be/AOLqWCbbrHM?si=nRRsNgz5-Z8XvFrs)
 
 <br>
@@ -410,7 +410,7 @@ Click this badge to view our translation project:
 
 <br>
 
-![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=gurge44&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage&show_icons=true&theme=transparent&rank_icon=github)
+![GitHub Stats](https://github-readme-stats.zcy.dev/api?username=gurge44&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage&show_icons=true&theme=transparent&rank_icon=github)
 
 <br>
 
@@ -485,7 +485,7 @@ Click this badge to view our translation project:
 ### :star: [PL](https://github.com/Lotus-AU/LotusContinued) :
 
 >
-> - Ideas for some roles
+> - Ideas for some roles (Alchemist, Chameleon, Escapist, Necromancer, Deathknight, Romantic and its variants, Vengeance)
 > - Reference: Customize Main Menu
 > - Reference: Auto Play Again
 > - Reference: Some TabIcons
@@ -703,3 +703,4 @@ If you have any questions about this Privacy Policy or how your data is handled,
 ------------------------------------------------------------------------------------------------------------
 
 By using the Endless Host Roles mod, you agree to the terms outlined in this Privacy Policy.
+

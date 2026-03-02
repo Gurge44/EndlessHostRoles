@@ -58,6 +58,7 @@ public enum CustomRoles
     EvilTracker,
     Exclusionary,
     Fabricator,
+    Fakeshifter,
     Fireworker,
     Forger,
     Framer,
@@ -93,6 +94,7 @@ public enum CustomRoles
     Overheat,
     Parasite,
     Penguin,
+    Perplexer,
     Postponer,
     Psychopath,
     Puppeteer,
@@ -251,6 +253,7 @@ public enum CustomRoles
     Rhapsode,
     Ricochet,
     Safeguard,
+    Scanner,
     Scout,
     SecurityGuard,
     Sensor,
@@ -279,6 +282,7 @@ public enum CustomRoles
     Tracefinder,
     Tree,
     Tunneler,
+    Unshifter,
     Vacuum,
     Ventguard,
     Veteran,
@@ -289,6 +293,7 @@ public enum CustomRoles
 
     // Neutrals
 
+    Accumulator,
     Agitator,
     Amnesiac,
     Amogus,
@@ -358,6 +363,7 @@ public enum CustomRoles
     Pulse,
     Pursuer,
     Pyromaniac,
+    Quarry,
     QuizMaster,
     Reckless,
     Revolutionist,
@@ -414,6 +420,7 @@ public enum CustomRoles
     CovenMember,
     Death, // Reaper changes to Death
     Dreamweaver,
+    Empress,
     Enchanter,
     Goddess,
     Illusionist,
@@ -423,11 +430,12 @@ public enum CustomRoles
     Reaper,
     Siren,
     SpellCaster,
+    Summoner,
     Timelord,
     VoodooMaster,
     Wyrd,
 
-    // Solo Kombat
+    // Solo PVP
     Challenger,
 
     // FFA
@@ -507,6 +515,7 @@ public enum CustomRoles
     BananaMan,
     Beartrap,
     Bewilder,
+    Blessed,
     Blind,
     Blocked,
     Bloodlust,

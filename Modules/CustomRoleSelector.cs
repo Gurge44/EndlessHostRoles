@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Gamemodes;
+using EHR.Roles;
 
 namespace EHR.Modules;
 
@@ -44,7 +43,7 @@ internal static class CustomRoleSelector
     {
         RoleResult = [];
 
-        if (Main.GM.Value && Main.AllPlayerControls.Length == 1) return;
+        if (Main.GM.Value && PlayerControl.AllPlayerControls.Count == 1) return;
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
@@ -65,7 +64,7 @@ internal static class CustomRoleSelector
         }
 
         var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Length;
+        int playerCount = Main.AllAlivePlayerControls.Count;
 
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
 
@@ -97,13 +96,16 @@ internal static class CustomRoleSelector
 
         if (Main.XORRoles.Count > 0) Logger.Info($"Roles banned by XOR combinations: {string.Join(", ", xorBannedRoles)}", "CustomRoleSelector");
 
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles role in Main.CustomRoleValues)
         {
             int chance = role.GetMode();
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || CustomHnS.AllHnSRoles.Contains(role) || xorBannedRoles.Contains(role)) continue;
 
             switch (role)
             {
+                case CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
+                case CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
+                case CustomRoles.RoomRusher when Main.LIMap:
                 case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !loversData.Spawning:
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
@@ -288,7 +290,7 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", roles[RoleAssignType.Coven].Select(x => x.Role.ToString())), "SelectedCovenRoles");
         Logger.Msg("======================================================", "SelectedRoles");
 
-        List<PlayerControl> allPlayers = Main.AllAlivePlayerControls.ToList();
+        List<PlayerControl> allPlayers = Main.EnumerateAlivePlayerControls().ToList();
 
         // Players on the EAC banned list will be assigned as GM when opening rooms
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()))
@@ -395,7 +397,7 @@ internal static class CustomRoleSelector
 
         void AssignRoleToEveryone(CustomRoles role)
         {
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
@@ -438,7 +440,11 @@ internal static class CustomRoleSelector
         
         static RoleAssignInfo PickWeighted(List<RoleAssignInfo> pool, IRandom rng)
         {
-            int totalWeight = pool.Sum(t => t.SpawnChance);
+            int totalWeight = 0;
+
+            foreach (var info in pool)
+                totalWeight += info.SpawnChance * (info.MaxCount - info.AssignedCount);
+
             if (totalWeight <= 0) return null;
 
             int roll = rng.Next(totalWeight);
@@ -446,7 +452,7 @@ internal static class CustomRoleSelector
 
             foreach (var info in pool)
             {
-                cumulative += info.SpawnChance;
+                cumulative += info.SpawnChance * (info.MaxCount - info.AssignedCount);
                 if (roll < cumulative) return info;
             }
 
@@ -559,7 +565,7 @@ internal static class CustomRoleSelector
 
         AddonRolesList = [];
 
-        foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+        foreach (CustomRoles role in Main.CustomRoleValues)
         {
             if (!role.IsAdditionRole() || role.IsGhostRole()) continue;
 

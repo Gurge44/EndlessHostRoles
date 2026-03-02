@@ -1,14 +1,13 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using Il2CppInterop.Runtime.Attributes;
 using TMPro;
 using UnityEngine;
-#if !ANDROID
-using System.Collections.Generic;
-using System.Linq;
-using Il2CppInterop.Runtime.Attributes;
-#endif
 
 namespace EHR.Patches;
 
@@ -286,7 +285,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix(ref SecurityLogger __instance)
         {
-            __instance.Timers = new float[127];
+            __instance.Timers = new Il2CppStructArray<float>(127);
         }
     }
 
@@ -321,7 +320,6 @@ internal static class Crowded
         }
     }
 
-#if !ANDROID
     //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public static class MeetingHudStartPatch
     {
@@ -351,7 +349,6 @@ internal static class Crowded
             __instance.gameObject.AddComponent<VitalsPagingBehaviour>().vitalsMinigame = __instance;
         }
     }
-#endif
 
     [HarmonyPatch(typeof(PSManager), nameof(PSManager.CreateGame))]
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.ContinueStart))]
@@ -376,7 +373,6 @@ internal static class Crowded
     }
 }
 
-#if !ANDROID
 public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
 {
     protected const string PageIndexGameObjectName = "CrowdedMod_PageIndex";
@@ -406,10 +402,31 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
     public virtual void Update()
     {
         bool chatIsOpen = HudManager.Instance.Chat.IsOpenOrOpening;
+        bool gameMenuIsOpen = HudManager.Instance.GameMenu.IsOpen;
+        
+        if (Input.touchSupported)
+        {
+            foreach (Touch touch in Input.touches)
+            {
+                if (touch.phase != TouchPhase.Moved) continue;
+                if (chatIsOpen || gameMenuIsOpen) break;
 
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || (!chatIsOpen && Input.mouseScrollDelta.y > 0f))
+                if (touch.deltaPosition.y > 0f)
+                {
+                    Cycle(false);
+                    break;
+                }
+                if (touch.deltaPosition.y < 0f)
+                {
+                    Cycle(true);
+                    break;
+                }
+            }
+        }
+
+        if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.mouseScrollDelta.y > 0f))
             Cycle(false);
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || (!chatIsOpen && Input.mouseScrollDelta.y < 0f))
+        else if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.mouseScrollDelta.y < 0f))
             Cycle(true);
     }
 
@@ -575,4 +592,3 @@ public class VitalsPagingBehaviour(IntPtr ptr) : AbstractPagingBehaviour(ptr)
         }
     }
 }
-#endif

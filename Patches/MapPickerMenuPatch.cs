@@ -22,7 +22,8 @@ internal static class CreateOptionsPickerPatch
         [HarmonyPrefix]
         public static void Prefix_SelectMap([HarmonyArgument(0)] ref int mapId)
         {
-            if (mapId is > 5 or 3) mapId = 0;
+            if (mapId == 3)
+                mapId = 0;
         }
         
         [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.SetupMapButtons))]

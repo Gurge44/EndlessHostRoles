@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -100,7 +98,7 @@ internal static class ExternalRpcPetPatch
         LateTask.New(() => OnPetUse(pc), 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
     }
 
-    public static void OnPetUse(PlayerControl pc)
+    private static void OnPetUse(PlayerControl pc)
     {
         if (pc == null ||
             pc.inVent ||
@@ -149,11 +147,11 @@ internal static class ExternalRpcPetPatch
 
         var hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
-        if (target != null) hasKillTarget = true;
+        if (target) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
         
-        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger() && !role.AlwaysUsesPhantomBase() && role != CustomRoles.Chemist) return;
         
         bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade or CustomRoles.Sidekick;
 
@@ -191,27 +189,28 @@ internal static class ExternalRpcPetPatch
 
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
-        Vector2 pos = pc.Pos();
-        List<(PlayerControl pc, float distance)> players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
-        PlayerControl target = players.Count > 0 ? players[0].pc : null;
+        PlayerControl target = FastVector2.TryGetClosestPlayerInRangeTo(pc, 3.5f, out PlayerControl closest) ? closest : null;
 
-        if (target != null && target.Is(CustomRoles.Detour))
+        if (target != null)
         {
-            PlayerControl tempTarget = target;
-            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
-            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
-
-            if (tempTarget.AmOwner)
+            if (target.Is(CustomRoles.Detour))
             {
-                Detour.TotalRedirections++;
-                if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
-            }
-        }
+                PlayerControl tempTarget = target;
+                FastVector2.TryGetClosestPlayerTo(target, out target, x => x.PlayerId != pc.PlayerId);
+                Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-        if (target != null && Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
-        {
-            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
-            target = newTarget;
+                if (tempTarget.AmOwner)
+                {
+                    Detour.TotalRedirections++;
+                    if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                }
+            }
+            
+            if (Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
+            {
+                Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+                target = newTarget;
+            }
         }
 
         return target;
@@ -225,7 +224,7 @@ internal static class ExternalRpcPetPatch
         {
             HudManagerPatch.CooldownTimerFlashColor = yellow ? Color.red : Color.yellow;
             yellow = !yellow;
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSecondsRealtime(0.2f);
         }
 
         HudManagerPatch.CooldownTimerFlashColor = null;

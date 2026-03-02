@@ -1,18 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.GhostRoles;
-using EHR.AddOns.Impostor;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
-using EHR.Neutral;
+using EHR.Roles;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
+using EHR.Gamemodes;
 
 // ReSharper disable ForCanBeConvertedToForeach
 
@@ -27,6 +21,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool IsDirty { get; set; }
 
+    protected override int TargetClientId => player.OwnerId;
+
     public static void SetDirty(byte playerId)
     {
         for (var index = 0; index < AllSenders.Count; index++)
@@ -36,6 +32,22 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
             {
                 sender.SetDirty();
+                break; // Only one sender can have the same player id
+            }
+        }
+    }
+
+    public static void SendImmediately(byte playerId)
+    {
+        for (var index = 0; index < AllSenders.Count; index++)
+        {
+            GameOptionsSender allSender = AllSenders[index];
+
+            if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
+            {
+                ForceWaitFrame = true;
+                sender.SendGameOptions();
+                sender.IsDirty = false;
                 break; // Only one sender can have the same player id
             }
         }
@@ -114,17 +126,27 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             base.SendGameOptions();
     }
 
-    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    protected override IEnumerator SendGameOptionsAsync()
     {
-        try
+        if (player.AmOwner)
         {
-            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
+            IGameOptions opt = BuildGameOptions();
+
+            if (GameManager.Instance?.LogicComponents != null)
             {
-                Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.OwnerId);
+                foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+                {
+                    if (com.TryCast(out LogicOptions lo))
+                        lo.SetGameOptions(opt);
+
+                    yield return WaitFrameIfNecessary();
+                }
             }
+
+            GameOptionsManager.Instance.CurrentGameOptions = opt;
         }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray"); }
+        else
+            yield return base.SendGameOptionsAsync();
     }
 
     public static void RemoveSender(PlayerControl player)
@@ -151,6 +173,13 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             CustomRoles role = player.GetCustomRole();
             RoleTypes roleTypes = player.GetRoleTypes();
+
+            if (player.inVent && Options.OverrideVisionInVents.GetBool() && Options.InVentVision.TryGetValue(player.GetTeam(), out var option))
+            {
+                var value = option.GetFloat();
+                opt.SetFloat(FloatOptionNames.CrewLightMod, value);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, value);
+            }
 
             switch (Options.CurrentGameMode)
             {
@@ -513,7 +542,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             bool energeticIncreaseSpeed = false, energeticDecreaseCooldown = false;
 
-            if (state.SubRoles.Contains(CustomRoles.Energetic))
+            if (state.SubRoles.Contains(CustomRoles.Energetic) || Empress.Encouraged.Contains(player.PlayerId))
             {
                 if (player.CanUseKillButton())
                     energeticDecreaseCooldown = true;
@@ -600,7 +629,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
 
             state.TaskState.HasTasks = Utils.HasTasks(player.Data, false);
-            if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+            if (Options.GhostCanSeeOtherVotes.GetBool() && !player.IsAlive()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
 
             if (Options.AdditionalEmergencyCooldown.GetBool() &&
                 Options.AdditionalEmergencyCooldownThreshold.GetInt() <= Utils.AllAlivePlayersCount)
@@ -658,7 +687,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool AmValid()
     {
-        return base.AmValid() && player != null && player.Data != null && !player.Data.Disconnected && Main.RealOptionsData != null;
+        return base.AmValid() && player && player.Data && !player.Data.Disconnected && Main.RealOptionsData != null;
     }
 
 }

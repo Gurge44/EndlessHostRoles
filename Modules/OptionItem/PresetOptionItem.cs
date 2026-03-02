@@ -29,6 +29,16 @@ public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "P
             7 => Main.Preset8.Value == (string)Main.Preset8.DefaultValue ? Translator.GetString("Preset_8") : Main.Preset8.Value,
             8 => Main.Preset9.Value == (string)Main.Preset9.DefaultValue ? Translator.GetString("Preset_9") : Main.Preset9.Value,
             9 => Main.Preset10.Value == (string)Main.Preset10.DefaultValue ? Translator.GetString("Preset_10") : Main.Preset10.Value,
+            10 => Main.Preset11.Value == (string)Main.Preset11.DefaultValue ? Translator.GetString("Preset_11") : Main.Preset11.Value,
+            11 => Main.Preset12.Value == (string)Main.Preset12.DefaultValue ? Translator.GetString("Preset_12") : Main.Preset12.Value,
+            12 => Main.Preset13.Value == (string)Main.Preset13.DefaultValue ? Translator.GetString("Preset_13") : Main.Preset13.Value,
+            13 => Main.Preset14.Value == (string)Main.Preset14.DefaultValue ? Translator.GetString("Preset_14") : Main.Preset14.Value,
+            14 => Main.Preset15.Value == (string)Main.Preset15.DefaultValue ? Translator.GetString("Preset_15") : Main.Preset15.Value,
+            15 => Main.Preset16.Value == (string)Main.Preset16.DefaultValue ? Translator.GetString("Preset_16") : Main.Preset16.Value,
+            16 => Main.Preset17.Value == (string)Main.Preset17.DefaultValue ? Translator.GetString("Preset_17") : Main.Preset17.Value,
+            17 => Main.Preset18.Value == (string)Main.Preset18.DefaultValue ? Translator.GetString("Preset_18") : Main.Preset18.Value,
+            18 => Main.Preset19.Value == (string)Main.Preset19.DefaultValue ? Translator.GetString("Preset_19") : Main.Preset19.Value,
+            19 => Main.Preset20.Value == (string)Main.Preset20.DefaultValue ? Translator.GetString("Preset_20") : Main.Preset20.Value,
             _ => null
         };
     }
@@ -44,4 +54,5 @@ public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "P
         base.SetValue(Rule.RepeatIndex(value), doSync);
         SwitchPreset(Rule.RepeatIndex(value));
     }
+
 }

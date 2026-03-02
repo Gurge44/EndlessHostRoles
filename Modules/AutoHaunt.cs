@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.GameMode.HideAndSeekRoles;
+using EHR.Gamemodes;
+using EHR.Roles;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -11,7 +12,7 @@ public static class AutoHaunt
 {
     private static PlayerControl GetPreferredHauntTarget()
     {
-        IEnumerable<PlayerControl> validPCs = Main.AllAlivePlayerControls.Where(x => !AFKDetector.PlayerData.ContainsKey(x.PlayerId));
+        IEnumerable<PlayerControl> validPCs = Main.EnumerateAlivePlayerControls().Where(x => !AFKDetector.PlayerData.ContainsKey(x.PlayerId));
 
         return Options.CurrentGameMode switch
         {
@@ -54,7 +55,7 @@ public static class AutoHaunt
                         HudManager.Instance.AbilityButton.DoClick();
                 }
 
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSecondsRealtime(5f);
             }
 
             if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance != null)

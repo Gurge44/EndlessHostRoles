@@ -7,16 +7,13 @@ global using Vector2 = UnityEngine.Vector2;
 global using File = System.IO.File;
 global using StringBuilder = System.Text.StringBuilder;
 global using Logger = EHR.Logger;
+global using FastVector2 = EHR.Modules.Extensions.FastVector2;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Crewmate;
 
-
-namespace EHR;
+namespace EHR.Roles;
 
 public abstract class RoleBase : IComparable<RoleBase>
 {
@@ -68,7 +65,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual bool CanUseSabotage(PlayerControl pc)
     {
         if (pc.Is(CustomRoles.Aide)) return false;
-        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Length == 2) return false;
+        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Count == 2) return false;
         return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
     }
 
@@ -134,7 +131,7 @@ public abstract class RoleBase : IComparable<RoleBase>
         if (Imitator.PlayerIdList.Contains(pc.PlayerId))
         {
             string command = $"/imitate {target.PlayerId}";
-            ChatCommands.ImitateCommand(pc, "Command.Imitate", command, command.Split(' '));
+            ChatCommands.ImitateCommand(pc, command, command.Split(' '));
         }
     }
 

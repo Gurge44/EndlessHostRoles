@@ -1,12 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using EHR.AddOns.Common;
-using EHR.AddOns.GhostRoles;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using Hazel;
 
 namespace EHR;
@@ -166,7 +162,7 @@ public static class NameColorManager
             CustomRoles.Glitch when target.IsRoleBlocked() => Main.RoleColors[seerRole],
             CustomRoles.Slenderman when Slenderman.IsBlinded(target.PlayerId) => "000000",
             CustomRoles.Aid when Aid.ShieldedPlayers.ContainsKey(target.PlayerId) => Main.RoleColors[CustomRoles.Aid],
-            CustomRoles.Spy when Spy.SpyRedNameList.ContainsKey(target.PlayerId) => "#BA4A00",
+            CustomRoles.Spy when Spy.SpyRedNameList.Contains(target.PlayerId) => "#BA4A00",
             CustomRoles.Mastermind when Mastermind.ManipulateDelays.ContainsKey(target.PlayerId) => "#00ffa5",
             CustomRoles.Mastermind when Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId) => Main.RoleColors[CustomRoles.Arsonist],
             CustomRoles.Hitman when (seerRoleClass as Hitman)?.TargetId == target.PlayerId => "000000",
@@ -213,6 +209,7 @@ public static class NameColorManager
             CustomRoles.Crewpostor when seer.Is(CustomRoleTypes.Impostor) && Options.AlliesKnowCrewpostor.GetBool() => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Hypocrite when seer.Is(CustomRoleTypes.Impostor) && Hypocrite.AlliesKnowHypocrite.GetBool() => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.President when ((President)targetRoleClass).IsRevealed => Main.RoleColors[CustomRoles.President],
+            CustomRoles.Quarry when ((Quarry)targetRoleClass).TargetId == seer.PlayerId => "000000",
             _ => color
         };
 

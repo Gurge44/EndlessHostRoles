@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.AddOns.GhostRoles;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 
@@ -18,7 +16,7 @@ internal static class GhostRolesManager
     public static void Initialize()
     {
         AssignedGhostRoles = [];
-        GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && IRandom.Instance.Next(100) < x.GetMode()).ToList();
+        GhostRoles = Main.CustomRoleValues.Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && IRandom.Instance.Next(100) < x.GetMode()).ToList();
 
         Logger.Msg($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
         Haunter.AllHauntedPlayers = [];
@@ -137,12 +135,19 @@ internal static class GhostRolesManager
     {
         return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && (CreateGhostRoleInstance(x)?.Team & pc.GetTeam()) != 0);
     }
+    
+    public static readonly Dictionary<CustomRoles, Type> GhostRoleTypes = [];
 
     public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole, bool check = false)
     {
         try
         {
-            Type ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
+            if (!GhostRoleTypes.TryGetValue(ghostRole, out Type ghostRoleClass))
+            {
+                ghostRoleClass = Main.AllTypes.First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
+                GhostRoleTypes[ghostRole] = ghostRoleClass;
+            }
+            
             var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
             return ghostRoleInstance;
         }

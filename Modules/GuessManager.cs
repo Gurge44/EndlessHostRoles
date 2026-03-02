@@ -5,12 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
-using EHR.AddOns.Common;
-using EHR.Coven;
-using EHR.Crewmate;
-using EHR.Impostor;
+using EHR.Gamemodes;
 using EHR.Modules;
-using EHR.Neutral;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using TMPro;
@@ -36,11 +33,13 @@ public static class GuessManager
 
     public static string GetFormatString()
     {
-        return Main.AllPlayerControls.Aggregate(GetString("PlayerIdList"), (current, pc) => current + $"\n{pc.PlayerId.ToString()} → {pc.GetRealName()}");
+        return Main.EnumeratePlayerControls().Aggregate(GetString("PlayerIdList"), (current, pc) => current + $"\n{pc.PlayerId.ToString()} → {pc.GetRealName()}");
     }
 
-    private static bool CheckCommand(ref string msg, string command, bool exact = true)
+    public static bool CheckCommand(ref string msg, string command, bool exact, out bool spamRequired)
     {
+        Utils.CheckServerCommand(ref msg, out spamRequired);
+        
         string[] comList = command.Split('|');
 
         foreach (string str in comList)
@@ -64,8 +63,6 @@ public static class GuessManager
 
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false, bool ssMenu = false)
     {
-        string originMsg = msg;
-
         if (!AmongUsClient.Instance.AmHost) return false;
         if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || pc == null) return false;
 
@@ -75,8 +72,8 @@ public static class GuessManager
         int operate; // 1: ID, 2: Guess
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
-        else if (CheckCommand(ref msg, "shoot|guess|bet|st|bt|猜|赌", false)) operate = 2;
+        if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired)) operate = 1;
+        else if (CheckCommand(ref msg, "shoot|guess|bet|st|bt|猜|赌", false, out spamRequired)) operate = 2;
         else return false;
 
         Logger.Msg(msg, "Msg Guesser");
@@ -122,13 +119,12 @@ public static class GuessManager
 
                 SkipCheck:
 
-                if (!isUI && !ssMenu && (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
+                if (!isUI && !ssMenu && spamRequired && (pc.GetCustomRole() is CustomRoles.Decryptor or CustomRoles.NecroGuesser ||
                      (pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
                      (pc.Is(CustomRoles.Guesser) && Guesser.GTryHideMsg.GetBool()) || (Options.GuesserMode.GetBool() && Options.HideGuesserCommands.GetBool())))
-                    ChatManager.SendPreviousMessagesToAll();
-                else if (pc.AmOwner && !isUI && !ssMenu) Utils.SendMessage(originMsg, 255, pc.GetRealName());
+                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
                 {
@@ -219,6 +215,7 @@ public static class GuessManager
 
                     switch (pc.GetCustomRole())
                     {
+                        case CustomRoles.Augur when !((Augur)Main.PlayerStates[pc.PlayerId].Role).CanGuess:
                         case CustomRoles.Augur when Main.GuesserGuessed[pc.PlayerId] >= Augur.MaxGuessesPerGame.GetInt():
                         case CustomRoles.Augur when Main.GuesserGuessedMeeting[pc.PlayerId] >= Augur.MaxGuessesPerMeeting.GetInt():
                         case CustomRoles.NiceGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.GGCanGuessTime.GetInt():
@@ -348,14 +345,26 @@ public static class GuessManager
 
                     if (target.Is(CustomRoles.Onbound))
                     {
-                        ShowMessage("GuessOnbound");
-
-                        if (Onbound.GuesserSuicides.GetBool())
+                        if (!Onbound.NumBlocked.TryGetValue(target.PlayerId, out HashSet<byte> attempters))
+                            Onbound.NumBlocked[target.PlayerId] = attempters = [];
+                        
+                        if (attempters.Count < Onbound.MaxAttemptsBlocked.GetInt())
                         {
-                            if (DoubleShot.CheckGuess(pc, isUI)) return true;
-                            guesserSuicide = true;
+                            attempters.Add(pc.PlayerId);
+                            ShowMessage("GuessOnbound");
+
+                            if (Onbound.GuesserSuicides.GetBool())
+                            {
+                                if (DoubleShot.CheckGuess(pc, isUI)) return true;
+                                guesserSuicide = true;
+                            }
+                            else return true;
                         }
-                        else return true;
+                        else if (attempters.Contains(pc.PlayerId))
+                        {
+                            ShowMessage("GuessOnbound");
+                            return true;
+                        }
                     }
 
                     if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
@@ -487,7 +496,8 @@ public static class GuessManager
 
                         Doomsayer.GuessesCountPerMeeting++;
 
-                        if (Doomsayer.GuessesCountPerMeeting >= Doomsayer.MaxNumberOfGuessesPerMeeting.GetInt()) Doomsayer.CantGuess = true;
+                        if (Doomsayer.GuessesCountPerMeeting >= Doomsayer.MaxNumberOfGuessesPerMeeting.GetInt())
+                            Doomsayer.CantGuess = true;
 
                         if (!Doomsayer.KillCorrectlyGuessedPlayers.GetBool() && pc.PlayerId != dp.PlayerId)
                         {
@@ -520,6 +530,13 @@ public static class GuessManager
                         }
                     }
 
+                    if (pc.Is(CustomRoles.Augur) && pc.PlayerId == dp.PlayerId)
+                    {
+                        ShowMessage("Augur.IncorrectGuess");
+                        ((Augur)Main.PlayerStates[pc.PlayerId].Role).CanGuess = false;
+                        return true;
+                    }
+
                     string name = dp.GetRealName();
                     if (!Options.DisableKillAnimationOnGuess.GetBool()) CustomSoundsManager.RPCPlayCustomSoundAll("Gunfire");
 
@@ -539,7 +556,8 @@ public static class GuessManager
                             Doomsayer.GuessingToWin[pc.PlayerId]++;
                             Doomsayer.SendRPC(pc);
 
-                            if (!Doomsayer.GuessedRoles.Contains(role)) Doomsayer.GuessedRoles.Add(role);
+                            if (!Doomsayer.GuessedRoles.Contains(role))
+                                Doomsayer.GuessedRoles.Add(role);
 
                             Doomsayer.CheckCountGuess(pc);
                         }
@@ -550,11 +568,11 @@ public static class GuessManager
                         if (pc.AmOwner && pc.Is(CustomRoles.Decryptor) && dp.Is(CustomRoles.God))
                             Achievements.Type.Easypeasy.Complete();
 
-                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("GuessKill"), Main.AllPlayerNames.GetValueOrDefault(dp.PlayerId, name)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle"))), 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("GuessKill"), Main.AllPlayerNames.GetValueOrDefault(dp.PlayerId, name)), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("GuessKillTitle")), importance: MessageImportance.High), 0.6f, "Guess Msg");
 
                         if (pc.Is(CustomRoles.Doomsayer) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("DoomsayerGuessCountMsg"), Doomsayer.GuessingToWin[pc.PlayerId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle"))), 0.7f, "Doomsayer Guess Msg 2");
-                        if (pc.Is(CustomRoles.Stealer) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("StealerGetVote"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Options.VotesPerKill.GetFloat())), pc.PlayerId), 0.7f, log: false);
-                        if (pc.Is(CustomRoles.Pickpocket) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("PickpocketGetVote"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Pickpocket.VotesPerKill.GetFloat())), pc.PlayerId), 0.7f, log: false);
+                        if (pc.Is(CustomRoles.Stealer) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("StealerGetVote"), (int)(Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Options.VotesPerKill.GetFloat())), pc.PlayerId), 0.7f, log: false);
+                        if (pc.Is(CustomRoles.Pickpocket) && pc.PlayerId != dp.PlayerId) LateTask.New(() => Utils.SendMessage(string.Format(GetString("PickpocketGetVote"), (int)(Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Pickpocket.VotesPerKill.GetFloat())), pc.PlayerId), 0.7f, log: false);
                     }, 0.2f, "Guesser Kill");
 
                     if (guesserSuicide && pc.AmOwner)
@@ -585,8 +603,8 @@ public static class GuessManager
         {
             GameEndChecker.ShouldNotCheck = true;
             Main.PlayerStates[pc.PlayerId].SetDead();
-            pc.Data.IsDead = true;
             pc.RpcExileV2();
+            pc.Data.IsDead = true;
 
             var meetingHud = MeetingHud.Instance;
             ProcessGuess(pc, meetingHud);
@@ -954,7 +972,7 @@ public static class GuessManager
                 CreatePage(true, __instance, container);
             }
 
-            foreach (CustomRoles role in Enum.GetValues<CustomRoles>())
+            foreach (CustomRoles role in Main.CustomRoleValues)
             {
                 if (!ShowRoleOnUI(role)) continue;
 
@@ -1117,9 +1135,9 @@ public static class GuessManager
                 if (Guessers.Count == 0 && restrictions)
                     InitializeGuesserPlayers();
 
-                HashSet<byte> guessers = Main.AllAlivePlayerControls.Where(x => !x.IsModdedClient() && CanGuess(x, restrictions)).Select(x => x.PlayerId).ToHashSet();
+                HashSet<byte> guessers = Main.EnumerateAlivePlayerControls().Where(x => !x.IsModdedClient() && CanGuess(x, restrictions)).Select(x => x.PlayerId).ToHashSet();
                 bool meetingSS = Options.UseMeetingShapeshift.GetBool() && Options.UseMeetingShapeshiftForGuessing.GetBool();
-                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"))), 12f, log: false);
+                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"), importance: restrictions && MeetingStates.FirstMeeting ? MessageImportance.High : MessageImportance.Medium)), 12f, log: false);
                 if (meetingSS) Data = guessers.ToDictionary(x => x, x => new MeetingShapeshiftData(x));
             }
 
@@ -1132,7 +1150,7 @@ public static class GuessManager
 
         public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
-            if (Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
+            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
                 CustomRoles.EvilGuesser => true,
@@ -1156,7 +1174,7 @@ public static class GuessManager
 
         private static void InitializeGuesserPlayers()
         {
-            Dictionary<Team, List<PlayerControl>> players = Main.AllPlayerControls
+            Dictionary<Team, List<PlayerControl>> players = Main.EnumeratePlayerControls()
                 .GroupBy(x => x.GetTeam())
                 .ToDictionary(x => x.Key, x => x.Shuffle());
 
@@ -1247,7 +1265,7 @@ public static class GuessManager
                         }
 
                         CurrentTeam = Enum.Parse<CustomRoleTypes>(display, true);
-                        ShownRoles = Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CurrentTeam && ShowRoleOnUI(x)).ToArray();
+                        ShownRoles = Main.CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CurrentTeam && ShowRoleOnUI(x)).ToArray();
                         CurrentState = State.FirstLetterSelection;
                         SpawnCNOs();
                         break;
@@ -1352,8 +1370,8 @@ public static class GuessManager
                 namePlateIds = namePlateIds.Prepend("nameplate_candyCanePlate");
 
                 (string choice, string namePlateId)[] data = choices.Zip(namePlateIds, (choice, namePlateId) => (choice, namePlateId)).ToArray();
-                PlayerControl[] alivePlayerControls = Main.AllAlivePlayerControls;
-                int alivePlayerControlsLength = alivePlayerControls.Length - 1;
+                var alivePlayerControls = Main.AllAlivePlayerControls;
+                int alivePlayerControlsLength = alivePlayerControls.Count - 1;
 
                 Logger.Info($"Set Up Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")}, {CurrentState})", "Meeting Shapeshift For Guessing");
 
@@ -1363,6 +1381,9 @@ public static class GuessManager
                 StringBuilder sb = new();
                 int textIndex = 0;
 
+                int messages = 0;
+                int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
+                
                 var skipped = false;
                 PlayerControl guesser = guesserId.GetPlayer();
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
@@ -1370,7 +1391,7 @@ public static class GuessManager
                 writer.Write(AmongUsClient.Instance.GameId);
                 writer.WritePacked(guesser.OwnerId);
 
-                for (var i = 0; i < alivePlayerControls.Length && (skipped ? i - 1 : i) < data.Length; i++)
+                for (var i = 0; i < alivePlayerControls.Count && (skipped ? i - 1 : i) < data.Length; i++)
                 {
                     string choice = data[skipped ? i - 1 : i].choice;
                     string namePlateId = data[skipped ? i - 1 : i].namePlateId;
@@ -1391,8 +1412,9 @@ public static class GuessManager
                     if (textIndex % 3 == 0) sb.AppendLine();
                     else sb.Append(' ');
 
-                    if (writer.Length > 500)
+                    if (writer.Length > 500 || messages + 2 > packingLimit)
                     {
+                        messages = 0;
                         writer.EndMessage();
                         AmongUsClient.Instance.SendOrDisconnect(writer);
                         writer.Clear(SendOption.Reliable);
@@ -1415,6 +1437,8 @@ public static class GuessManager
                     writer.Write(namePlateId);
                     writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr));
                     writer.EndMessage();
+
+                    messages += 2;
                 }
 
                 writer.EndMessage();
@@ -1433,7 +1457,7 @@ public static class GuessManager
                     for (int i = alivePlayerControlsLength; i < data.Length; i++)
                     {
                         string choice = data[i].choice;
-                        string namePlateId = data[i].namePlateId;
+                        //string namePlateId = data[i].namePlateId;
                     
                         sb.Append($"[{(CurrentState == State.FirstLetterSelection ? choice : GetString(choice).ToUpper())}]");
                         textIndex++;
@@ -1469,7 +1493,7 @@ public static class GuessManager
                     ExistingCNOs.Clear();
                 }
             
-                Utils.SendMessage(sb.ToString().Trim(), guesserId, GetString($"ShapeshiftGuesserUITitle.{CurrentState}"));
+                Utils.SendMessage(sb.ToString().Trim(), guesserId, GetString($"ShapeshiftGuesserUITitle.{CurrentState}"), importance: MessageImportance.High);
 
                 Logger.Info($"Spawned {ExistingCNOs.Count} CNOs, Used {alivePlayerControlsLength} Living Players, Showing {data.Length} Choices", "Meeting Shapeshift For Guessing");
             }

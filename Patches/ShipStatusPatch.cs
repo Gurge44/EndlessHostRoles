@@ -1,40 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx;
-using EHR.AddOns.Crewmate;
-using EHR.AddOns.Impostor;
-using EHR.Crewmate;
-using EHR.Neutral;
+using EHR.Gamemodes;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
 
 namespace EHR;
-
-//[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
-internal static class ShipFixedUpdatePatch
-{
-    public static void Postfix( /*ShipStatus __instance*/)
-    {
-        try
-        {
-            if (!AmongUsClient.Instance.AmHost) return;
-
-            if (Main.IsFixedCooldown && Main.RefixCooldownDelay >= 0)
-                Main.RefixCooldownDelay -= Time.fixedDeltaTime;
-            else if (!float.IsNaN(Main.RefixCooldownDelay))
-            {
-                Utils.MarkEveryoneDirtySettingsV4();
-                Main.RefixCooldownDelay = float.NaN;
-                Logger.Info("Refix Cooldown", "CoolDown");
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-    }
-}
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
@@ -86,8 +63,10 @@ internal static class RepairSystemPatch
         [HarmonyArgument(2)] byte amount)
     {
         Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "RepairSystem");
+#if DEBUG
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
+#endif
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
@@ -123,9 +102,9 @@ internal static class RepairSystemPatch
             {
                 if (Main.NormalOptions.MapId == 4)
                 {
-                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.Pos(), new(-12.93f, -11.28f)) <= 2f) return false;
-                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.Pos(), new(13.92f, 6.43f)) <= 2f) return false;
-                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.Pos(), new(30.56f, 2.12f)) <= 2f) return false;
+                    if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && FastVector2.DistanceWithinRange(player.Pos(), new(-12.93f, -11.28f), 2f)) return false;
+                    if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && FastVector2.DistanceWithinRange(player.Pos(), new(13.92f, 6.43f), 2f)) return false;
+                    if (Options.DisableAirshipCargoLightsPanel.GetBool() && FastVector2.DistanceWithinRange(player.Pos(), new(30.56f, 2.12f), 2f)) return false;
                 }
 
                 var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
@@ -225,7 +204,7 @@ internal static class RepairSystemPatch
         {
             bool petcd = !Options.UsePhantomBasis.GetBool();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Wiper))
                 {
@@ -304,7 +283,7 @@ internal static class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllAlivePlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || Options.CurrentGameMode != CustomGameMode.Standard)
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.EnumerateAlivePlayerControls().Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.IsConverted())) || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             __result = false;
             return false;
@@ -370,7 +349,7 @@ internal static class ShipStatusBeginPatch
     {
         if (RolesIsAssigned && !Main.IntroDestroyed)
         {
-            foreach (PlayerControl player in Main.AllPlayerControls) Main.PlayerStates[player.PlayerId].InitTask(player);
+            foreach (PlayerControl player in Main.EnumeratePlayerControls()) Main.PlayerStates[player.PlayerId].InitTask(player);
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
@@ -699,29 +678,37 @@ internal static class ShipStatusFixedUpdatePatch
     public static Dictionary<byte, int> ClosestVent = [];
     public static Dictionary<byte, bool> CanUseClosestVent = [];
 
-    private static int Count;
+    private static Stopwatch Stopwatch;
 
-    public static void Postfix(ShipStatus __instance)
+    public static System.Collections.IEnumerator Postfix()
     {
-        try
+        Stopwatch = Stopwatch.StartNew();
+        
+        while (ShipStatus.Instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.InGame || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
+            {
+                Stopwatch.Reset();
+                yield return new WaitForSecondsRealtime(AntiBlackout.SkipTasks ? 2f : 5f);
+                Stopwatch.Start();
+                continue;
+            }
 
-            if (IntroCutsceneDestroyPatch.IntroDestroyTS + 5 > Utils.TimeStamp) return;
+            var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
+            
+            if (ventilationSystem == null)
+            {
+                Stopwatch.Reset();
+                yield return new WaitForSecondsRealtime(0.1f);
+                Stopwatch.Start();
+                continue;
+            }
 
-            if (Count++ < 40) return;
-            Count = 0;
-
-            var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
-            if (ventilationSystem == null) return;
-
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 try
                 {
                     Vent closestVent = pc.GetClosestVent();
-                    if (closestVent == null) continue;
-
                     int ventId = closestVent.Id;
                     bool canUseVent = pc.CanUseVent(ventId);
 
@@ -739,8 +726,21 @@ internal static class ShipStatusFixedUpdatePatch
                     CanUseClosestVent[pc.PlayerId] = canUseVent;
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
+                
+                if (Stopwatch.ElapsedMilliseconds > 3)
+                {
+                    Stopwatch.Reset();
+                    yield return null;
+                    Stopwatch.Start();
+                }
             }
+
+            Stopwatch.Reset();
+            yield return new WaitForSecondsRealtime(0.5f);
+            Stopwatch.Start();
         }
-        catch (Exception e) { Utils.ThrowException(e); }
+        
+        if (ShipStatus.Instance)
+            Main.Instance.StartCoroutine(Postfix());
     }
 }

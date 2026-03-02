@@ -81,8 +81,10 @@ public static class TemplateManager
         }
         else
         {
+            const string oldWelcomeTemplate = "welcome:<b><size=2.5>Welcome!</size></b>\\nThis is a <color=#ff0000>Modded</color> Lobby.\\n<size=90%>The mod is <b><color=#00ffff>Endless Host Roles</color> <color=#00ffa5>(EHR)</color></b> <b><color=#902efd>v{{ModVersion}}</b></color>.\\nThe mod was made by <color=#ffff00>Gurge44</color>.</size>\\n\\n<size=70%><b>/r</b> → Show all active roles\\n<b>/r <color=#ff0000>[role name]</color></b> → Show description & settings for that role</size>";
+            const string newWelcomeTemplate = "welcome:<b>Welcome!</b>\\n<size=80%>This is a <color=red>Modded</color> Lobby.\\nYou're playing <b><color=blue>Endless Host Roles</color> <color=purple>(EHR)</color> <color=orange>v{{ModVersion}}</b></color>.\\nThe mod was made by <color=yellow>Gurge44</color>.\\n\\n<b>/r</b> → Show all active roles\\n<b>/r <color=red>[role name]</color></b> → Show description & settings for that role";
             string text = File.ReadAllText(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
-            File.WriteAllText(TemplateFilePath, text.Replace("5PNwUaN5", "hkk2p9ggv4"));
+            File.WriteAllText(TemplateFilePath, text.Replace("5PNwUaN5", "hkk2p9ggv4").Replace(oldWelcomeTemplate, newWelcomeTemplate));
         }
     }
 
@@ -96,7 +98,7 @@ public static class TemplateManager
         return reader.ReadToEnd();
     }
 
-    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, SendOption sendOption = SendOption.Reliable)
+    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
     {
         CreateIfNotExists();
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
@@ -120,7 +122,7 @@ public static class TemplateManager
             if (playerId == 0xff)
                 HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
             else
-                Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId, sendOption: SendOption.None);
+                Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId, importance: MessageImportance.Low);
         }
         else
         {
@@ -129,7 +131,7 @@ public static class TemplateManager
             foreach (string x in sendList)
                 messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
 
-            messages.SendMultipleMessages(sendOption);
+            messages.SendMultipleMessages(importance);
         }
     }
 

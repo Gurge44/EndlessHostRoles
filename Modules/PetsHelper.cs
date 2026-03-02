@@ -15,9 +15,12 @@ public static class PetsHelper
     public static void SetPet(PlayerControl pc, string petId)
     {
         var sender = CustomRpcSender.Create("PetsHelper.SetPet", SendOption.Reliable);
+
+        try { pc.SetPet(petId); }
+        catch { }
         
-        pc.SetPet(petId);
-        pc.Data.DefaultOutfit.PetSequenceId += 10;
+        try { pc.Data.DefaultOutfit.PetSequenceId += 10; }
+        catch { }
 
         sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr)
             .Write(petId)
@@ -29,9 +32,13 @@ public static class PetsHelper
 
     public static string GetPetId()
     {
-        string[] pets = Options.PetToAssign;
-        string pet = pets[Options.PetToAssignToEveryone.GetValue()];
-        string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[IRandom.Instance.Next(0, pets.Length - 1)] : pet;
-        return string.IsNullOrWhiteSpace(petId.Trim()) ? "pet_test" : petId;
+        try
+        {
+            string[] pets = Options.PetToAssign;
+            string pet = pets[Options.PetToAssignToEveryone.GetValue()];
+            string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[IRandom.Instance.Next(0, pets.Length - 1)] : pet;
+            return string.IsNullOrWhiteSpace(petId) ? "pet_test" : petId;
+        }
+        catch { return "pet_test"; }
     }
 }

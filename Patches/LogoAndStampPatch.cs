@@ -22,7 +22,7 @@ public static class CredentialsPatch
         {
             while (true)
             {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
 
                 if (__instance != null)
                 {
