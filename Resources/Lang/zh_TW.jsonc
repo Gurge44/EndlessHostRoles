@@ -1053,7 +1053,7 @@
   "MathematicianInfoLong": "(船員陣營):\\n數學家可以在會議上使用“/ask [數字1] [數字2]”來提出數學問題(問題為數字1加數字2)。第一個答對的玩家將在下一回合獲得護盾並增加一次技能次數。\\n數學家每回合只能進行一次出題。",
   "MathematicianAnsweredString": "<b>{0}</b> 答對了! ({1})\\n他將在下一輪獲得護盾並且技能次數+1。",
   "MathematicianProtected": "該玩家是第一個正確回答數學家的問題的人\\n因此他們受到了保護",
-  "MathematicianQuestionString": "<b>{0} + {1} 等於幾?</b>\n\n輸入 "/answer [答案]" 來回答\n第一個答對的玩家將在下輪獲得護盾!",
+  "MathematicianQuestionString": "<b>{0} + {1} 等於幾?</b>\n\n輸入 \"/answer [答案]\" 來回答\n第一個答對的玩家將在下輪獲得護盾!",
   "Mayor": "市長",
   "MayorInfo": "你的票數更多更有料",
   "MayorInfoLong": "(船員陣營):\\n市長在投票時一票算做多票，此外根據房主設定，市長的額外票數會被隱藏，可以跳管道來召開緊急會議",
@@ -1734,7 +1734,7 @@
   "CommanderInfoLong": "(偽裝者陣營):\\n指揮官可以使用通風口/撫摸寵物來在6種指揮模式間切換，使用變形來觸發指揮。<size=70%>\\n\\n<b><u>標記:</u></b>用所有偽裝者可見的獨特顏色標記你的變形目標。以此來讓其他偽裝者殺死你的目標。\\n\\n<b><u>口哨:</u></b>這會告訴所有或1個特定的<sup>*</sup>偽裝者來找你，並給他們(每個)一個指向你的箭頭。\\n\\n<b><u>殺死某人:</u></b>通知所有或 1 個特定<sup>*</sup>偽裝者殺死任何人\\n\\n<b><u>不要殺人:</u></b>變形為某個船員，之後偽裝者會看到獨特的顏色和文字標記該玩家，這可以告訴其他偽裝者們不要殺死該玩家。如果是變形成偽裝者，則變為通知他們不要殺人。\\n\\n<b><u>不要破壞:</u></b>通知所有偽裝者不要進行任何破壞。\\n\\n<b><u>使用能力:</u></b>通知所有或1個特定<sup>*</sup>偽裝者使用他們的能力。 \\n\\n<sup>*</sup> 如果你變形為偽裝者，則該動作將只對他執行。</size>",
   "CommanderDontKill": "<size=1.7>不要殺死此玩家</size>",
   "CommanderDontKillAnyoneNotify": "指揮官指揮你不要殺人",
-  "CommanderDontKillMarkMode": "將玩家標記為"不擊殺"",
+  "CommanderDontKillMarkMode": "將玩家標記為\"不擊殺\"",
   "CommanderDontSabotageMode": "不要破壞",
   "CommanderDontSabotageNotify": "指揮官指揮你不要進行破壞",
   "CommanderKillAnyoneMode": "命令殺死某人",
@@ -3144,7 +3144,7 @@
   "SpiritTargetOne": "<#ffff44>1/2</color> 個目標已設定 ({0})\\n<size=80%>使用你的變形選單設定第二個目標</size>",
   "Spiritcaller": "靈魂召喚者",
   "SpiritcallerInfo": "將玩家變為惡靈",
-  "SpiritcallerInfoLong": "(中立陣營):\\n靈魂召喚者可以把玩家被殺害後變成惡靈，惡靈透過作祟按鈕暫時凍結其他玩家，或暫時阻擋他們的視野，在或者，惡靈可以給予靈魂召喚者一個護盾，短暫的保護靈魂召喚者不受殺害。",",
+  "SpiritcallerInfoLong": "(中立陣營):\\n靈魂召喚者可以把玩家被殺害後變成惡靈，惡靈透過作祟按鈕暫時凍結其他玩家，或暫時阻擋他們的視野，在或者，惡靈可以給予靈魂召喚者一個護盾，短暫的保護靈魂召喚者不受殺害。\",",
   "SpiritcallerCauseVision": "<color=#003366>惡靈</color>减小的視野範圍",
   "SpiritcallerCauseVisionTime": "<color=#003366>惡靈</color>減小視野時間",
   "SpiritcallerFreezeTime": "<color=#003366>惡靈</color>凍結玩家時間",
@@ -8448,7 +8448,7 @@
   "Achievement.TheRealTraitor.Description": "作為背叛者殺死逃亡者",
   "Achievement.ThereCanOnlyBeOne": "一山不容二虎",
   "Achievement.ThereCanOnlyBeOne.Description": "殺死與你有一樣職業的玩家",
-  "Achievement.TheresThisGameMyDadTaughtMeItsCalledSwitch": "Among Us是一款"Switch"遊戲",
+  "Achievement.TheresThisGameMyDadTaughtMeItsCalledSwitch": "Among Us是一款\"Switch\"遊戲",
   "Achievement.TheresThisGameMyDadTaughtMeItsCalledSwitch.Description": "在一局遊戲內被交換師交換或作為交換師交換他人的職業三次以上",
   "Achievement.ThisAintSquidGames": "這不是魷魚遊戲",
   "Achievement.ThisAintSquidGames.Description": "在尋找同伴遊戲模式下獲勝",
@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "全員存活的會議時間",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} 正確猜出了字母混排的答案(<b>{1}</b>)！",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "箭頭最長延遲時間",
   "ArrowDelayMin": "箭頭最短延遲時間",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "恐怖分子可以通過自殺來獲勝",
   "CantGuessJailed": "你不可以猜測目標職業",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "不能在只有1個偽裝者的情況下出現",
   "CannotStoneGazeWhenKCDIsntUp": "擊殺冷卻時間未到時無法石化屍體",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "檢測到外掛時",
-
 
   /* ==============================
     Combos           
@@ -9279,8 +9272,6 @@
   "DCanGuessNeutrals": "可以猜測<color=#ffab1b>中立</color>",
   "DGRM.OnMeeting": "會議時",
 
-
-
   /* ==============================
   Cooldowns and Timers           
   ============================== */
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "請完成你的任務!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>該管道已被阻礙者堵住</color>",
   "EraseLimit": "抹除次數上限",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "修正開場時的殺人冷卻",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "增加速度的持續時間",
   "IncreasedVisionDuration": "增加視野的持續時間",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "踢出指令目前已被禁用",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "踢出沒有達到指定等級的玩家",
   "KickNintendoPlayer": "【<b>{0}</b>】因該房禁止NS玩家而被請離房間",
   "KickNotJoinedPlayersRegularly": "每25秒在大廳踢掉未加入遊戲的玩家",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10060,8 +10044,8 @@
   "LoadingHint.26": "你是否有一個以為自己什麼都懂的朋友?\n讓他看看化學家的職業介紹!",
   "LoadingHint.27": "開發團隊最喜歡的職業是\n頂替者、企鵝、裂隙師、氣泡師、進化者、惡棍及懲戒者.....\n還有幾乎所有的船員職業 :D",
   "LoadingHint.28": "你知道嗎？\nEHR 有 16 種不同的遊戲模式！快來試試吧！\n使用設定選單左上角大標題下方的按鈕切換遊戲模式！",
-  "LoadingHint.29": "你知道嗎?\nEHR有一種特殊的遊戲模式叫做"紅綠燈"!\n遊戲結束後去試試吧!",
-  "LoadingHint.30": "想一遍又一遍的殺死船員? 在過去的半個小時沒有好好釋放壓力?\n在我們的"個人競技模式"釋放你的嗜血慾望!",
+  "LoadingHint.29": "你知道嗎?\nEHR有一種特殊的遊戲模式叫做\"紅綠燈\"!\n遊戲結束後去試試吧!",
+  "LoadingHint.30": "想一遍又一遍的殺死船員? 在過去的半個小時沒有好好釋放壓力?\n在我們的\"個人競技模式\"釋放你的嗜血慾望!",
   "LoadingHint.31": "你知道嗎?\nEHR有一個專屬的捉迷藏模式，並且有12個專屬於捉迷藏的職業!",
   "LoadingHint.32": "你是炸彈小遊戲的高手嗎?\n在燙手山芋模式中大展身手!",
   "LoadingHint.33": "你喜歡快速的做任務和殺人嗎?\n那麼我們為這樣的你製作了Speedrun模式! 在這局遊戲結束後去試試吧!",
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "修復卡頓",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>你被禁言且無法說話。禁言會在 <#ffff00>{0}</color> 秒</color>後解除",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "當吃瓜群眾在一旁看戲吧",
   "GMInfoLong": "(房主):\\n遊戲大師一開始就處於幽靈狀態，且所有人都會知道遊戲大師的存在。",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "已恢復EHR的預設設定",
   "RevealMaxCount": "最大揭示次數",
   "RitualMaxCount": "最大揭示次數",
-
 
   /* ==============================
     Sabotage Settings           
@@ -10765,7 +10745,7 @@
   /* ==============================
     Notifications and Messages           
   ============================== */
-  "UpReplacedMessage": "/up 被 /setrole 取代，它允許你透過使用"/setrole (ID) (職業名)"來設定任何遊戲中任何人的職業。你可以使用 /id 查看 ID。\n要像 /up 一樣設定你自己的職業，你需要執行"/setrole 0 (職業名)"\n。",
+  "UpReplacedMessage": "/up 被 /setrole 取代，它允許你透過使用\"/setrole (ID) (職業名)\"來設定任何遊戲中任何人的職業。你可以使用 /id 查看 ID。\n要像 /up 一樣設定你自己的職業，你需要執行\"/setrole 0 (職業名)\"\n。",
 
   /* ==============================
     Meeting Settings         

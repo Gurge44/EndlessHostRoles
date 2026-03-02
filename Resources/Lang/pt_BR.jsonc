@@ -1681,7 +1681,7 @@
   "BountyShowTargetArrow": "Mostrar seta apontando para o alvo",
   "Butcher": "Açougueiro",
   "ButcherInfo": "Aprecie meu lindo trabalho",
-  "ButcherInfoLong": "(Impostores):\\nComo o Açougueiro, quando você mata alguém, essa pessoa deixará 30 corpos no chão, dificultando a identificação de quem morreu na rodada no início da reunião.\\nSe você matar um Vingador, o jogo termina instantaneamente com a mensagem "Todos morreram".",
+  "ButcherInfoLong": "(Impostores):\\nComo o Açougueiro, quando você mata alguém, essa pessoa deixará 30 corpos no chão, dificultando a identificação de quem morreu na rodada no início da reunião.\\nSe você matar um Vingador, o jogo termina instantaneamente com a mensagem \"Todos morreram\".",
   "ButcherButtonText": "Desmembrar",
   "Camouflager": "Camuflador",
   "CamouflagerInfo": "Camufle-se para realizar mortes fáceis",
@@ -2158,7 +2158,7 @@
   "SapperRadius": "Alcance da Explosão",
   "Scavenger": "Necrófago",
   "ScavengerInfo": "Seus abates não podem ser reportados",
-  "ScavengerInfoLong": "(Impostores):\\nOs abates do Necrófago não deixam corpos. Para matar alguém, você deve clicar no seu botão de "matar" e, em seguida, ficar perto daquela pessoa por alguns segundos, semelhante a um Pirômano.",
+  "ScavengerInfoLong": "(Impostores):\\nOs abates do Necrófago não deixam corpos. Para matar alguém, você deve clicar no seu botão de \"matar\" e, em seguida, ficar perto daquela pessoa por alguns segundos, semelhante a um Pirômano.",
   "ScavengerKillDuration": "Tempo após Abate Concluido",
   "ShapeshifterEHR": "Metamorfo",
   "ShapeshifterEHRInfo": "Disfarce-se de Tripulantes para confundi-los",
@@ -4897,7 +4897,7 @@
   "Quiz.Questions.Easy.48.Answer.D": "4",
   "Quiz.Questions.Easy.48.Answer.E": "5",
   "Quiz.Questions.Easy.48.CorrectAnswer": "C",
-  "Quiz.Questions.Easy.49": "O que significa "www" em uma URL do site?",
+  "Quiz.Questions.Easy.49": "O que significa \"www\" em uma URL do site?",
   "Quiz.Questions.Easy.49.Answer.A": "Web Wide Web Web",
   "Quiz.Questions.Easy.49.Answer.B": "World Website Window",
   "Quiz.Questions.Easy.49.Answer.C": "World Wide Web",
@@ -5023,7 +5023,7 @@
   "Quiz.Questions.Easy.66.Answer.D": "Júpiter",
   "Quiz.Questions.Easy.66.Answer.E": "Saturno",
   "Quiz.Questions.Easy.66.CorrectAnswer": "E",
-  "Quiz.Questions.Easy.67": "Qual é o plural de "rato"?",
+  "Quiz.Questions.Easy.67": "Qual é o plural de \"rato\"?",
   "Quiz.Questions.Easy.67.Answer.A": "Ratos",
   "Quiz.Questions.Easy.67.Answer.B": "Ratas",
   "Quiz.Questions.Easy.67.Answer.C": "Ratos",
@@ -5352,7 +5352,7 @@
   "Quiz.Questions.Easy.113.Answer.D": "Ele quebra",
   "Quiz.Questions.Easy.113.Answer.E": "Galos não botam ovos",
   "Quiz.Questions.Easy.113.CorrectAnswer": "E",
-  "Quiz.Questions.Easy.114": "Qual está correto: "A gema do ovo são brancas" ou "A gema do ovo é branca"?",
+  "Quiz.Questions.Easy.114": "Qual está correto: \"A gema do ovo são brancas\" ou \"A gema do ovo é branca\"?",
   "Quiz.Questions.Easy.114.Answer.A": "São brancas",
   "Quiz.Questions.Easy.114.Answer.B": "É branca",
   "Quiz.Questions.Easy.114.Answer.C": "Nenhuma",
@@ -5499,7 +5499,7 @@
   "Quiz.Questions.Easy.134.Answer.D": "4",
   "Quiz.Questions.Easy.134.Answer.E": "5",
   "Quiz.Questions.Easy.134.CorrectAnswer": "C",
-  "Quiz.Questions.Easy.135": "De quantas maneiras diferentes você pode arranjar as letras da palavra "MATH"?",
+  "Quiz.Questions.Easy.135": "De quantas maneiras diferentes você pode arranjar as letras da palavra \"MATH\"?",
   "Quiz.Questions.Easy.135.Answer.A": "12",
   "Quiz.Questions.Easy.135.Answer.B": "16",
   "Quiz.Questions.Easy.135.Answer.C": "24",
@@ -5576,7 +5576,7 @@
   "Quiz.Questions.Easy.145.Answer.D": "5/9",
   "Quiz.Questions.Easy.145.Answer.E": "3/10",
   "Quiz.Questions.Easy.145.CorrectAnswer": "C",
-  "Quiz.Questions.Easy.146": "De quantas maneiras diferentes você pode arranjar as letras em "LEVEL"?",
+  "Quiz.Questions.Easy.146": "De quantas maneiras diferentes você pode arranjar as letras em \"LEVEL\"?",
   "Quiz.Questions.Easy.146.Answer.A": "60",
   "Quiz.Questions.Easy.146.Answer.B": "30",
   "Quiz.Questions.Easy.146.Answer.C": "120",
@@ -5954,7 +5954,7 @@
   "Quiz.Questions.Easy.199.Answer.D": "18",
   "Quiz.Questions.Easy.199.Answer.E": "16",
   "Quiz.Questions.Easy.199.CorrectAnswer": "C",
-  "Quiz.Questions.Easy.200": "Quem escreveu a peça "Romeu e Julieta"?",
+  "Quiz.Questions.Easy.200": "Quem escreveu a peça \"Romeu e Julieta\"?",
   "Quiz.Questions.Easy.200.Answer.A": "Charles Dickens",
   "Quiz.Questions.Easy.200.Answer.B": "Leo Tolstoy",
   "Quiz.Questions.Easy.200.Answer.C": "William Shakespeare",
@@ -6318,7 +6318,7 @@
   "Quiz.Questions.Medium.28.Answer.D": "4",
   "Quiz.Questions.Medium.28.Answer.E": "6",
   "Quiz.Questions.Medium.28.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.29": "O que significa a palavra "Magyar"?",
+  "Quiz.Questions.Medium.29": "O que significa a palavra \"Magyar\"?",
   "Quiz.Questions.Medium.29.Answer.A": "Oriental",
   "Quiz.Questions.Medium.29.Answer.B": "Húngaro",
   "Quiz.Questions.Medium.29.Answer.C": "Homem da montanha",
@@ -6360,7 +6360,7 @@
   "Quiz.Questions.Medium.34.Answer.D": "Vermelho",
   "Quiz.Questions.Medium.34.Answer.E": "Azul",
   "Quiz.Questions.Medium.34.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.35": "Qual parte da sua língua sente o gosto "doce"?",
+  "Quiz.Questions.Medium.35": "Qual parte da sua língua sente o gosto \"doce\"?",
   "Quiz.Questions.Medium.35.Answer.A": "Ponta",
   "Quiz.Questions.Medium.35.Answer.B": "Atrás",
   "Quiz.Questions.Medium.35.Answer.C": "Lados",
@@ -6738,7 +6738,7 @@
   "Quiz.Questions.Medium.88.Answer.D": "4,73",
   "Quiz.Questions.Medium.88.Answer.E": "1,18",
   "Quiz.Questions.Medium.88.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.89": "Qual dos seguintes artistas pintou "A Noite Estrelada"?",
+  "Quiz.Questions.Medium.89": "Qual dos seguintes artistas pintou \"A Noite Estrelada\"?",
   "Quiz.Questions.Medium.89.Answer.A": "Pablo Picasso",
   "Quiz.Questions.Medium.89.Answer.B": "Claude Monet",
   "Quiz.Questions.Medium.89.Answer.C": "Vincent van Gogh",
@@ -6927,7 +6927,7 @@
   "Quiz.Questions.Medium.115.Answer.D": "Olmo",
   "Quiz.Questions.Medium.115.Answer.E": "Carvalho",
   "Quiz.Questions.Medium.115.CorrectAnswer": "E",
-  "Quiz.Questions.Medium.116": "O que significa "PDF" em um nome de arquivo?",
+  "Quiz.Questions.Medium.116": "O que significa \"PDF\" em um nome de arquivo?",
   "Quiz.Questions.Medium.116.Answer.A": "Arquivo de Dados Imprimível",
   "Quiz.Questions.Medium.116.Answer.B": "Formato de Documento Público",
   "Quiz.Questions.Medium.116.Answer.C": "Arquivo de Design de Página",
@@ -6941,7 +6941,7 @@
   "Quiz.Questions.Medium.117.Answer.D": "Sputnik 1",
   "Quiz.Questions.Medium.117.Answer.E": "Soyuz",
   "Quiz.Questions.Medium.117.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.118": "O que significa "EC" em datas como "500 EC"?",
+  "Quiz.Questions.Medium.118": "O que significa \"EC\" em datas como \"500 EC\"?",
   "Quiz.Questions.Medium.118.Answer.A": "Época Civil",
   "Quiz.Questions.Medium.118.Answer.B": "Era Cristã",
   "Quiz.Questions.Medium.118.Answer.C": "Época Central",
@@ -6976,7 +6976,7 @@
   "Quiz.Questions.Medium.122.Answer.D": "Clima",
   "Quiz.Questions.Medium.122.Answer.E": "Terremotos",
   "Quiz.Questions.Medium.122.CorrectAnswer": "E",
-  "Quiz.Questions.Medium.123": "Qual elemento químico é representado pelo símbolo "K"?",
+  "Quiz.Questions.Medium.123": "Qual elemento químico é representado pelo símbolo \"K\"?",
   "Quiz.Questions.Medium.123.Answer.A": "Criptônio",
   "Quiz.Questions.Medium.123.Answer.B": "Zinco",
   "Quiz.Questions.Medium.123.Answer.C": "Cálcio",
@@ -7151,7 +7151,7 @@
   "Quiz.Questions.Hard.24.Answer.D": "Fragata",
   "Quiz.Questions.Hard.24.Answer.E": "Gaivota",
   "Quiz.Questions.Hard.24.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.25": "Que tipo de criatura é uma "cobia"?",
+  "Quiz.Questions.Hard.25": "Que tipo de criatura é uma \"cobia\"?",
   "Quiz.Questions.Hard.25.Answer.A": "Cobra",
   "Quiz.Questions.Hard.25.Answer.B": "Peixe",
   "Quiz.Questions.Hard.25.Answer.C": "Inseto",
@@ -7221,7 +7221,7 @@
   "Quiz.Questions.Hard.34.Answer.D": "Canela",
   "Quiz.Questions.Hard.34.Answer.E": "Cravo",
   "Quiz.Questions.Hard.34.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.35": "O que a palavra "lego" significa em dinamarquês?",
+  "Quiz.Questions.Hard.35": "O que a palavra \"lego\" significa em dinamarquês?",
   "Quiz.Questions.Hard.35.Answer.A": "Empilhar",
   "Quiz.Questions.Hard.35.Answer.B": "Construir",
   "Quiz.Questions.Hard.35.Answer.C": "Brincar bem",
@@ -7242,7 +7242,7 @@
   "Quiz.Questions.Hard.37.Answer.D": "Júpiter",
   "Quiz.Questions.Hard.37.Answer.E": "Terra",
   "Quiz.Questions.Hard.37.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.38": "O que a palavra "karaokê" significa em japonês?",
+  "Quiz.Questions.Hard.38": "O que a palavra \"karaokê\" significa em japonês?",
   "Quiz.Questions.Hard.38.Answer.A": "Voz silenciosa",
   "Quiz.Questions.Hard.38.Answer.B": "Cantar sozinho",
   "Quiz.Questions.Hard.38.Answer.C": "Orquestra vazia",
@@ -7284,7 +7284,7 @@
   "Quiz.Questions.Hard.43.Answer.D": "Ioiô",
   "Quiz.Questions.Hard.43.Answer.E": "Cubo de Rubik",
   "Quiz.Questions.Hard.43.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.44": "Qual fruta já foi chamada de "maçã do amor"?",
+  "Quiz.Questions.Hard.44": "Qual fruta já foi chamada de \"maçã do amor\"?",
   "Quiz.Questions.Hard.44.Answer.A": "Morango",
   "Quiz.Questions.Hard.44.Answer.B": "Tomate",
   "Quiz.Questions.Hard.44.Answer.C": "Romã",
@@ -7340,7 +7340,7 @@
   "Quiz.Questions.Hard.51.Answer.D": "DELETE",
   "Quiz.Questions.Hard.51.Answer.E": "SELECT",
   "Quiz.Questions.Hard.51.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.52": "Qual é o nome do ponto acima de um "i" ou "j" minúsculo?",
+  "Quiz.Questions.Hard.52": "Qual é o nome do ponto acima de um \"i\" ou \"j\" minúsculo?",
   "Quiz.Questions.Hard.52.Answer.A": "Pingo",
   "Quiz.Questions.Hard.52.Answer.B": "Marca",
   "Quiz.Questions.Hard.52.Answer.C": "Til",
@@ -7501,7 +7501,7 @@
   "Quiz.Questions.Hard.74.Answer.D": "Notonecta",
   "Quiz.Questions.Hard.74.Answer.E": "Hiena",
   "Quiz.Questions.Hard.74.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.75": "Qual cidade europeia tem um prédio coberto de plantas vivas chamado "Floresta Vertical"?",
+  "Quiz.Questions.Hard.75": "Qual cidade europeia tem um prédio coberto de plantas vivas chamado \"Floresta Vertical\"?",
   "Quiz.Questions.Hard.75.Answer.A": "Paris",
   "Quiz.Questions.Hard.75.Answer.B": "Milão",
   "Quiz.Questions.Hard.75.Answer.C": "Amsterdã",
@@ -7592,7 +7592,7 @@
   "Quiz.Questions.Hard.87.Answer.D": "12",
   "Quiz.Questions.Hard.87.Answer.E": "14",
   "Quiz.Questions.Hard.87.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.88": "O que "piano" significa em italiano?",
+  "Quiz.Questions.Hard.88": "O que \"piano\" significa em italiano?",
   "Quiz.Questions.Hard.88.Answer.A": "Suave",
   "Quiz.Questions.Hard.88.Answer.B": "Macio",
   "Quiz.Questions.Hard.88.Answer.C": "Silencioso",
@@ -7655,7 +7655,7 @@
   "Quiz.Questions.Hard.96.Answer.D": "√(a²+b²)eⁱᵃʳᶜᵗᵃⁿ(ᵇ/ᵃ)",
   "Quiz.Questions.Hard.96.Answer.E": "√(a²-b²)eⁱᵃʳᶜˢⁱⁿ(ᵃ/ᵇ)",
   "Quiz.Questions.Hard.96.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.97": "O que "tsunami" significa literalmente em japonês?",
+  "Quiz.Questions.Hard.97": "O que \"tsunami\" significa literalmente em japonês?",
   "Quiz.Questions.Hard.97.Answer.A": "Onda grande",
   "Quiz.Questions.Hard.97.Answer.B": "Água gigante",
   "Quiz.Questions.Hard.97.Answer.C": "Terremoto marinho",
@@ -7683,7 +7683,7 @@
   "Quiz.Questions.Hard.100.Answer.D": "Assassinato",
   "Quiz.Questions.Hard.100.Answer.E": "Bando (de gansos)",
   "Quiz.Questions.Hard.100.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.101": "O que "sushi" significa literalmente em japonês?",
+  "Quiz.Questions.Hard.101": "O que \"sushi\" significa literalmente em japonês?",
   "Quiz.Questions.Hard.101.Answer.A": "Peixe cru",
   "Quiz.Questions.Hard.101.Answer.B": "Refeição de frutos do mar",
   "Quiz.Questions.Hard.101.Answer.C": "Alga enrolada",
@@ -7788,7 +7788,7 @@
   "Quiz.Questions.Hard.115.Answer.D": "Pulso",
   "Quiz.Questions.Hard.115.Answer.E": "Clavícula",
   "Quiz.Questions.Hard.115.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.116": "Que criatura é conhecida como um "fóssil vivo"?",
+  "Quiz.Questions.Hard.116": "Que criatura é conhecida como um \"fóssil vivo\"?",
   "Quiz.Questions.Hard.116.Answer.A": "Celacanto",
   "Quiz.Questions.Hard.116.Answer.B": "Lula",
   "Quiz.Questions.Hard.116.Answer.C": "Ornitorrinco",
@@ -7816,7 +7816,7 @@
   "Quiz.Questions.Hard.119.Answer.D": "Carneiro",
   "Quiz.Questions.Hard.119.Answer.E": "Antílope",
   "Quiz.Questions.Hard.119.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.120": "O que a palavra "emoji" significa literalmente em japonês?",
+  "Quiz.Questions.Hard.120": "O que a palavra \"emoji\" significa literalmente em japonês?",
   "Quiz.Questions.Hard.120.Answer.A": "Rostinho",
   "Quiz.Questions.Hard.120.Answer.B": "Letra icônica",
   "Quiz.Questions.Hard.120.Answer.C": "Marca feliz",
@@ -7830,7 +7830,7 @@
   "Quiz.Questions.Hard.121.Answer.D": "9",
   "Quiz.Questions.Hard.121.Answer.E": "Depende da temperatura",
   "Quiz.Questions.Hard.121.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.122": "O que significa "SIM" em cartão SIM?",
+  "Quiz.Questions.Hard.122": "O que significa \"SIM\" em cartão SIM?",
   "Quiz.Questions.Hard.122.Answer.A": "Memória Interna Simples",
   "Quiz.Questions.Hard.122.Answer.B": "Mecanismo de Entrada de Sinal",
   "Quiz.Questions.Hard.122.Answer.C": "Gerenciamento Seguro de Informações",
@@ -7844,7 +7844,7 @@
   "Quiz.Questions.Hard.123.Answer.D": "Xisto",
   "Quiz.Questions.Hard.123.Answer.E": "Basalto",
   "Quiz.Questions.Hard.123.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.124": "O que a palavra "origami" significa em japonês?",
+  "Quiz.Questions.Hard.124": "O que a palavra \"origami\" significa em japonês?",
   "Quiz.Questions.Hard.124.Answer.A": "Dobragem leve",
   "Quiz.Questions.Hard.124.Answer.B": "Arte em papel",
   "Quiz.Questions.Hard.124.Answer.C": "Forma vincada",
@@ -7947,7 +7947,7 @@
   // Room Rush - RR
   "RoomRush": "CORRIDA ENTRE SALAS",
   "ModeRoomRush": "Modo de Jogo: Corrida entre Salas",
-  "ModeDescribe.RoomRush": "No modo de jogo "Corrida entre Salas", todos precisam chegar a uma sala específica o mais rápido possível. O último jogador a chegar lá morre. O último jogador vivo vence!\\nAh, e também há um limite de tempo. Todos que não chegarem à sala dentro do tempo especificado morrem. Parece fácil, certo? Bem.... Quando os primeiros 2 jogadores entram na sala correta, o limite de tempo é reduzido para apenas alguns segundos! Boa sorte!\\n\\nVocê pode ver a sala para a qual precisa ir abaixo do seu nome.\\nDependendo das configurações, todos podem usar os dutos um número limitado de vezes.",
+  "ModeDescribe.RoomRush": "No modo de jogo \"Corrida entre Salas\", todos precisam chegar a uma sala específica o mais rápido possível. O último jogador a chegar lá morre. O último jogador vivo vence!\\nAh, e também há um limite de tempo. Todos que não chegarem à sala dentro do tempo especificado morrem. Parece fácil, certo? Bem.... Quando os primeiros 2 jogadores entram na sala correta, o limite de tempo é reduzido para apenas alguns segundos! Boa sorte!\\n\\nVocê pode ver a sala para a qual precisa ir abaixo do seu nome.\\nDependendo das configurações, todos podem usar os dutos um número limitado de vezes.",
   "RR_Tutorial_Basics": "O modo de jogo atual é <#ffab1b>Corrida entre Salas</color>.\\n<size=90%>O objetivo é chegar nas salas especificadas o mais rápido possível.</size>",
   "RR_Tutorial_DontMoveOutOfRoom": "<size=90%>Depois de chegar na sala correta, não saia dela!</size>",
   "RR_Tutorial_LastDeath": "<size=90%>Se você for o último a chegar na sala correta, você morre.</size>",
@@ -8002,7 +8002,7 @@
   // SoloPVP
   "SoloPVP": "Desafiante",
   "ModeSoloPVP": "Modo de Jogo: PVP Solo",
-  "ModeDescribe.SoloPVP": "No modo de jogo Solo PVP, todos têm HP e podem usar seu botão de matar para causar dano em outros jogadores. Quando a saúde de um jogador chega a 0, ele "morre" e reaparece após alguns segundos. O(s) jogador(es) com o maior número de mortes vence(m) no final do jogo.",
+  "ModeDescribe.SoloPVP": "No modo de jogo Solo PVP, todos têm HP e podem usar seu botão de matar para causar dano em outros jogadores. Quando a saúde de um jogador chega a 0, ele \"morre\" e reaparece após alguns segundos. O(s) jogador(es) com o maior número de mortes vence(m) no final do jogo.",
   "GameModeTutorial.SoloPVP": "<size=90%>O modo de jogo atual é <#f55252>PVP Solo</color>.</size>\\n<size=80%>Use seu botão de matar para dar dano nos outros. Se o HP de alguém ficar abaixo de 0,\\neles são teleportados fora do mapa por algum tempo, e então irão renascer.\\nQuando se mata alguém, se ganha um pequeno buff e 1 ponto.\\nA pessoa com mais pontos no final do tempo limite vence!</size>",
   "PVP.ATK": "Ataque",
   "PVP.DF": "Defendendo",
@@ -8181,7 +8181,7 @@
   "8BallResponse.13": "Não é possível prever agora.",
   "8BallResponse.14": "Concentre-se e pergunte novamente.",
   "8BallResponse.15": "Não conte com isso.",
-  "8BallResponse.16": "A minha resposta é "não”.",
+  "8BallResponse.16": "A minha resposta é \"não”.",
   "8BallResponse.17": "Minhas fontes dizem que não.",
   "8BallResponse.18": "Resultado não tão bom.",
   "8BallResponse.19": "Muito duvidoso.",
@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "Tempo de reunião quando ninguém está morto",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} adivinhou o anagrama corretamente (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Atraso Máximo de Exibição da Seta",
   "ArrowDelayMin": "Atraso Mínimo de Exibição da Seta",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "Pode vencer pelo suicídio",
   "CantGuessJailed": "Você não pode Adivinhar o Alvo",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "Não pode aparecer como Impostor Solo",
   "CannotStoneGazeWhenKCDIsntUp": "Não é possível olhar os corpos de pedra quando o assassinato não subir",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "Quando um jogador trapaceiro é encontrado",
-
 
   /* ==============================
     Combos           
@@ -9115,7 +9108,7 @@
   "CommandForms.XOR": "xor",
   // Command Access
   "CommandList": "★ Lista de Comandos Disponíveis:",
-  "Commands.ChangeSettingHelp": "<b><u>Argumentos:</u></b><size=70%>\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\n- impostors (número)\n- players (número)\n- recommended (on/off)\n- confirmejects (on/off)\n- emergencymeetings (número)\n- anonymousvotes (on/off)\n- emergencycooldown (número)\n- discussiontime (número)\n- votingtime (número)\n- playerspeed (valor)\n- crewmatevision (valor)\n- impostorvision (valor)\n- killcooldown (número)\n- killdistance (short/medium/long/custom)\n- taskbarupdates (always/meetings/never)\n- visualtasks (on/off)\n- commontasks (número)\n- longtasks (número)\n- shorttasks (número)\n- scientistcount (número)\n- scientistchance (chance)\n- vitalsdisplaycooldown (número)\n- batteryduration (número)\n- engineercount (número)\n- engineerchance (chance)\n- ventusecooldown (número)\n- maxtimeinvents (número)\n- guardianangelcount (número)\n- guardianangelchance (chance)\n- protectcooldown (número)\n- protectduration (número)\n- protectvisibletoimpostors (on/off)\n- shapeshiftercount (número)\n- shapeshifterchance (chance)\n- shapeshiftduration (número)\n- shapeshiftcooldown (número)\n- leaveshapeshiftevidence (on/off)\n- phantomcount (número)\n- phantomchance (chance)\n- inviscooldown (número)\n- invisduration (número)\n- noisemakercount (número)\n- noisemakerchance (chance)\n- noisemakerimpostoralert (on/off)\n- noisemakeralertduration (número)\n- trackercount (número)\n- trackerchance (chance)\n- trackduration (número)\n- trackcooldown (número)\n- trackdelay (número)\n- ghostdotasks (on/off)\n\n<u><b>Notas:</b></u>\n1. Letras maiusculas e minusicular importam\n2. Onde a configuração houver um custom, você obviamente deve colocar um número após o custom\n3. onde um argumentos for valor, você deve colocar um número no formato float, como por exemplo, 1.7\n4. \\"ghostdotasks\\" causa alguns problemas caso definido por comando\n5. Exemplos de uso:\n   - \\"/cs map polus\\"\n   - \\"/cs killdistance custom 4\\"\n   - \\"/cs trackdelay 1,7\\"\n   - \\"/cs confirmejects on\\"",
+  "Commands.ChangeSettingHelp": "<b><u>Argumentos:</u></b><size=70%>\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\n- impostors (número)\n- players (número)\n- recommended (on/off)\n- confirmejects (on/off)\n- emergencymeetings (número)\n- anonymousvotes (on/off)\n- emergencycooldown (número)\n- discussiontime (número)\n- votingtime (número)\n- playerspeed (valor)\n- crewmatevision (valor)\n- impostorvision (valor)\n- killcooldown (número)\n- killdistance (short/medium/long/custom)\n- taskbarupdates (always/meetings/never)\n- visualtasks (on/off)\n- commontasks (número)\n- longtasks (número)\n- shorttasks (número)\n- scientistcount (número)\n- scientistchance (chance)\n- vitalsdisplaycooldown (número)\n- batteryduration (número)\n- engineercount (número)\n- engineerchance (chance)\n- ventusecooldown (número)\n- maxtimeinvents (número)\n- guardianangelcount (número)\n- guardianangelchance (chance)\n- protectcooldown (número)\n- protectduration (número)\n- protectvisibletoimpostors (on/off)\n- shapeshiftercount (número)\n- shapeshifterchance (chance)\n- shapeshiftduration (número)\n- shapeshiftcooldown (número)\n- leaveshapeshiftevidence (on/off)\n- phantomcount (número)\n- phantomchance (chance)\n- inviscooldown (número)\n- invisduration (número)\n- noisemakercount (número)\n- noisemakerchance (chance)\n- noisemakerimpostoralert (on/off)\n- noisemakeralertduration (número)\n- trackercount (número)\n- trackerchance (chance)\n- trackduration (número)\n- trackcooldown (número)\n- trackdelay (número)\n- ghostdotasks (on/off)\n\n<u><b>Notas:</b></u>\n1. Letras maiusculas e minusicular importam\n2. Onde a configuração houver um custom, você obviamente deve colocar um número após o custom\n3. onde um argumentos for valor, você deve colocar um número no formato float, como por exemplo, 1.7\n4. \\\"ghostdotasks\\\" causa alguns problemas caso definido por comando\n5. Exemplos de uso:\n   - \\\"/cs map polus\\\"\n   - \\\"/cs killdistance custom 4\\\"\n   - \\\"/cs trackdelay 1,7\\\"\n   - \\\"/cs confirmejects on\\\"",
   "Commands.NoAccess.Level.Host": "<#ff5555>X <#bb0000>Este comando só pode ser usado pelo <#ffffff>Anfitrião",
   "Commands.NoAccess.Level.HostOrAdmin": "<#ff5555>X <#bb0000>Este comando só pode ser usado pelo <#ffffff>Anfitrião e Moderadores",
   "Commands.NoAccess.Level.HostOrModerator": "<#ff5555>X <#bb0000>Este comando só pode ser usado pelo <#ffffff>Anfitrião e Moderadores",
@@ -9278,8 +9271,6 @@
   "DCanGuessImpostors": "Pode adivinhar <color=#ff1919>Impostores</color>",
   "DCanGuessNeutrals": "Pode adivinhar <color=#ffab1b>Neutros</color>",
   "DGRM.OnMeeting": "Na Reunião",
-
-
 
   /* ==============================
   Cooldowns and Timers           
@@ -9488,7 +9479,7 @@
   "DisableOtherTasks": "Desabilitar Tarefas Situacionais",
   "DisablePickUpTowels": "Desabilitar Recolher toalhas",
   "DisablePlayVideoGame": "Desabilitar Jogar videogame",
-  "DisablePlayerVotedMessage": "Desativar mensagens de "X votou. Restam Y" nas reuniões.",
+  "DisablePlayerVotedMessage": "Desativar mensagens de \"X votou. Restam Y\" nas reuniões.",
   "DisablePolishGem": "Desabilitar Polimento",
   "DisablePolishRuby": "Desabilitar Polir rubi",
   "DisablePolusAdmin": "Desabilitar Admin",
@@ -9566,7 +9557,6 @@
     Task Settings           
   ============================== */
   "DoYourTasksPlease": "Faça as suas tarefas!",
-
 
   /* ==============================
     Meeting Settings         
@@ -9680,7 +9670,7 @@
   "EnableKillerLeftCommand": "Habilite o uso do comando /gs (anteriormente /kcount)",
   "EnableMovementChecking": "Habilitar verificações da EAC de movimento inválido (contra hacks de velocidade) (pode causar falsos positivos)",
   "EnableSpurtCharge": "Mostrar a carga",
-  "EnabledGMWarning": "Você ativou o Modo Mestre. Isso fará com que você comece cada partida como um fantasma. Devido a um problema desconhecido, as partidas podem terminar instantaneamente com a mensagem "Todos morreram". Se isso acontecer, desative o Modo Mestre, por favor.",
+  "EnabledGMWarning": "Você ativou o Modo Mestre. Isso fará com que você comece cada partida como um fantasma. Devido a um problema desconhecido, as partidas podem terminar instantaneamente com a mensagem \"Todos morreram\". Se isso acontecer, desative o Modo Mestre, por favor.",
 
   /* ==============================
     General Settings           
@@ -9688,7 +9678,6 @@
   "EnterVentWinCountDown": "Entre na ventilação em <b>{0}</b> segundos para ganhar!",
   "EnteredBlockedVent": "<color=#ffff00>Este duto está bloqueado pelo Guarda-Dutos</color>",
   "EraseLimit": "Limite Máximo de Apagamentos",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Resetar a Recarga do Primeiro Abate",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "Duração do Impulso de Velocidade",
   "IncreasedVisionDuration": "Duração da visão aumentada",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "O comando de expulsar está atualmente desativado.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Expulsar jogadores cujo nível seja inferior a",
   "KickNintendoPlayer": "<b>{0}</b> foi expulso por jogar no Nintendo",
   "KickNotJoinedPlayersRegularly": "Expulsar jogadores que não entraram no jogo a cada 25s no lobby",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10041,7 +10025,7 @@
   "LoadingHint.7": "<color=#08FA99>Você sabia?</color>\nVocê pode adicionar ou remover moderadores diretamente no jogo usando /addmod e /deletemod!",
   "LoadingHint.8": "Você sabia\nHackers geralmente não tem um código de amigo, então você pode facilmente ativar essa proteção nas Configurações!",
   "LoadingHint.9": "<color=#08FA99>Você sabia?</color>\nVocê pode rapidamente mudar as configurações do jogo sem usar o menu de opções usando /changesetting (/cs)!\nExemplo: /cs map polus",
-  "LoadingHint.10": "<color=#08FA99>Você sabia?</color>\nVocê provavelmente percebeu uma tag "EHR" ao lado do seu nome, você pode customizar ela usando Arquivos de Tradução Personalizados",
+  "LoadingHint.10": "<color=#08FA99>Você sabia?</color>\nVocê provavelmente percebeu uma tag \"EHR\" ao lado do seu nome, você pode customizar ela usando Arquivos de Tradução Personalizados",
   "LoadingHint.11": "Você sabia?\nVocê pode definir sua função/atributo para o próximo jogo usando /setrole ou /setaddon se você for o anfitrião!",
   "LoadingHint.12": "Confuso sobre sua morte? Não sabe quem te matou?\nUse /death ou /d após morrer!",
   "LoadingHint.13": "Você sabia?\nVocê pode usar /poll para fazer uma pergunta a seus jogadores e deixá-los votar!",
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Modo de Carga Leve",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>Você está mutado e não pode enviar mensagens. O silenciamento irá expirar em <#ffff00>{0}</color> segundos.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "Especte o caos!",
   "GMInfoLong": "(Nenhum):\nO Espectador é uma função observadora. Sua presença não faz diferença no jogo, e todos os jogadores sabem quem o Espectador é. A função do Espectador vai ser atribuída para o Anfitrião, o qual irá se tornar um fantasma no início da partida.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "Configurações EHR restauradas ao padrão",
   "RevealMaxCount": "Máximo de Revelações",
   "RitualMaxCount": "Máximo de Revelações",
-
 
   /* ==============================
     Sabotage Settings           

@@ -1760,7 +1760,7 @@
   "CouncillorInfoLong": "(Impostores):\\nComo el Concejal, puedes matar jugadores durante una reunión como un Juez.\\n\\nCuando matas en una reunión, esos asesinatos aparecerán como el juicio de un Juez.\\n\\nEl comando para matar es /tl [id del jugador]\\nPuedes ver el id de un jugador junto al nombre del jugador, o usando el comando /id para ver el id de todos los jugadores.",
   "CouncillorCanMurderImpostor": "Puede Asesinar <color=#ff1919>Impostores</color>",
   "CouncillorCanMurderMadmate": "Puede Asesinar <color=#ff1919>Malvado</color>",
-  "CouncillorDead": " no puedes asesinar desde los muertos."",
+  "CouncillorDead": " no puedes asesinar desde los muertos.\"",
   "CouncillorMakeEvilJudgeClear": "Show Trial as Councillor Murder",
   "CouncillorMurderMax": "Lo siento, has alcanzado tu cantidad máxima de asesinatos.",
   "CouncillorMurderMaxMeeting": "No puedes asesinar a más jugadores en esta reunión. Has alcanzado el límite establecido por el host.",
@@ -2184,7 +2184,7 @@
   "SoulCatcherButtonText": "Teletrasportar",
   "Stasis": "Estasis",
   "StasisInfo": "Congela el tiempo",
-  "StasisInfoLong": "(Impostores):\\nComo Estásis, puedes desvanecer/Cambiar de formas/acariciar mascota para "congelar tiempo". Eso significa que todos los jugadores estarán congelados y ciegos, y nadie podrá hacer nada. Dependiendo de los ajustes, la cegadora y la congelación pueden excluir a otros jugadores imposibles.",
+  "StasisInfoLong": "(Impostores):\\nComo Estásis, puedes desvanecer/Cambiar de formas/acariciar mascota para \"congelar tiempo\". Eso significa que todos los jugadores estarán congelados y ciegos, y nadie podrá hacer nada. Dependiendo de los ajustes, la cegadora y la congelación pueden excluir a otros jugadores imposibles.",
   "Stasis.AffectsOtherImpostors": "El tiempo de congelación afecta a otros <#ff1919>Impostores</color>",
   "Stasis.TimeFreezeEndNotify": "Tiempo descongelado",
   "Stasis.TimeFrozenNotify": "Duración de congelación",
@@ -8274,7 +8274,7 @@
   "Achievement.BadLuckOrBadObservation.Description": "Adivina incorrectamente y muere",
   "Achievement.BeginnerGuesser": "Adivino Principiante",
   "Achievement.BeginnerGuesser.Description": "Adivina correctamente a 2 jugadores en la misma partida",
-  "Achievement.BestGuesserAward": "Premio al "mejor Adivino"",
+  "Achievement.BestGuesserAward": "Premio al \"mejor Adivino\"",
   "Achievement.BestGuesserAward.Description": "Adivina correctamente a 6 jugadores en la misma partida",
   "Achievement.BestReactionTime": "Mejor tiempo de Reacción ",
   "Achievement.BestReactionTime.Description": "Gana en el modo de juego ROOM RUSH",
@@ -8473,7 +8473,7 @@
   "Achievement.WhatHaveIDone": "¿Qué he hecho?",
   "Achievement.WhatHaveIDone.Description": "Mata a tu Amante, Romántico, Abogado o Seguidor",
   "Achievement.WhatKindOfGeniusCameUpWithThisRoleIdea": "¿¿De qué tipo de genio salió esta idea de rol...??",
-  "Achievement.WhatKindOfGeniusCameUpWithThisRoleIdea.Description": "Obtener el rol "Papá"",
+  "Achievement.WhatKindOfGeniusCameUpWithThisRoleIdea.Description": "Obtener el rol \"Papá\"",
   "Achievement.WhatTheHell": "Que en el infierno...",
   "Achievement.WhatTheHell.Description": "Escribe 666 en el chat como Demonio. ¿Los demás notarán esto? >:)",
   "Achievement.WheresTheBlueShell": "¿Dónde está la Concha Azul?",
@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "Tiempo de Reunión Cuando Nadie está Muerto",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> ¡ {0} ha adivinado el anagrama correctamente (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Máximo Retraso de Aparición de flecha",
   "ArrowDelayMin": "Mínimo retraso de aparición de Flecha",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "Puede Ganar Por Suicidio",
   "CantGuessJailed": "No puedes adivinar al objetivo",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "No Puede Aparecer como Único Impostor",
   "CannotStoneGazeWhenKCDIsntUp": "No Puede Petrificar Cuerpos Cuando Tiempo de Reutilización de Asesinato No Está Listo",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "Cuando un jugador tramposo es encontrado",
-
 
   /* ==============================
     Combos           
@@ -9115,7 +9108,7 @@
   "CommandForms.XOR": "xor",
   // Command Access
   "CommandList": "★ Lista de comandos:",
-  "Commands.ChangeSettingHelp": "<b><u>Argumentos:</u></b><size=70%>\\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n- impostors (number)\\n- players (number)\\n- recommended (on/off)\\n- confirmejects (on/off)\\n- emergencymeetings (number)\\n- anonymousvotes (on/off)\\n- emergencycooldown (number)\\n- discussiontime (number)\\n- votingtime (number)\\n- playerspeed (float)\\n- crewmatevision (float)\\n- impostorvision (float)\\n- killcooldown (float)\\n- killdistance (short/medium/long/custom)\\n- taskbarupdates (always/meetings/never)\\n- visualtasks (on/off)\\n- commontasks (number)\\n- longtasks (number)\\n- shorttasks (number)\\n- scientistcount (number)\\n- scientistchance (number)\\n- vitalsdisplaycooldown (float)\\n- batteryduration (float)\\n- engineercount (number)\\n- engineerchance (number)\\n- ventusecooldown (float)\\n- maxtimeinvents (float)\\n- guardianangelcount (number)\\n- guardianangelchance (number)\\n- protectcooldown (float)\\n- protectduration (float)\\n- protectvisibletoimpostors (on/off)\\n- shapeshiftercount (number)\\n- shapeshifterchance (number)\\n- shapeshiftduration (float)\\n- shapeshiftcooldown (float)\\n- leaveshapeshiftevidence (on/off)\\n- phantomcount (number)\\n- phantomchance (number)\\n- inviscooldown (float)\\n- invisduration (float)\\n- noisemakercount (number)\\n- noisemakerchance (number)\\n- noisemakerimpostoralert (on/off)\\n- noisemakeralertduration (number)\\n- trackercount (number)\\n- trackerchance (number)\\n- trackduration (float)\\n- trackcooldown (float)\\n- trackdelay (float)\\n- ghostdotasks (on/off)\\n\\n<u><b>Notas:</b></u>\\n1. Mayúsculas y minúsculas importan\\n2. Donde dice custom, obviamente pones un argumento numérico después\\n3. Un float es un único número flotante de precisión, como 1.7\\n4. "ghostdotasks" causa problemas si lo configuras\\n5. Ejemplos de uso:\\n   - "/cs map polus"\\n   - "/cs killdistance custom 4"\\n   - "/cs trackdelay 1,7"\\n   - "/cs confirmejects on"",
+  "Commands.ChangeSettingHelp": "<b><u>Argumentos:</u></b><size=70%>\\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n- impostors (number)\\n- players (number)\\n- recommended (on/off)\\n- confirmejects (on/off)\\n- emergencymeetings (number)\\n- anonymousvotes (on/off)\\n- emergencycooldown (number)\\n- discussiontime (number)\\n- votingtime (number)\\n- playerspeed (float)\\n- crewmatevision (float)\\n- impostorvision (float)\\n- killcooldown (float)\\n- killdistance (short/medium/long/custom)\\n- taskbarupdates (always/meetings/never)\\n- visualtasks (on/off)\\n- commontasks (number)\\n- longtasks (number)\\n- shorttasks (number)\\n- scientistcount (number)\\n- scientistchance (number)\\n- vitalsdisplaycooldown (float)\\n- batteryduration (float)\\n- engineercount (number)\\n- engineerchance (number)\\n- ventusecooldown (float)\\n- maxtimeinvents (float)\\n- guardianangelcount (number)\\n- guardianangelchance (number)\\n- protectcooldown (float)\\n- protectduration (float)\\n- protectvisibletoimpostors (on/off)\\n- shapeshiftercount (number)\\n- shapeshifterchance (number)\\n- shapeshiftduration (float)\\n- shapeshiftcooldown (float)\\n- leaveshapeshiftevidence (on/off)\\n- phantomcount (number)\\n- phantomchance (number)\\n- inviscooldown (float)\\n- invisduration (float)\\n- noisemakercount (number)\\n- noisemakerchance (number)\\n- noisemakerimpostoralert (on/off)\\n- noisemakeralertduration (number)\\n- trackercount (number)\\n- trackerchance (number)\\n- trackduration (float)\\n- trackcooldown (float)\\n- trackdelay (float)\\n- ghostdotasks (on/off)\\n\\n<u><b>Notas:</b></u>\\n1. Mayúsculas y minúsculas importan\\n2. Donde dice custom, obviamente pones un argumento numérico después\\n3. Un float es un único número flotante de precisión, como 1.7\\n4. \"ghostdotasks\" causa problemas si lo configuras\\n5. Ejemplos de uso:\\n   - \"/cs map polus\"\\n   - \"/cs killdistance custom 4\"\\n   - \"/cs trackdelay 1,7\"\\n   - \"/cs confirmejects on\"",
   "Commands.NoAccess.Level.Host": "<#ff5555>X</color> <#bb0000>Este comando solo puede ser usado por </color><#ffffff>El Anfitrión</color>",
   "Commands.NoAccess.Level.HostOrAdmin": "<#ff5555>X</color> <#bb0000>Este comando solo puede ser usado por </color><#ffffff>El Anfitrión & Los Administradores</color>",
   "Commands.NoAccess.Level.HostOrModerator": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host & Moderators",
@@ -9278,8 +9271,6 @@
   "DCanGuessImpostors": "Puede Adivinar <color=#ff1919>Impostores</color>",
   "DCanGuessNeutrals": "Puede Adivinar <color=#ffab1b>Neutrales</color>",
   "DGRM.OnMeeting": "En Reunión",
-
-
 
   /* ==============================
   Cooldowns and Timers           
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "¡Por favor has tus tareas!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>Esta ventila está bloqueada por el Guardián de Ventilas</color>",
   "EraseLimit": "Borrados Máximos",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Reiniciar Primer Tiempo de Reutilización de Asesinato",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "Duración de la Velocidad Aumentada",
   "IncreasedVisionDuration": "Duración de la Visión Aumentada",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "El comando expulsar está desactivado actualmente.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Expulsar jugadores cuyo nivel es menor que",
   "KickNintendoPlayer": "<b>{0}</b> fue expulsado por jugar en Nintendo Switch.",
   "KickNotJoinedPlayersRegularly": "Expulsar jugadores que no se hayan unido al juego cada 25s en lobby",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10072,11 +10056,11 @@
   "LoadingHint.38": "¿Sabías que?\n¡Puedes deshabilitar tareas específicas en la pestaña de modificadores de juego!",
   "LoadingHint.39": "¿Sabías que?\n¡Puedes deshabilitar la tirolesa del mapa fungle en la pestaña de configuración del mod!",
   "LoadingHint.40": "¿Sabías que?\n¡Te apuesto a que no!",
-  "LoadingHint.41": "¿Sabías que?\n"Al menos" tiene 2 palabras y no 1",
+  "LoadingHint.41": "¿Sabías que?\n\"Al menos\" tiene 2 palabras y no 1",
   "LoadingHint.42": "¿Sabías que?\nYo no",
   "LoadingHint.43": "¿Sabías que no puedes saberlo todo?",
   "LoadingHint.44": "¿Sabías Que?\nEl número favorito del Desarrollador es 44",
-  "LoadingHint.45": "¿Sabías que puedes usar la instrucción "yield" en un "iterador" para proporcionar el siguiente valor o indicar el final de una iteración en un bucle, ya que "async" no funciona en "BepInEx"? \nSí, yo tampoco.",
+  "LoadingHint.45": "¿Sabías que puedes usar la instrucción \"yield\" en un \"iterador\" para proporcionar el siguiente valor o indicar el final de una iteración en un bucle, ya que \"async\" no funciona en \"BepInEx\"? \nSí, yo tampoco.",
   "LoadingWithPercentage": "<b><color=#ffff00>{0}%</color></b>\\n<size=2>{1}</size>\\n<size=1>{2}</size>",
   /* ==============================
     Cooldowns and Timers           
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Arreglar Lag",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>Fuiste silenciado y no puedes enviar mensajes. El silenciamiento expirará en <#ffff00>{0}</color> segundos.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "¡Observa el caos!",
   "GMInfoLong": "(Ninguno):\\nEl Maestro del Juego es un rol observador. Su presencia no afecta al juego; todos los jugadores saben quien es el Maestro del Juego. El Rol de Maestro del Juego será asignado al host, quien automáticamente se volverá un fantasma al inicio del juego.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "Configuraciones de EHR fueron restauradas a por defecto",
   "RevealMaxCount": "Revelaciones Máximas",
   "RitualMaxCount": "Revelaciones Máximas",
-
 
   /* ==============================
     Sabotage Settings           

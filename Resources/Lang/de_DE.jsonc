@@ -1589,7 +1589,7 @@
   "WitnessTime": "Max Time after killing where killer appears red",
   "Wizard": "Wizard",
   "WizardInfo": "Change Players' Stats",
-  "WizardInfoLong": "(Besatzung):\\nAls Zauberer hast du 3 Werte, die du für jeden Spieler ändern kannst: Geschwindigkeit, Sicht, und Abklingzeit. Zwischen diesen Werten zu wechseln sreichle dein Haustier. Drücke "Verschwinden", um den Wert zu erhöhen. Um den ausgewählten Wert einem Spieler mit Wert zu geben, verwenden Sie den Kill-Knopf auf ihnen.\\n\\nDenke zweimal nach, bevor du einen Effekt anwendesr, da es <b><u>permanent</u></b>ist! Du kannst es überschreiben, indem du den gleichen Effekt auf sie mit einem anderen Wert anwendest, aber das benötigt eine weitere Fähigkeitsnutzung!",
+  "WizardInfoLong": "(Besatzung):\\nAls Zauberer hast du 3 Werte, die du für jeden Spieler ändern kannst: Geschwindigkeit, Sicht, und Abklingzeit. Zwischen diesen Werten zu wechseln sreichle dein Haustier. Drücke \"Verschwinden\", um den Wert zu erhöhen. Um den ausgewählten Wert einem Spieler mit Wert zu geben, verwenden Sie den Kill-Knopf auf ihnen.\\n\\nDenke zweimal nach, bevor du einen Effekt anwendesr, da es <b><u>permanent</u></b>ist! Du kannst es überschreiben, indem du den gleichen Effekt auf sie mit einem anderen Wert anwendest, aber das benötigt eine weitere Fähigkeitsnutzung!",
   "Wizard.Buff.KCD": "Töte Abklingzeit",
   "Wizard.Buff.Speed": "Geschwindigkeit",
   "Wizard.Buff.Vision": "Vision",
@@ -3113,7 +3113,7 @@
   "SoulCollectorInfoLong": "(Neutrals):\\nAs the Soul Collector, when you kill someone, everyone other than you and your target will see the target as a living player. Your targets fully die when a meeting gets called.\\nKill everyone to win!",
   "SoulHunter": "Soul Hunter",
   "SoulHunterInfo": "Hunt Souls To Win",
-  "SoulHunterInfoLong": "(Neutralen):\\nAls Seelenjäger, kannst du dein Ziel über den Knopf "töten" markieren. In der nächsten Sitzung werden Sie für eine bestimmte Anzahl von Sekunden eingefroren und Ihr Ziel wird darüber informiert, dass es Ihr Ziel ist. Dein Ziel wird nicht in der Lage sein, dich zu verschmelzen, anzurufen oder dich zu töten. Du musst dein Ziel innerhalb einer bestimmten Anzahl von Sekunden töten, sonst verlierst du eine Seele. Wenn du dein Ziel rechtzeitig tötest, erhältst du eine Seele. Sammle eine Menge an Seelen, um deine Gewinn-Bedingung zu erfüllen. Wenn Ihr Siegerzustand am Ende des Spiels erfüllt ist, gewinnen Sie mit dem Siegerteam.",
+  "SoulHunterInfoLong": "(Neutralen):\\nAls Seelenjäger, kannst du dein Ziel über den Knopf \"töten\" markieren. In der nächsten Sitzung werden Sie für eine bestimmte Anzahl von Sekunden eingefroren und Ihr Ziel wird darüber informiert, dass es Ihr Ziel ist. Dein Ziel wird nicht in der Lage sein, dich zu verschmelzen, anzurufen oder dich zu töten. Du musst dein Ziel innerhalb einer bestimmten Anzahl von Sekunden töten, sonst verlierst du eine Seele. Wenn du dein Ziel rechtzeitig tötest, erhältst du eine Seele. Sammle eine Menge an Seelen, um deine Gewinn-Bedingung zu erfüllen. Wenn Ihr Siegerzustand am Ende des Spiels erfüllt ist, gewinnen Sie mit dem Siegerteam.",
   "SoulHunterFreezeTimeAfterMeeting": "Waiting Time After Meeting",
   "SoulHunterGetSoulForSuicide": "Gain Soul When Target Dies By Other Means",
   "SoulHunterNotify": "You have <color=#00ffa5>{0}s</color> to kill <color=#3f2c61>{1}</color>",
@@ -3593,7 +3593,7 @@
   "DiseasedCDReset": "Cooldown returns to normal after a meeting",
   "Disregarded": "Ignoriert",
   "DisregardedInfo": "Deine Leiche kann nicht gemeldet werden",
-  "DisregardedInfoLong": "(Add-ons):\\nMit dem Add-on "Missachtet" kann deine Leiche nicht reportet werden.",
+  "DisregardedInfoLong": "(Add-ons):\\nMit dem Add-on \"Missachtet\" kann deine Leiche nicht reportet werden.",
   "DoubleShot": "Doppelschuss",
   "DoubleShotInfo": "Beim Raten hast du ein Extraleben.",
   "DoubleShotInfoLong": "(Add-ons):\\nWenn ein Spieler mit doppelter Schuss eine Rolle falsch errät, erhält er eine zweite Chance zum Erraten, aber die nächste falsche Vermutung führt zum Selbstmord.",
@@ -4436,7 +4436,7 @@
   // King Of The Zones - KOTZ
   "KingOfTheZones": "KÖNIG DER ZONEN\n",
   "ModeKingOfTheZones": "Spielmodus: König der Zonen",
-  "ModeDescribe.KingOfTheZones": "Im König der Zonen Spielmodus werden die Spieler in Teams aufgeteilt. Wenn ein Team mehr Spieler in einem Raum hat als alle anderen Teams, kontrollieren sie die Zone. Jede Sekunde erhält für jede kontrollierte Zone 1 Punkt. Erhalte so viele Punkte wie möglich, da das Team mit der höchsten Punktzahl gewinnt!\\n\\nSpieler können andere mit dem Knopf "Beenden" markieren. Markierte Spieler werden für ein paar Sekunden außerhalb der Karte teleportiert und teleportiert.\\n\\nAbhängig von den Einstellungen, können sich Zonen während des Spiels bewegen. Wenn ja, wird dies durch einen Timer angegeben. Wenn sich eine Zone bewegt, kann sie eine Ausfallzeit haben. Dies ist der Fall, wenn der Timer grau ist.",
+  "ModeDescribe.KingOfTheZones": "Im König der Zonen Spielmodus werden die Spieler in Teams aufgeteilt. Wenn ein Team mehr Spieler in einem Raum hat als alle anderen Teams, kontrollieren sie die Zone. Jede Sekunde erhält für jede kontrollierte Zone 1 Punkt. Erhalte so viele Punkte wie möglich, da das Team mit der höchsten Punktzahl gewinnt!\\n\\nSpieler können andere mit dem Knopf \"Beenden\" markieren. Markierte Spieler werden für ein paar Sekunden außerhalb der Karte teleportiert und teleportiert.\\n\\nAbhängig von den Einstellungen, können sich Zonen während des Spiels bewegen. Wenn ja, wird dies durch einen Timer angegeben. Wenn sich eine Zone bewegt, kann sie eine Ausfallzeit haben. Dies ist der Fall, wenn der Timer grau ist.",
   "KOTZ.EndScreen.Statistics": "Punkte: <#ffff44>{0}</color>",
   "KOTZ.EndScreen.Winner.Blue": "Das blaue Team gewinnt!",
   "KOTZ.EndScreen.Winner.Green": "Das grüne Team gewinnt!",
@@ -4897,7 +4897,7 @@
   "Quiz.Questions.Easy.48.Answer.D": "4",
   "Quiz.Questions.Easy.48.Answer.E": "5",
   "Quiz.Questions.Easy.48.CorrectAnswer": "B",
-  "Quiz.Questions.Easy.49": "Wofür steht das "www" in einer Website-URL?",
+  "Quiz.Questions.Easy.49": "Wofür steht das \"www\" in einer Website-URL?",
   "Quiz.Questions.Easy.49.Answer.A": "Web Wide Web",
   "Quiz.Questions.Easy.49.Answer.B": "World Website Window",
   "Quiz.Questions.Easy.49.Answer.C": "World Wide Web",
@@ -5023,7 +5023,7 @@
   "Quiz.Questions.Easy.66.Answer.D": "Jupiter",
   "Quiz.Questions.Easy.66.Answer.E": "Saturn",
   "Quiz.Questions.Easy.66.CorrectAnswer": "E",
-  "Quiz.Questions.Easy.67": "Was ist der Plural von "Maus"?",
+  "Quiz.Questions.Easy.67": "Was ist der Plural von \"Maus\"?",
   "Quiz.Questions.Easy.67.Answer.A": "Mäus",
   "Quiz.Questions.Easy.67.Answer.B": "Mäuses",
   "Quiz.Questions.Easy.67.Answer.C": "Mäuse",
@@ -5352,7 +5352,7 @@
   "Quiz.Questions.Easy.113.Answer.D": "Es bricht",
   "Quiz.Questions.Easy.113.Answer.E": "Hähne legen keine Eier",
   "Quiz.Questions.Easy.113.CorrectAnswer": "E",
-  "Quiz.Questions.Easy.114": "Was ist richtig: "Das Eigelb des Ei ist weiß" oder "der Eigelb des Ei ist weiß"?",
+  "Quiz.Questions.Easy.114": "Was ist richtig: \"Das Eigelb des Ei ist weiß\" oder \"der Eigelb des Ei ist weiß\"?",
   "Quiz.Questions.Easy.114.Answer.A": "Sind weiß",
   "Quiz.Questions.Easy.114.Answer.B": "Ist Weiß",
   "Quiz.Questions.Easy.114.Answer.C": "Keines",
@@ -5954,7 +5954,7 @@
   "Quiz.Questions.Easy.199.Answer.D": "18",
   "Quiz.Questions.Easy.199.Answer.E": "16",
   "Quiz.Questions.Easy.199.CorrectAnswer": "B",
-  "Quiz.Questions.Easy.200": "Wer schrieb das Stück "Romeo und Julia"?",
+  "Quiz.Questions.Easy.200": "Wer schrieb das Stück \"Romeo und Julia\"?",
   "Quiz.Questions.Easy.200.Answer.A": "Charles Dickens",
   "Quiz.Questions.Easy.200.Answer.B": "Leo Tolstoy",
   "Quiz.Questions.Easy.200.Answer.C": "William Shakespeare",
@@ -6360,7 +6360,7 @@
   "Quiz.Questions.Medium.34.Answer.D": "Rot",
   "Quiz.Questions.Medium.34.Answer.E": "Blau",
   "Quiz.Questions.Medium.34.CorrectAnswer": "C",
-  "Quiz.Questions.Medium.35": "Welcher Teil Ihrer Zunge schmeckt "süß"?",
+  "Quiz.Questions.Medium.35": "Welcher Teil Ihrer Zunge schmeckt \"süß\"?",
   "Quiz.Questions.Medium.35.Answer.A": "Spitze",
   "Quiz.Questions.Medium.35.Answer.B": "Hinterseite",
   "Quiz.Questions.Medium.35.Answer.C": "Seiten",
@@ -6927,7 +6927,7 @@
   "Quiz.Questions.Medium.115.Answer.D": "Ulme",
   "Quiz.Questions.Medium.115.Answer.E": "Eiche",
   "Quiz.Questions.Medium.115.CorrectAnswer": "E",
-  "Quiz.Questions.Medium.116": "Wofür steht das "PDF" in einem Dateinamen?",
+  "Quiz.Questions.Medium.116": "Wofür steht das \"PDF\" in einem Dateinamen?",
   "Quiz.Questions.Medium.116.Answer.A": "Printable Data File",
   "Quiz.Questions.Medium.116.Answer.B": "Public Document Format",
   "Quiz.Questions.Medium.116.Answer.C": "Page Design File",
@@ -7221,7 +7221,7 @@
   "Quiz.Questions.Hard.34.Answer.D": "Zimt",
   "Quiz.Questions.Hard.34.Answer.E": "Nelke",
   "Quiz.Questions.Hard.34.CorrectAnswer": "B",
-  "Quiz.Questions.Hard.35": "Was bedeutet das Wort "Lego" auf Dänisch?",
+  "Quiz.Questions.Hard.35": "Was bedeutet das Wort \"Lego\" auf Dänisch?",
   "Quiz.Questions.Hard.35.Answer.A": "Stapel",
   "Quiz.Questions.Hard.35.Answer.B": "Bauen",
   "Quiz.Questions.Hard.35.Answer.C": "Spiele gut",
@@ -7242,7 +7242,7 @@
   "Quiz.Questions.Hard.37.Answer.D": "Jupiter",
   "Quiz.Questions.Hard.37.Answer.E": "Erde",
   "Quiz.Questions.Hard.37.CorrectAnswer": "B",
-  "Quiz.Questions.Hard.38": "Was bedeutet "Karaoke" auf Japanisch?",
+  "Quiz.Questions.Hard.38": "Was bedeutet \"Karaoke\" auf Japanisch?",
   "Quiz.Questions.Hard.38.Answer.A": "Lautlose Stimme",
   "Quiz.Questions.Hard.38.Answer.B": "Alleine singen",
   "Quiz.Questions.Hard.38.Answer.C": "Leeres Orchester",
@@ -7284,7 +7284,7 @@
   "Quiz.Questions.Hard.43.Answer.D": "Jojo",
   "Quiz.Questions.Hard.43.Answer.E": "Rubik\'s cube",
   "Quiz.Questions.Hard.43.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.44": "Welche Frucht wurde einst als "Liebesapfel" bezeichnet?",
+  "Quiz.Questions.Hard.44": "Welche Frucht wurde einst als \"Liebesapfel\" bezeichnet?",
   "Quiz.Questions.Hard.44.Answer.A": "Erdbeere",
   "Quiz.Questions.Hard.44.Answer.B": "Tomate",
   "Quiz.Questions.Hard.44.Answer.C": "Granatapfel",
@@ -7340,7 +7340,7 @@
   "Quiz.Questions.Hard.51.Answer.D": "DELETE",
   "Quiz.Questions.Hard.51.Answer.E": "SELECT",
   "Quiz.Questions.Hard.51.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.52": "Wie lautet der Name des Punktes über den Kleinbuchstaben "i" oder "j"?",
+  "Quiz.Questions.Hard.52": "Wie lautet der Name des Punktes über den Kleinbuchstaben \"i\" oder \"j\"?",
   "Quiz.Questions.Hard.52.Answer.A": "Blip",
   "Quiz.Questions.Hard.52.Answer.B": "Tick",
   "Quiz.Questions.Hard.52.Answer.C": "Pünktchen",
@@ -7501,7 +7501,7 @@
   "Quiz.Questions.Hard.74.Answer.D": "Ruderwanzen",
   "Quiz.Questions.Hard.74.Answer.E": "Hyäne",
   "Quiz.Questions.Hard.74.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.75": "Welche europäische Stadt hat ein Gebäude mit lebenden Pflanzen namens "Vertikaler Wald" bedeckt?",
+  "Quiz.Questions.Hard.75": "Welche europäische Stadt hat ein Gebäude mit lebenden Pflanzen namens \"Vertikaler Wald\" bedeckt?",
   "Quiz.Questions.Hard.75.Answer.A": "Paris",
   "Quiz.Questions.Hard.75.Answer.B": "Mailand",
   "Quiz.Questions.Hard.75.Answer.C": "Amsterdam",
@@ -7592,7 +7592,7 @@
   "Quiz.Questions.Hard.87.Answer.D": "12",
   "Quiz.Questions.Hard.87.Answer.E": "14",
   "Quiz.Questions.Hard.87.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.88": "Was bedeutet "Piano" auf Italienisch?",
+  "Quiz.Questions.Hard.88": "Was bedeutet \"Piano\" auf Italienisch?",
   "Quiz.Questions.Hard.88.Answer.A": "Glatt",
   "Quiz.Questions.Hard.88.Answer.B": "Weich",
   "Quiz.Questions.Hard.88.Answer.C": "Ruhig",
@@ -7655,7 +7655,7 @@
   "Quiz.Questions.Hard.96.Answer.D": "sqrt(a<sup>2</sup>+b<sup>2</sup>)e<sup>iarctan(b/a)</sup>",
   "Quiz.Questions.Hard.96.Answer.E": "sqrt(a<sup>2</sup>-b<sup>2</sup>)e<sup>iarcsin(a/b)</sup>",
   "Quiz.Questions.Hard.96.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.97": "Was bedeutet "Tsunami" wörtlich auf Japanisch?",
+  "Quiz.Questions.Hard.97": "Was bedeutet \"Tsunami\" wörtlich auf Japanisch?",
   "Quiz.Questions.Hard.97.Answer.A": "Große Welle",
   "Quiz.Questions.Hard.97.Answer.B": "Riesiges Wasser",
   "Quiz.Questions.Hard.97.Answer.C": "Seebeben",
@@ -7683,7 +7683,7 @@
   "Quiz.Questions.Hard.100.Answer.D": "Murder",
   "Quiz.Questions.Hard.100.Answer.E": "Schar",
   "Quiz.Questions.Hard.100.CorrectAnswer": "D",
-  "Quiz.Questions.Hard.101": "Was bedeutet "Sushi" wörtlich auf Japanisch?",
+  "Quiz.Questions.Hard.101": "Was bedeutet \"Sushi\" wörtlich auf Japanisch?",
   "Quiz.Questions.Hard.101.Answer.A": "Roher Fisch",
   "Quiz.Questions.Hard.101.Answer.B": "Meeresfrüchte-Essen",
   "Quiz.Questions.Hard.101.Answer.C": "Gerollte Algen",
@@ -7788,7 +7788,7 @@
   "Quiz.Questions.Hard.115.Answer.D": "Handgelenk",
   "Quiz.Questions.Hard.115.Answer.E": "Schlüsselbein",
   "Quiz.Questions.Hard.115.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.116": "Welche Kreatur ist als "lebendes Fossil" bekannt?",
+  "Quiz.Questions.Hard.116": "Welche Kreatur ist als \"lebendes Fossil\" bekannt?",
   "Quiz.Questions.Hard.116.Answer.A": "Quastenflosser",
   "Quiz.Questions.Hard.116.Answer.B": "Tintenfisch",
   "Quiz.Questions.Hard.116.Answer.C": "Schnabeltier",
@@ -7816,7 +7816,7 @@
   "Quiz.Questions.Hard.119.Answer.D": "Widder",
   "Quiz.Questions.Hard.119.Answer.E": "Antilope",
   "Quiz.Questions.Hard.119.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.120": "Was bedeutet das Wort "Emoji" wörtlich auf Japanisch?",
+  "Quiz.Questions.Hard.120": "Was bedeutet das Wort \"Emoji\" wörtlich auf Japanisch?",
   "Quiz.Questions.Hard.120.Answer.A": "Kleines Gesicht",
   "Quiz.Questions.Hard.120.Answer.B": "Ikonischer Buchstabe",
   "Quiz.Questions.Hard.120.Answer.C": "Fröhliche Markierung",
@@ -7830,7 +7830,7 @@
   "Quiz.Questions.Hard.121.Answer.D": "9",
   "Quiz.Questions.Hard.121.Answer.E": "Abhängig von der Temperatur",
   "Quiz.Questions.Hard.121.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.122": "Wofür steht das "SIM" in SIM-Karte?",
+  "Quiz.Questions.Hard.122": "Wofür steht das \"SIM\" in SIM-Karte?",
   "Quiz.Questions.Hard.122.Answer.A": "Simple Internal Memory",
   "Quiz.Questions.Hard.122.Answer.B": "Signal Input Mechanism",
   "Quiz.Questions.Hard.122.Answer.C": "Secure Information Management",
@@ -7844,7 +7844,7 @@
   "Quiz.Questions.Hard.123.Answer.D": "Tonschiefer",
   "Quiz.Questions.Hard.123.Answer.E": "Basalt",
   "Quiz.Questions.Hard.123.CorrectAnswer": "E",
-  "Quiz.Questions.Hard.124": "Was bedeutet das Wort "Origami" auf Japanisch?",
+  "Quiz.Questions.Hard.124": "Was bedeutet das Wort \"Origami\" auf Japanisch?",
   "Quiz.Questions.Hard.124.Answer.A": "Leichtes Falten",
   "Quiz.Questions.Hard.124.Answer.B": "Papierkunst",
   "Quiz.Questions.Hard.124.Answer.C": "Geknickte Form",
@@ -8274,7 +8274,7 @@
   "Achievement.BadLuckOrBadObservation.Description": "Guess incorrectly and die",
   "Achievement.BeginnerGuesser": "Rateanfänger",
   "Achievement.BeginnerGuesser.Description": "Guess 2 players correctly in the same game",
-  "Achievement.BestGuesserAward": ""Bester Rater" Preis",
+  "Achievement.BestGuesserAward": "\"Bester Rater\" Preis",
   "Achievement.BestGuesserAward.Description": "Guess 6 players correctly in the same game",
   "Achievement.BestReactionTime": "Beste Reaktionszeit",
   "Achievement.BestReactionTime.Description": "Win in Room Rush game mode",
@@ -8532,14 +8532,11 @@
   "AllAliveMeetingTime": "Besprechungszeit, wenn niemand tot ist",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} hat das Anagramm korrekt erraten (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Maximale Verzögerung bei Pfeilanzeige",
   "ArrowDelayMin": "Minimale Pfeilanzeigeverzögerung",
-
 
   /* ==============================
   General Settings           
@@ -8703,7 +8700,6 @@
   "CanTerroristSuicideWin": "Kann durch Selbstmord gewinnen",
   "CantGuessJailed": "You can not guess the target",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8741,8 +8737,6 @@
   "CannotSpawnAsSoloImp": "Cannot Spawn as Solo Impostor",
   "CannotStoneGazeWhenKCDIsntUp": "Cannot Stone Gaze Bodies When Kill Cooldown Isn't Up",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8766,7 +8760,6 @@
     EAC           
   ============================== */
   "CheatResponses": "Wenn ein betrügerischer Spieler gefunden wird",
-
 
   /* ==============================
     Combos           
@@ -8849,7 +8842,7 @@
   "CommandArgs.EightBall.Question": "The question to ask",
   "CommandArgs.Exe.Id": "Die ID des Spielers, um ihn zu exekutieren",
   "CommandArgs.Fabricate.DeathReason": "Der gefälschte Todesgrund (muss in der Mod verfügbar sein)",
-  "CommandArgs.Fix.Id": "Die ID des Spielers, dessen "Schwarzer Bildschirm" Fehler behoben werden soll",
+  "CommandArgs.Fix.Id": "Die ID des Spielers, dessen \"Schwarzer Bildschirm\" Fehler behoben werden soll",
   "CommandArgs.Forge.Id": "Die ID des Spielers, um eine gefälschte Rolle für ihn zu schmieden",
   "CommandArgs.Forge.Role": "Die gefälschte Rolle, die geschmiedet werden soll",
   "CommandArgs.GNO.Number": "Die zu erratende Nummer",
@@ -9279,8 +9272,6 @@
   "DCanGuessNeutrals": "Can Guess <color=#ffab1b>Neutrals</color>",
   "DGRM.OnMeeting": "Beim Treffen",
 
-
-
   /* ==============================
   Cooldowns and Timers           
   ============================== */
@@ -9567,7 +9558,6 @@
   ============================== */
   "DoYourTasksPlease": "Please do your tasks!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9689,7 +9679,6 @@
   "EnteredBlockedVent": "<color=#ffff00>This vent is blocked by the Ventguard</color>",
   "EraseLimit": "Max Erases",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9745,7 +9734,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Erste Kill Abklingzeit zurücksetzen",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9945,8 +9933,6 @@
   "IncreasedSpeedDuration": "Beschleunigte Geschwindigkeitsdauer",
   "IncreasedVisionDuration": "Verkürzte Sehdauer",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9966,14 +9952,12 @@
   ============================== */
   "KickCommandDisabled": "Der Kick-Befehl ist momentan deaktiviert.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Kicken Sie Spieler, deren Level niedriger ist als",
   "KickNintendoPlayer": "<b>{0}</b> was kicked due to playing on Nintendo Switch.",
   "KickNotJoinedPlayersRegularly": "Kicken Sie Spieler, die dem Spiel nicht beigetreten sind, alle 25 Sekunden in der Lobby",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10052,7 +10036,7 @@
   "LoadingHint.18": "Du hast die Übersetzungsdateien bearbeitet, willst das Spiel aber nicht Neustarten, um die Änderungen zu übernehemn?\nDrücke F5 + T",
   "LoadingHint.19": "Chatsymbol erscheint nicht?\\nDrücken Sie SHIFT + C + ENTER um es zu beheben!",
   "LoadingHint.20": "Wusstest du schon?\nDu kannst das Spiel sofort starten, ohne auf den 5 Sekunden Countdown zu warten, indem du SHIFT drückst!",
-  "LoadingHint.21": "Wusstest du schon?\nDu kannst den Start-Countdown abbrechen, indem du den "Abbrechen" Knopf drückst, oder C drückst!",
+  "LoadingHint.21": "Wusstest du schon?\nDu kannst den Start-Countdown abbrechen, indem du den \"Abbrechen\" Knopf drückst, oder C drückst!",
   "LoadingHint.22": "Wusstest du schon?\nDu kannst alle Einstellungen auf die Standardeinstellungen zurücksetzen, indem du STRG + SHIFT + ENTF drückst",
   "LoadingHint.23": "Wusstest du schon?\nDu kannst dich selbst umbringen, indem du SHIFT + E + ENTER drückst!",
   "LoadingHint.24": "Wusstest du schon?\nNicht einmal die erfahrensten EHR Hosts kennen alle diese Fakten!",
@@ -10062,7 +10046,7 @@
   "LoadingHint.28": "Wusstest du schon?\\nEHR hat 16 verschiedene Spielmodi! Probiere sie aus!\\nWechsle Spielmodi mit den Schaltflächen unter dem großen Titel links oben im Einstellungsmenü!",
   "LoadingHint.29": "Wusstest du schon?\\nEHR hat einen einzigartigen Spielmodus für Expertenspieler namens Stop And Go!\\nProbiere es nach diesem Spiel!",
   "LoadingHint.30": "Crewmate immer und immer wieder holen? Wurde die letzte halbe Stunde nicht getötet?\\nEntfessle deinen Blutdurst in unserem kostenlosen Spielmodus!",
-  "LoadingHint.31": "Wusstest du schon?\nEHR hat einen eigenen "Verstecken" Modus, mit 12 verschiedenen Rollen, die für diesen Modus gemacht wurden.",
+  "LoadingHint.31": "Wusstest du schon?\nEHR hat einen eigenen \"Verstecken\" Modus, mit 12 verschiedenen Rollen, die für diesen Modus gemacht wurden.",
   "LoadingHint.32": "\n",
   "LoadingHint.33": "Bist du der schnellste Tasker und Killer in der Lobby?\\nDann haben wir einen speziellen Spielmodus für dich gemacht! Probiere den Speedrun-Spielmodus nach diesem Spiel!",
   "LoadingHint.34": "Gefällt Ihnen die Dämon-Rolle und seine Mechanik?\\nWas wäre, wenn wir dir sagten, dass es einen Spielmodus gibt, in dem jeder ein Dämon ist, genannt Solo PVP?\\nProbieren Sie es nach diesem Spiel!",
@@ -10089,7 +10073,6 @@
     Moderator / Admin / VIP         
   ============================== */
   "LowLoadMode": "Fix Lag",
-
 
   /* ==============================
     Task Settings           
@@ -10295,7 +10278,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>You're muted and cannot send messages. The mute will expire in <#ffff00>{0}</color> seconds.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10519,7 +10501,6 @@
   "GMInfo": "Beobachte das Chaos!",
   "GMInfoLong": "(None):\\nThe Game Master is an observer role. Their presence does not affect the game; all players know who the Game Master is. The Game Master role will be assigned to the host, who will automatically become a ghost at the start of the game.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10530,7 +10511,6 @@
   "RestEHRSetting": "EHR settings have been restored to default",
   "RevealMaxCount": "Maximale Offenbarungen",
   "RitualMaxCount": "Maximale Offenbarungen",
-
 
   /* ==============================
     Sabotage Settings           

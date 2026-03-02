@@ -232,6 +232,8 @@ internal static class ChatCommands
             new("Fabricate", "{deathreason}", GetString("CommandDescription.Fabricate"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
             new("Start", "", GetString("CommandDescription.Start"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
             new("Summon", "{id}", GetString("CommandDescription.Summon"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true, [GetString("CommandArgs.Summon.Id")]),
+            new("CovenInfo", "", GetString("CommandDescription.CovenInfo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, CovenInfoCommand, true, false),
+            new("NeutralInfo", "", GetString("CommandDescription.NeutralInfo"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NeutralInfoCommand, true, false),
             
             new("ConfirmAuth", "{uuid}", GetString("CommandDescription.ConfirmAuth"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -491,6 +493,15 @@ internal static class ChatCommands
         }
 
         return !canceled;
+    }
+    
+    private static void CovenInfoCommand(PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString("CovenInfoDescription"), player.PlayerId);
+    }
+    private static void NeutralInfoCommand(PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString("NeutralInfoDescription"), player.PlayerId);
     }
 
     private static void CheckAnagramGuess(byte id, string text)

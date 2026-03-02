@@ -1318,9 +1318,6 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Standard:
                     Blessed.AfterMeetingTasks();
                     break;
-                case CustomGameMode.FFA:
-                    LateTask.New(() => Main.EnumerateAlivePlayerControls().Do(x => x.RpcSetRoleDesync(RoleTypes.Impostor, x.OwnerId)), 6f);
-                    break;
                 case CustomGameMode.KingOfTheZones:
                     Main.Instance.StartCoroutine(KingOfTheZones.GameStart());
                     break;
@@ -1356,13 +1353,13 @@ internal static class IntroCutsceneDestroyPatch
                     break;
             }
 
-            Utils.CheckAndSetVentInteractions();
-
             if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
 
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, "NotifyEveryoneAsync On Game Start");
             LateTask.New(Utils.MarkEveryoneDirtySettings, 0.5f, "SyncAllSettings On Game Start");
             LateTask.New(() => Main.Instance.StartCoroutine(ShipStatusFixedUpdatePatch.Postfix()), 5f, "ShipStatusFixedUpdatePatch Postfix Start");
+
+            Utils.CheckAndSetVentInteractions();
         }
         else
         {

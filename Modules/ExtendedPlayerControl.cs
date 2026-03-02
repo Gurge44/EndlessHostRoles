@@ -1499,7 +1499,7 @@ internal static class ExtendedPlayerControl
         return Options.CurrentGameMode switch
         {
             CustomGameMode.SoloPVP => SoloPVP.CanVent,
-            CustomGameMode.FFA => !(FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[pc.PlayerId] <= 0) && !(FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.CachedAlivePlayerControls().Count <= 2),
+            CustomGameMode.FFA => !(FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers.GetValueOrDefault(pc.PlayerId) <= 0) && !(FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.CachedAlivePlayerControls().Count <= 2),
             CustomGameMode.StopAndGo => false,
             CustomGameMode.HotPotato => false,
             CustomGameMode.Speedrun => false,
