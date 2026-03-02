@@ -116,7 +116,7 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            Main.EnumerateAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
+            Main.CachedAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
             DoomTimer = DoomTime.GetInt();
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedDuringDoom.GetFloat();
             pc.MarkDirtySettings();
