@@ -26,7 +26,7 @@ internal class Freezer : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
 
         KillCooldown = new IntegerOptionItem(id + 4, "KillCooldown", new(0, 120, 1), 30, tab)
-            .SetParent(Options.CustomRoleSpawnChances[role])
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
