@@ -7,6 +7,7 @@ public class Framer : RoleBase
     public static bool On;
     public static readonly HashSet<byte> FramedPlayers = [];
 
+    private static OptionItem KillCooldown;
     private static OptionItem AbilityUseLimit;
     public static OptionItem FramerAbilityUseGainWithEachKill;
 
@@ -15,6 +16,10 @@ public class Framer : RoleBase
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(647196, TabGroup.ImpostorRoles, CustomRoles.Framer);
+
+        KillCooldown = new IntegerOptionItem(647197, "KillCooldown", new(0, 120, 1), 30, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role])
+            .SetValueFormat(OptionFormat.Seconds);
 
         AbilityUseLimit = new FloatOptionItem(647198, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
