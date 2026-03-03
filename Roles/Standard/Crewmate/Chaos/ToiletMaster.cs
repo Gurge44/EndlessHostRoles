@@ -39,6 +39,8 @@ public class ToiletMaster : RoleBase
 
     private KeyValuePair<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> FoundedFirst = default;
     private Dictionary<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> Toilets = [];
+    private readonly List<Vector2> ToRemove = [];
+
     private static ToiletVisibilityOptions ToiletVisible => (ToiletVisibilityOptions)ToiletVisibility.GetValue();
     public override bool IsEnable => On;
 
@@ -315,11 +317,22 @@ public class ToiletMaster : RoleBase
         int duration = ToiletDuration.GetInt();
         int maxUses = ToiletMaxUses.GetInt();
 
-        Toilets.DoIf(x => x.Value.PlaceTimeStamp + duration <= now || x.Value.Uses >= maxUses, x =>
+        ToRemove.Clear();
+        foreach (var pair in Toilets)
         {
-            Toilets.Remove(x.Key);
-            x.Value.NetObject.Despawn();
-        }, false);
+            var (NetObject, Uses, PlaceTimeStamp) = pair.Value;
+            if (PlaceTimeStamp + duration <= now || Uses >= maxUses)
+            {
+                NetObject.Despawn();
+                ToRemove.Add(pair.Key);
+            }
+        }
+        if (ToRemove.Count == 0) return;
+
+        for (int index = 0; index < ToRemove.Count; index++)
+        {
+            Toilets.Remove(ToRemove[index]);
+        }
     }
 
     public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)

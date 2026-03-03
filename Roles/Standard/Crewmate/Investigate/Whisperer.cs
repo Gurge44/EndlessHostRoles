@@ -93,8 +93,18 @@ public class Whisperer : RoleBase
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
-        Soul soul = Souls.Find(x => x.IsQuestioning);
-        if (soul == null) return;
+        Soul soul = null;
+        bool found = false;
+        for (int index = 0; index < Souls.Count; index++)
+        {
+            soul = Souls[index];
+            if (soul.IsQuestioning)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found || soul == null) return;
 
         byte soulPlayerId = soul.Player.PlayerId;
 
@@ -121,18 +131,18 @@ public class Whisperer : RoleBase
             try
             {
                 PlayerState state = Main.PlayerStates[soulPlayerId];
-                (DateTime TimeStamp, byte ID) killer = state.RealKiller;
+                (DateTime TimeStamp, byte ID) = state.RealKiller;
                 int next = IRandom.Instance.Next(7);
                 if (state.deathReason == PlayerState.DeathReason.Disconnected) next = 2;
                 (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage) deathInfo = ([], null);
                 if (next > 3 && !DeathInfo.TryGetValue(soulPlayerId, out deathInfo)) next = IRandom.Instance.Next(4);
                 if (pc.Is(CustomRoles.Autopsy) || pc.Is(CustomRoles.Doctor) || Options.EveryoneSeesDeathReasons.GetBool()) next = IRandom.Instance.Next(6);
-                PlayerState killerState = Main.PlayerStates[killer.ID];
+                PlayerState killerState = Main.PlayerStates[ID];
 
                 info = next switch
                 {
-                    0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(GameData.Instance.GetPlayerById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
-                    1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - killer.TimeStamp).TotalSeconds)),
+                    0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(GameData.Instance.GetPlayerById(ID).DefaultOutfit.ColorId, out string colors), colors),
+                    1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - TimeStamp).TotalSeconds)),
                     2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString() + (state.SubRoles.Count == 0 ? string.Empty : string.Join(' ', state.SubRoles.ConvertAll(x => x.ToColoredString())))),
                     3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), killerState.MainRole.ToColoredString() + (killerState.SubRoles.Count == 0 ? string.Empty : string.Join(' ', killerState.SubRoles.ConvertAll(x => x.ToColoredString())))),
                     4 => string.Format(Translator.GetString(deathInfo.SameRoomPlayers.Length == 0 ? "WhispererInfo.AloneInRoomAtDeath" : "WhispererInfo.PlayersInSameRoomAtDeath"), string.Join(", ", deathInfo.SameRoomPlayers.Select(x => x.ColoredPlayerName()))),
