@@ -77,12 +77,15 @@ namespace EHR
             }
             writer.EndMessage();
 
-            writer.StartMessage(1);
+            if (playerControl.Data)
             {
-                writer.WritePacked(playerControl.Data.NetId);
-                playerControl.Data.Serialize(writer, false);
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(playerControl.Data.NetId);
+                    playerControl.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
             }
-            writer.EndMessage();
 
             sender.EndMessage();
             sender.SendMessage();
@@ -296,12 +299,15 @@ namespace EHR
                     }
                     writer.EndMessage();
 
-                    writer.StartMessage(1);
+                    if (playerControl.Data)
                     {
-                        writer.WritePacked(playerControl.Data.NetId);
-                        playerControl.Data.Serialize(writer, false);
+                        writer.StartMessage(1);
+                        {
+                            writer.WritePacked(playerControl.Data.NetId);
+                            playerControl.Data.Serialize(writer, false);
+                        }
+                        writer.EndMessage();
                     }
-                    writer.EndMessage();
 
                     try { playerControl.NetTransform.SnapTo(Position); }
                     catch (Exception e) { Utils.ThrowException(e); }
