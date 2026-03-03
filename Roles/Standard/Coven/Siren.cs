@@ -122,12 +122,12 @@ public class Siren : CovenBase
 
         foreach (PlayerControl player in nearbyPlayers)
         {
-            if (!Stages.TryGetValue(player.PlayerId, out var stage))
-                Stages[player.PlayerId] = stage = HasNecronomicon ? 2 : 1;
+            if (!Stages.ContainsKey(player.PlayerId))
+                Stages[player.PlayerId] = HasNecronomicon ? 2 : 1;
             else
                 Stages[player.PlayerId]++;
 
-            switch (stage)
+            switch (Stages[player.PlayerId])
             {
                 case 1:
                     AffectedPlayers.Add(player.PlayerId);

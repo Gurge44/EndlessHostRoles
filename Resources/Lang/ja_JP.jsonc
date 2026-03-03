@@ -922,7 +922,7 @@
   "IgnitorTimeMoveMeeting": "会議中でも 時間が進行する",
   "Imitator": "模倣者",
   "ImitatorInfo": "あなたのキルのクールダウンは切り替わる",
-  "ImitatorInfoLong": "(Crewmates):\\nAs the Imitator, you can imitate the role of a dead player using the <b>/imitate {id}</b> command. Replace \'{id}\' with the ID of the player whose role you want to imitate.\\nAlternatively, if you aren\'t the host, use the kick menu to select a player to imitate.",
+  "ImitatorInfoLong": "(Crewmates):\\nAs the Imitator, you can imitate the role of a dead player using the <b>/imitate {id}</b> command. Replace '{id}' with the ID of the player whose role you want to imitate.\\nAlternatively, if you aren't the host, use the kick menu to select a player to imitate.",
   "Imitator.Success": "<#00ff00>✓ <#00bb00>You will be imitating {0} in the next round!",
   "Imitator.TargetMustBeCrew": "<#ff5555>X <#bb0000>Your target must be a <#8cffff>Crewmate</color>!",
   "Imitator.TargetMustBeDead": "<#ff5555>X <#bb0000>Your target must be dead!",
@@ -1050,7 +1050,7 @@
   "MarshallCanBeMadmate": "<color=#5573AA>マーシャル</color>は <color=#ff1919>マッドメイト</color>になることができる",
   "Mathematician": "数学者",
   "MathematicianInfo": "数学の質問を出す",
-  "MathematicianInfoLong": "(Crewmates):\\nAs the Mathematician, you can use \'/ask [number] [number]\' to ask a math question (What is [number] + [number]?). The first player to answer correctly will get +1 ability use and shielded for the next round. You can only ask once per meeting.",
+  "MathematicianInfoLong": "(Crewmates):\\nAs the Mathematician, you can use '/ask [number] [number]' to ask a math question (What is [number] + [number]?). The first player to answer correctly will get +1 ability use and shielded for the next round. You can only ask once per meeting.",
   "MathematicianAnsweredString": "<b>{0}</b> has answered correctly! ({1})\nThey got +1 ability use and will be shielded for the next round.",
   "MathematicianProtected": "このプレイヤーは 正しく<#eb3474>数学者</color>の質問に回答しため、\\nしたがって 保護されています",
   "MathematicianQuestionString": "<size=85%><b>{0} + {1}</b>は 何でしょうか？\n\n<b>/answer [回答]</b> で回答できます。\n最初に正解した人は 次のラウンドの間 保護されます！</size>",
@@ -1422,7 +1422,7 @@
   "SuperStarDead": "<size=80%>ショック！ <#f6f657>スーパースター</color>の <b>{0}</b>は 残念ながら 最近の間に 容赦なく殺害されました！</size>",
   "Swapper": "スワッパー",
   "SwapperInfo": "プレイヤーの投票を入れ替えよう",
-  "SwapperInfoLong": "(Crewmates):\\nAs the Swapper, you can use the command <b>/sw <color=#0000ff>[ID]</color></b> twice to choose 2 players. Those votes received by those 2 players will be swapped.\\nYou can see everyone\'s <color=#0000ff>ID</color>s next to their name.\\n\\nFor example, if 3 players voted red, and 5 players voted yellow, and you swap red and yellows\' IDs, then red will receive 5 votes, and yellow will receive 3 votes.\\n\\nDue to technical difficulties, the Host\'s original vote will seem unchanged, but it\'s only visual, their vote will still get swapped.",
+  "SwapperInfoLong": "(Crewmates):\\nAs the Swapper, you can use the command <b>/sw <color=#0000ff>[ID]</color></b> twice to choose 2 players. Those votes received by those 2 players will be swapped.\\nYou can see everyone's <color=#0000ff>ID</color>s next to their name.\\n\\nFor example, if 3 players voted red, and 5 players voted yellow, and you swap red and yellows' IDs, then red will receive 5 votes, and yellow will receive 3 votes.\\n\\nDue to technical difficulties, the Host's original vote will seem unchanged, but it's only visual, their vote will still get swapped.",
   "Swap1": "<size=85%>最初の入れ替えターゲットを 選んだ</size>",
   "Swap2": "<size=85%>2番目の入れ替えターゲットを 選んだ</size>",
   "SwapDead": "<size=80%>あなたは あなたが 死んだ後で 投票の入れ替えができません。</size>",
@@ -1440,7 +1440,7 @@
   "TaskManagerInfoLong": "(<#8cffff>クルーメイト</color>):\\n<size=80%>あなたは 合計の完了したタスクの数を見れて (全員一緒による) あなたの役割名の次に、リアル-タイムで更新されます。</size>",
   "Telecommunication": "テレコミュニケーション",
   "TelecommunicationInfo": "デバイスの使用を追跡できる",
-  "TelecommunicationInfoLong": "(Crewmates):\\nAs the Telecommunication, you are notified when anyone uses cameras, vitals, doorlogs, or admin. Depending on settings, you can also open doors by venting or petting (this ability doesn\'t work on Skeld, Dleks and Mira HQ).",
+  "TelecommunicationInfoLong": "(Crewmates):\\nAs the Telecommunication, you are notified when anyone uses cameras, vitals, doorlogs, or admin. Depending on settings, you can also open doors by venting or petting (this ability doesn't work on Skeld, Dleks and Mira HQ).",
   "Telekinetic": "テレキネシス",
   "TelekineticInfo": "クルーを助けるために さまざまなアクションを実行しよう",
   "TelekineticInfoLong": "(<color=#8cffff>クルーメイト</color>):\\n<size=75%>いつでも タイマーが見れます。\\nもし 60sを超えたとき 死にます。\\n彼は モードを変更するための 通気口ができます。\\n彼は 一度に有効なモードは 1つのみできます。\\nアクションを実行するには、ペットを。\\nいくつかのパワーを使用後 5秒間凍結し、タイマーは 会議後は 40sです。\\n各アクションは 使用したとき 一定の数により タイマーが増加します (アクション名は 括弧に 次のようなリストに 次のように示されています)<size=70%>\\n\\n<u><b>モード:</b></u>\\n<i>ターゲットをテレポート:</i> マップ外に 最も近いプレイヤーをテレポートさせる (+40s)\\n<i>自身をテレポート:</i> マップ外に 自分自身をテレポートさせる (+30s)\\n<i>フリーズ:</i> 最も近いプレイヤーを フリーズさせる (+35s)\\n<i>キル:</i> 即座に 最も近いプレイヤーを殺害する (+60s)\\n<i>シールド:</i> しばらくの間 永続的なシールドを 彼らに与える (+45s)\\n<i>スピード:</i> しばらくの間 増加した速度を 彼らに与える (+30s)\\n<i>ドア:</i> すべての閉じたドアを 即座に開ける (+35s)</size></size>",
@@ -1849,7 +1849,7 @@
   "Exclusionary.ExclusionDuration": "Exclusion Duration",
   "Fabricator": "Fabricator",
   "FabricatorInfo": "Change Death Reasons",
-  "FabricatorInfoLong": "(Impostors):\\nAs the Fabricator, you can use <b>/fabricate {deathreason}</b> to set the death reason for your next kill. Replace \'{deathreason}\' with one of the available death reasons in the mod.",
+  "FabricatorInfoLong": "(Impostors):\\nAs the Fabricator, you can use <b>/fabricate {deathreason}</b> to set the death reason for your next kill. Replace '{deathreason}' with one of the available death reasons in the mod.",
   "Fabricator.InvalidDeathReason": "<#ff5555>X <#bb0000>Invalid death reason '<#ffffff>{0}</color>'!",
   "Fabricator.SetDeathReason": "<#00ff00>✓ <#00bb00>Your next kill will have the death reason: <#ffffff>{0}</color>",
   "Fakeshifter": "Fakeshifter",
@@ -1992,7 +1992,7 @@
   "LightningKillerConvertGhost": "殺人犯を量子ゴーストに変換できる",
   "Loner": "Loner",
   "LonerInfo": "Select Your Partner",
-  "LonerInfoLong": "(Impostors):\\nAs the Loner, you can freely select your impostor partner using your shapeshift menu in a meeting or the <b>/select {id} {role}</b> command (replace {id} with the player\'s ID, and {role} with the name of the role you want them to get). If you use the shapeshift menu, it will assign them a random enabled impostor role. The role change takes effect after the meeting.",
+  "LonerInfoLong": "(Impostors):\\nAs the Loner, you can freely select your impostor partner using your shapeshift menu in a meeting or the <b>/select {id} {role}</b> command (replace {id} with the player's ID, and {role} with the name of the role you want them to get). If you use the shapeshift menu, it will assign them a random enabled impostor role. The role change takes effect after the meeting.",
   "Loner.Picked": "<#00ff00>✓ <#00ffa5>You've picked {0} to be your partner! Their role will be {1}.",
   "LovingImpostor": "ラビングインポスター",
   "LovingImpostorInfo": "生き続けて 一緒に勝利しよう！",
@@ -2113,7 +2113,7 @@
   "Postponer.BodyDelay": "Body Spawn Delay",
   "Psychopath": "Psychopath",
   "PsychopathInfo": "You're Forced to Kill Off Cooldown",
-  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you\'ll kill instantly if someone is inside your kill-range.",
+  "PsychopathInfoLong": "(Impostors):\\nAs the Psychopath, as soon as your kill cooldown is up, you'll kill instantly if someone is inside your kill-range.",
   "Puppeteer": "パペッティア",
   "PuppeteerInfo": "マークプレイヤーに あなたの殺害をさせる",
   "PuppeteerInfoLong": "(<#ff1919>インポスター</color>):\\n<size=75%>パペッティアとして、あなたのキルボタンを使用し 誰かを操作します。\\n一定時間の後に、その人は その人に近づいてくる 次のプレイヤーを殺害します。\\n\\nこの役割には たくさんの設定があり、そのメカニズムはさらなる変化をします:</size>\\n<size=60%>- あなたは ダブルクリックを使用すると 普通に殺せるかもしれません。\\n- 操作は もし 操作されているプレイヤーが 誰も殺さなかったときでさえ、一定時間の後に終了するかもしれません。\\n- <#a4dffe>怠け者</color> および/または <#a4dffe>ナマケモノ</color>のプレイヤーには 操作を受けることができないかもしれません。\\n- 操作されたプレイヤーが 他の<#ff1919>インポスター</color> あるいは パペッティア自身でさえ 殺すかもしれません。\\n- あなたが 誰かを操作する最大回数は 制限されるかもしれません。\\n- あなたは すべてのあなたの人形を使い切った後に 死ぬかもしれません。\\n- 操作されたプレイヤーは その人の犠牲者とともに 死ぬかもしれません。</size>",
@@ -2227,7 +2227,7 @@
   "TimeThiefReturnStolenTimeUponDeath": "死亡時に 盗んだ時間を返す",
   "Trapster": "トラップスター",
   "TrapsterInfo": "殺害の連鎖を開始しよう",
-  "TrapsterInfoLong": "(Impostors):\\nAs the Trapster, you can use your Vanish button to create a fake dead body. Anyone who reports this body will die, and depending on settings the body will be reported.\\n\\n(Legacy Version):\\nIn the game, the Trapster kills a player and then puts a trap on their body. If another player reports the dead body and it has the Trapster\'s trap on it, the player who reports will die instantly without the body getting reported. The player killed by the Trapster\'s trap will also become a Trapster. This chain reaction continues until no more players are left to become Trapsters. However, the Trapster will die immediately after making a kill. It\'s worth noting that the Trapster\'s own dead body cannot trigger their trap.",
+  "TrapsterInfoLong": "(Impostors):\\nAs the Trapster, you can use your Vanish button to create a fake dead body. Anyone who reports this body will die, and depending on settings the body will be reported.\\n\\n(Legacy Version):\\nIn the game, the Trapster kills a player and then puts a trap on their body. If another player reports the dead body and it has the Trapster's trap on it, the player who reports will die instantly without the body getting reported. The player killed by the Trapster's trap will also become a Trapster. This chain reaction continues until no more players are left to become Trapsters. However, the Trapster will die immediately after making a kill. It's worth noting that the Trapster's own dead body cannot trigger their trap.",
   "Trickster": "トリックスター",
   "TricksterInfo": "クルーを 殺害 および 騙せる",
   "TricksterInfoLong": "(<#ff1919>インポスター</color>):\\n<size=75%>トリックスターとして、あなたは 通常の<#ff1919>インポスター</color>として機能しますが 1つの重要な違いがあります。\\nあなたは <#8cffff>クルーメイト</color>の役割に <#8cffff>クルーメイト</color>と見られます。\\n\\n<#ffb347>シェリフ</color>は あなたを殺せません。\\n<#6F698C>霊能者</color>は あなたを邪悪として見ることができません。\\n<#b8fb4f>スニッチ</color>は あなたを見つけることができません。</size>",
@@ -2961,7 +2961,7 @@
   "QuizMaster.CustomQuestionChance": "カスタムの質問の確率",
   "QuizMaster.EnableCustomQuestions": "カスタムの質問を有効にする",
   "QuizMaster.MarkCooldown": "プレイヤーの マーキングのクールダウン",
-  "QuizMaster.QuestionSample": "<size=95%>{0}</size>\\n<size=90%>{1}</size>\\n\\n<size=80%>回答するには、<b>/qa (A/B/C)</b> と入力 (例.: \'/ga C\')\\nこの質問を 再び見るには、<b>/qs</b>\\nもし あなたが 回答しない または 回答を間違えると、あなたは死亡します",
+  "QuizMaster.QuestionSample": "<size=95%>{0}</size>\\n<size=90%>{1}</size>\\n\\n<size=80%>回答するには、<b>/qa (A/B/C)</b> と入力 (例.: '/ga C')\\nこの質問を 再び見るには、<b>/qs</b>\\nもし あなたが 回答しない または 回答を間違えると、あなたは死亡します",
   "QuizMaster.QuestionSample.Title": "クイズマスターが あなたに質問した",
   "QuizMaster.QuestionSample.Title.Self": "送信した質問:",
   "QuizMaster.Title": "クイズマスターの質問",
@@ -3627,7 +3627,7 @@
   "FlashSpeed": "<color=#ff8400>閃光</color>の速度",
   "Fool": "バカ",
   "FoolInfo": "You can't fix lights & comms",
-  "FoolInfoLong": "(Add-ons):\\nYou can\'t fix Lights and Comms sabotages.",
+  "FoolInfoLong": "(Add-ons):\\nYou can't fix Lights and Comms sabotages.",
   "Fragile": "壊れやすい",
   "FragileInfo": "すべてが あなたを殺す",
   "FragileInfoLong": "(<#ffab1b>有害な</color> <#ff9ace>属性</color>):\\n<size=80%>壊れやすいとして、もし 誰かが 彼のキルボタンを あなたに使用したとき 殺害-できない 志向でさえも、彼は どのみち あなたを殺害します。</size>",
@@ -7046,7 +7046,7 @@
   "Quiz.Questions.Hard.9.Answer.D": "ヒヨケザル",
   "Quiz.Questions.Hard.9.Answer.E": "該当なし",
   "Quiz.Questions.Hard.9.CorrectAnswer": "C",
-  "Quiz.Questions.Hard.10": "微分方程式 y\'(x)+ay(x)=0 の解は 何ですか？",
+  "Quiz.Questions.Hard.10": "微分方程式 y'(x)+ay(x)=0 の解は 何ですか？",
   "Quiz.Questions.Hard.10.Answer.A": "y=Ce<sup>-ax</sup>",
   "Quiz.Questions.Hard.10.Answer.B": "y=Ce<sup>ax</sup>",
   "Quiz.Questions.Hard.10.Answer.C": "y=e<sup>ax</sup>+C",
@@ -8768,7 +8768,7 @@
   "ComboAllow": "<size=85%>{0} と {1} は 今 一緒に生成できます。</size>",
   "ComboBan": "<size=85%>{0} と {1} は 決して一緒に生成されません。</size>",
   "ComboRemove": "<size=85%>{0} と {1} は もはや一緒に生成されません。</size>",
-  "ComboUsage": "\n<size=80%><b><u>使用形式:</u></b>\n/combo {add (追加) /ban (禁止)/ remobe (削除)/allow (許可)} {{main role}(メインの役割名) {addon}(属性名) [all]</size>\n\n<size=60%>通常により、コンボが 現在のプリセットに追加されます。\\nもし あなたが すべてのプリセットに追加したいとき、最後に \'all\' を入力してください。\n例: /combo add(追加) <#f0e68c>ナイスゲッサー</color> <#19fa8d>ダブルショット</color> all</size>",
+  "ComboUsage": "\n<size=80%><b><u>使用形式:</u></b>\n/combo {add (追加) /ban (禁止)/ remobe (削除)/allow (許可)} {{main role}(メインの役割名) {addon}(属性名) [all]</size>\n\n<size=60%>通常により、コンボが 現在のプリセットに追加されます。\\nもし あなたが すべてのプリセットに追加したいとき、最後に 'all' を入力してください。\n例: /combo add(追加) <#f0e68c>ナイスゲッサー</color> <#19fa8d>ダブルショット</color> all</size>",
   /* ==============================
     Commands           
   ============================== */
@@ -9118,7 +9118,7 @@
   "Commands.NoAccess.Time.InGame": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>ゲームで</color> 使用のみできます</color></size>",
   "Commands.NoAccess.Time.InLobby": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>ロビーで</color> 使用のみできます</color></size>",
   "Commands.NoAccess.Time.InMeeting": "<size=80%><#ff5555>X</color> <#bb0000>このコマンドは <#ffffff>会議で</color> 使用のみできます</color></size>",
-  "KickCommandInvalidID": "<size=80%>指定された プレイヤーID は無効です。\\nプレイヤーを追い出すには \'/kick [プレイヤーID]\' を使用してください。</size>",
+  "KickCommandInvalidID": "<size=80%>指定された プレイヤーID は無効です。\\nプレイヤーを追い出すには '/kick [プレイヤーID]' を使用してください。</size>",
   "KickCommandKickHost": "<size=80%>あなたには ホストを追い出す権限がありません。</size>",
   "KickCommandKickMod": "<size=80%>あなたには 他のモデレーターを追い出す権限がありません。</size>",
   "KickCommandKicked": "ゲームから追い出された。",
@@ -9670,7 +9670,7 @@
   "EnableKillerLeftCommand": "/gs (以前の /kcount) コマンドの使用を有効にする",
   "EnableMovementChecking": "無効な移動のEACチェックを有効にする (対 速度ハック) (誤作動のケースもあります)",
   "EnableSpurtCharge": "チャージ割合を表示する",
-  "EnabledGMWarning": "<size=80%>あなたは <#ff5b70>ゲームマスター</color>を有効にしました。\\nこれは 毎ゲームの開始であなたが幽霊になります。\\n未知の問題により、ゲームが \'全員が死んだ’ という理由で即座に終わる可能性があります。\\nもし これが発生したとき <#ff5b70>ゲームマスター</color>を無効にしてください。</size>",
+  "EnabledGMWarning": "<size=80%>あなたは <#ff5b70>ゲームマスター</color>を有効にしました。\\nこれは 毎ゲームの開始であなたが幽霊になります。\\n未知の問題により、ゲームが '全員が死んだ’ という理由で即座に終わる可能性があります。\\nもし これが発生したとき <#ff5b70>ゲームマスター</color>を無効にしてください。</size>",
 
   /* ==============================
     General Settings           
@@ -10466,7 +10466,7 @@
   /* ==============================
     Notifications and Messages           
   ============================== */
-  "ReadyCheckMessage": "The Host/an Admin is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the Host/Admins know you\'re not AFK.",
+  "ReadyCheckMessage": "The Host/an Admin is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the Host/Admins know you're not AFK.",
 
   /* ==============================
     General Settings           

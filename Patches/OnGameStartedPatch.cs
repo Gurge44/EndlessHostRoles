@@ -1146,8 +1146,8 @@ internal static class StartGameHostPatch
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
-            if (pc.Data == null)
-                while (pc.Data == null)
+            if (!pc.Data)
+                while (!pc.Data)
                     yield return null;
 
             pc.Data.Disconnected = true;

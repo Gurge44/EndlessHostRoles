@@ -85,9 +85,9 @@ public class CopyCat : RoleBase
 
     private void ResetRole()
     {
-        if (CopyCatPC == null || CopyCatPC.GetCustomRole() != CopiedRole)
+        if (!CopyCatPC || CopyCatPC.GetCustomRole() != CopiedRole)
         {
-            if (CopyCatPC != null) PlayerIdList.Remove(CopyCatPC.PlayerId);
+            if (CopyCatPC) PlayerIdList.Remove(CopyCatPC.PlayerId);
             LateTask.New(() => Instances.Remove(this), 0.2f);
             return;
         }
