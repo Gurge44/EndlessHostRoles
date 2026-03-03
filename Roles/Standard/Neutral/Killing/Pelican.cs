@@ -106,6 +106,7 @@ public class Pelican : RoleBase
 
             EatenList[playerId] = list;
         }
+        Main.ForceRebuildCachesPlayerControls();
     }
 
     public static bool IsEaten(PlayerControl pc, byte id) => EatenList.TryGetValue(pc.PlayerId, out List<byte> list) && list.Contains(id);
@@ -162,7 +163,7 @@ public class Pelican : RoleBase
         if (!EatenList.ContainsKey(pc.PlayerId)) EatenList.Add(pc.PlayerId, []);
 
         EatenList[pc.PlayerId].Add(target.PlayerId);
-
+        Main.ForceRebuildCachesPlayerControls();
         SyncEatenList( /*pc.PlayerId*/);
 
         OriginalSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId];
@@ -198,8 +199,7 @@ public class Pelican : RoleBase
             }
         }
 
-        EatenList.Clear();
-        SyncEatenList( /*byte.MaxValue*/);
+        ClearOrRemoveEatenList();
     }
 
     public static void OnPelicanDied(byte pc)
@@ -221,8 +221,7 @@ public class Pelican : RoleBase
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} died, {target.GetRealName()} is back in-game", "Pelican");
         }
 
-        EatenList.Remove(pc);
-        SyncEatenList( /*pc*/);
+        ClearOrRemoveEatenList(pc);
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -231,8 +230,7 @@ public class Pelican : RoleBase
         {
             if (EatenList.Count > 0)
             {
-                EatenList.Clear();
-                SyncEatenList( /*byte.MaxValue*/);
+                ClearOrRemoveEatenList();
             }
 
             return;
@@ -271,7 +269,13 @@ public class Pelican : RoleBase
 
         return false;
     }
-
+    private static void ClearOrRemoveEatenList(byte pelicanId = byte.MaxValue)
+    {
+        if (pelicanId != byte.MaxValue) EatenList.Remove(pelicanId);
+        else EatenList.Clear();
+        Main.ForceRebuildCachesPlayerControls();
+        SyncEatenList( /*byte.MaxValue*/);
+    }
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.KillButton?.OverrideText(Translator.GetString("PelicanButtonText"));

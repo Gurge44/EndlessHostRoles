@@ -543,7 +543,7 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            Main.LastPlayerControlUpdated = -1;
+            Main.SetDirtyRebuildPC();
             if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character != null)
             {
 
@@ -652,7 +652,7 @@ internal static class OnPlayerLeftPatch
                     Options.AutoSetFactionMinMaxSettings();
             }
 
-            GameEndChecker.LastGameEndCheckUpdated = -1;
+            GameEndChecker.SetDirtyCheckEnd();
             Utils.CountAlivePlayers(true);
         }
         catch (NullReferenceException) { }
@@ -675,6 +675,7 @@ internal static class InnerNetClientSpawnPatch
         ClientData client = Utils.GetClientById(ownerId);
 
         Logger.Msg($"Spawn player data: ID {client?.Character?.PlayerId}: {client?.PlayerName}", "CreatePlayer");
+        Main.ForceRebuildCachesPlayerControls();
 
         if (client == null || client.Character == null // client is null
                            || client.ColorId < 0 || Palette.PlayerColors.Length <= client.ColorId) // invalid client color

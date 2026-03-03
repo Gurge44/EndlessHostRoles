@@ -353,7 +353,7 @@ public class PlayerState(byte playerId)
             if (Enchanter.EnchantedPlayers.Contains(PlayerId))
                 deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
 
-            RPC.SendDeathReason(PlayerId, deathReason);
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
         }
     }
@@ -366,7 +366,7 @@ public class PlayerState(byte playerId)
 
         if (AmongUsClient.Instance.AmHost)
         {
-            RPC.SendDeathReason(PlayerId, deathReason);
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
         }
     }
 

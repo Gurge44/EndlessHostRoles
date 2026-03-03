@@ -37,15 +37,19 @@ internal static class GameEndChecker
     public static bool ShouldNotCheck = false;
     public static bool Ended;
     public static bool LoadingEndScreen;
-    public static long LastGameEndCheckUpdated = -1;
+    private static long LastGameEndCheckUpdated = -1;
 
     public static bool Prefix()
     {
         return !AmongUsClient.Instance.AmHost;
     }
-    public static void ForceCheckEnd()
+    public static void SetDirtyCheckEnd()
     {
         LastGameEndCheckUpdated = -1;
+    }
+    public static void ForceCheckEnd()
+    {
+        SetDirtyCheckEnd();
         CheckCustomEndCriteria();
     }
     public static void CheckCustomEndCriteria()

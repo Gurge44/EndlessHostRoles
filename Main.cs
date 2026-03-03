@@ -251,12 +251,16 @@ public class Main : BasePlugin
             .Where(pc => pc.IsAliveWithConditions());
     }
 
-    public static long LastPlayerControlUpdated = -1;
+    private static long LastPlayerControlUpdated = -1;
     private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
     private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
-    public static void ForceRebuildCachesPlayerControls()
+    public static void SetDirtyRebuildPC()
     {
         LastPlayerControlUpdated = -1;
+    }
+    public static void ForceRebuildCachesPlayerControls()
+    {
+        SetDirtyRebuildPC();
         RebuildCaches();
     }
     private static void RebuildCaches()

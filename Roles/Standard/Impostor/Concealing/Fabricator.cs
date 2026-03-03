@@ -36,7 +36,7 @@ public class Fabricator : RoleBase
     {
         if (NextDeathReason == PlayerState.DeathReason.Kill || killer.GetAbilityUseLimit() < 1 || !Main.PlayerStates.TryGetValue(target.PlayerId, out var state)) return;
         state.deathReason = NextDeathReason;
-        RPC.SendDeathReason(target.PlayerId, state.deathReason);
+        RPC.SendDeathReason(target.PlayerId, state.deathReason, state.IsDead);
         killer.RpcRemoveAbilityUse();
     }
 }

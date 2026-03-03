@@ -2311,6 +2311,7 @@ internal static class GameDataCompleteTaskPatch
 
         Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
+        GameEndChecker.SetDirtyCheckEnd();
         NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 }
@@ -2336,7 +2337,7 @@ internal static class PlayerControlCompleteTaskPatch
             Benefactor.OnTaskComplete(__instance, task);
         }
         catch (Exception e) { ThrowException(e); }
-        GameEndChecker.LastGameEndCheckUpdated = -1;
+        GameEndChecker.SetDirtyCheckEnd();
     }
 }
 
