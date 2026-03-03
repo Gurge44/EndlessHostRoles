@@ -867,14 +867,14 @@ internal static class ExtendedPlayerControl
         if (killer.AmOwner) killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
 
         // Other Clients
-        if (!killer.IsHost())
+        else
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.OwnerId);
             writer.WriteNetObject(target);
             writer.Write((int)MurderResultFlags.FailedProtected);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-            if (!MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
+            if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
                 killer.Notify(GetString("PleaseStopBeingDumb"), 10f);
         }
 
@@ -1840,6 +1840,31 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates[pc.PlayerId].SubRoles.Any(x => x.IsEvilAddon());
     }
 
+    public static void SetKillCooldownNonSync(this PlayerControl pc, float kcd)
+    {
+        if (pc.AmOwner)
+        {
+            pc.SetKillTimer(kcd);
+        }
+        else if (pc.IsModdedClient())
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, SendOption.Reliable, pc.OwnerId);
+            writer.Write(kcd);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        else
+        {
+            // ResetKillCooldown sets every player's kill cooldown to twice the value.
+            // MurderPlayer RPC with FailedProtected flag sets a player's kill cooldown to half the set value.
+            // *2 /2 = the value we began with. This avoids syncing settings on every CheckMurder.
+            // This works because the kill cooldown is consistent throughout the entire game.
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, pc.OwnerId);
+            writer.WriteNetObject(pc);
+            writer.Write((int)MurderResultFlags.FailedProtected);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+    }
+
     public static void ResetKillCooldown(this PlayerControl player, bool sync = true)
     {
         Main.PlayerStates[player.PlayerId].Role.SetKillCooldown(player.PlayerId);
@@ -1849,12 +1874,13 @@ internal static class ExtendedPlayerControl
             CustomRoles.Challenger => SoloPVP.SoloPVP_ATKCooldown.GetFloat(),
             CustomRoles.Killer => FreeForAll.FFAKcd.GetFloat(),
             CustomRoles.Runner => Speedrun.KCD,
-            CustomRoles.CTFPlayer => CaptureTheFlag.KCD,
+            CustomRoles.Potato => 2f,
+            CustomRoles.CTFPlayer => CaptureTheFlag.KCD * 2f,
             CustomRoles.KOTZPlayer => KingOfTheZones.KCD,
             CustomRoles.QuizPlayer => 3f,
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,
-            CustomRoles.SnowdownPlayer => 1f,
+            CustomRoles.SnowdownPlayer => 10f,
             _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControls.Count <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };

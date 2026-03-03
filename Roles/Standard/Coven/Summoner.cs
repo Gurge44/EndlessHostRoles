@@ -132,15 +132,16 @@ public class Summoner : CovenBase
                 {
                     SummonedPlayerTimer = null;
                     SummonedPlayerId = byte.MaxValue;
-                    if (!summoned || !summoned.IsAlive()) return;
+                    if (!summoned) return;
+                    summoned.RpcSetCustomRole(SummonedPlayerRole);
+                    if (!summoned.IsAlive()) return;
                     state.SetDead();
                     summoned.RpcExileV2();
-                    summoned.RpcSetCustomRole(SummonedPlayerRole);
                 }, onTick: () => Utils.NotifyRoles(SpecifySeer: summoned, SpecifyTarget: summoned), onCanceled: () =>
                 {
                     SummonedPlayerTimer = null;
                     SummonedPlayerId = byte.MaxValue;
-                    if (!summoned || !summoned.IsAlive()) return;
+                    if (!summoned) return;
                     summoned.RpcSetCustomRole(SummonedPlayerRole);
                 });
 
@@ -152,12 +153,11 @@ public class Summoner : CovenBase
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);
                 summoned.SyncGeneralOptions();
                 summoned.SyncSettings();
-                summoned.TPToRandomVent();
                 LateTask.New(() => summoned.SetKillCooldown(SummonedKillCooldown.GetFloat()), 0.2f);
                 
                 Utils.SendRPC(CustomRPC.SyncRoleData, SummonerId, 1, SummonedPlayerId);
             }
-        }, Math.Max(0, SummonDelayAfterMeeting.GetFloat() - 2f), "Summon Delay");
+        }, Math.Max(2, SummonDelayAfterMeeting.GetFloat() - 2f), "Summon Delay");
         
         
         if (!HasNecronomicon || Changed) return;

@@ -7,6 +7,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
 using Hazel;
+using InnerNet;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
@@ -440,7 +441,7 @@ public static class CaptureTheFlag
     {
         if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out CTFTeam killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
-        new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
+        new[] { killer, target }.Do(x => x.SetKillCooldownNonSync(KCD));
 
         if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out KeyValuePair<CTFTeam, CTFTeamData> kvp))
         {

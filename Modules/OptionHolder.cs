@@ -3287,6 +3287,8 @@ public static class Options
         PostLoadTasks();
     }
 
+    private static int LastUsedPlayerCount;
+
     public static void AutoSetFactionMinMaxSettings()
     {
         try
@@ -3294,6 +3296,7 @@ public static class Options
             if (!AmongUsClient.Instance.AmHost || !EnableAutoFactionMinMaxSettings.GetBool()) return;
 
             int playerCount = PlayerControl.AllPlayerControls.Count;
+            if (playerCount == LastUsedPlayerCount) return;
             var filtered = AutoFactionMinMaxSettings.FindAll(x => x.MinPlayersToActivate.GetInt() > 0 && x.MinPlayersToActivate.GetInt() <= playerCount);
             if (filtered.Count == 0) return;
             var usedValues = filtered.MaxBy(x => x.MinPlayersToActivate.GetInt());
@@ -3312,6 +3315,8 @@ public static class Options
             OptionItem.SyncAllOptions();
             
             Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedValues.MinPlayersToActivate.GetInt(), string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+
+            LastUsedPlayerCount = playerCount;
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

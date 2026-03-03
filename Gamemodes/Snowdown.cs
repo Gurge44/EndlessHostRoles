@@ -157,11 +157,6 @@ public static class Snowdown
     {
         if (!GameEndsAfterTime) return string.Empty;
         long timeLeft = GameEndTime - (Utils.TimeStamp - GameStartTS);
-        if (timeLeft == 60)
-        {
-            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
-        }
         return $"{timeLeft / 60:00}:{timeLeft % 60:00}";
     }
 
@@ -244,7 +239,7 @@ public static class Snowdown
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        killer.SetKillCooldown(5f);
+        killer.SetKillCooldownNonSync(5f);
         if (!Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.SnowballsReady < 1 || targetData.SnowballsReady >= targetData.MaxSnowballsReady) return;
         killerData.SnowballsReady--;
         targetData.SnowballsReady++;

@@ -288,6 +288,7 @@ public static class Mingle
         }
 
         TimeEndTS = Utils.TimeStamp + Time;
+        if (PlayerControl.AllPlayerControls.Count >= 50) return;
         Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
         Utils.MarkEveryoneDirtySettings();
     }
@@ -356,7 +357,7 @@ public static class Mingle
 
             IEnumerator Coroutine()
             {
-                if (TimeEndTS == now)
+                if (TimeEndTS == now && PlayerControl.AllPlayerControls.Count < 50)
                 {
                     Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
                     Main.EnumerateAlivePlayerControls().Do(x => x.SyncSettings());
