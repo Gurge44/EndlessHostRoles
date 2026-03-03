@@ -8,6 +8,7 @@ internal class Freezer : RoleBase
     private const int Id = 643530;
     public static bool On;
 
+    private static OptionItem KillCooldown;
     private static OptionItem FreezeCooldown;
     private static OptionItem FreezeDuration;
     public override bool IsEnable => On;
@@ -22,6 +23,10 @@ internal class Freezer : RoleBase
 
         FreezeDuration = new FloatOptionItem(Id + 3, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        KillCooldown = new IntegerOptionItem(id + 4, "KillCooldown", new(0, 120, 1), 30, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
