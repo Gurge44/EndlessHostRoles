@@ -7,6 +7,7 @@ internal class Kidnapper : RoleBase
 {
     public static bool On;
 
+    public static OptionItem KilLCooldown;
     public static OptionItem SSCD;
     private static int Id => 643300;
     public override bool IsEnable => On;
@@ -17,6 +18,10 @@ internal class Kidnapper : RoleBase
 
         SSCD = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        KillCooldown = new IntegerOptionItem(id + 3, "KillCooldown", new(0, 120, 1), 30, tab)
+            .SetParent(Options.CustomRoleSpawnChances[role])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
