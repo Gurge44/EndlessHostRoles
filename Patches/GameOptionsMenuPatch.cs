@@ -324,7 +324,21 @@ public static class GameOptionsMenuPatch
             }
         }
     }
+    [HarmonyPatch(nameof(GameOptionsMenu.Update))]
+    [HarmonyPrefix]
+    public static void UpdatePostfix(GameOptionsMenu __instance)
+    {
+        // Disable scroll options when chat open
+        if (!HudManager.InstanceExists) return;
 
+        if (__instance.gameObject.activeSelf)
+        {
+            if (HudManager.Instance.Chat.IsOpenOrOpening)
+                __instance.scrollBar.enabled = false;
+            else
+                __instance.scrollBar.enabled = true;
+        }
+    }
     [HarmonyPatch(nameof(GameOptionsMenu.ValueChanged))]
     [HarmonyPrefix]
     private static bool ValueChangedPrefix(GameOptionsMenu __instance, OptionBehaviour option)

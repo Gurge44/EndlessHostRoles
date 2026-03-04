@@ -323,10 +323,19 @@ public static class GameStartManagerPatch
             
             if (!HudManager.InstanceExists) return;
 
-            if (instance.LobbyInfoPane.gameObject.activeSelf && HudManager.Instance.Chat.IsOpenOrOpening)
-                instance.LobbyInfoPane.DeactivatePane();
+            if (instance.LobbyInfoPane.gameObject.activeSelf)
+            {
+                var lobbyViewSettingsPane = instance.LobbyInfoPane.LobbyViewSettingsPane;
+                if (HudManager.Instance.Chat.IsOpenOrOpening)
+                    lobbyViewSettingsPane.scrollBar.enabled = false;
+                else
+                    lobbyViewSettingsPane.scrollBar.enabled = true;
+            }
 
-            instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
+            //if (instance.LobbyInfoPane.gameObject.activeSelf && HudManager.Instance.Chat.IsOpenOrOpening)
+            //    instance.LobbyInfoPane.DeactivatePane();
+
+            //instance.LobbyInfoPane.gameObject.SetActive(!HudManager.Instance.Chat.IsOpenOrOpening);
         }
 
         public static void Postfix(GameStartManager __instance)

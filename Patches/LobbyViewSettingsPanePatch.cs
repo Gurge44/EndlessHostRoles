@@ -578,6 +578,7 @@ public static class LobbyViewPanePatches
                         {
                             //viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleOff")}/{chanceAddOnPerGame}";
                             viewSettingsInfoPanelRoleVariant.chanceText.text = Translator.GetString("RoleOff");
+                            viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
                         }
 
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color = Palette.DisabledGrey;
@@ -588,6 +589,7 @@ public static class LobbyViewPanePatches
                         if (role.IsAdditionRole())
                         {
                             viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleRate")}/{chanceAddOnPerGame}";
+                            viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
                         }
 
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color = option.NameColor;
@@ -604,104 +606,107 @@ public static class LobbyViewPanePatches
         }
         if (RoleEnabledList.Count > 0)
         {
-            CategoryHeaderMasked categoryHeaderMasked2 = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer);
-            categoryHeaderMasked2.SetHeader(StringNames.RoleSettingsLabel, 61);
-            categoryHeaderMasked2.transform.localScale = Vector3.one;
-            categoryHeaderMasked2.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
-            viewSettings.settingsInfo.Add(categoryHeaderMasked2.gameObject);
+            viewSettings.StopCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
+            viewSettings.StartCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
+            return;
 
-            yPos -= 2.1f;
-            float xPosV2 = 0f;
-            int index = 0;
-            for (int roleIndex = 0; roleIndex < RoleEnabledList.Count; roleIndex++)
+            IEnumerator CoShowRoleSettings()
             {
-                float xPosRoleHeader;
-                if (index % 2 == 0)
-                {
-                    xPosRoleHeader = -5.8f;
-                    if (index > 0)
-                    {
-                        yPos -= xPosV2 + 0.8f;
-                        xPosV2 = 0f;
-                    }
-                }
-                else xPosRoleHeader = 0.14999962f;
+                CategoryHeaderMasked categoryHeaderMasked2 = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer);
+                categoryHeaderMasked2.SetHeader(StringNames.RoleSettingsLabel, 61);
+                categoryHeaderMasked2.transform.localScale = Vector3.one;
+                categoryHeaderMasked2.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
+                viewSettings.settingsInfo.Add(categoryHeaderMasked2.gameObject);
+                yield return null;
 
-                float setUpXPos = viewSettings.SetUpCustomRoleSettings(RoleEnabledList[roleIndex], tabName, 0.8f, 61, xPosRoleHeader, yPos, index % 2 == 0);
-                index++;
-                if (setUpXPos == -1f)
+                yPos -= 2.1f;
+                float startY = yPos;
+
+                float leftY = startY;
+                float rightY = startY;
+
+                float leftX = -5.8f;
+                float rightX = 0.15f;
+
+                foreach (var role in RoleEnabledList)
                 {
-                    //yPos += 0.85f;
-                    index--;
+                    // 1 child setting is "Max" or "Spawn chance" setting
+                    if (!Options.CustomRoleSpawnChances.TryGetValue(role, out var optionRole) || optionRole.Children.Count <= 1) continue;
+
+                    bool useLeftColumn = leftY >= rightY;
+
+                    float columnX = useLeftColumn ? leftX : rightX;
+                    float columnY = useLeftColumn ? leftY : rightY;
+
+                    float endY = SetUpCustomRoleSettings(viewSettings, role, optionRole, tabName, 0.8f, 61, columnX, columnY);
+
+                    if (useLeftColumn) leftY = endY - 1.2f;
+                    else rightY = endY - 1.2f;
+
+                    yield return null;
                 }
-                else if (setUpXPos > xPosV2) xPosV2 = setUpXPos;
+                float lowestY = Mathf.Min(leftY, rightY);
+                viewSettings.scrollBar.SetYBoundsMax(-lowestY - 6f);
             }
         }
-        viewSettings.scrollBar.SetYBoundsMax(-yPos + 2f);
+        viewSettings.scrollBar.SetYBoundsMax(-yPos - 4f);
     }
-    private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float yPosHeader, bool evenNumber)
+    private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, StringOptionItem optionRole, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float startY)
     {
-        float xPosV2 = -1f;
-        if (Options.CustomRoleSpawnChances.TryGetValue(role, out var optionRole) && optionRole.Children.Count > 1) // 1 child setting is "Max" or "Spawn chance" setting
+        float yPos = startY;
+        AdvancedRoleViewPanel advancedRoleViewPanel = Object.Instantiate(viewSettings.advancedRolePanelOrigin, viewSettings.settingsContainer);
+        advancedRoleViewPanel.name = role + "AdvancedPanel";
+        advancedRoleViewPanel.transform.localScale = Vector3.one;
+        advancedRoleViewPanel.transform.localPosition = new Vector3(xPosRoleHeader, yPos, -2f);
+        advancedRoleViewPanel.header.SetHeader((StringNames)(6000 + role), maskLayer, tabName is not TabGroup.ImpostorRoles, null /*<- Role Icons sets here*/);
+        advancedRoleViewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
+        advancedRoleViewPanel.header.Title.text = Translator.GetString(role.ToString());
+        advancedRoleViewPanel.header.Title.color = Color.white;
+        advancedRoleViewPanel.header.Background.color = optionRole.NameColor;
+        advancedRoleViewPanel.header.Divider.color = optionRole.NameColor;
+        viewSettings.settingsInfo.Add(advancedRoleViewPanel.gameObject);
+
+        for (int parentsIndex = 0; parentsIndex < optionRole.Children.Count; parentsIndex++)
         {
-            AdvancedRoleViewPanel advancedRoleViewPanel = Object.Instantiate(viewSettings.advancedRolePanelOrigin, viewSettings.settingsContainer);
-            advancedRoleViewPanel.name = role + "AdvancedPanel";
-            advancedRoleViewPanel.transform.localScale = Vector3.one;
-            advancedRoleViewPanel.transform.localPosition = new Vector3(xPosRoleHeader, yPosHeader, -2f);
-            advancedRoleViewPanel.header.SetHeader((StringNames)(6000 + role), maskLayer, tabName is not TabGroup.ImpostorRoles, null /*<- Role Icons sets here*/);
-            advancedRoleViewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
-            advancedRoleViewPanel.header.Title.text = Translator.GetString(role.ToString());
-            advancedRoleViewPanel.header.Title.color = Color.white;
-            advancedRoleViewPanel.header.Background.color = optionRole.NameColor;
-            advancedRoleViewPanel.header.Divider.color = optionRole.NameColor;
-            viewSettings.settingsInfo.Add(advancedRoleViewPanel.gameObject);
+            OptionItem option = optionRole.Children[parentsIndex];
+            bool show = option.Name != "Maximum";
+            if (!show) continue;
 
-            xPosV2 = 1.08f;
-            float xPos = evenNumber ? -8.9f : advancedRoleViewPanel.xPosStart;
-            float yPos = yPosHeader;
-            int index = 0;
-            for (int parentsIndex = 0; parentsIndex < optionRole.Children.Count; parentsIndex++)
+            BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
+            Logger.Info($"data is null: {data == null}", "SetUpCustomRoles");
+            if (data == null) continue;
+
+            ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(advancedRoleViewPanel.infoPanelOrigin, advancedRoleViewPanel.transform.parent, true);
+            viewSettingsInfoPanel.name = option.Name;
+            viewSettingsInfoPanel.transform.localScale = Vector3.one;
+            viewSettingsInfoPanel.transform.localPosition = new Vector3(xPosRoleHeader - 3f, yPos, -2f);
+           
+            var labelBackground = viewSettingsInfoPanel.labelBackground.transform;
+            labelBackground.localPosition = new(-0.5325f, 0f, 0);
+            labelBackground.localScale = new(1.22f, 1f, 1f);
+
+            switch (data.Type)
             {
-                OptionItem option = optionRole.Children[parentsIndex];
-                bool show = option.Name != "Maximum";
-                if (!show) continue;
-
-                BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
-                Logger.Info($"data is null: {data == null}", "SetUpCustomRoles");
-                if (data == null) continue;
-
-                ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(advancedRoleViewPanel.infoPanelOrigin, advancedRoleViewPanel.transform.parent, true);
-                viewSettingsInfoPanel.name = option.Name;
-                viewSettingsInfoPanel.transform.localScale = Vector3.one;
-                viewSettingsInfoPanel.transform.localPosition = new Vector3(xPos, yPos, -2f);
-                switch (data.Type)
-                {
-                    case OptionTypes.Checkbox:
-                        viewSettingsInfoPanel.SetInfoCheckbox(data.Title, 61, option.GetBool());
-                        break;
-                    case OptionTypes.String:
-                        viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
-                        break;
-                    case OptionTypes.Float:
-                        viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetFloat()), 61);
-                        break;
-                    case OptionTypes.Int:
-                        viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetInt()), 61);
-                        break;
-                    default:
-                        viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
-                        break;
-                }
-                viewSettingsInfoPanel.titleText.text = option.GetName();
-                yPos -= spacingY;
-                if (index > 0)
-                {
-                    xPosV2 += 0.8f;
-                }
-                index++;
-                viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+                case OptionTypes.Checkbox:
+                    viewSettingsInfoPanel.SetInfoCheckbox(data.Title, 61, option.GetBool());
+                    break;
+                case OptionTypes.String:
+                    viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
+                    break;
+                case OptionTypes.Float:
+                    viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetFloat()), 61);
+                    break;
+                case OptionTypes.Int:
+                    viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetInt()), 61);
+                    break;
+                default:
+                    viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
+                    break;
             }
+            viewSettingsInfoPanel.titleText.text = option.GetName();
+            viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+            yPos -= spacingY;
         }
-        return xPosV2;
+        return yPos;
     }
 }
