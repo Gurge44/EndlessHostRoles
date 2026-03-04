@@ -499,6 +499,7 @@ internal static class ChatCommands
     {
         Utils.SendMessage(GetString("CovenInfoDescription"), player.PlayerId);
     }
+    
     private static void NeutralInfoCommand(PlayerControl player, string text, string[] args)
     {
         Utils.SendMessage(GetString("NeutralInfoDescription"), player.PlayerId);

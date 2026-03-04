@@ -642,7 +642,7 @@ internal static class RPCHandlerPatch
                     string commandKey = reader.ReadString();
                     string text = reader.ReadString();
 
-                    if (__instance == null || !__instance.IsModdedClient())
+                    if (!__instance || !__instance.IsModdedClient())
                     {
                         Logger.Error("Player is null or not a modded client", "RequestCommandProcessingFromHost");
                         break;
