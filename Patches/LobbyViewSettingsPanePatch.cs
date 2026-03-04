@@ -158,17 +158,13 @@ public static class LobbyViewPanePatches
             panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
 
             // Chance value
+            panelRole.chanceText.alignment = TextAlignmentOptions.Left;
+            panelRole.chanceText.enableWordWrapping = false;
+            panelRole.chanceText.overflowMode = TextOverflowModes.Overflow;
             panelRole.chanceText.fontWeight = FontWeight.Black;
             panelRole.chanceText.outlineColor = Color.black;
             panelRole.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
             panelRole.chanceText.color = Color.white;
-
-            // Max count title
-            var settingTitle = Object.Instantiate(panelRole.chanceTitle, panelRoleTransform.transform);
-            settingTitle.name = "MaxCountTitle";
-            settingTitle.DestroyTranslator();
-            settingTitle.text = Translator.GetString("Maximum");
-            settingTitle.transform.localPosition = new(2.4f, -0.0225f, -2f);
 
             // Max count sprite
             panelRole.transform.FindChild("Value")?.localPosition = new(1.25f, 0f, -1f);
@@ -515,6 +511,16 @@ public static class LobbyViewPanePatches
                     if (role == default || role is CustomRoles.CovenLeader) continue;
                     ViewSettingsInfoPanelRoleVariant viewSettingsInfoPanelRoleVariant = Object.Instantiate(viewSettings.infoPanelRoleOrigin, viewSettings.settingsContainer);
                     viewSettingsInfoPanelRoleVariant.name = realName;
+
+                    // Max count title
+                    var settingTitle = Object.Instantiate(viewSettingsInfoPanelRoleVariant.chanceTitle, viewSettingsInfoPanelRoleVariant.transform);
+                    settingTitle.name = "MaxCountTitle";
+                    settingTitle.DestroyTranslator();
+                    settingTitle.text = Translator.GetString("Maximum");
+                    settingTitle.transform.localPosition = new(3.94f, -0.01f, -2f);
+                    settingTitle.alignment = TextAlignmentOptions.Left;
+                    settingTitle.enableWordWrapping = false;
+                    settingTitle.overflowMode = TextOverflowModes.Overflow;
 
                     if (yPos == 1.3f) yPos -= 0.8f;
                     viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
