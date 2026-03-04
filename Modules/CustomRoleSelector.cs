@@ -43,7 +43,7 @@ internal static class CustomRoleSelector
     {
         RoleResult = [];
 
-        if (Main.GM.Value && Main.AllPlayerControls.Count == 1) return;
+        if (Main.GM.Value && PlayerControl.AllPlayerControls.Count == 1) return;
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {

@@ -368,6 +368,7 @@ internal static class CustomRolesHelper
             CustomRoles.Unshifter => CustomRoles.Impostor,
             CustomRoles.Scanner => CustomRoles.Phantom,
             CustomRoles.Fakeshifter => CustomRoles.Shapeshifter,
+            CustomRoles.Perplexer => CustomRoles.Shapeshifter,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() switch
             {
                 0 => CustomRoles.Impostor,
@@ -831,7 +832,8 @@ internal static class CustomRolesHelper
             CustomRoles.Camouflager or
             CustomRoles.Twister or
             CustomRoles.Lurker or
-            CustomRoles.Fakeshifter;
+            CustomRoles.Fakeshifter or
+            CustomRoles.Perplexer;
     }
 
     public static bool IsNeutral(this CustomRoles role, bool check = false)
@@ -1128,7 +1130,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc)
     {
-        return role.IsAdditionRole() && !(role.IsGhostRole() && pc.IsAlive()) && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.LazyGuy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
+        return role.IsAdditionRole() && !(role.IsGhostRole() && pc.IsAlive()) && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out List<CustomRoles> bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.LazyGuy) && ((Main.IntroDestroyed && Options.AddonAssigningRolesIgnoreMaxAddonsLimit.GetBool()) || !pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out (OptionItem Imp, OptionItem Neutral, OptionItem Crew, OptionItem Coven) o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()) && (o.Coven.GetBool() || !pc.Is(Team.Coven)))) && (!role.IsImpOnlyAddon() || (pc.IsImpostor() && !pc.Is(CustomRoles.DoubleAgent)) || (pc.Is(CustomRoles.Traitor) && Traitor.CanGetImpostorOnlyAddons.GetBool())) && role switch
         {
             CustomRoles.Blind when pc.Is(CustomRoles.Sensor) => false,
             CustomRoles.Composter when float.IsNaN(pc.GetAbilityUseLimit()) => false,
@@ -1694,6 +1696,7 @@ internal static class CustomRolesHelper
             CustomRoles.Librarian => RoleOptionType.Impostor_Support,
             CustomRoles.Nullifier => RoleOptionType.Impostor_Support,
             CustomRoles.Occultist => RoleOptionType.Impostor_Support,
+            CustomRoles.Perplexer => RoleOptionType.Impostor_Support,
             CustomRoles.Silencer => RoleOptionType.Impostor_Support,
             CustomRoles.Swapster => RoleOptionType.Impostor_Support,
             CustomRoles.TimeThief => RoleOptionType.Impostor_Support,

@@ -652,6 +652,7 @@ public static class Options
     public static OptionItem ImpCanGuessImp;
     public static OptionItem CrewCanGuessCrew;
 
+    public static OptionItem ChatDuringGame;
     public static OptionItem EveryoneCanVent;
     public static OptionItem OverrideOtherCrewBasedRoles;
     public static OptionItem WhackAMole;
@@ -812,6 +813,7 @@ public static class Options
     public static OptionItem NameDisplayAddonsOnlyInMeetings;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
+    public static OptionItem AddonAssigningRolesIgnoreMaxAddonsLimit;
 
     public static OptionItem CharmedCanBeGuessed;
     public static OptionItem ContagiousCanBeGuessed;
@@ -978,6 +980,10 @@ public static class Options
                 optionItem.CallUpdateValueEvent(value, value);
             }
         }
+        
+        // these settings are hidden now and are not needed thanks to innersloth's /cmd addition
+        UseMeetingShapeshift.SetValue(0);
+        UseMeetingShapeshiftForGuessing.SetValue(0);
 
 #if DEBUG
         // Used for generating the table of roles for the README
@@ -1455,6 +1461,9 @@ public static class Options
 
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);
+        
+        AddonAssigningRolesIgnoreMaxAddonsLimit = new BooleanOptionItem(214, "AddonAssigningRolesIgnoreMaxAddonsLimit", false, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard);
 
         CharmedCanBeGuessed = new StringOptionItem(213, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
             .SetHeader(true)
@@ -1766,7 +1775,7 @@ public static class Options
         SendHashedPuidToUseLinkedAccount = new BooleanOptionItem(19501, "SendHashedPuidToUseLinkedAccount", true, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite);
         
-        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 600, 5), 30, TabGroup.SystemSettings)
+        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 30, 5), 30, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -2470,14 +2479,21 @@ public static class Options
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
         UseMeetingShapeshift = new BooleanOptionItem(23865, "UseMeetingShapeshift", true, TabGroup.TaskSettings)
+            .SetHidden(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(Palette.Orange);
 
         UseMeetingShapeshiftForGuessing = new BooleanOptionItem(23866, "UseMeetingShapeshiftForGuessing", false, TabGroup.TaskSettings)
+            .SetHidden(true)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UseMeetingShapeshift)
             .SetColor(Palette.Orange);
+
+        ChatDuringGame = new BooleanOptionItem(24015, "FFA_ChatDuringGame", false, TabGroup.TaskSettings)
+         .SetGameMode(CustomGameMode.Standard)
+         .SetHeader(true)
+         .SetColor(Color.blue);
 
         EveryoneCanVent = new BooleanOptionItem(23853, "EveryoneCanVent", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -3271,6 +3287,8 @@ public static class Options
         PostLoadTasks();
     }
 
+    private static int LastUsedPlayerCount;
+
     public static void AutoSetFactionMinMaxSettings()
     {
         try
@@ -3278,6 +3296,7 @@ public static class Options
             if (!AmongUsClient.Instance.AmHost || !EnableAutoFactionMinMaxSettings.GetBool()) return;
 
             int playerCount = PlayerControl.AllPlayerControls.Count;
+            if (playerCount == LastUsedPlayerCount) return;
             var filtered = AutoFactionMinMaxSettings.FindAll(x => x.MinPlayersToActivate.GetInt() > 0 && x.MinPlayersToActivate.GetInt() <= playerCount);
             if (filtered.Count == 0) return;
             var usedValues = filtered.MaxBy(x => x.MinPlayersToActivate.GetInt());
@@ -3296,6 +3315,8 @@ public static class Options
             OptionItem.SyncAllOptions();
             
             Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedValues.MinPlayersToActivate.GetInt(), string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+
+            LastUsedPlayerCount = playerCount;
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -3533,3 +3554,6 @@ public static class Options
 
     // ReSharper restore NotAccessedField.Global
 }
+
+
+

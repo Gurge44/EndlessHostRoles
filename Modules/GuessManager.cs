@@ -603,8 +603,8 @@ public static class GuessManager
         {
             GameEndChecker.ShouldNotCheck = true;
             Main.PlayerStates[pc.PlayerId].SetDead();
-            pc.Data.IsDead = true;
             pc.RpcExileV2();
+            pc.Data.IsDead = true;
 
             var meetingHud = MeetingHud.Instance;
             ProcessGuess(pc, meetingHud);

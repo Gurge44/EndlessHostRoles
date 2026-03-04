@@ -325,7 +325,7 @@ public abstract class OptionItem
     public static void SyncAllOptions(int targetId = -1)
     {
         if (
-                Main.AllPlayerControls.Count <= 1
+                PlayerControl.AllPlayerControls.Count <= 1
                 || !AmongUsClient.Instance.AmHost
                 || PlayerControl.LocalPlayer == null
             )
@@ -368,7 +368,8 @@ public enum TabGroup
     NeutralRoles,
     CovenRoles,
     Addons,
-    OtherRoles
+    OtherRoles,
+    PresetExplorer
 }
 
 public enum OptionFormat

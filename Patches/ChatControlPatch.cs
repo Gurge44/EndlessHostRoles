@@ -41,17 +41,17 @@ internal static class ChatControllerUpdatePatch
             __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
             __instance.quickChatField.text.color = Color.white;
 
-            if (QuickChatIcon == null)
+            if (!QuickChatIcon)
                 QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
             else
                 QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
 
-            if (OpenBanMenuIcon == null)
+            if (!OpenBanMenuIcon)
                 OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
             else
                 OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
 
-            if (OpenKeyboardIcon == null)
+            if (!OpenKeyboardIcon)
                 OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
             else
                 OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
@@ -64,7 +64,11 @@ internal static class ChatControllerUpdatePatch
 
         if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 
-        __instance.freeChatField.textArea.AllowPaste = true;
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
+            ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
+
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
+            __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
         {
@@ -252,7 +256,7 @@ public static class ChatManager
             for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
 
             PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-            if (senderPlayer == null) continue;
+            if (!senderPlayer) continue;
 
             chat.AddChat(senderPlayer, senderMessage);
             SendRPC(writer, senderPlayer, senderMessage);
@@ -285,14 +289,14 @@ public static class ChatManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-        if (player == null) return;
+        if (!player) return;
         if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControls.Count) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 
         void SendEmptyMessage(PlayerControl receiver)
         {
-            bool toEveryone = receiver == null;
+            bool toEveryone = !receiver;
             bool toLocalPlayer = !toEveryone && receiver.AmOwner;
             if (HudManager.InstanceExists && (toLocalPlayer || toEveryone)) HudManager.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;

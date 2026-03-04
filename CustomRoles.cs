@@ -94,6 +94,7 @@ public enum CustomRoles
     Overheat,
     Parasite,
     Penguin,
+    Perplexer,
     Postponer,
     Psychopath,
     Puppeteer,

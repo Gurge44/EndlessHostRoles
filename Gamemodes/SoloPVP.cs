@@ -203,7 +203,7 @@ internal static class SoloPVP
             rank += PlayerScore.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Count; }
+        catch { return PlayerControl.AllPlayerControls.Count; }
     }
 
     public static string GetHudText()

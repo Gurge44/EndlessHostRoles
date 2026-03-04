@@ -103,13 +103,13 @@ public static class Speedrun
 
         int time = Timers[pc.PlayerId];
         int alive = Main.AllAlivePlayerControls.Count;
-        int apc = Main.AllPlayerControls.Count;
+        int apc = PlayerControl.AllPlayerControls.Count;
         int killers = CanKill.Count;
 
         string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
 
-        string timeStr = time > 90 ? "> 90s" : time.ToString();
+        string timeStr = time > 90 ? "> 90" : time.ToString();
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, timeStr) + arrows;
@@ -119,18 +119,6 @@ public static class Speedrun
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
         var aapc = Main.AllAlivePlayerControls;
-
-        if (TaskFinishWins.GetBool())
-        {
-            PlayerControl player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
-
-            if (player != null)
-            {
-                CustomWinnerHolder.WinnerIds = [player.PlayerId];
-                reason = GameOverReason.CrewmatesByTask;
-                return true;
-            }
-        }
 
         switch (aapc.Count)
         {
@@ -142,6 +130,13 @@ public static class Speedrun
                 CustomWinnerHolder.WinnerIds = [];
                 reason = GameOverReason.CrewmateDisconnect;
                 return true;
+        }
+
+        if (TaskFinishWins.GetBool() && aapc.FindFirst(x => x.GetTaskState().IsTaskFinished, out PlayerControl winner))
+        {
+            CustomWinnerHolder.WinnerIds = [winner.PlayerId];
+            reason = GameOverReason.CrewmatesByTask;
+            return true;
         }
 
         reason = GameOverReason.ImpostorsByKill;
@@ -191,7 +186,7 @@ public static class Speedrun
             CanKill.RemoveWhere(x =>
             {
                 PlayerControl player = x.GetPlayer();
-                return player == null || !player.IsAlive();
+                return !player || !player.IsAlive();
             });
 
             var aapc = Main.AllAlivePlayerControls;

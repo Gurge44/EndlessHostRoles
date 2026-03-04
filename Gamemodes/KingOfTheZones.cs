@@ -308,7 +308,7 @@ public static class KingOfTheZones
             try
             {
                 PlayerControl player = id.GetPlayer();
-                if (player == null) continue;
+                if (!player) continue;
                 string name = Main.AllPlayerNames[id];
 
                 var writer = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
@@ -353,7 +353,7 @@ public static class KingOfTheZones
             try
             {
                 PlayerControl player = id.GetPlayer();
-                if (player == null) continue;
+                if (!player) continue;
             
                 byte colorId = team.GetColorId();
                 player.SetColor(colorId);
@@ -557,7 +557,7 @@ public static class KingOfTheZones
             sb.AppendLine(string.Format(GetString("KOTZ.Suffix.SpawnProtectionTime"), protectionEndTS - now));
 
         PlainShipRoom room = seer.GetPlainShipRoom();
-        SystemTypes zone = room == null ? SystemTypes.Hallway : room.RoomId;
+        SystemTypes zone = !room ? SystemTypes.Hallway : room.RoomId;
 
         if (justStarted) sb.Append(GetString(Zones.Count == 1 ? "KOTZ.SuffixHelp.Zones.Single" : "KOTZ.SuffixHelp.Zones.Plural"));
         sb.AppendLine(string.Join(" | ", Zones.Select(x => Utils.ColorString(ZoneDomination[x].GetColor(), (zone == x ? "<u>" : string.Empty) + GetString($"{x}") + (zone == x ? "</u>" : string.Empty) + (ZoneMoveSchedules.TryGetValue(x, out long moveTS) ? $"<size=80%> {(ZoneDowntimeExpire.TryGetValue(x, out long downtimeEndTS) ? Utils.ColorString(Color.gray, $"{downtimeEndTS - now}") : $"<#ffff44>{moveTS - now}</color>")}</size>" : string.Empty)))));
@@ -649,7 +649,7 @@ public static class KingOfTheZones
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return !PlayerTeams.TryGetValue(pc.PlayerId, out KOTZTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out KOTZTeam lpTeam) || team != lpTeam;
+        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!PlayerTeams.TryGetValue(pc.PlayerId, out KOTZTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out KOTZTeam lpTeam) || team != lpTeam);
     }
 
     private static void SendRPC()
@@ -812,7 +812,7 @@ public static class KingOfTheZones
                             try
                             {
                                 PlayerControl player = id.GetPlayer();
-                                if (player == null) continue;
+                                if (!player) continue;
 
                                 player.ReviveFromTemporaryExile();
                                 player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);

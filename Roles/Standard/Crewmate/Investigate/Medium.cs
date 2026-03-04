@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using static EHR.Translator;
 
 namespace EHR.Roles;
@@ -58,11 +58,11 @@ public class Medium : RoleBase
     public static void OnReportDeadBody(NetworkedPlayerInfo target)
     {
         ContactPlayer = [];
-        if (target == null || target.Object == null) return;
+        if (target == null || !target.Object) return;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(x => PlayerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
-            if (pc.GetAbilityUseLimit() < 1) continue;
+            if (!pc.Is(CustomRoles.Medium) || pc.PlayerId == target.PlayerId || pc.GetAbilityUseLimit() < 1) continue;
 
             pc.RpcRemoveAbilityUse();
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
@@ -72,24 +72,16 @@ public class Medium : RoleBase
 
     public static bool MsMsg(PlayerControl pc, string msg)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
-
-        if (!GameStates.IsMeeting || pc == null) return false;
-
-        if (!ContactPlayer.ContainsKey(pc.PlayerId)) return false;
-
-        if (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate()) return false;
-
-        if (pc.IsAlive()) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsMeeting || !pc || pc.IsAlive() || !ContactPlayer.TryGetValue(pc.PlayerId, out var contact) || (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate())) return false;
 
         msg = msg.ToLower().Trim();
         if (!CheckCommand(ref msg, "通灵|ms|medium", false)) return false;
 
         bool ans;
 
-        if (msg.Contains('n') || msg.Contains(GetString("No")) || msg.Contains('错') || msg.Contains("不是"))
+        if (msg.Contains('n') || msg.Contains(GetString("No"), StringComparison.OrdinalIgnoreCase) || msg.Contains('错') || msg.Contains("不是"))
             ans = false;
-        else if (msg.Contains('y') || msg.Contains(GetString("Yes")) || msg.Contains('对'))
+        else if (msg.Contains('y') || msg.Contains(GetString("Yes"), StringComparison.OrdinalIgnoreCase) || msg.Contains('对'))
             ans = true;
         else
         {
@@ -97,7 +89,7 @@ public class Medium : RoleBase
             return true;
         }
 
-        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), ContactPlayer[pc.PlayerId], Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")), importance: MessageImportance.High);
+        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), contact, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")), importance: MessageImportance.High);
         Utils.SendMessage(GetString("MediumDone"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")));
 
         ContactPlayer.Remove(pc.PlayerId);

@@ -168,7 +168,7 @@ internal static class FreeForAll
             rank += KillCount.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId); // In the old version, the struct 'KeyValuePair' was checked for equality using the inefficient runtime-provided implementation
             return rank;
         }
-        catch { return Main.AllPlayerControls.Count; }
+        catch { return PlayerControl.AllPlayerControls.Count; }
     }
 
     public static string GetHudText()
@@ -185,8 +185,6 @@ internal static class FreeForAll
     {
         try
         {
-            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
-
             if (target.inVent)
             {
                 Logger.Info("Target is in a vent, kill blocked", "FFA");
@@ -199,7 +197,7 @@ internal static class FreeForAll
                 return;
             }
 
-            int totalalive = Main.AllAlivePlayerControls.Count;
+            var aapc = Main.AllAlivePlayerControls;
 
             if (FFAShieldedList.TryGetValue(target.PlayerId, out long dur))
             {
@@ -218,15 +216,19 @@ internal static class FreeForAll
 
             OnPlayerKill(killer);
 
-            if (totalalive == 3)
+            if (aapc.Count == 3)
             {
                 PlayerControl otherPC = null;
 
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
+                foreach (PlayerControl pc in aapc)
                 {
-                    TargetArrow.Add(killer.PlayerId, pc.PlayerId);
-                    TargetArrow.Add(pc.PlayerId, killer.PlayerId);
-                    otherPC = pc;
+                    if (pc.PlayerId != killer.PlayerId && pc.PlayerId != target.PlayerId && pc.IsAlive())
+                    {
+                        TargetArrow.Add(killer.PlayerId, pc.PlayerId);
+                        TargetArrow.Add(pc.PlayerId, killer.PlayerId);
+                        otherPC = pc;
+                        break;
+                    }
                 }
 
                 Logger.Info($"The last 2 players ({killer.GetRealName().RemoveHtmlTags()} & {otherPC?.GetRealName().RemoveHtmlTags()}) now have an arrow toward each other", "FFA");
@@ -234,7 +236,7 @@ internal static class FreeForAll
                 if (FFADisableVentingWhenTwoPlayersAlive.GetBool())
                 {
                     if (killer.inVent) killer.MyPhysics?.RpcExitVent(killer.GetClosestVent().Id);
-                    if (otherPC != null && otherPC.inVent) otherPC.MyPhysics?.RpcExitVent(otherPC.GetClosestVent().Id);
+                    if (otherPC && otherPC.inVent) otherPC.MyPhysics?.RpcExitVent(otherPC.GetClosestVent().Id);
                 }
             }
 
@@ -352,10 +354,12 @@ internal static class FreeForAll
 
     public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || target != null && seer.PlayerId != target.PlayerId || Main.AllAlivePlayerControls.Count != 2) return string.Empty;
+        if (GameStates.IsMeeting || target && seer.PlayerId != target.PlayerId) return string.Empty;
+        var aapc = Main.AllAlivePlayerControls;
+        if (aapc.Count != 2) return string.Empty;
 
-        PlayerControl otherPlayer = Main.EnumerateAlivePlayerControls().FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
-        if (otherPlayer == null) return string.Empty;
+        PlayerControl otherPlayer = aapc.FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
+        if (!otherPlayer) return string.Empty;
 
         string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
         return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
@@ -385,13 +389,14 @@ internal static class FreeForAll
             {
                 Logger.Info("Swap everyone with someone", "FFA");
 
+                var aapc = Main.AllAlivePlayerControls;
                 List<byte> changePositionPlayers = [];
 
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in aapc)
                 {
                     if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
-                    PlayerControl[] filtered = Main.EnumerateAlivePlayerControls().Where(a =>
+                    PlayerControl[] filtered = aapc.Where(a =>
                         pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
 
                     if (filtered.Length == 0) break;

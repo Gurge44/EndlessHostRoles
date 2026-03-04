@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using InnerNet;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
@@ -139,7 +140,7 @@ internal static class HotPotato
 
             PlayerControl holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
-            if (holder == null || holder.Data.Disconnected || !holder.IsAlive())
+            if (!holder || holder.Data.Disconnected || !holder.IsAlive())
             {
                 PassHotPotato();
                 return;
@@ -204,7 +205,7 @@ internal static class HotPotato
                 if (CanPassViaKillButton)
                 {
                     target.RpcSetRoleDesync(RoleTypes.Impostor, target.OwnerId);
-                    LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
+                    LateTask.New(() => target.SetKillCooldownNonSync(1f), 0.2f, log: false);
                 }
 
                 if (aapc.Count < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Count > 1)
@@ -218,7 +219,7 @@ internal static class HotPotato
 
                 PlayerControl lastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
 
-                if (lastHolder != null)
+                if (lastHolder)
                 {
                     if (CanPassViaKillButton && lastHolder.IsAlive()) lastHolder.RpcSetRoleGlobal(RoleTypes.Crewmate);
 

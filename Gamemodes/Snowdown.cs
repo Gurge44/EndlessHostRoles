@@ -157,11 +157,6 @@ public static class Snowdown
     {
         if (!GameEndsAfterTime) return string.Empty;
         long timeLeft = GameEndTime - (Utils.TimeStamp - GameStartTS);
-        if (timeLeft == 60)
-        {
-            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
-        }
         return $"{timeLeft / 60:00}:{timeLeft % 60:00}";
     }
 
@@ -192,7 +187,7 @@ public static class Snowdown
                 if (GameEndsAfterTime && Utils.TimeStamp - GameStartTS >= GameEndTime)
                 {
                     int max = Data.Values.Max(x => x.Points);
-                    CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer() != null).Select(x => x.Key).ToHashSet();
+                    CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer()).Select(x => x.Key).ToHashSet();
                     Logger.Info($"Winners: {(string.Join(", ", CustomWinnerHolder.WinnerIds.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, "[Unknown player]"))))}", "Snowdown");
                     Main.DoBlockNameChange = true;
                     return true;
@@ -244,7 +239,7 @@ public static class Snowdown
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        killer.SetKillCooldown(5f);
+        killer.SetKillCooldownNonSync(5f);
         if (!Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.SnowballsReady < 1 || targetData.SnowballsReady >= targetData.MaxSnowballsReady) return;
         killerData.SnowballsReady--;
         targetData.SnowballsReady++;
@@ -266,7 +261,7 @@ public static class Snowdown
             {
                 touchingSnowball.SetInactive();
                 
-                if (touchingSnowball.Thrower != null && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
+                if (touchingSnowball.Thrower && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
                     throwerData.Coins++;
             }
 
