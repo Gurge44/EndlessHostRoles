@@ -150,6 +150,9 @@ public static class LobbyViewPanePatches
             panelRole.titleText.color = Color.white;
 
             // "% Chance" title text
+            panelRole.chanceText.alignment = TextAlignmentOptions.Left;
+            panelRole.chanceText.enableWordWrapping = false;
+            panelRole.chanceText.overflowMode = TextOverflowModes.Overflow;
             panelRole.chanceTitle.fontWeight = FontWeight.Black;
             panelRole.chanceTitle.outlineColor = Color.black;
             panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
@@ -158,9 +161,6 @@ public static class LobbyViewPanePatches
             panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
 
             // Chance value
-            panelRole.chanceText.alignment = TextAlignmentOptions.Left;
-            panelRole.chanceText.enableWordWrapping = false;
-            panelRole.chanceText.overflowMode = TextOverflowModes.Overflow;
             panelRole.chanceText.fontWeight = FontWeight.Black;
             panelRole.chanceText.outlineColor = Color.black;
             panelRole.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
