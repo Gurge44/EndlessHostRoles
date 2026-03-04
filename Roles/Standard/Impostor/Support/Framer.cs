@@ -17,7 +17,7 @@ public class Framer : RoleBase
     {
         Options.SetupRoleOptions(647196, TabGroup.ImpostorRoles, CustomRoles.Framer);
 
-        KillCooldown = new IntegerOptionItem(647197, "KillCooldown", new(0, 120, 1), 30, tab)
+        KillCooldown = new IntegerOptionItem(647197, "KillCooldown", new(0, 120, 1), 30, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
             .SetValueFormat(OptionFormat.Seconds);
 
