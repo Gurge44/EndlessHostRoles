@@ -1593,7 +1593,7 @@
   "Wizard.Buff.KCD": "击杀冷却时间",
   "Wizard.Buff.Speed": "速跑",
   "Wizard.Buff.Vision": "视野",
-  "Wizard.BuffGivenNotify": "<#00ffa5>{0}\'s <#ffffff>{1}</color>设置为<#ffffff>{2}</color></color>",
+  "Wizard.BuffGivenNotify": "<#00ffa5>{0}'s <#ffffff>{1}</color>设置为<#ffffff>{2}</color></color>",
   "Wizard.KCDStep": "每一步增加的击杀冷却",
   "Wizard.MaxKCDValue": "可以给予玩家的最大击杀冷却时间",
   "Wizard.MaxSpeedValue": "可以给予玩家的最小速度",
@@ -1850,7 +1850,7 @@
   "Fabricator": "伪证师",
   "FabricatorInfo": "改变死因",
   "FabricatorInfoLong": "(内鬼职业):\\n伪证师可以通过<b>/fabricate {deathreason}</b>来将下一次击杀的死因调整为伪证师输入的死因。将{deathreason}替换为本模组支持的死因。",
-  "Fabricator.InvalidDeathReason": "<#ff5555>X <#bb0000>该死因不合法\'<#ffffff>{0}</color>\'！",
+  "Fabricator.InvalidDeathReason": "<#ff5555>X <#bb0000>该死因不合法'<#ffffff>{0}</color>'！",
   "Fabricator.SetDeathReason": "<#00ff00>✓ <#00bb00>你下一次击杀的死因将变为 <#ffffff>{0}</color>",
   "Fakeshifter": "伪形者",
   "FakeshifterInfo": "吾可令一人化作他人之影，使群雄难辨其形",
@@ -3366,7 +3366,7 @@
   "Illusionist.UnmorphPrevious": "如果选择了一个新的目标，取消先前的目标",
   "MoonDancer": "巫师商人",
   "MoonDancerInfo": "贩卖&偷取附加职业",
-  "MoonDancerInfoLong": "(巫师职业):\\n巫师商人可以隐身来给自己一个随机的附加职业，你也可以用击杀键给目标一个。\\n对方如果也是巫师，你给他的是一个有益附加职业，反之是有害的（下一轮会议生效）。\\n双击击杀可以\'进货\'（偷走他们所有的附加职业<sup>*</sup>）\\n\\n拥有亡灵魔法后，双击会直接击杀目标并偷取他的附加职业<sup>*</sup>（如果设置允许）",
+  "MoonDancerInfoLong": "(巫师职业):\\n巫师商人可以隐身来给自己一个随机的附加职业，你也可以用击杀键给目标一个。\\n对方如果也是巫师，你给他的是一个有益附加职业，反之是有害的（下一轮会议生效）。\\n双击击杀可以'进货'（偷走他们所有的附加职业<sup>*</sup>）\\n\\n拥有亡灵魔法后，双击会直接击杀目标并偷取他的附加职业<sup>*</sup>（如果设置允许）",
   "MoonDancer.CanStealAddonsWithoutNecronomicon": "没有亡灵魔法的情况下也能偷附加职业",
   "MoonDancer.OthersAssignAddonCooldown": "贩卖附加职业的冷却时间",
   "MoonDancer.SelfAssignAddonCooldown": "给予自己附加职业的冷却时间",
@@ -8788,7 +8788,7 @@
   "HostMayOmitCmdPrefix": "\"cmd\"前缀\\n可以删除",
   "HostSeesCommandsEnteredByOthers": "房主能看见由其他人输入的指令",
   "MyRoleCommandHelp": "<size=80%><#00ffa5>⇨输入/m</color>在会议上以全面了解您的职业玩法⇦</color></size>",
-  "NoSpamAnymoreUseCmd": "<size=2.5><#ff0000>⚠ <#ffff00>使用 \'/cmd {command name} {arguments}\' 格式<#ff0000>⚠</size>\\n<#ffa500>否则你的消息会被暴露！",
+  "NoSpamAnymoreUseCmd": "<size=2.5><#ff0000>⚠ <#ffff00>使用 '/cmd {command name} {arguments}' 格式<#ff0000>⚠</size>\\n<#ffa500>否则你的消息会被暴露！",
   "SpectateCommand.ForcedSpectator": "<#00ff00>✓</color> {0} 将观战下一局游戏。",
   "SpectateCommand.Removed": "<#ffab1b>-</color>你不能再观看。",
   "SpectateCommand.RemovedForcedSpectator": "<#ffab1b>-</color> {0} 不再是观战者。",
@@ -9118,7 +9118,7 @@
   "Commands.NoAccess.Time.InGame": "<#ff5555>X</color> <#bb0000>该指令只能在<#ffffff>游戏中</color>使用",
   "Commands.NoAccess.Time.InLobby": "<#ff5555>X</color> <#bb0000>该指令只能在<#ffffff>大厅</color>使用",
   "Commands.NoAccess.Time.InMeeting": "<#ff5555>X</color> <#bb0000>该指令只能在<#ffffff>会议中</color>使用",
-  "KickCommandInvalidID": "指定的玩家ID无效.\\n请使用 \'/kick [玩家ID]\' 踢出玩家",
+  "KickCommandInvalidID": "指定的玩家ID无效.\\n请使用 '/kick [玩家ID]' 踢出玩家",
   "KickCommandKickHost": "你不能踢房主！",
   "KickCommandKickMod": "你不能踢协管！",
   "KickCommandKicked": "你被踢出游戏.",
@@ -9659,7 +9659,7 @@
   "EnableAFKDetector": "启用挂机玩家检测器（也用于检测和修复黑屏）",
   "EnableAutoFactionMinMaxSettings": "根据玩家数量启用自动设置阵营数量",
   "EnableAutoGMRotation": "自动轮换游戏模式",
-  "EnableAutoMessage": "启用自动消息（将在大厅内以固定间隔发送‘Notification\'’标签的消息）",
+  "EnableAutoMessage": "启用自动消息（将在大厅内以固定间隔发送‘Notification'’标签的消息）",
   "EnableCustomSabotages": "允许自定义破坏",
   "EnableDarkTheme": "启用聊天界面深色主题",
   "EnableDebugMode": "开启调试模式",
@@ -10745,7 +10745,7 @@
   /* ==============================
     Notifications and Messages           
   ============================== */
-  "UpReplacedMessage": "/up 被 /setrole 取代，它允许您输入“/setrole (ID) (职业)”来设置任何人的职业。 您可以使用 /id 查看 ID。\n设置您自己的职业与 /up 相似，您需要执行 \'/setrole 0 (职业)\'。",
+  "UpReplacedMessage": "/up 被 /setrole 取代，它允许您输入“/setrole (ID) (职业)”来设置任何人的职业。 您可以使用 /id 查看 ID。\n设置您自己的职业与 /up 相似，您需要执行 '/setrole 0 (职业)'。",
 
   /* ==============================
     Meeting Settings         
@@ -11195,7 +11195,7 @@
   "PrivateChat": "为<color=#ff9ace>恋人</color>启用私密聊天",
   "Promt.ContinueWithQuickSetupAddons": "<b><#00ffa5>您已经完成了每个角色的设置！</color></b> 您想要继续使用附加职业的快速设置对话框吗？",
   "Promt.CopyPreset": "您确定要将所有设置从预设{0}复制到预设{1}吗？",
-  "Promt.DeleteOldLogs": "您在 \'EHR_Logs\' 目录中有 {0} 个文件和 {1} 个文件夹有此模组超过一周的日志。 您想要删除它们以释放空间吗？",
+  "Promt.DeleteOldLogs": "您在 'EHR_Logs' 目录中有 {0} 个文件和 {1} 个文件夹有此模组超过一周的日志。 您想要删除它们以释放空间吗？",
   "Promt.RequiresPets": "您已经启用了一个需要额外功能触发的职业 (宠物/消失按钮)。 您想要启用宠物按钮(在游戏修改器中设置)吗？",
   "Promt.SetRoleRequiresPets": "您已经设置了一个需要额外功能触发的职业 (宠物/消失按钮)。 您想要启用宠物按钮(在游戏修改器中设置)吗？",
   "ProtectingOver": "护盾失效了！",
