@@ -20,7 +20,7 @@ internal class Kidnapper : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KillCooldown = new IntegerOptionItem(Id + 3, "KillCooldown", new(0, 120, 1), 30, tab)
+        KillCooldown = new IntegerOptionItem(Id + 3, "KillCooldown", new(0, 120, 1), 30, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
             .SetValueFormat(OptionFormat.Seconds);
     }
