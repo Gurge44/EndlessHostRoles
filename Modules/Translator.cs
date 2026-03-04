@@ -330,6 +330,8 @@ public static class Translator
     {
         return TranslationController.InstanceExists && TranslationController.Instance.currentLanguage.languageID is
                 SupportedLangs.Russian or
+                SupportedLangs.Korean or
+                SupportedLangs.Japanese or
                 SupportedLangs.SChinese or
                 SupportedLangs.TChinese;
     }

@@ -145,34 +145,34 @@ public static class LobbyViewPanePatches
             panelRole.titleText.overflowMode = TextOverflowModes.Overflow;
             panelRole.titleText.fontWeight = FontWeight.Black;
             panelRole.titleText.outlineColor = Color.black;
-            //if (!Translator.LangAlreadyHaveOutlineText()) panelRole.titleText.outlineWidth = 0.23f;
-            panelRole.titleText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
+            panelRole.titleText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.23f;
             panelRole.titleText.color = Color.white;
 
             // "% Chance" title text
-            panelRole.chanceText.alignment = TextAlignmentOptions.Left;
-            panelRole.chanceText.enableWordWrapping = false;
-            panelRole.chanceText.overflowMode = TextOverflowModes.Overflow;
+            panelRole.chanceTitle.alignment = TextAlignmentOptions.Left;
+            panelRole.chanceTitle.enableWordWrapping = false;
+            panelRole.chanceTitle.overflowMode = TextOverflowModes.Overflow;
             panelRole.chanceTitle.fontWeight = FontWeight.Black;
             panelRole.chanceTitle.outlineColor = Color.black;
-            panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
+            panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.23f;
             panelRole.chanceTitle.color = Color.white;
-            panelRole.chanceTitle.transform.localPosition = new(5.35f, -0.0225f, -2f);
+            panelRole.chanceTitle.transform.localPosition = new(5.15f, -0.02f, -2f);
             panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
 
             // Chance value
             panelRole.chanceText.fontWeight = FontWeight.Black;
             panelRole.chanceText.outlineColor = Color.black;
-            panelRole.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
+            panelRole.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.18f : 0.23f;
             panelRole.chanceText.color = Color.white;
+            panelRole.transform.FindChild("Chance")?.localPosition = new(2.5f, -0.02f, -1f);
 
             // Max count sprite
-            panelRole.transform.FindChild("Value")?.localPosition = new(1.25f, 0f, -1f);
+            panelRole.transform.FindChild("Value")?.localPosition = new(0.35f, -0.02f, -1f);
 
             // Max count value
             panelRole.settingText.fontWeight = FontWeight.Black;
             panelRole.settingText.outlineColor = Color.black;
-            panelRole.settingText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
+            panelRole.settingText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.18f : 0.23f;
             panelRole.settingText.color = Color.white;
 
             __instance.rolesTabButton.transform.localPosition = new(-5.65f, 2.5f, 0);
@@ -466,7 +466,7 @@ public static class LobbyViewPanePatches
         categoryHeaderMasked.Title.text = Translator.GetString($"TabGroup.{tabName}").Trim('★', ' ').RemoveHtmlTags();
         categoryHeaderMasked.Title.fontWeight = FontWeight.Light;
         categoryHeaderMasked.Title.outlineColor = Color.white;
-        categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.4f;
+        categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.4f;
         categoryHeaderMasked.Background.color = roleColor;
         categoryHeaderMasked.Title.color = Color.white;
         categoryHeaderMasked.transform.localScale = Vector3.one;
@@ -492,7 +492,7 @@ public static class LobbyViewPanePatches
 
                 categoryHeaderRoleVariant.Title.fontWeight = FontWeight.Black;
                 categoryHeaderRoleVariant.Title.outlineColor = Color.white;
-                categoryHeaderRoleVariant.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.2f;
+                categoryHeaderRoleVariant.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.2f;
                 categoryHeaderRoleVariant.Background.color = roleColor;
                 categoryHeaderRoleVariant.Title.color = Color.white;
                 categoryHeaderRoleVariant.Title.text = titleName;
@@ -517,10 +517,12 @@ public static class LobbyViewPanePatches
                     settingTitle.name = "MaxCountTitle";
                     settingTitle.DestroyTranslator();
                     settingTitle.text = Translator.GetString("Maximum");
-                    settingTitle.transform.localPosition = new(3.94f, -0.01f, -2f);
+                    settingTitle.transform.localPosition = new(3.04f, -0.02f, -2f);
                     settingTitle.alignment = TextAlignmentOptions.Left;
                     settingTitle.enableWordWrapping = false;
                     settingTitle.overflowMode = TextOverflowModes.Overflow;
+
+                    // Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff")
 
                     if (yPos == 1.3f) yPos -= 0.8f;
                     viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
@@ -545,17 +547,33 @@ public static class LobbyViewPanePatches
                     if (role.IsDevFavoriteRole()) titleName += "  <size=2><#00ffff>★</color></size>";
 
                     //titleName = $"<size=3.5>{titleName}</size>";
-                   
-                    int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out var valueOpt) ? valueOpt.GetChance() : 0;
+                    int chancePerGame = 0;
+                    if (role.IsAdditionRole())
+                        chancePerGame = Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var valueAddOnOpt) ? valueAddOnOpt.GetInt() : 0;
+                    else
+                        chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out var valueRoleOpt) ? valueRoleOpt.GetChance() : 0;
+                    
                     int numPerGame = Options.CustomRoleCounts.TryGetValue(role, out var valueInt) ? valueInt.GetInt() : 0;
                     bool roleDisabled = chancePerGame == 0;
                     if (roleDisabled)
                     {
+                        if (role.IsAdditionRole())
+                        {
+                            var addOnRate = Translator.GetString("RoleOff");
+                            viewSettingsInfoPanelRoleVariant.chanceText.text = $"{addOnRate}/{chancePerGame}";
+                        }
+
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color = Palette.DisabledGrey;
                         viewSettingsInfoPanelRoleVariant.background.color = Palette.DisabledGrey;
                     }
                     else
                     {
+                        if (role.IsAdditionRole())
+                        {
+                            var addOnRate = Translator.GetString("RoleRate");
+                            viewSettingsInfoPanelRoleVariant.chanceText.text = $"{addOnRate}/{chancePerGame}";
+                        }
+
                         viewSettingsInfoPanelRoleVariant.chanceBackground.color = option.NameColor;
                         viewSettingsInfoPanelRoleVariant.background.color = option.NameColor;
                         RoleEnabledList.Add(role);
