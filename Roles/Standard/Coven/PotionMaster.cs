@@ -104,7 +104,7 @@ public class PotionMaster : CovenBase
 
     public override void OnReceiveNecronomicon()
     {
-        PotionMasterId.GetPlayer()?.ResetKillCooldown();
+        SetKillCooldown(PotionMasterId);
     }
 
     public override void SetKillCooldown(byte id)
