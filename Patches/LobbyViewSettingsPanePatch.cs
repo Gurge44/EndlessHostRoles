@@ -99,7 +99,7 @@ public static class LobbyViewPanePatches
             var checkMarkOff = viewSettingsInfoPanel.checkMarkOff.transform;
             checkMarkOff.localPosition = new(2f, 0f, -2f);
             checkMarkOff.localScale = new(0.8f, 0.8f, 1f);
-            viewSettingsInfoPanel.checkMarkOff.color = Color.red;
+            //viewSettingsInfoPanel.checkMarkOff.color = Color.red;
 
             yield return null;
 
@@ -150,7 +150,7 @@ public static class LobbyViewPanePatches
             panelRole.titleText.overflowMode = TextOverflowModes.Overflow;
             panelRole.titleText.fontWeight = FontWeight.Black;
             panelRole.titleText.outlineColor = Color.black;
-            panelRole.titleText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.23f;
+            panelRole.titleText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.23f;
             panelRole.titleText.color = Color.white;
 
             // "% Chance" title text
@@ -159,7 +159,7 @@ public static class LobbyViewPanePatches
             panelRole.chanceTitle.overflowMode = TextOverflowModes.Overflow;
             panelRole.chanceTitle.fontWeight = FontWeight.Black;
             panelRole.chanceTitle.outlineColor = Color.black;
-            panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.2f;
+            panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.2f;
             panelRole.chanceTitle.color = Color.white;
             panelRole.chanceTitle.transform.localPosition = new(5.15f, -0.02f, -2f);
             panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
@@ -167,7 +167,7 @@ public static class LobbyViewPanePatches
             // Chance value
             panelRole.chanceText.fontWeight = FontWeight.Black;
             panelRole.chanceText.outlineColor = Color.black;
-            panelRole.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.14f : 0.23f;
+            panelRole.chanceText.outlineWidth = 0.26f;
             panelRole.chanceText.color = Color.white;
             panelRole.transform.FindChild("Chance")?.localPosition = new(2.5f, -0.02f, -1f);
 
@@ -177,7 +177,7 @@ public static class LobbyViewPanePatches
             // Max count value
             panelRole.settingText.fontWeight = FontWeight.Black;
             panelRole.settingText.outlineColor = Color.black;
-            panelRole.settingText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.14f : 0.2f;
+            panelRole.settingText.outlineWidth = 0.2f;
             panelRole.settingText.color = Color.white;
 
             yield return null;
@@ -486,7 +486,7 @@ public static class LobbyViewPanePatches
         categoryHeaderMasked.Title.text = Translator.GetString($"TabGroup.{tabName}").Trim('★', ' ').RemoveHtmlTags();
         categoryHeaderMasked.Title.fontWeight = FontWeight.Light;
         categoryHeaderMasked.Title.outlineColor = Color.white;
-        categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.4f;
+        categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.4f;
         categoryHeaderMasked.Background.color = roleColor;
         categoryHeaderMasked.Title.color = Color.white;
         categoryHeaderMasked.transform.localScale = Vector3.one;
@@ -512,7 +512,7 @@ public static class LobbyViewPanePatches
 
                 categoryHeaderRoleVariant.Title.fontWeight = FontWeight.Black;
                 categoryHeaderRoleVariant.Title.outlineColor = Color.white;
-                categoryHeaderRoleVariant.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.2f;
+                categoryHeaderRoleVariant.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.2f;
                 categoryHeaderRoleVariant.Background.color = roleColor;
                 categoryHeaderRoleVariant.Title.color = Color.white;
                 categoryHeaderRoleVariant.Title.text = titleName;
