@@ -133,6 +133,7 @@ public static class LobbyViewPanePatches
             __instance.rolesTabButton.selectedSprites.transform.FindChild("Shine").gameObject.SetActive(false);
             yield return null;
 
+            // Patch info panel role origin
             var panelRole = __instance.infoPanelRoleOrigin;
             var panelRoleTransform = panelRole.transform;
 
@@ -144,13 +145,14 @@ public static class LobbyViewPanePatches
             panelRole.titleText.overflowMode = TextOverflowModes.Overflow;
             panelRole.titleText.fontWeight = FontWeight.Black;
             panelRole.titleText.outlineColor = Color.black;
-            panelRole.titleText.outlineWidth = 0.23f;
+            //if (!Translator.LangAlreadyHaveOutlineText()) panelRole.titleText.outlineWidth = 0.23f;
+            panelRole.titleText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
             panelRole.titleText.color = Color.white;
 
             // "% Chance" title text
             panelRole.chanceTitle.fontWeight = FontWeight.Black;
             panelRole.chanceTitle.outlineColor = Color.black;
-            panelRole.chanceTitle.outlineWidth = 0.23f;
+            panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
             panelRole.chanceTitle.color = Color.white;
             panelRole.chanceTitle.transform.localPosition = new(5.35f, -0.0225f, -2f);
             panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
@@ -158,7 +160,7 @@ public static class LobbyViewPanePatches
             // Chance value
             panelRole.chanceText.fontWeight = FontWeight.Black;
             panelRole.chanceText.outlineColor = Color.black;
-            panelRole.chanceText.outlineWidth = 0.23f;
+            panelRole.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
             panelRole.chanceText.color = Color.white;
 
             // Max count title
@@ -174,7 +176,7 @@ public static class LobbyViewPanePatches
             // Max count value
             panelRole.settingText.fontWeight = FontWeight.Black;
             panelRole.settingText.outlineColor = Color.black;
-            panelRole.settingText.outlineWidth = 0.23f;
+            panelRole.settingText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.23f;
             panelRole.settingText.color = Color.white;
 
             __instance.rolesTabButton.transform.localPosition = new(-5.65f, 2.5f, 0);
@@ -468,7 +470,7 @@ public static class LobbyViewPanePatches
         categoryHeaderMasked.Title.text = Translator.GetString($"TabGroup.{tabName}").Trim('★', ' ').RemoveHtmlTags();
         categoryHeaderMasked.Title.fontWeight = FontWeight.Light;
         categoryHeaderMasked.Title.outlineColor = Color.white;
-        categoryHeaderMasked.Title.outlineWidth = 0.04f;
+        categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.4f;
         categoryHeaderMasked.Background.color = roleColor;
         categoryHeaderMasked.Title.color = Color.white;
         categoryHeaderMasked.transform.localScale = Vector3.one;
@@ -494,7 +496,7 @@ public static class LobbyViewPanePatches
 
                 categoryHeaderRoleVariant.Title.fontWeight = FontWeight.Black;
                 categoryHeaderRoleVariant.Title.outlineColor = Color.white;
-                categoryHeaderRoleVariant.Title.outlineWidth = 0.2f;
+                categoryHeaderRoleVariant.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.065f : 0.2f;
                 categoryHeaderRoleVariant.Background.color = roleColor;
                 categoryHeaderRoleVariant.Title.color = Color.white;
                 categoryHeaderRoleVariant.Title.text = titleName;
@@ -553,7 +555,7 @@ public static class LobbyViewPanePatches
                         RoleEnabledList.Add(role);
                     }
 
-                    viewSettingsInfoPanelRoleVariant.SetInfo(titleName, numPerGame, chancePerGame, 61, option.NameColor, RoleManager.Instance.AllRoles[0].RoleIconSolid /*<- Role Icon*/, tabName is not TabGroup.ImpostorRoles, roleDisabled);
+                    viewSettingsInfoPanelRoleVariant.SetInfo(titleName, numPerGame, chancePerGame, 61, option.NameColor, RoleManager.Instance.AllRoles[0].RoleIconSolid /*<- Role Icons sets here*/, tabName is not TabGroup.ImpostorRoles, roleDisabled);
                     viewSettings.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                     yPos -= 0.65f;
 
@@ -601,7 +603,7 @@ public static class LobbyViewPanePatches
             advancedRoleViewPanel.name = role + "AdvancedPanel";
             advancedRoleViewPanel.transform.localScale = Vector3.one;
             advancedRoleViewPanel.transform.localPosition = new Vector3(xPosRoleHeader, yPosHeader, -2f);
-            advancedRoleViewPanel.header.SetHeader((StringNames)(6000 + role), maskLayer, tabName is not TabGroup.ImpostorRoles, null /*<- Role Icon*/);
+            advancedRoleViewPanel.header.SetHeader((StringNames)(6000 + role), maskLayer, tabName is not TabGroup.ImpostorRoles, null /*<- Role Icons sets here*/);
             advancedRoleViewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
             advancedRoleViewPanel.header.Title.text = Translator.GetString(role.ToString());
             viewSettings.settingsInfo.Add(advancedRoleViewPanel.gameObject);
