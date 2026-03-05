@@ -31,7 +31,7 @@ public static class OnlinePresetsManager
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
-            header.Title.text = "Upload & Publish";
+            header.Title.text = Translator.GetString("UploadPresetHeader");
             header.transform.localScale = Vector3.one * 0.63f;
             header.transform.localPosition = new(-0.903f, y, -2f);
 
@@ -71,7 +71,7 @@ public static class OnlinePresetsManager
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
-            header.Title.text = "Preset Explorer";
+            header.Title.text = Translator.GetString("TabGroup.PresetExplorer");
             header.transform.localScale = Vector3.one * 0.63f;
             header.transform.localPosition = new(-0.903f, y, -2f);
 
@@ -82,15 +82,28 @@ public static class OnlinePresetsManager
 
         foreach (PresetMeta preset in CachedPresets)
         {
+            string title = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads)}";
+            
             StringOption row = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
-            row.name = nameof(OnlinePresetsManager) + ";" + string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads);
+            row.name = title;
             row.transform.localPosition = new Vector3(0.952f, y, -2f);
             row.SetClickMask(menu.ButtonClickMask);
             row.SetUpFromData(ScriptableObject.CreateInstance<StringGameSetting>(), 20);
             
             Object.Destroy(row.transform.FindChild("Value_TMP (1)").gameObject);
             Object.Destroy(row.transform.FindChild("ValueBox").gameObject);
-            Object.Destroy(row.PlusBtn.gameObject);
+            
+            TextMeshPro plusText = row.PlusBtn.GetComponentInChildren<TextMeshPro>();
+            plusText.DestroyTranslator();
+            plusText.text = "ⓘ";
+            row.PlusBtn.transform.localPosition += new Vector3(2.1f, 0f, 0f);
+            row.PlusBtn.OnClick = new();
+            row.PlusBtn.OnClick.AddListener((UnityAction)(() =>
+            {
+                bool b = row.name == title;
+                row.name = b ? $"{nameof(OnlinePresetsManager)};<size=50%>{preset.description}</size>" : title;
+                plusText.text = b ? "∅" : "ⓘ";
+            }));
 
             row.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
             row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);
@@ -139,9 +152,9 @@ public static class OnlinePresetsManager
                 });
                 
             }));
-            TextMeshPro text = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
-            text.DestroyTranslator();
-            text.text = "▶";
+            TextMeshPro minusText = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
+            minusText.DestroyTranslator();
+            minusText.text = "▶";
             row.TitleText.DestroyTranslator();
             row.gameObject.SetActive(true);
 

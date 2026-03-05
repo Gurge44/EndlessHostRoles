@@ -3030,7 +3030,7 @@ internal static class ChatCommands
 
         return text switch
         {
-            "Schrödinger's Cat" or "cat" => "SchrodingersCat",
+            "schrodingers cat" or "schrodingerscat" or "cat" => "Schrödinger's Cat",
             _ => text
         };
     }
