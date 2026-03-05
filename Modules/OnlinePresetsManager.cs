@@ -92,11 +92,15 @@ public static class OnlinePresetsManager
             
             Object.Destroy(row.transform.FindChild("Value_TMP (1)").gameObject);
             Object.Destroy(row.transform.FindChild("ValueBox").gameObject);
+
+            row.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
+            row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);
+            row.TitleText.GetComponent<RectTransform>().sizeDelta = new(5.7f, 0.37f);
             
             TextMeshPro plusText = row.PlusBtn.GetComponentInChildren<TextMeshPro>();
             plusText.DestroyTranslator();
             plusText.text = "ⓘ";
-            row.PlusBtn.transform.localPosition += new Vector3(2.1f, 0f, 0f);
+            row.PlusBtn.transform.localPosition += new Vector3(1.8f, 0f, 0f);
             row.PlusBtn.OnClick = new();
             row.PlusBtn.OnClick.AddListener((UnityAction)(() =>
             {
@@ -105,9 +109,6 @@ public static class OnlinePresetsManager
                 plusText.text = b ? "∅" : "ⓘ";
             }));
 
-            row.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
-            row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);
-            row.TitleText.GetComponent<RectTransform>().sizeDelta = new(5.7f, 0.37f);
             row.MinusBtn.transform.localPosition += new Vector3(1.7f, 0f, 0f);
             row.MinusBtn.OnClick = new();
             row.MinusBtn.OnClick.AddListener((UnityAction)(() =>

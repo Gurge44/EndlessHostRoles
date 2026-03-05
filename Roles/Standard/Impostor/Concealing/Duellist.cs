@@ -55,7 +55,7 @@ public class Duellist : RoleBase
     {
         if (!IsEnable) return false;
 
-        if (duellist == null || target == null) return false;
+        if (!duellist || !target) return false;
 
         Vector2 pos = Pelican.GetBlackRoomPS();
 
@@ -66,7 +66,7 @@ public class Duellist : RoleBase
             if (DuelPair.TryGetValue(duellist.PlayerId, out byte previousTargetId))
             {
                 PlayerControl previousTarget = GetPlayerById(previousTargetId);
-                if (previousTarget != null) previousTarget.TPToRandomVent();
+                if (previousTarget) previousTarget.TPToRandomVent();
             }
 
             duellist.TP(pos);

@@ -14,32 +14,40 @@ public static class CustomSoundsManager
 
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, float volume = 1f, float pitch = 1f, bool force = false)
     {
-        if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
-
-        if (pc == null || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
+        try
         {
-            Play(sound, volume, pitch);
-            return;
-        }
+            if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None, pc.OwnerId);
-        writer.Write(sound);
-        writer.Write(volume);
-        writer.Write(pitch);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+            if (!pc || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
+            {
+                Play(sound, volume, pitch);
+                return;
+            }
+
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None, pc.OwnerId);
+            writer.Write(sound);
+            writer.Write(volume);
+            writer.Write(pitch);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void RPCPlayCustomSoundAll(string sound, float volume = 1f, float pitch = 1f)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        try
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
 
-        Play(sound, volume, pitch);
+            Play(sound, volume, pitch);
         
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None);
-        writer.Write(sound);
-        writer.Write(volume);
-        writer.Write(pitch);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None);
+            writer.Write(sound);
+            writer.Write(volume);
+            writer.Write(pitch);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void ReceiveRPC(MessageReader reader)
@@ -49,31 +57,35 @@ public static class CustomSoundsManager
 
     public static void Play(string sound, float volume = 1f, float pitch = 1f)
     {
-        if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value || !OperatingSystem.IsWindows()) return;
-
-        string path = SoundsPath + sound + ".wav";
-        if (!Directory.Exists(SoundsPath)) Directory.CreateDirectory(SoundsPath);
-
-        DirectoryInfo folder = new(SoundsPath);
-        if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden) folder.Attributes = FileAttributes.Hidden;
-
-        if (!File.Exists(path))
+        try
         {
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Sounds." + sound + ".wav");
+            if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value || !OperatingSystem.IsWindows()) return;
 
-            if (stream == null)
+            string path = SoundsPath + sound + ".wav";
+            if (!Directory.Exists(SoundsPath)) Directory.CreateDirectory(SoundsPath);
+
+            DirectoryInfo folder = new(SoundsPath);
+            if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden) folder.Attributes = FileAttributes.Hidden;
+
+            if (!File.Exists(path))
             {
-                Logger.Warn($"Could not find sound: {sound}", "CustomSounds");
-                return;
+                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Sounds." + sound + ".wav");
+
+                if (stream == null)
+                {
+                    Logger.Warn($"Could not find sound: {sound}", "CustomSounds");
+                    return;
+                }
+
+                FileStream fileStream = File.Create(path);
+                stream.CopyTo(fileStream);
+                fileStream.Close();
             }
 
-            FileStream fileStream = File.Create(path);
-            stream.CopyTo(fileStream);
-            fileStream.Close();
+            StartPlay(path, volume, pitch);
+            Logger.Msg($"Playing sound: {sound}", "CustomSounds");
         }
-
-        StartPlay(path, volume, pitch);
-        Logger.Msg($"Playing sound: {sound}", "CustomSounds");
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     private static readonly Dictionary<string, AudioClip> audioCache = [];
@@ -86,7 +98,7 @@ public static class CustomSoundsManager
             audioCache[path] = clip;
         }
 
-        if (clip != null)
+        if (clip)
             SoundManager.Instance.PlaySoundImmediate(clip, false, volume);
     }
 
