@@ -16,8 +16,12 @@ public static class LobbyViewPanePatches
     private static StringNames VanillaRolesTabName => StringNames.RolesCategory;
 
     private static StringNames LastTabPressed = StringNames.OverviewCategory;
+
+    private static bool ForReloadTab = false;
     private static readonly Dictionary<StringNames, PassiveButton> TabButtons = [];
     private static readonly Dictionary<StringNames, TabGroup> TabNames = [];
+    private static readonly HashSet<CustomRoles> RoleEnabledList = [];
+    private static readonly List<CustomRoles> CahedRoleEnabledList = [];
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.Awake))]
     [HarmonyPostfix]
@@ -351,6 +355,18 @@ public static class LobbyViewPanePatches
         return __instance.currentTab == VanillaRolesTabName;
     }
 
+    public static void ReDrawTab(this LobbyViewSettingsPane viewSettings, StringNames tabName)
+    {
+        ForReloadTab = true;
+        viewSettings.currentTab = tabName;
+        for (int i = 0; i < viewSettings.settingsInfo.Count; i++)
+        {
+            Object.Destroy(viewSettings.settingsInfo[i].gameObject);
+        }
+        viewSettings.settingsInfo.Clear();
+        SetTabPatch_Postfix(viewSettings);
+    }
+
     [HarmonyPatch(nameof(LobbyViewSettingsPane.ChangeTab))]
     [HarmonyPatch(nameof(LobbyViewSettingsPane.RefreshTab))]
     [HarmonyPostfix]
@@ -401,16 +417,18 @@ public static class LobbyViewPanePatches
         bool firstTitle = true;
         int index = 0;
         TextOptionItem header = null;
+        ForReloadTab = false;
+
         foreach (OptionItem option in OptionItem.AllOptions)
         {
             if (option.Tab != tabName) continue;
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
 
-            bool enable = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
+            bool enabled = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             // Title
             if (data == null && option is TextOptionItem toi)
             {
-                if (!firstTitle) yPos -= 1.44f;
+                if (!firstTitle) yPos -= 0.92f;
                 firstTitle = false;
                 CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
                 categoryHeaderMasked.SetHeader(StringNames.Name, 61);
@@ -419,6 +437,9 @@ public static class LobbyViewPanePatches
                 categoryHeaderMasked.transform.localScale = Vector3.one;
                 categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
 
+                var chmCollider = categoryHeaderMasked.gameObject.AddComponent<BoxCollider2D>();
+                chmCollider.size = new Vector2(7, 0.7f);
+                chmCollider.offset = new Vector2(1.5f, -0.3f);
                 var chmButton = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
                 chmButton.ClickSound = viewSettings.BackButton.GetComponent<PassiveButton>().ClickSound;
                 chmButton.OnMouseOver = new();
@@ -426,24 +447,23 @@ public static class LobbyViewPanePatches
                 chmButton.OnClick = new();
                 chmButton.OnClick.AddListener((UnityAction)(() =>
                 {
-                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide");
                     toi.CollapsesSection = !toi.CollapsesSection;
-                    viewSettings.ChangeTab(LastTabPressed);
-                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide");
+                    viewSettings.ReDrawTab(LastTabPressed);
                 }));
                 chmButton.SetButtonEnableState(true);
-                categoryHeaderMasked.gameObject.SetActive(enable);
+                categoryHeaderMasked.gameObject.SetActive(enabled);
+
                 viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
-                yPos -= 1.05f;
+                if (enabled) yPos -= 1.05f;
                 index = 0;
                 header = toi;
                 continue;
             }
-            else if (enable)
+            else if (enabled)
             {
-                option.Header = header;
+                if (header != null) option.Header = header;
 
-                if (option.IsHeader) continue;
+                //if (option.IsHeader) continue;
 
                 ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, viewSettings.settingsContainer, true);
                 viewSettingsInfoPanel.name = option.Name;
@@ -494,13 +514,14 @@ public static class LobbyViewPanePatches
         viewSettings.scrollBar.SetYBoundsMax(-yPos - 6f);
     }
 
-    private static readonly List<CustomRoles> RoleEnabledList = [];
     private static void DrawRoles(LobbyViewSettingsPane viewSettings, TabGroup tabName)
     {
         float yPos = 1.3f;
         float xPos = -6.53f;
-        RoleEnabledList.Clear();
+        if (!ForReloadTab) RoleEnabledList.Clear();
         Color roleColor = tabName.GetTabColor();
+        TextOptionItem header = null;
+        ForReloadTab = false;
 
         CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer);
         categoryHeaderMasked.SetHeader(StringNames.RoleQuotaLabel, 61);
@@ -519,8 +540,7 @@ public static class LobbyViewPanePatches
         {
             OptionItem option = OptionItem.AllOptions[optId];
             if (option.Tab != tabName) continue;
-            bool enable = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
-            if (!enable) continue;
+            bool enabled = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
             string titleName = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
             string realName = option.Name;
@@ -543,20 +563,24 @@ public static class LobbyViewPanePatches
                 categoryHeaderRoleVariant.transform.localScale = Vector3.one;
                 categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
 
+                var chmCollider = categoryHeaderRoleVariant.gameObject.AddComponent<BoxCollider2D>();
+                chmCollider.size = new Vector2(4, 0.7f);
+                chmCollider.offset = new Vector2(-2.1f, -0.3f);
                 var chmButton = categoryHeaderRoleVariant.gameObject.AddComponent<PassiveButton>();
                 chmButton.ClickSound = viewSettings.BackButton.GetComponent<PassiveButton>().ClickSound;
                 chmButton.OnMouseOver = new();
                 chmButton.OnMouseOut = new();
+                chmButton.OnClick = new();
                 chmButton.OnClick.AddListener((UnityAction)(() =>
                 {
-                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide2");
                     toi.CollapsesSection = !toi.CollapsesSection;
-                    viewSettings.ChangeTab(LastTabPressed);
-                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide2");
+                    viewSettings.ReDrawTab(LastTabPressed);
                 }));
                 chmButton.SetButtonEnableState(true);
+                categoryHeaderRoleVariant.gameObject.SetActive(enabled);
 
                 viewSettings.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
+                header = toi;
                 yPos -= 0.7f;
             }
             // Roles
@@ -564,78 +588,87 @@ public static class LobbyViewPanePatches
             {
                 try
                 {
-                    if (role == default || role is CustomRoles.CovenLeader) continue;
-                    ViewSettingsInfoPanelRoleVariant viewSettingsInfoPanelRoleVariant = Object.Instantiate(viewSettings.infoPanelRoleOrigin, viewSettings.settingsContainer);
-                    viewSettingsInfoPanelRoleVariant.name = realName;
-
-                    // Max count title
-                    var settingTitle = Object.Instantiate(viewSettingsInfoPanelRoleVariant.chanceTitle, viewSettingsInfoPanelRoleVariant.transform);
-                    settingTitle.name = "MaxCountTitle";
-                    settingTitle.DestroyTranslator();
-                    settingTitle.text = Translator.GetString("Maximum");
-                    settingTitle.transform.localPosition = new(3.04f, -0.02f, -2f);
-                    settingTitle.alignment = TextAlignmentOptions.Left;
-                    settingTitle.enableWordWrapping = false;
-                    settingTitle.overflowMode = TextOverflowModes.Overflow;
-
-                    if (yPos == 1.3f) yPos -= 0.8f;
-                    viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
-                    viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(xPos, yPos, -2f);
-
-                    if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
-
-                    titleName = titleName.RemoveHtmlTags();
-
-                    switch (Options.UsePets.GetBool())
-                    {
-                        case true when role.PetActivatedAbility():
-                            titleName += Translator.GetString("SupportsPetIndicator");
-                            break;
-                        case false when role.OnlySpawnsWithPets():
-                            titleName += Translator.GetString("RequiresPetIndicator");
-                            break;
-                    }
-
-                    if (role.IsExperimental()) titleName += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
-                    if (role.IsGhostRole()) titleName += StringOptionPatch.GetGhostRoleTeam(role);
-                    if (role.IsDevFavoriteRole()) titleName += "  <size=2><#00ffff>★</color></size>";
-
-                    //titleName = $"<size=3.5>{titleName}</size>";
                     int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out var valueRoleOpt) ? valueRoleOpt.GetChance() : 0;
-                    var chanceAddOnPerGame = Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var valueAddOnOpt) ? valueAddOnOpt.GetInt() : 0;
-                    int numPerGame = Options.CustomRoleCounts.TryGetValue(role, out var valueInt) ? valueInt.GetInt() : 0;
                     bool roleDisabled = chancePerGame == 0;
 
-                    viewSettingsInfoPanelRoleVariant.SetInfo(titleName, numPerGame, chancePerGame, 61, option.NameColor, RoleManager.Instance.AllRoles[0].RoleIconSolid /*<- Role Icons sets here*/, tabName is not TabGroup.ImpostorRoles, roleDisabled);
-
-                    if (roleDisabled)
+                    if (enabled)
                     {
-                        if (role.IsAdditionRole())
+                        if (role == default || role is CustomRoles.CovenLeader) continue;
+                        if (header != null) option.Header = header;
+
+                        ViewSettingsInfoPanelRoleVariant viewSettingsInfoPanelRoleVariant = Object.Instantiate(viewSettings.infoPanelRoleOrigin, viewSettings.settingsContainer);
+                        viewSettingsInfoPanelRoleVariant.name = realName;
+
+                        // Max count title
+                        var settingTitle = Object.Instantiate(viewSettingsInfoPanelRoleVariant.chanceTitle, viewSettingsInfoPanelRoleVariant.transform);
+                        settingTitle.name = "MaxCountTitle";
+                        settingTitle.DestroyTranslator();
+                        settingTitle.text = Translator.GetString("Maximum");
+                        settingTitle.transform.localPosition = new(3.04f, -0.02f, -2f);
+                        settingTitle.alignment = TextAlignmentOptions.Left;
+                        settingTitle.enableWordWrapping = false;
+                        settingTitle.overflowMode = TextOverflowModes.Overflow;
+
+                        if (yPos == 1.3f) yPos -= 0.8f;
+                        viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
+                        viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(xPos, yPos, -2f);
+
+                        if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
+
+                        titleName = titleName.RemoveHtmlTags();
+
+                        switch (Options.UsePets.GetBool())
                         {
-                            //viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleOff")}/{chanceAddOnPerGame}";
-                            viewSettingsInfoPanelRoleVariant.chanceText.text = Translator.GetString("RoleOff");
-                            viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
+                            case true when role.PetActivatedAbility():
+                                titleName += Translator.GetString("SupportsPetIndicator");
+                                break;
+                            case false when role.OnlySpawnsWithPets():
+                                titleName += Translator.GetString("RequiresPetIndicator");
+                                break;
                         }
 
-                        viewSettingsInfoPanelRoleVariant.chanceBackground.color = Palette.DisabledGrey;
-                        viewSettingsInfoPanelRoleVariant.background.color = Palette.DisabledGrey;
+                        if (role.IsExperimental()) titleName += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
+                        if (role.IsGhostRole()) titleName += StringOptionPatch.GetGhostRoleTeam(role);
+                        if (role.IsDevFavoriteRole()) titleName += "  <size=2><#00ffff>★</color></size>";
+
+                        //titleName = $"<size=3.5>{titleName}</size>";
+
+                        var chanceAddOnPerGame = Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var valueAddOnOpt) ? valueAddOnOpt.GetInt() : 0;
+                        int numPerGame = Options.CustomRoleCounts.TryGetValue(role, out var valueInt) ? valueInt.GetInt() : 0;
+
+                        viewSettingsInfoPanelRoleVariant.SetInfo(titleName, numPerGame, chancePerGame, 61, option.NameColor, RoleManager.Instance.AllRoles[0].RoleIconSolid /*<- Role Icons sets here*/, tabName is not TabGroup.ImpostorRoles, roleDisabled);
+
+                        if (roleDisabled)
+                        {
+                            if (role.IsAdditionRole())
+                            {
+                                //viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleOff")}/{chanceAddOnPerGame}";
+                                viewSettingsInfoPanelRoleVariant.chanceText.text = Translator.GetString("RoleOff");
+                                viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
+                            }
+
+                            viewSettingsInfoPanelRoleVariant.chanceBackground.color = Palette.DisabledGrey;
+                            viewSettingsInfoPanelRoleVariant.background.color = Palette.DisabledGrey;
+                        }
+                        else
+                        {
+                            if (role.IsAdditionRole())
+                            {
+                                viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleRate")}/{chanceAddOnPerGame}";
+                                viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
+                            }
+
+                            viewSettingsInfoPanelRoleVariant.chanceBackground.color = option.NameColor;
+                            viewSettingsInfoPanelRoleVariant.background.color = option.NameColor;
+                            RoleEnabledList.Add(role);
+                        }
+                        viewSettings.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
+                        yPos -= 0.65f;
                     }
                     else
                     {
-                        if (role.IsAdditionRole())
-                        {
-                            viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleRate")}/{chanceAddOnPerGame}";
-                            viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
-                        }
-
-                        viewSettingsInfoPanelRoleVariant.chanceBackground.color = option.NameColor;
-                        viewSettingsInfoPanelRoleVariant.background.color = option.NameColor;
-                        RoleEnabledList.Add(role);
+                        if (!roleDisabled) RoleEnabledList.Add(role);
                     }
-                    viewSettings.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
-                    yPos -= 0.65f;
-
-
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
@@ -715,7 +748,7 @@ public static class LobbyViewPanePatches
             viewSettingsInfoPanel.name = option.Name;
             viewSettingsInfoPanel.transform.localScale = Vector3.one;
             viewSettingsInfoPanel.transform.localPosition = new Vector3(xPosRoleHeader - 3f, yPos, -2f);
-           
+
             var labelBackground = viewSettingsInfoPanel.labelBackground.transform;
             labelBackground.localPosition = new(-0.5325f, 0f, 0);
             labelBackground.localScale = new(1.22f, 1f, 1f);
