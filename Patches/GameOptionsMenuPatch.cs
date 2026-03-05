@@ -1304,6 +1304,7 @@ public static class GameSettingMenuPatch
 
             result.ForEach(x => x.SetHidden(true));
 
+            gameSettings.scrollBar.ScrollToTop();
             GameOptionsMenuPatch.ReCreateSettings(gameSettings);
             textField.Clear();
         }

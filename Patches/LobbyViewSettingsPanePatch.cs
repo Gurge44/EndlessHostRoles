@@ -20,6 +20,7 @@ public static class LobbyViewPanePatches
     private static bool ForReloadTab = false;
     private static readonly Dictionary<StringNames, PassiveButton> TabButtons = [];
     private static readonly Dictionary<StringNames, TabGroup> TabNames = [];
+    private static readonly Dictionary<TabGroup, PassiveButton> AllTabButtons = [];
     private static readonly HashSet<CustomRoles> RoleEnabledList = [];
     private static readonly List<CustomRoles> CahedRoleEnabledList = [];
 
@@ -201,6 +202,7 @@ public static class LobbyViewPanePatches
 
             TabNames.Clear();
             TabButtons.Clear();
+            AllTabButtons.Clear();
 
             TabButtons[VanillaSettingsTabName] = __instance.taskTabButton;
             TabButtons[VanillaRolesTabName] = __instance.taskTabButton;
@@ -249,6 +251,7 @@ public static class LobbyViewPanePatches
                         }));
 
                         TabButtons[stringName] = cloneSettingTabButton;
+                        AllTabButtons[tabGroup] = cloneSettingTabButton;
                         indexSettings++;
                         break;
                     case TabGroup.ImpostorRoles:
@@ -290,6 +293,7 @@ public static class LobbyViewPanePatches
                         }));
 
                         TabButtons[stringName] = cloneRoleTabButton;
+                        AllTabButtons[tabGroup] = cloneRoleTabButton;
                         break;
                 }
                 yield return null;
@@ -313,6 +317,17 @@ public static class LobbyViewPanePatches
             __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
 
             __instance.ChangeTab(LastTabPressed);
+
+            //if (LastTabPressed == VanillaSettingsTabName || LastTabPressed == VanillaRolesTabName)
+            //{
+            //    foreach (var tabButton in AllTabButtons)
+            //    {
+            //        var tabGroup = tabButton.Key;
+            //        var passiveButton = tabButton.Value;
+
+            //        HideTab(tabGroup, passiveButton);
+            //    }
+            //}
         }, 0.3f, "ChangeTab", log: false);
     }
     [HarmonyPatch(nameof(LobbyViewSettingsPane.SetTab))]
@@ -355,7 +370,7 @@ public static class LobbyViewPanePatches
         return __instance.currentTab == VanillaRolesTabName;
     }
 
-    public static void ReDrawTab(this LobbyViewSettingsPane viewSettings, StringNames tabName)
+    private static void ReDrawTab(this LobbyViewSettingsPane viewSettings, StringNames tabName)
     {
         ForReloadTab = true;
         viewSettings.currentTab = tabName;
@@ -366,6 +381,33 @@ public static class LobbyViewPanePatches
         viewSettings.settingsInfo.Clear();
         SetTabPatch_Postfix(viewSettings);
     }
+    private static void HideTab(TabGroup tabName, PassiveButton buttonTab)
+    {
+        var currentGameMode = Options.CurrentGameMode;
+        buttonTab.gameObject.SetActive(true);
+
+        switch (currentGameMode)
+        {
+            case CustomGameMode.Standard:
+                buttonTab.gameObject.SetActive(true);
+                break;
+            case CustomGameMode.HideAndSeek:
+                if (tabName is TabGroup.CovenRoles or TabGroup.Addons or TabGroup.OtherRoles)
+                    buttonTab.gameObject.SetActive(false);
+                break;
+            default:
+                if (tabName is TabGroup.ImpostorRoles
+                    or TabGroup.CrewmateRoles
+                    or TabGroup.NeutralRoles
+                    or TabGroup.CovenRoles
+                    or TabGroup.Addons
+                    or TabGroup.OtherRoles)
+                {
+                    buttonTab.gameObject.SetActive(false);
+                }
+                break;
+        }
+    }
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.ChangeTab))]
     [HarmonyPatch(nameof(LobbyViewSettingsPane.RefreshTab))]
@@ -373,10 +415,20 @@ public static class LobbyViewPanePatches
     public static void SetTabPatch_Postfix(LobbyViewSettingsPane __instance)
     {
         LastTabPressed = __instance.currentTab;
+        __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
+
+        foreach (var tabButton in AllTabButtons)
+        {
+            var tabGroup = tabButton.Key;
+            var passiveButton = tabButton.Value;
+
+            HideTab(tabGroup, passiveButton);
+        }
+
         if (__instance.currentTab == VanillaSettingsTabName)
         {
-            foreach (var tabs in TabButtons.Values)
-                tabs.SelectButton(false);
+            foreach (var buttons in TabButtons.Values)
+                buttons.SelectButton(false);
 
             __instance.taskTabButton.SelectButton(true);
             __instance.scrollBar.SetYBoundsMax(4.2f);
@@ -428,7 +480,10 @@ public static class LobbyViewPanePatches
             // Title
             if (data == null && option is TextOptionItem toi)
             {
-                if (!firstTitle) yPos -= 0.92f;
+                if (!firstTitle && enabled)
+                {
+                    yPos -= 0.92f;
+                }
                 firstTitle = false;
                 CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
                 categoryHeaderMasked.SetHeader(StringNames.Name, 61);
@@ -454,7 +509,11 @@ public static class LobbyViewPanePatches
                 categoryHeaderMasked.gameObject.SetActive(enabled);
 
                 viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
-                if (enabled) yPos -= 1.05f;
+                if (enabled)
+                {
+                    if (!toi.CollapsesSection) yPos -= 1.05f;
+                    else yPos += 0.25f;
+                }
                 index = 0;
                 header = toi;
                 continue;
@@ -462,8 +521,6 @@ public static class LobbyViewPanePatches
             else if (enabled)
             {
                 if (header != null) option.Header = header;
-
-                //if (option.IsHeader) continue;
 
                 ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, viewSettings.settingsContainer, true);
                 viewSettingsInfoPanel.name = option.Name;
@@ -536,10 +593,10 @@ public static class LobbyViewPanePatches
 
         viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
 
-        for (int optId = 0; optId < OptionItem.AllOptions.Count; optId++)
+        foreach (OptionItem option in OptionItem.AllOptions)
         {
-            OptionItem option = OptionItem.AllOptions[optId];
             if (option.Tab != tabName) continue;
+            //if (option.GameMode != Options.CurrentGameMode) continue;
             bool enabled = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
             string titleName = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
@@ -559,7 +616,7 @@ public static class LobbyViewPanePatches
                 categoryHeaderRoleVariant.Title.color = Color.white;
                 categoryHeaderRoleVariant.Title.text = titleName;
 
-                yPos -= 0.4f;
+                if (enabled || toi.CollapsesSection) yPos -= 0.4f;
                 categoryHeaderRoleVariant.transform.localScale = Vector3.one;
                 categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
 
@@ -577,11 +634,16 @@ public static class LobbyViewPanePatches
                     viewSettings.ReDrawTab(LastTabPressed);
                 }));
                 chmButton.SetButtonEnableState(true);
-                categoryHeaderRoleVariant.gameObject.SetActive(enabled);
+                categoryHeaderRoleVariant.gameObject.SetActive(enabled || toi.CollapsesSection);
 
                 viewSettings.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
                 header = toi;
-                yPos -= 0.7f;
+                if (enabled)
+                {
+                    if (!toi.CollapsesSection) yPos -= 0.65f;
+                    else yPos -= 0.1f;
+                }
+                else if (toi.CollapsesSection) yPos -= 0.65f;
             }
             // Roles
             if (Enum.GetValues<CustomRoles>().FindFirst(x => x.ToString() == realName, out CustomRoles role))
@@ -609,6 +671,7 @@ public static class LobbyViewPanePatches
                         settingTitle.enableWordWrapping = false;
                         settingTitle.overflowMode = TextOverflowModes.Overflow;
 
+                        // if start pos not changed
                         if (yPos == 1.3f) yPos -= 0.8f;
                         viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
                         viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(xPos, yPos, -2f);
