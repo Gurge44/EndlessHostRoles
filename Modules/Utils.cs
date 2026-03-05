@@ -3757,15 +3757,11 @@ public static class Utils
 
                         if (pc.Is(CustomRoles.Truant))
                         {
-                            float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
-                            Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
-                            pc.MarkDirtySettings();
-
                             LateTask.New(() =>
-                                {
-                                    Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
-                                    pc.MarkDirtySettings();
-                                }, Options.TruantWaitingTime.GetFloat(), $"Truant Waiting: {pc.GetNameWithRole()}");
+                            {
+                                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                                pc.MarkDirtySettings();
+                            }, Options.TruantWaitingTime.GetFloat() - 2f, $"Truant Waiting: {pc.GetNameWithRole()}");
                         }
                     }
                     catch (Exception e) { ThrowException(e); }

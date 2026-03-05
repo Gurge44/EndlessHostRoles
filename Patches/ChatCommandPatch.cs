@@ -1351,6 +1351,7 @@ internal static class ChatCommands
 
                 foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
                 {
+                    if (DraftResult.ContainsKey(id)) continue;
                     IEnumerable<string> roleList = roles.Select((x, i) => $"{i + 1}. {x.ToColoredString()}");
                     string msg = string.Format(GetString(index == 0 ? "DraftStart" : "DraftResend"), string.Join('\n', roleList));
                     messages.Add(new Message(msg, id, GetString("DraftTitle")));
