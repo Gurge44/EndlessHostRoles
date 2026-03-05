@@ -400,6 +400,7 @@ public static class LobbyViewPanePatches
         float yPos = 1.44f;
         bool firstTitle = true;
         int index = 0;
+        TextOptionItem header = null;
         foreach (OptionItem option in OptionItem.AllOptions)
         {
             if (option.Tab != tabName) continue;
@@ -407,23 +408,43 @@ public static class LobbyViewPanePatches
 
             bool enable = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             // Title
-            if (enable && data == null && option is TextOptionItem)
+            if (data == null && option is TextOptionItem toi)
             {
                 if (!firstTitle) yPos -= 1.44f;
                 firstTitle = false;
-                CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer, true);
+                CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
                 categoryHeaderMasked.SetHeader(StringNames.Name, 61);
                 categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
                 categoryHeaderMasked.Title.name = option.Name;
                 categoryHeaderMasked.transform.localScale = Vector3.one;
                 categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
+
+                var chmButton = categoryHeaderMasked.gameObject.AddComponent<PassiveButton>();
+                chmButton.ClickSound = viewSettings.BackButton.GetComponent<PassiveButton>().ClickSound;
+                chmButton.OnMouseOver = new();
+                chmButton.OnMouseOut = new();
+                chmButton.OnClick = new();
+                chmButton.OnClick.AddListener((UnityAction)(() =>
+                {
+                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide");
+                    toi.CollapsesSection = !toi.CollapsesSection;
+                    viewSettings.ChangeTab(LastTabPressed);
+                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide");
+                }));
+                chmButton.SetButtonEnableState(true);
+                categoryHeaderMasked.gameObject.SetActive(enable);
                 viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
                 yPos -= 1.05f;
                 index = 0;
+                header = toi;
                 continue;
             }
             else if (enable)
             {
+                option.Header = header;
+
+                if (option.IsHeader) continue;
+
                 ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, viewSettings.settingsContainer, true);
                 viewSettingsInfoPanel.name = option.Name;
                 viewSettingsInfoPanel.transform.localScale = Vector3.one;
@@ -491,6 +512,7 @@ public static class LobbyViewPanePatches
         categoryHeaderMasked.Title.color = Color.white;
         categoryHeaderMasked.transform.localScale = Vector3.one;
         categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
+
         viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
 
         for (int optId = 0; optId < OptionItem.AllOptions.Count; optId++)
@@ -504,7 +526,7 @@ public static class LobbyViewPanePatches
             string realName = option.Name;
 
             // Title
-            if (data == null && option is TextOptionItem)
+            if (data == null && option is TextOptionItem toi)
             {
                 CategoryHeaderRoleVariant categoryHeaderRoleVariant = Object.Instantiate(viewSettings.categoryHeaderRoleOrigin, viewSettings.settingsContainer);
                 categoryHeaderRoleVariant.SetHeader((tabName is TabGroup.ImpostorRoles) ? StringNames.ImpostorRolesHeader : StringNames.CrewmateRolesHeader, 61);
@@ -520,6 +542,20 @@ public static class LobbyViewPanePatches
                 yPos -= 0.4f;
                 categoryHeaderRoleVariant.transform.localScale = Vector3.one;
                 categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
+
+                var chmButton = categoryHeaderRoleVariant.gameObject.AddComponent<PassiveButton>();
+                chmButton.ClickSound = viewSettings.BackButton.GetComponent<PassiveButton>().ClickSound;
+                chmButton.OnMouseOver = new();
+                chmButton.OnMouseOut = new();
+                chmButton.OnClick.AddListener((UnityAction)(() =>
+                {
+                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide2");
+                    toi.CollapsesSection = !toi.CollapsesSection;
+                    viewSettings.ChangeTab(LastTabPressed);
+                    Logger.Info($"ChangeTab {LastTabPressed}", "Hide2");
+                }));
+                chmButton.SetButtonEnableState(true);
+
                 viewSettings.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
                 yPos -= 0.7f;
             }
@@ -673,7 +709,6 @@ public static class LobbyViewPanePatches
             if (!show) continue;
 
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
-            Logger.Info($"data is null: {data == null}", "SetUpCustomRoles");
             if (data == null) continue;
 
             ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(advancedRoleViewPanel.infoPanelOrigin, advancedRoleViewPanel.transform.parent, true);
