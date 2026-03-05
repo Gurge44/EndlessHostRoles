@@ -150,7 +150,7 @@ public static class NaturalDisasters
         var collapsedRooms = BuildingCollapse.CollapsedRooms;
         string cb = allRooms.Count / 2 < collapsedRooms.Count
             ? (string.Format(Translator.GetString("AvailableBuildings"), allRooms.Count != collapsedRooms.Count
-                ? allRooms.Select(x => x.RoomId).Except(collapsedRooms.ConvertAll(x => x.RoomId)).Select(x => Translator.GetString($"{x}")).Distinct().Join()
+                ? allRooms.Select(x => x.RoomId).Where(x => x is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.ToString().Contains("Decontamination")).Except(collapsedRooms.ConvertAll(x => x.RoomId)).Select(x => Translator.GetString($"{x}")).Distinct().Join()
                 : $"<#ff0000>{Translator.GetString("None")}</color>"))
             : (string.Format(Translator.GetString("CollapsedBuildings"), collapsedRooms.Count > 0
                 ? collapsedRooms.Select(x => Translator.GetString($"{x.RoomId}")).Distinct().Join()
