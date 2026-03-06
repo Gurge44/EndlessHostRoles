@@ -602,7 +602,7 @@ public static class RoomRush
 
             if (HostRegisterTimer.IsRunning)
             {
-                bool registerHost = HostRegisterTimer.ElapsedMilliseconds > AmongUsClient.Instance.Ping * 2;
+                bool registerHost = HostRegisterTimer.ElapsedMilliseconds > Math.Max(200, AmongUsClient.Instance.Ping * 2);
                 if (registerHost) HostRegisterTimer.Reset();
                 return registerHost;
             }
