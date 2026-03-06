@@ -10,7 +10,7 @@ using UnityEngine.Events;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(LobbyViewSettingsPane))]
-public static class LobbyViewPanePatches
+public static class LobbyViewSettingsPanePatch
 {
     private static StringNames VanillaSettingsTabName => StringNames.OverviewCategory;
     private static StringNames VanillaRolesTabName => StringNames.RolesCategory;
@@ -161,7 +161,7 @@ public static class LobbyViewPanePatches
             panelRole.titleText.overflowMode = TextOverflowModes.Overflow;
             panelRole.titleText.fontWeight = FontWeight.Black;
             panelRole.titleText.outlineColor = Color.black;
-            panelRole.titleText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.23f;
+            panelRole.titleText.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.09f : 0.23f;
             panelRole.titleText.color = Color.white;
 
             // "% Chance" title text
@@ -170,7 +170,7 @@ public static class LobbyViewPanePatches
             panelRole.chanceTitle.overflowMode = TextOverflowModes.Overflow;
             panelRole.chanceTitle.fontWeight = FontWeight.Black;
             panelRole.chanceTitle.outlineColor = Color.black;
-            panelRole.chanceTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.2f;
+            panelRole.chanceTitle.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.09f : 0.2f;
             panelRole.chanceTitle.color = Color.white;
             panelRole.chanceTitle.transform.localPosition = new(5.15f, -0.02f, -2f);
             panelRole.chanceTitle.transform.localScale = new(1.1f, 1.1f, 1f);
@@ -198,7 +198,7 @@ public static class LobbyViewPanePatches
 
             categoryHeaderRoleTitle.fontWeight = FontWeight.Black;
             categoryHeaderRoleTitle.outlineColor = Color.white;
-            categoryHeaderRoleTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.2f;
+            categoryHeaderRoleTitle.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.09f : 0.2f;
 
             yield return null;
 
@@ -208,7 +208,7 @@ public static class LobbyViewPanePatches
 
             advancedRolePanelTitle.fontWeight = FontWeight.Black;
             advancedRolePanelTitle.outlineColor = Color.black;
-            advancedRolePanelTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.067f : 0.2f;
+            advancedRolePanelTitle.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.067f : 0.2f;
             advancedRolePanelTitleTransform.localScale = new(1.3f, 1.3f, 1f);
             advancedRolePanelTitleTransform.localPosition = new(-2.3f, -0.15f, -1f);
             yield return null;
@@ -606,7 +606,7 @@ public static class LobbyViewPanePatches
         categoryHeaderMasked.Title.text = Translator.GetString($"TabGroup.{tabName}").Trim('★', ' ').RemoveHtmlTags();
         categoryHeaderMasked.Title.fontWeight = FontWeight.Light;
         categoryHeaderMasked.Title.outlineColor = Color.white;
-        categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.4f;
+        categoryHeaderMasked.Title.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.09f : 0.4f;
         categoryHeaderMasked.Background.color = roleColorHeaderOrigin;
         categoryHeaderMasked.Title.color = Color.white;
         categoryHeaderMasked.transform.localScale = Vector3.one;
@@ -723,7 +723,7 @@ public static class LobbyViewPanePatches
                             {
                                 //viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleOff")}/{chanceAddOnPerGame}";
                                 viewSettingsInfoPanelRoleVariant.chanceText.text = Translator.GetString("RoleOff");
-                                viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
+                                viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.09f : 0.26f;
                             }
 
                             viewSettingsInfoPanelRoleVariant.chanceBackground.color = Palette.DisabledGrey;
@@ -734,7 +734,7 @@ public static class LobbyViewPanePatches
                             if (role.IsAdditionRole())
                             {
                                 viewSettingsInfoPanelRoleVariant.chanceText.text = $"{Translator.GetString("RoleRate")}/{chanceAddOnPerGame}";
-                                viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.26f;
+                                viewSettingsInfoPanelRoleVariant.chanceText.outlineWidth = Translator.LangHasSensitiveOutlineText() ? 0.09f : 0.26f;
                             }
 
                             viewSettingsInfoPanelRoleVariant.chanceBackground.color = option.NameColor;

@@ -439,7 +439,7 @@ public static class GameStartManagerPatch
                     tmp.alignment = TextAlignmentOptions.Center;
                     tmp.color = Color.cyan;
                     tmp.outlineColor = Color.black;
-                    tmp.outlineWidth = LangAlreadyHaveOutlineText() ? 0.1f : 0.4f;
+                    tmp.outlineWidth = LangHasSensitiveOutlineText() ? 0.1f : 0.4f;
                     tmp.transform.localPosition += new Vector3(-0.625f, -0.12f, 0f);
                     tmp.transform.localScale = new(0.6f, 0.6f, 1f);
                 }
