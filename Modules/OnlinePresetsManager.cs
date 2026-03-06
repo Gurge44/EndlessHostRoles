@@ -82,10 +82,8 @@ public static class OnlinePresetsManager
 
         foreach (PresetMeta preset in CachedPresets)
         {
-            string title = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads)}";
-            
             StringOption row = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
-            row.name = title;
+            row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads)}";
             row.transform.localPosition = new Vector3(0.952f, y, -2f);
             row.SetClickMask(menu.ButtonClickMask);
             row.SetUpFromData(ScriptableObject.CreateInstance<StringGameSetting>(), 20);
@@ -104,8 +102,10 @@ public static class OnlinePresetsManager
             row.PlusBtn.OnClick = new();
             row.PlusBtn.OnClick.AddListener((UnityAction)(() =>
             {
-                bool b = row.name == title;
-                row.name = b ? $"{nameof(OnlinePresetsManager)};<size=50%>{preset.description}</size>" : title;
+                bool b = plusText.text == "ⓘ";
+                GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(b);
+                GameSettingMenuPatch.GMButtons.ForEach(x => x.gameObject.SetActive(!b));
+                if (b) GameSettingMenu.Instance.MenuDescriptionText.text = preset.description;
                 plusText.text = b ? "∅" : "ⓘ";
             }));
 
