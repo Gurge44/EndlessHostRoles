@@ -193,6 +193,15 @@ public static class LobbyViewPanePatches
 
             yield return null;
 
+            // Patch category header role origin
+            var categoryHeaderRoleTitle = __instance.categoryHeaderRoleOrigin.Title;
+
+            categoryHeaderRoleTitle.fontWeight = FontWeight.Black;
+            categoryHeaderRoleTitle.outlineColor = Color.white;
+            categoryHeaderRoleTitle.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.2f;
+
+            yield return null;
+
             // #### Patch advanced role panel origin ####
             var advancedRolePanelTitle = __instance.advancedRolePanelOrigin.header.Title;
             var advancedRolePanelTitleTransform = advancedRolePanelTitle.transform;
@@ -578,7 +587,17 @@ public static class LobbyViewPanePatches
         float yPos = 1.3f;
         float xPos = -6.53f;
         if (!ForReloadTab) RoleEnabledList.Clear();
-        Color roleColor = tabName.GetTabColor();
+        Color roleColorHeaderOrigin = tabName switch
+        {
+            TabGroup.ImpostorRoles => new(1f, 0f, 0f),
+            TabGroup.CrewmateRoles => new(0f, 0f, 1f),
+            TabGroup.NeutralRoles => new(1f, 1f, 0f),
+            TabGroup.CovenRoles => new(0.79f, 0.192f, 0.541f),
+            TabGroup.Addons => new(1f, 0f, 1f),
+            TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
+            _ => new(0.3f, 0.3f, 0.3f)
+        };
+        Color roleColorHeaderRole = tabName.GetTabColor();
         TextOptionItem header = null;
         ForReloadTab = false;
 
@@ -588,7 +607,7 @@ public static class LobbyViewPanePatches
         categoryHeaderMasked.Title.fontWeight = FontWeight.Light;
         categoryHeaderMasked.Title.outlineColor = Color.white;
         categoryHeaderMasked.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.4f;
-        categoryHeaderMasked.Background.color = roleColor;
+        categoryHeaderMasked.Background.color = roleColorHeaderOrigin;
         categoryHeaderMasked.Title.color = Color.white;
         categoryHeaderMasked.transform.localScale = Vector3.one;
         categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
@@ -611,11 +630,8 @@ public static class LobbyViewPanePatches
                 categoryHeaderRoleVariant.SetHeader((tabName is TabGroup.ImpostorRoles) ? StringNames.ImpostorRolesHeader : StringNames.CrewmateRolesHeader, 61);
                 categoryHeaderRoleVariant.name = realName;
 
-                categoryHeaderRoleVariant.Title.fontWeight = FontWeight.Black;
-                categoryHeaderRoleVariant.Title.outlineColor = Color.white;
-                categoryHeaderRoleVariant.Title.outlineWidth = Translator.LangAlreadyHaveOutlineText() ? 0.09f : 0.2f;
-                categoryHeaderRoleVariant.Background.color = roleColor;
                 categoryHeaderRoleVariant.Title.color = Color.white;
+                categoryHeaderRoleVariant.Background.color = roleColorHeaderRole;
                 categoryHeaderRoleVariant.Title.text = titleName;
 
                 if (enabled || toi.CollapsesSection) yPos -= 0.4f;
@@ -695,8 +711,6 @@ public static class LobbyViewPanePatches
                         if (role.IsExperimental()) titleName += $"<size=2>{Translator.GetString("ExperimentalRoleIndicator")}</size>";
                         if (role.IsGhostRole()) titleName += StringOptionPatch.GetGhostRoleTeam(role);
                         if (role.IsDevFavoriteRole()) titleName += "  <size=2><#00ffff>★</color></size>";
-
-                        //titleName = $"<size=3.5>{titleName}</size>";
 
                         var chanceAddOnPerGame = Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var valueAddOnOpt) ? valueAddOnOpt.GetInt() : 0;
                         int numPerGame = Options.CustomRoleCounts.TryGetValue(role, out var valueInt) ? valueInt.GetInt() : 0;
