@@ -3,6 +3,7 @@ using HarmonyLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,6 +17,7 @@ public static class LobbyViewSettingsPanePatch
     private static StringNames VanillaRolesTabName => StringNames.RolesCategory;
 
     private static StringNames LastTabPressed = StringNames.OverviewCategory;
+    public static CustomGameMode LastGameModeSelected = CustomGameMode.Standard;
 
     private static bool ForReloadTab = false;
     private static readonly Dictionary<StringNames, PassiveButton> TabButtons = [];
@@ -222,9 +224,69 @@ public static class LobbyViewSettingsPanePatch
             TabButtons[VanillaSettingsTabName] = __instance.taskTabButton;
             TabButtons[VanillaRolesTabName] = __instance.taskTabButton;
 
+            __instance.taskTabButton.buttonText.text = Translator.GetString("TabGroup.VanillaSettings");
+            yield return null;
+
+            // Change game mode text & position
             __instance.gameModeText.DestroyTranslator();
             __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
-            __instance.taskTabButton.buttonText.text = Translator.GetString("TabGroup.VanillaSettings");
+            __instance.gameModeText.color = Main.GameModeColors[Options.CurrentGameMode];
+            __instance.gameModeText.transform.localPosition = new Vector3(-2.75f, 3.88f, -2f);
+            LastGameModeSelected = Options.CurrentGameMode;
+
+            // Create right button
+            var rightButton = Object.Instantiate(__instance.BackButton, __instance.BackButton.transform.parent).gameObject;
+            var rightButtonBoxCollider2D = rightButton.GetComponent<BoxCollider2D>();
+            rightButtonBoxCollider2D.size = new Vector2(0.3f, 0.3f);
+            rightButtonBoxCollider2D.offset = new Vector2(0f, 0f);
+
+            rightButton.transform.localPosition = new Vector3(-5.5f, 3.85f, -2f);
+            rightButton.transform.localScale = new Vector3(3f, 3f, 2f);
+            rightButton.name = "RightButtonArrow";
+            
+            var rightButtonInactiveSprite = rightButton.transform.FindChild("Normal").GetComponentInChildren<SpriteRenderer>();
+            rightButtonInactiveSprite.transform.localPosition = new Vector3(0f, 0f, 0.3f);
+            rightButtonInactiveSprite.sprite = Utils.LoadSprite("EHR.Resources.Images.InactiveNextButton.png", 100f);
+
+            var rightButtonActiveSprite = rightButton.transform.FindChild("Hover").GetComponentInChildren<SpriteRenderer>();
+            rightButtonActiveSprite.transform.localPosition = new Vector3(0f, 0f, 0.3f);
+            rightButtonActiveSprite.sprite = Utils.LoadSprite("EHR.Resources.Images.ActiveNextButton.png", 100f);
+
+            var rightPassiveButton = rightButton.gameObject.GetComponent<PassiveButton>();
+            rightPassiveButton.OnClick = new();
+            rightPassiveButton.OnClick.AddListener((UnityAction)(() =>
+            {
+                LastGameModeSelected++;
+                var enumGameModes = Enum.GetValues<CustomGameMode>().Without(CustomGameMode.All).ToArray();
+                if ((int)LastGameModeSelected > enumGameModes.Length)
+                {
+                    LastGameModeSelected = CustomGameMode.Standard;
+                }
+                __instance.ChangeTab(VanillaSettingsTabName);
+
+            }));
+            yield return null;
+
+            // Create left button
+            var leftButton = Object.Instantiate(rightButton, __instance.BackButton.transform.parent).gameObject;
+            leftButton.transform.localPosition = new Vector3(-6.4f, 3.85f, -2f);
+            leftButton.name = "LeftButtonArrow";
+            // flip button
+            leftButton.transform.FindChild("Normal").gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            leftButton.transform.FindChild("Hover").gameObject.GetComponentInChildren<SpriteRenderer>().flipX = true;
+            
+            var leftButtonPassiveButton = leftButton.gameObject.GetComponent<PassiveButton>();
+            leftButtonPassiveButton.OnClick = new();
+            leftButtonPassiveButton.OnClick.AddListener((UnityAction)(() =>
+            {
+                LastGameModeSelected--;
+                var enumGameModes = Enum.GetValues<CustomGameMode>().Without(CustomGameMode.All).ToArray();
+                if ((int)LastGameModeSelected < 0x01)
+                {
+                    LastGameModeSelected = (CustomGameMode)enumGameModes.Length;
+                }
+                __instance.ChangeTab(VanillaSettingsTabName);
+            }));
             yield return null;
 
             // #### Add Tab Group ####
@@ -398,7 +460,7 @@ public static class LobbyViewSettingsPanePatch
     }
     private static void HideTab(TabGroup tabName, PassiveButton buttonTab)
     {
-        var currentGameMode = Options.CurrentGameMode;
+        var currentGameMode = LastGameModeSelected;
         buttonTab.gameObject.SetActive(true);
 
         switch (currentGameMode)
@@ -430,7 +492,8 @@ public static class LobbyViewSettingsPanePatch
     public static void SetTabPatch_Postfix(LobbyViewSettingsPane __instance)
     {
         LastTabPressed = __instance.currentTab;
-        __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
+        __instance.gameModeText.text = Translator.GetString(LastGameModeSelected.ToString());
+        __instance.gameModeText.color = Main.GameModeColors[LastGameModeSelected];
 
         foreach (var tabButton in AllTabButtons)
         {
@@ -491,7 +554,7 @@ public static class LobbyViewSettingsPanePatch
             if (option.Tab != tabName) continue;
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
 
-            bool enabled = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
+            bool enabled = !option.IsCurrentlyHidden(forLobbyView: true) && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             // Title
             if (data == null && option is TextOptionItem toi)
             {
@@ -617,8 +680,7 @@ public static class LobbyViewSettingsPanePatch
         foreach (OptionItem option in OptionItem.AllOptions)
         {
             if (option.Tab != tabName) continue;
-            //if (option.GameMode != Options.CurrentGameMode) continue;
-            bool enabled = !option.IsCurrentlyHidden() && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
+            bool enabled = !option.IsCurrentlyHidden(forLobbyView: true) && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
             BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
             string titleName = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
             string realName = option.Name;

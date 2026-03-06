@@ -1,6 +1,7 @@
+using EHR.Modules;
+using EHR.Patches;
 using System;
 using System.Collections.Generic;
-using EHR.Modules;
 using UnityEngine;
 
 namespace EHR;
@@ -230,13 +231,13 @@ public abstract class OptionItem
         return IsSingleValue ? SingleValue : AllValues[CurrentPreset];
     }
 
-    public bool IsCurrentlyHidden()
+    public bool IsCurrentlyHidden(bool forLobbyView = false)
     {
         try
         {
             for (OptionItem current = this; current != null; current = current.Parent)
             {
-                if (Hidden(current))
+                if (Hidden(current, forLobbyView))
                     return true;
             }
         }
@@ -244,10 +245,10 @@ public abstract class OptionItem
 
         return false;
 
-        static bool Hidden(OptionItem oi)
+        static bool Hidden(OptionItem oi, bool forLobbyView)
         {
             if (oi.Header is { CollapsesSection: true }) return true;
-            CustomGameMode mode = EHR.Options.CurrentGameMode;
+            CustomGameMode mode = !forLobbyView ? EHR.Options.CurrentGameMode : LobbyViewSettingsPanePatch.LastGameModeSelected;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
             return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||
                     (oi.Name == "IntegrateNaturalDisasters" && mode == nd)) &&
