@@ -4446,7 +4446,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>You hold the Hot Potato! Pass it or die!</size></color>",
   "HotPotato_Range": "Pass Range",
   "HotPotato_Time": "The Holder of the Hot Potato is Killed Every",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>Kill in </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "KING OF THE ZONES",
   "ModeKingOfTheZones": "Gamemode: King Of The Zones",

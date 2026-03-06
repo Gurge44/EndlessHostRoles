@@ -101,7 +101,7 @@ internal static class HotPotato
         string holding = HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty;
         string arrows = TargetArrow.GetAllArrows(id);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
-        return $"{holding}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s{arrows}";
+        return $"{holding}<{Main.RoleColors[CustomRoles.Potato]}>{Translator.GetString("HotPotato_TimeLeftSuffix")}</color>{(hud ? "<b>" : string.Empty)}{HotPotatoState.TimeLeft}{(hud ? "</b>" : string.Empty)}s{arrows}";
     }
 
     public static void ReceiveRPC(MessageReader reader)
