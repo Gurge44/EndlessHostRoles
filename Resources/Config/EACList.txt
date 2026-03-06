@@ -135,6 +135,7 @@ jacksdeep#4118 | d5d97f4a8 | SIGMAMODE | Toxic | Extremely toxic player
 dimbottle#0386 | 607326ed0 | Bob | Toxic | Alt of banned user SIGMAMODE
 roundhour#1689 | 4be938470 | NateHigger | Racist | Racist Hostname
 winnerjust#2812 | a0221bf63 | rvzim | Racist | Used racial slurs in game
+liableebb#5371 | c37085a74 | NuckFigger | Racist | 
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 
