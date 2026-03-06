@@ -1498,7 +1498,7 @@ public static class GameSettingMenuPatch
         ModSettingsTabs = [];
         GMButtons = [];
 
-        Main.Instance.StartCoroutine(OptionShower.GetText());
+        //Main.Instance.StartCoroutine(OptionShower.GetText());
     }
 }
 

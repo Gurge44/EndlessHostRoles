@@ -88,6 +88,12 @@ public static class LobbyViewPanePatches
             titleText.alignment = TextAlignmentOptions.Left;
             titleText.fontSizeMin = 1f;
             titleText.transform.localPosition = new(-0.9f, 0f, -2f);
+            titleText.margin = new Vector4(-1f, 0.0008f, 0f, 0f);
+            titleText.transform.localPosition = new Vector3(0.02f, 0f, -2f);
+
+            var labelBackground = viewSettingsInfoPanel.labelBackground.transform;
+            labelBackground.localPosition = new(-0.5325f, 0f, 0);
+            labelBackground.localScale = new(1.22f, 1f, 1f);
 
             var spritePanel = viewSettingsInfoPanel.transform.FindChild("Value")?.transform.FindChild("Sprite");
             spritePanel.localPosition = new(2f, 0f, 0);
@@ -95,7 +101,7 @@ public static class LobbyViewPanePatches
 
             var posPanel = viewSettingsInfoPanel.settingText.transform;
             posPanel.localPosition = new(2f, 0f, -2f);
-            posPanel.localScale = new(0.8f, 0.8f, 1f);
+            posPanel.localScale = new(0.7f, 0.7f, 1f);
 
             var checkMarkOn = viewSettingsInfoPanel.checkMark.transform;
             checkMarkOn.localPosition = new(2f, 0f, -2f);
@@ -526,10 +532,6 @@ public static class LobbyViewPanePatches
                 viewSettingsInfoPanel.name = option.Name;
                 viewSettingsInfoPanel.transform.localScale = Vector3.one;
 
-                var labelBackground = viewSettingsInfoPanel.labelBackground.transform;
-                labelBackground.localPosition = new(-0.5325f, 0f, 0);
-                labelBackground.localScale = new(1.22f, 1f, 1f);
-
                 if (firstTitle && index == 0)
                 {
                     firstTitle = false;
@@ -811,10 +813,6 @@ public static class LobbyViewPanePatches
             viewSettingsInfoPanel.name = option.Name;
             viewSettingsInfoPanel.transform.localScale = Vector3.one;
             viewSettingsInfoPanel.transform.localPosition = new Vector3(xPosRoleHeader - 3f, yPos, -2f);
-
-            var labelBackground = viewSettingsInfoPanel.labelBackground.transform;
-            labelBackground.localPosition = new(-0.5325f, 0f, 0);
-            labelBackground.localScale = new(1.22f, 1f, 1f);
 
             switch (data.Type)
             {

@@ -96,7 +96,7 @@ internal static class OnGameJoinedPatch
                 ClientData client = PlayerControl.LocalPlayer.GetClient();
                 Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
 
-                Main.Instance.StartCoroutine(OptionShower.GetText());
+                //Main.Instance.StartCoroutine(OptionShower.GetText());
             }, 1f, "OnGameJoinedPatch");
 
             LateTask.New(() =>
@@ -244,8 +244,8 @@ internal static class OnGameJoinedPatch
                 }
             }
         }
-        else
-            LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
+        //else
+        //    LateTask.New(() => Main.Instance.StartCoroutine(OptionShower.GetText()), 10f, "OptionShower.GetText on client");
     }
 
     // Written with AI because I don't want it to delete the wrong files

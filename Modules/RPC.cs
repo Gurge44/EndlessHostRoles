@@ -475,7 +475,7 @@ internal static class RPCHandlerPatch
                     }
 
                     OptionSaver.Save();
-                    Main.Instance.StartCoroutine(OptionShower.GetText());
+                    //Main.Instance.StartCoroutine(OptionShower.GetText());
                     break;
                 }
                 case CustomRPC.SetDeathReason:

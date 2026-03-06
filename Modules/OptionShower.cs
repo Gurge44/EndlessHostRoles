@@ -17,6 +17,7 @@ public static class OptionShower
 
     static OptionShower() { }
 
+    // Now EHR use LobbyViewSettingsPane instead of this
     public static string GetTextNoFresh()
     {
         try
