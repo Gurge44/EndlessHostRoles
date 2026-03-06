@@ -1763,7 +1763,7 @@ internal static class FixedUpdatePatch
 
         if (self) LastSelfNameUpdateTS = now;
 
-        if (GameStates.IsLobby && !player.IsHost())
+        if (GameStates.IsLobby && !player.AmOwner)
         {
             if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
             {
