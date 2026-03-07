@@ -701,8 +701,8 @@ public static class LobbyViewSettingsPanePatch
                 categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
 
                 var chmCollider = categoryHeaderRoleVariant.gameObject.AddComponent<BoxCollider2D>();
-                chmCollider.size = new Vector2(4, 0.7f);
-                chmCollider.offset = new Vector2(-2.1f, -0.3f);
+                chmCollider.size = new Vector2(4, 0.5f);
+                chmCollider.offset = new Vector2(-2.1f, -0.2f);
                 var chmButton = categoryHeaderRoleVariant.gameObject.AddComponent<PassiveButton>();
                 chmButton.ClickSound = viewSettings.BackButton.GetComponent<PassiveButton>().ClickSound;
                 chmButton.OnMouseOver = new();
@@ -717,13 +717,13 @@ public static class LobbyViewSettingsPanePatch
                 categoryHeaderRoleVariant.gameObject.SetActive(enabled || toi.CollapsesSection);
 
                 viewSettings.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
-                header = toi;
                 if (enabled)
                 {
                     if (!toi.CollapsesSection) yPos -= 0.65f;
                     else yPos -= 0.1f;
                 }
                 else if (toi.CollapsesSection) yPos -= 0.65f;
+                header = toi;
             }
             // Roles
             if (Enum.GetValues<CustomRoles>().FindFirst(x => x.ToString() == realName, out CustomRoles role))
@@ -816,6 +816,7 @@ public static class LobbyViewSettingsPanePatch
         }
         if (RoleEnabledList.Count > 0)
         {
+            yPos -= 0.8f;
             viewSettings.StopCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
             viewSettings.StartCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
             return;
@@ -842,21 +843,24 @@ public static class LobbyViewSettingsPanePatch
                 {
                     // 1 child setting is "Max" or "Spawn chance" setting
                     if (!Options.CustomRoleSpawnChances.TryGetValue(role, out var optionRole) || optionRole.Children.Count <= 1) continue;
+                    yield return null;
 
                     bool useLeftColumn = leftY >= rightY;
-
                     float columnX = useLeftColumn ? leftX : rightX;
                     float columnY = useLeftColumn ? leftY : rightY;
 
                     float endY = SetUpCustomRoleSettings(viewSettings, role, optionRole, tabName, 0.8f, 61, columnX, columnY);
+                    yield return null;
 
                     if (useLeftColumn) leftY = endY - 1.2f;
                     else rightY = endY - 1.2f;
 
+                    float currectLowestY = Mathf.Min(leftY, rightY);
+                    viewSettings.scrollBar.SetYBoundsMax(-currectLowestY - 6f);
                     yield return null;
                 }
-                float lowestY = Mathf.Min(leftY, rightY);
-                viewSettings.scrollBar.SetYBoundsMax(-lowestY - 6f);
+                float endLowestY = Mathf.Min(leftY, rightY);
+                viewSettings.scrollBar.SetYBoundsMax(-endLowestY - 6f);
             }
         }
         viewSettings.scrollBar.SetYBoundsMax(-yPos - 4f);
