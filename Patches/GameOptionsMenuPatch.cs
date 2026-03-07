@@ -329,15 +329,9 @@ public static class GameOptionsMenuPatch
     public static void UpdatePostfix(GameOptionsMenu __instance)
     {
         // Disable scroll options when chat open
-        if (!HudManager.InstanceExists) return;
+        if (!HudManager.InstanceExists || !__instance.gameObject.activeSelf) return;
 
-        if (__instance.gameObject.activeSelf)
-        {
-            if (HudManager.Instance.Chat.IsOpenOrOpening)
-                __instance.scrollBar.enabled = false;
-            else
-                __instance.scrollBar.enabled = true;
-        }
+        __instance.scrollBar.enabled = !HudManager.Instance.Chat.IsOpenOrOpening;
     }
     [HarmonyPatch(nameof(GameOptionsMenu.ValueChanged))]
     [HarmonyPrefix]

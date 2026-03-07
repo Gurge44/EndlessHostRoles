@@ -137,7 +137,7 @@ public static class GameStartManagerPatch
                 
                 if (!AmongUsClient.Instance) return false;
 
-                if (AmongUsClient.Instance.AmHost) VanillaUpdate(__instance);
+                VanillaUpdate(__instance);
 
                 if (AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || !__instance || __instance.startState == GameStartManager.StartingStates.Starting) return false;
 
@@ -156,7 +156,7 @@ public static class GameStartManagerPatch
                     }
                 }
 
-                if (!AmongUsClient.Instance || !GameData.Instance || !AmongUsClient.Instance.AmHost) return true;
+                if (!AmongUsClient.Instance || !GameData.Instance) return true;
 
                 CheckAutoStart(__instance);
             }
@@ -239,7 +239,7 @@ public static class GameStartManagerPatch
 
         private static void VanillaUpdate(GameStartManager instance)
         {
-            if (!GameData.Instance || !GameManager.Instance || !AmongUsClient.Instance.AmHost) return;
+            if (!GameData.Instance || !GameManager.Instance) return;
 
             try { instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId); }
             catch (Exception e)
@@ -254,7 +254,7 @@ public static class GameStartManagerPatch
             }
 
             instance.CheckSettingsDiffs();
-            instance.StartButton.gameObject.SetActive(true);
+            instance.StartButton.gameObject.SetActive(AmongUsClient.Instance.AmHost);
             instance.RulesPresetText.text = TranslationController.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
 
             if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null) instance.privatePublicPanelText.text = TranslationController.Instance.GetString(StringNames.LocalButton);
@@ -320,16 +320,13 @@ public static class GameStartManagerPatch
                     instance.GameStartText.text = string.Empty;
                 }
             }
-            
+
             if (!HudManager.InstanceExists) return;
 
             if (instance.LobbyInfoPane.gameObject.activeSelf)
             {
                 var lobbyViewSettingsPane = instance.LobbyInfoPane.LobbyViewSettingsPane;
-                if (HudManager.Instance.Chat.IsOpenOrOpening)
-                    lobbyViewSettingsPane.scrollBar.enabled = false;
-                else
-                    lobbyViewSettingsPane.scrollBar.enabled = true;
+                lobbyViewSettingsPane.scrollBar.enabled = !HudManager.Instance.Chat.IsOpenOrOpening;
             }
 
             //if (instance.LobbyInfoPane.gameObject.activeSelf && HudManager.Instance.Chat.IsOpenOrOpening)
