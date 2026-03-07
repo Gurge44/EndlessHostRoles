@@ -1203,21 +1203,23 @@ internal static class ReportDeadBodyPatch
             Main.GameTimer.Stop();
 
         var allCNO = CustomNetObject.AllObjects.ToArray();
+        
         foreach (CustomNetObject cno in allCNO)
         {
             try
             {
-                cno.playerControl.Data.SendGameData();
+                cno?.playerControl?.Data?.SendGameData();
             }
             catch (Exception e) { ThrowException(e); }
         }
+        
         LateTask.New(() =>
         {
             foreach (CustomNetObject cno in allCNO)
             {
                 try
                 {
-                    cno.OnMeeting();
+                    cno?.OnMeeting();
                 }
                 catch (Exception e) { ThrowException(e); }
             }
@@ -1433,6 +1435,9 @@ internal static class ReportDeadBodyPatch
 
                         if (Main.CheckShapeshift.ContainsKey(pc.PlayerId))
                             pc.RpcShapeshift(pc, false);
+                        
+                        if (pc.Is(CustomRoles.Truant))
+                            Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                     }
                     else if (!pc.Data.IsDead && (!pc.AmOwner || !TempReviveHostRunning))
                         pc.RpcExileV2();
@@ -1760,7 +1765,7 @@ internal static class FixedUpdatePatch
 
         if (self) LastSelfNameUpdateTS = now;
 
-        if (isLobby && !player.IsHost())
+        if (isLobby && !player.AmOwner)
         {
             if (Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion ver))
             {

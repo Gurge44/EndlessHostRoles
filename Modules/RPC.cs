@@ -161,6 +161,7 @@ public enum CustomRPC
     Exclusionary,
     Deadlined,
     Blessed,
+    Necronomicon,
 
     // Game Modes
     RoomRushDataSync,
@@ -641,7 +642,7 @@ internal static class RPCHandlerPatch
                     string commandKey = reader.ReadString();
                     string text = reader.ReadString();
 
-                    if (__instance == null || !__instance.IsModdedClient())
+                    if (!__instance || !__instance.IsModdedClient())
                     {
                         Logger.Error("Player is null or not a modded client", "RequestCommandProcessingFromHost");
                         break;
@@ -1348,6 +1349,12 @@ internal static class RPCHandlerPatch
                 case CustomRPC.Blessed:
                 {
                     Blessed.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.Necronomicon:
+                {
+                    if (!Main.PlayerStates.TryGetValue(reader.ReadByte(), out PlayerState state) || state.Role is not CovenBase covenRole) break;
+                    covenRole.HasNecronomicon = true;
                     break;
                 }
             }

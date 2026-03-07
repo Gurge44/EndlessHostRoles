@@ -721,7 +721,7 @@ public static class GuessManager
         // Determine whether the selected player is reasonable
         PlayerControl target = Utils.GetPlayerById(id);
 
-        if (target == null)
+        if (!target)
         {
             error = GetString("GuessNull");
             role = new();
