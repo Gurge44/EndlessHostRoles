@@ -153,8 +153,8 @@ public static class LobbyViewSettingsPanePatch
             var panelRoleTransform = panelRole.transform;
 
             // Role name
-            panelRole.titleText.transform.localScale = new(1.5f, 1.5f, 1f);
-            panelRole.titleText.transform.localPosition = new(-2.85f, 0f, -2f);
+            panelRole.titleText.transform.localScale = new(1.7f, 1.7f, 1f);
+            panelRole.titleText.transform.localPosition = new(-2.7f, 0f, -2f);
             panelRole.titleText.alignment = TextAlignmentOptions.Left;
             panelRole.titleText.enableWordWrapping = false;
             panelRole.titleText.overflowMode = TextOverflowModes.Overflow;
@@ -704,9 +704,9 @@ public static class LobbyViewSettingsPanePatch
                     categoryHeaderRoleVariant.SetHeader((tabName is TabGroup.ImpostorRoles) ? StringNames.ImpostorRolesHeader : StringNames.CrewmateRolesHeader, 61);
                     categoryHeaderRoleVariant.name = realName;
 
+                    categoryHeaderRoleVariant.Title.text = titleName;
                     categoryHeaderRoleVariant.Title.color = Color.white;
                     categoryHeaderRoleVariant.Background.color = roleColorHeaderRole;
-                    categoryHeaderRoleVariant.Title.text = titleName;
 
                     if (enabled || toi.CollapsesSection) yPos -= 0.4f;
                     categoryHeaderRoleVariant.transform.localScale = Vector3.one;
