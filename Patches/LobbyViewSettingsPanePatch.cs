@@ -82,21 +82,23 @@ public static class LobbyViewSettingsPanePatch
 
             yield return null;
 
-            // #### Change value size ####
-
+            // #### Patch info panel origin ####
             var viewSettingsInfoPanel = __instance.infoPanelOrigin;
-            
+
+            // Change Title Text
             var titleText = viewSettingsInfoPanel.titleText;
             titleText.alignment = TextAlignmentOptions.Left;
             titleText.fontSizeMin = 1f;
-            titleText.transform.localPosition = new(-0.9f, 0f, -2f);
             titleText.margin = new Vector4(-1f, 0.0008f, 0f, 0f);
             titleText.transform.localPosition = new Vector3(0.02f, 0f, -2f);
 
+            // Change label background
             var labelBackground = viewSettingsInfoPanel.labelBackground.transform;
             labelBackground.localPosition = new(-0.5325f, 0f, 0);
             labelBackground.localScale = new(1.22f, 1f, 1f);
+            //labelBackground.color = new(0.6f, 0.6f, 0.6f); // Also changed vanilla label background
 
+            // Change value size
             var spritePanel = viewSettingsInfoPanel.transform.FindChild("Value")?.transform.FindChild("Sprite");
             spritePanel.localPosition = new(2f, 0f, 0);
             spritePanel.localScale = new(0.35f, 0.6f, 1f);
@@ -118,19 +120,12 @@ public static class LobbyViewSettingsPanePatch
 
             __instance.transform.FindChild("ClickToClose").transform.FindChild("IgnoreClose").localScale = new(1f, 2f, 1f);
 
-            // Start vanilla button positions:
-            // taskTabButton  - x: -5.65 - y: 3.1 - z: 0
-            // rolesTabButton - x: -3.2  - y: 3.1 - z: 0
-
-            // x: +2.45
-            // y: -0.6
-
             // #### Set colors for vanilla setting tab ####
             __instance.taskTabButton.activeTextColor = __instance.taskTabButton.inactiveTextColor = Color.white;
             __instance.taskTabButton.selectedTextColor = Color.gray;
             __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
-            __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.black;
-            __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
+            __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f);
+            __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f);
             __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.DefaultPlate.png", 135f);
             __instance.taskTabButton.inactiveSprites.transform.FindChild("Shine").gameObject.SetActive(false);
             __instance.taskTabButton.activeSprites.transform.FindChild("Shine").gameObject.SetActive(false);
@@ -195,7 +190,7 @@ public static class LobbyViewSettingsPanePatch
 
             yield return null;
 
-            // Patch category header role origin
+            // #### Patch category header role origin ####
             var categoryHeaderRoleTitle = __instance.categoryHeaderRoleOrigin.Title;
 
             categoryHeaderRoleTitle.fontWeight = FontWeight.Black;
@@ -215,6 +210,7 @@ public static class LobbyViewSettingsPanePatch
             advancedRolePanelTitleTransform.localPosition = new(-2.3f, -0.15f, -1f);
             yield return null;
 
+            __instance.taskTabButton.buttonText.text = Translator.GetString("TabGroup.VanillaSettings");
             __instance.rolesTabButton.transform.localPosition = new(-5.65f, 2.5f, 0);
 
             TabNames.Clear();
@@ -223,18 +219,17 @@ public static class LobbyViewSettingsPanePatch
 
             TabButtons[VanillaSettingsTabName] = __instance.taskTabButton;
             TabButtons[VanillaRolesTabName] = __instance.taskTabButton;
-
-            __instance.taskTabButton.buttonText.text = Translator.GetString("TabGroup.VanillaSettings");
             yield return null;
 
             // Change game mode text & position
             __instance.gameModeText.DestroyTranslator();
             __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
             __instance.gameModeText.color = Main.GameModeColors[Options.CurrentGameMode];
-            __instance.gameModeText.transform.localPosition = new Vector3(-2.75f, 3.88f, -2f);
+            __instance.gameModeText.transform.localPosition = new Vector3(-2.65f, 3.85f, -2f);
             LastGameModeSelected = Options.CurrentGameMode;
+            yield return null;
 
-            // Create right button
+            // Create right arrow button
             var rightButton = Object.Instantiate(__instance.BackButton, __instance.BackButton.transform.parent).gameObject;
             var rightButtonBoxCollider2D = rightButton.GetComponent<BoxCollider2D>();
             rightButtonBoxCollider2D.size = new Vector2(0.3f, 0.3f);
@@ -267,7 +262,7 @@ public static class LobbyViewSettingsPanePatch
             }));
             yield return null;
 
-            // Create left button
+            // Create left arrow button
             var leftButton = Object.Instantiate(rightButton, __instance.BackButton.transform.parent).gameObject;
             leftButton.transform.localPosition = new Vector3(-6.4f, 3.85f, -2f);
             leftButton.name = "LeftButtonArrow";
@@ -289,7 +284,15 @@ public static class LobbyViewSettingsPanePatch
             }));
             yield return null;
 
+
             // #### Add Tab Group ####
+
+            // Started vanilla tab button positions:
+            // taskTabButton  - x: -5.65 - y: 3.1 - z: 0
+            // rolesTabButton - x: -3.2  - y: 3.1 - z: 0
+
+            // x: +2.45
+            // y: -0.6
 
             int indexSettings = 1;
             int indexRoles = 0;
@@ -390,21 +393,10 @@ public static class LobbyViewSettingsPanePatch
             __instance.taskTabButton.activeTextColor = __instance.taskTabButton.inactiveTextColor = Color.white;
             __instance.taskTabButton.selectedTextColor = Color.gray;
             __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
-            __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.gray;
-            __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
+            __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f);
+            __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f);
 
             __instance.ChangeTab(LastTabPressed);
-
-            //if (LastTabPressed == VanillaSettingsTabName || LastTabPressed == VanillaRolesTabName)
-            //{
-            //    foreach (var tabButton in AllTabButtons)
-            //    {
-            //        var tabGroup = tabButton.Key;
-            //        var passiveButton = tabButton.Value;
-
-            //        HideTab(tabGroup, passiveButton);
-            //    }
-            //}
         }, 0.3f, "ChangeTab", log: false);
     }
     [HarmonyPatch(nameof(LobbyViewSettingsPane.SetTab))]
@@ -495,28 +487,26 @@ public static class LobbyViewSettingsPanePatch
         __instance.gameModeText.text = Translator.GetString(LastGameModeSelected.ToString());
         __instance.gameModeText.color = Main.GameModeColors[LastGameModeSelected];
 
+        __instance.taskTabButton.SelectButton(false);
+        __instance.rolesTabButton.SelectButton(false);
+        
         foreach (var tabButton in AllTabButtons)
         {
             var tabGroup = tabButton.Key;
             var passiveButton = tabButton.Value;
 
+            passiveButton.SelectButton(false);
             HideTab(tabGroup, passiveButton);
         }
 
         if (__instance.currentTab == VanillaSettingsTabName)
         {
-            foreach (var buttons in TabButtons.Values)
-                buttons.SelectButton(false);
-
             __instance.taskTabButton.SelectButton(true);
             __instance.scrollBar.SetYBoundsMax(4.2f);
         }
         else if (TabNames.TryGetValue(__instance.currentTab, out var tab)
             && TabButtons.TryGetValue(__instance.currentTab, out var button))
         {
-            foreach (var buttons in TabButtons.Values)
-                buttons.SelectButton(false);
-
             button.SelectButton(true);
 
             switch (tab)
@@ -565,6 +555,7 @@ public static class LobbyViewSettingsPanePatch
                 firstTitle = false;
                 CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
                 categoryHeaderMasked.SetHeader(StringNames.Name, 61);
+                categoryHeaderMasked.Background.color = categoryHeaderMasked.Divider.color = option.NameColor;
                 categoryHeaderMasked.Title.text = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
                 categoryHeaderMasked.Title.name = option.Name;
                 categoryHeaderMasked.transform.localScale = Vector3.one;
@@ -600,7 +591,7 @@ public static class LobbyViewSettingsPanePatch
             {
                 if (header != null) option.Header = header;
 
-                ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, viewSettings.settingsContainer, true);
+                ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
                 viewSettingsInfoPanel.name = option.Name;
                 viewSettingsInfoPanel.transform.localScale = Vector3.one;
 
@@ -638,6 +629,13 @@ public static class LobbyViewSettingsPanePatch
                 }
                 viewSettingsInfoPanel.titleText.text = option.GetName();
                 viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+
+                Color labelColor = new(0.6f, 0.6f, 0.6f);
+                if (option.Parent?.Parent?.Parent != null) labelColor = new(0.6f, 0f, 0f);
+                else if (option.Parent?.Parent != null) labelColor = new(0.6f, 0.6f, 0f);
+                else if (option.Parent != null) labelColor = new(0f, 0f, 0.6f);
+
+                viewSettingsInfoPanel.labelBackground.color = labelColor;
                 index++;
             }
         }
@@ -868,6 +866,7 @@ public static class LobbyViewSettingsPanePatch
     private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, StringOptionItem optionRole, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float startY)
     {
         float yPos = startY;
+        BaseGameSetting data = null;
         AdvancedRoleViewPanel advancedRoleViewPanel = Object.Instantiate(viewSettings.advancedRolePanelOrigin, viewSettings.settingsContainer);
         advancedRoleViewPanel.name = role + "AdvancedPanel";
         advancedRoleViewPanel.transform.localScale = Vector3.one;
@@ -880,15 +879,37 @@ public static class LobbyViewSettingsPanePatch
         advancedRoleViewPanel.header.Divider.color = optionRole.NameColor;
         viewSettings.settingsInfo.Add(advancedRoleViewPanel.gameObject);
 
-        for (int parentsIndex = 0; parentsIndex < optionRole.Children.Count; parentsIndex++)
+        foreach (OptionItem firstOption in optionRole.Children)
         {
-            OptionItem option = optionRole.Children[parentsIndex];
-            bool show = option.Name != "Maximum";
+            bool show = firstOption.Name != "Maximum";
             if (!show) continue;
 
-            BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
+            data = GameOptionsMenuPatch.GetSetting(firstOption);
             if (data == null) continue;
 
+            DrawSetting(firstOption, data);
+            yPos -= spacingY;
+
+            foreach (var secondOption in firstOption.Children)
+            {
+                data = GameOptionsMenuPatch.GetSetting(secondOption);
+                if (data == null) continue;
+
+                DrawSetting(secondOption, data);
+                yPos -= spacingY;
+
+                foreach (var thirdOption in secondOption.Children)
+                {
+                    data = GameOptionsMenuPatch.GetSetting(thirdOption);
+                    if (data == null) continue;
+
+                    DrawSetting(thirdOption, data);
+                    yPos -= spacingY;
+                }
+            }
+        }
+        void DrawSetting(OptionItem option, BaseGameSetting data)
+        {
             ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(advancedRoleViewPanel.infoPanelOrigin, advancedRoleViewPanel.transform.parent, true);
             viewSettingsInfoPanel.name = option.Name;
             viewSettingsInfoPanel.transform.localScale = Vector3.one;
@@ -913,8 +934,13 @@ public static class LobbyViewSettingsPanePatch
                     break;
             }
             viewSettingsInfoPanel.titleText.text = option.GetName();
+
+            Color labelColor = new(0.6f, 0.6f, 0.6f);
+            if (option.Parent?.Parent?.Parent != null) labelColor = new(0.6f, 0.6f, 0f);
+            else if (option.Parent?.Parent != null) labelColor = new(0f, 0f, 0.6f);
+
+            viewSettingsInfoPanel.labelBackground.color = labelColor;
             viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
-            yPos -= spacingY;
         }
         return yPos;
     }
