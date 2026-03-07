@@ -25,6 +25,7 @@ public static class LobbyViewSettingsPanePatch
     private static readonly Dictionary<TabGroup, PassiveButton> AllTabButtons = [];
     private static readonly HashSet<CustomRoles> RoleEnabledList = [];
     private static readonly List<CustomRoles> CahedRoleEnabledList = [];
+    private static Coroutine RoleSettingsCoroutine;
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.Awake))]
     [HarmonyPostfix]
@@ -648,10 +649,11 @@ public static class LobbyViewSettingsPanePatch
         float yPos = 1.3f;
         float xPos = -6.53f;
         if (!ForReloadTab) RoleEnabledList.Clear();
+        var allCustomRoles = Enum.GetValues<CustomRoles>();
         Color roleColorHeaderOrigin = tabName switch
         {
             TabGroup.ImpostorRoles => new(1f, 0f, 0f),
-            TabGroup.CrewmateRoles => new(0f, 0f, 1f),
+            TabGroup.CrewmateRoles => new(0f, 0.7f, 1f),
             TabGroup.NeutralRoles => new(1f, 1f, 0f),
             TabGroup.CovenRoles => new(0.79f, 0.192f, 0.541f),
             TabGroup.Addons => new(1f, 0f, 1f),
@@ -724,8 +726,10 @@ public static class LobbyViewSettingsPanePatch
                 header = toi;
             }
             // Roles
-            if (Enum.GetValues<CustomRoles>().FindFirst(x => x.ToString() == realName, out CustomRoles role))
+            if (allCustomRoles.FindFirst(x => x.ToString() == realName, out CustomRoles role))
             {
+                if (role == default || role is CustomRoles.CovenLeader) continue;
+
                 try
                 {
                     int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out var valueRoleOpt) ? valueRoleOpt.GetChance() : 0;
@@ -733,7 +737,6 @@ public static class LobbyViewSettingsPanePatch
 
                     if (enabled)
                     {
-                        if (role == default || role is CustomRoles.CovenLeader) continue;
                         if (header != null) option.Header = header;
 
                         ViewSettingsInfoPanelRoleVariant viewSettingsInfoPanelRoleVariant = Object.Instantiate(viewSettings.infoPanelRoleOrigin, viewSettings.settingsContainer);
@@ -749,7 +752,7 @@ public static class LobbyViewSettingsPanePatch
                         settingTitle.enableWordWrapping = false;
                         settingTitle.overflowMode = TextOverflowModes.Overflow;
 
-                        // if start pos not changed
+                        // if start y pos not changed
                         if (yPos == 1.3f) yPos -= 0.8f;
                         viewSettingsInfoPanelRoleVariant.transform.localScale = Vector3.one;
                         viewSettingsInfoPanelRoleVariant.transform.localPosition = new Vector3(xPos, yPos, -2f);
@@ -812,11 +815,13 @@ public static class LobbyViewSettingsPanePatch
                 catch (Exception e) { Utils.ThrowException(e); }
             }
         }
+        viewSettings.scrollBar.SetYBoundsMax(-yPos - 4f);
+
         if (RoleEnabledList.Count > 0)
         {
             yPos -= 0.8f;
-            viewSettings.StopCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
-            viewSettings.StartCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
+            if (RoleSettingsCoroutine != null) viewSettings.StopCoroutine(RoleSettingsCoroutine);
+            RoleSettingsCoroutine = viewSettings.StartCoroutine(CoShowRoleSettings().WrapToIl2Cpp());
             return;
 
             IEnumerator CoShowRoleSettings()
@@ -861,12 +866,12 @@ public static class LobbyViewSettingsPanePatch
                 viewSettings.scrollBar.SetYBoundsMax(-endLowestY - 6f);
             }
         }
-        viewSettings.scrollBar.SetYBoundsMax(-yPos - 4f);
     }
     private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, StringOptionItem optionRole, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float startY)
     {
         float yPos = startY;
-        BaseGameSetting data = null;
+        BaseGameSetting data;
+
         AdvancedRoleViewPanel advancedRoleViewPanel = Object.Instantiate(viewSettings.advancedRolePanelOrigin, viewSettings.settingsContainer);
         advancedRoleViewPanel.name = role + "AdvancedPanel";
         advancedRoleViewPanel.transform.localScale = Vector3.one;
