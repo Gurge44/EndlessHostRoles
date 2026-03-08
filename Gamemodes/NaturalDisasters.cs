@@ -350,6 +350,32 @@ public static class NaturalDisasters
             PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disasterName), disasterName, room));
         }
     }
+    
+    public static void DieToDisaster(this PlayerControl pc, PlayerState.DeathReason deathReason)
+    {
+        if (ExtendedPlayerControl.TempExiled.Contains(pc.PlayerId)) return;
+        
+        if (Main.GM.Value) PlayerControl.LocalPlayer.KillFlash();
+        ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
+        
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.SoloPVP when !pc.inVent && !pc.inMovingPlat && !pc.onLadder:
+                SoloPVP.BackCountdown.TryAdd(pc.PlayerId, SoloPVP.SoloPVP_ResurrectionWaitingTime.GetInt());
+                pc.ExileTemporarily();
+                return;
+            case CustomGameMode.KingOfTheZones:
+                KingOfTheZones.RespawnTimes[pc.PlayerId] = Utils.TimeStamp + KingOfTheZones.RespawnTime.GetInt() + 1;
+                pc.ExileTemporarily();
+                return;
+            case CustomGameMode.BedWars:
+                BedWars.DisasterDeath(pc, deathReason);
+                return;
+            default:
+                pc.Suicide(deathReason);
+                return;
+        }
+    }
 
     public abstract class Disaster
     {

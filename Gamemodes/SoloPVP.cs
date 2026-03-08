@@ -24,7 +24,7 @@ internal static class SoloPVP
 
     private static readonly Dictionary<byte, (string Text, long RemoveTimeStamp)> NameNotify = [];
 
-    private static Dictionary<byte, int> BackCountdown = [];
+    public static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
     private static Dictionary<byte, long> LastCountdownTime = [];
 
@@ -364,7 +364,7 @@ internal static class SoloPVP
     private static OptionItem SoloPVP_ATK;
     private static OptionItem SoloPVP_RecoverAfterSecond;
     private static OptionItem SoloPVP_RecoverPerSecond;
-    private static OptionItem SoloPVP_ResurrectionWaitingTime;
+    public static OptionItem SoloPVP_ResurrectionWaitingTime;
     private static OptionItem SoloPVP_KillBonusMultiplier;
     private static OptionItem SoloPVP_CanVent;
     public static OptionItem SoloPVP_ChatDuringGame;

@@ -591,6 +591,21 @@ public static class BedWars
         }
     }
 
+    public static void DisasterDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
+    {
+        if (!Data.TryGetValue(pc.PlayerId, out var data)) return;
+
+        if (!AllNetObjects.TryGetValue(data.Team, out var netObjectCollection) || netObjectCollection.Bed.IsBroken)
+        {
+            pc.Suicide(deathReason);
+            return;
+        }
+        
+        data.Inventory.Clear();
+        if (Reviving.Add(pc.PlayerId)) Main.Instance.StartCoroutine(data.ReviveCountdown(pc));
+        pc.ExileTemporarily();
+    }
+
     private static Dictionary<byte, PlayerData> Data = [];
     private static Dictionary<byte, Shop> InShop = [];
     private static Dictionary<byte, string> Suffix = [];
@@ -811,7 +826,7 @@ public static class BedWars
             }
         }
 
-        private IEnumerator ReviveCountdown(PlayerControl pc)
+        public IEnumerator ReviveCountdown(PlayerControl pc)
         {
             int time = ReviveTime;
             if (IsBuffedTeam(out var buffRatio)) time = (int)(time / buffRatio);

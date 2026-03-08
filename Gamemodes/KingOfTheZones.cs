@@ -20,7 +20,7 @@ public static class KingOfTheZones
     private static OptionItem ZoneMoveTime;
     private static OptionItem AllZonesMoveAtOnce;
     private static OptionItem DowntimeAfterZoneMove;
-    private static OptionItem RespawnTime;
+    public static OptionItem RespawnTime;
     private static OptionItem TagCooldown;
     private static OptionItem GameEndsByPoints;
     private static OptionItem PointsToWin;
@@ -80,7 +80,7 @@ public static class KingOfTheZones
 
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
-    private static Dictionary<byte, long> RespawnTimes = [];
+    public static Dictionary<byte, long> RespawnTimes = [];
     private static Dictionary<byte, long> SpawnProtectionTimes = [];
     private static Dictionary<KOTZTeam, int> Points = [];
     private static Dictionary<SystemTypes, KOTZTeam> ZoneDomination = [];
