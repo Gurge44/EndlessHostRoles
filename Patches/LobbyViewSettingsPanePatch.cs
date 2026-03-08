@@ -18,15 +18,15 @@ public static class LobbyViewSettingsPanePatch
 
     private static StringNames LastTabPressed = StringNames.OverviewCategory;
     public static CustomGameMode LastGameModeSelected = CustomGameMode.Standard;
-
+    private static Coroutine RoleListCoroutine;
+    private static Coroutine OptionsCoroutine;
     private static bool ForReloadTab = false;
+
     private static readonly Dictionary<StringNames, PassiveButton> TabButtons = [];
     private static readonly Dictionary<StringNames, TabGroup> TabNames = [];
     private static readonly Dictionary<TabGroup, PassiveButton> AllTabButtons = [];
     private static readonly HashSet<CustomRoles> RoleEnabledList = [];
     private static readonly List<CustomRoles> CahedRoleEnabledList = [];
-    private static Coroutine RoleListCoroutine;
-    private static Coroutine OptionsCoroutine;
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.Awake))]
     [HarmonyPostfix]
@@ -39,7 +39,7 @@ public static class LobbyViewSettingsPanePatch
         {
             var background = __instance.transform.FindChild("Background");
             var backgroundShine = __instance.transform.FindChild("Background Shine");
-            var gameModeTexttransform = __instance.gameModeText.transform;
+            var gameModeTextTransform = __instance.gameModeText.transform;
             var divider = __instance.transform.FindChild("Divider");
             var tabBackground = __instance.transform.FindChild("TabBackground");
             var headerImage = __instance.transform.FindChild("HeaderImage");
@@ -58,8 +58,8 @@ public static class LobbyViewSettingsPanePatch
             backgroundShine.localPosition = new(-0.5876f, -1.58f, -0.1f);
             backgroundShine.localScale = new(1.36f, 2.21f, 1.0141f);
 
-            gameModeTexttransform.localPosition = new(-4.4586f, 3.8241f, -2f);
-            gameModeTexttransform.localScale = new(0.9f, 0.9f, 1f);
+            gameModeTextTransform.localPosition = new(-2.65f, 3.85f, -2f);
+            gameModeTextTransform.localScale = new(0.9f, 0.9f, 1f);
 
             divider.localPosition = new(-0.6377f, 3.382f, -0.1f);
             divider.localScale = new(1.07f, 1f, 1f);
@@ -227,7 +227,6 @@ public static class LobbyViewSettingsPanePatch
             __instance.gameModeText.DestroyTranslator();
             __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
             __instance.gameModeText.color = Main.GameModeColors[Options.CurrentGameMode];
-            __instance.gameModeText.transform.localPosition = new Vector3(-2.65f, 3.85f, -2f);
             LastGameModeSelected = Options.CurrentGameMode;
             yield return null;
 
