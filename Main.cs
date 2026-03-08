@@ -89,7 +89,6 @@ public class Main : BasePlugin
     public static readonly List<(CustomRoles, CustomRoles)> XORRoles = [];
     public static Dictionary<byte, string> LastAddOns = [];
     public static List<RoleBase> AllRoleClasses;
-    public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
     public static readonly Dictionary<byte, (long StartTimeStamp, int TotalCooldown)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];

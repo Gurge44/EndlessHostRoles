@@ -805,6 +805,7 @@ internal static class CheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
+        if (!AmongUsClient.Instance.AmHost) return true;
         if (ShapeshiftPatch.ProcessShapeshift(__instance, target))
         {
             bool animated = shouldAnimate
@@ -1741,15 +1742,6 @@ internal static class FixedUpdatePatch
 
             if (inTask && self && Options.DisableDevices.GetBool())
                 DisableDevice.FixedUpdate();
-
-            if (self && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
-            {
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
-                {
-                    if (pc.Is(CustomRoles.Vampire) || pc.Is(CustomRoles.Warlock) || pc.Is(CustomRoles.Ninja) || pc.Is(CustomRoles.Undertaker) || pc.Is(CustomRoles.Poisoner))
-                        Main.AllPlayerKillCooldown[pc.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
-                }
-            }
 
             if (!Main.DoBlockNameChange && ApplySuffix(player, out var name))
                 player.RpcSetName(name);

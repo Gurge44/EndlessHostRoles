@@ -390,7 +390,6 @@ internal static class ChangeRoleSettings
             if (__instance.AmHost)
             {
                 RPC.SyncCustomSettingsRPC();
-                Main.RefixCooldownDelay = 0;
             }
 
             FallFromLadder.Reset();
