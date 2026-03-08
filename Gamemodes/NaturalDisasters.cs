@@ -360,7 +360,7 @@ public static class NaturalDisasters
         
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.SoloPVP when !pc.inVent && !pc.inMovingPlat && !pc.onLadder:
+            case CustomGameMode.SoloPVP when !pc.inVent:
                 SoloPVP.BackCountdown.TryAdd(pc.PlayerId, SoloPVP.SoloPVP_ResurrectionWaitingTime.GetInt());
                 pc.ExileTemporarily();
                 return;
@@ -368,7 +368,7 @@ public static class NaturalDisasters
                 KingOfTheZones.RespawnTimes[pc.PlayerId] = Utils.TimeStamp + KingOfTheZones.RespawnTime.GetInt() + 1;
                 pc.ExileTemporarily();
                 return;
-            case CustomGameMode.BedWars:
+            case CustomGameMode.BedWars when !pc.inVent:
                 BedWars.DisasterDeath(pc, deathReason);
                 return;
             default:
