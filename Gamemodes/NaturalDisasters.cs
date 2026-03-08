@@ -411,7 +411,7 @@ public static class NaturalDisasters
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (FastVector2.DistanceWithinRange(pc.Pos(), Position, range))
-                    pc.Suicide(deathReason);
+                    pc.DieToDisaster(deathReason);
             }
         }
     }
@@ -633,7 +633,7 @@ public static class NaturalDisasters
                 switch (Vector2.Distance(pos, Position))
                 {
                     case <= eyeRange:
-                        pc.Suicide(PlayerState.DeathReason.Tornado);
+                        pc.DieToDisaster(PlayerState.DeathReason.Tornado);
                         continue;
                     case <= dragRange:
                         Vector2 direction = (Position - pos).normalized;
@@ -733,7 +733,7 @@ public static class NaturalDisasters
                     foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (FastVector2.DistanceWithinRange(pc.Pos(), hit, Range / 2f))
-                            pc.Suicide(PlayerState.DeathReason.Lightning);
+                            pc.DieToDisaster(PlayerState.DeathReason.Lightning);
                     }
                 }
             }
@@ -883,7 +883,7 @@ public static class NaturalDisasters
                 };
 
                 if (FastVector2.DistanceWithinRange(pos, Position, Range) && inWay)
-                    pc.Suicide(PlayerState.DeathReason.Drowned);
+                    pc.DieToDisaster(PlayerState.DeathReason.Drowned);
             }
 
             float speed = MovingSpeed.GetFloat() * Time.fixedDeltaTime;
@@ -958,7 +958,7 @@ public static class NaturalDisasters
                 for (var i = 0; i < Sinkholes.Count; i++)
                 {
                     if (FastVector2.DistanceWithinRange(pos, Sinkholes[i].Position, Range))
-                        pc.Suicide(PlayerState.DeathReason.Sunken);
+                        pc.DieToDisaster(PlayerState.DeathReason.Sunken);
                 }
             }
         }
@@ -989,7 +989,7 @@ public static class NaturalDisasters
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.IsInRoom(room))
-                    pc.Suicide(PlayerState.DeathReason.Collapsed);
+                    pc.DieToDisaster(PlayerState.DeathReason.Collapsed);
             }
 
             CollapsedRooms.Add(room);
@@ -1020,7 +1020,7 @@ public static class NaturalDisasters
                         RPC.PlaySoundRPC(pc.PlayerId, Sounds.ImpDiscovered);
                         pc.TP(lastPos);
                     }
-                    else pc.Suicide(PlayerState.DeathReason.Collapsed);
+                    else pc.DieToDisaster(PlayerState.DeathReason.Collapsed);
                 }
                 else LastPosition[pc.PlayerId] = pc.Pos();
             }
