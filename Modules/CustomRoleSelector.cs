@@ -244,10 +244,6 @@ internal static class CustomRoleSelector
         Logger.Info($"Number of Non-Killing Neutral roles to select: {nnkLimit}", "NonKillingNeutralLimit");
         Logger.Info($"Number of Madmate roles to select: {madmateNum}", "MadmateLimit");
 
-        Dictionary<RoleAssignType, List<RoleAssignInfo>> allRoles = roles.ToDictionary(x => x.Key, x => x.Value.ToList());
-
-        roles.Keys.ToArray().Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
-
         Logger.Msg("===================================================", "PreSelectedRoles");
         Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
         Logger.Info(string.Join(", ", roles[RoleAssignType.NeutralKilling].Select(x => x.Role.ToString())), "PreSelectedNKRoles");
@@ -370,18 +366,20 @@ internal static class CustomRoleSelector
         AssignRoles(RoleAssignType.Coven, numCovens, ref readyCovenNum, ref readyRoleNum, playerCount, finalRolesList, roles);
         AssignRoles(RoleAssignType.Crewmate, playerCount - readyRoleNum, ref readyCrewmateNum, ref readyRoleNum, playerCount, finalRolesList, roles);
         
-        if (readyRoleNum < playerCount && subCategoryLimits.Count > 0)
+        if (readyCrewmateNum < (playerCount - readyRoleNum + readyCrewmateNum) && subCategoryLimits.Count > 0)
         {
             const RoleAssignType redoType = RoleAssignType.Crewmate;
-            roles[redoType] = allRoles[redoType];
+            Logger.Warn("Crewmate limits too restrictive — retrying with max limits", "CustomRoleSelector");
+            int neededCrewmates = playerCount - readyRoleNum;
+            finalRolesList.RemoveAll(r => r.IsCrewmate());
+            roles[redoType].ForEach(info => info.AssignedCount = 0);
+            readyCrewmateNum = 0;
 
             subCategoryLimits = Options.RoleSubCategoryLimits
                 .Where(x => x.Key.GetTabFromOptionType() == TabGroup.CrewmateRoles && x.Value[0].GetBool())
                 .ToDictionary(x => x.Key, x => x.Value[2].GetInt());
 
-            ApplySubCategoryLimits(redoType, subCategoryLimits);
-            roles[redoType].DoIf(x => x.AssignedCount >= x.MaxCount, x => roles[redoType].Remove(x), false);
-            AssignRoles(RoleAssignType.Crewmate, playerCount - readyRoleNum, ref readyCrewmateNum, ref readyRoleNum, playerCount, finalRolesList, roles);
+            AssignRoles(RoleAssignType.Crewmate, neededCrewmates, ref readyCrewmateNum, ref readyRoleNum, playerCount, finalRolesList, roles);
         }
 
         if (rd.Next(0, 100) < Jester.SunnyboyChance.GetInt() && finalRolesList.Remove(CustomRoles.Jester)) finalRolesList.Add(CustomRoles.Sunnyboy);
@@ -408,35 +406,6 @@ internal static class CustomRoleSelector
                 RoleResult[pc.PlayerId] = role;
             }
         }
-
-        void ApplySubCategoryLimits(RoleAssignType type, Dictionary<RoleOptionType, int> dictionary) =>
-            roles[type] = roles[type]
-                .Shuffle()
-                .OrderBy(x => x.SpawnChance != 100)
-                .DistinctBy(x => x.Role)
-                .Select(x => (
-                    Info: x,
-                    Limit: dictionary.TryGetValue(x.OptionType, out int limit)
-                        ? (Exists: true, Value: limit)
-                        : (Exists: false, Value: 0)))
-                .GroupBy(x => x.Info.OptionType)
-                .Select(x => (Grouping: x, x.FirstOrDefault().Limit))
-                .SelectMany(x => x.Limit.Exists ? x.Grouping.Take(x.Limit.Value) : x.Grouping)
-                .Shuffle()
-                .OrderBy(x => x.Info.SpawnChance != 100)
-                .ThenByDescending(x => x.Limit is { Exists: true, Value: > 0 })
-                .Take(type switch
-                {
-                    RoleAssignType.Impostor => optImpNum,
-                    RoleAssignType.NeutralKilling => nkLimit,
-                    RoleAssignType.NonKillingNeutral => nnkLimit,
-                    RoleAssignType.Coven => numCovens,
-                    RoleAssignType.Madmate => madmateNum,
-                    RoleAssignType.Crewmate => playerCount,
-                    _ => 0
-                })
-                .Select(x => x.Info)
-                .ToList();
         
         static RoleAssignInfo PickWeighted(List<RoleAssignInfo> pool, IRandom rng)
         {
@@ -473,38 +442,72 @@ internal static class CustomRoleSelector
 
             var list = rolesInner[type];
 
-            // 1️⃣ Assign ALWAYS roles first (SpawnChance == 100)
-            for (int i = 0; i < list.Count && readyCategoryCount < targetCount; i++)
-            {
-                var info = list[i];
-                if (info.SpawnChance != 100) continue;
+            // Track subcategory usage
+            Dictionary<RoleOptionType, int> categoryUsage = [];
 
-                while (info.AssignedCount < info.MaxCount &&
-                       readyCategoryCount < targetCount &&
-                       readyRoleNumInner < playerCountInner)
+            // Stage 1: Assign ALWAYS roles
+            foreach (var info in list)
+            {
+                if (info.SpawnChance == 100)
                 {
-                    finalRoles.Add(info.Role);
-                    info.AssignedCount++;
-                    readyCategoryCount++;
-                    readyRoleNumInner++;
+                    while (info.AssignedCount < info.MaxCount && readyCategoryCount < targetCount && readyRoleNumInner < playerCountInner)
+                    {
+                        if (!CanUseCategory(info))
+                            break;
+
+                        finalRoles.Add(info.Role);
+
+                        info.AssignedCount++;
+                        readyCategoryCount++;
+                        readyRoleNumInner++;
+
+                        RegisterCategory(info);
+                    }
                 }
             }
 
-            // 2️⃣ Assign weighted roles
+            // Stage 2: Weighted random selection
             while (readyCategoryCount < targetCount && readyRoleNumInner < playerCountInner)
             {
-                // Build current valid pool
-                List<RoleAssignInfo> pool = list.FindAll(info => info.SpawnChance > 0 && info.AssignedCount < info.MaxCount);
+                var pool = list.FindAll(info =>
+                    info.SpawnChance > 0 &&
+                    info.AssignedCount < info.MaxCount &&
+                    CanUseCategory(info));
 
                 if (pool.Count == 0) break;
 
                 var chosen = PickWeighted(pool, rd);
+
                 if (chosen == null) break;
 
                 finalRoles.Add(chosen.Role);
+
                 chosen.AssignedCount++;
                 readyCategoryCount++;
                 readyRoleNumInner++;
+
+                RegisterCategory(chosen);
+            }
+
+            return;
+
+            bool CanUseCategory(RoleAssignInfo info)
+            {
+                if (!subCategoryLimits.TryGetValue(info.OptionType, out int limit))
+                    return true;
+
+                categoryUsage.TryGetValue(info.OptionType, out int used);
+
+                return used < limit;
+            }
+
+            void RegisterCategory(RoleAssignInfo info)
+            {
+                if (!subCategoryLimits.ContainsKey(info.OptionType))
+                    return;
+
+                categoryUsage.TryAdd(info.OptionType, 0);
+                categoryUsage[info.OptionType]++;
             }
         }
     }
