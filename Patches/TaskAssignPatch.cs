@@ -22,7 +22,6 @@ internal static class AddTasksFromListPatch
                 CustomGameMode.FFA or 
                 CustomGameMode.HotPotato or 
                 CustomGameMode.NaturalDisasters or 
-                CustomGameMode.RoomRush or 
                 CustomGameMode.Quiz or 
                 CustomGameMode.CaptureTheFlag or 
                 CustomGameMode.KingOfTheZones or 
