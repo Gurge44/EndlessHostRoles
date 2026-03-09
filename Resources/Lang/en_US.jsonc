@@ -8966,6 +8966,7 @@
   "CommandDescription.GNO": "Guess The Number mini-game",
   "CommandDescription.GameModeList": "View the list of all game modes in the mod.",
   "CommandDescription.GameModePoll": "Start a poll to vote for the next game mode.",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "Send one of the messages as the Messenger",
   "CommandDescription.HWhisper": "Whisper a helping message to a player as the Host.",
   "CommandDescription.Help": "View the list of commands",
