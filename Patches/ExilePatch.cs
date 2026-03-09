@@ -103,15 +103,16 @@ internal static class ExileControllerWrapUpPatch
             GameEndChecker.CheckCustomEndCriteria();
         }
 
-        if (exiled == null) return;
+        if (!exiled) return;
         PlayerControl exiledPlayer = exiled.Object;
 
         LateTask.New(() =>
         {
-            if (!GameStates.IsEnded && exiledPlayer != null)
+            if (!GameStates.IsEnded && exiledPlayer)
             {
                 exiledPlayer.RpcExileV2();
                 Utils.AfterPlayerDeathTasks(exiledPlayer, true);
+                if (exiledPlayer.IsAlive()) Main.PlayerStates[exiledPlayer.PlayerId].SetDead();
             }
         }, 3.5f, "AfterPlayerDeathTasks For Exiled Player");
     }

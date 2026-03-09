@@ -248,12 +248,10 @@ public class Witch : RoleBase
         return false;
     }
 
-    public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
+    public static void OnCheckForEndVoting(params byte[] exileIds)
     {
         try
         {
-            if (deathReason != PlayerState.DeathReason.Vote) return;
-
             foreach (byte id in exileIds)
             {
                 if (PlayerIdList.Contains(id))

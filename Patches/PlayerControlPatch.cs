@@ -1688,7 +1688,6 @@ internal static class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
                         if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-                        if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
                         if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
@@ -1697,6 +1696,9 @@ internal static class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
                     }
                 }
+                
+                if (self && inTask && alive && !lowLoad)
+                    Asthmatic.OnFixedUpdate();
 
                 if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))
                 {

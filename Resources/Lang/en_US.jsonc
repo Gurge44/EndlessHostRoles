@@ -3120,6 +3120,7 @@
   "SlendermanInfoLong": "(Neutrals):\\nAs the Slenderman, whenever someone gets close to you, they will be blinded until they move away from you.\\n\\nKill everyone to win!",
   "Slenderman.AfterMeetingBlindCooldown": "Blinding Cooldown After Meetings",
   "Slenderman.BlindRange": "Blinding Range",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "Soul Collector",
   "SoulCollectorInfo": "You Kill Without Any Notice",
   "SoulCollectorInfoLong": "(Neutrals):\\nAs the Soul Collector, when you kill someone, everyone other than you and your target will see the target as a living player. Your targets fully die when a meeting gets called.\\nKill everyone to win!",

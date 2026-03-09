@@ -399,7 +399,7 @@ internal static class ExtendedPlayerControl
         try
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (AmongUsClient.Instance.AmClient) try { player.StartCoroutine(player.CoSetRole(roleTypes, true)); } catch { }
+            if (AmongUsClient.Instance.AmClient) try { player.SetRole(roleTypes); } catch { }
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);
             writer.Write((ushort)roleTypes);
             writer.Write(true);

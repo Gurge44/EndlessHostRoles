@@ -91,7 +91,7 @@ public static class AntiBlackout
                 PlayerControl target = targetId.GetPlayer();
                 if (!seer || !target || (seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning)) continue;
 
-                if (target.IsAlive()) target.RpcSetRoleDesync(roleType, seer.OwnerId);
+                if (target.IsAlive() && !Main.AfterMeetingDeathPlayers.ContainsKey(targetId) && Main.LastVotedPlayerInfo != target.Data) target.RpcSetRoleDesync(roleType, seer.OwnerId);
                 else target.RpcSetRoleDesync(GhostRolesManager.AssignedGhostRoles.TryGetValue(targetId, out var ghostRole) ? ghostRole.Instance.RoleTypes : seerId == targetId && !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(targetId, out var state) && state.Role.CanUseSabotage(target) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
             }
             catch (Exception e) { Utils.ThrowException(e); }

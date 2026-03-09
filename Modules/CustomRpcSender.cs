@@ -711,7 +711,9 @@ public static class CustomRpcSenderExtensions
 
     public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl player)
     {
-        sender.RpcSetRole(player, player.GetGhostRoleBasis());
+        RoleTypes basis = player.GetGhostRoleBasis();
+        if (AmongUsClient.Instance.AmClient) try { player.SetRole(basis); } catch { }
+        sender.RpcSetRole(player, basis);
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
         return true;
     }
