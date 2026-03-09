@@ -477,6 +477,7 @@ public static class Utils
             TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
             TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
             TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
+            TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
             _ => new(0.3f, 0.3f, 0.3f)
         };
     }
