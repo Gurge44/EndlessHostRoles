@@ -533,7 +533,7 @@ public static class KingOfTheZones
         if (ZoneDomination.ContainsValue(playerTeam))
             cd *= 1.5f;
 
-        Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).ToArray());
+        Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).Where(g => g.GetPlayer()).ToArray());
         int maxTeamSize = teamPlayers.Values.Max(x => x.Length);
         int teamSize = teamPlayers[playerTeam].Length;
 
