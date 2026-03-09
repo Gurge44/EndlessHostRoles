@@ -4221,7 +4221,8 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{rrSurvivedText}{vitalText}";
                     break;
                 case CustomGameMode.CaptureTheFlag:
-                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
+                    (int carriedFor, int tags) = CaptureTheFlag.GetStatistics(id);
+                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {string.Format(GetString("CTF_PlayerStats_CarriedFor"), carriedFor)} | {string.Format(GetString("CTF_PlayerStats_Tags"), tags)}";
                     if (CaptureTheFlag.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.KingOfTheZones:
