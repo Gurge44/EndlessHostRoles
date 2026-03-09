@@ -464,6 +464,23 @@ public static class Utils
         _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
         return c;
     }
+    public static Color GetTabColor(this TabGroup tab)
+    {
+        return tab switch
+        {
+            TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
+            TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
+            TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
+            TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
+            TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
+            TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
+            TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
+            TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
+            TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
+            TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
+            _ => new(0.3f, 0.3f, 0.3f)
+        };
+    }
 
     public static string GetRoleColorCode(CustomRoles role)
     {
@@ -4410,7 +4427,7 @@ public static class Utils
 
         return null;
     }
-    
+
     private static unsafe Texture2D LoadTextureFromResources(string path)
     {
         try

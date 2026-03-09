@@ -537,6 +537,12 @@ Click this badge to view our translation project:
 
 >
 > - Crowded is integrated into EHR
+	 
+### :star: [MiraAPI](https://github.com/All-Of-Us-Mods/MiraAPI)
+
+>
+> - Next button sprites (Inactive and Active)
+	
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
 

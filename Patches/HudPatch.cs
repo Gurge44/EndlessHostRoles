@@ -63,11 +63,11 @@ internal static class HudManagerPatch
                     SettingsText = null;
                 }
 
-                if (SettingsText)
-                {
-                    SettingsText.text = OptionShower.GetTextNoFresh();
-                    SettingsText.enabled = SettingsText.text != string.Empty;
-                }
+                //if (SettingsText)
+                //{
+                //    SettingsText.text = OptionShower.GetTextNoFresh();
+                //    SettingsText.enabled = SettingsText.text != string.Empty;
+                //}
             }
             else if (SettingsText)
             {

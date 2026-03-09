@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EHR.Gamemodes;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -323,6 +323,16 @@ public static class Translator
     public static string FixRoleName(this string infoLong, CustomRoles role)
     {
         return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
+    }
+
+    public static bool LangHasSensitiveOutlineText()
+    {
+        return TranslationController.InstanceExists && TranslationController.Instance.currentLanguage.languageID is
+                SupportedLangs.Russian or
+                SupportedLangs.Korean or
+                SupportedLangs.Japanese or
+                SupportedLangs.SChinese or
+                SupportedLangs.TChinese;
     }
 
 }
