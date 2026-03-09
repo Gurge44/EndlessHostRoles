@@ -125,7 +125,8 @@ public static class GameOptionsMenuPatch
                     OptionItem option = OptionItem.AllOptions[index];
                     if (option.Tab != modTab) continue;
 
-                    bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+                    bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+                    bool enabled = !option.IsCurrentlyHidden(checkCollapsedSection: false) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: false);
 
                     if (option is TextOptionItem toi)
                     {
@@ -155,14 +156,14 @@ public static class GameOptionsMenuPatch
                         categoryHeaderMasked.gameObject.SetActive(enabled);
                         ModGameOptionsMenu.CategoryHeaderList.TryAdd(index, categoryHeaderMasked);
 
-                        if (enabled) num -= 0.63f;
+                        if (enabledOrNotCollapsed) num -= 0.63f;
                         header = toi;
                         continue;
                     }
 
                     option.Header = header;
 
-                    if (option.IsHeader && enabled)
+                    if (option.IsHeader && enabledOrNotCollapsed)
                         num -= 0.18f;
 
                     BaseGameSetting baseGameSetting = GetSetting(option);
@@ -194,13 +195,13 @@ public static class GameOptionsMenuPatch
                     optionBehaviour.SetUpFromData(baseGameSetting, 20);
                     ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
                     ModGameOptionsMenu.BehaviourList.TryAdd(index, optionBehaviour);
-                    optionBehaviour.gameObject.SetActive(enabled);
+                    optionBehaviour.gameObject.SetActive(enabledOrNotCollapsed);
                     optionBehaviour.OnValueChanged = new Action<OptionBehaviour>(__instance.ValueChanged);
                     __instance.Children.Add(optionBehaviour);
 
                     option.OptionBehaviour = optionBehaviour;
 
-                    if (enabled) num -= 0.45f;
+                    if (enabledOrNotCollapsed) num -= 0.45f;
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
@@ -221,11 +222,11 @@ public static class GameOptionsMenuPatch
             {
                 if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+                bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
                 if (option is TextOptionItem)
                     num -= 0.63f;
-                else if (enabled)
+                else if (enabledOrNotCollapsed)
                 {
                     if (option.IsHeader) num -= 0.18f;
 
@@ -237,12 +238,12 @@ public static class GameOptionsMenuPatch
         }
     }
 
-    public static bool AllParentsEnabledAndVisible(OptionItem o)
+    public static bool AllParentsEnabledAndVisible(OptionItem o, bool checkCollapsedSection = true)
     {
         while (true)
         {
             if (o == null) return true;
-            if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
+            if (o.IsCurrentlyHidden(forLobbyView: false, checkCollapsedSection: checkCollapsedSection) || !o.GetBool()) return false;
             o = o.Parent;
         }
     }
@@ -361,21 +362,22 @@ public static class GameOptionsMenuPatch
             OptionItem option = OptionItem.AllOptions[index];
             if (option.Tab != modTab) continue;
 
-            bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+            bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+            bool enabled = !option.IsCurrentlyHidden(checkCollapsedSection: false) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: false);
 
             if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out CategoryHeaderMasked categoryHeaderMasked))
             {
                 categoryHeaderMasked.transform.localPosition = new(-0.903f, num, -2f);
                 categoryHeaderMasked.gameObject.SetActive(enabled);
-                if (enabled) num -= 0.63f;
+                if (enabledOrNotCollapsed) num -= 0.63f;
             }
-            else if (option.IsHeader && enabled) num -= 0.18f;
+            else if (option.IsHeader && enabledOrNotCollapsed) num -= 0.18f;
 
             if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour))
             {
                 optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
-                optionBehaviour.gameObject.SetActive(enabled);
-                if (enabled) num -= 0.45f;
+                optionBehaviour.gameObject.SetActive(enabledOrNotCollapsed);
+                if (enabledOrNotCollapsed) num -= 0.45f;
             }
         }
 

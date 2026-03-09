@@ -1,4 +1,5 @@
 ﻿using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Roles;
 using HarmonyLib;
 using System;
 using System.Collections;
@@ -20,7 +21,9 @@ public static class LobbyViewSettingsPanePatch
     public static CustomGameMode LastGameModeSelected = CustomGameMode.Standard;
     private static Coroutine RoleListCoroutine;
     private static Coroutine OptionsCoroutine;
-    private static bool ForReloadTab = false;
+
+    private static PassiveButton ShowOnlyEnabledRolesButton;
+    private static bool OnlyEnabledRoles = false;
 
     private static readonly Dictionary<StringNames, PassiveButton> TabButtons = [];
     private static readonly Dictionary<StringNames, TabGroup> TabNames = [];
@@ -109,14 +112,17 @@ public static class LobbyViewSettingsPanePatch
             posPanel.localPosition = new(2f, 0f, -2f);
             posPanel.localScale = new(0.7f, 0.7f, 1f);
 
+            viewSettingsInfoPanel.checkMark.sprite = Utils.LoadSprite("EHR.Resources.Images.Checkmark.png", 100f);
             var checkMarkOn = viewSettingsInfoPanel.checkMark.transform;
             checkMarkOn.localPosition = new(2f, 0f, -2f);
             checkMarkOn.localScale = new(0.8f, 0.8f, 1f);
+            viewSettingsInfoPanel.checkMark.color = new Color32(0, 165, 255, 255);
 
+            viewSettingsInfoPanel.checkMarkOff.sprite = Utils.LoadSprite("EHR.Resources.Images.CheckMarkOff.png", 100f);
             var checkMarkOff = viewSettingsInfoPanel.checkMarkOff.transform;
             checkMarkOff.localPosition = new(2f, 0f, -2f);
             checkMarkOff.localScale = new(0.8f, 0.8f, 1f);
-            //viewSettingsInfoPanel.checkMarkOff.color = Color.red;
+            viewSettingsInfoPanel.checkMarkOff.color = Color.red;
 
             yield return null;
 
@@ -228,6 +234,41 @@ public static class LobbyViewSettingsPanePatch
             __instance.gameModeText.text = Translator.GetString(Options.CurrentGameMode.ToString());
             __instance.gameModeText.color = Main.GameModeColors[Options.CurrentGameMode];
             LastGameModeSelected = Options.CurrentGameMode;
+            yield return null;
+
+            // Create button "Show Only Enabled Roles"
+            ShowOnlyEnabledRolesButton = Object.Instantiate(__instance.rolesTabButton, __instance.rolesTabButton.transform.parent);
+            ShowOnlyEnabledRolesButton.buttonText.DestroyTranslator();
+            ShowOnlyEnabledRolesButton.name = "ShowOnlyEnabledRolesButton";
+            ShowOnlyEnabledRolesButton.buttonText.text = OnlyEnabledRoles
+                    ? Translator.GetString($"LobbyViewSettings_ShowAlldRolesButtonText")
+                    : Translator.GetString($"LobbyViewSettings_ShowOnlyEnabledRolesButtonText");
+
+            ShowOnlyEnabledRolesButton.activeTextColor = ShowOnlyEnabledRolesButton.inactiveTextColor = Color.white;
+            ShowOnlyEnabledRolesButton.selectedTextColor = new(0.7f, 0.7f, 0.7f);
+
+            ShowOnlyEnabledRolesButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.cyan;
+            ShowOnlyEnabledRolesButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.cyan;
+            ShowOnlyEnabledRolesButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.cyan;
+
+            ShowOnlyEnabledRolesButton.OnClick = new();
+            ShowOnlyEnabledRolesButton.OnClick.AddListener((UnityAction)(() =>
+            {
+                OnlyEnabledRoles = !OnlyEnabledRoles;
+
+                ShowOnlyEnabledRolesButton.buttonText.text = OnlyEnabledRoles
+                    ? Translator.GetString($"LobbyViewSettings_ShowAlldRolesButtonText")
+                    : Translator.GetString($"LobbyViewSettings_ShowOnlyEnabledRolesButtonText");
+
+                ShowOnlyEnabledRolesButton.SelectButton(OnlyEnabledRoles);
+
+                __instance?.ReDrawTab(LastTabPressed);
+            }));
+
+            ShowOnlyEnabledRolesButton.SelectButton(OnlyEnabledRoles);
+            ShowOnlyEnabledRolesButton.transform.localScale = new Vector3(0.8f, 0.8f, 1f);
+            ShowOnlyEnabledRolesButton.transform.localPosition = new Vector3(7.23f, -3.45f, -2f);
+            ShowOnlyEnabledRolesButton.gameObject.SetActive(false);
             yield return null;
 
             // Create right arrow button
@@ -396,7 +437,9 @@ public static class LobbyViewSettingsPanePatch
             __instance.taskTabButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
             __instance.taskTabButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f);
             __instance.taskTabButton.selectedSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f);
-
+            
+            LastGameModeSelected = Options.CurrentGameMode;
+            
             __instance.ChangeTab(LastTabPressed);
         }, 0.3f, "ChangeTab", log: false);
     }
@@ -427,8 +470,18 @@ public static class LobbyViewSettingsPanePatch
     [HarmonyPrefix]
     public static bool DrawNormalTab_Prefix(LobbyViewSettingsPane __instance)
     {
+        if (__instance == null) return true;
+
         __instance.taskTabButton.inactiveTextColor = Color.white;
         __instance.taskTabButton.selectedTextColor = Color.gray;
+
+        try
+        {
+            if (ShowOnlyEnabledRolesButton != null && ShowOnlyEnabledRolesButton.gameObject != null)
+                ShowOnlyEnabledRolesButton.gameObject.SetActive(false);
+        }
+        catch { }
+
         return __instance.currentTab == VanillaSettingsTabName;
     }
 
@@ -442,7 +495,6 @@ public static class LobbyViewSettingsPanePatch
 
     private static void ReDrawTab(this LobbyViewSettingsPane viewSettings, StringNames tabName)
     {
-        ForReloadTab = true;
         viewSettings.currentTab = tabName;
         for (int i = 0; i < viewSettings.settingsInfo.Count; i++)
         {
@@ -453,30 +505,36 @@ public static class LobbyViewSettingsPanePatch
     }
     private static void HideTab(TabGroup tabName, PassiveButton buttonTab)
     {
-        var currentGameMode = LastGameModeSelected;
-        buttonTab.gameObject.SetActive(true);
-
-        switch (currentGameMode)
+        try
         {
-            case CustomGameMode.Standard:
-                buttonTab.gameObject.SetActive(true);
-                break;
-            case CustomGameMode.HideAndSeek:
-                if (tabName is TabGroup.CovenRoles or TabGroup.Addons or TabGroup.OtherRoles)
-                    buttonTab.gameObject.SetActive(false);
-                break;
-            default:
-                if (tabName is TabGroup.ImpostorRoles
-                    or TabGroup.CrewmateRoles
-                    or TabGroup.NeutralRoles
-                    or TabGroup.CovenRoles
-                    or TabGroup.Addons
-                    or TabGroup.OtherRoles)
-                {
-                    buttonTab.gameObject.SetActive(false);
-                }
-                break;
+            if (buttonTab.gameObject == null) return;
+
+            var currentGameMode = LastGameModeSelected;
+            buttonTab.gameObject.SetActive(true);
+
+            switch (currentGameMode)
+            {
+                case CustomGameMode.Standard:
+                    buttonTab.gameObject.SetActive(true);
+                    break;
+                case CustomGameMode.HideAndSeek:
+                    if (tabName is TabGroup.CovenRoles or TabGroup.Addons or TabGroup.OtherRoles)
+                        buttonTab.gameObject.SetActive(false);
+                    break;
+                default:
+                    if (tabName is TabGroup.ImpostorRoles
+                        or TabGroup.CrewmateRoles
+                        or TabGroup.NeutralRoles
+                        or TabGroup.CovenRoles
+                        or TabGroup.Addons
+                        or TabGroup.OtherRoles)
+                    {
+                        buttonTab.gameObject.SetActive(false);
+                    }
+                    break;
+            }
         }
+        catch { }
     }
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.ChangeTab))]
@@ -535,7 +593,9 @@ public static class LobbyViewSettingsPanePatch
         bool firstTitle = true;
         int index = 0;
         TextOptionItem header = null;
-        ForReloadTab = false;
+
+        if (ShowOnlyEnabledRolesButton?.gameObject != null)
+            ShowOnlyEnabledRolesButton.gameObject.SetActive(false);
 
         if (OptionsCoroutine != null) viewSettings.StopCoroutine(OptionsCoroutine);
         OptionsCoroutine = viewSettings.StartCoroutine(CoDrawOptions().WrapToIl2Cpp());
@@ -548,11 +608,11 @@ public static class LobbyViewSettingsPanePatch
                 if (option.Tab != tabName) continue;
                 BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
 
-                bool enabled = !option.IsCurrentlyHidden(forLobbyView: true) && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
+                bool enabledOrNotCollapsed = !option.IsCurrentlyHidden(forLobbyView: true) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: true);
                 // Title
                 if (data == null && option is TextOptionItem toi)
                 {
-                    if (!firstTitle && enabled)
+                    if (!firstTitle && enabledOrNotCollapsed)
                     {
                         yPos -= 0.92f;
                     }
@@ -579,10 +639,10 @@ public static class LobbyViewSettingsPanePatch
                         viewSettings.ReDrawTab(LastTabPressed);
                     }));
                     chmButton.SetButtonEnableState(true);
-                    categoryHeaderMasked.gameObject.SetActive(enabled);
+                    categoryHeaderMasked.gameObject.SetActive(enabledOrNotCollapsed);
 
                     viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
-                    if (enabled)
+                    if (enabledOrNotCollapsed)
                     {
                         if (!toi.CollapsesSection) yPos -= 1.05f;
                         else yPos += 0.25f;
@@ -592,7 +652,7 @@ public static class LobbyViewSettingsPanePatch
                     yield return null;
                     continue;
                 }
-                else if (enabled)
+                else if (enabledOrNotCollapsed)
                 {
                     if (header != null) option.Header = header;
 
@@ -618,6 +678,15 @@ public static class LobbyViewSettingsPanePatch
                     {
                         case OptionTypes.Checkbox:
                             viewSettingsInfoPanel.SetInfoCheckbox(data.Title, 61, option.GetBool());
+                            Color32 color = LastGameModeSelected == CustomGameMode.Standard ? tabName switch
+                            {
+                                TabGroup.ImpostorRoles => new Color32(255, 25, 25, 255),
+                                TabGroup.CrewmateRoles => new Color32(140, 255, 255, 255),
+                                TabGroup.NeutralRoles => new Color32(255, 171, 27, 255),
+                                TabGroup.CovenRoles => new Color32(123, 63, 187, 255),
+                                _ => new Color32(0, 165, 255, 255)
+                            } : Main.GameModeColors.TryGetValue(LastGameModeSelected, out var c) ? c : new Color32(0, 165, 255, 255);
+                            viewSettingsInfoPanel.checkMark.color = color;
                             break;
                         case OptionTypes.String:
                             viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
@@ -654,7 +723,7 @@ public static class LobbyViewSettingsPanePatch
     {
         float yPos = 1.3f;
         float xPos = -6.53f;
-        if (!ForReloadTab) RoleEnabledList.Clear();
+        RoleEnabledList.Clear();
         var allCustomRoles = Enum.GetValues<CustomRoles>();
         Color roleColorHeaderOrigin = tabName switch
         {
@@ -668,7 +737,6 @@ public static class LobbyViewSettingsPanePatch
         };
         Color roleColorHeaderRole = tabName.GetTabColor();
         TextOptionItem header = null;
-        ForReloadTab = false;
 
         CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate(viewSettings.categoryHeaderOrigin, viewSettings.settingsContainer);
         categoryHeaderMasked.SetHeader(StringNames.RoleQuotaLabel, 61);
@@ -682,6 +750,15 @@ public static class LobbyViewSettingsPanePatch
         categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, yPos, -2f);
         viewSettings.settingsInfo.Add(categoryHeaderMasked.gameObject);
 
+        if (ShowOnlyEnabledRolesButton?.gameObject != null)
+        {
+            Color color = tabName.GetTabColor();
+            ShowOnlyEnabledRolesButton.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
+            ShowOnlyEnabledRolesButton.activeSprites.GetComponent<SpriteRenderer>().color = color;
+            ShowOnlyEnabledRolesButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
+            ShowOnlyEnabledRolesButton.gameObject.SetActive(true);
+        }
+
         if (RoleListCoroutine != null) viewSettings.StopCoroutine(RoleListCoroutine);
         RoleListCoroutine = viewSettings.StartCoroutine(CoDrawRoleList().WrapToIl2Cpp());
         return;
@@ -691,7 +768,10 @@ public static class LobbyViewSettingsPanePatch
             foreach (OptionItem option in OptionItem.AllOptions)
             {
                 if (option.Tab != tabName) continue;
-                bool enabled = !option.IsCurrentlyHidden(forLobbyView: true) && GameOptionsMenuPatch.AllParentsEnabledAndVisible(option.Parent);
+                if (option.GameMode is not CustomGameMode.All && option.GameMode != LastGameModeSelected) continue;
+
+                bool enabledOrNotCollapsed = !option.IsCurrentlyHidden(forLobbyView: true) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: true);
+                bool enabled = !option.IsCurrentlyHidden(forLobbyView: true, checkCollapsedSection: false) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: false);
                 BaseGameSetting data = GameOptionsMenuPatch.GetSetting(option);
                 string titleName = option.GetName(disableColor: true).Trim('★', ' ').RemoveHtmlTags();
                 string realName = option.Name;
@@ -707,7 +787,7 @@ public static class LobbyViewSettingsPanePatch
                     categoryHeaderRoleVariant.Title.color = Color.white;
                     categoryHeaderRoleVariant.Background.color = roleColorHeaderRole;
 
-                    if (enabled || toi.CollapsesSection) yPos -= 0.4f;
+                    if (enabled) yPos -= 0.4f;
                     categoryHeaderRoleVariant.transform.localScale = Vector3.one;
                     categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
 
@@ -725,15 +805,14 @@ public static class LobbyViewSettingsPanePatch
                         viewSettings.ReDrawTab(LastTabPressed);
                     }));
                     chmButton.SetButtonEnableState(true);
-                    categoryHeaderRoleVariant.gameObject.SetActive(enabled || toi.CollapsesSection);
+                    categoryHeaderRoleVariant.gameObject.SetActive(enabled);
 
                     viewSettings.settingsInfo.Add(categoryHeaderRoleVariant.gameObject);
                     if (enabled)
                     {
-                        if (!toi.CollapsesSection) yPos -= 0.65f;
-                        else yPos -= 0.1f;
+                        if (toi.CollapsesSection) yPos -= 0.1f;
+                        else yPos -= 0.65f;
                     }
-                    else if (toi.CollapsesSection) yPos -= 0.65f;
                     header = toi;
                     yield return null;
                 }
@@ -744,12 +823,14 @@ public static class LobbyViewSettingsPanePatch
 
                     try
                     {
+                        option.Header = header;
+
                         int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out var valueRoleOpt) ? valueRoleOpt.GetChance() : 0;
                         bool roleDisabled = chancePerGame == 0;
 
-                        if (enabled)
+                        if (enabledOrNotCollapsed && role is not CustomRoles.Seeker and not CustomRoles.Hider)
                         {
-                            if (header != null) option.Header = header;
+                            if (OnlyEnabledRoles && roleDisabled) continue;
 
                             ViewSettingsInfoPanelRoleVariant viewSettingsInfoPanelRoleVariant = Object.Instantiate(viewSettings.infoPanelRoleOrigin, viewSettings.settingsContainer);
                             viewSettingsInfoPanelRoleVariant.name = realName;
@@ -819,9 +900,13 @@ public static class LobbyViewSettingsPanePatch
                             viewSettings.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                             yPos -= 0.65f;
                         }
-                        else
+                        else if (LastGameModeSelected == CustomGameMode.HideAndSeek && role is CustomRoles.Seeker or CustomRoles.Hider)
                         {
-                            if (!roleDisabled) RoleEnabledList.Add(role);
+                            RoleEnabledList.Add(role);
+                        }
+                        else if (!enabledOrNotCollapsed && enabled && !roleDisabled)
+                        {
+                            RoleEnabledList.Add(role);
                         }
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -846,14 +931,20 @@ public static class LobbyViewSettingsPanePatch
 
                 float leftY = startY;
                 float rightY = startY;
-
                 float leftX = -5.8f;
                 float rightX = 0.15f;
 
                 foreach (var role in RoleEnabledList)
                 {
+                    OptionItem optionRole = Options.CustomRoleSpawnChances.GetValueOrDefault(role);
+                    if (optionRole == null || optionRole == default)
+                    {
+                        if (role == CustomRoles.Seeker) optionRole = OptionItem.FastOptions[Seeker.StartId];
+                        else if (role == CustomRoles.Hider) optionRole = OptionItem.FastOptions[Hider.StartId];
+                        else continue;
+                    }
                     // 1 child setting is "Max" or "Spawn chance" setting
-                    if (!Options.CustomRoleSpawnChances.TryGetValue(role, out var optionRole) || optionRole.Children.Count <= 1) continue;
+                    else if (optionRole.Children.Count <= 1) continue;
 
                     bool useLeftColumn = leftY >= rightY;
                     float columnX = useLeftColumn ? leftX : rightX;
@@ -873,7 +964,7 @@ public static class LobbyViewSettingsPanePatch
             }
         }
     }
-    private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, StringOptionItem optionRole, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float startY)
+    private static float SetUpCustomRoleSettings(this LobbyViewSettingsPane viewSettings, CustomRoles role, OptionItem optionRole, TabGroup tabName, float spacingY, int maskLayer, float xPosRoleHeader, float startY)
     {
         float yPos = startY;
         BaseGameSetting data;
@@ -886,8 +977,18 @@ public static class LobbyViewSettingsPanePatch
         advancedRoleViewPanel.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
         advancedRoleViewPanel.header.Title.text = Translator.GetString(role.ToString());
         advancedRoleViewPanel.header.Title.color = Color.white;
-        advancedRoleViewPanel.header.Background.color = optionRole.NameColor;
-        advancedRoleViewPanel.header.Divider.color = optionRole.NameColor;
+        // default color
+        if (optionRole.NameColor != Color.white)
+        {
+            advancedRoleViewPanel.header.Background.color = optionRole.NameColor;
+            advancedRoleViewPanel.header.Divider.color = optionRole.NameColor;
+        }
+        else
+        {
+            var tabColor = tabName.GetTabColor();
+            advancedRoleViewPanel.header.Background.color = tabColor;
+            advancedRoleViewPanel.header.Divider.color = tabColor;
+        }
         viewSettings.settingsInfo.Add(advancedRoleViewPanel.gameObject);
 
         foreach (OptionItem firstOption in optionRole.Children)
@@ -919,6 +1020,10 @@ public static class LobbyViewSettingsPanePatch
                 }
             }
         }
+
+        if (yPos == startY)
+            advancedRoleViewPanel.gameObject.SetActive(false);
+
         void DrawSetting(OptionItem option, BaseGameSetting data)
         {
             ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(advancedRoleViewPanel.infoPanelOrigin, advancedRoleViewPanel.transform.parent, true);
@@ -930,6 +1035,15 @@ public static class LobbyViewSettingsPanePatch
             {
                 case OptionTypes.Checkbox:
                     viewSettingsInfoPanel.SetInfoCheckbox(data.Title, 61, option.GetBool());
+                    Color32 color = LastGameModeSelected == CustomGameMode.Standard ? tabName switch
+                    {
+                        TabGroup.ImpostorRoles => new Color32(255, 25, 25, 255),
+                        TabGroup.CrewmateRoles => new Color32(140, 255, 255, 255),
+                        TabGroup.NeutralRoles => new Color32(255, 171, 27, 255),
+                        TabGroup.CovenRoles => new Color32(123, 63, 187, 255),
+                        _ => new Color32(0, 165, 255, 255)
+                    } : Main.GameModeColors.TryGetValue(LastGameModeSelected, out var c) ? c : new Color32(0, 165, 255, 255);
+                    viewSettingsInfoPanel.checkMark.color = color;
                     break;
                 case OptionTypes.String:
                     viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
@@ -954,5 +1068,14 @@ public static class LobbyViewSettingsPanePatch
             viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
         }
         return yPos;
+    }
+    private static bool AllParentsEnabledAndVisible(OptionItem o, bool checkCollapsedSection = true)
+    {
+        while (true)
+        {
+            if (o == null) return true;
+            if (o.IsCurrentlyHidden(forLobbyView: true, checkCollapsedSection: checkCollapsedSection) || !o.GetBool()) return false;
+            o = o.Parent;
+        }
     }
 }

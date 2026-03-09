@@ -231,13 +231,13 @@ public abstract class OptionItem
         return IsSingleValue ? SingleValue : AllValues[CurrentPreset];
     }
 
-    public bool IsCurrentlyHidden(bool forLobbyView = false)
+    public bool IsCurrentlyHidden(bool forLobbyView = false, bool checkCollapsedSection = true)
     {
         try
         {
             for (OptionItem current = this; current != null; current = current.Parent)
             {
-                if (Hidden(current, forLobbyView))
+                if (Hidden(current, forLobbyView, checkCollapsedSection))
                     return true;
             }
         }
@@ -245,9 +245,9 @@ public abstract class OptionItem
 
         return false;
 
-        static bool Hidden(OptionItem oi, bool forLobbyView)
+        static bool Hidden(OptionItem oi, bool forLobbyView, bool checkCollapsedSection)
         {
-            if (oi.Header is { CollapsesSection: true }) return true;
+            if (checkCollapsedSection && oi.Header is { CollapsesSection: true }) return true;
             CustomGameMode mode = !forLobbyView ? EHR.Options.CurrentGameMode : LobbyViewSettingsPanePatch.LastGameModeSelected;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
             return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||
