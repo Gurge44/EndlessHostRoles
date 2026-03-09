@@ -21,6 +21,10 @@ public class Detector : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
+        new TextOptionItem(69_211_600, $"TypeCrewmate", TabGroup.CrewmateRoles)
+            .SetHeader(true)
+            .SetGameMode(CustomGameMode.HideAndSeek);
+
         Options.SetupRoleOptions(69_211_601, TabGroup.CrewmateRoles, CustomRoles.Detector, CustomGameMode.HideAndSeek);
 
         Vision = new FloatOptionItem(69_211_603, "DetectorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)

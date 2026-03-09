@@ -48,7 +48,7 @@ internal static class ControllerManagerUpdatePatch
             
                 if (GameStates.IsLobby && (!HudManager.Instance.Chat || !HudManager.Instance.Chat.IsOpenOrOpening))
                 {
-                    if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
+                    //if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
                     for (var i = 0; i < 9; i++)
                     {
