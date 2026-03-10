@@ -1884,7 +1884,7 @@ public static class Utils
                     
                     IEnumerator DelaySend()
                     {
-                        while (ReportDeadBodyPatch.MeetingStarted || (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.VoteStates.Animating)) yield return null;
+                        while (ReportDeadBodyPatch.MeetingStarted || MeetingHudStartPatch.BlockMsgSend) yield return null;
                         yield return new WaitForSecondsRealtime(0.3f);
                         SendMessage(text, sendTo, title, noSplit, writer, final, multiple, importance, addToHistory);
                     }
@@ -1894,7 +1894,7 @@ public static class Utils
                 {
                     TempReviveHostRunning = true;
                     
-                    while (ReportDeadBodyPatch.MeetingStarted || (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.VoteStates.Animating)) yield return null;
+                    while (ReportDeadBodyPatch.MeetingStarted || MeetingHudStartPatch.BlockMsgSend) yield return null;
                     
                     TempReviveHostRevertStopwatch = Stopwatch.StartNew();
                     TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
