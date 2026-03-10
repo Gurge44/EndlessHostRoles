@@ -1884,6 +1884,7 @@ public static class Utils
                     
                     IEnumerator DelaySend()
                     {
+                        if (ReportDeadBodyPatch.MeetingStarted || MeetingHudStartPatch.BlockMsgSend) Logger.Msg($"Waiting for delayed msg send - MeetingStarted: {ReportDeadBodyPatch.MeetingStarted}, BlockMsgSend: {MeetingHudStartPatch.BlockMsgSend}", "TempReviveHost");
                         while (ReportDeadBodyPatch.MeetingStarted || MeetingHudStartPatch.BlockMsgSend) yield return null;
                         yield return new WaitForSecondsRealtime(0.3f);
                         SendMessage(text, sendTo, title, noSplit, writer, final, multiple, importance, addToHistory);
@@ -1894,6 +1895,7 @@ public static class Utils
                 {
                     TempReviveHostRunning = true;
                     
+                    if (ReportDeadBodyPatch.MeetingStarted || MeetingHudStartPatch.BlockMsgSend) Logger.Msg($"Waiting for host revival - MeetingStarted: {ReportDeadBodyPatch.MeetingStarted}, BlockMsgSend: {MeetingHudStartPatch.BlockMsgSend}", "TempReviveHost");
                     while (ReportDeadBodyPatch.MeetingStarted || MeetingHudStartPatch.BlockMsgSend) yield return null;
                     
                     TempReviveHostRevertStopwatch = Stopwatch.StartNew();
