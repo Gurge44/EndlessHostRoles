@@ -2,7 +2,7 @@
   /* ==============================
     CORE & FREQUENTLY USED STRINGS       
   ============================== */
-  "LanguageID": "10 ",
+  "LanguageID": "10",
   "HostText": "EHR - Ospite",
   "HostColor": "#00ffa5",
   "HostIconInMeeting": "HOST: {0}",
