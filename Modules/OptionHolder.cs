@@ -962,7 +962,7 @@ public static class Options
         GroupAddons();
         LoadUserData();
         Achievements.LoadAllData();
-        OptionShower.LastText = Translator.GetString("Loading");
+        // OptionShower.LastText = Translator.GetString("Loading");
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
@@ -1943,11 +1943,13 @@ public static class Options
             .SetParent(FungleChance)
             .SetValueFormat(OptionFormat.Players);
 
-        OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings);
+        OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         MapSpeeds = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
             .SetParent(OverrideSpeedForEachMap)
             .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue))
             .AddReplacement(("{map}", Translator.GetString(x.ToString()))));
 
         LoadingPercentage = 69;
@@ -3069,11 +3071,13 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetParent(EnableGameTimeLimit);
 
-        OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings);
+        OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         InVentVision = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
             .SetParent(OverrideVisionInVents)
             .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .AddReplacement(("{team}", Utils.ColorString(x.GetColor(), Translator.GetString($"Type{x}")))));
 
 
@@ -3290,10 +3294,11 @@ public static class Options
             if (!AmongUsClient.Instance.AmHost || !EnableAutoFactionMinMaxSettings.GetBool()) return;
 
             int playerCount = PlayerControl.AllPlayerControls.Count;
-            if (playerCount == LastUsedPlayerCount) return;
             var filtered = AutoFactionMinMaxSettings.FindAll(x => x.MinPlayersToActivate.GetInt() > 0 && x.MinPlayersToActivate.GetInt() <= playerCount);
             if (filtered.Count == 0) return;
             var usedValues = filtered.MaxBy(x => x.MinPlayersToActivate.GetInt());
+            var usedPlayerCount = usedValues.MinPlayersToActivate.GetInt();
+            if (usedPlayerCount == LastUsedPlayerCount) return;
 
             foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in FactionMinMaxSettings)
             {
@@ -3308,9 +3313,9 @@ public static class Options
             OptionSaver.Save();
             OptionItem.SyncAllOptions();
             
-            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedValues.MinPlayersToActivate.GetInt(), string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
 
-            LastUsedPlayerCount = playerCount;
+            LastUsedPlayerCount = usedPlayerCount;
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

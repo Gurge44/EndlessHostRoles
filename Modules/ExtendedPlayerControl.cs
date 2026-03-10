@@ -1840,6 +1840,10 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates[pc.PlayerId].SubRoles.Any(x => x.IsEvilAddon());
     }
 
+    /// <summary>
+    /// Sets a players kill cooldown without syncing settings.
+    /// When using this method, ResetKillCooldown should set the player's kill cooldown to twice the value.
+    /// </summary>
     public static void SetKillCooldownNonSync(this PlayerControl pc, float kcd)
     {
         if (pc.AmOwner)
@@ -1854,10 +1858,10 @@ internal static class ExtendedPlayerControl
         }
         else
         {
-            // ResetKillCooldown sets every player's kill cooldown to twice the value.
+            // When using this method, ResetKillCooldown should set the player's kill cooldown to twice the value.
             // MurderPlayer RPC with FailedProtected flag sets a player's kill cooldown to half the set value.
             // *2 /2 = the value we began with. This avoids syncing settings on every CheckMurder.
-            // This works because the kill cooldown is consistent throughout the entire game.
+            // This works if the kill cooldown is consistent throughout the entire game.
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, pc.OwnerId);
             writer.WriteNetObject(pc);
             writer.Write((int)MurderResultFlags.FailedProtected);

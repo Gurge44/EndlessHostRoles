@@ -1,3 +1,6 @@
+// Now EHR uses LobbyViewSettingsPane instead of this
+
+/*
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +20,7 @@ public static class OptionShower
 
     static OptionShower() { }
 
-    // Now EHR use LobbyViewSettingsPane instead of this
+
     public static string GetTextNoFresh()
     {
         try
@@ -155,5 +158,5 @@ public static class OptionShower
             if (opt.Value.GetBool()) ShowChildren(opt.Value, ref sb, color, deep + 1);
         }
     }
-
 }
+*/

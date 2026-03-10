@@ -542,6 +542,7 @@ Click this badge to view our translation project:
 
 >
 > - Next button sprites (Inactive and Active)
+> - Double task panel
 	
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.

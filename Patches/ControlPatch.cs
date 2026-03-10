@@ -48,13 +48,13 @@ internal static class ControllerManagerUpdatePatch
             
                 if (GameStates.IsLobby && (!HudManager.Instance.Chat || !HudManager.Instance.Chat.IsOpenOrOpening))
                 {
-                    //if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
+                    /*if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
                     for (var i = 0; i < 9; i++)
                     {
                         if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
                             OptionShower.CurrentPage = i;
-                    }
+                    }*/
 
                     if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
                         GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
