@@ -7,7 +7,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
 using Hazel;
-using InnerNet;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
