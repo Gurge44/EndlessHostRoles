@@ -217,7 +217,7 @@
   "Prefix.Unlucky": "倒霉",
   "Prefix.Venom": "毒液",
   "Prefix.Warden": "冤魂",
-  "Prefix.Watcher": "觀察",
+  "Prefix.Watcher": "觀察者",
   "Prefix.Workhorse": "加班狂",
   "Prefix.Youtuber": "Youtuber",
   /* ==============================
@@ -765,6 +765,18 @@
   "EnigmaClueVisor1": "兇手戴著臉部裝飾!",
   "EnigmaClueVisor2": "兇手沒有戴著臉部裝飾!",
   "EnigmaClueVisor3": "兇手戴著 {0} 臉部裝飾!",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Enigma Status Clue",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "押送者",
   "EscortInfo": "你被扣押了!",
   "EscortInfoLong": "(船員陣營):\\n押送者可以使用擊殺鍵來對玩家進行扣押，在扣押期間目標將無法使用管道、擊殺、破壞或報告(就跟故障者的駭入技能一樣)",
@@ -961,7 +973,7 @@
   "InspectorCheckSelf": "哈!! 你以為有那麼容易嗎? 你不能檢查自己",
   "InspectorCheckTargetKnow": "目標知道自己被<color=#0D57AF>檢查員</color>檢查",
   "InspectorCheckTargetMsg": " 被檢查員檢查了",
-  "InspectorCheckTrue": "<b>{0}</b> 和 <b>{1}</b> 在同一陣營!",
+  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!",
   "InspectorCopTargetReveal": "看起來 <b>{0}</b> 與 <b>{1}</b> 陣營一致",
   "InspectorDead": "很抱歉，你死後無法使用你的技能",
   "InspectorTryHideMsg": "嘗試混淆<color=#0D57AF>檢查員</color>指令",
@@ -1760,7 +1772,7 @@
   "CouncillorInfoLong": "(偽裝者陣營):\\n議員可以在會議中謀殺一名玩家。\\n\\n議員進行的謀殺會在會議上顯示為法官的審判。\\n謀殺指令為:/tl [玩家ID]\\n您可以在玩家名字前看到該玩家的ID，或使用/id來查詢所有玩家的編號。",
   "CouncillorCanMurderImpostor": "可以謀殺<color=#ff1919>偽裝者</color>",
   "CouncillorCanMurderMadmate": "可以謀殺<color=#ff1919>叛徒</color>",
-  "CouncillorDead": " 很抱歉，你在死後無法進行謀殺",
+  "CouncillorDead": " You can't murder from the dead.",
   "CouncillorMakeEvilJudgeClear": "謀殺訊息與法官做出區分",
   "CouncillorMurderMax": "很抱歉，你已經達到謀殺的最大次數",
   "CouncillorMurderMaxMeeting": "很抱歉，你已經達到謀殺的最大次數",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(中立陣營):\\n魅魔可以通過殺人鍵魅惑一名非中立玩家。被魅惑的玩家技能不會改變，並被視為魅魔陣營，且不再具有原先的勝利條件。當只剩下魅魔及船員陣營且魅魔陣營人數大於船員人數，則魅魔陣營獲勝。",
   "CultistCanCharmNeutral": "中立陣營玩家可以被<color=#cf6acd>魅惑</color>",
   "CultistCharmCooldown": "魅惑冷卻時間",
-  "CultistCharmCooldownIncrese": "每次魅惑增加魅惑冷卻時間",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "魅惑次數上限",
   "CultistCharmedPlayer": "您魅惑了一名玩家",
   "CultistInvalidTarget": "目標無法被魅惑",
@@ -3108,6 +3120,7 @@
   "SlendermanInfoLong": "(中立陣營)：\\n作為瘦長人，每當有人靠近你時，他們就會失明，直到他們遠離你。 \\n\\n殺死所有人即可獲勝！",
   "Slenderman.AfterMeetingBlindCooldown": "會議後的失明冷卻時間",
   "Slenderman.BlindRange": "失明範圍",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "靈魂收割者",
   "SoulCollectorInfo": "你殺人不留任何痕跡",
   "SoulCollectorInfoLong": "(中立陣營):\\n作為靈魂收割者，當你殺死某人時，除了你和你的目標之外，所有人都會將目標視為活著的玩家。當會議開始時，你的目標會徹底死亡。\\n殺光所有人即可獲勝！",
@@ -3226,6 +3239,8 @@
   "Tremor.DoomTime": "末日持續時間 (= 可以殺死所有人的時間)",
   "Tremor.TimerDecrease": "完成擊殺減少的倒數時間",
   "Tremor.TimerStart": "末日倒數時間",
+  "Tremor.SpeedDuringDoom": "<#e942f5>末日者</color>末日時的速度",
+  "Tremor.VisionDuringDoom": "<#e942f5>末日者</color>末日時的視野",
   "Vector": "瑪利歐",
   "VectorInfo": "跳館贏得勝利！",
   "VectorInfoLong": "(中立陣營):\\n當瑪利歐跳管道達到一定次數就會單獨獲勝。",
@@ -4243,7 +4258,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "第X回合後",
   "CTF_GameEndCriteria.TimeLimit": "時間限制",
   "CTF_Notify_EnemyTeamRoom": "敵方團隊在 <#00ffa5>{0}</color>",
-  "CTF_PlayerStats": "<#00ffa5>Total Flag Carrying Time: <#ffffff>{0}s</color> - Total Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
   "CTF_PointsToWin": "獲勝所需分數",
   "CTF_RoundsToPlay": "回合數量",
   "CTF_SpeedReductionForFlagCarrier": "拿著旗幟的玩家的速度",
@@ -4432,7 +4448,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>你拿著燙手山芋! 不想死就將它傳給其他人!</size></color>",
   "HotPotato_Range": "燙手山芋傳遞範圍",
   "HotPotato_Time": "燙手山芋的持有者死亡時間",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>剩下時間 </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "山丘之王",
   "ModeKingOfTheZones": "遊戲模式:區域之王",
@@ -8920,6 +8936,7 @@
   "CommandDescription.ConfirmAuth": "註冊新的EHR帳戶的命令",
   "CommandDescription.CopyPreset": "將預設內所有設置複製到另一個預設。",
   "CommandDescription.CosID": "查看你的服裝",
+  "CommandDescription.CovenInfo": "View information on how the Coven faction works",
   "CommandDescription.DayBreak": "作為星火，發起破曉會議",
   "CommandDescription.Death": "查看殺死你的兇手與他的職業",
   "CommandDescription.DeathNote": "作為死亡筆記寫下某人的真實名稱",
@@ -8944,6 +8961,7 @@
   "CommandDescription.GNO": "猜數字小遊戲",
   "CommandDescription.GameModeList": "查看模組中所有遊戲模式的列表。",
   "CommandDescription.GameModePoll": "開始為下一場遊戲模式投票。",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "以信使的身分傳送一條訊息",
   "CommandDescription.HWhisper": "作為房主給玩家發送幫助信息。",
   "CommandDescription.Help": "查看指令列表",
@@ -8963,6 +8981,7 @@
   "CommandDescription.Mute": "靜音某個人。被靜音的玩家不能在聊天室講話。靜音狀態會在遊戲開始後結束",
   "CommandDescription.MyRole": "查看你的職業的描述和設置",
   "CommandDescription.Negotiation": "被談判者談判時用來做出選擇",
+  "CommandDescription.NeutralInfo": "View information on how the Neutral faction works",
   "CommandDescription.Note": "以記錄者的身分管理你的筆記",
   "CommandDescription.Now": "查看當前設定",
   "CommandDescription.OS": "設置職業的生成機率",
@@ -9025,6 +9044,7 @@
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy",
   "CommandForms.CosID": "cosid",
+  "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9069,6 +9089,7 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
+  "CommandForms.NeutralInfo": "neutralinfo",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
@@ -10117,6 +10138,12 @@
   "MainMenu.CreditsButton": "製作人員",
   "MainMenu.ExitGameButton": "退出",
   "MainMenu.InventoryButton": "物品庫",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -11310,6 +11337,7 @@
   "UntilNextReveal": "直到下次揭曉",
   "Untouched": "全局設置決定",
   "UploadPreset": "將目前預設上傳到資料庫",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "使用遊戲語言",
   "UseLegacyVersion": "使用舊版",
   "UsePets": "使用寵物按鍵代替使用通風管或變形",
@@ -11437,5 +11465,12 @@
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "最小帶刀中立數",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>限制遊戲中渾沌中立的</color>職業數量</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "最大渾沌中立數",
-  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "最小渾沌中立數"
+  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "最小渾沌中立數",
+
+  /* ==============================
+    Faction Information           
+  ============================== */
+
+  "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
+  "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }

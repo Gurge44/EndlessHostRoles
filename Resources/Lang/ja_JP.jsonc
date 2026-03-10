@@ -765,6 +765,18 @@
   "EnigmaClueVisor1": "<size=85%>殺人犯は バイザーを装着している！</size>",
   "EnigmaClueVisor2": "<size=85%>殺人犯は バイザーを装着していない！</size>",
   "EnigmaClueVisor3": "<size=80%>殺人犯は {0}を バイザーとして装着している！</size>",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Enigma Status Clue",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "エスコート",
   "EscortInfo": "クルーを助けるために プレイヤーに役割-ブロックをしよう！",
   "EscortInfoLong": "(<color=#8cffff>クルーメイト</color>):\\n<size=75%>エスコートとして、あなたは あなたのキルボタンを使用して 指定された時間の間 プレイヤーに 役割-ブロックができます。\\n役割-ブロックをされたプレイヤーは 殺害、通気口、サボタージュ または 報告ができなくなります。\\n(役割-ブロックの継続は <#39FF14>グリッチ</color>のハックの継続と同じです)</size>",
@@ -961,7 +973,7 @@
   "InspectorCheckSelf": "<size=80%>おゃ！！ あなたは これが簡単だと思えたでしょ。\\nあなたは 自分自身を確認できません。</size>",
   "InspectorCheckTargetKnow": "ターゲットは <color=#0D57AF>インスペクター</color>によって それらを確認されたことを知れる",
   "InspectorCheckTargetMsg": " <size=80%>は インスペクターに確認された。</size>",
-  "InspectorCheckTrue": "<size=80%><b>{0}</b> と <b>{1}</b>は <#00ff00><b>同じチーム</b></color>にいる</size>",
+  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!",
   "InspectorCopTargetReveal": "<size=80%><b>{0}</b>は チーム <b>{1}</b>と 一致しているように見える</size>",
   "InspectorDead": "<size=80%>あなたは 死後に あなたの力を使用できない</size>",
   "InspectorTryHideMsg": "<color=#0D57AF>インスペクター</color>のコマンドを隠す",
@@ -1760,7 +1772,7 @@
   "CouncillorInfoLong": "(<#ff1919>インポスター</color>):\\n<size=75%>評議員として、あなたは <#f8d85a>裁判官</color>のように 会議中に プレイヤーを殺害できます。\\n\\n会議で殺害するとき、それらの殺害は <#f8d85a>裁判官</color>からの判断として 表されます。\\n\\n殺害コマンドは <b>/tl [プレイヤー id]</b> です。\\nあなたは プレイヤー名の前 あるいは すべてのプレイヤーの idを見るために <b>/id</b> コマンドを使用して プレイヤー id を見ることができます。</size>",
   "CouncillorCanMurderImpostor": "<color=#ff1919>インポスター</color>を殺人できる",
   "CouncillorCanMurderMadmate": "<color=#ff1919>マッドメイト</color>を殺人できる",
-  "CouncillorDead": " <size=80%>あなたは 死んでから 殺人ができない。」</size>",
+  "CouncillorDead": " You can't murder from the dead.",
   "CouncillorMakeEvilJudgeClear": "Show Trial as Councillor Murder",
   "CouncillorMurderMax": "<size=80%>申し訳ありませんが、あなたは 最大の 殺人の数に到達しています。</size>",
   "CouncillorMurderMaxMeeting": "<size=80%>あなたは この会議で これ以上のプレイヤーを殺人することはできません。\\nあなたは ホストによる セット回数に達した。</size>",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(<#ff1919>殺害する</color> <#ffab1b>ニュートラル</color>):\\n<size=80%>もし <#8cffff>クルーメイト</color>よりも カルティストが多いとき なおかつ これらの 2チームのみが残っているとき 勝利します。\\nカルティストは キルボタンを押すことにより 非<#ffab1b>ニュートラル</color>のプレイヤー を魅了でき、彼には 新しい勝利条件として カルティスト チーム の一員になります。</size>",
   "CultistCanCharmNeutral": "<color=#ffab1b>ニュートラル</color>の役割を 魅了することができる",
   "CultistCharmCooldown": "魅了のクールダウン",
-  "CultistCharmCooldownIncrese": "魅了ごとに増加する魅了のクールダウン",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "最大の魅了の回数",
   "CultistCharmedPlayer": "あなたは プレイヤーを正常に魅了させた",
   "CultistInvalidTarget": "ターゲットを魅了できない",
@@ -3108,6 +3120,7 @@
   "SlendermanInfoLong": "(Neutrals):\\nAs the Slenderman, whenever someone gets close to you, they will be blinded until they move away from you.\\n\\nKill everyone to win!",
   "Slenderman.AfterMeetingBlindCooldown": "Blinding Cooldown After Meetings",
   "Slenderman.BlindRange": "Blinding Range",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "Soul Collector",
   "SoulCollectorInfo": "You Kill Without Any Notice",
   "SoulCollectorInfoLong": "(Neutrals):\\nAs the Soul Collector, when you kill someone, everyone other than you and your target will see the target as a living player. Your targets fully die when a meeting gets called.\\nKill everyone to win!",
@@ -3226,6 +3239,8 @@
   "Tremor.DoomTime": "破滅の時間 (= 全員を殺害する時間)",
   "Tremor.TimerDecrease": "殺害したとき、タイマーの減少する時間",
   "Tremor.TimerStart": "破滅が起こるまでの時間",
+  "Tremor.SpeedDuringDoom": "<#e942f5>Tremor</color>'s Speed During Doom",
+  "Tremor.VisionDuringDoom": "<#e942f5>Tremor</color>'s Vision During Doom",
   "Vector": "ベクター",
   "VectorInfo": "Jump in, jump out, win!",
   "VectorInfoLong": "(<#912900>邪悪な</color> <#ffab1b>ニュートラル</color>):\\n<size=80%>ベクターは 一定の回数 通気口に入ることによって 単独で勝利します。</size>",
@@ -4243,7 +4258,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "X ラウンドのプレイ",
   "CTF_GameEndCriteria.TimeLimit": "制限時間",
   "CTF_Notify_EnemyTeamRoom": "敵チームは <#00ffa5>{0}</color>にいる",
-  "CTF_PlayerStats": "<#00ffa5>運んだ時間: <#ffffff>{0}s</color> | 干渉: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
   "CTF_PointsToWin": "勝利するポイント",
   "CTF_RoundsToPlay": "プレイするラウンドの数",
   "CTF_SpeedReductionForFlagCarrier": "旗の運搬者の速度低下",
@@ -4432,7 +4448,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>あなたは ホットポテトを所有している！ それをパス または 死亡する！</size></color>",
   "HotPotato_Range": "パスの距離",
   "HotPotato_Time": "ホットポテトの所有者が 毎回 殺害される時間",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>殺害まで </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "ゾーンの王者",
   "ModeKingOfTheZones": "ゲームモード: King Of The Zones",
@@ -8920,6 +8936,7 @@
   "CommandDescription.ConfirmAuth": "Command required to register a new EHR account",
   "CommandDescription.CopyPreset": "1つのプリセットから 別のプリセットへ すべての設定をコピーする。",
   "CommandDescription.CosID": "あなたのコスミックを見る",
+  "CommandDescription.CovenInfo": "View information on how the Coven faction works",
   "CommandDescription.DayBreak": "<#4CE4B4>スタースポーン</color>として 現在の会議に夜明けを呼ぶ。",
   "CommandDescription.Death": "誰があなたを殺害したか および その人の役割を見る",
   "CommandDescription.DeathNote": "<#4CA8E4>ノートキラー</color>として 誰かの本名を推測する",
@@ -8944,6 +8961,7 @@
   "CommandDescription.GNO": "数字のミニ-ゲームを推測する",
   "CommandDescription.GameModeList": "modのすべてのゲームモードのリストを見る。",
   "CommandDescription.GameModePoll": "次のゲームモードのための 投票させる 1つのpollを開始する。",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "<#28b573>メッセンジャー</color>として メッセージの1つを送信する",
   "CommandDescription.HWhisper": "ホストとして 1人のプレイヤーに 1つの助けを乞うメッセージをささやく。",
   "CommandDescription.Help": "コマンドのリストを見る",
@@ -8963,6 +8981,7 @@
   "CommandDescription.Mute": "誰かをミュートにする。 ミュートされたプレイヤーは チャットができません。 ゲームの開始時に 全員をミュート解除します。",
   "CommandDescription.MyRole": "あなたの役割の説明 および 設定を見る",
   "CommandDescription.Negotiation": "<color=#00c3ff>交渉人</color>により 求められたときに あなたの交渉方法を選ぶ",
+  "CommandDescription.NeutralInfo": "View information on how the Neutral faction works",
   "CommandDescription.Note": "<#fcba03>ジャーナリスト</color>として あなたのノートを管理する",
   "CommandDescription.Now": "現在の設定を見る",
   "CommandDescription.OS": "1つの役割の出現確率をセットする",
@@ -9025,6 +9044,7 @@
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy",
   "CommandForms.CosID": "cosid",
+  "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9069,6 +9089,7 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
+  "CommandForms.NeutralInfo": "neutralinfo",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
@@ -10117,6 +10138,12 @@
   "MainMenu.CreditsButton": "クレジット",
   "MainMenu.ExitGameButton": "終了",
   "MainMenu.InventoryButton": "持ち物",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -11310,6 +11337,7 @@
   "UntilNextReveal": "次の公開まで",
   "Untouched": "一般的な設定で決定",
   "UploadPreset": "Upload current preset to database",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "使用するゲーム言語",
   "UseLegacyVersion": "旧バージョンを使用する",
   "UsePets": "通気口/シェイプシフト の代わりに ペットボタンを使用する",
@@ -11437,5 +11465,12 @@
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "最小の ニュートラルの 殺害する役割",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>ゲーム内の役割</color> 拒絶された ニュートラル <#ffffff>の数を変更する</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "最大の ニュートラルの 拒絶された役割",
-  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "最小の ニュートラルの 拒絶された役割"
+  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "最小の ニュートラルの 拒絶された役割",
+
+  /* ==============================
+    Faction Information           
+  ============================== */
+
+  "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
+  "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }

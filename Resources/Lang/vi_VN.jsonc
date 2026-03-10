@@ -765,6 +765,18 @@
   "EnigmaClueVisor1": "The Killer wears a Visor!",
   "EnigmaClueVisor2": "The Killer does not wear a Visor!",
   "EnigmaClueVisor3": "The Killer wears {0} as a Visor!",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Enigma Status Clue",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "Escort",
   "EscortInfo": "Role-Block Players to Help the Crew!",
   "EscortInfoLong": "(Crewmates):\\nAs the Escort, you can role-block a player for a specified time using your kill button. A role-blocked player cannot kill, vent, sabotage or report.\\n(Role-Block duration is the same as the hack duration for The Glitch)",
@@ -961,7 +973,7 @@
   "InspectorCheckSelf": "HA!! you thought it would be this easy. You can not check yourself",
   "InspectorCheckTargetKnow": "Targets know they were checked by <color=#0D57AF>Inspector</color>",
   "InspectorCheckTargetMsg": " were checked by Inspector.",
-  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!\"",
+  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!",
   "InspectorCopTargetReveal": "Looks like <b>{0}</b> is aligned with team <b>{1}</b>",
   "InspectorDead": "You can not use your power after death",
   "InspectorTryHideMsg": "Hide <color=#0D57AF>Inspector</color>'s commands",
@@ -1760,7 +1772,7 @@
   "CouncillorInfoLong": "(Impostors):\\nAs the Councillor, you can kill players during a meeting like a Judge.\\n\\nWhen killing in a meeting, those kills will appear as a trial from a Judge.\\n\\nThe kill command is /tl [player id]\\nYou can see the player's id before the player's name, or use the /id command to view the id of all players.",
   "CouncillorCanMurderImpostor": "Can Murder <color=#ff1919>Impostors</color>",
   "CouncillorCanMurderMadmate": "Can Murder <color=#ff1919>Madmates</color>",
-  "CouncillorDead": " you can't murder from the dead.\"",
+  "CouncillorDead": " You can't murder from the dead.",
   "CouncillorMakeEvilJudgeClear": "Show Trial as Councillor Murder",
   "CouncillorMurderMax": "Sorry, you've reached the maximum amount of murders.",
   "CouncillorMurderMaxMeeting": "You cannot murder more players in this meeting. You've reached the limit set by the host.",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(Neutrals):\\nIf there are more Cultists than Crewmates and only these two teams remain, the Cultist team wins. The Cultist can charm a non-neutral player by pressing the kill button, making them a part of the Cultist team with new victory conditions.",
   "CultistCanCharmNeutral": "Neutral Roles can be <color=#cf6acd>Charmed</color>",
   "CultistCharmCooldown": "Charm Cooldown",
-  "CultistCharmCooldownIncrese": "Increases Charm Cooldown For Each Charm",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "Maximum Number Of Charm",
   "CultistCharmedPlayer": "You successfully charmed a player",
   "CultistInvalidTarget": "Target cannot be charmed",
@@ -3108,6 +3120,7 @@
   "SlendermanInfoLong": "(Neutrals):\\nAs the Slenderman, whenever someone gets close to you, they will be blinded until they move away from you.\\n\\nKill everyone to win!",
   "Slenderman.AfterMeetingBlindCooldown": "Blinding Cooldown After Meetings",
   "Slenderman.BlindRange": "Blinding Range",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "Soul Collector",
   "SoulCollectorInfo": "You Kill Without Any Notice",
   "SoulCollectorInfoLong": "(Neutrals):\\nAs the Soul Collector, when you kill someone, everyone other than you and your target will see the target as a living player. Your targets fully die when a meeting gets called.\\nKill everyone to win!",
@@ -3226,6 +3239,8 @@
   "Tremor.DoomTime": "Doom Time (= Time to Kill Everyone)",
   "Tremor.TimerDecrease": "When Killing, Timer Decreases by",
   "Tremor.TimerStart": "Time Until Doom Happens",
+  "Tremor.SpeedDuringDoom": "<#e942f5>Tremor</color>'s Speed During Doom",
+  "Tremor.VisionDuringDoom": "<#e942f5>Tremor</color>'s Vision During Doom",
   "Vector": "Vector",
   "VectorInfo": "Jump in, jump out, win!",
   "VectorInfoLong": "(Neutrals):\\nVector will win alone by venting a certain number of times.",
@@ -4243,7 +4258,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "Play X Rounds",
   "CTF_GameEndCriteria.TimeLimit": "Time Limit",
   "CTF_Notify_EnemyTeamRoom": "The enemy team is in <#00ffa5>{0}</color>",
-  "CTF_PlayerStats": "<#00ffa5>Carried For: <#ffffff>{0}s</color> | Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
   "CTF_PointsToWin": "Points to Win",
   "CTF_RoundsToPlay": "Rounds to Play",
   "CTF_SpeedReductionForFlagCarrier": "Speed Reduction for Flag Carriers",
@@ -4432,7 +4448,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>You hold the Hot Potato! Pass it or die!</size></color>",
   "HotPotato_Range": "Pass Range",
   "HotPotato_Time": "The Holder of the Hot Potato is Killed Every",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>Kill in </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "KING OF THE ZONES",
   "ModeKingOfTheZones": "Gamemode: King Of The Zones",
@@ -8920,6 +8936,7 @@
   "CommandDescription.ConfirmAuth": "Command required to register a new EHR account",
   "CommandDescription.CopyPreset": "Copy all settings from a preset to another preset.",
   "CommandDescription.CosID": "View your cosmetics",
+  "CommandDescription.CovenInfo": "View information on how the Coven faction works",
   "CommandDescription.DayBreak": "Call daybreak for the current meeting as the Starspawn.",
   "CommandDescription.Death": "View who killed you and their role",
   "CommandDescription.DeathNote": "Guess someone's real name as the Note Killer.",
@@ -8944,6 +8961,7 @@
   "CommandDescription.GNO": "Guess The Number mini-game",
   "CommandDescription.GameModeList": "View the list of all game modes in the mod.",
   "CommandDescription.GameModePoll": "Start a poll to vote for the next game mode.",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "Send one of the messages as the Messenger",
   "CommandDescription.HWhisper": "Whisper a helping message to a player as the Host.",
   "CommandDescription.Help": "View the list of commands",
@@ -8963,6 +8981,7 @@
   "CommandDescription.Mute": "Mute someone. Muted players can't chat. Everyone is unmuted on game start.",
   "CommandDescription.MyRole": "View the description and settings of your role",
   "CommandDescription.Negotiation": "Pick your negotiation method when asked by the Negotiator",
+  "CommandDescription.NeutralInfo": "View information on how the Neutral faction works",
   "CommandDescription.Note": "Manage your notes as the Journalist",
   "CommandDescription.Now": "View the current settings",
   "CommandDescription.OS": "Set the spawn chance of a role",
@@ -9025,6 +9044,7 @@
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy",
   "CommandForms.CosID": "cosid",
+  "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9069,6 +9089,7 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
+  "CommandForms.NeutralInfo": "neutralinfo",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
@@ -10117,6 +10138,12 @@
   "MainMenu.CreditsButton": "Credits",
   "MainMenu.ExitGameButton": "Quit",
   "MainMenu.InventoryButton": "Inventory",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -11310,6 +11337,7 @@
   "UntilNextReveal": "Until Next Reveal",
   "Untouched": "Global Setting Decides",
   "UploadPreset": "Upload current preset to database",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "Use Game Language",
   "UseLegacyVersion": "Use Legacy Version",
   "UsePets": "Use Pet button instead of Vent/Shapeshift",
@@ -11437,5 +11465,12 @@
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "Minimum Neutral Killing Roles",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>Alter the number of</color> Neutral Pariah <#ffffff>roles in the game</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "Maximum Neutral Pariah Roles",
-  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Minimum Neutral Pariah Roles"
+  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Minimum Neutral Pariah Roles",
+
+  /* ==============================
+    Faction Information           
+  ============================== */
+
+  "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
+  "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }

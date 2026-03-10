@@ -765,6 +765,18 @@
   "EnigmaClueVisor1": "¡El Asesino usa un Visor!",
   "EnigmaClueVisor2": "¡El Asesino no usa un Visor!",
   "EnigmaClueVisor3": "¡El Asesino usa {0} como Visor!",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Enigma Status Clue",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "Acompañante",
   "EscortInfo": "¡Bloquea el Rol de Jugadores para Ayudar a la Tripulación!",
   "EscortInfoLong": "(Tripulantes):\\nComo el Acompañante, puedes bloquear el rol de un jugador por un tiempo específico usando tu botón de matar. Un jugador cuyo rol está bloqueado no puede matar, usar las ventilas, sabotear o reportar.\\n(La duración del bloqueo de rol es la misma que la duración de hackeo del El Glitch)",
@@ -961,7 +973,7 @@
   "InspectorCheckSelf": "¡¡HA!! creíste que sería así de fácil. No puedes revisarte a ti mismo",
   "InspectorCheckTargetKnow": "Objetivos saben que fueron revisados por el <color=#0D57AF>Inspector</color>",
   "InspectorCheckTargetMsg": " fueron revisados por el inspector.",
-  "InspectorCheckTrue": "¡<b>{0}</b> y <b>{1}</b> están en el mismo equipo!",
+  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!",
   "InspectorCopTargetReveal": "Parece que <b>{0}</b> está alineado con el equipo de <b>{1}</b>",
   "InspectorDead": "No puedes usar tu poder después de morir",
   "InspectorTryHideMsg": "Ocultar comandos del <color=#0D57AF>Inspector</color>",
@@ -1760,7 +1772,7 @@
   "CouncillorInfoLong": "(Impostores):\\nComo el Concejal, puedes matar jugadores durante una reunión como un Juez.\\n\\nCuando matas en una reunión, esos asesinatos aparecerán como el juicio de un Juez.\\n\\nEl comando para matar es /tl [id del jugador]\\nPuedes ver el id de un jugador junto al nombre del jugador, o usando el comando /id para ver el id de todos los jugadores.",
   "CouncillorCanMurderImpostor": "Puede Asesinar <color=#ff1919>Impostores</color>",
   "CouncillorCanMurderMadmate": "Puede Asesinar <color=#ff1919>Malvado</color>",
-  "CouncillorDead": " no puedes asesinar desde los muertos.\"",
+  "CouncillorDead": " You can't murder from the dead.",
   "CouncillorMakeEvilJudgeClear": "Show Trial as Councillor Murder",
   "CouncillorMurderMax": "Lo siento, has alcanzado tu cantidad máxima de asesinatos.",
   "CouncillorMurderMaxMeeting": "No puedes asesinar a más jugadores en esta reunión. Has alcanzado el límite establecido por el host.",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(Neutrales):\\nComo el sectario puedes encantar a un jugador no-neutral presionando el botón de matar, haciéndolo parte del equipo Sectario con nuevas condiciones de victoria.\\nSi hay más Sectarios que Tripulantes y solo estos dos equipos quedan, el equipo del Sectario gana. ",
   "CultistCanCharmNeutral": "Roles Neutrales pueden ser <color=#cf6acd>Encantados</color>",
   "CultistCharmCooldown": "Tiempo de Reutilización de Encantar",
-  "CultistCharmCooldownIncrese": "Aumentar Tiempo de Reutilización de Encantar Por Cada Encantado",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "Número Máximo De Encantados",
   "CultistCharmedPlayer": "Encantaste a un jugador exitosamente",
   "CultistInvalidTarget": "Este objetivo no puede ser encantado",
@@ -3108,6 +3120,7 @@
   "SlendermanInfoLong": "(Neutrales):\\ncomo el Slenderman, siempre que alguien se acerque a ti, será cegado hasta que se aleja de ti.\\n\\n¡Mata a todos para ganar!",
   "Slenderman.AfterMeetingBlindCooldown": "Tiempo de Reutilización de Asesinato después de reuniones",
   "Slenderman.BlindRange": "Rango de ceguera",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "Soul Collector",
   "SoulCollectorInfo": "You Kill Without Any Notice",
   "SoulCollectorInfoLong": "(Neutrals):\\nAs the Soul Collector, when you kill someone, everyone other than you and your target will see the target as a living player. Your targets fully die when a meeting gets called.\\nKill everyone to win!",
@@ -3226,6 +3239,8 @@
   "Tremor.DoomTime": "Tiempo de la Perdición (= Tiempo para Matarlos a Todos)",
   "Tremor.TimerDecrease": "Al Matar, Temporizador Disminuye en",
   "Tremor.TimerStart": "Tiempo Hasta que la Perdición Empiece",
+  "Tremor.SpeedDuringDoom": "<#e942f5>Tremor</color>'s Speed During Doom",
+  "Tremor.VisionDuringDoom": "<#e942f5>Tremor</color>'s Vision During Doom",
   "Vector": "Vector",
   "VectorInfo": "¡Salta adentro, salta afuera, y gana!",
   "VectorInfoLong": "(Neutrales):\\nEl Vector ganará solo al usar las ventilas cierto número de veces.",
@@ -4243,7 +4258,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "Jugar X rondas",
   "CTF_GameEndCriteria.TimeLimit": "Límite de tiempo",
   "CTF_Notify_EnemyTeamRoom": "El equipo enemigo está en <#00ffa5>{0}</color>",
-  "CTF_PlayerStats": "<#00ffa5>Total Flag Carrying Time: <#ffffff>{0}s</color> - Total Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
   "CTF_PointsToWin": "Puntos para ganar",
   "CTF_RoundsToPlay": "Rondas para jugar",
   "CTF_SpeedReductionForFlagCarrier": "Reducción de velocidad para el jugador con la bandera",
@@ -4432,7 +4448,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>¡Tú tienes la Patata Caliente! ¡Entregalo o muere!</size></color>",
   "HotPotato_Range": "Rango de entrega",
   "HotPotato_Time": "El jugador con la patata caliente muere cada ",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>Muerte en </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "KING OF THE ZONES",
   "ModeKingOfTheZones": "Gamemode: King Of The Zones",
@@ -8920,6 +8936,7 @@
   "CommandDescription.ConfirmAuth": "Comando requerido para registrar una nueva cuenta EHR",
   "CommandDescription.CopyPreset": "Copie todos los ajustes de una configuración preestablecida a otra",
   "CommandDescription.CosID": "Ver tus cosméticos",
+  "CommandDescription.CovenInfo": "View information on how the Coven faction works",
   "CommandDescription.DayBreak": "Llamar al horario de descanso durante la reunión actual como la estrella del día.",
   "CommandDescription.Death": "Ver quien te mató y su rol",
   "CommandDescription.DeathNote": "Adivina el nombre real de Alguien como el Asesino de Notas.",
@@ -8944,6 +8961,7 @@
   "CommandDescription.GNO": "Minijuego Adivina El Número",
   "CommandDescription.GameModeList": "Ver la lista de todos los modos de juego en el mod.",
   "CommandDescription.GameModePoll": "Comience una encuesta para votar por el siguiente modo de juego.",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "Enviar uno de los mensajes como el Mensajero",
   "CommandDescription.HWhisper": "Susurra un mensaje de ayuda para un jugador como Anfitrión.",
   "CommandDescription.Help": "Ver la lista de comandos",
@@ -8963,6 +8981,7 @@
   "CommandDescription.Mute": "Silenciar a alguien. Jugadores silenciados no pueden chatear. Todos están des-silenciados al inicio del juego.",
   "CommandDescription.MyRole": "Ver la descripción y configuraciones de tu rol",
   "CommandDescription.Negotiation": "Elegir tu método de negociación cuando solicitado por el Negociador",
+  "CommandDescription.NeutralInfo": "View information on how the Neutral faction works",
   "CommandDescription.Note": "Administrar tus notas como el Periodista",
   "CommandDescription.Now": "Ver las configuraciones actuales",
   "CommandDescription.OS": "Establecer la probabilidad de aparición de un rol",
@@ -9025,6 +9044,7 @@
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy",
   "CommandForms.CosID": "cosid",
+  "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9069,6 +9089,7 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
+  "CommandForms.NeutralInfo": "neutralinfo",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
@@ -10117,6 +10138,12 @@
   "MainMenu.CreditsButton": "Créditos",
   "MainMenu.ExitGameButton": "Salir",
   "MainMenu.InventoryButton": "Inventario",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -11310,6 +11337,7 @@
   "UntilNextReveal": "Hasta la Próxima Revelación",
   "Untouched": "Configuración Global Decide",
   "UploadPreset": "Upload current preset to database",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "Use Game Language",
   "UseLegacyVersion": "Usar la versión heredada",
   "UsePets": "Usar el botón de mascota en lugar de Ventila/cambiodeforma",
@@ -11437,5 +11465,12 @@
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "Mínima cantidad de roles de Neutral Tipo Asesino ",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>Modifica el número de roles</color> Neutrales Tipo Paria <#ffffff>por partida</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "Máxima cantidad de roles de Neutral Tipo Paria",
-  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Mínima cantidad de roles de Neutral Tipo Paria"
+  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Mínima cantidad de roles de Neutral Tipo Paria",
+
+  /* ==============================
+    Faction Information           
+  ============================== */
+
+  "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
+  "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }

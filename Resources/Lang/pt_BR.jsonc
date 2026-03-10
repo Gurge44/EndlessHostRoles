@@ -2,7 +2,7 @@
   /* ==============================
     CORE & FREQUENTLY USED STRINGS       
   ============================== */
-  "LanguageID": "2",
+  "LanguageID": "3",
   "HostText": "EHR - Anfitrião",
   "HostColor": "#00ffa5",
   "HostIconInMeeting": "Anfitrião: {0}",
@@ -765,6 +765,18 @@
   "EnigmaClueVisor1": "O assassino usa um visor!",
   "EnigmaClueVisor2": "O assassino não usa um visor!",
   "EnigmaClueVisor3": "O Assassino usa {0} como Visor!",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Pista do estado do Enigma",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "Escolta",
   "EscortInfo": "Bloqueie Jogadores para ajudar a Tripulação",
   "EscortInfoLong": "(Tripulantes):\\nComo Escolta, você pode bloquear um jogador usando o botão de matar. Um jogador bloqueado não pode matar, usar dutos, sabotar ou reportar.\n(A duração do Bloqueio é a mesma que a duração do hack do Glitch)",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(Neutros):\\nSe apenas o Cultista e os Tripulantes estiverem vivos, e o número de pessoas no culto for maior que o de Tripulantes, o Cultista vence. \nO Cultista pode trazer um jogador não neutro para o culto apertando no botão de matar. \nAs habilidades dos jogadores que entram no culto não irão mudar e quem entrar no culto será do time dos Cultistas.",
   "CultistCanCharmNeutral": "Funções neutras podem ser <color=#cf6acd>Encantadas</color>",
   "CultistCharmCooldown": "Recarga para encantar um jogador",
-  "CultistCharmCooldownIncrese": "Aumentar a recarga a cada encanto",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "Número máximo de encantos",
   "CultistCharmedPlayer": "Você encantou um jogador com sucesso",
   "CultistInvalidTarget": "O alvo não pode ser encantado",
@@ -3108,6 +3120,7 @@
   "SlendermanInfoLong": "(Neutros):\\nComo o Slenderman, sempre que alguém chegar perto de você, eles ficarão cegos até que eles se afastem de você.\\n\\nElimine todos para ganhar!",
   "Slenderman.AfterMeetingBlindCooldown": "Recarga para cegar após reuniões",
   "Slenderman.BlindRange": "Alcance da Cegueira",
+  "Slenderman.AffectsPlayersInVents": "Cegueira Afeta Jogadores Dentro dos Dutos",
   "SoulCollector": "Coletor de Almas",
   "SoulCollectorInfo": "Você mata sem qualquer aviso",
   "SoulCollectorInfoLong": "(Neutros):\\nComo o Coletor de Almas, quando você matar alguém, todo mundo além de você e seu alvo verão o alvo como um jogador vivo. Seus alvos morrem totalmente quando uma reunião é chamada.\\nMate todos para vencer!",
@@ -3226,6 +3239,8 @@
   "Tremor.DoomTime": "Duração do Fim do Mundo (= Hora de matar todos)",
   "Tremor.TimerDecrease": "Ao matar, O Temporizador será reduzido em",
   "Tremor.TimerStart": "Tempo até o Fim do Mundo",
+  "Tremor.SpeedDuringDoom": "<#e942f5>Tremor</color>'s Speed During Doom",
+  "Tremor.VisionDuringDoom": "<#e942f5>Tremor</color>'s Vision During Doom",
   "Vector": "Mario",
   "VectorInfo": "Entre, saia, vença!",
   "VectorInfoLong": "(Neutros):\\nO Mario ganhará sozinho ao usar os dutos um número determinado de vezes.",
@@ -4243,7 +4258,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "Jogue X rodadas",
   "CTF_GameEndCriteria.TimeLimit": "Limite de Tempo",
   "CTF_Notify_EnemyTeamRoom": "Um Procurador está em <#00ffa5>{0}</color>",
-  "CTF_PlayerStats": "<#00ffa5>Tempo Total Carregando a Bandeira: <#ffffff>{0}s</color> - Total de Marcações: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
   "CTF_PointsToWin": "Pontos para vencer",
   "CTF_RoundsToPlay": "Rodadas para Jogar",
   "CTF_SpeedReductionForFlagCarrier": "Redução de velocidade para quem carrega a bandeira",
@@ -4432,7 +4448,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>Você está com a Batata Quente! Passe ou morra!</size></color>",
   "HotPotato_Range": "Alcance para passar a Batata Quente",
   "HotPotato_Time": "O jogador com a batata quente é morto a cada",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>Matar em </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "REI DAS ZONAS",
   "ModeKingOfTheZones": "Modo de jogo: Rei das Zonas",
@@ -8920,6 +8936,7 @@
   "CommandDescription.ConfirmAuth": "Comando necessário para registrar uma nova conta do EHR",
   "CommandDescription.CopyPreset": "Copiar todas as configurações de uma predefinição para outra predefinição.",
   "CommandDescription.CosID": "Veja seus cosméticos",
+  "CommandDescription.CovenInfo": "View information on how the Coven faction works",
   "CommandDescription.DayBreak": "Chame o amanhecer para a reunião atual como Cria Estelar.",
   "CommandDescription.Death": "Veja quem te matou e a função dele",
   "CommandDescription.DeathNote": "Adivinhe o nome real de alguém como o Kira.",
@@ -8944,6 +8961,7 @@
   "CommandDescription.GNO": "Adivinhe o Número (Mini Jogo)",
   "CommandDescription.GameModeList": "Veja a lista de todos os modos de jogo no mod.",
   "CommandDescription.GameModePoll": "Inicie uma enquete para votar para o próximo modo de jogo.",
+  "CommandDescription.Guess": "Adivinhe a função de um jogador.",
   "CommandDescription.HM": "Mande uma das mensagens como Mensageiro",
   "CommandDescription.HWhisper": "Sussurre uma mensagem de ajuda para um jogador como o Anfitrião.",
   "CommandDescription.Help": "Veja a lista de comandos",
@@ -8963,6 +8981,7 @@
   "CommandDescription.Mute": "Mute alguém. Jogadores mutados não podem falar. Todos são desmutados no início do jogo.",
   "CommandDescription.MyRole": "Veja a descrição e as configurações de sua função",
   "CommandDescription.Negotiation": "Escolha seu método de negociação quando solicitado pelo Negociador",
+  "CommandDescription.NeutralInfo": "View information on how the Neutral faction works",
   "CommandDescription.Note": "Gerencie suas notas como o Jornalista",
   "CommandDescription.Now": "Exibir as configurações atuais",
   "CommandDescription.OS": "Defina a chance de aparecimento de uma função",
@@ -9025,6 +9044,7 @@
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy",
   "CommandForms.CosID": "cosid",
+  "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9069,6 +9089,7 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
+  "CommandForms.NeutralInfo": "neutralinfo",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
@@ -10117,6 +10138,12 @@
   "MainMenu.CreditsButton": "Créditos",
   "MainMenu.ExitGameButton": "Sair",
   "MainMenu.InventoryButton": "Inventário",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Mostrar apenas funções habilitadas",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -11310,6 +11337,7 @@
   "UntilNextReveal": "Até a próxima revelação",
   "Untouched": "Configuração global decide",
   "UploadPreset": "Enviar predefinição atual para o banco de dados",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "Usar idioma do jogo",
   "UseLegacyVersion": "Usar a versão antiga",
   "UsePets": "Usar Botão Acariciar ao invés de Dutar/Metamorfo",
@@ -11437,5 +11465,12 @@
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "Mínimo de Funções de Neutro Assassinas",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>Alterar o número de</color> funções Pariá <#ffffff>no jogo</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "Máximo de funções Pária",
-  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Mínimo de funções Pária"
+  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Mínimo de funções Pária",
+
+  /* ==============================
+    Faction Information           
+  ============================== */
+
+  "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
+  "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }

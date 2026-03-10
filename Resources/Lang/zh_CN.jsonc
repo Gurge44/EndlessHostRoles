@@ -765,6 +765,18 @@
   "EnigmaClueVisor1": "带刀玩家有面部装饰",
   "EnigmaClueVisor2": "带刀玩家没有面部装饰",
   "EnigmaClueVisor3": "带刀玩家面部装饰是{0}",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Enigma Status Clue",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "护送者",
   "EscortInfo": "护送船员们取得胜利!",
   "EscortInfoLong": "(船员职业):\\n护送者可以使用击杀按钮在指定时间内对玩家进行封锁，被封锁的玩家不能击杀、进入通风口、破坏和报告。\\n（封锁的持续时间与混沌的入侵持续时间相同）",
@@ -961,7 +973,7 @@
   "InspectorCheckSelf": "哈！！你以为会这么容易。你不能检查自己",
   "InspectorCheckTargetKnow": "目标知道他们被<color=#0D57AF>检查员</color>检查过",
   "InspectorCheckTargetMsg": " 由检查员检查",
-  "InspectorCheckTrue": "<b>【{0}】</b> 和 <b>{1}</b> 在同一阵营！",
+  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!",
   "InspectorCopTargetReveal": "看起来 <b>{0}</b> 与 <b>{1}</b> 阵营一致",
   "InspectorDead": "死后不能使用你的技能",
   "InspectorTryHideMsg": "尝试混淆<color=#0D57AF>检查员</color>指令",
@@ -1760,7 +1772,7 @@
   "CouncillorInfoLong": "(内鬼职业):\\n邪恶法官可以像法官一样在会议上审判玩家。\\n\\n在会议中击杀时，这些击杀将显示为法官的审判。\\n\\n审判指令/tl [玩家编号]\\n你可以在玩家名字前看到玩家的 id/或者使用 /id 命令查看所有玩家的 id。",
   "CouncillorCanMurderImpostor": "可以谋杀<color=#ff1919>内鬼</color>",
   "CouncillorCanMurderMadmate": "可以谋杀<color=#ff1919>叛徒</color>",
-  "CouncillorDead": " 你不能在死亡后谋杀。”",
+  "CouncillorDead": " You can't murder from the dead.",
   "CouncillorMakeEvilJudgeClear": "显示审判为邪恶法官击杀",
   "CouncillorMurderMax": "抱歉，你已经达到了最大的谋杀数量。",
   "CouncillorMurderMaxMeeting": "你不能在这次会议上谋杀更多的玩家。 您已达到房主设定的限制。",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(中立职业):\\n仅剩魅魔阵营与船员阵营且魅魔阵营人数大于船员人数，魅魔阵营获得胜利。魅魔可以通过击杀键魅惑一位非中立玩家，被魅惑的玩家技能不会改变，并被视为加入魅魔阵营，且不再具有原先的胜利条件。",
   "CultistCanCharmNeutral": "中立阵营可以被<color=#cf6acd>魅惑</color>",
   "CultistCharmCooldown": "魅惑冷却时间",
-  "CultistCharmCooldownIncrese": "每次魅惑增加魅惑冷却时间",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "魅惑次数上限",
   "CultistCharmedPlayer": "您魅惑了一位玩家",
   "CultistInvalidTarget": "目标无法被魅惑",
@@ -3108,6 +3120,7 @@
   "SlendermanInfoLong": "(中立职业):\\n靠近瘦长鬼影的玩家会失明，直到他们远离瘦长鬼影。杀死所有人以获胜！",
   "Slenderman.AfterMeetingBlindCooldown": "会议后失明的冷却时间",
   "Slenderman.BlindRange": "失明范围",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "灵魂收集者",
   "SoulCollectorInfo": "我会让你悄无声息的死去...",
   "SoulCollectorInfoLong": "(中立职业):\\n作为灵魂收集者，你杀的人会被其他玩家看作是活着的（包括他自己），只有会议召开时，你的目标会彻底死亡。\\n杀死所有人获胜！",
@@ -3226,6 +3239,8 @@
   "Tremor.DoomTime": "厄运降临时间(=杀死所有人的时间)",
   "Tremor.TimerDecrease": "当完成一次击杀时，计时器减少",
   "Tremor.TimerStart": "厄运降临倒计时时长",
+  "Tremor.SpeedDuringDoom": "<#e942f5>Tremor</color>'s Speed During Doom",
+  "Tremor.VisionDuringDoom": "<#e942f5>Tremor</color>'s Vision During Doom",
   "Vector": "马里奥",
   "VectorInfo": "跳管以获胜！",
   "VectorInfoLong": "(中立职业):\\n马里奥跳管达到一定次数就会单独获得胜利。",
@@ -4243,7 +4258,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "X回合后",
   "CTF_GameEndCriteria.TimeLimit": "时间上限",
   "CTF_Notify_EnemyTeamRoom": "敌方处于 <#00ffa5>{0}</color>",
-  "CTF_PlayerStats": "<#00ffa5>总运旗时间:<#ffffff>{0}s</color> - T标签总数: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
   "CTF_PointsToWin": "获胜所需分数",
   "CTF_RoundsToPlay": "回合数量",
   "CTF_SpeedReductionForFlagCarrier": "特别放慢拿着旗子的人的速度",
@@ -4432,7 +4448,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>你拿着烫手山芋！不传递给别人就得死</size></color>",
   "HotPotato_Range": "传递范围",
   "HotPotato_Time": "烫手山芋的持有者每次都会被杀死",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>剩余时间</color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "山丘之王",
   "ModeKingOfTheZones": "游戏模式：山丘之王",
@@ -8920,6 +8936,7 @@
   "CommandDescription.ConfirmAuth": "注册一个新的 EHR 帐户所需的命令",
   "CommandDescription.CopyPreset": "将预设内所有设置复制到另一个预设。",
   "CommandDescription.CosID": "查看你的装扮",
+  "CommandDescription.CovenInfo": "View information on how the Coven faction works",
   "CommandDescription.DayBreak": "作为星火，发起当前会议，跳过投票时间",
   "CommandDescription.Death": "查看你的死因和杀手的职业",
   "CommandDescription.DeathNote": "用死亡笔记猜测某人的真名。",
@@ -8944,6 +8961,7 @@
   "CommandDescription.GNO": "猜测数字小游戏",
   "CommandDescription.GameModeList": "查看模组中所有游戏模式的列表。",
   "CommandDescription.GameModePoll": "开始投票选择下一个游戏模式。",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "此信件，可通时空，亦可通阴阳",
   "CommandDescription.HWhisper": "作为房主给玩家发送帮助信息",
   "CommandDescription.Help": "查看可使用的命令列表",
@@ -8963,6 +8981,7 @@
   "CommandDescription.Mute": "禁言某人直到游戏开始恢复",
   "CommandDescription.MyRole": "查看您职业的描述和设置",
   "CommandDescription.Negotiation": "当谈判代表询问时选择您的谈判方式",
+  "CommandDescription.NeutralInfo": "View information on how the Neutral faction works",
   "CommandDescription.Note": "以记者身份管理您的笔记",
   "CommandDescription.Now": "查看当前的设置",
   "CommandDescription.OS": "设置职业的生成几率",
@@ -9025,6 +9044,7 @@
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy",
   "CommandForms.CosID": "cosid",
+  "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9069,6 +9089,7 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
+  "CommandForms.NeutralInfo": "neutralinfo",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
@@ -10117,6 +10138,12 @@
   "MainMenu.CreditsButton": "制作人员",
   "MainMenu.ExitGameButton": "退出",
   "MainMenu.InventoryButton": "仓库",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -11310,6 +11337,7 @@
   "UntilNextReveal": "直到下次预言",
   "Untouched": "全局设置决定",
   "UploadPreset": "Upload current preset to database",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "使用游戏语言",
   "UseLegacyVersion": "使用旧版本",
   "UsePets": "使用宠物按钮代替跳管/变形",
@@ -11437,5 +11465,12 @@
   "RoleSubCategoryLimitOptions.Neutral_Killing.Min": "最少带刀中立职业",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>限制游戏中混沌中立的</color>职业的数量</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "最大混沌中立职业",
-  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "最少混沌中立职业"
+  "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "最少混沌中立职业",
+
+  /* ==============================
+    Faction Information           
+  ============================== */
+
+  "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
+  "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }
