@@ -130,7 +130,7 @@ internal static class CheckMurderPatch
             if (target.Is(CustomRoles.Detour))
             {
                 PlayerControl tempTarget = target;
-                FastVector2.TryGetClosestPlayerTo(target, out target, x => x.PlayerId != killer.PlayerId);
+                FastVector2.TryGetClosestPlayerTo(tempTarget, out target, x => x.PlayerId != killer.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)
