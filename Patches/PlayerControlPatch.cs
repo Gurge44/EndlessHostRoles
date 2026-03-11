@@ -127,8 +127,9 @@ internal static class CheckMurderPatch
                 return false;
             }
 
-            if (target.Is(CustomRoles.Detour))
+            if (target.Is(CustomRoles.Detour) && target.GetAbilityUseLimit() >= 1f)
             {
+                target.RpcRemoveAbilityUse();
                 PlayerControl tempTarget = target;
                 FastVector2.TryGetClosestPlayerTo(tempTarget, out target, x => x.PlayerId != killer.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
