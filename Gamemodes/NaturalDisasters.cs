@@ -371,6 +371,9 @@ public static class NaturalDisasters
             case CustomGameMode.BedWars when !pc.inVent:
                 BedWars.DisasterDeath(pc, deathReason);
                 return;
+            case CustomGameMode.Mingle:
+                Mingle.HandleDisconnect();
+                goto default;
             default:
                 pc.Suicide(deathReason);
                 return;
