@@ -4259,7 +4259,7 @@
   "CTF_GameEndCriteria.TimeLimit": "Time Limit",
   "CTF_Notify_EnemyTeamRoom": "The enemy team is in <#00ffa5>{0}</color>",
   "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
-  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{0}</color></color>",
   "CTF_PointsToWin": "Points to Win",
   "CTF_RoundsToPlay": "Rounds to Play",
   "CTF_SpeedReductionForFlagCarrier": "Speed Reduction for Flag Carriers",

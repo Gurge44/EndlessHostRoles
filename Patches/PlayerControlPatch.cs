@@ -1249,7 +1249,7 @@ internal static class ReportDeadBodyPatch
                     PlayerControl killer = receiver.GetRealKiller();
                     if (!killer) continue;
 
-                    SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), importance: MessageImportance.Low);
+                    LateTask.New(() => SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), importance: MessageImportance.Low), 13f);
                 }
             }
         }
