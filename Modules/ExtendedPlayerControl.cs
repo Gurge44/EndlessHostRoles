@@ -2539,7 +2539,6 @@ internal static class ExtendedPlayerControl
     {
         if (pc.FriendCode.GetDevUser().up) return true;
 
-        if (ChatCommands.IsPlayerModerator(pc.FriendCode)) return true;
         if (ChatCommands.IsPlayerVIP(pc.FriendCode)) return true;
         if (PrivateTagManager.Tags.ContainsKey(pc.FriendCode)) return true;
         if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;

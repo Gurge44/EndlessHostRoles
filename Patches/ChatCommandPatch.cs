@@ -291,6 +291,8 @@ internal static class ChatCommands
     // Function to check if a player is a VIP
     public static bool IsPlayerVIP(string friendCode)
     {
+        if (IsPlayerModerator(friendCode)) return true;
+        
         friendCode = friendCode.Replace(':', '#');
 
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;

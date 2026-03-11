@@ -2361,7 +2361,7 @@ public static class Utils
         DevManager.TagInfo devUser = player.FriendCode.GetDevUser();
         bool admin = ChatCommands.IsPlayerAdmin(player.FriendCode);
         bool mod = ChatCommands.IsPlayerModerator(player.FriendCode);
-        bool vip = ChatCommands.IsPlayerVIP(player.FriendCode);
+        bool vip = !mod && ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
         bool hasTagInUserData = Main.UserData.TryGetValue(player.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0;
