@@ -3083,7 +3083,7 @@ internal static class ChatCommands
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            string text = GetString($"ModeDescribe.{Options.CurrentGameMode}");
+            string text = $"{GetString($"ModeDescribe.{Options.CurrentGameMode}")}\n\n<size=70%>{GetString("NToCheckGameModeSettings")}</size>";
             Utils.SendMessage(text, playerId, importance: MessageImportance.Low);
             if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
         }
@@ -3158,7 +3158,7 @@ internal static class ChatCommands
 
             if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
             {
-                string text = GetString($"ModeDescribe.{gameMode}");
+                string text = $"{GetString($"ModeDescribe.{gameMode}")}\n\n<size=70%>{GetString("NToCheckGameModeSettings")}</size>";
                 Utils.SendMessage(text, playerId, gmString, importance: MessageImportance.Low);
                 return;
             }

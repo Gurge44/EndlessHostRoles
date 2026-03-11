@@ -4113,6 +4113,7 @@
   "GameMode": "Game Mode",
   "GameModeListTitle": "Game Modes",
   "DoingTasksIsPointlessInThisGameMode": "Look, I see that you're a very diligent crewmate, but....\\nDoing tasks is completely pointless in this game mode",
+  "NToCheckGameModeSettings": "Type <b>/n</b> to view the settings for this game mode",
   // Standard
   "Standard": "Standard",
   "ModeStandard": "Gamemode: Standard",
