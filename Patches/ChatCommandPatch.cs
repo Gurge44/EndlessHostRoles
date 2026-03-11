@@ -234,6 +234,7 @@ internal static class ChatCommands
             new("Summon", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true, [GetString("CommandArgs.Summon.Id")]),
             new("CovenInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, CovenInfoCommand, true, false),
             new("NeutralInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, NeutralInfoCommand, true, false),
+            new("PlayerInfo", "[id]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, PlayerInfoCommand, true, false, [GetString("CommandArgs.PlayerInfo.Id")]),
             
             new("ConfirmAuth", "{uuid}", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -423,7 +424,7 @@ internal static class ChatCommands
                 if (!command.CanUseCommand(PlayerControl.LocalPlayer, sendErrorMessage: true))
                     goto Canceled;
 
-                if (!AmongUsClient.Instance.AmHost && command.UsageLevel != Command.UsageLevels.Modded && command.Key != "ChemistInfo")
+                if (!AmongUsClient.Instance.AmHost && command.UsageLevel != Command.UsageLevels.Modded && command.Key is not ("ChemistInfo" or "NeutralInfo" or "CovenInfo" or "PlayerInfo"))
                 {
                     RequestCommandProcessingFromHost(text, command.Key);
                     if (command.IsCanceled || command.AlwaysHidden || !spamRequired) goto Canceled;
@@ -496,16 +497,6 @@ internal static class ChatCommands
 
         return !canceled;
     }
-    
-    private static void CovenInfoCommand(PlayerControl player, string text, string[] args)
-    {
-        Utils.SendMessage(GetString("CovenInfoDescription"), player.PlayerId);
-    }
-    
-    private static void NeutralInfoCommand(PlayerControl player, string text, string[] args)
-    {
-        Utils.SendMessage(GetString("NeutralInfoDescription"), player.PlayerId);
-    }
 
     private static void CheckAnagramGuess(byte id, string text)
     {
@@ -526,6 +517,40 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+
+    private static void PlayerInfoCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Utils.SendMessage("<size=80%>" + string.Join('\n', Main.AllPlayerControls.Select(x =>
+            {
+                ClientData client = x.GetClient();
+                string name = Main.AllPlayerNames.GetValueOrDefault(x.PlayerId, string.Empty);
+                string id = string.IsNullOrEmpty(name) ? $"ID {x.PlayerId}" : $" (ID {x.PlayerId})";
+                return $"{name}{id} - {x.FriendCode} | {client?.GetHashedPuid()} | {client?.PlatformData.Platform}";
+            })) + "</size>", player.PlayerId);
+        }
+        else if (byte.TryParse(args[1], out byte playerId))
+        {
+            PlayerControl pc = playerId.GetPlayer();
+            if (!pc) return;
+            ClientData client = pc.GetClient();
+            string name = Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, string.Empty);
+            string id = string.IsNullOrEmpty(name) ? $"ID {pc.PlayerId}" : $" (ID {pc.PlayerId})";
+            Utils.SendMessage($"<b>{name}{id}:</b>\n{pc.FriendCode}\n{client?.GetHashedPuid()}\n{client?.PlatformData.PlatformName}", player.PlayerId);
+        }
+    }
+    
+    private static void NeutralInfoCommand(PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString("NeutralInfoDescription"), player.PlayerId);
+    }
+    
+    private static void CovenInfoCommand(PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString("CovenInfoDescription"), player.PlayerId);
+    }
+    
     public static void SummonCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
