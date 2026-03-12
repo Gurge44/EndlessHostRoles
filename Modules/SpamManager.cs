@@ -111,7 +111,7 @@ public static class SpamManager
             }
         }
 
-        bool banned = BanWords.Any(text.Contains);
+        bool banned = BanWords.Any(x => text.Contains(x, StringComparison.OrdinalIgnoreCase));
 
         if (!banned) return false;
 
