@@ -2297,7 +2297,7 @@ internal static class ExtendedPlayerControl
 
     // The Key is the larger room, its bounds overlap the Value room's bounds
     // Additional check when something is inside the Key room's bounds: also check the Value room's bounds
-    // The Value room's bounds never overlap the Key room's bounds, so the check is only one way (unless it's also specified vice versa)
+    // The Value room's bounds never overlap the Key room's bounds, so the check is only one way
     private static readonly Dictionary<MapNames, Dictionary<SystemTypes, SystemTypes>> OverlappingRooms = new()
     {
         [MapNames.MiraHQ] = new()
@@ -2312,8 +2312,11 @@ internal static class ExtendedPlayerControl
     };
     private static readonly Dictionary<SystemTypes, SystemTypes> EmptyOverlap = [];
 
+    // Rooms that aren't rectangular-shaped and overlap walkable areas outside the room
     private static readonly Dictionary<MapNames, List<SystemTypes>> ProblematicRooms = new()
     {
+        [MapNames.Skeld] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp],
+        [MapNames.Dleks] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp],
         [MapNames.Polus] = [SystemTypes.LifeSupp, SystemTypes.Storage, SystemTypes.Laboratory, SystemTypes.Comms, SystemTypes.Weapons, SystemTypes.Admin, SystemTypes.Decontamination2, SystemTypes.Decontamination3],
         [MapNames.Airship] = [SystemTypes.Electrical, SystemTypes.Security, SystemTypes.Engine, SystemTypes.Showers, SystemTypes.MainHall],
         [MapNames.Fungle] = [SystemTypes.Dropship]

@@ -849,10 +849,16 @@ internal static class ChatCommands
     
     private static void ChooseCommand(PlayerControl player, string text, string[] args)
     {
-        if (!player.IsAlive() || !player.Is(CustomRoles.Pawn) || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return;
-        if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || role.GetMode() == 0) return;
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || state.IsDead || state.Role is not Pawn pawn) return;
+        
+        if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || !role.IsEnable())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("PawnChooseFail"));
+            return;
+        }
 
-        ((Pawn)state.Role).ChosenRole = role;
+        pawn.ChosenRole = role;
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }

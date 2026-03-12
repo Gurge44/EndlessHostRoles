@@ -689,8 +689,6 @@ internal static class ExtendedMeetingHud
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
 internal static class MeetingHudStartPatch
 {
-    public static bool BlockMsgSend;
-    
     private static void NotifyRoleSkillOnMeetingStart()
     {
         if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded) return;
@@ -860,11 +858,9 @@ internal static class MeetingHudStartPatch
 
     public static void Prefix( /*MeetingHud __instance*/)
     {
-        BlockMsgSend = true;
-        LateTask.New(() => BlockMsgSend = false, 8f, "BlockMsgSend to false");
         Logger.Info("------------Meeting Start------------", "Phase");
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
-        Main.EnumeratePlayerControls().Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
+        ReportDeadBodyPatch.WaitReport.SetAllValues([]);
         MeetingStates.MeetingCalled = true;
         MeetingStates.MeetingNum++;
         CheckForEndVotingPatch.TempExiledPlayer = null;
