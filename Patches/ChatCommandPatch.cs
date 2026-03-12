@@ -235,6 +235,7 @@ internal static class ChatCommands
             new("CovenInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, CovenInfoCommand, true, false),
             new("NeutralInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, NeutralInfoCommand, true, false),
             new("PlayerInfo", "[id]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, PlayerInfoCommand, true, false, [GetString("CommandArgs.PlayerInfo.Id")]),
+            new("TimeLimit", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, TimeLimitCommand, true, false),
             
             new("ConfirmAuth", "{uuid}", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -517,6 +518,10 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void TimeLimitCommand(PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage("\n", player.PlayerId, Options.EnableGameTimeLimit.GetBool() ? $"{Options.GameTimeLimit.GetInt() - Main.GameTimer.Elapsed.TotalSeconds:N0}s {GetString("RemainingText.Suffix")}" : "<size=4>∞</size>");
+    }
 
     private static void PlayerInfoCommand(PlayerControl player, string text, string[] args)
     {
