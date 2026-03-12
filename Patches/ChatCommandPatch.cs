@@ -1339,11 +1339,52 @@ internal static class ChatCommands
     
     public static void DraftStartCommand(PlayerControl player, string text, string[] args)
     {
-        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+        CustomGameMode gameMode = Options.CurrentGameMode;
+        
+        if (gameMode is not (CustomGameMode.Standard or CustomGameMode.HideAndSeek)) return;
 
         DraftResult = [];
 
         byte[] allPlayerIds = Main.EnumeratePlayerControls().Select(x => x.PlayerId).ToArray();
+        int maxRolesPerPlayer = Options.DraftMaxRolesPerPlayer.GetInt();
+
+        if (gameMode == CustomGameMode.HideAndSeek)
+        {
+            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), (IHideAndSeekRole)Activator.CreateInstance(x))).ToList();
+            Dictionary<Team, int> memberNum = new()
+            {
+                [Team.Impostor] = Main.NormalOptions.NumImpostors,
+                [Team.Neutral] = CustomHnS.RandomNeutralsNum
+            };
+
+            foreach ((Team team, int num) in memberNum)
+            {
+                var seekerRoles = hnsRoles.FindAll(x => x.Interface.Team == team);
+                allPlayerIds.Shuffle().Where(x => !DraftRoles.ContainsKey(x)).Take(num).Do(x => DraftRoles[x] = [seekerRoles.RandomElement().Role]);
+            }
+            
+            var hiderRoles = hnsRoles.FindAll(x => x.Interface.Team == Team.Crewmate);
+
+            while (true)
+            {
+                if (DraftRoles.Values.FindFirst(x => x.Count < maxRolesPerPlayer, out List<CustomRoles> roles))
+                    roles.Add(hiderRoles.RandomElement().Role);
+                else if (allPlayerIds.FindFirst(x => !DraftRoles.ContainsKey(x), out byte id))
+                    DraftRoles[id] = [hiderRoles.RandomElement().Role];
+                else
+                    break;
+            }
+
+            foreach (List<CustomRoles> rolesList in DraftRoles.Values)
+            {
+                HashSet<CustomRoles> seen = [];
+                rolesList.RemoveAll(r => !seen.Add(r));
+            }
+            
+            Main.Instance.StartCoroutine(RepeatedlySendMessage());
+            return;
+        }
+        
         bool rollSpawnChance = Options.DraftAffectedByRoleSpawnChances.GetBool();
         List<CustomRoles> allRoles = Main.CustomRoleValues.Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM && !ShouldNotSpawn(x) && (!rollSpawnChance || IRandom.Instance.Next(100) < x.GetMode())).Shuffle();
 
@@ -1363,8 +1404,6 @@ internal static class ChatCommands
         allRoles.RemoveAll(x => x.IsNonNK());
         allRoles.RemoveAll(x => x.IsCoven());
 
-        int maxRolesPerPlayer = Options.DraftMaxRolesPerPlayer.GetInt();
-
         DraftRoles = allRoles
             .Take(allPlayerIds.Length * maxRolesPerPlayer)
             .CombineWith(impRoles, nkRoles, nnkRoles, covenRoles)
@@ -1380,6 +1419,13 @@ internal static class ChatCommands
         {
             for (var index = 0; index < 3; index++)
             {
+                if (Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.HideAndSeek))
+                {
+                    DraftRoles = [];
+                    DraftResult = [];
+                    yield break;
+                }
+                
                 List<Message> messages = [];
 
                 foreach ((byte id, List<CustomRoles> roles) in DraftRoles)

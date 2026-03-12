@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
 using static EHR.Options;
@@ -111,6 +112,7 @@ public class Werewolf : RoleBase
             RampageTimer = null;
             if (!AmongUsClient.Instance.AmHost || !pc) return;
             StartCooldownTimer(pc);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, false);
             pc.Notify(GetString("WWRampageOut"));
             if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
         }, onTick: !AmongUsClient.Instance.AmHost || pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("WWRampageCountdown"), (int)RampageTimer.Remaining.TotalSeconds), overrideAll: true), onCanceled: () => RampageTimer = null);
@@ -150,6 +152,7 @@ public class Werewolf : RoleBase
         var pc = WWId.GetPlayer();
         if (!pc || !pc.IsAlive()) return;
         StartCooldownTimer(pc);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, false);
     }
 
     public override void OnExitVent(PlayerControl pc, Vent vent)
@@ -186,6 +189,7 @@ public class Werewolf : RoleBase
             {
                 KillsInLastRampage = 0;
                 StartRampageTimer(pc);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, true);
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
                 if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
