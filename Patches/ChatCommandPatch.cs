@@ -542,7 +542,7 @@ internal static class ChatCommands
             ClientData client = pc.GetClient();
             string name = Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, string.Empty);
             string id = string.IsNullOrEmpty(name) ? $"ID {pc.PlayerId}" : $" (ID {pc.PlayerId})";
-            Utils.SendMessage($"<b>{name}{id}:</b>\n{pc.FriendCode}\n{client?.GetHashedPuid()}\n{client?.PlatformData.PlatformName}", player.PlayerId);
+            Utils.SendMessage($"<b>{name}{id}:</b>\n{pc.FriendCode}\n{client?.GetHashedPuid()}\n{client?.PlatformData.Platform}", player.PlayerId);
         }
     }
     
