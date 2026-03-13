@@ -720,13 +720,15 @@ public static class CaptureTheFlag
 
             if (FlagCarrier != byte.MaxValue)
             {
-                if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool())
-                    TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, FlagCarrier));
-
-                Main.AllPlayerSpeed[FlagCarrier] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                PlayerGameOptionsSender.SetDirty(FlagCarrier);
-
+                byte id = FlagCarrier;
                 FlagCarrier = byte.MaxValue;
+
+                Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                PlayerGameOptionsSender.SetDirty(id);
+
+                if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool())
+                    TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, id));
+                
                 Utils.NotifyRoles(SendOption: SendOption.None);
             }
         }
