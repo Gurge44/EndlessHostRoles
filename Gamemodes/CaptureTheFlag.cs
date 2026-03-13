@@ -806,6 +806,7 @@ public static class CaptureTheFlag
             {
                 if (now >= endTS)
                 {
+                    Main.AllPlayerSpeed[__instance.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     TemporarilyOutPlayers.Remove(__instance.PlayerId);
                     __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);
