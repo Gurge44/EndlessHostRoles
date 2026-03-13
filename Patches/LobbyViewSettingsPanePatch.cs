@@ -700,7 +700,6 @@ public static class LobbyViewSettingsPanePatch
                     }
 
                     viewSettingsInfoPanel.titleText.text = option.GetName();
-                    viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
 
                     Color labelColor = new(0.6f, 0.6f, 0.6f);
                     if (option.Parent?.Parent?.Parent != null) labelColor = new(0.6f, 0f, 0f);
@@ -708,6 +707,7 @@ public static class LobbyViewSettingsPanePatch
                     else if (option.Parent != null) labelColor = new(0f, 0f, 0.6f);
 
                     viewSettingsInfoPanel.labelBackground.color = labelColor;
+                    viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
                     index++;
                 }
 
@@ -722,7 +722,9 @@ public static class LobbyViewSettingsPanePatch
     private static void DrawRoles(LobbyViewSettingsPane viewSettings, TabGroup tabName)
     {
         var yPos = 1.3f;
-        float xPos = -6.53f;
+        var xPos = -6.53f;
+        float xPosOpt;
+        var index = 0;
         RoleEnabledList.Clear();
         CustomRoles[] allCustomRoles = Enum.GetValues<CustomRoles>();
         Color roleColorHeaderOrigin = tabName switch
@@ -787,7 +789,11 @@ public static class LobbyViewSettingsPanePatch
                     categoryHeaderRoleVariant.Title.color = Color.white;
                     categoryHeaderRoleVariant.Background.color = roleColorHeaderRole;
 
-                    if (enabled) yPos -= 0.4f;
+                    if (enabled)
+                    {
+                        if (index == 0) yPos -= 0.4f;
+                        else yPos -= 0.9f; // Y position after all settings drawed
+                    }
                     categoryHeaderRoleVariant.transform.localScale = Vector3.one;
                     categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
 
@@ -826,6 +832,7 @@ public static class LobbyViewSettingsPanePatch
 
                     try
                     {
+                        index = 0; // Set 0 when all settings is drawed
                         option.Header = header;
 
                         int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem valueRoleOpt) ? valueRoleOpt.GetChance() : 0;
@@ -910,6 +917,68 @@ public static class LobbyViewSettingsPanePatch
                             RoleEnabledList.Add(role);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
+                }
+                else if (data && enabledOrNotCollapsed && role == default(CustomRoles))
+                {
+                    // Skip all role settings
+                    if (option.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Name)) continue;
+                    else if (option.Parent?.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Parent?.Name)) continue;
+                    else if (option.Parent?.Parent?.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Parent?.Parent.Name)) continue;
+
+                    ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
+                    viewSettingsInfoPanel.name = option.Name;
+                    viewSettingsInfoPanel.transform.localScale = Vector3.one;
+
+                    if (index == 0) yPos -= 1f;
+
+                    if (index % 2 == 0)
+                    {
+                        xPosOpt = -8.95f;
+                        if (index > 0) yPos -= 0.95f;
+                    }
+                    else xPosOpt = -3f;
+
+                    viewSettingsInfoPanel.transform.localPosition = new Vector3(xPosOpt, yPos, -2f);
+
+                    switch (data.Type)
+                    {
+                        case OptionTypes.Checkbox:
+                            viewSettingsInfoPanel.SetInfoCheckbox(data.Title, 61, option.GetBool());
+                            Color32 color = LastGameModeSelected == CustomGameMode.Standard ? tabName switch
+                            {
+                                TabGroup.ImpostorRoles => new Color32(255, 25, 25, 255),
+                                TabGroup.CrewmateRoles => new Color32(140, 255, 255, 255),
+                                TabGroup.NeutralRoles => new Color32(255, 171, 27, 255),
+                                TabGroup.CovenRoles => new Color32(123, 63, 187, 255),
+                                _ => new Color32(0, 165, 255, 255)
+                            } :
+                                Main.GameModeColors.TryGetValue(LastGameModeSelected, out Color c) ? c : new Color32(0, 165, 255, 255);
+                            viewSettingsInfoPanel.checkMark.color = color;
+                            break;
+                        case OptionTypes.String:
+                            viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
+                            break;
+                        case OptionTypes.Float:
+                            viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetFloat()), 61);
+                            break;
+                        case OptionTypes.Int:
+                            viewSettingsInfoPanel.SetInfo(data.Title, data.GetValueString(option.GetInt()), 61);
+                            break;
+                        default:
+                            viewSettingsInfoPanel.SetInfo(data.Title, option.GetString(), 61);
+                            break;
+                    }
+
+                    viewSettingsInfoPanel.titleText.text = option.GetName();
+
+                    Color labelColor = new(0.6f, 0.6f, 0.6f);
+                    if (option.Parent?.Parent?.Parent != null) labelColor = new(0.6f, 0f, 0f);
+                    else if (option.Parent?.Parent != null) labelColor = new(0.6f, 0.6f, 0f);
+                    else if (option.Parent != null) labelColor = new(0f, 0f, 0.6f);
+
+                    viewSettingsInfoPanel.labelBackground.color = labelColor;
+                    viewSettings.settingsInfo.Add(viewSettingsInfoPanel.gameObject);
+                    index++;
                 }
 
                 viewSettings.scrollBar.SetYBoundsMax(-yPos - 4f);
