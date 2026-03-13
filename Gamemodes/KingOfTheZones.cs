@@ -20,7 +20,7 @@ public static class KingOfTheZones
     private static OptionItem ZoneMoveTime;
     private static OptionItem AllZonesMoveAtOnce;
     private static OptionItem DowntimeAfterZoneMove;
-    private static OptionItem RespawnTime;
+    public static OptionItem RespawnTime;
     private static OptionItem TagCooldown;
     private static OptionItem GameEndsByPoints;
     private static OptionItem PointsToWin;
@@ -80,7 +80,7 @@ public static class KingOfTheZones
 
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
-    private static Dictionary<byte, long> RespawnTimes = [];
+    public static Dictionary<byte, long> RespawnTimes = [];
     private static Dictionary<byte, long> SpawnProtectionTimes = [];
     private static Dictionary<KOTZTeam, int> Points = [];
     private static Dictionary<SystemTypes, KOTZTeam> ZoneDomination = [];
@@ -533,7 +533,7 @@ public static class KingOfTheZones
         if (ZoneDomination.ContainsValue(playerTeam))
             cd *= 1.5f;
 
-        Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).ToArray());
+        Dictionary<KOTZTeam, byte[]> teamPlayers = PlayerTeams.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(g => g.Key).Where(g => g.GetPlayer()).ToArray());
         int maxTeamSize = teamPlayers.Values.Max(x => x.Length);
         int teamSize = teamPlayers[playerTeam].Length;
 
@@ -694,6 +694,7 @@ public static class KingOfTheZones
     public static class FixedUpdatePatch
     {
         private static long LastUpdate;
+        private static readonly int TeamsEnumSize = Enum.GetNames(typeof(KOTZTeam)).Length;
 
         public static void Postfix()
         {
@@ -719,7 +720,7 @@ public static class KingOfTheZones
 
                         if (ZoneMoveSchedules.Count == 0)
                         {
-                            for (var index = 0; index < Zones.Count; index++)
+                            for (int index = 0; index < Zones.Count; index++)
                             {
                                 SystemTypes zone = Zones[index];
                                 int timeFromNow = atOnce ? moveTime : (int)Math.Ceiling(timePart * (index + 1));
@@ -839,22 +840,66 @@ public static class KingOfTheZones
 
                 try
                 {
-                    Dictionary<SystemTypes, List<(KOTZTeam Team, int Length)>> roomPlayersAndTeams = Zones.ToDictionary(x => x, x => Main.EnumerateAlivePlayerControls().ExceptBy(RespawnTimes.Keys, k => k.PlayerId).Where(k => k.IsInRoom(x)).GroupBy(k => PlayerTeams[k.PlayerId]).Select(k => (Team: k.Key, Length: k.Count())).OrderByDescending(k => k.Length).ToList());
+                    Dictionary<SystemTypes, int[]> zoneTeamCounts = new(Zones.Count);
+                    
+                    foreach (SystemTypes zone in Zones)
+                        zoneTeamCounts[zone] = new int[TeamsEnumSize];
 
-                    foreach ((SystemTypes zone, List<(KOTZTeam Team, int Length)> teamPlayers) in roomPlayersAndTeams)
+                    foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                     {
-                        ZoneDomination[zone] = ZoneDowntimeExpire.ContainsKey(zone)
-                            ? KOTZTeam.None
-                            : teamPlayers.Count switch
-                            {
-                                0 => KOTZTeam.None,
-                                1 => teamPlayers[0].Team,
-                                _ when teamPlayers[0].Length == teamPlayers[1].Length => KOTZTeam.None,
-                                _ => teamPlayers[0].Team
-                            };
+                        if (RespawnTimes.ContainsKey(player.PlayerId))
+                            continue;
+
+                        int team = (int)PlayerTeams[player.PlayerId];
+
+                        foreach (SystemTypes zone in Zones)
+                        {
+                            if (player.IsInRoom(zone))
+                                zoneTeamCounts[zone][team]++;
+                        }
                     }
 
-                    ZoneDomination.Values.DoIf(x => x != KOTZTeam.None, x => Points[x]++);
+                    foreach (SystemTypes zone in Zones)
+                    {
+                        if (ZoneDowntimeExpire.ContainsKey(zone))
+                        {
+                            ZoneDomination[zone] = KOTZTeam.None;
+                            continue;
+                        }
+
+                        int[] counts = zoneTeamCounts[zone];
+
+                        int maxTeam = -1;
+                        int max = 0;
+                        int second = 0;
+
+                        for (int i = 0; i < counts.Length; i++)
+                        {
+                            int c = counts[i];
+
+                            if (c > max)
+                            {
+                                second = max;
+                                max = c;
+                                maxTeam = i;
+                            }
+                            else if (c > second)
+                            {
+                                second = c;
+                            }
+                        }
+
+                        ZoneDomination[zone] =
+                            max == 0 || max == second
+                                ? KOTZTeam.None
+                                : (KOTZTeam)maxTeam;
+                    }
+
+                    foreach (KOTZTeam team in ZoneDomination.Values)
+                    {
+                        if (team != KOTZTeam.None)
+                            Points[team]++;
+                    }
 
                     Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
                 }

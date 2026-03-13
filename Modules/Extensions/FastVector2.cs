@@ -282,8 +282,10 @@ public static class FastVector2
         in Vector2 origin,
         Dictionary<T, Vector2> positions,
         float range,
-        out T closest)
+        out T closest,
+        Predicate<T> predicate = null)
     {
+        predicate ??= _ => true;
         float rangeSq = range * range;
         float minSq = float.MaxValue;
         bool found = false;
@@ -291,6 +293,8 @@ public static class FastVector2
 
         foreach ((T t, Vector2 p) in positions)
         {
+            if (!predicate(t)) continue;
+            
             float dx = p.x - origin.x;
             float dy = p.y - origin.y;
             float sq = dx * dx + dy * dy;
@@ -318,8 +322,10 @@ public static class FastVector2
         in Vector2 origin,
         Dictionary<Vector2, T> positions,
         float range,
-        out T closest)
+        out T closest,
+        Predicate<T> predicate = null)
     {
+        predicate ??= _ => true;
         float rangeSq = range * range;
         float minSq = float.MaxValue;
         bool found = false;
@@ -327,6 +333,8 @@ public static class FastVector2
 
         foreach ((Vector2 p, T t) in positions)
         {
+            if (!predicate(t)) continue;
+
             float dx = p.x - origin.x;
             float dy = p.y - origin.y;
             float sq = dx * dx + dy * dy;

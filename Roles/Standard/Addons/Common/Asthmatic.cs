@@ -69,7 +69,6 @@ internal class Asthmatic : IAddon
         LateTask.New(() =>
         {
             var r = IRandom.Instance;
-            long now = Utils.TimeStamp;
 
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
@@ -81,11 +80,13 @@ internal class Asthmatic : IAddon
 
     public static void OnFixedUpdate()
     {
+        if (Timers.Count == 0) return;
+        
         foreach (KeyValuePair<byte, Counter> kvp in Timers.ToArray())
         {
             PlayerState state = Main.PlayerStates[kvp.Key];
 
-            if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic))
+            if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic) || state.MainRole == CustomRoles.Pestilence)
             {
                 state.RemoveSubRole(CustomRoles.Asthmatic);
                 Timers.Remove(kvp.Key);

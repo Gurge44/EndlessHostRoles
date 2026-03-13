@@ -70,11 +70,11 @@ internal static class HudManagerPatch
                     SettingsText = null;
                 }
 
-                if (SettingsText)
-                {
-                    SettingsText.text = OptionShower.GetTextNoFresh();
-                    SettingsText.enabled = SettingsText.text != string.Empty;
-                }
+                //if (SettingsText)
+                //{
+                //    SettingsText.text = OptionShower.GetTextNoFresh();
+                //    SettingsText.enabled = SettingsText.text != string.Empty;
+                //}
             }
             else if (SettingsText)
             {
@@ -281,7 +281,7 @@ internal static class HudManagerPatch
                             || role.OnlySpawnsWithPets() || role.AlwaysUsesPhantomBase()) return true;
 
                         if (role is CustomRoles.Changeling or CustomRoles.Ninja or CustomRoles.Duality
-                                 or CustomRoles.Witch or CustomRoles.Silencer) return true;
+                                 or CustomRoles.Witch or CustomRoles.Silencer or CustomRoles.HexMaster) return true;
                         if (role.ToString().EndsWith("EHR")) return true;
 
                         var subRoles = player.GetCustomSubRoles();

@@ -41,7 +41,7 @@ public class Imitator : RoleBase
         {
             PlayerControl pc = id.GetPlayer();
 
-            if (pc != null && pc.IsAlive() && ImitatingRole.TryGetValue(id, out CustomRoles role) && !pc.Is(role))
+            if (pc && pc.IsAlive() && ImitatingRole.TryGetValue(id, out CustomRoles role) && !pc.Is(role))
             {
                 Main.AbilityUseLimit.Remove(pc.PlayerId);
                 Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, pc.PlayerId);

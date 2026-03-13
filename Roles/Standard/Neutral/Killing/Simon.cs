@@ -22,6 +22,7 @@ public class Simon : RoleBase
     public static List<Simon> Instances = [];
 
     private static OptionItem KillCooldown;
+    private static OptionItem AbilityCooldown;
     private static OptionItem HasImpostorVision;
 
     private bool DoMode;
@@ -36,6 +37,10 @@ public class Simon : RoleBase
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Simon);
 
         KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Simon])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        AbilityCooldown = new FloatOptionItem(Id + 3, "AbilityCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Simon])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -95,6 +100,7 @@ public class Simon : RoleBase
             MarkedPlayers[target.PlayerId] = (DoMode, Main.PlayerStates[target.PlayerId].Role.CanUseKillButton(target) ? Instruction.Kill : target.GetTaskState().HasTasks ? Instruction.Task : Instruction.None);
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 3, target.PlayerId, DoMode, (int)MarkedPlayers[target.PlayerId].Instruction);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+            killer.SetKillCooldown(AbilityCooldown.GetFloat());
         });
     }
 
@@ -111,7 +117,7 @@ public class Simon : RoleBase
         foreach (KeyValuePair<byte, (bool DoAction, Instruction Instruction)> kvp in MarkedPlayers)
         {
             PlayerControl player = Utils.GetPlayerById(kvp.Key);
-            if (player == null || !player.IsAlive()) continue;
+            if (!player || !player.IsAlive()) continue;
 
             player.Notify(Translator.GetString(GetNotify(kvp.Value.Instruction, kvp.Value.DoAction, false)), 300f);
         }
@@ -168,7 +174,7 @@ public class Simon : RoleBase
                 if (!kvp.Value.DoAction || kvp.Value.Instruction == Instruction.None) continue;
 
                 PlayerControl pc = Utils.GetPlayerById(kvp.Key);
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
 
                 pc.Suicide();
             }

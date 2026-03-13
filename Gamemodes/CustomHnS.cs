@@ -29,6 +29,7 @@ internal static class CustomHnS
     public static List<CustomRoles> AllHnSRoles = [];
 
     public static int SeekerNum => Math.Max(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
+    public static int RandomNeutralsNum => IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1);
     public static int MaximumGameLength => MaxGameLength.GetInt();
     public static bool Chat => ChatDuringGame.GetBool();
 
@@ -134,7 +135,7 @@ internal static class CustomHnS
 
         Dictionary<Team, int> memberNum = new()
         {
-            [Team.Neutral] = IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1),
+            [Team.Neutral] = RandomNeutralsNum,
             [Team.Impostor] = SeekerNum
         };
 
@@ -142,7 +143,7 @@ internal static class CustomHnS
 
         Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "HnsRoleAssigner");
 
-        foreach (KeyValuePair<byte, CustomRoles> item in Main.SetRoles)
+        foreach (KeyValuePair<byte, CustomRoles> item in Main.SetRoles.AddRange(ChatCommands.DraftResult, false))
         {
             try
             {

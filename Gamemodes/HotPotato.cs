@@ -176,7 +176,7 @@ internal static class HotPotato
             Vector2 holderPos = alivePlayerPositions[HotPotatoState.HolderID];
             float range = Range.GetFloat();
 
-            if (!FastVector2.TryGetClosestInRange(holderPos, alivePlayerPositions, range, out byte passToId)) return;
+            if (!FastVector2.TryGetClosestInRange(holderPos, alivePlayerPositions, range, out byte passToId, x => x != HotPotatoState.HolderID)) return;
             if (!allowLastHolder && passToId == HotPotatoState.LastHolderID) return;
             PassHotPotato(passToId.GetPlayer(), false);
         }

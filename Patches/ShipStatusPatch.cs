@@ -9,6 +9,9 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
+#if DEBUG
+using EHR.Patches;
+#endif
 
 #if DEBUG
 using EHR.Patches;

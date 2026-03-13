@@ -472,6 +472,23 @@ public static class Utils
         _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
         return c;
     }
+    public static Color GetTabColor(this TabGroup tab)
+    {
+        return tab switch
+        {
+            TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
+            TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
+            TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
+            TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
+            TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
+            TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
+            TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
+            TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
+            TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
+            TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
+            _ => new(0.3f, 0.3f, 0.3f)
+        };
+    }
 
     public static string GetRoleColorCode(CustomRoles role)
     {
@@ -1841,7 +1858,6 @@ public static class Utils
                     
                     IEnumerator DelaySend()
                     {
-                        while (ReportDeadBodyPatch.MeetingStarted || (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.VoteStates.Animating)) yield return null;
                         yield return new WaitForSecondsRealtime(0.3f);
                         SendMessage(text, sendTo, title, noSplit, writer, final, multiple, importance, addToHistory);
                     }
@@ -1850,9 +1866,6 @@ public static class Utils
                 IEnumerator TempReviveHost()
                 {
                     TempReviveHostRunning = true;
-                    
-                    while (ReportDeadBodyPatch.MeetingStarted || (MeetingHud.Instance && MeetingHud.Instance.state == MeetingHud.VoteStates.Animating)) yield return null;
-                    
                     TempReviveHostRevertStopwatch = Stopwatch.StartNew();
                     TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
                     
@@ -2322,7 +2335,7 @@ public static class Utils
         DevManager.TagInfo devUser = player.FriendCode.GetDevUser();
         bool admin = ChatCommands.IsPlayerAdmin(player.FriendCode);
         bool mod = ChatCommands.IsPlayerModerator(player.FriendCode);
-        bool vip = ChatCommands.IsPlayerVIP(player.FriendCode);
+        bool vip = !mod && ChatCommands.IsPlayerVIP(player.FriendCode);
         bool hasTag = devUser.HasTag();
         bool hasPrivateTag = PrivateTagManager.Tags.TryGetValue(player.FriendCode, out string privateTag);
         bool hasTagInUserData = Main.UserData.TryGetValue(player.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0;
@@ -4467,7 +4480,8 @@ public static class Utils
                     summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{rrSurvivedText}{vitalText}";
                     break;
                 case CustomGameMode.CaptureTheFlag:
-                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {CaptureTheFlag.GetStatistics(id)}";
+                    (int carriedFor, int tags) = CaptureTheFlag.GetStatistics(id);
+                    summary = $"{ColorString(Main.PlayerColors[id], name)}: {string.Format(GetString("CTF_PlayerStats_CarriedFor"), carriedFor)} | {string.Format(GetString("CTF_PlayerStats_Tags"), tags)}";
                     if (CaptureTheFlag.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
                     break;
                 case CustomGameMode.KingOfTheZones:
@@ -4673,7 +4687,7 @@ public static class Utils
 
         return null;
     }
-    
+
     private static unsafe Texture2D LoadTextureFromResources(string path)
     {
         try

@@ -125,7 +125,8 @@ public static class GameOptionsMenuPatch
                     OptionItem option = OptionItem.AllOptions[index];
                     if (option.Tab != modTab) continue;
 
-                    bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+                    bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+                    bool enabled = !option.IsCurrentlyHidden(checkCollapsedSection: false) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: false);
 
                     if (option is TextOptionItem toi)
                     {
@@ -155,14 +156,14 @@ public static class GameOptionsMenuPatch
                         categoryHeaderMasked.gameObject.SetActive(enabled);
                         ModGameOptionsMenu.CategoryHeaderList.TryAdd(index, categoryHeaderMasked);
 
-                        if (enabled) num -= 0.63f;
+                        if (enabledOrNotCollapsed) num -= 0.63f;
                         header = toi;
                         continue;
                     }
 
                     option.Header = header;
 
-                    if (option.IsHeader && enabled)
+                    if (option.IsHeader && enabledOrNotCollapsed)
                         num -= 0.18f;
 
                     BaseGameSetting baseGameSetting = GetSetting(option);
@@ -194,13 +195,13 @@ public static class GameOptionsMenuPatch
                     optionBehaviour.SetUpFromData(baseGameSetting, 20);
                     ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
                     ModGameOptionsMenu.BehaviourList.TryAdd(index, optionBehaviour);
-                    optionBehaviour.gameObject.SetActive(enabled);
+                    optionBehaviour.gameObject.SetActive(enabledOrNotCollapsed);
                     optionBehaviour.OnValueChanged = new Action<OptionBehaviour>(__instance.ValueChanged);
                     __instance.Children.Add(optionBehaviour);
 
                     option.OptionBehaviour = optionBehaviour;
 
-                    if (enabled) num -= 0.45f;
+                    if (enabledOrNotCollapsed) num -= 0.45f;
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
@@ -221,11 +222,11 @@ public static class GameOptionsMenuPatch
             {
                 if (option.Tab != modTab) continue;
 
-                bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+                bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
 
                 if (option is TextOptionItem)
                     num -= 0.63f;
-                else if (enabled)
+                else if (enabledOrNotCollapsed)
                 {
                     if (option.IsHeader) num -= 0.18f;
 
@@ -237,12 +238,12 @@ public static class GameOptionsMenuPatch
         }
     }
 
-    private static bool AllParentsEnabledAndVisible(OptionItem o)
+    public static bool AllParentsEnabledAndVisible(OptionItem o, bool checkCollapsedSection = true)
     {
         while (true)
         {
             if (o == null) return true;
-            if (o.IsCurrentlyHidden() || !o.GetBool()) return false;
+            if (o.IsCurrentlyHidden(forLobbyView: false, checkCollapsedSection: checkCollapsedSection) || !o.GetBool()) return false;
             o = o.Parent;
         }
     }
@@ -324,7 +325,15 @@ public static class GameOptionsMenuPatch
             }
         }
     }
+    [HarmonyPatch(nameof(GameOptionsMenu.Update))]
+    [HarmonyPrefix]
+    public static void UpdatePostfix(GameOptionsMenu __instance)
+    {
+        // Disable scroll options when chat open
+        if (!HudManager.InstanceExists || !__instance.gameObject.activeSelf) return;
 
+        __instance.scrollBar.enabled = !HudManager.Instance.Chat.IsOpenOrOpening;
+    }
     [HarmonyPatch(nameof(GameOptionsMenu.ValueChanged))]
     [HarmonyPrefix]
     private static bool ValueChangedPrefix(GameOptionsMenu __instance, OptionBehaviour option)
@@ -353,21 +362,22 @@ public static class GameOptionsMenuPatch
             OptionItem option = OptionItem.AllOptions[index];
             if (option.Tab != modTab) continue;
 
-            bool enabled = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+            bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
+            bool enabled = !option.IsCurrentlyHidden(checkCollapsedSection: false) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: false);
 
             if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out CategoryHeaderMasked categoryHeaderMasked))
             {
                 categoryHeaderMasked.transform.localPosition = new(-0.903f, num, -2f);
                 categoryHeaderMasked.gameObject.SetActive(enabled);
-                if (enabled) num -= 0.63f;
+                if (enabledOrNotCollapsed) num -= 0.63f;
             }
-            else if (option.IsHeader && enabled) num -= 0.18f;
+            else if (option.IsHeader && enabledOrNotCollapsed) num -= 0.18f;
 
             if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour))
             {
                 optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
-                optionBehaviour.gameObject.SetActive(enabled);
-                if (enabled) num -= 0.45f;
+                optionBehaviour.gameObject.SetActive(enabledOrNotCollapsed);
+                if (enabledOrNotCollapsed) num -= 0.45f;
             }
         }
 
@@ -379,7 +389,7 @@ public static class GameOptionsMenuPatch
         __instance.scrollBar.SetYBoundsMax(-num - 1.65f);
     }
 
-    private static BaseGameSetting GetSetting(OptionItem item)
+    public static BaseGameSetting GetSetting(OptionItem item)
     {
         BaseGameSetting baseGameSetting;
 
@@ -815,7 +825,7 @@ public static class StringOptionPatch
         icon.SetAsLastSibling();
     }
 
-    private static string GetGhostRoleTeam(CustomRoles role)
+    public static string GetGhostRoleTeam(CustomRoles role)
     {
         IGhostRole instance = GhostRolesManager.CreateGhostRoleInstance(role);
         if (instance == null) return string.Empty;
@@ -994,9 +1004,9 @@ public static class GameSettingMenuPatch
     {
         try
         {
-            (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
-            MinImpsOnOpen = impLimits.MinSetting.GetInt();
-            MaxImpsOnOpen = impLimits.MaxSetting.GetInt();
+            (OptionItem MinSetting, OptionItem MaxSetting) = Options.FactionMinMaxSettings[Team.Impostor];
+            MinImpsOnOpen = MinSetting.GetInt();
+            MaxImpsOnOpen = MaxSetting.GetInt();
             NumImpsOnOpen = Main.NormalOptions.NumImpostors;
 
             VanillaKillCooldownOnOpen = Main.NormalOptions.KillCooldown;
@@ -1025,21 +1035,7 @@ public static class GameSettingMenuPatch
             label.color = Color.white;
             button.activeTextColor = button.inactiveTextColor = Color.white;
             button.selectedTextColor = new(0.7f, 0.7f, 0.7f);
-
-            Color color = tab switch
-            {
-                TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
-                TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
-                TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
-                TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
-                TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
-                TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
-                TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
-                TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
-                TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
-                TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
-                _ => new(0.3f, 0.3f, 0.3f)
-            };
+            Color color = tab.GetTabColor();
 
             button.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
             button.activeSprites.GetComponent<SpriteRenderer>().color = color;
@@ -1304,6 +1300,7 @@ public static class GameSettingMenuPatch
 
             result.ForEach(x => x.SetHidden(true));
 
+            gameSettings.scrollBar.ScrollToTop();
             GameOptionsMenuPatch.ReCreateSettings(gameSettings);
             textField.Clear();
         }
@@ -1459,12 +1456,12 @@ public static class GameSettingMenuPatch
         try
         {
             int numImpostors = Main.NormalOptions.NumImpostors;
-            (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
+            (OptionItem MinSetting, OptionItem MaxSetting) = Options.FactionMinMaxSettings[Team.Impostor];
 
-            if (numImpostors != NumImpsOnOpen && MinImpsOnOpen == impLimits.MinSetting.GetInt() && MaxImpsOnOpen == impLimits.MaxSetting.GetInt())
+            if (numImpostors != NumImpsOnOpen && MinImpsOnOpen == MinSetting.GetInt() && MaxImpsOnOpen == MaxSetting.GetInt())
             {
-                impLimits.MinSetting.SetValue(numImpostors);
-                impLimits.MaxSetting.SetValue(numImpostors);
+                MinSetting.SetValue(numImpostors);
+                MaxSetting.SetValue(numImpostors);
                 Logger.SendInGame(string.Format(Translator.GetString("MinMaxModdedImpCountsSettingsChangedAuto"), numImpostors));
             }
 
@@ -1497,7 +1494,7 @@ public static class GameSettingMenuPatch
         ModSettingsTabs = [];
         GMButtons = [];
 
-        Main.Instance.StartCoroutine(OptionShower.GetText());
+        //Main.Instance.StartCoroutine(OptionShower.GetText());
     }
 }
 

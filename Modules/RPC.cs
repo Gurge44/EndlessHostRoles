@@ -162,6 +162,7 @@ public enum CustomRPC
     Deadlined,
     Blessed,
     Necronomicon,
+    Stained,
 
     // Game Modes
     RoomRushDataSync,
@@ -475,7 +476,7 @@ internal static class RPCHandlerPatch
                     }
 
                     OptionSaver.Save();
-                    Main.Instance.StartCoroutine(OptionShower.GetText());
+                    //Main.Instance.StartCoroutine(OptionShower.GetText());
                     break;
                 }
                 case CustomRPC.SetDeathReason:
@@ -1355,6 +1356,13 @@ internal static class RPCHandlerPatch
                 {
                     if (!Main.PlayerStates.TryGetValue(reader.ReadByte(), out PlayerState state) || state.Role is not CovenBase covenRole) break;
                     covenRole.HasNecronomicon = true;
+                    break;
+                }
+                case CustomRPC.Stained:
+                {
+                    byte id = reader.ReadByte();
+                    Stained.VioletNameList.Add(id);
+                    LateTask.New(() => Stained.VioletNameList.Remove(id), 3f);
                     break;
                 }
             }

@@ -11,14 +11,14 @@ namespace EHR.Roles;
 public class RiftMaker : RoleBase
 {
     private const int Id = 640900;
-    public static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
-    public static OptionItem KillCooldown;
-    public static OptionItem ShapeshiftCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem KillCooldown;
+    private static OptionItem ShapeshiftCooldown;
+    private static OptionItem CanVent;
 
-    public long LastTP = TimeStamp;
-    public List<Vector2> Marks = [];
+    private long LastTP = TimeStamp;
+    private List<Vector2> Marks = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 

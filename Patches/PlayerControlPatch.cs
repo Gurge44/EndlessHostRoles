@@ -127,10 +127,11 @@ internal static class CheckMurderPatch
                 return false;
             }
 
-            if (target.Is(CustomRoles.Detour))
+            if (target.Is(CustomRoles.Detour) && target.GetAbilityUseLimit() >= 1f)
             {
+                target.RpcRemoveAbilityUse();
                 PlayerControl tempTarget = target;
-                FastVector2.TryGetClosestPlayerTo(target, out target, x => x.PlayerId != killer.PlayerId);
+                FastVector2.TryGetClosestPlayerTo(tempTarget, out target, x => x.PlayerId != killer.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)
@@ -805,6 +806,7 @@ internal static class CheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
+        if (!AmongUsClient.Instance.AmHost) return true;
         if (ShapeshiftPatch.ProcessShapeshift(__instance, target))
         {
             bool animated = shouldAnimate
@@ -1248,7 +1250,7 @@ internal static class ReportDeadBodyPatch
                     PlayerControl killer = receiver.GetRealKiller();
                     if (!killer) continue;
 
-                    SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), importance: MessageImportance.Low);
+                    LateTask.New(() => SendMessage("\n", receiver.PlayerId, string.Format(GetString("DeathCommand"), killer.PlayerId.ColoredPlayerName(), (killer.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + killer.GetCustomRole().ToColoredString()), importance: MessageImportance.Low), 13f);
                 }
             }
         }
@@ -1693,13 +1695,14 @@ internal static class FixedUpdatePatch
                     if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
                     if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-                    if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
                     if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
                     if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
+
+                    if (self) Asthmatic.OnFixedUpdate();
                 }
 
                 if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))
@@ -1746,12 +1749,6 @@ internal static class FixedUpdatePatch
 
             if (inTask && Options.DisableDevices.GetBool())
                 DisableDevice.FixedUpdate(player);
-
-            if (IsInGame && Main.RefixCooldownDelay <= 0)
-            {
-                if (player.Is(CustomRoles.Vampire) || player.Is(CustomRoles.Warlock) || player.Is(CustomRoles.Ninja) || player.Is(CustomRoles.Undertaker) || player.Is(CustomRoles.Poisoner))
-                    Main.AllPlayerKillCooldown[player.PlayerId] = Options.AdjustedDefaultKillCooldown * 2;
-            }
 
             if (!Main.DoBlockNameChange && ApplySuffix(player, out var name))
                 player.RpcSetName(name);

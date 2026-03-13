@@ -274,7 +274,7 @@ public static class TextBoxPatch
                     {
                         Dictionary<byte, string> allIds = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.PlayerId.ColoredPlayerName());
                         additionalInfo = $"<b><u>{Translator.GetString("PlayerIdList").TrimEnd(' ')}</u></b>\n{string.Join('\n', allIds.Select(x => $"<b>{x.Key}</b> \uffeb <b>{x.Value}</b>"))}";
-                        OptionShower.CurrentPage = 0;
+                        // OptionShower.CurrentPage = 0;
                     }
 
                     continue;
@@ -362,8 +362,8 @@ public static class TextBoxPatch
         __instance.freeChatField.textArea.SetText(PlaceHolderText.text);
         __instance.freeChatField.textArea.compoText = "";
 
-        if (AdditionalInfoText && AdditionalInfoText.text != "")
-            OptionShower.CurrentPage = 0;
+        /*if (AdditionalInfoText && AdditionalInfoText.text != "")
+            OptionShower.CurrentPage = 0;*/
     }
 
     public static void CheckChatOpen()

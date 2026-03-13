@@ -398,7 +398,7 @@ internal static class ExtendedPlayerControl
         try
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (AmongUsClient.Instance.AmClient) try { player.StartCoroutine(player.CoSetRole(roleTypes, true)); } catch { }
+            if (AmongUsClient.Instance.AmClient) try { player.SetRole(roleTypes); } catch { }
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);
             writer.Write((ushort)roleTypes);
             writer.Write(true);
@@ -1837,6 +1837,10 @@ internal static class ExtendedPlayerControl
         return Main.PlayerStates[pc.PlayerId].SubRoles.Any(x => x.IsEvilAddon());
     }
 
+    /// <summary>
+    /// Sets a players kill cooldown without syncing settings.
+    /// When using this method, ResetKillCooldown should set the player's kill cooldown to twice the value.
+    /// </summary>
     public static void SetKillCooldownNonSync(this PlayerControl pc, float kcd)
     {
         if (pc.AmOwner)
@@ -1851,10 +1855,10 @@ internal static class ExtendedPlayerControl
         }
         else
         {
-            // ResetKillCooldown sets every player's kill cooldown to twice the value.
+            // When using this method, ResetKillCooldown should set the player's kill cooldown to twice the value.
             // MurderPlayer RPC with FailedProtected flag sets a player's kill cooldown to half the set value.
             // *2 /2 = the value we began with. This avoids syncing settings on every CheckMurder.
-            // This works because the kill cooldown is consistent throughout the entire game.
+            // This works if the kill cooldown is consistent throughout the entire game.
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, pc.OwnerId);
             writer.WriteNetObject(pc);
             writer.Write((int)MurderResultFlags.FailedProtected);
@@ -2290,7 +2294,7 @@ internal static class ExtendedPlayerControl
 
     // The Key is the larger room, its bounds overlap the Value room's bounds
     // Additional check when something is inside the Key room's bounds: also check the Value room's bounds
-    // The Value room's bounds never overlap the Key room's bounds, so the check is only one way (unless it's also specified vice versa)
+    // The Value room's bounds never overlap the Key room's bounds, so the check is only one way
     private static readonly Dictionary<MapNames, Dictionary<SystemTypes, SystemTypes>> OverlappingRooms = new()
     {
         [MapNames.MiraHQ] = new()
@@ -2305,8 +2309,11 @@ internal static class ExtendedPlayerControl
     };
     private static readonly Dictionary<SystemTypes, SystemTypes> EmptyOverlap = [];
 
+    // Rooms that aren't rectangular-shaped and overlap walkable areas outside the room
     private static readonly Dictionary<MapNames, List<SystemTypes>> ProblematicRooms = new()
     {
+        [MapNames.Skeld] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp],
+        [MapNames.Dleks] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp],
         [MapNames.Polus] = [SystemTypes.LifeSupp, SystemTypes.Storage, SystemTypes.Laboratory, SystemTypes.Comms, SystemTypes.Weapons, SystemTypes.Admin, SystemTypes.Decontamination2, SystemTypes.Decontamination3],
         [MapNames.Airship] = [SystemTypes.Electrical, SystemTypes.Security, SystemTypes.Engine, SystemTypes.Showers, SystemTypes.MainHall],
         [MapNames.Fungle] = [SystemTypes.Dropship]
@@ -2539,7 +2546,6 @@ internal static class ExtendedPlayerControl
     {
         if (pc.FriendCode.GetDevUser().up) return true;
 
-        if (ChatCommands.IsPlayerModerator(pc.FriendCode)) return true;
         if (ChatCommands.IsPlayerVIP(pc.FriendCode)) return true;
         if (PrivateTagManager.Tags.ContainsKey(pc.FriendCode)) return true;
         if (Main.UserData.TryGetValue(pc.FriendCode, out Options.UserData userData) && !string.IsNullOrWhiteSpace(userData.Tag) && userData.Tag.Length > 0) return true;
