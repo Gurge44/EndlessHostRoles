@@ -278,9 +278,6 @@ internal static class CustomRoleSelector
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        int nnkNum = roles[RoleAssignType.NonKillingNeutral].Count;
-        int nkNum = roles[RoleAssignType.NeutralKilling].Count;
-
         Logger.Msg("======================================================", "SelectedRoles");
         Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "SelectedImpostorRoles");
         Logger.Info(string.Join(", ", roles[RoleAssignType.NeutralKilling].Select(x => x.Role.ToString())), "SelectedNKRoles");
@@ -364,8 +361,8 @@ internal static class CustomRoleSelector
         roles.Values.Do(l => l.DoIf(x => x.AssignedCount >= x.MaxCount, x => l.Remove(x), false));
 
         AssignRoles(RoleAssignType.Impostor, optImpNum, ref readyImpNum, ref readyRoleNum, playerCount, finalRolesList, roles);
-        AssignRoles(RoleAssignType.NonKillingNeutral, nnkNum, ref readyNonNeutralKillingNum, ref readyRoleNum, playerCount, finalRolesList, roles);
-        AssignRoles(RoleAssignType.NeutralKilling, nkNum, ref readyNeutralKillingNum, ref readyRoleNum, playerCount, finalRolesList, roles);
+        AssignRoles(RoleAssignType.NonKillingNeutral, nnkLimit, ref readyNonNeutralKillingNum, ref readyRoleNum, playerCount, finalRolesList, roles);
+        AssignRoles(RoleAssignType.NeutralKilling, nkLimit, ref readyNeutralKillingNum, ref readyRoleNum, playerCount, finalRolesList, roles);
         AssignRoles(RoleAssignType.Madmate, madmateNum, ref readyMadmateNum, ref readyRoleNum, playerCount, finalRolesList, roles);
         AssignRoles(RoleAssignType.Coven, numCovens, ref readyCovenNum, ref readyRoleNum, playerCount, finalRolesList, roles);
         AssignRoles(RoleAssignType.Crewmate, playerCount - readyRoleNum, ref readyCrewmateNum, ref readyRoleNum, playerCount, finalRolesList, roles);
