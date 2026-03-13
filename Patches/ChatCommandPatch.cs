@@ -1364,11 +1364,13 @@ internal static class ChatCommands
 
             foreach ((Team team, int num) in memberNum)
             {
-                var seekerRoles = hnsRoles.FindAll(x => x.Interface.Team == team);
-                allPlayerIds.Shuffle().Where(x => !DraftRoles.ContainsKey(x)).Take(num).Do(x => DraftRoles[x] = [seekerRoles.RandomElement().Role]);
+                var suitableRoles = hnsRoles.FindAll(x => x.Interface.Team == team);
+                if (suitableRoles.Count == 0) continue;
+                allPlayerIds.Shuffle().Where(x => !DraftRoles.ContainsKey(x)).Take(num).Do(x => DraftRoles[x] = [suitableRoles.RandomElement().Role]);
             }
             
             var hiderRoles = hnsRoles.FindAll(x => x.Interface.Team == Team.Crewmate);
+            if (hiderRoles.Count == 0) return;
 
             while (true)
             {

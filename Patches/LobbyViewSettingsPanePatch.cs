@@ -792,7 +792,7 @@ public static class LobbyViewSettingsPanePatch
                     if (enabled)
                     {
                         if (index == 0) yPos -= 0.4f;
-                        else yPos -= 0.9f; // Y position after all settings drawed
+                        else yPos -= 0.9f; // Y position after all settings drawn
                     }
                     categoryHeaderRoleVariant.transform.localScale = Vector3.one;
                     categoryHeaderRoleVariant.transform.localPosition = new Vector3(0.09f, yPos, -2f);
@@ -832,7 +832,7 @@ public static class LobbyViewSettingsPanePatch
 
                     try
                     {
-                        index = 0; // Set 0 when all settings is drawed
+                        index = 0; // Set 0 when all settings are drawn
                         option.Header = header;
 
                         int chancePerGame = Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem valueRoleOpt) ? valueRoleOpt.GetChance() : 0;
