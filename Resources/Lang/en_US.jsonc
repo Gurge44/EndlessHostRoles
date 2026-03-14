@@ -1,4 +1,4 @@
-﻿{
+{
   /* ==============================
     CORE & FREQUENTLY USED STRINGS       
   ============================== */
@@ -316,7 +316,7 @@
   "AddictWarning": "<#ffff00>You must vent soon or you'll suicide!</color>",
   "Adrenaline": "Adrenaline",
   "AdrenalineInfo": "Be Fast Enough to Avoid Kills",
-  "AdrenalineInfoLong": "(Crewmates):\\nAs the Adrenaline, when you get attacked, the killing attempt gets blocked and you receive a timer. If a meeting gets called before the timer ends, you survive. Otherwise, you die when the timer ends.\\n\\nDepending on the settings, you may or may not know be able to call emergency meetings during the timer.",
+  "AdrenalineInfoLong": "(Crewmates):\\nAs the Adrenaline, when you get attacked, the killing attempt gets blocked and you receive a timer. If a meeting gets called before the timer ends, you survive. Otherwise, you die when the timer ends.\\n\\nDepending on the settings, you may or may not be able to call emergency meetings during the timer.",
   "Adrenaline.CanCallMeetingDuringTimer": "Can Call Emergency Meetings During the Timer",
   "Adrenaline.MaxSurvives": "Maximum Survives",
   "Adrenaline.MinTasksRequired": "Minimum Tasks Required to Survive an Attack",
@@ -404,7 +404,7 @@
   "AltruistSuffixRevive": "<#00ffa5>Target is revived in </color>{0}s",
   "Analyst": "Analyst",
   "AnalystInfo": "Analyze Players to Get Information",
-  "AnalystInfoLong": "(Crewmates):\\nAs the Analyst, you may use your kill button on someone to analyze them. You will have to stand next to your target for a few seconds to complete the analysis. When the analysis is complete, you will see how many players they've killed so far, how many times they've vented so far, and their role basis.\\n\\nNote: If the host's settings don't allow you to see an information, the result will show 0 or nothing!\\nNote: None of these factors determine whether someone is evil or not! Think twice before judging too fast!",
+  "AnalystInfoLong": "(Crewmates):\\nAs the Analyst, you may use your kill button on someone to analyze them. You will have to stand next to your target for a few seconds to complete the analysis. When the analysis is complete, you will see how many players they've killed so far, how many times they've vented so far, and their role basis.\\n\\nNote: If the host's settings don't allow you to see the information, the result will show 0 or nothing!\\nNote: None of these factors determine whether someone is evil or not! Think twice before judging too fast!",
   "Ankylosaurus": "Ankylosaurus",
   "AnkylosaurusInfo": "You're an Ankylosaurus.... I guess",
   "AnkylosaurusInfoLong": "(Crewmates):\\nAs the Ankylosaurus, you cannot be guessed, your movement is slower, you have a lower vision, and you have multiple lives.",
@@ -540,7 +540,7 @@
   "ClairvoyantInfoLong": "(Crewmates):\\nAs the Clairvoyant, you can see the remaining impostor and neutral killer counts by entering a vent or petting.",
   "Cleanser": "Cleanser",
   "CleanserInfo": "Erase All Addons of your vote target",
-  "CleanserInfoLong": "(Crewmates):\\nCleanser can vote for any target at the meeting to erase the target's Add-ons, and the erasure will take effect after the meeting ends. Depending on the settings cleansed player may never get add on in future",
+  "CleanserInfoLong": "(Crewmates):\\nCleanser can vote for any target at the meeting to erase the target's Add-ons, and the erasure will take effect after the meeting ends. Depending on the settings, cleansed player may never get add ons in the future",
   "CleanserRemoveSelf": "You can not cleanse yourself",
   "CleanserRemovedRole": "<b>{0}</b> has been cleansed. All their Addons will be removed after the meeting.",
   "Convener": "Convener",
@@ -548,10 +548,10 @@
   "ConvenerInfoLong": "(Crewmates):\\nAs the Convener, you can vent/pet to teleport everyone to you.",
   "CopyCat": "Copycat",
   "CopyCatInfo": "Use kill button to copy target's role",
-  "CopyCatInfoLong": "(Crewmate):\\nAs the Copycat, you can use your kill button to copy the target's role.\\n\\nYou can only copy some crewmate roles.\\nAccording to host settings if you try to copy non-crew or a Rascal's role you may kill them instead.\\n\\nAdditionally, You do not have access to guessing, and you commit suicide after miscopying a certain number of times that the host sets.",
+  "CopyCatInfoLong": "(Crewmate):\\nAs the Copycat, you can use your kill button to copy the target's role.\\n\\nYou can only copy some crewmate roles.\\nAccording to host settings, if you try to copy non-crew or a Rascal's role you may kill them instead.\\n\\nAdditionally, You do not have access to guessing, and you commit suicide after miscopying a certain number of times that the host sets.",
   "CopyCatAlreadyCopy": "You have already copied a role in this round",
   "CopyCatCanKill": "CopyCat can kill when miscopy",
-  "CopyCatCanNotCopy": "You can not copy target's role",
+  "CopyCatCanNotCopy": "You can not copy the target's role",
   "CopyCatCopyCooldown": "Copy cooldown",
   "CopyCatMiscopyLimit": "Number of miscopy until suicide",
   "CopyCatResetToCopyCatEachRound": "Reset role to <#ffb2ab>Copycat</color> after each meeting",
@@ -576,7 +576,7 @@
   "CrusaderSkillLimit": "Maximum Crusades",
   "Dad": "Dad",
   "DadInfo": "You're that iconic dad....",
-  "DadInfoLong": "(Crewmates):\\nAs the dad, your life depends on alcohol. When you get attacked or voted out, you survive, but your alcohol decreases. Alcohol also decreases slowly over time. To increase your alcohol level, you have to get money from completing tasks and go to a random selected vent to buy a beer. Beer increases your alcohol level. When you finish all your tasks, you get new tasks, but you don't have to do them for task win. You don't know how much alcohol you have at the time. You only see warning when your alcohol level is low. Alcohol is counted in ‰.\\n\\nYou also have some abilities that are unlocked if you have enough alcohol. To use ability, switch between them using pet button and use selected one by venting:\\n<size=60%>- Going for milk: You go for milk. When you use it, you get teleported outside the map. You also can't discuss or vote in meetings. You can do nothing. You will come back with milk after exactly 10 years. When you come back, crewmates instantly win. When you use it, everyone will be informed about it.\\n- Super vision: You will have max vision for some time.\\n- Sniffing: You get arrows pointing to existing dead bodies after using it. Arrows only update when you sniff again.\\n- Sleep: During sleep people can't interact with you, but you can't see or move. During sleep you also cannot use any abilities and your alcohol is stable. You wake up when a meeting starts.\\n- Rage: You kill next person you see.\\n- Giving drink: You give all nearby players a drink. Every of these players will say their role in meeting with a chance of an incorrect result.\\n- Becoming god of alcohol: Resets your alcohol to 1‰, but your alcohol will increase instead of decreasing from now on.\\nEvery ability (except going for milk) will reduce your alcohol after using it.\\nIf your alcohol reaches 0‰, you die.\\nAlso, you see which abilities you can use. It can give you some more information about your alcohol level.\\nTo make this role balanced, when someone attacks you, you lose alcohol after some time and not instantly.</size>",
+  "DadInfoLong": "(Crewmates):\\nAs the dad, your life depends on alcohol. When you get attacked or voted out, you survive, but your alcohol decreases. Alcohol also decreases slowly over time. To increase your alcohol level, you have to get money from completing tasks and go to a randomly selected vent to buy a beer. Beer increases your alcohol level. When you finish all your tasks, you get new tasks, but you don't have to do them for task win. You don't know how much alcohol you have at the time. You only see a warning when your alcohol level is low. Alcohol is counted in ‰.\\n\\nYou also have some abilities that are unlocked if you have enough alcohol. To use ability, switch between them using pet button and use selected one by venting:\\n<size=60%>- Going for milk: You go for milk. When you use it, you get teleported outside the map. You also can't discuss or vote in meetings. You can do nothing. You will come back with milk after exactly 10 years. When you come back, crewmates instantly win. When you use it, everyone will be informed about it.\\n- Super vision: You will have max vision for some time.\\n- Sniffing: You get arrows pointing to existing dead bodies after using it. Arrows only update when you sniff again.\\n- Sleep: During sleep, people can't interact with you, but you can't see or move. During sleep, you also cannot use any abilities, and your alcohol is stable. You wake up when a meeting starts.\\n- Rage: You kill the next person you see.\\n- Giving drink: You give all nearby players a drink. Every one of these players will say their role in meeting with a chance of an incorrect result.\\n- Becoming god of alcohol: Resets your alcohol to 1‰, but your alcohol will increase instead of decreasing from now on.\\nEvery ability (except going for milk) will reduce your alcohol after using it.\\nIf your alcohol reaches 0‰, you die.\\nAlso, you see which abilities you can use. It can give you some more information about your alcohol level.\\nTo make this role balanced, when someone attacks you, you lose alcohol after some time and not instantly.</size>",
   "Dad.Ability.BecomeGodOfAlcohol": "Becoming God Of Alcohol",
   "Dad.Ability.GiveDrink": "Giving Drink",
   "Dad.Ability.GoForMilk": "Going For Milk",
@@ -608,14 +608,14 @@
   "Dad.NormalAlcoholDecreaseValue": "Over time, alcohol decreases by",
   "Dad.Rage.AlcoholDecrease": "Alcohol decrease after Raging",
   "Dad.Rage.AlcoholRequirement": "Required alcohol level to Rage",
-  "Dad.Rage.Description": "You kill next person you see",
+  "Dad.Rage.Description": "You kill the next person you see",
   "Dad.SelectedAbilitySuffix": "<size=80%><color=#00ffa5>Selected ability:</color> {0} <color=#888888>(vent to use)</color></size>",
   "Dad.ShopLocation": "<#00ffa5>The shop is at the</color> {0}",
   "Dad.ShopSuffix": "<size=80%><color=#00ffa5>Vent to buy</color> {0} <color=#00ffa5>alcohol from the money you have</color></size>",
   "Dad.ShowWarningWhenAlcoholIsBelow": "Show warning when alcohol level is below",
   "Dad.Sleep.AlcoholDecrease": "Alcohol decrease after Sleeping",
   "Dad.Sleep.AlcoholRequirement": "Required alcohol level to Sleep",
-  "Dad.Sleep.Description": "While sleeping, you can't see, move or use any abilities\\nbut also can't be interacted with and your alcohol level is stable",
+  "Dad.Sleep.Description": "While sleeping, you can't see, move, or use any abilities\\nbut also can't be interacted with and your alcohol level is stable",
   "Dad.Sniffing.AlcoholDecrease": "Alcohol decrease after Sniffing",
   "Dad.Sniffing.AlcoholRequirement": "Required alcohol level to Sniff",
   "Dad.Sniffing.Description": "You get arrows pointing to existing dead bodies; arrows only update when you sniff again",
@@ -627,7 +627,7 @@
   "Dad.SuperVisionDuration": "Super vision duration",
   "Decryptor": "Decryptor",
   "DecryptorInfo": "Get Letters From Everyone's Roles",
-  "DecryptorInfoLong": "(Crewmates):\\nAs the Decryptor, each X tasks you complete (X is set by the host), you get to know one more letter from everyone's roles. You can see these characters below players' names. The letters are not in order and each letter only appears once for every occurance in the role name. Settings determine whether you can guess.",
+  "DecryptorInfoLong": "(Crewmates):\\nAs the Decryptor, each X tasks you complete (X is set by the host), you get to know one more letter from everyone's roles. You can see these characters below the player's names. The letters are not in order and each letter only appears once for every occurrence in the role name. Settings determine whether you can guess.",
   "Decryptor.GuessMode": "Can Guess",
   "Decryptor.Suffix": "<size=70%><#00ffa5>Complete</color> <b>{0}</b> <#00ffa5>tasks for the next letters</color></size>",
   "Decryptor.TaskNum": "Number of Tasks to Complete for Each Letter",
@@ -723,7 +723,7 @@
   "EngineerEHRInfoLong": "(Crewmates):\\nAs the Engineer, you may access the vents while comms are not sabotaged. Vents are disabled when they are sabotaged.",
   "Enigma": "Enigma",
   "EnigmaInfo": "Get Clues about Killers",
-  "EnigmaInfoLong": "(Crewmates):\\nAs the Enigma, you get a random clue about the killer each meeting, depending on the setting, you may have to report the body to receive a clue. The more tasks you complete the preciser the clues get.\\n\\n<size=70%><u><b>Light colors:</b></u> Red, Pink, Orange, Yellow, White, Cyan, Lime, Rose, Banana, Coral\\n<u><b>Dark colors:</b></u> Blue, Green, Black, Purple, Brown, Maroon, Gray, Tan</size>",
+  "EnigmaInfoLong": "(Crewmates):\\nAs the Enigma, you get a random clue about the killer each meeting. Depending on the setting, you may have to report the body to receive a clue. The more tasks you complete the preciser the clues get.\\n\\n<size=70%><u><b>Light colors:</b></u> Red, Pink, Orange, Yellow, White, Cyan, Lime, Rose, Banana, Coral\\n<u><b>Dark colors:</b></u> Blue, Green, Black, Purple, Brown, Maroon, Gray, Tan</size>",
   "EnigmaClueColor1": "The Killer has a light color!",
   "EnigmaClueColor2": "The Killer has a dark color!",
   "EnigmaClueColor3": "The Killer's color is {0}!",
@@ -765,9 +765,21 @@
   "EnigmaClueVisor1": "The Killer wears a Visor!",
   "EnigmaClueVisor2": "The Killer does not wear a Visor!",
   "EnigmaClueVisor3": "The Killer wears {0} as a Visor!",
+  "EnigmaCluePetTitle": "Enigma Pet Clue",
+  "EnigmaClueNameTitle": "Enigma Name Clue",
+  "EnigmaClueNameLengthTitle": "Enigma Name Length Clue",
+  "EnigmaClueColorTitle": "Enigma Skin Color Clue",
+  "EnigmaClueLocationTitle": "Enigma Location Clue",
+  "EnigmaClueStatusTitle": "Enigma Status Clue",
+  "EnigmaClueRoleTitle": "Enigma Role Clue",
+  "EnigmaClueLevelTitle": "Enigma Level Clue",
+  "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue",
+  "EnigmaClueHatTitle": "Enigma Hat Clue",
+  "EnigmaClueVisorTitle": "Enigma Visor Clue",
+  "EnigmaClueSkinTitle": "Enigma Skin Clue",
   "Escort": "Escort",
   "EscortInfo": "Role-Block Players to Help the Crew!",
-  "EscortInfoLong": "(Crewmates):\\nAs the Escort, you can role-block a player for a specified time using your kill button. A role-blocked player cannot kill, vent, sabotage or report.\\n(Role-Block duration is the same as the hack duration for The Glitch)",
+  "EscortInfoLong": "(Crewmates):\\nAs the Escort, you can role-block a player for a specified time using your kill button. A role-blocked player cannot kill, vent, sabotage, or report.\\n(Role-Block duration is the same as the hack duration for The Glitch)",
   "EscortBlockDuration": "Role-Block Duration",
   "EscortKillButtonText": "Role-Block",
   "EscortTargetHacked": "Target successfully role-blocked",
@@ -954,14 +966,14 @@
   "InspectorCheckMax": "Max inspections per game reached!\\nYou can not use your power anymore.",
   "InspectorCheckNull": "Please select an ID of a living player to check their team",
   "InspectorCheckOtherTargetKnow": "Targets know who they were checked with",
-  "InspectorCheckReveal": "HA! you thought it would be this easy. You can not check a role that is revealed",
-  "InspectorCheckRevealTarget": "When tasks done, target knows team of other target",
+  "InspectorCheckReveal": "HA! You thought it would be this easy. You can not check a role that is revealed",
+  "InspectorCheckRevealTarget": "When tasks are done, the target knows the team of the other target",
   "InspectorCheckRound": "Max inspections per round reached!\\nYou can check again in the next round.",
   "InspectorCheckSame": "Bruh, did you seriously just compare a player to themselves?",
-  "InspectorCheckSelf": "HA!! you thought it would be this easy. You can not check yourself",
+  "InspectorCheckSelf": "HA!! You thought it would be this easy. You can not check yourself",
   "InspectorCheckTargetKnow": "Targets know they were checked by <color=#0D57AF>Inspector</color>",
   "InspectorCheckTargetMsg": " were checked by Inspector.",
-  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!\"",
+  "InspectorCheckTrue": "<b>{0}</b> and <b>{1}</b> are in the same team!",
   "InspectorCopTargetReveal": "Looks like <b>{0}</b> is aligned with team <b>{1}</b>",
   "InspectorDead": "You can not use your power after death",
   "InspectorTryHideMsg": "Hide <color=#0D57AF>Inspector</color>'s commands",
@@ -993,7 +1005,7 @@
   "JournalistError.Unknown": "An unknown error occurred.",
   "Judge": "Judge",
   "JudgeInfo": "Silence in the courtroom!",
-  "JudgeInfoLong": "(Crewmates):\\nThe Judge can judge a player during the meeting. If the target is evil, it's killed; if it's wrong, the Judge dies. Use the <b>/cmd tl [player id]</b> command to judge and <b>/cmd id</b> to view player IDs. Judges can judge all players when they're Madmate.",
+  "JudgeInfoLong": "(Crewmates):\\nThe Judge can judge a player during the meeting. If the target is evil, it's killed; if it's wrong, the Judge dies. Use the <b>/cmd trial [player id]</b> command to judge and <b>/cmd id</b> to view player IDs. Judges can judge all players when they're Madmate.",
   "JudgeCanBeMadmate": "<color=#f8d85a>Judge</color> can become <color=#ff1919>Madmate</color>",
   "JudgeCanTrialContagious": "Can trial <color=#2E8B57>Contagious</color>",
   "JudgeCanTrialConverted": "Can trial <#ffab1b>Converted</color> players",
@@ -1050,7 +1062,7 @@
   "MarshallCanBeMadmate": "<color=#5573AA>Marshall</color> can become <color=#ff1919>Madmate</color>",
   "Mathematician": "Mathematician",
   "MathematicianInfo": "Ask Math Questions",
-  "MathematicianInfoLong": "(Crewmates):\\nAs the Mathematician, you can use <b>/cmd ask [number] [number]</b> to ask a math question (What is [number] + [number]?). The first player to answer correctly will get +1 ability use and shielded for the next round. You can only ask once per meeting.",
+  "MathematicianInfoLong": "(Crewmates):\\nAs the Mathematician, you can use <b>/cmd ask [number] [number]</b> to ask a math question (What is [number] + [number]?). The first player to answer correctly will get +1 ability use and be shielded for the next round. You can only ask once per meeting.",
   "MathematicianAnsweredString": "<b>{0}</b> has answered correctly! ({1})\nThey got +1 ability use and will be shielded for the next round.",
   "MathematicianProtected": "This player was the first to answer the Mathematician's question correctly,\\ntherefore they're shielded",
   "MathematicianQuestionString": "What is <b>{0} + {1}</b>?\n\nType <b>/answer [answer]</b> to answer.\nFirst to answer correctly gets shielded for the next round!",
@@ -1070,7 +1082,7 @@
   "MayorVentButtonText": "Button",
   "Mechanic": "Mechanic",
   "MechanicInfo": "Vent and fix sabotages quickly",
-  "MechanicInfoLong": "(Crewmates):\\nMechanic can use vent anytime. Can fix Reactors, O2, and Comms using one side. Lights fixed with one switch. Opening one door opens all doors.",
+  "MechanicInfoLong": "(Crewmates):\\nMechanic can use the vents anytime. Can fix Reactors, O2, and Comms using one side. Lights are fixed with one switch. Opening one door opens all doors.",
   "MechanicCanFixSabotageFromAnywhereWithPet": "Can Fix Sabotages From Anywhere If Pets Are On",
   "MechanicFixesCommunications": "Can Fix Both Comms Alone In <color=#e84b56>MIRA HQ</color>",
   "MechanicFixesDoors": "Can open all doors in the same building",
@@ -1177,7 +1189,7 @@
   "NiceEraserHideVote": "Hide <color=#00a5ff>Nice Eraser</color>'s Votes",
   "NiceGuesser": "Nice Guesser",
   "NiceGuesserInfo": "Guess <color=#ff1919>evil</color> roles in meetings to kill",
-  "NiceGuesserInfoLong": "(Crewmates):\\nNice Guesser can guess a player's role during the meeting. Correct guess results in killing the target, while a wrong one leads to suicide. Use the command <b>/cmd bt [player id] [role]</b> to guess. You can see player IDs before their names or use the <b>/cmd id</b> command.",
+  "NiceGuesserInfoLong": "(Crewmates):\\nNice Guesser can guess a player's role during the meeting. A correct guess results in killing the target, while a wrong one leads to suicide. Use the command <b>/cmd bt [player id] [role]</b> to guess. You can see player IDs before their names or use the <b>/cmd id</b> command.",
   "Nightmare": "Nightmare",
   "NightmareInfo": "You cannot be killed during lights out",
   "NightmareInfoLong": "(Crewmates):\\nAs the Nightmare, you cannot be killed during the lights out sabotage.",
@@ -1290,8 +1302,8 @@
   "SafeguardSuffix": "<#00ffa5>You're shielded</color>",
   "SafeguardSuffixTimer": "<#00ffa5>You're shielded for</color> <b>{0}</b>s",
   "Scanner": "Scanner",
-  "ScannerInfo": "Scan for Invisble Players and Make them Visible Again",
-  "ScannerInfoLong": "(Crewmates)\nAs the Scanner, Vanish to activate your ability. If any invisible player stays near you by a certain amount of time, they become visible again.",
+  "ScannerInfo": "Scan for Invisible Players and Make them Visible Again",
+  "ScannerInfoLong": "(Crewmates)\nAs the Scanner, Vanish to activate your ability. If any invisible player stays near you for a certain amount of time, they become visible again.",
   "ScannerAbilityRange": "Ability Range",
   "ScannerTimeLimit": "Time Limit for invisible players on range to appear",
   "ScannerWarningInRange": "A <color=#42f5a7>Scanner</color> is near you! If you don't get away in {0}s, you will become visible again!",
@@ -1500,7 +1512,7 @@
   "TM.TryKillNotify": "Someone tried to kill you",
   "Tornado": "Tornado",
   "TornadoInfo": "Spawn Tornados",
-  "TornadoInfoLong": "(Crewmates):\\nAs the Tornado, you can spawn tornados by petting. When someone walks close to a tornado, they fly (teleport) to a random place on the ship.",
+  "TornadoInfoLong": "(Crewmates):\\nAs the Tornado, you can spawn tornadoes by petting. When someone walks close to a tornado, they fly (teleport) to a random place on the ship.",
   "TornadoCooldown": "Tornado Spawn Cooldown",
   "TornadoDuration": "Tornado Duration",
   "TornadoRange": "Tornado Range",
@@ -1529,7 +1541,7 @@
   "TunnelerInfo": "Mark a position and TP back there",
   "TunnelerInfoLong": "(Crewmates):\\nAs the Tunneler, you may mark a position by petting, and then you can teleport back to the marked position by petting again.",
   "UndercoverInfo": "Impostors see you as their partner",
-  "UndercoverInfoLong": "(Crewmates):\\nThe Impostors knows who Undercover is and sees him as a teammate, but Undercover himself does not know who the Impostors are.",
+  "UndercoverInfoLong": "(Crewmates):\\nThe Impostors know who Undercover is and see him as a teammate, but Undercover himself does not know who the Impostors are.",
   "Unshifter": "Unshifter",
   "UnshifterInfo": "Unshift Shapeshifted Players",
   "UnshifterInfoLong": "(Crewmates):\\nAs the Unshifter, you may use your kill button on someone to unshift them if they are shapeshifted. Using the kill button in Non-Shifted players does nothing but a message. Depending on settings, the target may receive a notification.\\n<size=50%>Credit: Dechis</size>",
@@ -1564,7 +1576,7 @@
   "VeteranVentButtonText": "Alert",
   "Vigilante": "Vigilante",
   "VigilanteInfo": "You can kill 1 player",
-  "VigilanteInfoLong": "(Crewmates):\\nVigilante can kill anyone, but only once. After killing, Vigilante can do tasks. Depending on settings, Vigilante can vent.",
+  "VigilanteInfoLong": "(Crewmates):\\nVigilante can kill anyone, but only once. After killing, the Vigilante can do tasks. Depending on settings, Vigilante can vent.",
   "Whisperer": "Whisperer",
   "WhispererInfo": "Question Souls to Get Info",
   "WhispererInfoLong": "(Crewmates):\\nAs the Whisperer, you can ask the souls of dead players for information. You'll see the souls of the players who have died (after the next meeting) and can question them by petting on them. You have to stay near the soul for a few seconds. You then get random details on the soul or the killer shown below your name.",
@@ -1584,7 +1596,7 @@
   "WhispererQuestioning": "Questioning {0}... {1}%",
   "Witness": "Witness",
   "WitnessInfo": "Find out if someone killed recently",
-  "WitnessInfoLong": "(Crewmates):\\nWhen you use your kill button on someone, it tells you if the player killed recently or not. The yellow exclamation mark means they've killed, and the green chech mark means they've not.",
+  "WitnessInfoLong": "(Crewmates):\\nWhen you use your kill button on someone, it tells you if the player killed recently or not. The yellow exclamation mark means they've killed, and the green check mark means they've not.",
   "WitnessButtonText": "Examine",
   "WitnessTime": "Max Time after killing where killer appears red",
   "Wizard": "Wizard",
@@ -1760,7 +1772,7 @@
   "CouncillorInfoLong": "(Impostors):\\nAs the Councillor, you can kill players during a meeting like a Judge.\\n\\nWhen killing in a meeting, those kills will appear as a trial from a Judge.\\n\\nThe kill command is <b>/cmd tl [player id]</b>\\nYou can see the player's id before the player's name, or use the <b>/cmd id</b> command to view the id of all players.",
   "CouncillorCanMurderImpostor": "Can Murder <color=#ff1919>Impostors</color>",
   "CouncillorCanMurderMadmate": "Can Murder <color=#ff1919>Madmates</color>",
-  "CouncillorDead": " you can't murder from the dead.\"",
+  "CouncillorDead": " You can't murder from the dead.",
   "CouncillorMakeEvilJudgeClear": "Show Trial as Councillor Murder",
   "CouncillorMurderMax": "Sorry, you've reached the maximum amount of murders.",
   "CouncillorMurderMaxMeeting": "You cannot murder more players in this meeting. You've reached the limit set by the host.",
@@ -1773,7 +1785,7 @@
   "CrewpostorLungeKill": "Lunge on Kills",
   "CursedWolf": "Cursed Wolf",
   "CursedWolfInfo": "You survive a few kill attempts",
-  "CursedWolfInfoLong": "(Impostors):\\nWhen the Cursed Wolf is about to be killed, the Cursed Wolf will curse the killer to death. (The host sets the max of times you can counterattack)",
+  "CursedWolfInfoLong": "(Impostors):\\nWhen the Cursed Wolf is about to be killed, the Cursed Wolf will curse the killer to death. (The host sets the max number of times you can counterattack)",
   "Dazzler": "Dazzler",
   "DazzlerInfo": "Reduce players' vision",
   "DazzlerInfoLong": "(Impostors):\\nAs the Dazzler, you can reduce the vision of the target of your Shapeshift permanently. When you die, their vision will turn back to normal.",
@@ -1868,7 +1880,7 @@
   "FireworkerWaitPhase": "Wait for it...",
   "Forger": "Forger",
   "ForgerInfo": "Forge Others' Roles",
-  "ForgerInfoLong": "(Impostors):\\nAs the Forger, you can use <b>/cmd forge {id} {role}</b> to change the specified player's role to the one you specifed after they die. Note that this will only be visual, the player will keep their actual role technically.",
+  "ForgerInfoLong": "(Impostors):\\nAs the Forger, you can use <b>/cmd forge {id} {role}</b> to change the specified player's role to the one you specified after they die. Note that this will only be visual, the player will keep their actual role technically.",
   "Framer": "Framer",
   "FramerInfo": "Frame Other Players",
   "FramerInfoLong": "(Impostors):\\nAs the Framer, single click with your kill button on someone to frame them, making the game think they're on the impostor team. Double click to kill normally.",
@@ -1930,7 +1942,7 @@
   "Generator.Vent.Cost": "Charges Needed to Vent",
   "Godfather": "Godfather",
   "GodfatherInfo": "Recruit players by voting them",
-  "GodfatherInfoLong": "(Impostors):\\nAs a Godfather, you vote for someone to make them your target. In the next round if someone kills the target, the killer will turn into a Renegade",
+  "GodfatherInfoLong": "(Impostors):\\nAs a Godfather, you vote for someone to make them your target. In the next round, if someone kills the target, the killer will turn into a Renegade.",
   "Greedy": "Greedy",
   "GreedyInfo": "Your kill cooldown shifts",
   "GreedyInfoLong": "(Impostors):\\nAs the Greedy, your kill cooldown is different after every even-numbered kill and every odd-numbered kill of yours. You have a separate cooldown after meetings. Your first kill after every meeting will set your cooldown to the Even-Numbered Kill Cooldown, your second kill will set it to the Odd-Numbered Kill Cooldown, and the process repeats until a meeting is called again.",
@@ -1941,7 +1953,7 @@
   "KillCooldownOnStrangle": "Kill Cooldown after Strangling",
   "Hitman": "Hitman",
   "HitmanInfo": "Select your target",
-  "HitmanInfoLong": "(Impostors):\\nAs the Hitman, you may shapeshift into someone to mark them as your target. If you kill your target, your next kill cooldown will be lower.\\n\\nNote: Once you chose a target, you cannot change it. You'll get a chance to mark a target again after killing your current target.",
+  "HitmanInfoLong": "(Impostors):\\nAs the Hitman, you may shapeshift into someone to mark them as your target. If you kill your target, your next kill cooldown will be lower.\\n\\nNote: Once you choose a target, you cannot change it. You'll get a chance to mark a target again after killing your current target.",
   "HitmanLowKCD": "Lower Kill Cooldown",
   "Hypnotist": "Hypnotist",
   "HypnotistInfo": "Prevent Body Reports",
@@ -2021,7 +2033,7 @@
   "MastermindTargetSurvived": "<color=#00ff00>You survive</color>",
   "MastermindTimeLimit": "Time Limit to Kill Someone",
   "Mercenary": "Mercenary",
-  "MercenaryInfo": "Keep killing, else you suicide",
+  "MercenaryInfo": "Keep killing, or you suicide",
   "MercenaryInfoLong": "(Impostors):\\nAs the Mercenary, you have a lower kill cooldown than other impostors, but you also have a timer. You must kill someone to reset it. If it gets to 0, you suicide. You can see the timer above your name if it gets below 20 seconds.",
   "MercenaryLimit": "Time Until Suicide",
   "MercenarySuicideButtonText": "Suicide Timer",
@@ -2091,7 +2103,7 @@
   "ParasiteInfoLong": "(Madmates):\\nAs the Parasite, you may kill, vent, sabotage, whatever. Just know that you are an Impostor.",
   "Penguin": "Penguin",
   "PenguinInfo": "Drag your victims",
-  "PenguinInfoLong": "(Impostors):\\nPenguins can restrain target by pressing the kill button, and drag around. While dragging, the target dies by pressing the kill button again or after a certain period of time. Press the kill button twice for a direct kill.",
+  "PenguinInfoLong": "(Impostors):\\nPenguins can restrain the target by pressing the kill button, and drag around. While dragging, the target dies by pressing the kill button again or after a certain period of time. Press the kill button twice for a direct kill.",
   "PenguinAbductTimerLimit": "Dragging Time",
   "PenguinKillButtonText": "Drag",
   "PenguinMeetingKill": "Kill the target if a meeting starts during dragging.",
@@ -2101,7 +2113,7 @@
   "PenguinVictimKill": "As the victim of the Penguin/Goose, you cannot interact with others",
   "Perplexer": "Perplexer",
   "PerplexerInfo": "Invert a player's movement controls",
-  "PerplexerInfoLong": "(Impostors):\\nAs the Perplexer, use your shapeshift menu to select a player. That player will get their movement controls inverted for a certain amout of time.",
+  "PerplexerInfoLong": "(Impostors):\\nAs the Perplexer, use your shapeshift menu to select a player. That player will get their movement controls inverted for a certain amount of time.",
   "PhantomEHR": "Phantom",
   "PhantomEHRInfo": "Go invisible temporarily",
   "PhantomEHRInfoLong": "(Impostors):\\nAs the Phantom, you can go invisible for a short period. During this time, you can't be seen by Crewmates.",
@@ -2146,7 +2158,7 @@
   "RenegadeKillImpostor": "Renegades cannot kill Impostors",
   "RiftMaker": "Rift Maker",
   "RiftMakerInfo": "Teleport between 2 places",
-  "RiftMakerInfoLong": "(Impostors):\\nAs the Rift Maker, you may shapeshift twice/pet twice to mark two points on the ship. After you've marked both places, whenever you go near a marked place, you will automatically teleport to the other mark point.\\nVenting discards both marked places.\\n\\nYou cannot vent normally.",
+  "RiftMakerInfoLong": "(Impostors):\\nAs the Rift Maker, you may shapeshift twice/pet twice to mark two points on the ship. After you've marked both places, whenever you go near a marked place, you will automatically teleport to the other marked point.\\nVenting discards both marked places.\\n\\nYou cannot vent normally.",
   "Saboteur": "Saboteur",
   "SaboteurInfo": "Kill to call and stack sabotages. You can only kill during a sabotage",
   "SaboteurInfoLong": "(Impostors):\\nAs the Saboteur, you can only kill when there is a critical sabotage active (e.g., Comms or O2). Whenever you kill, another random critical sabotage will be activated on top of the ongoing one.",
@@ -2180,11 +2192,11 @@
   "SniperSnipeButtonText": "Snipe",
   "SoulCatcher": "Soul Catcher",
   "SoulCatcherInfo": "You swap places with your shift target",
-  "SoulCatcherInfoLong": "(Impostors):\\nSoul Catcher can swap places with the shapeshift target after shapeshifting. (If the target is in an abnormal state such as dead, swallowed by pelican, venting, etc., then nothing will happen)",
+  "SoulCatcherInfoLong": "(Impostors):\\nSoul Catcher can swap places with the shapeshift target after shapeshifting. (If the target is in an abnormal state, such as dead, swallowed by pelican, venting, etc., then nothing will happen)",
   "SoulCatcherButtonText": "Teleport",
   "Stasis": "Stasis",
   "StasisInfo": "Freeze Time",
-  "StasisInfoLong": "(Impostors):\\nAs the Stasis, you can vanish/pet/vanish to 'freeze time'. That means, all players will be frozen and blind, and no one will be able to do anything. Depending on the settings, the blinding and freezing may exclude other impostor-teamed players.",
+  "StasisInfoLong": "(Impostors):\\nAs the Stasis, you can vanish/pet/vanish to 'freeze time'. That means all players will be frozen and blind, and no one will be able to do anything. Depending on the settings, the blinding and freezing may exclude other impostor-teamed players.",
   "Stasis.AffectsOtherImpostors": "Time Freezing Affects Other <#ff1919>Impostors</color>",
   "Stasis.TimeFreezeEndNotify": "Time Unfrozen",
   "Stasis.TimeFrozenNotify": "Time Frozen",
@@ -2227,7 +2239,7 @@
   "TimeThiefReturnStolenTimeUponDeath": "Return Stolen Time Upon Death",
   "Trapster": "Trapster",
   "TrapsterInfo": "Start a killing chain",
-  "TrapsterInfoLong": "(Impostors):\\nAs the Trapster, you can vanish/pet to create a fake dead body. Anyone who reports this body will die, and depending on settings the body will be reported.\\n\\n(Legacy Version):\\nIn the game, the Trapster kills a player and then puts a trap on their body. If another player reports the dead body and it has the Trapster's trap on it, the player who reports will die instantly without the body getting reported. The player killed by the Trapster's trap will also become a Trapster. This chain reaction continues until no more players are left to become Trapsters. However, the Trapster will die immediately after making a kill. It's worth noting that the Trapster's own dead body cannot trigger their trap.",
+  "TrapsterInfoLong": "(Impostors):\\nAs the Trapster, you can vanish/pet to create a fake dead body. Anyone who reports this body will die, and depending on settings, the body will be reported.\\n\\n(Legacy Version):\\nIn the game, the Trapster kills a player and then puts a trap on their body. If another player reports the dead body and it has the Trapster's trap on it, the player who reports it will die instantly without the body getting reported. The player killed by the Trapster's trap will also become a Trapster. This chain reaction continues until no more players are left to become Trapsters. However, the Trapster will die immediately after making a kill. It's worth noting that the Trapster's own dead body cannot trigger their trap.",
   "Trickster": "Trickster",
   "TricksterInfo": "Kill and trick the crew",
   "TricksterInfoLong": "(Impostors):\\nAs the Trickster, you function as a regular Impostor but with one key difference. You appear crewmate to crewmate roles.\\n\\nThe Sheriff cannot kill you.\\nPsychic does not see you as evil.\\nSnitch cannot find you.",
@@ -2237,7 +2249,7 @@
   "TwisterButtonText": "Twist",
   "TwisterCooldown": "Twist Cooldown",
   "Undertaker": "Undertaker",
-  "UndertakerInfo": "Take bodies whereever you want to",
+  "UndertakerInfo": "Take bodies wherever you want to",
   "UndertakerInfoLong": "(Impostors):\\nAs the Undertaker, you can mark your target using your kill button, then vanish/pet to kill them. However, the person you assassinate will teleport to your location when you shapeshift, so their body will be wherever you are! Use this well to hide bodies!",
   "UndertakerAssassinateCooldown": "Assassinate Cooldown",
   "UndertakerCanKillAfterAssassinate": "Can kill after Assassinating",
@@ -2253,7 +2265,7 @@
   "VampireTargetDead": "Target died",
   "Venerer": "Venerer",
   "VenererInfo": "Stack Abilites By Killing",
-  "VenererInfoLong": "(Impostors):\\nAs the Venerer, each kill you make gives you a new ability on top of all existing ones (up to 3) that you can use by shapeshifting/vanishing/petting. All abilites will activate at the same time and for the same duration. Abilities gained:\\n1st Kill: Camouflage (turn grey)\\n2nd Kill: Dash (become faster)\\n3rd Kill: Freeze (slow down everyone near you)",
+  "VenererInfoLong": "(Impostors):\\nAs the Venerer, each kill you make gives you a new ability on top of all existing ones (up to 3) that you can use by shapeshifting/vanishing/petting. All abilities will activate at the same time and for the same duration. Abilities gained:\\n1st Kill: Camouflage (turn grey)\\n2nd Kill: Dash (become faster)\\n3rd Kill: Freeze (slow down everyone near you)",
   "Venerer.FreezeRadius": "Freeze Ability Radius",
   "Venom": "Venom",
   "VenomInfo": "Kill to Dissolve Bodies",
@@ -2279,7 +2291,7 @@
   "WarlockShapeshiftButtonText": "Spell",
   "Wasp": "Wasp",
   "WaspInfo": "Sting Players",
-  "WaspInfoLong": "(Impostors):\\nAs the Wasp, you can sting players by using your kill button on them. If the player has a kill button they will die after a few seconds. Otherwise, they will have a ◀ next to their name in the next meeting. They will die after the meeting if the wasp isn't ejected.\\n\\nWhen someone tries to kill you, you may evade the kill based on the host's settings. If so, 2 things can happen:\\n1. You become aggressive and go into swarm mode with no kill cooldown for some time.\\n2. You get pest controlled. This will daze you, Stunting your vision, speed and ability to sting for some time.\\nNote: If you evade a kill, you cannot evade kills, sabotage or vent for the rest of that round.",
+  "WaspInfoLong": "(Impostors):\\nAs the Wasp, you can sting players by using your kill button on them. If the player has a kill button, they will die after a few seconds. Otherwise, they will have a ◀ next to their name in the next meeting. They will die after the meeting if the wasp isn't ejected.\\n\\nWhen someone tries to kill you, you may evade the kill based on the host's settings. If so, 2 things can happen:\\n1. You become aggressive and go into swarm mode with no kill cooldown for some time.\\n2. You get pest controlled. This will daze you, stunting your vision, speed, and ability to sting for some time.\\nNote: If you evade a kill, you cannot evade kills, sabotage or vent for the rest of that round.",
   "Wasp.EvadeKills": "Evade Kills",
   "Wasp.KillDelay": "Sting Kill Delay",
   "Wasp.PestControlDuration": "Pest Control Duration",
@@ -2471,7 +2483,7 @@
   "BubbleTargetNotifyDelay": "Notify Delay",
   "Chemist": "Chemist",
   "ChemistInfo": "Mix Chemicals",
-  "ChemistInfoLong": "(Neutrals):\\nAs the Chemist, mix all sorts of chemicals to make overpowered gasses and items. Each room on the ship functions as a type of factory. In each factory, you can do some processes that take ingredients and get the results. (Some factories have multiple processes available, sabotage to cycle between them.) (You can vent to get some basic ingredients.) (Pet to complete a process if you have the required ingredients.)\\n\\nWork your way to get these end products, which do the following:\\n- Sulfuric Acid: Mark someone with the kill button, and that player will spread the acid to all players they go nearby. After some time, all the acid players die.\\n- Methylamine Gas: Vent to blind everyone except you.\\n- Explosive: Gets put onto the next dead body you make. Everyone who tries to report it dies.\\n- Grenade: Put this onto someone via the kill button. They now carry the grenade. It blows up in seconds, killing that player and everyone nearby.\\n\\nIf you have an end product ready to use through the kill button, single click to use it, double click to kill normally.\\n\\n<size=80%>By far, this is the most complex role in the history of Among Us. Good luck! (- The Dev)</size>",
+  "ChemistInfoLong": "(Neutrals):\\nAs the Chemist, mix all sorts of chemicals to make overpowered gases and items. Each room on the ship functions as a type of factory. In each factory, you can do some processes that take ingredients and get the results. (Some factories have multiple processes available, sabotage to cycle between them.) (You can vent to get some basic ingredients.) (Pet to complete a process if you have the required ingredients.)\\n\\nWork your way to get these end products, which do the following:\\n- Sulfuric Acid: Mark someone with the kill button, and that player will spread the acid to all players they go nearby. After some time, all the acid players die.\\n- Methylamine Gas: Vent to blind everyone except you.\\n- Explosive: Gets put onto the next dead body you make. Everyone who tries to report it dies.\\n- Grenade: Put this onto someone via the kill button. They now carry the grenade. It blows up in seconds, killing that player and everyone nearby.\\n\\nIf you have an end product ready to use through the kill button, single click to use it, double click to kill normally.\\n\\n<size=80%>By far, this is the most complex role in the history of Among Us. Good luck! (- The Dev)</size>",
   "Chemist.AcidPlayersDie": "Acid Players Die",
   "Chemist.AcidPlayersDieAfterTime": "Time",
   "Chemist.AirGainedPerSecond": "Amount of Air Gained Every Second",
@@ -2516,7 +2528,7 @@
   "CultistInfoLong": "(Neutrals):\\nIf there are more Cultists than Crewmates and only these two teams remain, the Cultist team wins. The Cultist can charm a non-neutral player by pressing the kill button, making them a part of the Cultist team with new victory conditions.",
   "CultistCanCharmNeutral": "Neutral Roles can be <color=#cf6acd>Charmed</color>",
   "CultistCharmCooldown": "Charm Cooldown",
-  "CultistCharmCooldownIncrese": "Increases Charm Cooldown For Each Charm",
+  "CultistCharmCooldownIncrease": "Increases Charm Cooldown For Each Charm",
   "CultistCharmMax": "Maximum Number Of Charm",
   "CultistCharmedPlayer": "You successfully charmed a player",
   "CultistInvalidTarget": "Target cannot be charmed",
@@ -2534,7 +2546,7 @@
   "Curser.Notify.3": "You gave your target permanent low speed",
   "Dealer": "Dealer",
   "DealerInfo": "Give Players Add-ons",
-  "DealerInfoLong": "(Neutrals):\\nAs the Dealer, use your kill button to give players random add-ons. If you give a certain amount of add-ons, your win condition satisfy, and you'll win with the winning team at the end.",
+  "DealerInfoLong": "(Neutrals):\\nAs the Dealer, use your kill button to give players random add-ons. If you give a certain number of add-ons, your win condition is satisfied, and you'll win with the winning team at the end.",
   "Dealer.AAO.After5s": "After 5 seconds",
   "Dealer.AAO.Instantly": "Instantly",
   "Dealer.AAO.OnMeeting": "On The Next Meeting",
@@ -2570,7 +2582,7 @@
   "DoomsayerNotCorrectlyGuessRole": "You didn't correctly guess the role!\\nBut you didn't die because the Host's settings don't allow you to die",
   "DoomsayerTryHideMsg": "Hide <color=#14f786>Doomsayer</color>'s commands",
   "Doppelganger": "Doppelganger",
-  "DoppelgangerInfo": "Steal The Identify of Your Target",
+  "DoppelgangerInfo": "Steal The Identity of Your Target",
   "DoppelgangerInfoLong": "(Neutrals):\\nAs the Doppelganger, use your kill button to steal a player's identity (their name and skin) and then kill your target.\\n\\nKill everyone to win.\\n\\nNote:- You can not steal the identity of the target when Camouflage is active.",
   "DoppelgangerWarning": "<#ffff00>The Doppelganger swapped skins with you!</color>",
   "DoppelMaxSteals": "Maximum Steals",
@@ -2615,7 +2627,7 @@
   "ExecutionerRoleChanged": "Your target died",
   "Explosivist": "Explosivist",
   "ExplosivistInfo": "Explode Time Bombs",
-  "ExplosivistInfoLong": "(Neutrals):\\nAs the Explosivist, you cannot kill normally. Instead, you can pet/vanish to develop a bomb and start carrying it. Others will only see the bomb itself, and you standing in place where you've started to use your ability. After a few seconds, the bomb explodes, killing everyone nearby, and you teleport back to where you started carrying the bomb.\\nKill everyone to win!",
+  "ExplosivistInfoLong": "(Neutrals):\\nAs the Explosivist, you cannot kill normally. Instead, you can pet/vanish to develop a bomb and start carrying it. Others will only see the bomb itself, and you standing in the place where you've started to use your ability. After a few seconds, the bomb explodes, killing everyone nearby, and you teleport back to where you started carrying the bomb.\\nKill everyone to win!",
   "Explosivist.ExplosionDelay": "Explosion Delay",
   "Explosivist.ExplosionRadius": "Explosion Radius",
   "ExplosivistSuffix": "<size=80%>Carrying the bomb</size>\\n<#ffff00>Explodes in </color>{0}s",
@@ -2633,7 +2645,7 @@
   "FollowerMaxBetTimes": "Maximum Number of Follows",
   "Gaslighter": "Gaslighter",
   "GaslighterInfo": "Make others doubt their own memory",
-  "GaslighterInfoLong": "(Neutrals):\\nAs the Gaslighter, you do different actions through your kill button every round.\\n\\nRound 1: Normal kills\\nRound 2: Knight players\\nRound 3: Curse players (like Witch)\\nRound 4: Shield players\\n\\nThen the cycle repeats, or you stay on normally killing until the end of the game depending on the settings.\\nSettings determine your win condition.",
+  "GaslighterInfoLong": "(Neutrals):\\nAs the Gaslighter, you do different actions through your kill button every round.\\n\\nRound 1: Normal kills\\nRound 2: Knight players\\nRound 3: Curse players (like Witch)\\nRound 4: Shield players\\n\\nThen the cycle repeats, or you stay on normally killing until the end of the game, depending on the settings.\\nSettings determine your win condition.",
   "Gaslighter.Curse": "In this round, you <#ff00ff>curse players</color>",
   "Gaslighter.CycleRepeats": "Kill Button Actions Cycle Repeats",
   "Gaslighter.Kill": "In this round, you <#ff1919>kill normally</color>",
@@ -2813,7 +2825,7 @@
   "NecroGuesser.NumGuessesToWin": "Number of Guesses Required to Win",
   "Necromancer": "Necromancer",
   "NecromancerInfo": "Recruit Everyone to the Undead",
-  "NecromancerInfoLong": "(Neutrals):\\nThe Necromancer is the main recruiter for the Undead faction. The first person it kills will become a Deathknight. With the help of the Deathknight, they must work together to convert others to the Undead. If the Necromancer were to die, The Deathknight would turn into Necromancer.",
+  "NecromancerInfoLong": "(Neutrals):\\nThe Necromancer is the main recruiter for the Undead faction. The first person it kills will become a Deathknight. With the help of the Deathknight, they must work together to convert others to the Undead. If the Necromancer were to die, the Deathknight would turn into the Necromancer.",
   "NecromancerCD": "Partial Recruit Cooldown",
   "NecromancerKnowTargetRole": "Know Recruited Players' Roles",
   "NecromancerRecruitedPlayer": "Successfully recruited player partially",
@@ -2856,8 +2868,10 @@
   "PatrollerNotifyNoBoost": "You are now in <color=#00ffa5>{0}</color>\\nIn this room, you have <#ff0000>no boosts</color>",
   "Pawn": "Pawn",
   "PawnInfo": "Complete Tasks Then Pick Your Role",
-  "PawnInfoLong": "(Neutrals):\\nAs the Pawn, you must complete all of your tasks, then use <b>/cmd choose {role}</b> to pick your role.\\n\\n(Replace {role} with the name of the role that you want to become.) (You can only choose roles that are enabled.)\\nYou lose if you have this role when the game ends.",
+  "PawnInfoLong": "(Neutrals):\\nAs the Pawn, you must complete all of your tasks, then use <b>/cmd choose {role}</b> to pick your role. (Alternatively, you can use the command earlier, and the system will change your role when you finish tasks.)\\n\\n(Replace {role} with the name of the role that you want to become.) (You can only choose roles that are enabled.)\\nYou lose if you have this role when the game ends.",
   "Pawn.KeepsGameGoing": "Keeps The Game Going",
+  "PawnChooseFail": "<#ff5555>X <#bb0000>Please enter a valid role that is enabled.",
+  "PawnChosenRole": "<#00ff00>✓ <#00bb00>Your role will become {0} after the meeting if your tasks are done.",
   "Pelican": "Pelican",
   "PelicanInfo": "Eat all players",
   "PelicanInfoLong": "(Neutrals):\\nAs the Pelican, you can use the kill button and swallow a player alive. Swallowed players are teleported out of the map and cannot interact with the game. In case of an emergency meeting or reporting a dead body, all swallowed players die instantly. This is not a standard way to kill, and role skills such as the Bodyguard and Veteran are ineffective. If you die or disconnect, all previously swallowed players are returned to your location.",
@@ -2876,7 +2890,7 @@
   "PickpocketGetVote": "You've got +{0} votes",
   "PlagueBearer": "Plaguebearer",
   "PlagueBearerInfo": "Plague everyone to turn into <color=#343136>Pestilence</color>",
-  "PlagueBearerInfoLong": "(Neutrals):\\nPlague everyone using your kill button to turn into Pestilence. Once you turn into Pestilence, you will become immortal (for the most part) and gain the ability to kill.\\nIn addition to this, After turning into Pestilence, you will kill anyone who tries to kill you directly.\\n\\nYou can only win if you turn into Pestilence.",
+  "PlagueBearerInfoLong": "(Neutrals):\\nPlague everyone using your kill button to turn into Pestilence. Once you turn into Pestilence, you will become immortal (for the most part) and gain the ability to kill.\\nIn addition to this, after turning into Pestilence, you will kill anyone who tries to kill you directly.\\n\\nYou can only win if you turn into Pestilence.",
   "PlagueBearerAlreadyPlagued": "Player has already been plagued",
   "PlagueBearerCD": "Plague cooldown",
   "PlagueBearerToPestilence": "You have turned into Pestilence!!",
@@ -2900,7 +2914,7 @@
   "PostmanTargetDied": "<color=#ffff00>Your target died.</color>",
   "Predator": "Predator",
   "PredatorInfo": "Eliminate Specific Roles",
-  "PredatorInfoLong": "(Neutrals):\\nAs the Predator, you must kill one player that has one of the roles listed below your name. If you succeed to do so, you'll win with the winning team at the end. If you kill someone who doesn't have one of the roles listed below your name, you'll die.",
+  "PredatorInfoLong": "(Neutrals):\\nAs the Predator, you must kill one player that has one of the roles listed below your name. If you succeed in doing so, you'll win with the winning team at the end. If you kill someone who doesn't have one of the roles listed below your name, you'll die.",
   "PredatorCorrectKill": "Successful kill! They were {0}.",
   "PredatorDone": "You've done your job.\\nYou'll win with the winning team at the end.",
   "Provocateur": "Provocateur",
@@ -2966,7 +2980,7 @@
   "QuizMaster.QuestionSample.Title.Self": "Sent Question:",
   "QuizMaster.Title": "Quiz Master Question",
   "Reckless": "Reckless",
-  "RecklessInfo": "Avoid Meetings at all cost",
+  "RecklessInfo": "Avoid Meetings at all costs",
   "RecklessInfoLong": "(Neutral):\\nAs the Reckless, your cooldown decreases with each kill you get. However, this isn't permanent. Your kill cooldown resets back to its default value at every meeting.",
   "Revolutionist": "Revolutionist",
   "RevolutionistInfo": "Recruit players to win with you",
@@ -3016,7 +3030,7 @@
   "RogueKnowEachOtherRoles": "<color=#696969>Rogues</color> know the roles of each other",
   "Romantic": "Romantic",
   "RomanticInfo": "Select your partner and win with them",
-  "RomanticInfoLong": "(Neutral):\\nAs the Romantic, you can first use your kill button on someone to select them as your partner.\\nAfter that, as long as both you and your partner are alive, you can use your kill button on anyone to give your partner a temporarily shield. If your partner wins, you win too.\\n\\nIf your partner dies, your role will change according to the following conditions:\\nIf your partner had a kill button of any type, you will get the same role as they were.\\nIf your partner was a Non-Killing Neutral or your partner died by themselves (suicided or has no real killer), you will turn into the Ruthless Romantic, which is a basic neutral killer: Be the last one standing to win. If you win, your partner wins too.\\nIf your target was an Impostor, you become a Renegade. Your job is now to help the impostors (and thus your partner) win.\\nIn every other case, you become the Vengeful Romantic. Your goal is to kill the killer of your partner. If you do so, you and your partner win with the winning team. If you try to kill anyone else, you will die.",
+  "RomanticInfoLong": "(Neutral):\\nAs the Romantic, you can first use your kill button on someone to select them as your partner.\\nAfter that, as long as both you and your partner are alive, you can use your kill button on anyone to give your partner a temporary shield. If your partner wins, you win too.\\n\\nIf your partner dies, your role will change according to the following conditions:\\nIf your partner had a kill button of any type, you will get the same role as they were.\\nIf your partner was a Non-Killing Neutral or your partner died by themselves (suicided or has no real killer), you will turn into the Ruthless Romantic, which is a basic neutral killer: Be the last one standing to win. If you win, your partner wins too.\\nIf your target was an Impostor, you become a Renegade. Your job is now to help the impostors (and thus your partner) win.\\nIn every other case, you become the Vengeful Romantic. Your goal is to kill the killer of your partner. If you do so, you and your partner win with the winning team. If you try to kill anyone else, you will die.",
   "Romantic.PickPartnerText": "PICK PARTNER",
   "RomanticArrows": "<color=#ff1493>Romantic</color> has arrows pointing to their Partner",
   "RomanticBetCooldown": "Pick Partner Cooldown",
@@ -3033,12 +3047,12 @@
   "RomanticProtectPartner": "Your partner is under protection",
   "RoomRusher": "Room Rusher",
   "RoomRusherInfo": "You're Playing Room Rush",
-  "RoomRusherInfoLong": "(Neutrals):\\nYou're playing Room Rush. You have to get to the specified room as fast as possible, but always within the time limit, otherwise you die. You may be able to vent limited times depending on the host's settings. After you get to the specified room a certain amount of times successfully without dying, your win condition satisfies and you'll win with the winning team at the end.",
+  "RoomRusherInfoLong": "(Neutrals):\\nYou're playing Room Rush. You have to get to the specified room as fast as possible, but always within the time limit, otherwise you die. You may be able to vent for a limited number of times, depending on the host's settings. After you get to the specified room a certain number of times successfully without dying, your win condition is satisfied, and you'll win with the winning team at the end.",
   "RoomRusher.MaxVents": "Max Number of Vent Uses",
   "RoomRusher.RoomsToWin": "Number of rooms to get to for the win condition to satisfy",
   "RouleteGrandeur": "Roulette Grandeur",
   "RouleteGrandeurInfo": "Play Russian Roulette",
-  "RouleteGrandeurInfoLong": "(Neutrals):\\nAs the Roulette Grandeur, you can play Russian Roulette to reduce your kill cooldown after the next kill you make. Vent to cycle between the amount of risk (bullets) you put in. There are 5 slots. If you land on a bullet, you die. If you survive, your kill cooldown is permanately reduced by a set amount <i>multiplied by the risk (bullets) you put in</i>! Sabotage or pet to play a round with the chosen risk factor.",
+  "RouleteGrandeurInfoLong": "(Neutrals):\\nAs the Roulette Grandeur, you can play Russian Roulette to reduce your kill cooldown after the next kill you make. Vent to cycle between the amount of risk (bullets) you put in. There are 5 slots. If you land on a bullet, you die. If you survive, your kill cooldown is permanently reduced by a set amount <i>multiplied by the risk (bullets) you put in</i>! Sabotage or pet to play a round with the chosen risk factor.",
   "KCDReduction": "Kill Cooldown Reduction (multiplied by the amount of bullets put in)",
   "RG.Hit": "<#ffff00>The hit landed on one of your bullets!\\nBetter luck next time!</color>",
   "RG.NoHit": "<#00ffa5>You survived, despite putting in <#8cffff>{0}</color> bullets.\\nYour kill cooldown was reduced by <#8cffff>{1}s</color>!</color>",
@@ -3064,7 +3078,7 @@
   "SchrodingersCat.WinsWithCrewIfNotAttacked": "Wins with crewmates if not attacked",
   "Seamstress": "Seamstress",
   "SeamstressInfo": "Sew Players Together",
-  "SeamstressInfoLong": "(Neutrals):\\nAs the Seamstress, you can sew 2 players together using your shapeshift menu. If an interaction happens on one of the players, it will happen to both of them. If one of them die or disconnect, or a meeting is called, the sew will break. Sewed players know they are sewed together with someone, but not who.\\n\\nYou win if crewmates lose.",
+  "SeamstressInfoLong": "(Neutrals):\\nAs the Seamstress, you can sew 2 players together using your shapeshift menu. If an interaction happens on one of the players, it will happen to both of them. If one of them dies or disconnects, or a meeting is called, the sew will break. Sewed players know they are sewed together with someone, but not who.\\n\\nYou win if crewmates lose.",
   "SerialKiller": "Serial Killer",
   "SerialKillerInfo": "Kill everyone to win!",
   "SerialKillerInfoLong": "(Neutrals):\\nAs the Serial Killer, your job is to murder everyone to win simply.",
@@ -3094,7 +3108,7 @@
   "SidekickSheriffCanGoBerserk": "<color=#00b4eb>Recruited</color> <color=#f8cd46>Sheriff</color> Can Go Nuts",
   "Simon": "Simon",
   "SimonInfo": "Give Instructions to Players",
-  "SimonInfoLong": "(Neutrals):\\nAs Simon, you can give instructions to players (Simon Says). Single click on someone to mark them, double click to kill to kill them. Vent to give out an instruction to all marked players. Players with kill buttons will be told to kill, while crewmates will be told to complete a task. If they don't follow the instruction until the next meeting, they will die. You can sabotage/pet to swap the instruction. This means, those who can, will be told to NOT kill, while crewmates will be told to NOT complete a task.",
+  "SimonInfoLong": "(Neutrals):\\nAs Simon, you can give instructions to players (Simon Says). Single click on someone to mark them, double click to kill to kill them. Vent to give out an instruction to all marked players. Players with kill buttons will be told to kill, while crewmates will be told to complete a task. If they don't follow the instructions until the next meeting, they will die. You can sabotage/pet to swap the instruction. This means, those who can, will be told to NOT kill, while crewmates will be told to NOT complete a task.",
   "SimonDoMode": "<#00ffa5>Mode:</color> Do instruction",
   "SimonDoShort": "<#ff0000>Must do instruction</color>",
   "SimonDontKill": "Simon says: <#ffff00>You must NOT use your kill button until the next meeting</color>",
@@ -3108,12 +3122,13 @@
   "SlendermanInfoLong": "(Neutrals):\\nAs the Slenderman, whenever someone gets close to you, they will be blinded until they move away from you.\\n\\nKill everyone to win!",
   "Slenderman.AfterMeetingBlindCooldown": "Blinding Cooldown After Meetings",
   "Slenderman.BlindRange": "Blinding Range",
+  "Slenderman.AffectsPlayersInVents": "Blinding Affects Players Inside Vents",
   "SoulCollector": "Soul Collector",
   "SoulCollectorInfo": "You Kill Without Any Notice",
   "SoulCollectorInfoLong": "(Neutrals):\\nAs the Soul Collector, when you kill someone, everyone other than you and your target will see the target as a living player. Your targets fully die when a meeting gets called.\\nKill everyone to win!",
   "SoulHunter": "Soul Hunter",
   "SoulHunterInfo": "Hunt Souls To Win",
-  "SoulHunterInfoLong": "(Neutrals):\\nAs the Soul Hunter, you can mark your target via your kill button. In the next meeting, you'll be frozen for a set amount of seconds and your target will be notified about being your target. Your target will not be able to vent, call a meeting or kill you. You must kill your target within a specified number of seconds, else you lose a soul. If you kill your target in time, you gain a soul. Collect a set amount of souls to satisfy your win condition. If your win condition is satisfied at the end of the game, you'll win with the winning team.",
+  "SoulHunterInfoLong": "(Neutrals):\\nAs the Soul Hunter, you can mark your target via your kill button. In the next meeting, you'll be frozen for a set amount of seconds and your target will be notified about being your target. Your target will not be able to vent, call a meeting or kill you. You must kill your target within a specified number of seconds, or you lose a soul. If you kill your target in time, you gain a soul. Collect a set amount of souls to satisfy your win condition. If your win condition is satisfied at the end of the game, you'll win with the winning team.",
   "SoulHunterFreezeTimeAfterMeeting": "Waiting Time After Meeting",
   "SoulHunterGetSoulForSuicide": "Gain Soul When Target Dies By Other Means",
   "SoulHunterNotify": "You have <color=#00ffa5>{0}s</color> to kill <color=#3f2c61>{1}</color>",
@@ -3137,7 +3152,7 @@
   "Spider.WebTrapRange": "Web Trap Range",
   "Spirit": "Spirit",
   "SpiritInfo": "Place Candles to Swap Interactions",
-  "SpiritInfoLong": "(Neutrals):\\nAs the Spirit, you can place candles on players to swap interactions between them using your shapeshift menu. If an interaction were to happen on one of the players, it will instead happen to the other. This includes normal kills. If one of them die or disconnect, the swap will break and you gain back a candle, which you can reuse. Swapped players know they are swapped with someone, but not who.\\n\\nYou win if crewmates lose.",
+  "SpiritInfoLong": "(Neutrals):\\nAs the Spirit, you can place candles on players to swap interactions between them using your shapeshift menu. If an interaction were to happen with one of the players, it would instead happen to the other. This includes normal kills. If one of them dies or disconnects, the swap will break and you gain back a candle, which you can reuse. Swapped players know they are swapped with someone, but not who.\\n\\nYou win if crewmates lose.",
   "SpiritTarget": "<#ffff44>You were swapped with someone by the {0}!</color>",
   "SpiritTargetBoth": "<#00ff00>2/2 targets set</color>\\n<size=80%>Interactions between {0} and {1} are swapped</size>",
   "SpiritTargetNone": "0/2 targets set\\n<size=80%>Use your shapeshift menu to set targets</size>",
@@ -3154,12 +3169,12 @@
   "SpiritcallerSpiritMax": "Maximum number of <color=#003366>Evil Spirits</color>",
   "Sprayer": "Sprayer",
   "SprayerInfo": "Place Traps",
-  "SprayerInfoLong": "(Neutral):\\nAs the Sprayer, you can place traps by sabotaging/petting. If someone walks into a trap, they'll have lower speed and vision for some time. If a player walks into a trap a specified amount of times, they suicide.",
+  "SprayerInfoLong": "(Neutral):\\nAs the Sprayer, you can place traps by sabotaging/petting. If someone walks into a trap, they'll have lower speed and vision for some time. If a player walks into a trap a specified number of times, they suicide.",
   "SprayerMaxTrappedTimes": "Times a Player Has to Walk Into a Trap to Die",
   "SprayerNotify": "Trap placed",
   "Stalker": "Stalker",
   "StalkerInfo": "Your kills cause power outages",
-  "StalkerInfoLong": "(Neutrals):\\nWhen the Stalker performs a kill, they will trigger the electricty Sabotage. They cannot vent. Depending on the host's settings, the Stalker may win alone if they're alive when the Crewmate or Impostor team wins.",
+  "StalkerInfoLong": "(Neutrals):\\nWhen the Stalker performs a kill, they will trigger the electricity Sabotage. They cannot vent. Depending on the host's settings, the Stalker may win alone if they're alive when the Crewmate or Impostor team wins.",
   "Starspawn": "Starspawn",
   "StarspawnInfo": "Isolate Players & Call Daybreak",
   "StarspawnInfoLong": "(Neutrals):\\nAs the Starspawn, you can isolate players by using your kill button on them. Only evil players can interact with isolated players.\\nOnce in a game, you can call daybreak in a meeting by typing <b>/cmd daybreak</b> in the chat. This will prevent ALL meeting abilities from being used in that meeting. This includes guessing, judging, and all other meeting abilities that are role-specific.\\n\\nYou win if crewmates lose.",
@@ -3177,7 +3192,7 @@
   "Tank.Suffix": "<size=80%><#00ffa5>A random vent you haven't entered yet:</color> {0}</size>",
   "Technician": "Technician",
   "TechnicianInfo": "Fix sabotages",
-  "TechnicianInfoLong": "(Neutrals):\\nAs the Technician, you must fix a certain number of sabotages to win. Depending on settings, you may be a able to vent, and you may win alone or with the winning team if your objective is completed. You may get fewer or more points for certain sabotages.",
+  "TechnicianInfoLong": "(Neutrals):\\nAs the Technician, you must fix a certain number of sabotages to win. Depending on settings, you may be able to vent, and you may win alone or with the winning team if your objective is completed. You may get fewer or more points for certain sabotages.",
   "Technician.PointGain.Comms": "Points gained for fixing Comms",
   "Technician.PointGain.Electrical": "Points gained for fixing Lights",
   "Technician.PointGain.LifeSupp": "Points gained for fixing O2",
@@ -3240,24 +3255,24 @@
   "VectorVentButtonText": "Hop",
   "Vengeance": "Vengeance",
   "VengeanceInfo": "Kill your killer to live",
-  "VengeanceInfoLong": "(Neutral):\\nAs the Vengeance, you win when you're the last one standing. Additionally, when someone tries to kill you, the kill will be blocked and you will be teleported to a random vent. You will have a limited time to kill your killer. If you succeed to do so, you live. If the time runs out before you kill your killer, you die permanently. If you try to kill someone else other than your killer, you will die.",
+  "VengeanceInfoLong": "(Neutral):\\nAs the Vengeance, you win when you're the last one standing. Additionally, when someone tries to kill you, the kill will be blocked and you will be teleported to a random vent. You will have a limited time to kill your killer. If you succeed in doing so, you live. If the time runs out before you kill your killer, you die permanently. If you try to kill someone else other than your killer, you will die.",
   "VengeanceRevenge": "You have {0}s to kill your killer",
   "VengeanceRevengeTime": "Time to Revenge",
   "VengeanceSuccess": "<color=#00ff00>Revenge successful! You live!</color>",
   "VengefulRomantic": "Vengeful Romantic",
   "VengefulRomanticInfo": "Kill the killer of your Partner",
-  "VengefulRomanticInfoLong": "(Neutral):\\nAs Vengeful Romantic you need to  kill the killer of your partner. You only get one shot. If you kill wrong player, you misfire. Upon killing the right target you win with the winning team along with your Romantic Partner",
+  "VengefulRomanticInfoLong": "(Neutral):\\nAs Vengeful Romantic, you need to kill the killer of your partner. You only get one shot. If you kill the wrong player, you misfire. Upon killing the right, target you win with the winning team along with your Romantic Partner",
   "VengefulRomanticKillButtonText": "Avenge",
   "Virus": "Virus",
   "VirusInfo": "Kill and infect everyone",
-  "VirusInfoLong": "(Neutrals):\\nThe virus' goal is to eliminate other players. When a crewmate is killed, their corpse is infected, and the reporting crewmate joins the virus team or dies if the Virus isn't voted out. The Virus team wins if they outnumber the Crewmate team.",
+  "VirusInfoLong": "(Neutrals):\\nThe Virus's goal is to eliminate other players. When a crewmate is killed, their corpse is infected, and the reporting crewmate joins the virus team or dies if the Virus isn't voted out. The Virus team wins if they outnumber the Crewmate team.",
   "VirusCanVent": "Can Vent",
   "VirusInfectMax": "Maximum Number Of <color=#2E8B57>Spreads</color>",
   "VirusKillCooldown": "Kill Cooldown",
   "VirusKillInfectedPlayerAfterMeeting": "<color=#2E8B57>Contagious</color> player dies after meeting",
   "VirusKnowTargetRole": "Know <color=#2E8B57>Contagious</color> Player's Role",
-  "VirusNoticeMessage": "The body your reported was infected by the Virus! You are now part of Team Virus. Help the Virus win the game.",
-  "VirusNoticeMessage2": "The body your reported was infected by the Virus! Vote the Virus out this meeting or you will die.",
+  "VirusNoticeMessage": "The body you reported was infected by the Virus! You are now part of Team Virus. Help the Virus win the game.",
+  "VirusNoticeMessage2": "The body you reported was infected by the Virus! Vote the Virus out this meeting or you will die.",
   "VirusTargetKnowOtherTarget": "<color=#2E8B57>Contagious</color> players know each other",
   "Vortex": "Vortex",
   "VortexInfo": "Your victims' bodies teleport to a random vent",
@@ -3284,7 +3299,7 @@
   "WeathermanInfoLong": "(Neutrals):\\nAs the Weatherman, you can spawn a random natural disaster by using your pet/vanish button. The disasters are the same as in the Natural Disasters game mode.\\n\\nUse these disasters to kill everyone to win!",
   "Werewolf": "Werewolf",
   "WerewolfInfo": "Vent to Rampage to kill quickly",
-  "WerewolfInfoLong": "(Neutrals):\\nAs the Werewolf, you can go on a rampage by entering a vent. While you're rampaging you have a very short kill cooldown. You cannot kill when you aren't rampaging. Rampaging has a cooldown and a limited duration.",
+  "WerewolfInfoLong": "(Neutrals):\\nAs the Werewolf, you can go on a rampage by entering a vent. While you're rampaging, you have a very short kill cooldown. You cannot kill when you aren't rampaging. Rampaging has a cooldown and a limited duration.",
   "WWCD": "<color=#00ffa5>Cooldown:</color> <b>{0}</b>s",
   "WWCO.IfFinishedTasks": "If Finished Tasks",
   "WWCanRampage": "Vent to begin Rampaging",
@@ -3407,7 +3422,7 @@
   "SpellCaster.WinConditionMet": "The Coven will win after this meeting if the {0} is still alive.",
   "Summoner": "Summoner",
   "SummonerInfo": "Summon Players to Kill For You",
-  "SummonerInfoLong": "(Coven):\\nUse <b>/cmd summon {player ID}</b> (or the kick menu) to select a dead player to revive (summon) after the meeting. They will have a certain time to kill for you. If they succeed, they can also win alongside you, as well as their original team. Otherwise they die again at the end of the time limit, if they aren't already. With the Necronomicon, you gain a kill button and the ability to kill normally.\\n\\n<size=80%>Type <b>/cmd id</b> to get a list of player IDs, or view them next to the player names on the meeting screen. Example use: <b>/cmd summon 5</b></size>",
+  "SummonerInfoLong": "(Coven):\\nUse <b>/cmd summon {player ID}</b> (or the kick menu) to select a dead player to revive (summon) after the meeting. They will have a certain time to kill for you. If they succeed, they can also win alongside you, as well as their original team. Otherwise, they die again at the end of the time limit, if they aren't already. With the Necronomicon, you gain a kill button and the ability to kill normally.\\n\\n<size=80%>Type <b>/cmd id</b> to get a list of player IDs, or view them next to the player names on the meeting screen. Example use: <b>/cmd summon 5</b></size>",
   "Summoner.SummonedTimeToKill": "Time To Kill For Summoned Players",
   "Summoner.SummonDelayAfterMeeting": "Summon Delay After Meetings",
   "Summoner.SummonedKillCooldown": "Summoned Player's Kill Cooldown",
@@ -3537,7 +3552,7 @@
   "Cleansed": "Cleansed",
   "Cleansed-": "Cleansed ",
   "CleansedInfo": "Your add-ons were cleansed",
-  "CleansedInfoLong": "(Add-ons):\\nCleansed Add-on can only be obtained if cleanser erases all your Add-ons. Depending on the cleanser settings, you may not be able to obtain any more Add-ons in the future.",
+  "CleansedInfoLong": "(Add-ons):\\nCleansed Add-on can only be obtained if the Cleanser erases all your Add-ons. Depending on the cleanser settings, you may not be able to obtain any more Add-ons in the future.",
   "CleansedCanGetAddon": "Cleansed player can get Add-on",
   "Clumsy": "Clumsy",
   "ClumsyInfo": "You trip while walking",
@@ -3576,14 +3591,14 @@
   "DamoclesStartingTime": "Starting Time",
   "DamoclesTimeLeft": "<color=#00ffa5>Time:</color> <color=#ffffff><b>{0}</b>s</color>",
   "Deadlined": "Deadlined",
-  "DeadlinedInfo": "Must do a task or use kill button each round",
+  "DeadlinedInfo": "Must do a task or use the kill button each round",
   "DeadlinedInfoLong": "(Add-ons):\\nAs the Deadlined, you must complete a task or use your kill button (not necessarily for directly killing) on someone each round. If you fail to do so, you will die. If a meeting gets called too soon after the previous one ends (time set by the host), you won't die. This doesn't apply on the first round.",
   "Deadlined.InactiveTime": "Safe Time After Meetings",
   "Deadlined.MustDoTask": "<size=80%><#ffa500>You must complete a task or kill before the next meeting</color></size>",
   "Deadlined.SafeTime": "<size=80%><#00ffa5>Safe time:</color> <b>{0}</b>s</size>",
   "DeadlyQuota": "Deadly Quota",
   "DeadlyQuotaInfo": "You don't win if you didn't kill enough",
-  "DeadlyQuotaInfoLong": "(Add-ons):\\nDeadly Quota is an add-on that only impostors can get. The holder of this add-on will need to get a specified amount of kills (or more) to be able to win. If their win condition triggers before getting a required amount of kills, the player loses even if they were supposed to win.",
+  "DeadlyQuotaInfoLong": "(Add-ons):\\nDeadly Quota is an add-on that only impostors can get. The holder of this add-on will need to get a specified number of kills (or more) to be able to win. If their win condition triggers before getting a required amount of kills, the player loses even if they were supposed to win.",
   "Disco": "Disco",
   "DiscoInfo": "You continuously change colors",
   "DiscoInfoLong": "(Add-ons):\\nYou change your skin color every few seconds.",
@@ -3654,7 +3669,7 @@
   "GuesserMode": "Guesser Mode",
   "GuesserNumRestrictions": "Restrict the Number of Guessers on Each Team",
   "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
-  "GuesserTryHideMsg": "Try to hide guesser's command",
+  "GuesserTryHideMsg": "Try to hide the guesser's command",
   "GuessersKeepTheGameGoing": "Crewmate Guessers Keep The Game Going",
   "Haste": "Haste",
   "HasteInfo": "Your kill cooldown progresses while in vents",
@@ -3796,14 +3811,14 @@
   "StainedInfoLong": "(Add-ons):\\nYour killer gets a violet name for 3 seconds.",
   "Stealer": "Stealer",
   "StealerInfo": "Gain votes with kills",
-  "StealerInfoLong": "(Add-ons):\\nStealers gets additional votes every time they kill someone.",
+  "StealerInfoLong": "(Add-ons):\\nStealers get additional votes every time they kill someone.",
   "StealerGetVote": "You've got +{0} votes",
   "Stressed": "Stressed",
   "StressedInfo": "Everything changes your lifespan",
   "StressedInfoLong": "(Add-ons):\\nStressed is an add-on that only crewmates with tasks can get. The holder of this add-on will constantly have a timer displayed next to their role name. If the timer expires, the holder dies. The timer stops during meetings. Below is a list of what increases your time and what lowers your suicide timer:\\n\\n<size=80%>[<color=#00ff00><b>+</b></color>] Completing a task\\n[<color=#00ff00><b>+</b></color>] A non-crewmate player dies\\n[<color=#00ff00><b>+</b></color>] Surviving a meeting\\n[<color=#00ff00><b>+</b></color>] A non-crewmate player gets ejected\\n[<color=#00ff00><b>+</b></color>] Fixing a sabotage\\n[<color=#00ff00><b>+</b></color>] Reporting a dead body or calling a meeting\\n[<color=#ff0000><b>-</b></color>] A crewmate gets ejected</size>",
   "StressedExtraTimeAfterFixingSabotage": "Time Gained For Fixing a Sabotage",
   "StressedExtraTimeAfterImpostorDeath": "Time Gained When a Non-Crewmate Player Dies",
-  "StressedExtraTimeAfterImpostorEjected": "Time Gained When a Non-Crewmate Players Gets Ejected",
+  "StressedExtraTimeAfterImpostorEjected": "Time Gained When a Non-Crewmate Player Gets Ejected",
   "StressedExtraTimeAfterReporting": "Time Gained For Reporting a Dead Body",
   "StressedExtraTimeAfterTask": "Time Gained After Completing a Task",
   "StressedTimePenaltyAfterCrewmateEjected": "Time Penalty When a Crewmate Gets Ejected",
@@ -3854,7 +3869,7 @@
   "UndeadCountMode.Original": "Original Team",
   "Underdog": "Underdog",
   "UnderdogInfo": "Start killing on a low player count",
-  "UnderdogInfoLong": "(Add-ons):\\nAs the Underdog, your kill cooldown is longer until there's a certain amount of players alive. After that, your cooldown is shorter.",
+  "UnderdogInfoLong": "(Add-ons):\\nAs the Underdog, your kill cooldown is longer until there's a certain number of players alive. After that, your cooldown is shorter.",
   "UnderdogKillCooldownWithMorePlayersAlive": "Kill Cooldown when more players are alive",
   "UnderdogMaximumPlayersNeededToKill": "Maximum players needed for low cooldown",
   "Unlucky": "Unlucky",
@@ -3920,7 +3935,7 @@
   "PhantasmInfoLong": "(Neutral Ghost):\\nAs the Phantasm, you must finish all of your tasks to win! Depending on a setting, you may also end the game and win alone if you do so!",
   "Shade": "Shade",
   "ShadeInfo": "Protect Everyone to Win",
-  "ShadeInfoLong": "(Neutral Ghost):\\nAs the Shade, you must mark everyone to win! You can mark someone by using your protect button on them. If you succeed to mark everyone before the end of the game, you win with the winning team at the end. This is only an additional win condition, it does not override your original win condition.",
+  "ShadeInfoLong": "(Neutral Ghost):\\nAs the Shade, you must mark everyone to win! You can mark someone by using your protect button on them. If you manage to mark everyone before the end of the game, you win with the winning team at the end. This is only an additional win condition, it does not override your original win condition.",
   "Warden": "Warden",
   "WardenInfo": "Boost the Crewmates",
   "WardenInfoLong": "(Crewmate Ghost):\\nAs the Warden, you can protect someone (optimally a crewmate) to notify them about being in danger and to give them a temporary speed boost.",
@@ -4100,6 +4115,7 @@
   "GameMode": "Game Mode",
   "GameModeListTitle": "Game Modes",
   "DoingTasksIsPointlessInThisGameMode": "Look, I see that you're a very diligent crewmate, but....\\nDoing tasks is completely pointless in this game mode",
+  "NToCheckGameModeSettings": "Type <b>/n</b> to view the settings for this game mode",
   // Standard
   "Standard": "Standard",
   "ModeStandard": "Gamemode: Standard",
@@ -4245,7 +4261,8 @@
   "CTF_GameEndCriteria.PlayXRounds": "Play X Rounds",
   "CTF_GameEndCriteria.TimeLimit": "Time Limit",
   "CTF_Notify_EnemyTeamRoom": "The enemy team is in <#00ffa5>{0}</color>",
-  "CTF_PlayerStats": "<#00ffa5>Carried For: <#ffffff>{0}s</color> | Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats_CarriedFor": "<#00a5ff>Carried For: <#ffffff>{0}s</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{0}</color></color>",
   "CTF_PointsToWin": "Points to Win",
   "CTF_RoundsToPlay": "Rounds to Play",
   "CTF_SpeedReductionForFlagCarrier": "Speed Reduction for Flag Carriers",
@@ -4338,7 +4355,7 @@
   "HNS.DangerMeter": "Show (Custom) Danger Meter",
   "HNS.MaxNeutrals": "<#0000ff>Maximum</color> Number of <#ffab1b>Neutrals</color>",
   "HNS.MinNeutrals": "<#00ffff>Minimum</color> Number of <#ffab1b>Neutrals</color>",
-  "HNS.PlayersSeeRoles": "Players See Each Others' Roles",
+  "HNS.PlayersSeeRoles": "Players See Each Other's Roles",
   "HNS.TaskCount": "Tasks:",
   "HideAndSeek_MaxGameTime": "Maximum Game Length",
   "TimeDecreaseOnCommonTaskComplete": "When Completing a Common Task, Reduce the Game Time by",
@@ -4434,7 +4451,7 @@
   "HotPotato_HoldingNotify": "<#ffff00><size=2>You hold the Hot Potato! Pass it or die!</size></color>",
   "HotPotato_Range": "Pass Range",
   "HotPotato_Time": "The Holder of the Hot Potato is Killed Every",
-  "HotPotato_TimeLeftSuffix": "<#00ffa5>Kill in </color>",
+  "HotPotato_TimeLeftSuffix": "Kill in ",
   // King Of The Zones - KOTZ
   "KingOfTheZones": "KING OF THE ZONES",
   "ModeKingOfTheZones": "Gamemode: King Of The Zones",
@@ -8534,14 +8551,11 @@
   "AllAliveMeetingTime": "Meeting Time When No One is Dead",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} has guessed the anagram correctly (<b>{1}</b>)!",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "Maximum Arrow show-up delay",
   "ArrowDelayMin": "Minimum Arrow show-up delay",
-
 
   /* ==============================
   General Settings           
@@ -8705,7 +8719,6 @@
   "CanTerroristSuicideWin": "Can Win By Suicide",
   "CantGuessJailed": "You can not guess the target",
 
-
   /* ==============================
     Sabotage Settings           
   ============================== */
@@ -8743,8 +8756,6 @@
   "CannotSpawnAsSoloImp": "Cannot Spawn as Solo Impostor",
   "CannotStoneGazeWhenKCDIsntUp": "Cannot Stone Gaze Bodies When Kill Cooldown Isn't Up",
 
-
-
   /* ==============================
     General Settings           
   ============================== */
@@ -8768,7 +8779,6 @@
     EAC           
   ============================== */
   "CheatResponses": "When a cheating player is found",
-
 
   /* ==============================
     Combos           
@@ -8879,6 +8889,7 @@
   "CommandArgs.Poll.AnswerC": "The third answer (leave blank if not needed)",
   "CommandArgs.Poll.AnswerD": "The fourth answer (leave blank if not needed)",
   "CommandArgs.Poll.Question": "The question to ask. End it with a question mark (?)!",
+  "CommandArgs.PlayerInfo.Id": "The player's ID whose info you want to see (leave blank to show all)",
   "CommandArgs.QA.Letter": "The letter of the answer (A/B/C)",
   "CommandArgs.R.Role": "The role to view (leave blank to view all roles)",
   "CommandArgs.Rename.Name": "Your new name",
@@ -8954,6 +8965,7 @@
   "CommandDescription.GNO": "Guess The Number mini-game",
   "CommandDescription.GameModeList": "View the list of all game modes in the mod.",
   "CommandDescription.GameModePoll": "Start a poll to vote for the next game mode.",
+  "CommandDescription.Guess": "Guess a player's role.",
   "CommandDescription.HM": "Send one of the messages as the Messenger",
   "CommandDescription.HWhisper": "Whisper a helping message to a player as the Host.",
   "CommandDescription.Help": "View the list of commands",
@@ -8979,6 +8991,7 @@
   "CommandDescription.OS": "Set the spawn chance of a role",
   "CommandDescription.PV": "Vote in a poll",
   "CommandDescription.Poll": "Starts a poll",
+  "CommandDescription.PlayerInfo": "See a player's ID, friend code, hashed PUID, and platform info",
   "CommandDescription.QA": "Answer a question asked by the Quiz Master",
   "CommandDescription.QS": "View the current question asked by the Quiz Master",
   "CommandDescription.R": "View the list of roles or the description of a specific role",
@@ -8997,6 +9010,7 @@
   "CommandDescription.Start": "Starts the game",
   "CommandDescription.Summon": "Summon a player to kill for you as the Summoner",
   "CommandDescription.Swap": "Set a (vote-) swap target as the Swapper",
+  "CommandDescription.TimeLimit": "Show the remaining game time (when the time limit is enabled)",
   "CommandDescription.TPIn": "Teleport into the lobby",
   "CommandDescription.TPOut": "Teleport out of the lobby",
   "CommandDescription.Target": "Target a player as the Ventriloquist",
@@ -9087,6 +9101,7 @@
   "CommandForms.OS": "os,optionset",
   "CommandForms.PV": "pv",
   "CommandForms.Poll": "poll",
+  "CommandForms.PlayerInfo": "pi,playerinfo",
   "CommandForms.QA": "qa",
   "CommandForms.QS": "qs",
   "CommandForms.R": "r",
@@ -9105,6 +9120,7 @@
   "CommandForms.Start": "start",
   "CommandForms.Summon": "summon",
   "CommandForms.Swap": "sw,swap,st",
+  "CommandForms.TimeLimit": "tl,timelimit",
   "CommandForms.TPIn": "tpin",
   "CommandForms.TPOut": "tpout",
   "CommandForms.Target": "target",
@@ -9284,8 +9300,6 @@
   "DCanGuessImpostors": "Can Guess <color=#ff1919>Impostors</color>",
   "DCanGuessNeutrals": "Can Guess <color=#ffab1b>Neutrals</color>",
   "DGRM.OnMeeting": "On Meeting",
-
-
 
   /* ==============================
   Cooldowns and Timers           
@@ -9573,7 +9587,6 @@
   ============================== */
   "DoYourTasksPlease": "Please do your tasks!",
 
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9695,7 +9708,6 @@
   "EnteredBlockedVent": "<color=#ffff00>This vent is blocked by the Ventguard</color>",
   "EraseLimit": "Max Erases",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9751,7 +9763,6 @@
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Reset First Kill Cooldown",
-
 
   /* ==============================
     Cooldowns and Timers           
@@ -9951,8 +9962,6 @@
   "IncreasedSpeedDuration": "Increased Speed Duration",
   "IncreasedVisionDuration": "Increased Vision Duration",
 
-
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9972,14 +9981,12 @@
   ============================== */
   "KickCommandDisabled": "The kick command is currently disabled.",
 
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "KickLowLevelPlayer": "Kick players whose level is lower than",
   "KickNintendoPlayer": "<b>{0}</b> was kicked due to playing on Nintendo Switch.",
   "KickNotJoinedPlayersRegularly": "Kick players who haven't joined the game every 25s in lobby",
-
 
   /* ==============================
     Moderator / Admin / VIP         
@@ -10096,7 +10103,6 @@
   ============================== */
   "LowLoadMode": "Fix Lag",
 
-
   /* ==============================
     Task Settings           
   ============================== */
@@ -10140,6 +10146,12 @@
   "MainMenu.CreditsButton": "Credits",
   "MainMenu.ExitGameButton": "Quit",
   "MainMenu.InventoryButton": "Inventory",
+
+  /* ==============================
+    Lobby View Settings           
+  ============================== */
+  "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
+  "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
 
   /* ==============================
     General Settings           
@@ -10301,7 +10313,6 @@
     Notifications and Messages           
   ============================== */
   "MuteMessage": "<#ff0000>You're muted and cannot send messages. The mute will expire in <#ffff00>{0}</color> seconds.</color>",
-
 
   /* ==============================
     Meeting Settings         
@@ -10525,7 +10536,6 @@
   "GMInfo": "Spectate the chaos!",
   "GMInfoLong": "(Other):\\nThe Game Master is an observer role. Their presence does not affect the game; all players know who the Game Master is. The Game Master role will be assigned to the Host/Spectators, who will automatically become a ghost at the start of the game.",
 
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10536,7 +10546,6 @@
   "RestEHRSetting": "EHR settings have been restored to default",
   "RevealMaxCount": "Maximum Reveals",
   "RitualMaxCount": "Maximum Reveals",
-
 
   /* ==============================
     Sabotage Settings           
@@ -11336,6 +11345,7 @@
   "UntilNextReveal": "Until Next Reveal",
   "Untouched": "Global Setting Decides",
   "UploadPreset": "Upload current preset to database",
+  "UploadPresetHeader": "Upload & Publish",
   "UseGameLanguage": "Use Game Language",
   "UseLegacyVersion": "Use Legacy Version",
   "UsePets": "Use Pet button instead of Vent/Shapeshift",
@@ -11464,11 +11474,11 @@
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>Alter the number of</color> Neutral Pariah <#ffffff>roles in the game</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "Maximum Neutral Pariah Roles",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Minimum Neutral Pariah Roles",
-  
+
   /* ==============================
     Faction Information           
   ============================== */
-  
+
   "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
   "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }
