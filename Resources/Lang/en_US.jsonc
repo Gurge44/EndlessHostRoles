@@ -1,4 +1,4 @@
-﻿{
+{
   /* ==============================
     CORE & FREQUENTLY USED STRINGS       
   ============================== */
@@ -1005,7 +1005,7 @@
   "JournalistError.Unknown": "An unknown error occurred.",
   "Judge": "Judge",
   "JudgeInfo": "Silence in the courtroom!",
-  "JudgeInfoLong": "(Crewmates):\\nThe Judge can judge a player during the meeting. If the target is evil, it's killed; if it's wrong, the Judge dies. Use the <b>/cmd tl [player id]</b> command to judge and <b>/cmd id</b> to view player IDs. Judges can judge all players when they're Madmate.",
+  "JudgeInfoLong": "(Crewmates):\\nThe Judge can judge a player during the meeting. If the target is evil, it's killed; if it's wrong, the Judge dies. Use the <b>/cmd trial [player id]</b> command to judge and <b>/cmd id</b> to view player IDs. Judges can judge all players when they're Madmate.",
   "JudgeCanBeMadmate": "<color=#f8d85a>Judge</color> can become <color=#ff1919>Madmate</color>",
   "JudgeCanTrialContagious": "Can trial <color=#2E8B57>Contagious</color>",
   "JudgeCanTrialConverted": "Can trial <#ffab1b>Converted</color> players",

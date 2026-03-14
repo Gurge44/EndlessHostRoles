@@ -13,6 +13,7 @@ public class Centralizer : RoleBase
     public static OptionItem AbilityCooldown;
     private static OptionItem AbilityUseLimit;
     private static OptionItem AbilityUseGainWithEachKill;
+    private static OptionItem KillCooldown;
 
     public Vector2? MarkedPosition;
 
@@ -22,7 +23,8 @@ public class Centralizer : RoleBase
             .AutoSetupOption(ref NumPlayersTeleported, 4, new IntegerValueRule(1, 15, 1), OptionFormat.Players)
             .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.1f), OptionFormat.Times)
-            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.6f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times);
+            .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.6f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
+            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0.5f, 120f, 0.5f), OptionFormat.Seconds);
     }
 
     public override void Init()
