@@ -624,7 +624,7 @@ public static class CustomRpcSenderExtensions
         return true;
     }
 
-    public static void RpcDesyncRepairSystem(this CustomRpcSender sender, PlayerControl target, SystemTypes systemType, int amount)
+    public static void RpcDesyncUpdateSystem(this CustomRpcSender sender, PlayerControl target, SystemTypes systemType, int amount)
     {
         sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
         sender.Write((byte)systemType);

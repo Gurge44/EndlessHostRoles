@@ -10,12 +10,14 @@ namespace EHR;
 // Based on:
 // https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
 
-[HarmonyPatch(typeof(ReactorSystemType), nameof(ReactorSystemType.Deteriorate))]
+[HarmonyPatch(typeof(ReactorSystemType))]
 public static class ReactorSystemTypePatch
 {
     private static bool SetDurationForReactorSabotage = true;
 
-    public static void Prefix(ReactorSystemType __instance)
+    [HarmonyPatch(nameof(ReactorSystemType.Deteriorate))]
+    [HarmonyPrefix]
+    public static void Deteriorate_Prefix(ReactorSystemType __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
 
@@ -30,8 +32,7 @@ public static class ReactorSystemTypePatch
             return;
         }
 
-        Logger.Info($" {ShipStatus.Instance.Type}", "ReactorSystemTypePatch - ShipStatus.Instance.Type");
-        Logger.Info($" {SetDurationForReactorSabotage}", "ReactorSystemTypePatch - SetDurationCriticalSabotage");
+        Logger.Info($"Type:{ShipStatus.Instance.Type} - SetDuration:{SetDurationForReactorSabotage}", "ReactorSystemTypePatch");
         SetDurationForReactorSabotage = false;
 
         switch (ShipStatus.Instance.Type)
@@ -52,22 +53,53 @@ public static class ReactorSystemTypePatch
                 return;
         }
     }
-    public static void Postfix(HeliSabotageSystem __instance)
+    [HarmonyPatch(nameof(ReactorSystemType.Deteriorate))]
+    [HarmonyPostfix]
+    public static void Deteriorate_Postfix(ReactorSystemType __instance)
     {
-        if (__instance.IsActive && __instance.Countdown <= 0)
+        var isActive = __instance.IsActive;
+        switch (Main.CurrentMap)
+        {
+            case MapNames.Polus:
+                Main.SabotageIsActive[SystemTypes.Laboratory] = isActive;
+                return;
+            default:
+                Main.SabotageIsActive[SystemTypes.Reactor] = isActive;
+                break;
+
+        }
+
+        if (isActive && __instance.Countdown <= 0)
         {
             Main.ForceRebuildCachesPlayerControls();
             GameEndChecker.ForceCheckEnd();
         }
     }
+    [HarmonyPatch(nameof(ReactorSystemType.ClearSabotage))]
+    [HarmonyPostfix]
+    public static void ClearSabotage_Postfix()
+    {
+        switch (Main.CurrentMap)
+        {
+            case MapNames.Polus:
+                Main.SabotageIsActive[SystemTypes.Laboratory] = false;
+                return;
+            default:
+                Main.SabotageIsActive[SystemTypes.Reactor] = false;
+                break;
+
+        }
+    }
 }
 
-[HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
+[HarmonyPatch(typeof(HeliSabotageSystem))]
 public static class HeliSabotageSystemPatch
 {
     private static bool SetDurationForReactorSabotage = true;
 
-    public static void Prefix(HeliSabotageSystem __instance)
+    [HarmonyPatch(nameof(HeliSabotageSystem.Deteriorate))]
+    [HarmonyPrefix]
+    public static void Deteriorate_Prefix(HeliSabotageSystem __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
 
@@ -82,28 +114,40 @@ public static class HeliSabotageSystemPatch
             return;
         }
 
-        Logger.Info($" {ShipStatus.Instance.Type}", "HeliSabotageSystemPatch - ShipStatus.Instance.Type");
-        Logger.Info($" {SetDurationForReactorSabotage}", "HeliSabotageSystemPatch - SetDurationCriticalSabotage");
+        Logger.Info($"Type:{ShipStatus.Instance.Type} - SetDuration:{SetDurationForReactorSabotage}", "HeliSabotageSystemPatch");
         SetDurationForReactorSabotage = false;
 
         __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
     }
-    public static void Postfix(HeliSabotageSystem __instance)
+    [HarmonyPatch(nameof(HeliSabotageSystem.Deteriorate))]
+    [HarmonyPostfix]
+    public static void Deteriorate_Postfix(HeliSabotageSystem __instance)
     {
-        if (__instance.IsActive && __instance.Countdown <= 0)
+        var isActive = __instance.IsActive;
+        Main.SabotageIsActive[SystemTypes.HeliSabotage] = isActive;
+
+        if (isActive && __instance.Countdown <= 0)
         {
             Main.ForceRebuildCachesPlayerControls();
             GameEndChecker.ForceCheckEnd();
         }
     }
+    [HarmonyPatch(nameof(HeliSabotageSystem.ClearSabotage))]
+    [HarmonyPostfix]
+    public static void ClearSabotage_Postfix()
+    {
+        Main.SabotageIsActive[SystemTypes.HeliSabotage] = false;
+    }
 }
 
-[HarmonyPatch(typeof(LifeSuppSystemType), nameof(LifeSuppSystemType.Deteriorate))]
+[HarmonyPatch(typeof(LifeSuppSystemType))]
 public static class LifeSuppSystemTypePatch
 {
     private static bool SetDurationForO2Sabotage = true;
 
-    public static void Prefix(LifeSuppSystemType __instance)
+    [HarmonyPatch(nameof(LifeSuppSystemType.Deteriorate))]
+    [HarmonyPrefix]
+    public static void Deteriorate_Prefix(LifeSuppSystemType __instance)
     {
         if (!Options.SabotageTimeControl.GetBool()) return;
 
@@ -118,8 +162,7 @@ public static class LifeSuppSystemTypePatch
             return;
         }
 
-        Logger.Info($" {ShipStatus.Instance.Type}", "LifeSuppSystemType - ShipStatus.Instance.Type");
-        Logger.Info($" {SetDurationForO2Sabotage}", "LifeSuppSystemType - SetDurationCriticalSabotage");
+        Logger.Info($"Type:{ShipStatus.Instance.Type} - SetDuration:{SetDurationForO2Sabotage}", "LifeSuppSystemType");
         SetDurationForO2Sabotage = false;
 
         switch (ShipStatus.Instance.Type)
@@ -134,9 +177,14 @@ public static class LifeSuppSystemTypePatch
                 return;
         }
     }
-    public static void Postfix(HeliSabotageSystem __instance)
+    [HarmonyPatch(nameof(LifeSuppSystemType.Deteriorate))]
+    [HarmonyPostfix]
+    public static void Deteriorate_Postfix(LifeSuppSystemType __instance)
     {
-        if (__instance.IsActive && __instance.Countdown <= 0)
+        var isActive = __instance.IsActive;
+        Main.SabotageIsActive[SystemTypes.LifeSupp] = isActive;
+
+        if (isActive && __instance.Countdown <= 0)
         {
             Main.ForceRebuildCachesPlayerControls();
             GameEndChecker.ForceCheckEnd();
@@ -149,8 +197,6 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
 {
     public static void Postfix()
     {
-        Logger.Info(" IsActive", "MushroomMixupSabotageSystem.UpdateSystem.Postfix");
-
         foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
@@ -188,8 +234,7 @@ public static class MushroomMixupSabotageSystemPatch
             return;
         }
 
-        Logger.Info($" {ShipStatus.Instance.Type}", "MushroomMixupSabotageSystem - ShipStatus.Instance.Type");
-        Logger.Info($" {SetDurationMushroomMixupSabotage}", "MushroomMixupSabotageSystem - SetDurationCriticalSabotage");
+        Logger.Info($"Type:{ShipStatus.Instance.Type} - SetDuration:{SetDurationMushroomMixupSabotage}", "MushroomMixupSabotageSystem");
         SetDurationMushroomMixupSabotage = false;
 
         __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
@@ -197,8 +242,11 @@ public static class MushroomMixupSabotageSystemPatch
 
     public static void Postfix(MushroomMixupSabotageSystem __instance, bool __state)
     {
+        var isActive = __instance.IsActive;
+        Main.SabotageIsActive[SystemTypes.MushroomMixupSabotage] = isActive;
+
         // When Mushroom Mixup Sabotage ends
-        if (AmongUsClient.Instance.AmHost && __instance.IsActive != __state && GameStates.IsInTask)
+        if (AmongUsClient.Instance.AmHost && isActive != __state && GameStates.IsInTask)
         {
             LateTask.New(() =>
             {
@@ -276,6 +324,8 @@ public static class ElectricTaskInitializePatch
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
+        Main.SabotageIsActive[SystemTypes.Electrical] = true;
+
         Utils.MarkEveryoneDirtySettingsV2();
 
         if (GameStates.IsInTask)
@@ -302,6 +352,8 @@ public static class ElectricTaskCompletePatch
         if (LastUpdate >= now) return;
         LastUpdate = now;
 
+        Main.SabotageIsActive[SystemTypes.Electrical] = false;
+
         if (GameStates.IsInTask)
         {
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
@@ -325,6 +377,26 @@ public static class ElectricTaskCompletePatch
         Utils.MarkEveryoneDirtySettingsV2();
 
         Logger.Info("Lights sabotage fixed", "ElectricTask");
+    }
+}
+
+// Comms
+[HarmonyPatch(typeof(HqHudSystemType), nameof(HqHudSystemType.Deteriorate))]
+public static class HqHudSystemTypePatch
+{
+    public static void Postfix(HqHudSystemType __instance)
+    {
+        var isActive = __instance.IsActive;
+        Main.SabotageIsActive[SystemTypes.Comms] = isActive;
+    }
+}
+[HarmonyPatch(typeof(HudOverrideSystemType), nameof(HudOverrideSystemType.Deteriorate))]
+public static class HudOverrideSystemTypePatch
+{
+    public static void Postfix(HudOverrideSystemType __instance)
+    {
+        var isActive = __instance.IsActive;
+        Main.SabotageIsActive[SystemTypes.Comms] = isActive;
     }
 }
 

@@ -236,63 +236,16 @@ public static class Utils
 
     public static bool IsAnySabotageActive()
     {
-        return CustomSabotage.Instances.Count > 0 || new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.Any(IsActive);
+        return CustomSabotage.Instances.Count > 0 || Main.AllSabotage.Any(IsActive);
     }
 
     public static bool IsActive(SystemTypes type)
     {
         try
         {
-            if (GameStates.IsLobby || !ShipStatus.Instance || !ShipStatus.Instance.Systems.TryGetValue(type, out ISystemType systemType)) return false;
-
-            int mapId = Main.NormalOptions.MapId;
-
-            switch (type)
-            {
-                case SystemTypes.Electrical:
-                {
-                    if (mapId == 5) return false;
-                    return systemType.TryCast<SwitchSystem>(out var switchSystem) && switchSystem.IsActive;
-                }
-                case SystemTypes.Reactor:
-                {
-                    return mapId switch
-                    {
-                        2 => false,
-                        4 => systemType.TryCast<HeliSabotageSystem>(out var heliSabotageSystem) && heliSabotageSystem.IsActive,
-                        _ => systemType.TryCast<ReactorSystemType>(out var reactorSystemType) && reactorSystemType.IsActive
-                    };
-                }
-                case SystemTypes.Laboratory:
-                {
-                    if (mapId != 2) return false;
-                    return systemType.TryCast<ReactorSystemType>(out var reactorSystemType) && reactorSystemType.IsActive;
-                }
-                case SystemTypes.LifeSupp:
-                {
-                    if (mapId is 2 or 4 or 5) return false;
-                    return systemType.TryCast<LifeSuppSystemType>(out var lifeSuppSystemType) && lifeSuppSystemType.IsActive;
-                }
-                case SystemTypes.Comms:
-                {
-                    if (mapId is 1 or 5)
-                        return systemType.TryCast<HqHudSystemType>(out var hqHudSystemType) && hqHudSystemType.IsActive;
-
-                    return systemType.TryCast<HudOverrideSystemType>(out var hudOverrideSystemType) && hudOverrideSystemType.IsActive;
-                }
-                case SystemTypes.HeliSabotage:
-                {
-                    if (mapId != 4) return false;
-                    return systemType.TryCast<HeliSabotageSystem>(out var heliSabotageSystem) && heliSabotageSystem.IsActive;
-                }
-                case SystemTypes.MushroomMixupSabotage:
-                {
-                    if (mapId != 5) return false;
-                    return systemType.TryCast<MushroomMixupSabotageSystem>(out var mushroomMixupSabotageSystem) && mushroomMixupSabotageSystem.IsActive;
-                }
-                default:
-                    return false;
-            }
+            if (GameStates.IsLobby || !ShipStatus.Instance || !Main.SabotageIsActive.TryGetValue(type, out bool isActive)) return false;
+            
+            return isActive;
         }
         catch (Exception e)
         {

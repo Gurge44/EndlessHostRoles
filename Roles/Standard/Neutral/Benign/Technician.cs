@@ -114,7 +114,7 @@ public class Technician : RoleBase
             LocalPlayerFixedSabotageTypes.Add(actualSystemType);
     }
 
-    public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
+    public static void UpdateSystem(byte playerId, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[playerId].IsDead) return;
 

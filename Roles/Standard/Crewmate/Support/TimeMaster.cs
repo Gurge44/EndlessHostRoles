@@ -245,16 +245,16 @@ internal class TimeMaster : RoleBase
         if (doComms && !player.inVent && !DisableDevice.DesyncComms.Contains(player.PlayerId))
         {
             DesyncCommsActive = true;
-            sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 128);
+            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 128);
             hasValue = true;
         }
         else if (!commsSaboActive && DesyncCommsActive)
         {
             DesyncCommsActive = false;
-            sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 16);
+            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 16);
 
             if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
-                sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 17);
+                sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 17);
 
             hasValue = true;
         }

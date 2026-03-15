@@ -1090,7 +1090,7 @@ internal static class ExtendedPlayerControl
         */
     }
 
-    public static void RpcDesyncRepairSystem(this PlayerControl target, SystemTypes systemType, int amount)
+    public static void RpcDesyncUpdateSystem(this PlayerControl target, SystemTypes systemType, int amount)
     {
         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.OwnerId);
         messageWriter.Write((byte)systemType);
@@ -1241,7 +1241,7 @@ internal static class ExtendedPlayerControl
 
         var sender = CustomRpcSender.Create($"Fix Black Screen For {pc.GetNameWithRole()}", SendOption.Reliable);
 
-        sender.RpcDesyncRepairSystem(pc, systemtype, 128);
+        sender.RpcDesyncUpdateSystem(pc, systemtype, 128);
 
         int targetClientId = pc.OwnerId;
         var ghostPos = dummyGhost.Pos();
@@ -1285,8 +1285,8 @@ internal static class ExtendedPlayerControl
         {
             sender = CustomRpcSender.Create($"Fix Black Screen For {pc.GetNameWithRole()} (2)", SendOption.Reliable);
 
-            sender.RpcDesyncRepairSystem(pc, systemtype, 16);
-            if (systemtype == SystemTypes.HeliSabotage) sender.RpcDesyncRepairSystem(pc, systemtype, 17);
+            sender.RpcDesyncUpdateSystem(pc, systemtype, 16);
+            if (systemtype == SystemTypes.HeliSabotage) sender.RpcDesyncUpdateSystem(pc, systemtype, 17);
 
             if (pc.IsAlive())
             {
@@ -1334,14 +1334,14 @@ internal static class ExtendedPlayerControl
             return;
         }
 
-        pc.RpcDesyncRepairSystem(systemtypes, 128);
+        pc.RpcDesyncUpdateSystem(systemtypes, 128);
 
         LateTask.New(() =>
         {
-            pc.RpcDesyncRepairSystem(systemtypes, 16);
+            pc.RpcDesyncUpdateSystem(systemtypes, 16);
 
             if (Main.NormalOptions.MapId == 4) // on Airship
-                pc.RpcDesyncRepairSystem(systemtypes, 17);
+                pc.RpcDesyncUpdateSystem(systemtypes, 17);
         }, (float.IsNaN(flashDuration) ? Options.KillFlashDuration.GetFloat() : flashDuration) + delay, "Fix Desync Reactor");
     }
 

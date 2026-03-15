@@ -131,16 +131,16 @@ internal static class DisableDevice
             if (doComms && !pc.inVent)
             {
                 if (!DesyncComms.Contains(pc.PlayerId)) DesyncComms.Add(pc.PlayerId);
-                sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 128);
+                sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 128);
                 hasValue = true;
             }
             else if (!Utils.IsActive(SystemTypes.Comms) && DesyncComms.Contains(pc.PlayerId))
             {
                 DesyncComms.Remove(pc.PlayerId);
-                sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 16);
+                sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 16);
 
                 if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
-                    sender.RpcDesyncRepairSystem(pc, SystemTypes.Comms, 17);
+                    sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 17);
 
                 hasValue = true;
             }

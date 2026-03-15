@@ -41,7 +41,7 @@ public static class MessageReaderUpdateSystemPatch
                 return false;
             }
 
-            return RepairSystemPatch.Prefix(systemType, player, amount);
+            return UpdateSystemPatch.Prefix(systemType, player, amount);
         }
         catch { }
 
@@ -54,21 +54,21 @@ public static class MessageReaderUpdateSystemPatch
         {
             if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3 or SystemTypes.MedBay) return;
 
-            RepairSystemPatch.Postfix(systemType, player);
+            UpdateSystemPatch.Postfix(systemType, player);
         }
         catch { }
     }
 }
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
-internal static class RepairSystemPatch
+internal static class UpdateSystemPatch
 {
     public static bool Prefix( /*ShipStatus __instance,*/
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
     {
-        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "RepairSystem");
+        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "UpdateSystem");
 #if DEBUG
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
@@ -84,15 +84,15 @@ internal static class RepairSystemPatch
         switch (player.GetCustomRole())
         {
             case CustomRoles.Mechanic:
-                Mechanic.RepairSystem(player.PlayerId, systemType, amount);
+                Mechanic.UpdateSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
             case CustomRoles.Alchemist when systemType != SystemTypes.Electrical && Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
-                Alchemist.RepairSystem(player, systemType, amount);
+                Alchemist.UpdateSystem(player, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
             case CustomRoles.Technician:
-                Technician.RepairSystem(player.PlayerId, systemType, amount);
+                Technician.UpdateSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
         }
@@ -206,7 +206,7 @@ internal static class RepairSystemPatch
             }
         }
 
-        if (new List<SystemTypes> { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Contains(systemType) && !Utils.IsActive(systemType))
+        if (Main.AllSabotage.Contains(systemType) && !Utils.IsActive(systemType))
         {
             bool petcd = !Options.UsePhantomBasis.GetBool();
 

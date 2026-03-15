@@ -137,6 +137,18 @@ public class Main : BasePlugin
         [CustomGameMode.Snowdown] = []
     };
 
+    public static readonly SystemTypes[] AllSabotage = [SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast];
+    public static readonly Dictionary<SystemTypes, bool> SabotageIsActive = new()
+    {
+        { SystemTypes.Electrical, false },
+        { SystemTypes.Reactor, false },
+        { SystemTypes.Laboratory, false },
+        { SystemTypes.LifeSupp, false },
+        { SystemTypes.Comms, false },
+        { SystemTypes.HeliSabotage, false },
+        { SystemTypes.MushroomMixupSabotage, false }
+    };
+
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
     public static readonly Dictionary<CustomGameMode, Dictionary<string, int>> NumWinsPerGM = [];
     public static HashSet<byte> DiedThisRound = [];

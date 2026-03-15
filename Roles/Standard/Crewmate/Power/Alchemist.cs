@@ -324,7 +324,7 @@ public class Alchemist : RoleBase
         return sb.ToString();
     }
 
-    public static void RepairSystem(PlayerControl pc, SystemTypes systemType, byte amount)
+    public static void UpdateSystem(PlayerControl pc, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return;
 
