@@ -104,17 +104,42 @@ public static class TemplateManager
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
         List<string> sendList = [];
         HashSet<string> tags = [];
+        string currentTag = null;
+        StringBuilder buffer = new();
 
-        while (sr.ReadLine() is { } text)
+        while (sr.ReadLine() is { } line)
         {
-            string[] tmp = text.Split(':');
-
-            if (tmp.Length > 1 && tmp[1] != "")
+            if (line.Contains(':'))
             {
-                tags.Add(tmp[0]);
-                if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
-                    sendList.Add(string.Join(':', tmp[1..]).Replace("\\n", "\n"));
+                string[] tmp = line.Split(':', 2);
+
+                if (tmp.Length > 1)
+                {
+                    if (currentTag != null)
+                    {
+                        tags.Add(currentTag);
+
+                        if (string.Equals(currentTag, str, StringComparison.CurrentCultureIgnoreCase))
+                            sendList.Add(buffer.ToString().Replace("\\n", "\n"));
+                    }
+
+                    currentTag = tmp[0];
+                    buffer.Clear();
+                    buffer.Append(tmp[1]);
+                    continue;
+                }
             }
+
+            if (currentTag != null)
+                buffer.Append('\n').Append(line);
+        }
+
+        if (currentTag != null)
+        {
+            tags.Add(currentTag);
+
+            if (string.Equals(currentTag, str, StringComparison.CurrentCultureIgnoreCase))
+                sendList.Add(buffer.ToString().Replace("\\n", "\n"));
         }
 
         if (sendList.Count == 0 && !noErr)
