@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
 using HarmonyLib;
-using Hazel;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
@@ -98,24 +97,58 @@ public static class TemplateManager
         return reader.ReadToEnd();
     }
 
-    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
+    private static (List<string> SendList, HashSet<string> Tags) ParseTemplateFile(string str)
     {
         CreateIfNotExists();
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
         List<string> sendList = [];
         HashSet<string> tags = [];
+        string currentTag = null;
+        StringBuilder buffer = new();
 
-        while (sr.ReadLine() is { } text)
+        while (sr.ReadLine() is { } line)
         {
-            string[] tmp = text.Split(':');
-
-            if (tmp.Length > 1 && tmp[1] != "")
+            if (line.Contains(':'))
             {
-                tags.Add(tmp[0]);
-                if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
-                    sendList.Add(string.Join(':', tmp[1..]).Replace("\\n", "\n"));
+                string[] tmp = line.Split(':', 2);
+                if (tmp.Length > 1)
+                {
+                    if (currentTag != null)
+                    {
+                        tags.Add(currentTag);
+                        if (string.Equals(currentTag, str, StringComparison.CurrentCultureIgnoreCase))
+                            sendList.Add(buffer.ToString().Replace("\\n", "\n"));
+                    }
+
+                    currentTag = tmp[0];
+                    buffer.Clear();
+                    buffer.Append(tmp[1]);
+                    continue;
+                }
             }
+
+            if (currentTag != null)
+                buffer.Append('\n').Append(line);
         }
+
+        if (currentTag != null)
+        {
+            tags.Add(currentTag);
+            if (string.Equals(currentTag, str, StringComparison.CurrentCultureIgnoreCase))
+                sendList.Add(buffer.ToString().Replace("\\n", "\n"));
+        }
+
+        return (sendList, tags);
+    }
+
+    public static HashSet<string> GetAllTags()
+    {
+        return ParseTemplateFile("").Tags;
+    }
+
+    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
+    {
+        var (sendList, tags) = ParseTemplateFile(str);
 
         if (sendList.Count == 0 && !noErr)
         {
@@ -127,10 +160,8 @@ public static class TemplateManager
         else
         {
             List<Message> messages = [];
-
             foreach (string x in sendList)
                 messages.Add(new Message(ApplyReplaceDictionary(x), playerId));
-
             messages.SendMultipleMessages(importance);
         }
     }
