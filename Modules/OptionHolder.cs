@@ -989,7 +989,7 @@ public static class Options
 
             var grouped = Main.CustomRoleValues.GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.IsVanillaEHR()) return 4;
                 if (x == CustomRoles.DoubleAgent) return 2;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;

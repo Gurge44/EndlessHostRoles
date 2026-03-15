@@ -432,7 +432,7 @@ internal static class CheckForEndVotingPatch
             case 2:
                 name = string.Format(GetString("PlayerIsRole"), coloredRealName, coloredRole);
 
-                if (Options.ShowTeamNextToRoleNameOnEject.GetBool() && !(crole.IsVanilla() || crole.ToString().EndsWith("EHR")))
+                if (Options.ShowTeamNextToRoleNameOnEject.GetBool() && !(crole.IsVanilla() || crole.IsVanillaEHR()))
                 {
                     name += " (";
                     CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(player.PlayerId);

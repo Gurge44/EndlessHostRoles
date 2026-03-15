@@ -274,26 +274,39 @@ internal static class HudManagerPatch
 
                     bool ShouldHideAbilityButton(CustomRoles role, PlayerControl player)
                     {
-                        if (!role.PetActivatedAbility()
-                            || role.IsVanilla()
+                        if (!role.PetActivatedAbility() 
                             || Options.CurrentGameMode != CustomGameMode.Standard
                             || player.GetRoleTypes() == RoleTypes.Engineer
-                            || role.OnlySpawnsWithPets() || role.AlwaysUsesPhantomBase()) return true;
-
-                        if (role is CustomRoles.Changeling or CustomRoles.Ninja or CustomRoles.Duality
-                                 or CustomRoles.Witch or CustomRoles.Silencer or CustomRoles.HexMaster) return true;
-                        if (role.ToString().EndsWith("EHR")) return true;
+                            || role.OnlySpawnsWithPets() 
+                            || role.AlwaysUsesPhantomBase())
+                            return false;
 
                         var subRoles = player.GetCustomSubRoles();
                         for (int i = 0; i < subRoles.Count; i++)
                         {
-                            if (StartGameHostPatch.BasisChangingAddons.ContainsKey(subRoles[i])) return true;
+                            if (StartGameHostPatch.BasisChangingAddons.ContainsKey(subRoles[i]))
+                                return false;
                         }
 
-                        if (role.SimpleAbilityTrigger() && Options.UsePhantomBasis.GetBool())
-                            if (player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool()) return true;
+                        switch (role)
+                        {
+                            case CustomRoles.Changeling:
+                            case CustomRoles.Ninja:
+                            case CustomRoles.Duality:
+                            case CustomRoles.Witch:
+                            case CustomRoles.HexMaster:
+                            case CustomRoles.Silencer:
+                                return false;
+                        }
 
-                        return Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift();
+                        if (role.SimpleAbilityTrigger() && Options.UsePhantomBasis.GetBool() && player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())
+                            return false;
+                        if (Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift())
+                            return false;
+                        if (role.IsVanillaEHR() || role.IsVanilla())
+                            return false;
+
+                        return true;
                     }
 
                     if (!LowerInfoText)

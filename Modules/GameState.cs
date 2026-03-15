@@ -148,7 +148,7 @@ public class PlayerState(byte playerId)
                 if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
             }
 
-            if (role.IsVanilla() || role.ToString().Contains("EHR"))
+            if (role.IsVanilla() || role.IsVanillaEHR())
                 Main.AbilityUseLimit.Remove(PlayerId);
         }
 

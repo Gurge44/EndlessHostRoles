@@ -437,7 +437,7 @@ internal static class CustomRolesHelper
 
         CustomRoles vnRole = role.GetVNRole(true);
 
-        if (vnRole.ToString().EndsWith("EHR")) return vnRole;
+        if (vnRole.IsVanillaEHR()) return vnRole;
 
         return vnRole switch
         {
@@ -1397,6 +1397,22 @@ internal static class CustomRolesHelper
             CustomRoles.Viper or
             CustomRoles.Phantom or
             CustomRoles.Shapeshifter;
+    }
+
+    public static bool IsVanillaEHR(this CustomRoles role)
+    {
+        return role is
+            CustomRoles.CrewmateEHR or
+            CustomRoles.EngineerEHR or
+            CustomRoles.NoisemakerEHR or
+            CustomRoles.TrackerEHR or
+            CustomRoles.ScientistEHR or
+            CustomRoles.GuardianAngelEHR or
+            CustomRoles.ImpostorEHR or
+            CustomRoles.DetectiveEHR or
+            CustomRoles.ViperEHR or
+            CustomRoles.PhantomEHR or
+            CustomRoles.ShapeshifterEHR;
     }
 
     public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)

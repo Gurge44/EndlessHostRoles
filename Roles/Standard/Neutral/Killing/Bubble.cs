@@ -139,14 +139,12 @@ internal class Bubble : RoleBase
             float radius = ExplosionRadius.GetFloat();
 
             var alivePlayers = Main.CachedAlivePlayerControls();
-            int count = alivePlayers.Count;
-
             int numDied = 0;
             byte bubbleId = BubbleId;
             bool bubbleDies = BubbleDiesIfInRange.GetBool();
             PlayerControl bubblePcCached = BubblePC;
 
-            for (int aliveIndex = 0; aliveIndex < count; aliveIndex++)
+            for (int aliveIndex = 0; aliveIndex < alivePlayers.Count; aliveIndex++)
             {
                 PlayerControl alive = alivePlayers[aliveIndex];
                 if (!FastVector2.DistanceWithinRange(alive.Pos(), center, radius)) continue;
@@ -183,9 +181,8 @@ internal class Bubble : RoleBase
             const float notifyRange = 5f;
 
             var alivePlayers = Main.CachedAlivePlayerControls();
-            int count = alivePlayers.Count;
 
-            for (int aliveIndex = 0; aliveIndex < count; aliveIndex++)
+            for (int aliveIndex = 0; aliveIndex < alivePlayers.Count; aliveIndex++)
             {
                 PlayerControl alive = alivePlayers[aliveIndex];
                 byte aliveId = alive.PlayerId;
