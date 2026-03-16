@@ -2230,19 +2230,23 @@ internal static class ChatCommands
 
     private static void TemplateCommand(PlayerControl player, string text, string[] args)
     {
-        if (player.AmOwner)
+        if (args.Length > 1)
         {
-            if (args.Length > 1)
+            if (player.AmOwner)
                 TemplateManager.SendTemplate(args[1]);
             else
-                HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + $"{GetString("ForExample")}:\n{args[0]} test");
+                TemplateManager.SendTemplate(args[1], player.PlayerId);
         }
         else
         {
-            if (args.Length > 1)
-                TemplateManager.SendTemplate(args[1], player.PlayerId);
+            HashSet<string> tags = TemplateManager.GetAllTags();
+            string message = tags.Count > 0 
+            ? string.Format(GetString("Message.TemplateList"), string.Join("\n", tags)) : GetString("Message.NoTemplatesFound");
+
+            if (player.AmOwner)
+                HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + message);
             else
-                Utils.SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId, importance: MessageImportance.Low);
+                Utils.SendMessage(message, player.PlayerId, importance: MessageImportance.Low);
         }
     }
 
