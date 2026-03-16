@@ -10236,7 +10236,7 @@
   "Message.SetToSeconds": "Set to <b>{0}</b> seconds.",
   "Message.SyncButtonLeft": "There are {0} more emergency buttons left",
   "Message.TempBannedByEAC": "<b>{0}</b>Banned by EAC, reason: {1}",
-  "Message.TemplateList": "Available templates:\n{0}\n\n<size=80%>Use <b>/template [tag]</b> to send a template</size>",
+  "Message.TemplateList": "Available templates:\\n{0}\\n\\n<size=80%>Use <b>/template [tag]</b> to send a template</size>",
   "Message.NoTemplatesFound": "No templates were found",
   "Message.TemplateNotFoundClient": "The Host doesn't have a template called <b>{0}</b>",
   "Message.TemplateNotFoundHost": "No templates matching <b>{0}</b> were found",
