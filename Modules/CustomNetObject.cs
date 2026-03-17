@@ -25,7 +25,7 @@ namespace EHR
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
-        public string Sprite;
+        protected string Sprite;
 
         public void RpcChangeSprite(string sprite)
         {
