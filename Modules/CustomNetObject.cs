@@ -25,7 +25,7 @@ namespace EHR
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
-        protected string Sprite;
+        public string Sprite;
 
         public void RpcChangeSprite(string sprite)
         {
@@ -76,16 +76,6 @@ namespace EHR
                 PlayerControl.LocalPlayer.Data.Serialize(writer, false);
             }
             writer.EndMessage();
-
-            if (playerControl.Data)
-            {
-                writer.StartMessage(1);
-                {
-                    writer.WritePacked(playerControl.Data.NetId);
-                    playerControl.Data.Serialize(writer, false);
-                }
-                writer.EndMessage();
-            }
 
             sender.EndMessage();
             sender.SendMessage();
@@ -299,16 +289,6 @@ namespace EHR
                     }
                     writer.EndMessage();
 
-                    if (playerControl.Data)
-                    {
-                        writer.StartMessage(1);
-                        {
-                            writer.WritePacked(playerControl.Data.NetId);
-                            playerControl.Data.Serialize(writer, false);
-                        }
-                        writer.EndMessage();
-                    }
-
                     try { playerControl.NetTransform.SnapTo(Position); }
                     catch (Exception e) { Utils.ThrowException(e); }
                     
@@ -370,7 +350,59 @@ namespace EHR
             LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.3f); // Fix for Host
             LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.6f); // Fix for Non-Host Modded
         }
-        
+
+        public virtual void FixOnMeeting()
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+            int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+            string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+            string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+            string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+            string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+
+            var sender = CustomRpcSender.Create("CustomNetObject.ReShapeshift", SendOption.Reliable, log: false);
+            MessageWriter writer = sender.stream;
+            sender.StartMessage();
+            {
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 0;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
+                
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                    PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
+
+                sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                    .WriteNetObject(PlayerControl.LocalPlayer)
+                    .Write(false)
+                    .EndRpc();
+
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = name;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = colorId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = hatId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = skinId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
+                
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                    PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
+            }
+            sender.EndMessage();
+            sender.SendMessage();
+        }
+
         public virtual void OnMeeting()
         {
             if (!AmongUsClient.Instance.AmHost) return;

@@ -987,16 +987,26 @@ internal static class RpcShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
 internal static class ReportDeadBodyPatch
 {
-    public static Dictionary<byte, bool> CanReport;
+    public static readonly Dictionary<byte, bool> CanReport = [];
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
+    public static readonly HashSet<byte> AllDeadBodyInGame = [];
     public static bool MeetingStarted;
 
+    public static void Clear()
+    {
+        CanReport.Clear();
+        WaitReport.Clear();
+        AllDeadBodyInGame.Clear();
+        MeetingStarted = false;
+    }
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
     {
         if (GameStates.IsMeeting || MeetingStarted) return false;
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
+        // Skip the report if the player try report not deleted dead body after meeting
+        if (AllDeadBodyInGame.Contains(target?.PlayerId ?? byte.MaxValue)) return false;
 
         if (!CanReport[__instance.PlayerId] || __instance.IsRoleBlocked())
         {
@@ -1185,6 +1195,19 @@ internal static class ReportDeadBodyPatch
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
 
+        List<DeadBody> allDeadBody = Object.FindObjectsOfType<DeadBody>().ToList();
+        
+        if (allDeadBody.Any())
+            foreach (var deadBody in allDeadBody)
+            {
+                try
+                {
+                    if (deadBody && deadBody.gameObject != null)
+                        AllDeadBodyInGame.Add(deadBody.ParentId);
+                }
+                catch { }
+            }
+
         if (!SubmergedCompatibility.IsSubmerged())
         {
             try
@@ -1205,27 +1228,29 @@ internal static class ReportDeadBodyPatch
             Main.GameTimer.Stop();
 
         var allCNO = CustomNetObject.AllObjects.ToArray();
-        
-        foreach (CustomNetObject cno in allCNO)
-        {
-            try
-            {
-                cno?.playerControl?.Data?.SendGameData();
-            }
-            catch (Exception e) { ThrowException(e); }
-        }
-        
-        LateTask.New(() =>
+        if (allCNO.Any())
         {
             foreach (CustomNetObject cno in allCNO)
             {
                 try
                 {
-                    cno?.OnMeeting();
+                    cno?.FixOnMeeting();
                 }
                 catch (Exception e) { ThrowException(e); }
             }
-        }, 5f, "CNO OnMeeting");
+
+            LateTask.New(() =>
+            {
+                foreach (CustomNetObject cno in allCNO)
+                {
+                    try
+                    {
+                        cno?.OnMeeting();
+                    }
+                    catch (Exception e) { ThrowException(e); }
+                }
+            }, 5f, "CNO OnMeeting");
+        }
 
         if (HudManager.InstanceExists) HudManager.Instance.SetRolePanelOpen(false);
 
