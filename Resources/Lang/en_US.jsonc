@@ -9120,7 +9120,7 @@
   "CommandForms.Start": "start",
   "CommandForms.Summon": "summon",
   "CommandForms.Swap": "sw,swap,st",
-  "CommandForms.TimeLimit": "tl,timelimit",
+  "CommandForms.TimeLimit": "til,timelimit",
   "CommandForms.TPIn": "tpin",
   "CommandForms.TPOut": "tpout",
   "CommandForms.Target": "target",
