@@ -65,14 +65,15 @@ internal class SecurityGuard : RoleBase
 
         return progressText.ToString();
     }
-
-    public override void SetButtonTexts(HudManager hud, byte id)
-    {
-        if (UsePets.GetBool())
-            hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-        else
-            hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-    }
+    
+    // Revert this if needed, recommended to actually add a text called "SaboBlock" or something
+    //public override void SetButtonTexts(HudManager hud, byte id)
+    //{
+    //    if (UsePets.GetBool())
+    //        hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+    //    else
+    //        hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+    //}
 
     public override void OnPet(PlayerControl pc)
     {
