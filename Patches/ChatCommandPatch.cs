@@ -395,7 +395,7 @@ internal static class ChatCommands
         var canceled = false;
         Main.IsChatCommand = true;
 
-        Logger.Info($"({PlayerControl.LocalPlayer.FriendCode})" + text, "SendChat");
+        Logger.Info(text, "SendChat");
 
         if (!Starspawn.IsDayBreak)
         {
@@ -3332,7 +3332,7 @@ internal static class ChatCommands
             {
                 if (!command.IsThisCommand(text)) continue;
 
-                Logger.Info($" Recognized command: ({player.FriendCode}){text}", "ReceiveChat");
+                Logger.Info($" Recognized command: {text}", "ReceiveChat");
                 commandEntered = true;
 
                 if (!command.CanUseCommand(player, sendErrorMessage: true))
