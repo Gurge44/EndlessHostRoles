@@ -477,6 +477,7 @@ internal static class ExtendedPlayerControl
 
         RPC.PlaySoundRPC(player.PlayerId, Sounds.SpawnSound);
         GhostRolesManager.RemoveGhostRole(player.PlayerId);
+        ReportDeadBodyPatch.AlreadyReportedBodies.Remove(player.PlayerId);
         state.RealKiller = (DateTime.MinValue, byte.MaxValue);
         state.IsDead = false;
         state.deathReason = PlayerState.DeathReason.etc;
