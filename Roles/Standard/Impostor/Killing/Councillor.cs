@@ -132,7 +132,7 @@ public class Councillor : RoleBase
 
                 PlayerControl target = Utils.GetPlayerById(targetId);
 
-                if (target != null)
+                if (target)
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} murdered {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
                     var councillorSuicide = true;
@@ -147,7 +147,7 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    if (MeetingKillLimit[pc.PlayerId] < 1)
+                    if (MeetingKillLimit.GetValueOrDefault(pc.PlayerId) < 1)
                     {
                         if (!isUI)
                             Utils.SendMessage(GetString("CouncillorMurderMaxMeeting"), pc.PlayerId);
@@ -157,7 +157,7 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    if (TotalKillLimit[pc.PlayerId] < 1)
+                    if (TotalKillLimit.GetValueOrDefault(pc.PlayerId) < 1)
                     {
                         if (!isUI)
                             Utils.SendMessage(GetString("MurderMaxGame"), pc.PlayerId);
