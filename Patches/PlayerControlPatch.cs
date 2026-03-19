@@ -1215,9 +1215,6 @@ internal static class ReportDeadBodyPatch
         {
             try
             {
-                try { cno.playerControl.Shapeshift(cno.playerControl, false); }
-                catch (Exception e) { ThrowException(e); }
-                
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(cno.playerControl.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
                 writer.WriteNetObject(cno.playerControl);
                 writer.Write(false);

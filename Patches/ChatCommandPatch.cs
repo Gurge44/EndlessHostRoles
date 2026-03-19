@@ -495,6 +495,8 @@ internal static class ChatCommands
                 if (HudManager.InstanceExists) HudManager.Instance.Chat.SendChat();
             }
         }
+        
+        if (!canceled) ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
         return !canceled;
     }
