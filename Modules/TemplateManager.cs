@@ -324,7 +324,7 @@ public static class TemplateManager
             return;
         }
 
-        List<TemplateEntry> eligible = allMatched.Where(e => e.MatchesContext()).ToList();
+        List<TemplateEntry> eligible = [.. allMatched.Where(e => e.MatchesContext())];
 
         if (eligible.Count == 0)
         {
@@ -365,13 +365,20 @@ public static class TemplateManager
             return;
         }
 
-        TemplateEntry chosen = WeightedPick(eligible);
-        string content = ApplyPlaceholders(chosen.Content, userVars);
+        List<TemplateEntry> immediate = [.. eligible.Where(e => e.Delay == 0)];
+        List<TemplateEntry> delayed = [.. eligible.Where(e => e.Delay > 0)];
 
-        if (chosen.Delay > 0)
-            LateTask.New(() => Dispatch(content, playerId, importance), chosen.Delay, log: false);
-        else
+        if (immediate.Count > 0)
+        {
+            string content = ApplyPlaceholders(WeightedPick(immediate).Content, userVars);
             Dispatch(content, playerId, importance);
+        }
+
+        foreach (TemplateEntry entry in delayed)
+        {
+            string content = ApplyPlaceholders(entry.Content, userVars);
+            LateTask.New(() => Dispatch(content, playerId, importance), entry.Delay, log: false);
+        }
     }
 
     private static List<TemplateEntry> ApplyFilter(
@@ -384,11 +391,11 @@ public static class TemplateManager
         blocked = false;
         blockSource = null;
 
-        List<TemplateEntry> restricted = eligible.Where(hasCondition).ToList();
+        List<TemplateEntry> restricted = [.. eligible.Where(hasCondition)];
         if (restricted.Count == 0) return eligible;
 
-        List<TemplateEntry> unrestricted = eligible.Where(e => !hasCondition(e)).ToList();
-        List<TemplateEntry> passing = restricted.Where(meetsCondition).ToList();
+        List<TemplateEntry> unrestricted = [.. eligible.Where(e => !hasCondition(e))];
+        List<TemplateEntry> passing = [.. restricted.Where(meetsCondition)];
 
         if (passing.Count > 0) return passing;
         if (unrestricted.Count > 0) return unrestricted;
@@ -424,6 +431,12 @@ public static class TemplateManager
                     ? getValue() ?? ""
                     : match.Value;
 
-            return userVars.TryGetValue(match.Groups[2].Value, out string val) ? val : match.Value;
+            if (!userVars.TryGetValue(match.Groups[2].Value, out string val))
+                return match.Value;
+
+            return PlaceholderRegex.Replace(val, inner =>
+                inner.Groups[1].Success && Placeholders.TryGetValue(inner.Groups[1].Value, out Func<string> getValue)
+                    ? getValue() ?? ""
+                    : inner.Value);
         });
 }
