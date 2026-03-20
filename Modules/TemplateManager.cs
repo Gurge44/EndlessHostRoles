@@ -370,8 +370,18 @@ public static class TemplateManager
 
         if (immediate.Count > 0)
         {
-            string content = ApplyPlaceholders(WeightedPick(immediate).Content, userVars);
-            Dispatch(content, playerId, importance);
+            bool hasWeights = immediate.Any(e => e.Weight != 1);
+
+            if (hasWeights)
+            {
+                string content = ApplyPlaceholders(WeightedPick(immediate).Content, userVars);
+                Dispatch(content, playerId, importance);
+            }
+            else
+            {
+                foreach (TemplateEntry entry in immediate)
+                    Dispatch(ApplyPlaceholders(entry.Content, userVars), playerId, importance);
+            }
         }
 
         foreach (TemplateEntry entry in delayed)
