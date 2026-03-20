@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
-using HarmonyLib;
 using InnerNet;
 using UnityEngine;
 using static EHR.Translator;
@@ -46,9 +45,9 @@ public static class TemplateManager
         ["ModVersion"]           = () => Main.PluginDisplayVersion,
         ["PlayerName"]           = () => DataManager.Player.Customization.Name,
         ["HostName"]             = () => PlayerControl.LocalPlayer.GetRealName(),
-        ["Players"]              = () => Main.AllPlayerNames.Values.Join(delimiter: ", "),
-        ["AlivePlayers"]         = () => Main.EnumerateAlivePlayerControls().Select(x => x.GetRealName()).Join(delimiter: ", "),
-        ["DeadPlayers"]          = () => Main.EnumeratePlayerControls().Where(x => !x.IsAlive()).Select(x => x.GetRealName()).Join(delimiter: ", "),
+        ["Players"]              = () => string.Join(", ", Main.AllPlayerNames.Values),
+        ["AlivePlayers"]         = () => string.Join(", ", Main.EnumerateAlivePlayerControls().Select(x => x.GetRealName())),
+        ["DeadPlayers"]          = () => string.Join(", ", Main.EnumeratePlayerControls().Where(x => !x.IsAlive()).Select(x => x.GetRealName())),
         ["PlayerCount"]          = () => (GameData.Instance ? GameData.Instance.PlayerCount : 0).ToString(),
         ["AlivePlayerCount"]     = () => Main.EnumerateAlivePlayerControls().Count().ToString(),
         ["DeadPlayerCount"]      = () => Main.EnumeratePlayerControls().Count(x => !x.IsAlive()).ToString(),
@@ -75,28 +74,28 @@ public static class TemplateManager
         public string Tag { get; init; }
         public string Content { get; init; }
         public int Weight { get; init; } = 1;
-        public int Delay { get; init; } = 0;
-        public bool Hidden { get; init; } = false;
-        public HashSet<MapNames> AllowedMaps { get; init; } = null;
-        public HashSet<string> AllowedRoles { get; init; } = null;
-        public HashSet<string> AllowedRanks { get; init; } = null;
-        public string PlayerCountOp { get; init; } = null;
-        public int PlayerCountVal { get; init; } = 0;
+        public int Delay { get; init; }
+        public bool Hidden { get; init; }
+        public HashSet<MapNames> AllowedMaps { get; init; }
+        public HashSet<string> AllowedRoles { get; init; }
+        public HashSet<string> AllowedRanks { get; init; }
+        public string PlayerCountOp { get; init; }
+        public int PlayerCountVal { get; init; }
 
         public bool MatchesContext() => MatchesMap() && MatchesPlayerCount();
 
         public bool MatchesRole(PlayerControl player)
         {
-            if (AllowedRoles == null || player == null) return AllowedRoles == null;
+            if (AllowedRoles == null || !player) return AllowedRoles == null;
 
             return AllowedRoles.Any(entry =>
             {
                 bool negate = entry.StartsWith("!");
                 string name = negate ? entry[1..] : entry;
 
-                bool has = Enum.TryParse(name, ignoreCase: true, out CustomRoles role)
-                    ? player.GetCustomRole() == role || player.Is(role)
-                    : Enum.TryParse(name, ignoreCase: true, out CustomRoleTypes roleType) && player.GetCustomRoleTypes() == roleType;
+                bool has = Main.CustomRoleValues.FindFirst(r => string.Equals(GetString(r.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoles role)
+                    ? player.Is(role)
+                    : Enum.GetValues<CustomRoleTypes>().FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
 
                 return negate ? !has : has;
             });
@@ -104,7 +103,7 @@ public static class TemplateManager
 
         public bool MatchesRank(PlayerControl player)
         {
-            if (AllowedRanks == null || player == null) return AllowedRanks == null;
+            if (AllowedRanks == null || !player) return AllowedRanks == null;
 
             string fc = player.FriendCode;
             return AllowedRanks.Any(rank => rank.ToLower() switch
@@ -186,15 +185,6 @@ public static class TemplateManager
         Dictionary<string, string> currentProps = null;
         StringBuilder buffer = new();
 
-        void Commit()
-        {
-            if (currentTag == null) return;
-            TemplateEntry entry = BuildEntry(currentTag, buffer.ToString().TrimEnd(), currentProps);
-            if (!entry.Hidden) tags.Add(currentTag);
-            if (!string.IsNullOrEmpty(filterTag) && string.Equals(currentTag, filterTag, StringComparison.OrdinalIgnoreCase))
-                matched.Add(entry);
-        }
-
         using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
         while (sr.ReadLine() is { } line)
         {
@@ -226,6 +216,15 @@ public static class TemplateManager
 
         Commit();
         return (matched, tags, userVars);
+
+        void Commit()
+        {
+            if (currentTag == null) return;
+            TemplateEntry entry = BuildEntry(currentTag, buffer.ToString().TrimEnd(), currentProps);
+            if (!entry.Hidden) tags.Add(currentTag);
+            if (!string.IsNullOrEmpty(filterTag) && string.Equals(currentTag, filterTag, StringComparison.OrdinalIgnoreCase))
+                matched.Add(entry);
+        }
     }
 
     private static Dictionary<string, string> ParseProperties(string propString)
@@ -307,7 +306,7 @@ public static class TemplateManager
 
     public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
     {
-        var (allMatched, tags, userVars) = ParseTemplateFile(str);
+        (List<TemplateEntry> allMatched, HashSet<string> tags, Dictionary<string, string> userVars) = ParseTemplateFile(str);
 
         PlayerControl player = playerId == 0xff
             ? PlayerControl.LocalPlayer
@@ -316,7 +315,7 @@ public static class TemplateManager
         if (allMatched.Count == 0)
         {
             if (noErr) return;
-            string errMsg = string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, tags.Join(delimiter: ", "));
+            string errMsg = string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, string.Join(", ", tags));
             if (playerId == 0xff)
                 HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, errMsg);
             else
@@ -344,17 +343,16 @@ public static class TemplateManager
 
             string msg = (roleBlocked, rankBlocked) switch
             {
-                (true, _) => string.Format(GetString("Message.TemplateRoleRequired"), roleBlockSource.AllowedRoles
+                (true, _) => string.Format(GetString("Message.TemplateRoleRequired"), string.Join('/', roleBlockSource.AllowedRoles
                     .Select(r =>
                     {
                         string name = r.TrimStart('!');
                         return Enum.TryParse(name, ignoreCase: true, out CustomRoles role)
                             ? GetString(role.ToString())
                             : name;
-                    })
-                    .Join(delimiter: "/")),
-                (_, true) => string.Format(GetString("Message.TemplateRankRequired"), rankBlockSource.AllowedRanks.Join(delimiter: "/")),
-                _ => string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, tags.Join(delimiter: ", "))
+                    }))),
+                (_, true) => string.Format(GetString("Message.TemplateRankRequired"), string.Join('/', rankBlockSource.AllowedRanks)),
+                _ => string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, string.Join(", ", tags))
             };
 
             if (playerId == 0xff)
