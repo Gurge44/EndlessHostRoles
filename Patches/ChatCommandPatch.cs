@@ -360,7 +360,7 @@ internal static class ChatCommands
     {
         if (__instance.quickChatField.visible) return true;
 
-        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty);
+        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty).Replace("<size=-", "<size=");
         
         __instance.timeSinceLastMessage = 3f;
 
@@ -496,7 +496,10 @@ internal static class ChatCommands
             }
         }
         
-        if (!canceled) ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        if (!canceled)
+        {
+            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        }
 
         return !canceled;
     }
