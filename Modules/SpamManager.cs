@@ -90,7 +90,7 @@ public static class SpamManager
 
         if (Options.AutoKickStart.GetBool())
         {
-            if (ContainsStart(text) && GameStates.IsLobby && !ChatCommands.IsPlayerModerator(player.FriendCode) && !ChatCommands.IsPlayerVIP(player.FriendCode))
+            if (ContainsStart(text) && GameStates.IsLobby && !ChatCommands.IsPlayerVIP(player.FriendCode))
             {
                 Main.SayStartTimes.TryAdd(player.OwnerId, 0);
 
@@ -111,7 +111,7 @@ public static class SpamManager
             }
         }
 
-        bool banned = BanWords.Any(text.Contains);
+        bool banned = BanWords.Any(x => text.Contains(x, StringComparison.OrdinalIgnoreCase));
 
         if (!banned) return false;
 

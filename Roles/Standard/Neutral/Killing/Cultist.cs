@@ -39,7 +39,7 @@ public class Cultist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cultist])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CharmCooldownIncrese = new FloatOptionItem(Id + 11, "CultistCharmCooldownIncrese", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles)
+        CharmCooldownIncrese = new FloatOptionItem(Id + 11, "CultistCharmCooldownIncrease", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cultist])
             .SetValueFormat(OptionFormat.Seconds);
 

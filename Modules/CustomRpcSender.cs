@@ -446,7 +446,7 @@ public static class CustomRpcSenderExtensions
     // From TOH: https://github.com/tukasa0001/TownOfHost
     public static void RpcSetName(this CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
     {
-        bool seerIsNull = seer == null;
+        bool seerIsNull = !seer;
         int targetClientId = seerIsNull ? -1 : seer.OwnerId;
 
         name = name.Replace("color=", string.Empty);
@@ -483,7 +483,7 @@ public static class CustomRpcSenderExtensions
             return false;
         }
 
-        if (target == null) target = killer;
+        if (!target) target = killer;
 
         var returnValue = false;
 
@@ -501,14 +501,14 @@ public static class CustomRpcSenderExtensions
         if (killer.AmOwner) killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
 
         // Other Clients
-        if (!killer.IsHost())
+        else
         {
             sender.AutoStartRpc(killer.NetId, RpcCalls.MurderPlayer, killer.OwnerId);
             sender.WriteNetObject(target);
             sender.Write((int)MurderResultFlags.FailedProtected);
             sender.EndRpc();
 
-            if (!MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
+            if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
                 sender.Notify(killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
 
             returnValue = true;
@@ -521,7 +521,7 @@ public static class CustomRpcSenderExtensions
 
     public static bool SetKillCooldown(this CustomRpcSender sender, PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
-        if (player == null) return false;
+        if (!player) return false;
 
         Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(Math.Abs(time - -1f) < 0.5f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
 
@@ -538,7 +538,7 @@ public static class CustomRpcSenderExtensions
         if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return false;
 
         player.AddKillTimerToDict(cd: time);
-        if (target == null) target = player;
+        if (!target) target = player;
 
         if (time >= 0f)
             Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
@@ -635,7 +635,7 @@ public static class CustomRpcSenderExtensions
 
     public static bool Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
-        if (!AmongUsClient.Instance.AmHost || pc == null) return false;
+        if (!AmongUsClient.Instance.AmHost || !pc) return false;
         if (!GameStates.IsInTask) return false;
         if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
         if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
@@ -703,7 +703,7 @@ public static class CustomRpcSenderExtensions
     {
         senderWasCleared = false;
         newSender = sender;
-        if (!AmongUsClient.Instance.AmHost || seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
+        if (!AmongUsClient.Instance.AmHost || !seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
         var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
         newSender = sender;
         return hasValue;
@@ -711,9 +711,9 @@ public static class CustomRpcSenderExtensions
 
     public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl player)
     {
-        player.Exiled();
-        sender.AutoStartRpc(player.NetId, RpcCalls.Exiled)
-            .EndRpc();
+        RoleTypes basis = player.GetGhostRoleBasis();
+        if (AmongUsClient.Instance.AmClient) try { player.SetRole(basis); } catch { }
+        sender.RpcSetRole(player, basis);
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
         return true;
     }

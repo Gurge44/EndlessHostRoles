@@ -183,7 +183,7 @@ public static class Quiz
                     char letter = (char)('A' + i);
                     SystemTypes room = UsedRooms[Main.CurrentMap][letter];
 
-                    bool isInThisRoom = room == SystemTypes.Outside ? seer.GetPlainShipRoom() == null || seer.IsInRoom(SystemTypes.Hallway) : seer.IsInRoom(room);
+                    bool isInThisRoom = room == SystemTypes.Outside ? !seer.GetPlainShipRoom() || seer.IsInRoom(SystemTypes.Hallway) : seer.IsInRoom(room);
 
                     string prefix = isInThisRoom ? "\u27a1 <u>" : string.Empty;
                     string suffix = isInThisRoom ? "</u>" : string.Empty;
@@ -239,7 +239,7 @@ public static class Quiz
         failed = gotCorrect < requiredCorrect;
 
         var ffaTimeLeft = FFAEndTS - Utils.TimeStamp;
-        var rooms = Main.EnumerateAlivePlayerControls().Without(seer).Select(x => x.GetPlainShipRoom()).Where(x => x != null).Select(x => x.RoomId).Distinct().Without(SystemTypes.Hallway).Select(x => GetString(x.ToString())).Join();
+        var rooms = Main.EnumerateAlivePlayerControls().Without(seer).Select(x => x.GetPlainShipRoom()).Where(x => x).Select(x => x.RoomId).Distinct().Without(SystemTypes.Hallway).Select(x => GetString(x.ToString())).Join();
         return string.Format(GetString(failed ? "Quiz.Notify.FFAOngoing" : "Quiz.Notify.FFASpectating"), rooms, ffaTimeLeft);
     }
 
@@ -449,7 +449,7 @@ public static class Quiz
         QuestionTimeLimitEndTS = 0;
         var aapc = Main.AllAlivePlayerControls;
         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
-        DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null && x.Room.RoomId != SystemTypes.Hallway : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
+        DyingPlayers = aapc.Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room && x.Room.RoomId != SystemTypes.Hallway : !x.Room || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
         if (DyingPlayers.Count == 0) NumAllCorrectAnswers++;
         bool everyoneWasWrong = DyingPlayers.Count == aapc.Count;
         if (!everyoneWasWrong) NumCorrectAnswers.IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key).DoIf(x => !DyingPlayers.Contains(x.Key), x => x.Value[CurrentDifficulty][Round]++);
@@ -486,7 +486,7 @@ public static class Quiz
                 yield break;
             case 1:
                 var pc = dyingPlayers[0].GetPlayer();
-                if (pc == null) goto case 0;
+                if (!pc) goto case 0;
                 pc.RpcMakeVisible();
                 pc.Suicide();
                 goto case 0;
@@ -511,7 +511,7 @@ public static class Quiz
                     yield return new WaitForSecondsRealtime(1f);
                     if (GameStates.IsMeeting || ExileController.Instance || !GameStates.InGame || GameStates.IsLobby) yield break;
                     Utils.NotifyRoles(SendOption: SendOption.None);
-                    stillLiving.RemoveAll(x => x == null || !x.IsAlive());
+                    stillLiving.RemoveAll(x => !x || !x.IsAlive());
                     if (stillLiving.Count <= 1) break;
                 }
 
@@ -590,7 +590,7 @@ public static class Quiz
                     if (CurrentDifficulty == Difficulty.Test)
                     {
                         SystemTypes correctRoom = UsedRooms[Main.CurrentMap][(char)('A' + CurrentQuestion.CorrectAnswerIndex)];
-                        DyingPlayers = Main.EnumerateAlivePlayerControls().Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room != null && x.Room.RoomId != SystemTypes.Hallway : x.Room == null || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
+                        DyingPlayers = Main.EnumerateAlivePlayerControls().Select(x => (ID: x.PlayerId, Room: x.GetPlainShipRoom())).Where(x => correctRoom == SystemTypes.Outside ? x.Room && x.Room.RoomId != SystemTypes.Hallway : !x.Room || x.Room.RoomId != correctRoom).Select(x => x.ID).ToList();
                         QuestionTimeLimitEndTS = 0;
                         Utils.NotifyRoles();
                     }

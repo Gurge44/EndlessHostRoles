@@ -2,6 +2,7 @@
 
 ## Cheaters
  | e3b0cb855 |  | Cheating | 
+mindfecund#4895 | 0589ce12b |  | Cheating |
 chancygrid#7957 | 1466867f1 |  | Cheating | 
 flowerfit#4735 | 422cfefe8 |  | Cheating | 
 wideink#3618 | 677db6a5c | Fastpathos | Cheating | Cheating in streamer's lobby
@@ -99,6 +100,8 @@ wackytext#6530 | 825431910 |  | Disrupting lobbies | Cheating in Dora Chan's Liv
 waistaxial#2305 | 2476a9933 |  | Cheater | Disrupting Dora Chan's lobby
 mindfecund#4895 | 0589ce12b | Fortegreen | Cheater | Using lobby ss cheat
 insidepill#4245 | e951fad6f | EL MARTO | Cheating | 
+pottedcane#6458 | 8b9a61f91 | Songr | Nuking streamer lobby | 
+reedspeedy#5294 | bdbb3b453 | Heisenberg | Association in racism | VIP/Mod/Helper of liableebb#5371
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
@@ -131,6 +134,9 @@ roundframe#4949 | 914830596 | PeaceMaker | Toxic | The n word
 setbud#4013 | 99b904495 | cursed | Toxic | The n word
 jacksdeep#4118 | d5d97f4a8 | SIGMAMODE | Toxic | Extremely toxic player
 dimbottle#0386 | 607326ed0 | Bob | Toxic | Alt of banned user SIGMAMODE
+roundhour#1689 | 4be938470 | NateHigger | Racist | Racist Hostname
+winnerjust#2812 | a0221bf63 | rvzim | Racist | Used racial slurs in game
+liableebb#5371 | c37085a74 | NuckFigger | Racist | 
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 

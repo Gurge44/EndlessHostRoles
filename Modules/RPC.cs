@@ -120,7 +120,6 @@ public enum CustomRPC
     SetCleanserCleanLimit,
     SetJailorTarget,
     SetDoppelgangerStealLimit,
-    SetJailorExeLimit,
     SetSwapperVotes,
     Judge,
     Guess,
@@ -137,6 +136,7 @@ public enum CustomRPC
     SyncChangeling,
     SyncSentry,
     SyncBargainer,
+    SyncOverheat,
     SetDoomsayerProgress = 209,
 
     /*
@@ -149,7 +149,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SyncOverheat,
     SyncIntrovert,
     SyncAllergic,
     SyncAsthmatic,
@@ -161,10 +160,11 @@ public enum CustomRPC
     Exclusionary,
     Deadlined,
     Blessed,
+    Necronomicon,
+    Stained,
 
     // Game Modes
     RoomRushDataSync,
-    FFAKill,
     FFASync,
     QuizSync,
     HNSSync,
@@ -251,7 +251,7 @@ internal static class RPCHandlerPatch
     {
         if (id == 115) return true;
         if (SubmergedCompatibility.IsSubmerged() && id is >= 120 and <= 124) return true;
-        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.FFAKill or CustomRPC.TMGSync or CustomRPC.InspectorCommand;
+        return (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestCommandProcessing or CustomRPC.Judge or CustomRPC.SetSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.NemesisRevenge or CustomRPC.BAU or CustomRPC.TMGSync or CustomRPC.InspectorCommand;
     }
 
     private static bool CheckRateLimit(PlayerControl __instance, RpcCalls rpcType)
@@ -318,7 +318,7 @@ internal static class RPCHandlerPatch
                         break;
                     case RpcCalls.SendChat:
                         string text = subReader.ReadString();
-                        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
+                        Logger.Info($"({__instance.FriendCode}|{__instance.GetClient()?.GetHashedPuid()}) {__instance.GetNameWithRole().RemoveHtmlTags()}: {text}", "ReceiveChat");
                         ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
 
                         if (canceled)
@@ -475,7 +475,7 @@ internal static class RPCHandlerPatch
                     }
 
                     OptionSaver.Save();
-                    Main.Instance.StartCoroutine(OptionShower.GetText());
+                    //Main.Instance.StartCoroutine(OptionShower.GetText());
                     break;
                 }
                 case CustomRPC.SetDeathReason:
@@ -642,7 +642,7 @@ internal static class RPCHandlerPatch
                     string commandKey = reader.ReadString();
                     string text = reader.ReadString();
 
-                    if (__instance == null || !__instance.IsModdedClient())
+                    if (!__instance || !__instance.IsModdedClient())
                     {
                         Logger.Error("Player is null or not a modded client", "RequestCommandProcessingFromHost");
                         break;
@@ -1157,11 +1157,6 @@ internal static class RPCHandlerPatch
                     Cleanser.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SetJailorExeLimit:
-                {
-                    Jailor.ReceiveRPC(reader, false);
-                    break;
-                }
                 case CustomRPC.SetJailorTarget:
                 {
                     Jailor.ReceiveRPC(reader);
@@ -1180,23 +1175,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.RoomRushDataSync:
                 {
                     RoomRush.ReceiveRPC(reader);
-                    break;
-                }
-                case CustomRPC.FFAKill:
-                {
-                    if (Options.CurrentGameMode != CustomGameMode.FFA)
-                    {
-                        EAC.WarnHost();
-                        EAC.Report(__instance, "FFA RPC when game mode is not FFA");
-                        break;
-                    }
-
-                    var killer = reader.ReadNetObject<PlayerControl>();
-                    var target = reader.ReadNetObject<PlayerControl>();
-
-                    if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
-
-                    FreeForAll.OnPlayerAttack(killer, target);
                     break;
                 }
                 case CustomRPC.FFASync:
@@ -1366,6 +1344,19 @@ internal static class RPCHandlerPatch
                 case CustomRPC.Blessed:
                 {
                     Blessed.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.Necronomicon:
+                {
+                    if (!Main.PlayerStates.TryGetValue(reader.ReadByte(), out PlayerState state) || state.Role is not CovenBase covenRole) break;
+                    covenRole.HasNecronomicon = true;
+                    break;
+                }
+                case CustomRPC.Stained:
+                {
+                    byte id = reader.ReadByte();
+                    Stained.VioletNameList.Add(id);
+                    LateTask.New(() => Stained.VioletNameList.Remove(id), 3f);
                     break;
                 }
             }

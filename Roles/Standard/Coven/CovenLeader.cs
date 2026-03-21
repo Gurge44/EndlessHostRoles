@@ -48,7 +48,7 @@ public class CovenLeader : CovenBase
 
     public override void OnReceiveNecronomicon()
     {
-        CovenLeaderId.GetPlayer()?.ResetKillCooldown();
+        SetKillCooldown(CovenLeaderId);
     }
 
     public override void AfterMeetingTasks()

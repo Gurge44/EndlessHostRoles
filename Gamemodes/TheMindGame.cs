@@ -401,7 +401,7 @@ public static class TheMindGame
 
         Round = 2;
 
-        DefaultColorIds.DoIf(x => x.Key != null && x.Value is >= byte.MinValue and <= byte.MaxValue, x => x.Key.RpcSetColor((byte)x.Value));
+        DefaultColorIds.DoIf(x => x.Key && x.Value is >= byte.MinValue and <= byte.MaxValue, x => x.Key.RpcSetColor((byte)x.Value));
 
         yield return NotifyEveryone("TMG.Notify.Round", 2, 2);
         if (Stop) yield break;
@@ -786,7 +786,7 @@ public static class TheMindGame
                             byte id = FindTargetIdFromText();
                             if (id == byte.MaxValue) break;
 
-                            if (!pc.AmOwner && spamRequired)
+                            if (!pc.IsModdedClient() && spamRequired)
                                 Utils.SendMessage("\n", pc.PlayerId, Translator.GetString("NoSpamAnymoreUseCmd"));
 
                             if (id == WinningBriefcaseHolderId)

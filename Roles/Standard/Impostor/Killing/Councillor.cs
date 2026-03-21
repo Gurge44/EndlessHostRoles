@@ -94,13 +94,9 @@ public class Councillor : RoleBase
         MeetingKillLimit[CouncillorId] = MurderLimitPerMeeting.GetInt();
     }
 
-    public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
+    public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
-
-        if (!GameStates.IsInGame || pc == null) return false;
-
-        if (!pc.Is(CustomRoles.Councillor)) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Councillor)) return false;
 
         int operate; // 1:ID 2:Kill
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -125,7 +121,7 @@ public class Councillor : RoleBase
                 break;
             case 2:
             {
-                if (TryHideMsg.GetBool() && !isUI && spamRequired)
+                if (TryHideMsg.GetBool() && !isUI && spamRequired && sendCmdWarn)
                     Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
@@ -136,7 +132,7 @@ public class Councillor : RoleBase
 
                 PlayerControl target = Utils.GetPlayerById(targetId);
 
-                if (target != null)
+                if (target)
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} murdered {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
                     var councillorSuicide = true;
@@ -151,7 +147,7 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    if (MeetingKillLimit[pc.PlayerId] < 1)
+                    if (MeetingKillLimit.GetValueOrDefault(pc.PlayerId) < 1)
                     {
                         if (!isUI)
                             Utils.SendMessage(GetString("CouncillorMurderMaxMeeting"), pc.PlayerId);
@@ -161,7 +157,7 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    if (TotalKillLimit[pc.PlayerId] < 1)
+                    if (TotalKillLimit.GetValueOrDefault(pc.PlayerId) < 1)
                     {
                         if (!isUI)
                             Utils.SendMessage(GetString("MurderMaxGame"), pc.PlayerId);
@@ -271,7 +267,7 @@ public class Councillor : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;
-        MurderMsg(shapeshifter, $"/tl {target.PlayerId}");
+        MurderMsg(shapeshifter, $"/tl {target.PlayerId}", sendCmdWarn: false);
     }
 
     private static void SendRPC(byte playerId)

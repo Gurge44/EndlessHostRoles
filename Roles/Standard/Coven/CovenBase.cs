@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -28,6 +29,8 @@ public abstract class CovenBase : RoleBase
         var covenRole = (CovenBase)receiver.Value.Role;
         covenRole.HasNecronomicon = true;
         covenRole.OnReceiveNecronomicon();
+        
+        Utils.SendRPC(CustomRPC.Necronomicon, receiver.Key);
 
         LateTask.New(() =>
         {
@@ -44,7 +47,7 @@ public abstract class CovenBase : RoleBase
 
         public static void Postfix()
         {
-            if (AmongUsClient.Instance.AmHost && ++MeetingNum >= Options.CovenReceiveNecronomiconAfterNumMeetings.GetInt())
+            if (AmongUsClient.Instance.AmHost && MeetingNum >= Options.CovenReceiveNecronomiconAfterNumMeetings.GetInt())
                 GiveNecronomicon();
         }
     }

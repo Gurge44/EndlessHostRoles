@@ -119,7 +119,7 @@ public static class MainMenuManagerPatch
     {
         Instance = __instance;
 
-        SimpleButton.SetBase(__instance.quitButton);
+        SimpleButton.SetBase(__instance.creditsButton);
         var logoObject = new GameObject("titleLogo_MG");
         Transform logoTransform = logoObject.transform;
         MgLogo = logoObject.AddComponent<SpriteRenderer>();

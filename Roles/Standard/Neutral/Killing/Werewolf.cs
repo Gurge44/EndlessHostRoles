@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Modules.Extensions;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -70,10 +72,10 @@ public class Werewolf : RoleBase
 
         RampageTimer = null;
         KillsInLastRampage = -10;
-
-        if (!AmongUsClient.Instance.AmHost) return;
         
         StartCooldownTimer(playerId.GetPlayer(), 8);
+
+        if (!AmongUsClient.Instance.AmHost) return;
         
         LateTask.New(() =>
         {
@@ -92,6 +94,7 @@ public class Werewolf : RoleBase
         CooldownTimer = new CountdownTimer(UsedCooldown + add, () =>
         {
             CooldownTimer = null;
+            if (!AmongUsClient.Instance.AmHost || !pc) return;
             bool otherTrigger = UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool();
 
             if (!pc.IsModdedClient())
@@ -99,7 +102,7 @@ public class Werewolf : RoleBase
                 pc.Notify(GetString(otherTrigger ? "WWCanRampageVanish" : "WWCanRampage"));
                 pc.RpcChangeRoleBasis(otherTrigger ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
             }
-        }, onTick: () => pc.Notify(string.Format(GetString("CDPT"), (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds)), 3f, true), onCanceled: () => CooldownTimer = null);
+        }, onTick: !AmongUsClient.Instance.AmHost || pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("CDPT"), (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds)), 3f, true), onCanceled: () => CooldownTimer = null);
     }
 
     void StartRampageTimer(PlayerControl pc)
@@ -107,10 +110,12 @@ public class Werewolf : RoleBase
         RampageTimer = new CountdownTimer(RampageDur.GetFloat(), () =>
         {
             RampageTimer = null;
+            if (!AmongUsClient.Instance.AmHost || !pc) return;
             StartCooldownTimer(pc);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, false);
             pc.Notify(GetString("WWRampageOut"));
             if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
-        }, onTick: pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("WWRampageCountdown"), (int)RampageTimer.Remaining.TotalSeconds), overrideAll: true), onCanceled: () => RampageTimer = null);
+        }, onTick: !AmongUsClient.Instance.AmHost || pc.IsModdedClient() ? null : () => pc.Notify(string.Format(GetString("WWRampageCountdown"), (int)RampageTimer.Remaining.TotalSeconds), overrideAll: true), onCanceled: () => RampageTimer = null);
     }
 
     public override void SetKillCooldown(byte id)
@@ -145,8 +150,9 @@ public class Werewolf : RoleBase
         RampageTimer = null;
         CooldownTimer?.Dispose();
         var pc = WWId.GetPlayer();
-        if (pc == null || !pc.IsAlive()) return;
+        if (!pc || !pc.IsAlive()) return;
         StartCooldownTimer(pc);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, false);
     }
 
     public override void OnExitVent(PlayerControl pc, Vent vent)
@@ -183,6 +189,7 @@ public class Werewolf : RoleBase
             {
                 KillsInLastRampage = 0;
                 StartRampageTimer(pc);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, true);
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
                 if (!pc.IsModdedClient()) pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
@@ -198,6 +205,22 @@ public class Werewolf : RoleBase
     {
         if (ResetToNormalCooldownAfterMeetings.GetBool())
             KillsInLastRampage = -10;
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        if (reader.ReadBoolean())
+        {
+            CooldownTimer?.Dispose();
+            CooldownTimer = null;
+            StartRampageTimer(null);
+        }
+        else
+        {
+            RampageTimer?.Dispose();
+            RampageTimer = null;
+            StartCooldownTimer(null);
+        }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

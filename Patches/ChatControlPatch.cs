@@ -64,7 +64,11 @@ internal static class ChatControllerUpdatePatch
 
         if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 
-        __instance.freeChatField.textArea.AllowPaste = true;
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
+            ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
+
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
+            __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
         {
@@ -108,6 +112,7 @@ public static class ChatManager
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
+        Utils.CheckServerCommand(ref msg, out _);
         string[] comList = command.Split('|');
 
         foreach (string str in comList)

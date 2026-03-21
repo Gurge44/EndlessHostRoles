@@ -127,6 +127,56 @@ public static class HudSpritePatch
                     newReportButton = CustomButton.Get("Clean");
                     break;
                 }
+                case CustomRoles.Addict:
+                {
+                    newAbilityButton = CustomButton.Get("Addict");
+                    break;
+                }
+                case CustomRoles.Adventurer:
+                {
+                    newAbilityButton = CustomButton.Get("AdventurerCraft");
+                    break;
+                }
+                case CustomRoles.Altruist:
+                {
+                    newReportButton = CustomButton.Get("Altruist");
+                    break;
+                }
+                case CustomRoles.Bestower:
+                {
+                    newKillButton = CustomButton.Get("Bestower");
+                    break;
+                }
+                case CustomRoles.CameraMan:
+                {
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Camera Man");
+                    else newAbilityButton = CustomButton.Get("Camera Man");
+                    break;
+                }
+                case CustomRoles.Chameleon:
+                {
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Chameleon");
+                    else newAbilityButton = CustomButton.Get("Chameleon");
+                    break;
+                }
+                case CustomRoles.Carrier:
+                {
+                    newAbilityButton = CustomButton.Get("TPToLoca");
+                    newPetButton = CustomButton.Get("abscond");
+                    break;
+                }
+                case CustomRoles.Astral:
+                {
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Astral");
+                    else newAbilityButton = CustomButton.Get("Astral");
+                    break;
+                }
+                case CustomRoles.Catcher:
+                {
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Catcher");
+                    else newAbilityButton = CustomButton.Get("Catcher");
+                    break;
+                }
                 case CustomRoles.Amnesiac:
                 {
                     if (Amnesiac.RememberMode.GetValue() == 1) newKillButton = CustomButton.Get("AmnesiacKill");
@@ -260,13 +310,8 @@ public static class HudSpritePatch
                 {
                     newKillButton = CustomButton.Get("Douse");
 
-                    if (player.IsDouseDone() || (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt()))
-                    {
-                        if (Options.UsePets.GetBool())
-                            newPetButton = CustomButton.Get("Ignite");
-                        else
-                            newVentButton = CustomButton.Get("Ignite");
-                    }
+                    if (player.IsDouseDone() || (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt()) && HudManager.Instance.KillButton.currentTarget && player.IsDousedPlayer(HudManager.Instance.KillButton.currentTarget))
+                        newKillButton = CustomButton.Get("Ignite");
 
                     break;
                 }
@@ -421,7 +466,6 @@ public static class HudSpritePatch
                     break;
                 }
                 case CustomRoles.Swooper:
-                case CustomRoles.Chameleon:
                 case CustomRoles.Wraith:
                 {
                     newAbilityButton = CustomButton.Get("invisible");

@@ -81,10 +81,10 @@ public class Hangman : RoleBase
 
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             killer.RpcRemoveAbilityUse();
-            target.Data.IsDead = true;
             target.SetRealKiller(killer);
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.LossOfHead;
             target.RpcExileV2();
+            target.Data.IsDead = true;
             Main.PlayerStates[target.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(target);
             target.SetRealKiller(killer);

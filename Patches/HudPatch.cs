@@ -63,11 +63,11 @@ internal static class HudManagerPatch
                     SettingsText = null;
                 }
 
-                if (SettingsText)
-                {
-                    SettingsText.text = OptionShower.GetTextNoFresh();
-                    SettingsText.enabled = SettingsText.text != string.Empty;
-                }
+                //if (SettingsText)
+                //{
+                //    SettingsText.text = OptionShower.GetTextNoFresh();
+                //    SettingsText.enabled = SettingsText.text != string.Empty;
+                //}
             }
             else if (SettingsText)
             {
@@ -253,7 +253,7 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality and not CustomRoles.Witch and not CustomRoles.Silencer && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()) && !role.ToString().EndsWith("EHR") && !role.IsVanilla())
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && player.GetRoleTypes() != RoleTypes.Engineer && !role.OnlySpawnsWithPets() && !role.AlwaysUsesPhantomBase() && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey) && role is not CustomRoles.Changeling and not CustomRoles.Ninja and not CustomRoles.Duality and not CustomRoles.Witch and not CustomRoles.HexMaster and not CustomRoles.Silencer && (!role.SimpleAbilityTrigger() || !Options.UsePhantomBasis.GetBool() || !(player.IsNeutralKiller() && Options.UsePhantomBasisForNKs.GetBool())) && !(Options.UseMeetingShapeshift.GetBool() && player.UsesMeetingShapeshift()) && !role.ToString().EndsWith("EHR") && !role.IsVanilla())
                         __instance.AbilityButton?.Hide();
 
                     if (!LowerInfoText)
@@ -274,7 +274,7 @@ internal static class HudManagerPatch
                         CustomGameMode.StopAndGo => StopAndGo.GetHudText(),
                         CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
                         CustomGameMode.HideAndSeek => CustomHnS.GetSuffixText(player, player, true),
-                        CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
+                        CustomGameMode.NaturalDisasters when AmongUsClient.Instance.AmHost => NaturalDisasters.SuffixText(),
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
                         CustomGameMode.Snowdown => Snowdown.GetHudText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
@@ -971,19 +971,29 @@ internal static class TaskPanelBehaviourPatch
 {
     // Role info tab panel code from https://github.com/All-Of-Us-Mods/MiraAPI and https://github.com/AU-Avengers/TOU-Mira
 
+    public static PassiveButton RolePanelButton;
+    public static TaskPanelBehaviour TaskPanel;
+    public static TextMeshPro TabText;
+    public static TextMeshPro TabPanelName;
     internal static TaskPanelBehaviour CreateRoleTab(CustomRoles role)
     {
-        var ogPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
-        GameObject clonePanel = Object.Instantiate(ogPanel.gameObject, ogPanel.transform.parent);
+        TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
+        GameObject clonePanel = Object.Instantiate(TaskPanel.gameObject, TaskPanel.transform.parent);
         clonePanel.name = "RolePanel";
 
+        var tabRolePanel = clonePanel.transform.FindChild("Tab");
+        var actionMap = tabRolePanel.transform.FindChild("InputDisplayGlyph").GetComponent<ActionMapGlyphDisplay>();
+        actionMap.actionToDisplayMappedGlyphFor = RewiredConstsEnum.Action.ButtonKeyboard;
+        
         var newPanel = clonePanel.GetComponent<TaskPanelBehaviour>();
         newPanel.open = false;
+
+        RolePanelButton = tabRolePanel.GetComponent<PassiveButton>();
 
         GameObject tab = newPanel.tab.gameObject;
         tab.DestroyTranslator();
 
-        newPanel.transform.localPosition = ogPanel.transform.localPosition - new Vector3(0, 1, 0);
+        newPanel.transform.localPosition = TaskPanel.transform.localPosition - new Vector3(0, 1, 0);
 
         UpdateRoleTab(newPanel, role);
         return newPanel;
@@ -993,17 +1003,17 @@ internal static class TaskPanelBehaviourPatch
 
     internal static void UpdateRoleTab(TaskPanelBehaviour panel, CustomRoles role)
     {
-        var tabText = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
-        var ogPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
+        if (!TabPanelName) TabPanelName = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
+        if (!TaskPanel) TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
         string panelName = GetString(Options.CurrentGameMode != CustomGameMode.Standard ? "GameInfo" : "RoleInfo");
-        if (tabText.text != panelName) tabText.text = panelName;
+        if (TabPanelName.text != panelName) TabPanelName.text = panelName;
 
         bool taskingGm = Utils.IsTaskingGameMode();
         
-        float y = ogPanel.taskText.textBounds.size.y + 1;
+        float y = TaskPanel.taskText.textBounds.size.y + 1;
         float defaultPos = taskingGm ? 2f : 0.6f;
-        Vector3 targetClosed = new Vector3(ogPanel.closedPosition.x, taskingGm && ogPanel.open ? y + 0.2f : defaultPos, ogPanel.closedPosition.z);
-        Vector3 targetOpen   = new Vector3(ogPanel.openPosition.x,   taskingGm && ogPanel.open ? y        : defaultPos, ogPanel.openPosition.z);
+        Vector3 targetClosed = new Vector3(TaskPanel.closedPosition.x, taskingGm && TaskPanel.open ? y + 0.2f : defaultPos, TaskPanel.closedPosition.z);
+        Vector3 targetOpen   = new Vector3(TaskPanel.openPosition.x,   taskingGm && TaskPanel.open ? y        : defaultPos, TaskPanel.openPosition.z);
 
         float t = 1f - Mathf.Exp(-PosSmoothSpeed * Time.deltaTime);
 
@@ -1304,11 +1314,11 @@ internal static class TaskPanelBehaviourPatch
         {
             if (Utils.IsTaskingGameMode())
             {
-                var tabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
+                if (!TabText) TabText = __instance.tab.transform.FindChild("TabText_TMP").GetComponent<TextMeshPro>();
                 bool fakeTasks = Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false);
                 string sideText = TranslationController.Instance.GetString(fakeTasks ? StringNames.FakeTasks : StringNames.Tasks);
                 if (fakeTasks) sideText = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ImpostorEHR), sideText.TrimEnd(':'));
-                tabText.SetText($"{sideText}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
+                TabText.SetText($"{sideText}{Utils.GetTaskCount(PlayerControl.LocalPlayer.PlayerId, Utils.IsActive(SystemTypes.Comms))}");
             }
             else
             {

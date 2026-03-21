@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -18,6 +17,8 @@ public class Tremor : RoleBase
     private static OptionItem TimerStart;
     private static OptionItem TimerDecrease;
     private static OptionItem DoomTime;
+    private static OptionItem SpeedDuringDoom;
+    private static OptionItem VisionDuringDoom;
 
     private int Count;
     private int DoomTimer;
@@ -53,6 +54,14 @@ public class Tremor : RoleBase
         DoomTime = new IntegerOptionItem(Id + 7, "Tremor.DoomTime", new(0, 180, 1), 30, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
             .SetValueFormat(OptionFormat.Seconds);
+
+        SpeedDuringDoom = new FloatOptionItem(Id + 8, "Tremor.SpeedDuringDoom", new(0.05f, 3f, 0.05f), 1.5f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
+            .SetValueFormat(OptionFormat.Multiplier);
+
+        VisionDuringDoom = new FloatOptionItem(Id + 9, "Tremor.VisionDuringDoom", new(0.05f, 1.5f, 0.05f), 0.75f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
+            .SetValueFormat(OptionFormat.Multiplier);
     }
 
     public override void Init()
@@ -75,7 +84,14 @@ public class Tremor : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        opt.SetVision(HasImpostorVision.GetBool());
+        if (IsDoom)
+        {
+            float vision = VisionDuringDoom.GetFloat();
+            opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
+        }
+        else
+            opt.SetVision(HasImpostorVision.GetBool());
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -90,7 +106,7 @@ public class Tremor : RoleBase
         bool wasDoom = IsDoom;
         long now = Utils.TimeStamp;
 
-        if (!IsDoom && LastUpdate != now)
+        if (!wasDoom && LastUpdate != now)
         {
             Timer--;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);
@@ -102,6 +118,8 @@ public class Tremor : RoleBase
         {
             Main.EnumerateAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
             DoomTimer = DoomTime.GetInt();
+            Main.AllPlayerSpeed[pc.PlayerId] = SpeedDuringDoom.GetFloat();
+            pc.MarkDirtySettings();
         }
 
         if (IsDoom)

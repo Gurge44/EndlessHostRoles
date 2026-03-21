@@ -147,11 +147,11 @@ internal static class ExternalRpcPetPatch
 
         var hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
-        if (target != null) hasKillTarget = true;
+        if (target) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
         
-        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger() && !role.AlwaysUsesPhantomBase() && role != CustomRoles.Chemist) return;
         
         bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade or CustomRoles.Sidekick;
 
@@ -191,12 +191,13 @@ internal static class ExternalRpcPetPatch
     {
         PlayerControl target = FastVector2.TryGetClosestPlayerInRangeTo(pc, 3.5f, out PlayerControl closest) ? closest : null;
 
-        if (target != null)
+        if (target)
         {
-            if (target.Is(CustomRoles.Detour))
+            if (target.Is(CustomRoles.Detour) && target.GetAbilityUseLimit() >= 1f)
             {
+                target.RpcRemoveAbilityUse();
                 PlayerControl tempTarget = target;
-                FastVector2.TryGetClosestPlayerTo(target, out target, x => x.PlayerId != pc.PlayerId);
+                FastVector2.TryGetClosestPlayerTo(tempTarget, out target, x => x.PlayerId != pc.PlayerId);
                 Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
                 if (tempTarget.AmOwner)

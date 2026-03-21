@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using InnerNet;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
@@ -100,7 +101,7 @@ internal static class HotPotato
         string holding = HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty;
         string arrows = TargetArrow.GetAllArrows(id);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
-        return $"{holding}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s{arrows}";
+        return $"{holding}<{Main.RoleColors[CustomRoles.Potato]}>{Translator.GetString("HotPotato_TimeLeftSuffix")}</color>{(hud ? "<b>" : string.Empty)}{HotPotatoState.TimeLeft}{(hud ? "</b>" : string.Empty)}s{arrows}";
     }
 
     public static void ReceiveRPC(MessageReader reader)
@@ -139,7 +140,7 @@ internal static class HotPotato
 
             PlayerControl holder = Utils.GetPlayerById(HotPotatoState.HolderID);
 
-            if (holder == null || holder.Data.Disconnected || !holder.IsAlive())
+            if (!holder || holder.Data.Disconnected || !holder.IsAlive())
             {
                 PassHotPotato();
                 return;
@@ -175,7 +176,7 @@ internal static class HotPotato
             Vector2 holderPos = alivePlayerPositions[HotPotatoState.HolderID];
             float range = Range.GetFloat();
 
-            if (!FastVector2.TryGetClosestInRange(holderPos, alivePlayerPositions, range, out byte passToId)) return;
+            if (!FastVector2.TryGetClosestInRange(holderPos, alivePlayerPositions, range, out byte passToId, x => x != HotPotatoState.HolderID)) return;
             if (!allowLastHolder && passToId == HotPotatoState.LastHolderID) return;
             PassHotPotato(passToId.GetPlayer(), false);
         }
@@ -204,7 +205,7 @@ internal static class HotPotato
                 if (CanPassViaKillButton)
                 {
                     target.RpcSetRoleDesync(RoleTypes.Impostor, target.OwnerId);
-                    LateTask.New(() => target.SetKillCooldown(1f), 0.2f, log: false);
+                    LateTask.New(() => target.SetKillCooldownNonSync(1f), 0.2f, log: false);
                 }
 
                 if (aapc.Count < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Count > 1)
@@ -218,7 +219,7 @@ internal static class HotPotato
 
                 PlayerControl lastHolder = Utils.GetPlayerById(HotPotatoState.LastHolderID);
 
-                if (lastHolder != null)
+                if (lastHolder)
                 {
                     if (CanPassViaKillButton && lastHolder.IsAlive()) lastHolder.RpcSetRoleGlobal(RoleTypes.Crewmate);
 

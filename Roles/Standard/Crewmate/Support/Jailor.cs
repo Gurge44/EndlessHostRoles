@@ -15,7 +15,6 @@ public class Jailor : RoleBase
     private static OptionItem JailCooldown;
     private static OptionItem NotifyJailedOnMeeting;
     public static OptionItem UsePet;
-    private bool JailorDidVote;
 
     private byte JailorId;
     public byte JailorTarget;
@@ -40,14 +39,12 @@ public class Jailor : RoleBase
     {
         PlayerIdList = [];
         JailorTarget = byte.MaxValue;
-        JailorDidVote = false;
     }
 
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
         JailorTarget = byte.MaxValue;
-        JailorDidVote = false;
         JailorId = playerId;
     }
 
@@ -71,37 +68,20 @@ public class Jailor : RoleBase
         return pc.IsAlive();
     }
 
-    private void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)
+    private static void SendRPC(byte jailerId, byte targetId)
     {
         if (!Utils.DoRPC) return;
 
-        MessageWriter writer;
-
-        if (!setTarget)
-        {
-            writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, SendOption.Reliable);
-            writer.Write(jailerId);
-            writer.Write(JailorDidVote);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            return;
-        }
-
-        writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorTarget, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorTarget, SendOption.Reliable);
         writer.Write(jailerId);
         writer.Write(targetId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void ReceiveRPC(MessageReader reader, bool setTarget = true)
+    public static void ReceiveRPC(MessageReader reader)
     {
         byte jailerId = reader.ReadByte();
         if (Main.PlayerStates[jailerId].Role is not Jailor jl) return;
-
-        if (!setTarget)
-        {
-            bool didvote = reader.ReadBoolean();
-            jl.JailorDidVote = didvote;
-        }
 
         byte targetId = reader.ReadByte();
         jl.JailorTarget = targetId;
@@ -109,8 +89,6 @@ public class Jailor : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
-
         if (JailorTarget != byte.MaxValue)
         {
             killer.Notify(GetString("JailorTargetAlreadySelected"));
@@ -132,9 +110,14 @@ public class Jailor : RoleBase
         if (JailorTarget == byte.MaxValue) return;
 
         PlayerControl tpc = Utils.GetPlayerById(JailorTarget);
-        if (tpc == null) return;
+        if (!tpc) return;
 
         if (tpc.IsAlive()) LateTask.New(() => Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")), importance: MessageImportance.High), 0.3f, "JailorNotifyJailed");
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        JailorTarget = byte.MaxValue;
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

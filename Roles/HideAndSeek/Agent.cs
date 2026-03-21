@@ -16,6 +16,10 @@ public class Agent : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
+        new TextOptionItem(69_211_2000, $"TypeImpostor", TabGroup.ImpostorRoles)
+            .SetHeader(true)
+            .SetGameMode(CustomGameMode.HideAndSeek);
+
         Options.SetupRoleOptions(69_211_2001, TabGroup.ImpostorRoles, CustomRoles.Agent, CustomGameMode.HideAndSeek);
 
         Vision = new FloatOptionItem(69_211_2003, "AgentVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)

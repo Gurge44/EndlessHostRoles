@@ -21,7 +21,7 @@ public class Doppelganger : RoleBase
     private static OptionItem ResetMode;
     private static OptionItem ResetTimer;
 
-    public static int LocalPlayerChangeSkinTimes;
+    private static int LocalPlayerChangeSkinTimes;
 
     public static HashSet<(byte, byte)> SwappedIDs = [];
     public static Dictionary<byte, string> DoppelVictim = [];
@@ -37,7 +37,6 @@ public class Doppelganger : RoleBase
     ];
 
     private byte DGId;
-    private long StealTimeStamp;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -75,7 +74,6 @@ public class Doppelganger : RoleBase
         DoppelPresentSkin = [];
         DoppelDefaultSkin = [];
         DGId = byte.MaxValue;
-        StealTimeStamp = 0;
 
         LocalPlayerChangeSkinTimes = 0;
     }
@@ -93,7 +91,6 @@ public class Doppelganger : RoleBase
             DoppelVictim[playerId] = pc.Data.PlayerName;
 
         DoppelDefaultSkin[playerId] = pc.CurrentOutfit;
-        StealTimeStamp = 0;
     }
 
     public override void Remove(byte playerId)
@@ -219,7 +216,7 @@ public class Doppelganger : RoleBase
 
     public static void OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return;
+        if (Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return;
 
         if (target.IsShifted())
         {
@@ -235,11 +232,9 @@ public class Doppelganger : RoleBase
 
         TotalSteals[killer.PlayerId]++;
 
-        dg.StealTimeStamp = Utils.TimeStamp;
-        
         LateTask.New(() =>
         {
-            if (ResetMode.GetValue() == 2 && TotalSteals[killer.PlayerId] > 0 && target != null)
+            if (ResetMode.GetValue() == 2 && TotalSteals[killer.PlayerId] > 0 && target)
             {
                 RpcChangeSkin(target, DoppelPresentSkin[target.PlayerId]);
                 RpcChangeSkin(killer, DoppelDefaultSkin[killer.PlayerId]);
@@ -265,7 +260,6 @@ public class Doppelganger : RoleBase
             tname = target.Data.PlayerName;
 
         NetworkedPlayerInfo.PlayerOutfit killerSkin = Set(new(), kname, killer.CurrentOutfit.ColorId, killer.CurrentOutfit.HatId, killer.CurrentOutfit.SkinId, killer.CurrentOutfit.VisorId, killer.CurrentOutfit.PetId, killer.CurrentOutfit.NamePlateId);
-
         NetworkedPlayerInfo.PlayerOutfit targetSkin = Set(new(), tname, target.CurrentOutfit.ColorId, target.CurrentOutfit.HatId, target.CurrentOutfit.SkinId, target.CurrentOutfit.VisorId, target.CurrentOutfit.PetId, target.CurrentOutfit.NamePlateId);
 
         DoppelVictim[target.PlayerId] = tname;
@@ -296,11 +290,11 @@ public class Doppelganger : RoleBase
             if (ResetMode.GetValue() == 1 && TotalSteals[DGId] > 0)
             {
                 PlayerControl pc = Utils.GetPlayerById(DGId);
-                if (pc == null) return;
+                if (!pc) return;
 
-                PlayerControl currentTarget = Main.EnumeratePlayerControls().FirstOrDefault(x => x?.GetRealName() == DoppelVictim[pc.PlayerId]);
+                PlayerControl currentTarget = Main.EnumeratePlayerControls().FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
 
-                if (currentTarget != null)
+                if (currentTarget)
                 {
                     RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
                     RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);

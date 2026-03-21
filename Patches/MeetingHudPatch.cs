@@ -278,7 +278,7 @@ internal static class CheckForEndVotingPatch
             if (tie)
             {
                 var target = byte.MaxValue;
-                int playerNum = Main.AllPlayerControls.Count;
+                int playerNum = PlayerControl.AllPlayerControls.Count;
 
                 foreach (KeyValuePair<byte, int> data in votingData.Where(x => x.Key < playerNum && x.Value == max))
                 {
@@ -368,7 +368,7 @@ internal static class CheckForEndVotingPatch
 
         PlayerControl player = exiledPlayer.Object;
         CustomRoles crole = exiledPlayer.GetCustomRole();
-        string coloredRole = Utils.GetDisplayRoleName(exileId, true, true);
+        string coloredRole = Utils.GetDisplayRoleName(exileId, pure: true, seeTargetBetrayalAddons: true);
 
         if (crole == CustomRoles.LovingImpostor && !Options.ConfirmLoversOnEject.GetBool())
         {
@@ -563,11 +563,14 @@ internal static class CheckForEndVotingPatch
     {
         try
         {
-            if (Witch.PlayerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
-            if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
-            if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
-            if (Wasp.On && deathReason == PlayerState.DeathReason.Vote) Wasp.OnExile(playerIds);
-            if (CustomRoles.SpellCaster.RoleExist() && deathReason == PlayerState.DeathReason.Vote) SpellCaster.OnExile(playerIds);
+            if (deathReason == PlayerState.DeathReason.Vote)
+            {
+                if (Witch.PlayerIdList.Count > 0) Witch.OnCheckForEndVoting(playerIds);
+                if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(playerIds);
+                Gaslighter.OnExile(playerIds);
+                if (Wasp.On) Wasp.OnExile(playerIds);
+                if (CustomRoles.SpellCaster.RoleExist()) SpellCaster.OnExile(playerIds);
+            }
 
             foreach (byte playerId in playerIds)
             {
@@ -857,7 +860,7 @@ internal static class MeetingHudStartPatch
     {
         Logger.Info("------------Meeting Start------------", "Phase");
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
-        Main.EnumeratePlayerControls().Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
+        ReportDeadBodyPatch.WaitReport.SetAllValues([]);
         MeetingStates.MeetingCalled = true;
         MeetingStates.MeetingNum++;
         CheckForEndVotingPatch.TempExiledPlayer = null;

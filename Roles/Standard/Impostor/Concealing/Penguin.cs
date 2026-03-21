@@ -43,7 +43,7 @@ public class Penguin : RoleBase
     {
         foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
         {
-            if (state.Value.Role is Penguin { IsEnable: true, VictimCanUseAbilities: false } pg && pg.AbductVictim != null && pg.AbductVictim.PlayerId == pc.PlayerId)
+            if (state.Value.Role is Penguin { IsEnable: true, VictimCanUseAbilities: false } pg && pg.AbductVictim && pg.AbductVictim.PlayerId == pc.PlayerId)
                 return true;
         }
 
@@ -113,7 +113,7 @@ public class Penguin : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
-        return AbductVictim == null && !IsGoose;
+        return !AbductVictim && !IsGoose;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -229,7 +229,7 @@ public class Penguin : RoleBase
 
         bool doKill = !IsGoose;
 
-        if (AbductVictim != null)
+        if (AbductVictim)
         {
             if (target.PlayerId != AbductVictim.PlayerId)
             {
@@ -261,7 +261,7 @@ public class Penguin : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton?.OverrideText(AbductVictim != null && !IsGoose ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
+        hud.KillButton?.OverrideText(AbductVictim && !IsGoose ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
     }
 
     public override void OnReportDeadBody()
@@ -271,7 +271,7 @@ public class Penguin : RoleBase
         stopCount = true;
 
         if (!AmongUsClient.Instance.AmHost) return;
-        if (AbductVictim == null) return;
+        if (!AbductVictim) return;
 
         if (!IsGoose && MeetingKill && AbductVictim.IsAlive())
             Penguin_.Kill(AbductVictim);
@@ -300,7 +300,7 @@ public class Penguin : RoleBase
     {
         if (!IsEnable) return;
 
-        if (AbductVictim != null) Penguin_.MarkDirtySettings();
+        if (AbductVictim) Penguin_.MarkDirtySettings();
 
         stopCount = false;
     }
@@ -326,9 +326,9 @@ public class Penguin : RoleBase
             }
         }
 
-        if (AbductVictim != null)
+        if (AbductVictim)
         {
-            if (!Penguin_.IsAlive() || !AbductVictim.IsAlive())
+            if (!Penguin_.IsAlive() || Pelican.IsEaten(PenguinId) || !AbductVictim.IsAlive())
             {
                 RemoveVictim();
                 return;

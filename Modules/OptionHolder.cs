@@ -652,6 +652,7 @@ public static class Options
     public static OptionItem ImpCanGuessImp;
     public static OptionItem CrewCanGuessCrew;
 
+    public static OptionItem ChatDuringGame;
     public static OptionItem EveryoneCanVent;
     public static OptionItem OverrideOtherCrewBasedRoles;
     public static OptionItem WhackAMole;
@@ -961,7 +962,7 @@ public static class Options
         GroupAddons();
         LoadUserData();
         Achievements.LoadAllData();
-        OptionShower.LastText = Translator.GetString("Loading");
+        // OptionShower.LastText = Translator.GetString("Loading");
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
@@ -1770,7 +1771,7 @@ public static class Options
         SendHashedPuidToUseLinkedAccount = new BooleanOptionItem(19501, "SendHashedPuidToUseLinkedAccount", true, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite);
         
-        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 600, 5), 30, TabGroup.SystemSettings)
+        LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 30, 5), 30, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite)
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -1942,11 +1943,13 @@ public static class Options
             .SetParent(FungleChance)
             .SetValueFormat(OptionFormat.Players);
 
-        OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings);
+        OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         MapSpeeds = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
             .SetParent(OverrideSpeedForEachMap)
             .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(19, 188, 233, byte.MaxValue))
             .AddReplacement(("{map}", Translator.GetString(x.ToString()))));
 
         LoadingPercentage = 69;
@@ -2482,6 +2485,11 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UseMeetingShapeshift)
             .SetColor(Palette.Orange);
+
+        ChatDuringGame = new BooleanOptionItem(24015, "FFA_ChatDuringGame", false, TabGroup.TaskSettings)
+         .SetGameMode(CustomGameMode.Standard)
+         .SetHeader(true)
+         .SetColor(Color.blue);
 
         EveryoneCanVent = new BooleanOptionItem(23853, "EveryoneCanVent", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -3063,11 +3071,13 @@ public static class Options
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .SetParent(EnableGameTimeLimit);
 
-        OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings);
+        OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
         InVentVision = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
             .SetParent(OverrideVisionInVents)
             .SetValueFormat(OptionFormat.Multiplier)
+            .SetColor(new Color32(193, 255, 209, byte.MaxValue))
             .AddReplacement(("{team}", Utils.ColorString(x.GetColor(), Translator.GetString($"Type{x}")))));
 
 
@@ -3275,6 +3285,8 @@ public static class Options
         PostLoadTasks();
     }
 
+    private static int LastUsedPlayerCount;
+
     public static void AutoSetFactionMinMaxSettings()
     {
         try
@@ -3285,6 +3297,8 @@ public static class Options
             var filtered = AutoFactionMinMaxSettings.FindAll(x => x.MinPlayersToActivate.GetInt() > 0 && x.MinPlayersToActivate.GetInt() <= playerCount);
             if (filtered.Count == 0) return;
             var usedValues = filtered.MaxBy(x => x.MinPlayersToActivate.GetInt());
+            var usedPlayerCount = usedValues.MinPlayersToActivate.GetInt();
+            if (usedPlayerCount == LastUsedPlayerCount) return;
 
             foreach ((Team team, (OptionItem minSetting, OptionItem maxSetting)) in FactionMinMaxSettings)
             {
@@ -3299,7 +3313,9 @@ public static class Options
             OptionSaver.Save();
             OptionItem.SyncAllOptions();
             
-            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedValues.MinPlayersToActivate.GetInt(), string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+
+            LastUsedPlayerCount = usedPlayerCount;
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -3367,7 +3383,8 @@ public static class Options
 
     public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
     {
-        var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab)
+            .SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -3536,3 +3553,6 @@ public static class Options
 
     // ReSharper restore NotAccessedField.Global
 }
+
+
+

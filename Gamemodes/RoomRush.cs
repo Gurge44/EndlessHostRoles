@@ -396,7 +396,7 @@ public static class RoomRush
         if (DisplayArrowToRoom.GetBool()) Main.EnumeratePlayerControls().Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
         Utils.NotifyRoles();
-        Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
+        LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.2f);
 
         if (WinByPointsInsteadOfDeaths.GetBool())
         {
@@ -421,7 +421,7 @@ public static class RoomRush
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
+        if (!GameGoing || Main.HasJustStarted) return string.Empty;
 
         StringBuilder sb = new();
         bool dead = !seer.IsAlive();
@@ -602,7 +602,7 @@ public static class RoomRush
 
             if (HostRegisterTimer.IsRunning)
             {
-                bool registerHost = HostRegisterTimer.ElapsedMilliseconds > AmongUsClient.Instance.Ping * 2;
+                bool registerHost = HostRegisterTimer.ElapsedMilliseconds > Math.Max(200, AmongUsClient.Instance.Ping * 2);
                 if (registerHost) HostRegisterTimer.Reset();
                 return registerHost;
             }

@@ -59,8 +59,8 @@ public class Overheat : RoleBase
         On = true;
         Temperature = StartingTemperature;
         if (!AmongUsClient.Instance.AmHost) return;
-        var chanceIncreaseTimer = new CountdownTimer(OverheatChanceIncreaseFrequency.GetFloat(), ChanceIncreaseElapsed, cancelOnMeeting: false);
-        var rollChanceTimer = new CountdownTimer(OverheatRollChanceFrequency.GetFloat(), RollElapsed, cancelOnMeeting: false);
+        var chanceIncreaseTimer = new CountdownTimer(OverheatChanceIncreaseFrequency.GetFloat() + 8, ChanceIncreaseElapsed, cancelOnMeeting: false);
+        var rollChanceTimer = new CountdownTimer(OverheatRollChanceFrequency.GetFloat() + 8, RollElapsed, cancelOnMeeting: false);
         return;
 
         void ChanceIncreaseElapsed()

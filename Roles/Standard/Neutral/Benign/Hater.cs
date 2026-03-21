@@ -84,8 +84,6 @@ public class Hater : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
-
         if (killer.PlayerId == target.PlayerId) return true;
 
         if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate)

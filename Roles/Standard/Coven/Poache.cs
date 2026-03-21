@@ -55,6 +55,11 @@ public class Poache : CovenBase
         return pc.IsAlive();
     }
 
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = AbilityCooldown.GetFloat();
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!HasNecronomicon)
