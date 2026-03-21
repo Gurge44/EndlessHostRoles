@@ -1190,9 +1190,6 @@ internal static class ReportDeadBodyPatch
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
 
-        try { AlreadyReportedBodies.UnionWith(Object.FindObjectsOfType<DeadBody>().Select(x => x.ParentId)); }
-        catch (Exception e) { ThrowException(e); }
-
         if (!SubmergedCompatibility.IsSubmerged())
         {
             try

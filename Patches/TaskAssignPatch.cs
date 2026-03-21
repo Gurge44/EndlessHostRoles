@@ -133,21 +133,9 @@ internal static class RpcSetTasksPatch
     // Do not interfere with vanilla task allocation process itself
     public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
     {
-        // Skip some Gamemodes if host play in android (Vanilla assign task itself)
-        if (OperatingSystem.IsAndroid() && Options.CurrentGameMode is
-                CustomGameMode.SoloPVP or
-                CustomGameMode.FFA or
-                CustomGameMode.HotPotato or
-                CustomGameMode.NaturalDisasters or
-                CustomGameMode.RoomRush or
-                CustomGameMode.Quiz or
-                CustomGameMode.CaptureTheFlag or
-                CustomGameMode.KingOfTheZones or
-                CustomGameMode.TheMindGame or
-                CustomGameMode.BedWars or
-                CustomGameMode.Deathrace or
-                CustomGameMode.Mingle or
-                CustomGameMode.Snowdown) return;
+        // Android host somehow doesn't assign tasks in some game modes, so we skip the patch
+        bool notTaskingGM = Options.CurrentGameMode is not (CustomGameMode.Standard or CustomGameMode.HideAndSeek);
+        if (OperatingSystem.IsAndroid() && notTaskingGM) return;
 
         // Null measures
         if (Main.RealOptionsData == null)
@@ -157,7 +145,7 @@ internal static class RpcSetTasksPatch
         }
 
         PlayerControl pc = __instance.Object;
-        if (pc == null) return;
+        if (!pc) return;
 
         CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) gr) && gr.Instance is Phantasm or Haunter ? gr.Role : pc.GetCustomRole();
 
@@ -191,7 +179,7 @@ internal static class RpcSetTasksPatch
         }
 
         // GM and Lazy Guy have no tasks
-        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.LazyGuy) || Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.HotPotato or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.Quiz or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown)
+        if (pc.Is(CustomRoles.GM) || pc.Is(CustomRoles.LazyGuy) || notTaskingGM)
         {
             hasCommonTasks = false;
             numShortTasks = 0;
@@ -293,7 +281,6 @@ internal static class RpcSetTasksPatch
         #endregion
     }
 
-    // All errors below are false
     private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
     {
         for (var i = 0; i < list.Count - 1; i++)

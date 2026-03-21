@@ -257,7 +257,8 @@ internal static class StartPatch
 
         if (Options.AllowConsole.GetBool())
         {
-            if (!ConsoleManager.ConsoleActive && ConsoleManager.ConsoleEnabled) ConsoleManager.CreateConsole();
+            if (!ConsoleManager.ConsoleActive && ConsoleManager.ConsoleEnabled)
+                ConsoleManager.CreateConsole();
         }
         else
         {
@@ -273,10 +274,12 @@ internal static class StartPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.StartMeeting))]
 internal static class StartMeetingPatch
 {
-    public static void Prefix( /*ShipStatus __instance, PlayerControl reporter,*/ NetworkedPlayerInfo target)
+    public static void Prefix( /*ShipStatus __instance, PlayerControl reporter,*/ [HarmonyArgument(1)] NetworkedPlayerInfo target)
     {
         MeetingStates.ReportTarget = target;
         MeetingStates.DeadBodies = Object.FindObjectsOfType<DeadBody>();
+        
+        ReportDeadBodyPatch.AlreadyReportedBodies.UnionWith(MeetingStates.DeadBodies.Select(db => db.ParentId));
     }
 }
 
