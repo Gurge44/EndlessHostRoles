@@ -579,5 +579,4 @@ public static class MeetingStates
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static NetworkedPlayerInfo ReportTarget { get; set; }
-
 }
