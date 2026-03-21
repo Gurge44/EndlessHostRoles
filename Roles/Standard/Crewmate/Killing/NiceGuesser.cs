@@ -20,10 +20,6 @@ internal class NiceGuesser : RoleBase
 
         GGCanGuessAdt = new BooleanOptionItem(8612, "GGCanGuessAdt", false, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser]);
-
-        GGTryHideMsg = new BooleanOptionItem(8613, "GuesserTryHideMsg", true, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser])
-            .SetColor(Color.green);
     }
 
     public override void Init() { }
