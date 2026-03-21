@@ -19,9 +19,9 @@ public class Agitator : RoleBase
     private static OptionItem AgitatorBombCooldown;
     private static OptionItem AgitatorAutoReportBait;
     private static OptionItem HasImpostorVision;
+
     private bool AgitatorHasBombed;
     private byte AgitatorId;
-
     private byte CurrentBombedPlayer = byte.MaxValue;
     private long CurrentBombedPlayerTime;
     private byte LastBombedPlayer = byte.MaxValue;
@@ -180,25 +180,9 @@ public class Agitator : RoleBase
                 ResetBomb();
             else
             {
-                Vector2 agitatorPos = player.Pos();
-                Dictionary<byte, float> targetDistance = [];
-
-                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
-                {
-                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer)
-                    {
-                        float dis = Vector2.Distance(agitatorPos, player.Pos());
-                        targetDistance[target.PlayerId] = dis;
-                    }
-                }
-
-                if (targetDistance.Count > 0)
-                {
-                    KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
-                    PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
-                    if (min.Value <= killRange && player.CanMove && target.CanMove) PassBomb(player, target);
-                }
+                float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+                if (!FastVector2.TryGetClosestPlayerInRangeTo(player, killRange, out PlayerControl target, x => x.PlayerId != LastBombedPlayer)) return;
+                PassBomb(player, target);
             }
         }
     }
