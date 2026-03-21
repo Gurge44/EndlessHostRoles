@@ -109,11 +109,7 @@ public class Inspector : RoleBase
 
     public static bool InspectorCheckMsg(PlayerControl pc, string msg, bool isUI = false)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
-
-        if (!GameStates.IsInGame || pc == null) return false;
-
-        if (!pc.Is(CustomRoles.Inspector)) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Inspector)) return false;
 
         int operate; // 1:ID 2:Check
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -368,7 +364,7 @@ public class Inspector : RoleBase
         PlayerControl target1 = Utils.GetPlayerById(id1);
         PlayerControl target2 = Utils.GetPlayerById(id2);
 
-        if (target1 == null || !target1.IsAlive() || target2 == null || !target2.IsAlive())
+        if (!target1 || !target1.IsAlive() || !target2 || !target2.IsAlive())
         {
             error = GetString("InspectorCheckNull");
             return false;

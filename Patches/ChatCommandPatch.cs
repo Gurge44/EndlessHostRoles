@@ -360,7 +360,7 @@ internal static class ChatCommands
     {
         if (__instance.quickChatField.visible) return true;
 
-        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty);
+        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty).Replace("<size=-", "<size=");
         
         __instance.timeSinceLastMessage = 3f;
 
@@ -395,7 +395,7 @@ internal static class ChatCommands
         var canceled = false;
         Main.IsChatCommand = true;
 
-        Logger.Info($"({PlayerControl.LocalPlayer.FriendCode})" + text, "SendChat");
+        Logger.Info(text, "SendChat");
 
         if (!Starspawn.IsDayBreak)
         {
@@ -495,6 +495,11 @@ internal static class ChatCommands
                 if (HudManager.InstanceExists) HudManager.Instance.Chat.SendChat();
             }
         }
+        
+        if (!canceled)
+        {
+            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        }
 
         return !canceled;
     }
@@ -561,7 +566,7 @@ internal static class ChatCommands
         if (Starspawn.IsDayBreak) return;
         
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Summoner sum || player.GetAbilityUseLimit() < 1) return;
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead || targetState.MainRole == CustomRoles.GM) return;
 
         bool reSummoned = !Summoner.AlreadySummoned.Add(targetId);
 
@@ -1657,13 +1662,13 @@ internal static class ChatCommands
             if (!meeting) yield return new WaitForSecondsRealtime(7f);
 
             PlayerControl killer = player.GetRealKiller();
-            if (killer == null && id != 3) yield break;
+            if (!killer && id != 3) yield break;
 
             Team team = player.GetTeam();
 
             string message = id switch
             {
-                1 => string.Format(GetString("MessengerMessage.1"), GetString(Main.PlayerStates[killer.PlayerId].LastRoom.RoomId.ToString())),
+                1 => string.Format(GetString("MessengerMessage.1"), GetString((Main.PlayerStates[killer.PlayerId].LastRoom?.RoomId ?? SystemTypes.Outside).ToString())),
                 2 => string.Format(GetString("MessengerMessage.2"), killer.GetCustomRole().ToColoredString()),
                 _ => string.Format(GetString("MessengerMessage.3"), Utils.ColorString(team.GetColor(), GetString($"{team}")))
             };
@@ -2230,19 +2235,23 @@ internal static class ChatCommands
 
     private static void TemplateCommand(PlayerControl player, string text, string[] args)
     {
-        if (player.AmOwner)
+        if (args.Length > 1)
         {
-            if (args.Length > 1)
+            if (player.AmOwner)
                 TemplateManager.SendTemplate(args[1]);
             else
-                HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + $"{GetString("ForExample")}:\n{args[0]} test");
+                TemplateManager.SendTemplate(args[1], player.PlayerId);
         }
         else
         {
-            if (args.Length > 1)
-                TemplateManager.SendTemplate(args[1], player.PlayerId);
+            HashSet<string> tags = TemplateManager.GetAllTags();
+            string message = tags.Count > 0 
+            ? string.Format(GetString("Message.TemplateList"), string.Join("\n", tags)) : GetString("Message.NoTemplatesFound");
+
+            if (player.AmOwner)
+                HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + message);
             else
-                Utils.SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId, importance: MessageImportance.Low);
+                Utils.SendMessage(message, player.PlayerId, importance: MessageImportance.Low);
         }
     }
 
@@ -3328,7 +3337,7 @@ internal static class ChatCommands
             {
                 if (!command.IsThisCommand(text)) continue;
 
-                Logger.Info($" Recognized command: ({player.FriendCode}){text}", "ReceiveChat");
+                Logger.Info($" Recognized command: {text}", "ReceiveChat");
                 commandEntered = true;
 
                 if (!command.CanUseCommand(player, sendErrorMessage: true))

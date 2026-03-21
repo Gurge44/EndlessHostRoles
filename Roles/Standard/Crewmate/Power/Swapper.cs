@@ -66,9 +66,9 @@ public class Swapper : RoleBase
         CNO = null;
     }
 
-    public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
+    public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || pc == null || pc.GetCustomRole() != CustomRoles.Swapper) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || pc.GetCustomRole() != CustomRoles.Swapper) return false;
 
         Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "Swapper");
 
@@ -104,7 +104,7 @@ public class Swapper : RoleBase
                     return true;
                 }
 
-                if (HideMsg.GetBool() && !isUI && !spamRequired)
+                if (HideMsg.GetBool() && !isUI && spamRequired && sendCmdWarn)
                     Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
@@ -227,13 +227,10 @@ public class Swapper : RoleBase
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
-        {
-            if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
-            else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
-        }
+        if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
+        else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
         
-        SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
+        SwapMsg(shapeshifter, $"/sw {target.PlayerId}", sendCmdWarn: false);
     }
 
     public override void OnReportDeadBody()

@@ -68,7 +68,7 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
+        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(0, 1000, 1), 15, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
@@ -253,7 +253,19 @@ internal static class SoloPVP
 
     private static IEnumerator OnPlayerDead(PlayerControl target)
     {
-        BackCountdown.TryAdd(target.PlayerId, SoloPVP_ResurrectionWaitingTime.GetInt());
+        int waitingTime = SoloPVP_ResurrectionWaitingTime.GetInt();
+
+        if (waitingTime <= 1)
+        {
+            PlayerHP[target.PlayerId] = PlayerHPMax[target.PlayerId];
+            LastHurt[target.PlayerId] = Utils.TimeStamp;
+            RPC.PlaySoundRPC(target.PlayerId, Sounds.SpawnSound);
+            SpawnMap.GetSpawnMap().RandomTeleport(target);
+            Utils.NotifyRoles(SpecifyTarget: target, SendOption: SendOption.None);
+            yield break;
+        }
+        
+        BackCountdown.TryAdd(target.PlayerId, waitingTime);
         if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
         while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) yield return null;
         if (BackCountdown.ContainsKey(target.PlayerId)) target.ExileTemporarily();
@@ -351,6 +363,8 @@ internal static class SoloPVP
                 // resume the timer
                 RoundTimer.Start();
             }
+            
+            if (!RoundTimer.IsRunning) return;
 
             Utils.NotifyRoles(SendOption: SendOption.None);
         }

@@ -77,13 +77,9 @@ public class Judge : RoleBase
         foreach (byte pid in list) MeetingUseLimit[pid] = TrialLimitPerMeeting.GetInt();
     }
 
-    public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
+    public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
-
-        if (!GameStates.IsInGame || pc == null) return false;
-
-        if (!pc.Is(CustomRoles.Judge)) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Judge)) return false;
 
         int operate; // 1:ID 2:Trial
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -108,7 +104,7 @@ public class Judge : RoleBase
                 break;
             case 2:
             {
-                if (TryHideMsg.GetBool() && !isUI && spamRequired)
+                if (TryHideMsg.GetBool() && !isUI && spamRequired && sendCmdWarn)
                     Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
@@ -240,7 +236,7 @@ public class Judge : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;
-        TrialMsg(shapeshifter, $"/tl {target.PlayerId}");
+        TrialMsg(shapeshifter, $"/tl {target.PlayerId}", sendCmdWarn: false);
     }
 
     private static void SendRPC(byte playerId)

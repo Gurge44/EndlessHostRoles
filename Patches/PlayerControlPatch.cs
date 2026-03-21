@@ -981,12 +981,16 @@ internal static class RpcShapeshiftPatch
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         Main.CheckShapeshift[__instance.PlayerId] = __instance.PlayerId != target.PlayerId;
+        
+        if (__instance.Is(CustomRoles.Morphling) && __instance.IsNonHostModdedClient())
+            SendRPC(CustomRPC.SyncRoleData, __instance.PlayerId, __instance.PlayerId, Main.CheckShapeshift[__instance.PlayerId]);
     }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
 internal static class ReportDeadBodyPatch
 {
+    public static HashSet<byte> AlreadyReportedBodies = [];
     public static readonly Dictionary<byte, bool> CanReport = [];
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
     public static bool MeetingStarted;
@@ -997,6 +1001,7 @@ internal static class ReportDeadBodyPatch
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
+        if (target && AlreadyReportedBodies.Contains(target.PlayerId)) return false;
 
         if (!CanReport[__instance.PlayerId] || __instance.IsRoleBlocked())
         {
@@ -1210,7 +1215,10 @@ internal static class ReportDeadBodyPatch
         {
             try
             {
-                cno?.playerControl?.Data?.SendGameData();
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(cno.playerControl.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
+                writer.WriteNetObject(cno.playerControl);
+                writer.Write(false);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
             catch (Exception e) { ThrowException(e); }
         }

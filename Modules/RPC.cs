@@ -120,7 +120,6 @@ public enum CustomRPC
     SetCleanserCleanLimit,
     SetJailorTarget,
     SetDoppelgangerStealLimit,
-    SetJailorExeLimit,
     SetSwapperVotes,
     Judge,
     Guess,
@@ -137,6 +136,7 @@ public enum CustomRPC
     SyncChangeling,
     SyncSentry,
     SyncBargainer,
+    SyncOverheat,
     SetDoomsayerProgress = 209,
 
     /*
@@ -149,7 +149,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SyncOverheat,
     SyncIntrovert,
     SyncAllergic,
     SyncAsthmatic,
@@ -319,7 +318,7 @@ internal static class RPCHandlerPatch
                         break;
                     case RpcCalls.SendChat:
                         string text = subReader.ReadString();
-                        Logger.Info($"({__instance.FriendCode}){__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
+                        Logger.Info($"({__instance.FriendCode}|{__instance.GetClient()?.GetHashedPuid()}) {__instance.GetNameWithRole().RemoveHtmlTags()}: {text}", "ReceiveChat");
                         ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
 
                         if (canceled)
@@ -1156,11 +1155,6 @@ internal static class RPCHandlerPatch
                 case CustomRPC.SetCleanserCleanLimit:
                 {
                     Cleanser.ReceiveRPC(reader);
-                    break;
-                }
-                case CustomRPC.SetJailorExeLimit:
-                {
-                    Jailor.ReceiveRPC(reader, false);
                     break;
                 }
                 case CustomRPC.SetJailorTarget:

@@ -3841,7 +3841,8 @@ public static class Utils
         {
             CustomGameMode.Standard when !PlayerControl.LocalPlayer.Is(CustomRoles.GM) => true,
             CustomGameMode.HideAndSeek => true,
-            CustomGameMode.StopAndGo or CustomGameMode.Speedrun when PlayerControl.LocalPlayer.IsAlive() => true,
+            CustomGameMode.StopAndGo when PlayerControl.LocalPlayer.IsAlive() => true,
+            CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive() => true,
             _ => false
         };
     }
@@ -4854,7 +4855,7 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloPVP => 3000f,
+            CustomGameMode.SoloPVP => 2000f,
             CustomGameMode.BedWars => 1500f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,

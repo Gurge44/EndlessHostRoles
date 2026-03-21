@@ -186,7 +186,7 @@ internal class TimeMaster : RoleBase
                     {
                         var killer = ps.RealKiller.ID.GetPlayer();
 
-                        if (killer != null && killer.IsAlive())
+                        if (killer && killer.IsAlive())
                         {
                             killer.KillFlash();
                             killer.Notify(Translator.GetString("TimeMasterKillerAlert"), 10f);

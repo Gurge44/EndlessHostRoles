@@ -112,6 +112,7 @@ public static class ChatManager
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
+        Utils.CheckServerCommand(ref msg, out _);
         string[] comList = command.Split('|');
 
         foreach (string str in comList)

@@ -23,7 +23,7 @@ internal class Bubble : RoleBase
     private byte BubbleId = byte.MaxValue;
     private static int Id => 643220;
 
-    private PlayerControl BubblePC => GetPlayerById(BubbleId);
+    private PlayerControl BubblePC;
 
     public override bool IsEnable => BubbleId != byte.MaxValue;
 
@@ -67,6 +67,7 @@ internal class Bubble : RoleBase
     public override void Add(byte playerId)
     {
         BubbleId = playerId;
+        BubblePC = GetPlayerById(BubbleId);
     }
 
     public override void SetKillCooldown(byte id)
@@ -200,7 +201,8 @@ internal class Bubble : RoleBase
     {
         if (!IsEnable) return;
 
-        foreach (PlayerControl pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
+        foreach (PlayerControl pc in EncasedPlayers.Keys.ToValidPlayers().Where(x => x.IsAlive()))
+            pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
 
         EncasedPlayers.Clear();
         SendRPC(clear: true);
@@ -209,7 +211,6 @@ internal class Bubble : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out long ts) || (ts + NotifyDelay.GetInt() >= TimeStamp && !seer.Is(CustomRoles.Bubble))) return string.Empty;
-
         return ColorString(GetRoleColor(CustomRoles.Bubble), $"⚠ {ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}");
     }
 }

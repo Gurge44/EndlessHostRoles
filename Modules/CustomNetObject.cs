@@ -77,16 +77,6 @@ namespace EHR
             }
             writer.EndMessage();
 
-            if (playerControl.Data)
-            {
-                writer.StartMessage(1);
-                {
-                    writer.WritePacked(playerControl.Data.NetId);
-                    playerControl.Data.Serialize(writer, false);
-                }
-                writer.EndMessage();
-            }
-
             sender.EndMessage();
             sender.SendMessage();
 
@@ -298,16 +288,6 @@ namespace EHR
                         PlayerControl.LocalPlayer.Data.Serialize(writer, false);
                     }
                     writer.EndMessage();
-
-                    if (playerControl.Data)
-                    {
-                        writer.StartMessage(1);
-                        {
-                            writer.WritePacked(playerControl.Data.NetId);
-                            playerControl.Data.Serialize(writer, false);
-                        }
-                        writer.EndMessage();
-                    }
 
                     try { playerControl.NetTransform.SnapTo(Position); }
                     catch (Exception e) { Utils.ThrowException(e); }
