@@ -360,7 +360,7 @@ internal static class ChatCommands
     {
         if (__instance.quickChatField.visible) return true;
 
-        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty);
+        __instance.freeChatField.textArea.text = __instance.freeChatField.textArea.text.Replace("\b", string.Empty).Replace("\r", string.Empty).Replace("<size=-", "<size=");
         
         __instance.timeSinceLastMessage = 3f;
 
@@ -495,6 +495,11 @@ internal static class ChatCommands
                 if (HudManager.InstanceExists) HudManager.Instance.Chat.SendChat();
             }
         }
+        
+        if (!canceled)
+        {
+            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+        }
 
         return !canceled;
     }
@@ -561,7 +566,7 @@ internal static class ChatCommands
         if (Starspawn.IsDayBreak) return;
         
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Summoner sum || player.GetAbilityUseLimit() < 1) return;
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead || targetState.MainRole == CustomRoles.GM) return;
 
         bool reSummoned = !Summoner.AlreadySummoned.Add(targetId);
 
@@ -1657,13 +1662,13 @@ internal static class ChatCommands
             if (!meeting) yield return new WaitForSecondsRealtime(7f);
 
             PlayerControl killer = player.GetRealKiller();
-            if (killer == null && id != 3) yield break;
+            if (!killer && id != 3) yield break;
 
             Team team = player.GetTeam();
 
             string message = id switch
             {
-                1 => string.Format(GetString("MessengerMessage.1"), GetString(Main.PlayerStates[killer.PlayerId].LastRoom.RoomId.ToString())),
+                1 => string.Format(GetString("MessengerMessage.1"), GetString((Main.PlayerStates[killer.PlayerId].LastRoom?.RoomId ?? SystemTypes.Outside).ToString())),
                 2 => string.Format(GetString("MessengerMessage.2"), killer.GetCustomRole().ToColoredString()),
                 _ => string.Format(GetString("MessengerMessage.3"), Utils.ColorString(team.GetColor(), GetString($"{team}")))
             };

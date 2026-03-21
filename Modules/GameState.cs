@@ -173,7 +173,7 @@ public class PlayerState(byte playerId)
             if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade)
                 SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
 
-            if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
+            if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || !x.SidekickId.GetPlayer(), out Jackal jackal))
                 jackal.SidekickId = PlayerId;
 
             if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && !AntiBlackout.SkipTasks)
@@ -389,7 +389,7 @@ public class TaskState
     public void Init(PlayerControl player)
     {
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
-        if (player == null || player.Data?.Tasks == null) return;
+        if (!player || player.Data?.Tasks == null) return;
 
         if (!Utils.HasTasks(player.Data, false))
         {
@@ -563,9 +563,9 @@ public static class GameStates
     }
 
     /**********TOP ZOOM.cs***********/
-    public static bool IsShip => ShipStatus.Instance != null;
-    public static bool IsCanMove => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.CanMove;
-    public static bool IsDead => PlayerControl.LocalPlayer != null && !PlayerControl.LocalPlayer.IsAlive();
+    public static bool IsShip => ShipStatus.Instance;
+    public static bool IsCanMove => PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.CanMove;
+    public static bool IsDead => PlayerControl.LocalPlayer && !PlayerControl.LocalPlayer.IsAlive();
 }
 
 public static class MeetingStates
@@ -575,9 +575,8 @@ public static class MeetingStates
     public static int MeetingNum;
     public static bool MeetingCalled;
     public static bool FirstMeeting = true;
-    public static bool IsEmergencyMeeting => ReportTarget == null;
+    public static bool IsEmergencyMeeting => !ReportTarget;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static NetworkedPlayerInfo ReportTarget { get; set; }
-
 }

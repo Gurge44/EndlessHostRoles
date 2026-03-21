@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using Hazel;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -49,7 +50,7 @@ public class Morphling : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return !Main.PlayerStates[pc.PlayerId].IsDead && pc.IsShifted();
+        return pc.IsShifted();
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -61,5 +62,10 @@ public class Morphling : RoleBase
     public override void SetKillCooldown(byte id)
     {
         Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Main.CheckShapeshift[reader.ReadByte()] = reader.ReadBoolean();
     }
 }

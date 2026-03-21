@@ -981,6 +981,9 @@ internal static class RpcShapeshiftPatch
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         Main.CheckShapeshift[__instance.PlayerId] = __instance.PlayerId != target.PlayerId;
+        
+        if (__instance.Is(CustomRoles.Morphling) && __instance.IsNonHostModdedClient())
+            SendRPC(CustomRPC.SyncRoleData, __instance.PlayerId, __instance.PlayerId, Main.CheckShapeshift[__instance.PlayerId]);
     }
 }
 
@@ -1187,9 +1190,6 @@ internal static class ReportDeadBodyPatch
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
 
-        try { AlreadyReportedBodies.UnionWith(Object.FindObjectsOfType<DeadBody>().Select(x => x.ParentId)); }
-        catch (Exception e) { ThrowException(e); }
-
         if (!SubmergedCompatibility.IsSubmerged())
         {
             try
@@ -1215,9 +1215,6 @@ internal static class ReportDeadBodyPatch
         {
             try
             {
-                try { cno.playerControl.Shapeshift(cno.playerControl, false); }
-                catch (Exception e) { ThrowException(e); }
-                
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(cno.playerControl.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable);
                 writer.WriteNetObject(cno.playerControl);
                 writer.Write(false);

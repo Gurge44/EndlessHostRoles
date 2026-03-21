@@ -19,9 +19,9 @@ public class Agitator : RoleBase
     private static OptionItem AgitatorBombCooldown;
     private static OptionItem AgitatorAutoReportBait;
     private static OptionItem HasImpostorVision;
+
     private bool AgitatorHasBombed;
     private byte AgitatorId;
-
     private byte CurrentBombedPlayer = byte.MaxValue;
     private long CurrentBombedPlayerTime;
     private byte LastBombedPlayer = byte.MaxValue;
@@ -135,10 +135,9 @@ public class Agitator : RoleBase
             {
                 PlayerControl pc = Utils.GetPlayerById(CurrentBombedPlayer);
 
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                if (pc != null && pc.IsAlive() && killer != null) // Can be null since it's a late task
+                if (pc && pc.IsAlive() && killer)
                 {
-                    pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(PlayerIdList[0]));
+                    pc.Suicide(PlayerState.DeathReason.Bombed, killer);
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitator");
                     ResetBomb();
 
@@ -159,12 +158,13 @@ public class Agitator : RoleBase
 
         PlayerControl target = Utils.GetPlayerById(CurrentBombedPlayer);
         PlayerControl killer = Utils.GetPlayerById(PlayerIdList[0]);
-        if (target == null || killer == null || target.Is(CustomRoles.Pestilence)) return;
+        if (!target || !killer || target.Is(CustomRoles.Pestilence)) return;
 
         target.RpcExileV2();
         target.SetRealKiller(killer);
-        Main.PlayerStates[CurrentBombedPlayer].deathReason = PlayerState.DeathReason.Bombed;
-        Main.PlayerStates[CurrentBombedPlayer].SetDead();
+        PlayerState state = Main.PlayerStates[CurrentBombedPlayer];
+        state.deathReason = PlayerState.DeathReason.Bombed;
+        state.SetDead();
         Utils.AfterPlayerDeathTasks(target, true);
         ResetBomb();
         Logger.Info($"{killer.GetRealName()} bombed {target.GetRealName()} on report", "Agitator");
@@ -180,40 +180,17 @@ public class Agitator : RoleBase
                 ResetBomb();
             else
             {
-                Vector2 agitatorPos = player.Pos();
-                Dictionary<byte, float> targetDistance = [];
-
-                foreach (PlayerControl target in PlayerControl.AllPlayerControls)
-                {
-                    if (!target.IsAlive()) continue;
-
-                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && target.IsAlive())
-                    {
-                        float dis = Vector2.Distance(agitatorPos, player.Pos());
-                        targetDistance[target.PlayerId] = dis;
-                    }
-                }
-
-                if (targetDistance.Count > 0)
-                {
-                    KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
-                    PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = GameManager.Instance.LogicOptions.GetKillDistance();
-                    if (min.Value <= KillRange && player.CanMove && target.CanMove) PassBomb(player, target);
-                }
+                float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+                if (!FastVector2.TryGetClosestPlayerInRangeTo(player, killRange, out PlayerControl target, x => x.PlayerId != LastBombedPlayer)) return;
+                PassBomb(player, target);
             }
         }
     }
 
     private void PassBomb(PlayerControl player, PlayerControl target /*, bool IsAgitator = false*/)
     {
-        if (!IsEnable) return;
-        if (!AgitatorHasBombed) return;
-        if (!target.IsAlive()) return;
-
         long now = Utils.TimeStamp;
         if (now - CurrentBombedPlayerTime < PassCooldown.GetFloat()) return;
-        if (target.PlayerId == LastBombedPlayer) return;
         if (!AgitatorCanGetBombed.GetBool() && target.Is(CustomRoles.Agitator)) return;
 
         if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)))
@@ -230,9 +207,6 @@ public class Agitator : RoleBase
         LastBombedPlayer = CurrentBombedPlayer;
         CurrentBombedPlayer = target.PlayerId;
         CurrentBombedPlayerTime = now;
-
-        player.MarkDirtySettings();
-        target.MarkDirtySettings();
 
         player.Notify(GetString("AgitatorPassNotify"));
         target.Notify(GetString("AgitatorTargetNotify"));

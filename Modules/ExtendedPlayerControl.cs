@@ -2316,8 +2316,8 @@ internal static class ExtendedPlayerControl
     // Rooms that aren't rectangular-shaped and overlap walkable areas outside the room
     private static readonly Dictionary<MapNames, List<SystemTypes>> ProblematicRooms = new()
     {
-        [MapNames.Skeld] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp],
-        [MapNames.Dleks] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp],
+        [MapNames.Skeld] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp, SystemTypes.Electrical],
+        [MapNames.Dleks] = [SystemTypes.MedBay, SystemTypes.Cafeteria, SystemTypes.LifeSupp, SystemTypes.Electrical],
         [MapNames.Polus] = [SystemTypes.LifeSupp, SystemTypes.Storage, SystemTypes.Laboratory, SystemTypes.Comms, SystemTypes.Weapons, SystemTypes.Admin, SystemTypes.Decontamination2, SystemTypes.Decontamination3],
         [MapNames.Airship] = [SystemTypes.Electrical, SystemTypes.Security, SystemTypes.Engine, SystemTypes.Showers, SystemTypes.MainHall],
         [MapNames.Fungle] = [SystemTypes.Dropship]
