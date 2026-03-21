@@ -327,13 +327,11 @@ public static class Options
     public static OptionItem EGCanGuessImp;
     public static OptionItem EGCanGuessAdt;
     public static OptionItem EGCanGuessTime;
-    public static OptionItem EGTryHideMsg;
     public static OptionItem ScavengerKillCooldown;
     public static OptionItem ScavengerKillDuration;
     public static OptionItem GGCanGuessCrew;
     public static OptionItem GGCanGuessAdt;
     public static OptionItem GGCanGuessTime;
-    public static OptionItem GGTryHideMsg;
     public static OptionItem LuckeyProbability;
     public static OptionItem LuckyProbability;
     public static OptionItem VindicatorAdditionalVote;
@@ -2859,10 +2857,6 @@ public static class Options
 
             return (min, max);
         });
-
-        HideGuesserCommands = new BooleanOptionItem(19717, "GuesserTryHideMsg", true, TabGroup.TaskSettings)
-            .SetColor(Color.green)
-            .SetParent(GuesserMode);
 
         GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings)
             .SetColor(Color.yellow)
