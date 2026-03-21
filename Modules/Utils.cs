@@ -3626,7 +3626,8 @@ public static class Utils
         {
             CustomGameMode.Standard when !PlayerControl.LocalPlayer.Is(CustomRoles.GM) => true,
             CustomGameMode.HideAndSeek => true,
-            CustomGameMode.StopAndGo or CustomGameMode.Speedrun when PlayerControl.LocalPlayer.IsAlive() => true,
+            CustomGameMode.StopAndGo when PlayerControl.LocalPlayer.IsAlive() => true,
+            CustomGameMode.Speedrun when !Speedrun.CanKill.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive() => true,
             _ => false
         };
     }

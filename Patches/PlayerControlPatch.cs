@@ -981,6 +981,9 @@ internal static class RpcShapeshiftPatch
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         Main.CheckShapeshift[__instance.PlayerId] = __instance.PlayerId != target.PlayerId;
+        
+        if (__instance.Is(CustomRoles.Morphling) && __instance.IsNonHostModdedClient())
+            SendRPC(CustomRPC.SyncRoleData, __instance.PlayerId, __instance.PlayerId, Main.CheckShapeshift[__instance.PlayerId]);
     }
 }
 

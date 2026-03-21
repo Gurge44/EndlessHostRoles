@@ -566,7 +566,7 @@ internal static class ChatCommands
         if (Starspawn.IsDayBreak) return;
         
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Summoner sum || player.GetAbilityUseLimit() < 1) return;
-        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead) return;
+        if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead || targetState.MainRole == CustomRoles.GM) return;
 
         bool reSummoned = !Summoner.AlreadySummoned.Add(targetId);
 
