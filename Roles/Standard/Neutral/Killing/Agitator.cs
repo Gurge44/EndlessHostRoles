@@ -189,13 +189,8 @@ public class Agitator : RoleBase
 
     private void PassBomb(PlayerControl player, PlayerControl target /*, bool IsAgitator = false*/)
     {
-        if (!IsEnable) return;
-        if (!AgitatorHasBombed) return;
-        if (!target.IsAlive()) return;
-
         long now = Utils.TimeStamp;
         if (now - CurrentBombedPlayerTime < PassCooldown.GetFloat()) return;
-        if (target.PlayerId == LastBombedPlayer) return;
         if (!AgitatorCanGetBombed.GetBool() && target.Is(CustomRoles.Agitator)) return;
 
         if (target.Is(CustomRoles.Pestilence) || (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)))
@@ -212,9 +207,6 @@ public class Agitator : RoleBase
         LastBombedPlayer = CurrentBombedPlayer;
         CurrentBombedPlayer = target.PlayerId;
         CurrentBombedPlayerTime = now;
-
-        player.MarkDirtySettings();
-        target.MarkDirtySettings();
 
         player.Notify(GetString("AgitatorPassNotify"));
         target.Notify(GetString("AgitatorTargetNotify"));
