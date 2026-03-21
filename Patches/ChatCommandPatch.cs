@@ -1563,13 +1563,13 @@ internal static class ChatCommands
             if (!meeting) yield return new WaitForSecondsRealtime(7f);
 
             PlayerControl killer = player.GetRealKiller();
-            if (killer == null && id != 3) yield break;
+            if (!killer && id != 3) yield break;
 
             Team team = player.GetTeam();
 
             string message = id switch
             {
-                1 => string.Format(GetString("MessengerMessage.1"), GetString(Main.PlayerStates[killer.PlayerId].LastRoom.RoomId.ToString())),
+                1 => string.Format(GetString("MessengerMessage.1"), GetString((Main.PlayerStates[killer.PlayerId].LastRoom?.RoomId ?? SystemTypes.Outside).ToString())),
                 2 => string.Format(GetString("MessengerMessage.2"), killer.GetCustomRole().ToColoredString()),
                 _ => string.Format(GetString("MessengerMessage.3"), Utils.ColorString(team.GetColor(), GetString($"{team}")))
             };

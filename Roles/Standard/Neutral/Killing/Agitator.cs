@@ -135,10 +135,9 @@ public class Agitator : RoleBase
             {
                 PlayerControl pc = Utils.GetPlayerById(CurrentBombedPlayer);
 
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                if (pc != null && pc.IsAlive() && killer != null) // Can be null since it's a late task
+                if (pc && pc.IsAlive() && killer)
                 {
-                    pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(PlayerIdList[0]));
+                    pc.Suicide(PlayerState.DeathReason.Bombed, killer);
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitator");
                     ResetBomb();
 
@@ -159,12 +158,13 @@ public class Agitator : RoleBase
 
         PlayerControl target = Utils.GetPlayerById(CurrentBombedPlayer);
         PlayerControl killer = Utils.GetPlayerById(PlayerIdList[0]);
-        if (target == null || killer == null || target.Is(CustomRoles.Pestilence)) return;
+        if (!target || !killer || target.Is(CustomRoles.Pestilence)) return;
 
         target.RpcExileV2();
         target.SetRealKiller(killer);
-        Main.PlayerStates[CurrentBombedPlayer].deathReason = PlayerState.DeathReason.Bombed;
-        Main.PlayerStates[CurrentBombedPlayer].SetDead();
+        PlayerState state = Main.PlayerStates[CurrentBombedPlayer];
+        state.deathReason = PlayerState.DeathReason.Bombed;
+        state.SetDead();
         Utils.AfterPlayerDeathTasks(target, true);
         ResetBomb();
         Logger.Info($"{killer.GetRealName()} bombed {target.GetRealName()} on report", "Agitator");
@@ -183,11 +183,9 @@ public class Agitator : RoleBase
                 Vector2 agitatorPos = player.Pos();
                 Dictionary<byte, float> targetDistance = [];
 
-                foreach (PlayerControl target in PlayerControl.AllPlayerControls)
+                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
                 {
-                    if (!target.IsAlive()) continue;
-
-                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer && target.IsAlive())
+                    if (target.PlayerId != playerId && target.PlayerId != LastBombedPlayer)
                     {
                         float dis = Vector2.Distance(agitatorPos, player.Pos());
                         targetDistance[target.PlayerId] = dis;
@@ -198,8 +196,8 @@ public class Agitator : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float KillRange = GameManager.Instance.LogicOptions.GetKillDistance();
-                    if (min.Value <= KillRange && player.CanMove && target.CanMove) PassBomb(player, target);
+                    float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+                    if (min.Value <= killRange && player.CanMove && target.CanMove) PassBomb(player, target);
                 }
             }
         }
