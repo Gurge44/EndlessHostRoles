@@ -1876,7 +1876,7 @@ public static class Options
         
         AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+            .SetColor(new Color32(255, 238, 232, byte.MaxValue));
 
         LoadingPercentage = 66;
 
