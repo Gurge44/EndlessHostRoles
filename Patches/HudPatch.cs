@@ -943,62 +943,76 @@ internal static class SabotageMapPatch
         }
     }
 }
+[HarmonyPatch(typeof(MapRoom), nameof(MapRoom.Start))]
+internal static class MapRoomDoorsStartPatch
+{
+    public static void Postfix(MapRoom __instance)
+    {
+        ShipStatus shipStatusInstance = ShipStatus.Instance;
+        ISystemType ISystem = shipStatusInstance.Systems[SystemTypes.Doors];
 
+        MapRoomDoorsUpdatePatch.DoorsSystemType = ISystem.TryCast<DoorsSystemType>();
+        MapRoomDoorsUpdatePatch.AutoDoorsSystemType = ISystem.TryCast<AutoDoorsSystemType>();
+
+        MapRoomDoorsUpdatePatch.AutoOpenDoors.Clear();
+        foreach (OpenableDoor door in shipStatusInstance.AllDoors)
+        {
+            MapRoomDoorsUpdatePatch.AutoOpenDoors[door.Room] = door.TryCast<AutoOpenDoor>();
+        }
+    }
+}
 [HarmonyPatch(typeof(MapRoom), nameof(MapRoom.DoorsUpdate))]
 internal static class MapRoomDoorsUpdatePatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> DoorTimerTexts = [];
     private static readonly int Percent = Shader.PropertyToID("_Percent");
+    public static DoorsSystemType DoorsSystemType = null;
+    public static AutoDoorsSystemType AutoDoorsSystemType = null;
+    public static Dictionary<SystemTypes, AutoOpenDoor> AutoOpenDoors = [];
 
     public static bool Prefix(MapRoom __instance)
     {
-        if (!__instance.door || !ShipStatus.Instance || SubmergedCompatibility.IsSubmerged()) return false;
+        SpriteRenderer doorSprite = __instance.door;
+        ShipStatus shipStatusInstance = ShipStatus.Instance;
+
+        if (!doorSprite || !shipStatusInstance || SubmergedCompatibility.IsSubmerged()) return false;
 
         SystemTypes room = __instance.room;
+        float total = 0f;
+        float timer = 0f;
 
-        float total;
-        float timer;
-
-        var shipStatusInstance = ShipStatus.Instance;
-        ISystemType system = shipStatusInstance.Systems[SystemTypes.Doors];
-        var doorsSystemType = system.TryCast<DoorsSystemType>();
-        var autoDoorsSystemType = system.TryCast<AutoDoorsSystemType>();
-
-        if (doorsSystemType != null)
+        if (DoorsSystemType != null)
         {
-            if (doorsSystemType.initialCooldown > 0f)
+            if (DoorsSystemType.initialCooldown > 0f)
             {
                 total = 10f;
-                timer = doorsSystemType.initialCooldown;
+                timer = DoorsSystemType.initialCooldown;
                 goto Skip;
             }
 
             total = 30f;
-            timer = doorsSystemType.timers.TryGetValue(room, out float num) ? num : 0f;
+            timer = DoorsSystemType.timers.TryGetValue(room, out float num) ? num : 0f;
             goto Skip;
         }
 
-        if (autoDoorsSystemType != null)
+        if (AutoDoorsSystemType != null)
         {
-            if (autoDoorsSystemType.initialCooldown > 0.0)
+            if (AutoDoorsSystemType.initialCooldown > 0.0)
             {
                 total = 10f;
-                timer = autoDoorsSystemType.initialCooldown;
+                timer = AutoDoorsSystemType.initialCooldown;
                 goto Skip;
             }
 
             foreach (OpenableDoor door in shipStatusInstance.AllDoors)
             {
-                if (door.Room == room)
-                {
-                    var autoOpenDoor = door.TryCast<AutoOpenDoor>();
+                if (door.Room != room) continue;
 
-                    if (autoOpenDoor)
-                    {
-                        total = 30f;
-                        timer = autoOpenDoor.CooldownTimer;
-                        goto Skip;
-                    }
+                if (AutoOpenDoors.TryGetValue(room, out AutoOpenDoor autoOpenDoor) && autoOpenDoor)
+                {
+                    total = 30f;
+                    timer = autoOpenDoor.CooldownTimer;
+                    goto Skip;
                 }
             }
         }
@@ -1008,13 +1022,15 @@ internal static class MapRoomDoorsUpdatePatch
 
         Skip:
 
-        __instance.door.material.SetFloat(Percent, __instance.Parent.CanUseDoors ? timer / total : 1f);
+        bool canUseDoors = __instance.Parent.CanUseDoors;
+        float percent = (!canUseDoors || total <= 0f) ? 1f : timer / total;
+        doorSprite.material.SetFloat(Percent, percent);
 
         if (!DoorTimerTexts.TryGetValue(room, out TextMeshPro doorTimerText))
         {
-            DoorTimerTexts[room] = doorTimerText = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, __instance.door.transform, true);
+            DoorTimerTexts[room] = doorTimerText = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, doorSprite.transform, true);
             doorTimerText.alignment = TextAlignmentOptions.Center;
-            doorTimerText.transform.localPosition = __instance.door.transform.localPosition;
+            doorTimerText.transform.localPosition = doorSprite.transform.localPosition;
             doorTimerText.transform.localPosition = new(0, -0.4f, 0f);
             doorTimerText.overflowMode = TextOverflowModes.Overflow;
             doorTimerText.enableWordWrapping = false;
@@ -1024,9 +1040,9 @@ internal static class MapRoomDoorsUpdatePatch
             doorTimerText.gameObject.SetActive(true);
         }
 
-        var remaining = (int)Math.Ceiling(timer);
-        bool canUseDoors = __instance.Parent.CanUseDoors;
-        doorTimerText.text = $"<b><#ff{(!canUseDoors ? "00" : "a5")}00a5>{(canUseDoors ? remaining : "⊘")}</color></b>";
+        var remaining = (int)(timer + 0.999f);
+        if (canUseDoors) doorTimerText.text = "<b><#ffa500a5>" + remaining + "</color></b>";
+        else doorTimerText.text = "<b><#ff0000a5>⊘</color></b>";
         doorTimerText.enabled = remaining > 0 || !canUseDoors;
 
         return false;
