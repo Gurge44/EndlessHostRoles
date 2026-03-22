@@ -201,7 +201,7 @@ public class Medic : RoleBase
             else Achievements.Type.ImUnstoppable.Complete();
         }
 
-        if (killer.GetAbilityUseLimit() < 1f)
+        if (killer.GetAbilityUseLimit() < 1f && !UsePet.GetBool())
         {
             killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
             killer.RpcResetTasks();
