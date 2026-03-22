@@ -29,7 +29,6 @@ public class Doomsayer : RoleBase
     public static OptionItem DoesNotSuicideWhenMisguessing;
     public static OptionItem MisguessRolePrevGuessRoleUntilNextMeeting;
     private static OptionItem ImpostorVision;
-    public static OptionItem DoomsayerTryHideMsg;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -72,10 +71,6 @@ public class Doomsayer : RoleBase
             .SetParent(DoesNotSuicideWhenMisguessing);
 
         ImpostorVision = new BooleanOptionItem(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
-
-        DoomsayerTryHideMsg = new BooleanOptionItem(Id + 21, "DoomsayerTryHideMsg", true, TabGroup.NeutralRoles)
-            .SetColor(Color.green)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
     }
 
