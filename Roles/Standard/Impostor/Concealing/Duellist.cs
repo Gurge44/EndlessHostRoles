@@ -69,13 +69,13 @@ public class Duellist : RoleBase
                 if (previousTarget) previousTarget.TPToRandomVent();
             }
 
+            Main.Instance.StartCoroutine(Coroutine());
+
             duellist.TP(pos);
             DuelPair[duellist.PlayerId] = target.PlayerId;
 
             duellist.RPCPlayCustomSound("Teleport");
             target.RPCPlayCustomSound("Teleport");
-
-            Main.Instance.StartCoroutine(Coroutine());
 
             System.Collections.IEnumerator Coroutine()
             {
