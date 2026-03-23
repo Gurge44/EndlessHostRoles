@@ -20,10 +20,6 @@ internal class EvilGuesser : RoleBase
 
         EGCanGuessAdt = new BooleanOptionItem(1207, "EGCanGuessAdt", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
-
-        EGTryHideMsg = new BooleanOptionItem(1209, "GuesserTryHideMsg", true, TabGroup.ImpostorRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser])
-            .SetColor(Color.green);
     }
 
     public override void Init() { }
