@@ -491,7 +491,7 @@ internal static class OnPlayerJoinedPatch
                     return;
                 }
 
-                if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && PlayerControl.AllPlayerControls.Count >= 17)
+                if (client.Character && client.Character.Data && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && PlayerControl.AllPlayerControls.Count >= 17)
                     Disco.ChangeColor(client.Character);
             }
             catch { }
@@ -530,7 +530,7 @@ internal static class OnPlayerJoinedPatch
             if (GameStates.IsLobby && !OnGameJoinedPatch.JoiningGame)
                 LateTask.New(Options.AutoSetFactionMinMaxSettings, 2f, log: false);
             
-            LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 1f);
+            LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 1.5f);
         }
     }
 }
@@ -542,7 +542,7 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character != null)
+            if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character)
             {
                 byte id = data.Character.PlayerId;
                 
@@ -595,7 +595,7 @@ internal static class OnPlayerLeftPatch
                     Spiritualist.RemoveTarget();
 
                 if (CopyCat.PlayerIdList.Remove(id))
-                    CopyCat.Instances.RemoveAll(x => x.CopyCatPC == null);
+                    CopyCat.Instances.RemoveAll(x => !x.CopyCatPC);
 
                 Postman.CheckAndResetTargets(data.Character);
                 GhostRolesManager.AssignedGhostRoles.Remove(id);
@@ -628,7 +628,7 @@ internal static class OnPlayerLeftPatch
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
 
-                if (data != null && data.Character != null)
+                if (data != null && data.Character)
                 {
                     uint netid = data.Character.NetId;
 
@@ -672,7 +672,7 @@ internal static class InnerNetClientSpawnPatch
 
         Logger.Msg($"Spawn player data: ID {client?.Character?.PlayerId}: {client?.PlayerName}", "CreatePlayer");
 
-        if (client == null || client.Character == null // client is null
+        if (client == null || !client.Character // client is null
                            || client.ColorId < 0 || Palette.PlayerColors.Length <= client.ColorId) // invalid client color
             Logger.Warn("client is null or client have invalid color", "TrySyncAndSendMessage");
         else
@@ -691,13 +691,13 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                    if (GameStates.IsLobby && client.Character && LobbyBehaviour.Instance && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                     {
                         // Only for vanilla
                         if (!client.Character.IsModdedClient())
                         {
                             // This kicks the host now on vanilla regions
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
+                            // MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
                             // writer.WritePacked((int)GameStartManagerPatch.Timer);
                             // writer.Write(false);
                             // AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -714,7 +714,7 @@ internal static class InnerNetClientSpawnPatch
             }
         }
 
-        if (client != null && client.Character != null) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
+        if (client != null && client.Character) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
         if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && client != null && Main.ClientIdList.Contains(client.Id))
         {
@@ -722,7 +722,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowKillLog(client.Character.PlayerId);
@@ -734,7 +734,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowLastAddOns(client.Character.PlayerId);
@@ -746,7 +746,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowLastRoles(client.Character.PlayerId);
@@ -758,7 +758,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowLastResult(client.Character.PlayerId);
@@ -810,7 +810,7 @@ internal static class PlayerControlCheckNamePatch
         Logger.Info($"PlayerId: {__instance.PlayerId} - playerName: {playerName} - name: {name}", "Name player");
         RPC.SyncAllPlayerNames();
 
-        if (__instance != null && !name.Equals(playerName))
+        if (__instance && !name.Equals(playerName))
         {
             Logger.Warn($"Standard nickname: {playerName} => {name}", "Name Format");
             playerName = name;
@@ -823,7 +823,7 @@ internal static class SetColorPatch
 {
     public static void Postfix(PlayerControl __instance, byte bodyColor)
     {
-        if (Main.IntroDestroyed || __instance == null) return;
+        if (Main.IntroDestroyed || !__instance) return;
 
         string colorName = Palette.GetColorName(bodyColor);
         Logger.Info($"{__instance.GetRealName()}'s color is {colorName}", "RpcSetColor");
@@ -832,7 +832,7 @@ internal static class SetColorPatch
         {
             LateTask.New(() =>
             {
-                if (Options.KickSlowJoiningPlayers.GetBool() && __instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
+                if (Options.KickSlowJoiningPlayers.GetBool() && __instance && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
                 {
                     ClientData client = __instance.GetClient();
 
