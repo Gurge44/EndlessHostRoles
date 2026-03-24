@@ -43,6 +43,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.3.5";
     public const string PluginDisplayVersion = "7.3.5";
+    public const string Temp = "Optimization Test V1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -878,6 +879,7 @@ public class Main : BasePlugin
         IRandom.SetInstance(new NetRandomWrapper());
 
         Logger.Info($"{Application.version}", "AmongUs Version");
+        Logger.Info(Temp, "Test Build");
 
         LogHandler handler = Logger.Handler("GitVersion");
         handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");

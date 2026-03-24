@@ -119,7 +119,7 @@ internal static class VersionShowerStartPatch
         string testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
 #pragma warning restore CS0162 // Unreachable code detected
 
-        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} Optimization Test V4{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} {Main.Temp}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
