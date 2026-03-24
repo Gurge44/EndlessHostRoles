@@ -1121,6 +1121,7 @@ public static class GameSettingMenuPatch
 
             LastPresetChange = Utils.TimeStamp;
             PresetBehaviour.Decrease();
+            Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
         }));
 
         minus.activeTextColor = minus.inactiveTextColor = minus.disabledTextColor = minus.selectedTextColor = Color.white;
@@ -1158,6 +1159,7 @@ public static class GameSettingMenuPatch
 
             LastPresetChange = Utils.TimeStamp;
             PresetBehaviour.Increase();
+            Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
         }));
 
         plus.activeTextColor = plus.inactiveTextColor = plus.disabledTextColor = plus.selectedTextColor = Color.white;

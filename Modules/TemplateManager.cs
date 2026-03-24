@@ -335,8 +335,6 @@ public static class TemplateManager
                 Utils.SendMessage(errMsg, playerId, importance: MessageImportance.Low);
             return;
         }
-        
-        Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "TemplateManager");
 
         List<TemplateEntry> eligible = [.. allMatched.Where(e => e.MatchesContext())];
         if (eligible.Count == 0)
