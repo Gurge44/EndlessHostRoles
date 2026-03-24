@@ -1,16 +1,17 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Diagnostics;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 using static EHR.Translator;
 
 namespace EHR.Patches;
@@ -949,7 +950,8 @@ internal static class MapRoomDoorsStartPatch
     public static void Postfix(MapRoom __instance)
     {
         ShipStatus shipStatusInstance = ShipStatus.Instance;
-        ISystemType ISystem = shipStatusInstance.Systems[SystemTypes.Doors];
+        if (!shipStatusInstance || SubmergedCompatibility.IsSubmerged()) return;
+        if (!shipStatusInstance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType ISystem)) return;
 
         MapRoomDoorsUpdatePatch.DoorsSystemType = ISystem.TryCast<DoorsSystemType>();
         MapRoomDoorsUpdatePatch.AutoDoorsSystemType = ISystem.TryCast<AutoDoorsSystemType>();
