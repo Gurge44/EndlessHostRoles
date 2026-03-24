@@ -1321,7 +1321,7 @@
   "SecurityGuardSkillStop": "Ability expired",
   "SecurityGuardVentButtonText": "<size=0>.</size>",
   "Sensor": "Sensor",
-  "SensorInfo": "Whenever Someone Sabotages, You See an Arrow Towards Them",
+  "SensorInfo": "Get Arrows Towards Sabotage Callers",
   "SensorInfoLong": "(Crewmates):\\nAs the Sensor, whenever someone sabotages, you get a temporary arrow pointing at them.",
   "Sensor.ArrowDuration": "Arrow Duration",
   "Sentinel": "Sentinel",

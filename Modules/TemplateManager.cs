@@ -67,6 +67,7 @@ public static class TemplateManager
         ["GameDuration"] = () => { if (!GameStates.IsInGame) return "00:00"; int e = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS); return $"{e / 60:00}:{e % 60:00}"; },
         ["Date"] = () => DateTime.Now.ToShortDateString(),
         ["Time"] = () => DateTime.Now.ToShortTimeString(),
+        ["Preset"] = () => GetString($"Preset_{OptionItem.CurrentPreset + 1}"),
     };
 
     private class TemplateEntry
@@ -79,10 +80,11 @@ public static class TemplateManager
         public HashSet<MapNames> AllowedMaps { get; init; }
         public HashSet<string> AllowedRoles { get; init; }
         public HashSet<string> AllowedRanks { get; init; }
+        public HashSet<int> AllowedPresets { get; init; }
         public string PlayerCountOp { get; init; }
         public int PlayerCountVal { get; init; }
 
-        public bool MatchesContext() => MatchesMap() && MatchesPlayerCount();
+        public bool MatchesContext() => MatchesMap() && MatchesPlayerCount() && MatchesPreset();
 
         public bool MatchesRole(PlayerControl player)
         {
@@ -116,8 +118,7 @@ public static class TemplateManager
             });
         }
 
-        private bool MatchesMap() =>
-            AllowedMaps == null || AllowedMaps.Contains(Main.CurrentMap);
+        private bool MatchesMap() => AllowedMaps == null || AllowedMaps.Contains(Main.CurrentMap);
 
         private bool MatchesPlayerCount()
         {
@@ -134,6 +135,8 @@ public static class TemplateManager
                 _ => true
             };
         }
+
+        private bool MatchesPreset() => AllowedPresets == null || AllowedPresets.Contains(OptionItem.CurrentPreset + 1);
     }
 
     public static void Init() => CreateIfNotExists();
@@ -254,6 +257,7 @@ public static class TemplateManager
         HashSet<MapNames> allowedMaps = null;
         HashSet<string> allowedRoles = null;
         HashSet<string> allowedRanks = null;
+        HashSet<int> allowedPresets = null;
         string playerCountOp = null;
         int playerCountVal = 0;
 
@@ -287,6 +291,14 @@ public static class TemplateManager
             }
         }
 
+        if (props.TryGetValue("preset", out string presetStr))
+        {
+            allowedPresets = [];
+            foreach (string part in presetStr.TrimStart('=').Split('|'))
+                if (int.TryParse(part.Trim(), out int preset))
+                    allowedPresets.Add(preset);
+        }
+
         return new TemplateEntry
         {
             Tag = tag,
@@ -297,6 +309,7 @@ public static class TemplateManager
             AllowedMaps = allowedMaps,
             AllowedRoles = allowedRoles,
             AllowedRanks = allowedRanks,
+            AllowedPresets = allowedPresets,
             PlayerCountOp = playerCountOp,
             PlayerCountVal = playerCountVal
         };
@@ -324,7 +337,6 @@ public static class TemplateManager
         }
 
         List<TemplateEntry> eligible = [.. allMatched.Where(e => e.MatchesContext())];
-
         if (eligible.Count == 0)
         {
             if (!noErr) Utils.SendMessage(GetString("Message.TemplateConditionsNotMet"), playerId, importance: MessageImportance.Low);

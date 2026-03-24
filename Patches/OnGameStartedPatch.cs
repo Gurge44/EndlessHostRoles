@@ -150,7 +150,7 @@ internal static class ChangeRoleSettings
 
         try
         {
-            if (Options.CurrentGameMode == CustomGameMode.BedWars)
+            if (Options.CurrentGameMode is CustomGameMode.BedWars or CustomGameMode.Snowdown)
                 Options.UsePets.SetValue(1);
         }
         catch (Exception e) { Utils.ThrowException(e); }

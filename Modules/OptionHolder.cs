@@ -1190,7 +1190,7 @@ public static class Options
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
-                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData(), new JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData { Tag = string.Empty }, new JsonSerializerOptions { WriteIndented = true }));
             }
 
             Errors.Clear();
