@@ -602,6 +602,8 @@ public static class GuessManager
         try
         {
             GameEndChecker.ShouldNotCheck = true;
+            LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 0.2f);
+            
             Main.PlayerStates[pc.PlayerId].SetDead();
             pc.RpcExileV2();
             pc.Data.IsDead = true;
@@ -618,7 +620,7 @@ public static class GuessManager
                 AmongUsClient.Instance.SendAllStreamedObjects();
 
                 PlayerControl voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-                if (voteAreaPlayer == null) continue;
+                if (!voteAreaPlayer) continue;
 
                 if (!voteAreaPlayer.AmOwner)
                 {
@@ -634,7 +636,10 @@ public static class GuessManager
             writer.Write(pc.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        finally { GameEndChecker.ShouldNotCheck = false; }
+        catch (Exception ex)
+        {
+            Utils.ThrowException(ex);
+        }
     }
 
     private static void ProcessGuess(PlayerControl pc, MeetingHud meetingHud)
