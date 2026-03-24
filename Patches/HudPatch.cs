@@ -909,7 +909,7 @@ internal static class SabotageMapPatch
 
         float perc = __instance.sabSystem.PercentCool;
         int total = __instance.sabSystem.initialCooldown ? 10 : 30;
-        if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
+        if (SabotageSystemTypeUpdateSystemPatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeUpdateSystemPatch.ModifiedCooldownSec;
 
         int remaining = Math.Clamp(total - (int)Math.Ceiling((1f - perc) * total) + 1, 0, total);
 

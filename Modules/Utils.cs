@@ -243,9 +243,60 @@ public static class Utils
     {
         try
         {
-            if (GameStates.IsLobby || !ShipStatus.Instance || !Main.SabotageIsActive.TryGetValue(type, out bool isActive)) return false;
-            
-            return isActive;
+            //if (GameStates.IsLobby || !Main.IntroDestroyed || !ShipStatus.Instance || !Main.SabotageIsActive.TryGetValue(type, out bool isActive)) return false;
+
+            //return isActive;
+
+            if (GameStates.IsLobby || !Main.IntroDestroyed || !ShipStatus.Instance) return false;
+
+            int mapId = Main.NormalOptions.MapId;
+
+            switch (type)
+            {
+                case SystemTypes.Electrical:
+                    {
+                        if (mapId == 5) return false;
+                        return SabotageSystem.SwitchSystem.IsActive;
+                    }
+                case SystemTypes.Reactor:
+                    {
+                        return mapId switch
+                        {
+                            2 => false,
+                            4 => SabotageSystem.HeliSabotageSystem.IsActive,
+                            _ => SabotageSystem.ReactorSystemType.IsActive
+                        };
+                    }
+                case SystemTypes.Laboratory:
+                    {
+                        if (mapId != 2) return false;
+                        return SabotageSystem.ReactorSystemType.IsActive;
+                    }
+                case SystemTypes.LifeSupp:
+                    {
+                        if (mapId is 2 or 4 or 5) return false;
+                        return SabotageSystem.LifeSuppSystemType.IsActive;
+                    }
+                case SystemTypes.Comms:
+                    {
+                        if (mapId is 1 or 5)
+                            return SabotageSystem.HqHudSystemType.IsActive;
+
+                        return SabotageSystem.HudOverrideSystemType.IsActive;
+                    }
+                case SystemTypes.HeliSabotage:
+                    {
+                        if (mapId != 4) return false;
+                        return SabotageSystem.HeliSabotageSystem.IsActive;
+                    }
+                case SystemTypes.MushroomMixupSabotage:
+                    {
+                        if (mapId != 5) return false;
+                        return SabotageSystem.MushroomMixupSabotageSystem.IsActive;
+                    }
+                default:
+                    return false;
+            }
         }
         catch (Exception e)
         {

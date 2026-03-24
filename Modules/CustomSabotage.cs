@@ -20,7 +20,7 @@ public abstract class CustomSabotage
     protected virtual void Fix()
     {
         Instances.Remove(this);
-        SabotageSystemTypeRepairDamagePatch.Instance.IsDirty = true;
+        SabotageSystemTypeUpdateSystemPatch.Instance.IsDirty = true;
     }
 
     protected virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
@@ -98,8 +98,8 @@ public abstract class CustomSabotage
 
         if (sabotageCount > 0)
         {
-            SabotageSystemTypeRepairDamagePatch.Instance.Timer = SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled
-                ? SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec
+            SabotageSystemTypeUpdateSystemPatch.Instance.Timer = SabotageSystemTypeUpdateSystemPatch.IsCooldownModificationEnabled
+                ? SabotageSystemTypeUpdateSystemPatch.ModifiedCooldownSec
                 : 30f;
         }
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
@@ -9,6 +8,17 @@ using Hazel;
 namespace EHR;
 // Based on:
 // https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
+
+public static class SabotageSystem
+{
+    public static ReactorSystemType ReactorSystemType;
+    public static HeliSabotageSystem HeliSabotageSystem;
+    public static LifeSuppSystemType LifeSuppSystemType;
+    public static SwitchSystem SwitchSystem;
+    public static HqHudSystemType HqHudSystemType;
+    public static HudOverrideSystemType HudOverrideSystemType;
+    public static MushroomMixupSabotageSystem MushroomMixupSabotageSystem;
+}
 
 [HarmonyPatch(typeof(ReactorSystemType))]
 public static class ReactorSystemTypePatch
@@ -300,7 +310,7 @@ internal static class SwitchSystemUpdatePatch
             // Each digit corresponds to each switch
             // Far left switch - (amount: 0) 00001
             // Far right switch - (amount: 4) 10000
-            // ref: SwitchSystem.RepairDamage, SwitchMinigame.FixedUpdate
+            // ref: SwitchSystem.UpdateSystem, SwitchMinigame.FixedUpdate
             var switchedKnob = (byte)(0b_00001 << amount);
 
             // ExpectedSwitches: Up and down state of switches when all are on
@@ -413,7 +423,7 @@ internal static class SabotageSystemTypeAnyActivePatch
 // https://github.com/tukasa0001/TownOfHost/blob/357f7b5523e4bdd0bb58cda1e0ff6cceaa84813d/Patches/SabotageSystemPatch.cs
 // Method called when sabotage occurs
 [HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.UpdateSystem))]
-public static class SabotageSystemTypeRepairDamagePatch
+public static class SabotageSystemTypeUpdateSystemPatch
 {
     public static bool IsCooldownModificationEnabled;
     public static float ModifiedCooldownSec;

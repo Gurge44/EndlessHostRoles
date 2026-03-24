@@ -159,7 +159,7 @@ internal static class UpdateSystemPatch
                 break;
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-                return SabotageSystemTypeRepairDamagePatch.CheckSabotage(null, player, systemType);
+                return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(null, player, systemType);
             case SystemTypes.Security when amount == 1:
             {
                 bool camerasDisabled = Main.CurrentMap switch
@@ -243,7 +243,7 @@ internal static class CloseDoorsPatch
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
-        if (Main.CurrentMap != MapNames.Polus && SabotageSystemTypeRepairDamagePatch.Instance != null && SabotageSystemTypeRepairDamagePatch.Instance.AnyActive) allow = false;
+        if (Main.CurrentMap != MapNames.Polus && SabotageSystemTypeUpdateSystemPatch.Instance != null && SabotageSystemTypeUpdateSystemPatch.Instance.AnyActive) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
         return allow;
@@ -349,7 +349,7 @@ internal static class ShipStatusBeginPatch
         return RolesIsAssigned;
     }
 
-    public static void Postfix()
+    public static void Postfix(ShipStatus __instance)
     {
         if (RolesIsAssigned && !Main.IntroDestroyed)
         {
@@ -357,6 +357,75 @@ internal static class ShipStatusBeginPatch
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
+
+            int mapId = Main.NormalOptions.MapId;
+            foreach (var systemType in Main.AllSabotage)
+            {
+                try
+                {
+                    if (__instance.Systems.TryGetValue(systemType, out ISystemType ISystemType))
+                    {
+                        switch (systemType)
+                        {
+                            case SystemTypes.Reactor:
+                                {
+                                    switch (mapId)
+                                    {
+                                        case 2:
+                                            continue;
+                                        case 4:
+                                            SabotageSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
+                                            break;
+                                        default:
+                                            SabotageSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
+                                            break;
+                                    }
+                                }
+                                break;
+                            case SystemTypes.Laboratory:
+                                {
+                                    if (mapId != 2) continue;
+                                    SabotageSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
+                                }
+                                break;
+                            case SystemTypes.HeliSabotage:
+                                {
+                                    if (mapId != 4) continue;
+                                    SabotageSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
+                                }
+                                break;
+                            case SystemTypes.LifeSupp:
+                                {
+                                    if (mapId is 2 or 4 or 5) continue;
+                                    SabotageSystem.LifeSuppSystemType = ISystemType.TryCast<LifeSuppSystemType>();
+                                }
+                                break;
+                            case SystemTypes.Electrical:
+                                {
+                                    if (mapId == 5) continue;
+                                    SabotageSystem.SwitchSystem = ISystemType.TryCast<SwitchSystem>();
+                                }
+                                break;
+                            case SystemTypes.Comms:
+                                {
+                                    if (mapId is 1 or 5)
+                                        SabotageSystem.HqHudSystemType = ISystemType.TryCast<HqHudSystemType>();
+                                    else
+                                        SabotageSystem.HudOverrideSystemType = ISystemType.TryCast<HudOverrideSystemType>();
+                                }
+                                break;
+                            case SystemTypes.MushroomMixupSabotage:
+                                {
+                                    if (mapId != 5) continue;
+                                    SabotageSystem.MushroomMixupSabotageSystem = ISystemType.TryCast<MushroomMixupSabotageSystem>();
+                                }
+                                break;
+                        }
+                    }
+                }
+                catch (Exception e)
+                { Utils.ThrowException(e); }
+            }
         }
     }
 }

@@ -1662,7 +1662,7 @@ internal static class FixedUpdatePatch
                 if (DoubleTrigger.FirstTriggerTimer.Count > 0)
                     DoubleTrigger.OnFixedUpdate(player);
 
-                SabotageSystemTypeRepairDamagePatch.SabotageDoubleTrigger.Update(Time.deltaTime);
+                SabotageSystemTypeUpdateSystemPatch.SabotageDoubleTrigger.Update(Time.deltaTime);
 
                 if (playerState.Role.IsEnable)
                     playerState.Role.OnFixedUpdate(player);
