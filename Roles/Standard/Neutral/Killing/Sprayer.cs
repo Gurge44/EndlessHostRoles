@@ -191,7 +191,6 @@ internal class Sprayer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        Traps.Values.Do(x => x.Despawn());
         Traps.Clear();
     }
 

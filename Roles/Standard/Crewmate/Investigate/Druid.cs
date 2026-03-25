@@ -133,7 +133,7 @@ public class Druid : RoleBase
     {
         if (!IsEnable) return;
 
-        if (pc == null || !GameStates.IsInTask) return;
+        if (!pc || !GameStates.IsInTask) return;
 
         if (pc.GetAbilityUseLimit() < 1) return;
 
@@ -196,7 +196,7 @@ public class Druid : RoleBase
 
     private string GetHUDText(PlayerControl pc)
     {
-        if (pc == null || Triggers.Count == 0) return string.Empty;
+        if (!pc || Triggers.Count == 0) return string.Empty;
 
         var sb = new StringBuilder();
 
