@@ -2847,7 +2847,7 @@ public static class Utils
                         additionalSuffixes.Add(CaptureTheFlag.GetSuffixText(seer, seer));
                         break;
                     case CustomGameMode.NaturalDisasters:
-                        additionalSuffixes.Add(NaturalDisasters.SuffixText());
+                        additionalSuffixes.Add(NaturalDisasters.SuffixText);
                         break;
                     case CustomGameMode.RoomRush:
                         additionalSuffixes.Add(RoomRush.GetSuffix(seer));
