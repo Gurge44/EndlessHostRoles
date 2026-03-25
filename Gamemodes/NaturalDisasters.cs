@@ -126,6 +126,8 @@ public static class NaturalDisasters
 
         if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) return;
 
+        FixedUpdatePatch.WaitTime = Chat ? 10 : 5;
+
         List<Vector2> rooms = Main.LIMap
             ? ShipStatus.Instance.AllRooms.Select(x => new Vector2(x.transform.position.x, x.transform.position.y)).ToList()
             : RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values.ToList();
@@ -166,12 +168,18 @@ public static class NaturalDisasters
 
     public static void RecordDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
     {
-        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS);
+        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS - FixedUpdatePatch.WaitTime);
 
-        string message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
-        message = Utils.ColorString(DeathReasonColor(deathReason), message);
+        string message = Translator.GetString($"ND_DRLaughMessage-{IRandom.Instance.Next(4)}.{deathReason}");
+        Color color = DeathReasonColor(deathReason);
+        message = Utils.ColorString(color, message);
         LateTask.New(() => pc.Notify(message, 20f), 1f, $"{pc.GetRealName()} died with the reason {deathReason}, survived for {SurvivalTime(pc.PlayerId)} seconds");
         Utils.SendRPC(CustomRPC.NaturalDisastersSync, pc.PlayerId, SurvivalTimes[pc.PlayerId]);
+
+        var aapc = Main.AllAlivePlayerControls;
+        string remaining = string.Format(Translator.GetString("ND_RemainingPlayers"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.NDPlayer), aapc.Count.ToString()));
+        string msgOthers = string.Format(Translator.GetString($"ND_DRLaughMessageOthers-{IRandom.Instance.Next(4)}.{deathReason}"), pc.PlayerId.ColoredPlayerName());
+        aapc.NotifyPlayers($"<#ff0000>[╳]</color> {Utils.ColorString(color, msgOthers)} {remaining}", 10f);
     }
 
     private static Color DeathReasonColor(PlayerState.DeathReason deathReason)
@@ -208,10 +216,11 @@ public static class NaturalDisasters
     {
         private static long LastDisaster = Utils.TimeStamp;
         private static long LastSync = Utils.TimeStamp;
+        public static int WaitTime;
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || IntroCutsceneDestroyPatch.IntroDestroyTS + 5 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || IntroCutsceneDestroyPatch.IntroDestroyTS + WaitTime > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
             {

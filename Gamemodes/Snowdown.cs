@@ -105,7 +105,7 @@ public static class Snowdown
 
     public static void ApplyGameOptions()
     {
-        AURoleOptions.PhantomCooldown = 2f;
+        AURoleOptions.PhantomCooldown = 1f;
         AURoleOptions.PhantomDuration = 0.1f;
     }
 
