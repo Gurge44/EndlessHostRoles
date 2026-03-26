@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Gamemodes;
 using EHR.Roles;
 using Hazel;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
-using EHR.Gamemodes;
 
 // ReSharper disable ForCanBeConvertedToForeach
 
@@ -694,5 +694,4 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         return base.AmValid() && player && player.Data && !player.Data.Disconnected && Main.RealOptionsData != null;
     }
-
 }

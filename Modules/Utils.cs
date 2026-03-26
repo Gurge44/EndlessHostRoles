@@ -2620,11 +2620,11 @@ public static class Utils
         return suffix.ToString().Trim();
     }
 
-    public static IEnumerator NotifyEveryoneAsync(bool noCache = true)
+    public static IEnumerator NotifyEveryoneAsync(bool noCache = true, SendOption sendOption = SendOption.Reliable)
     {
         if (!AmongUsClient.Instance.AmHost || GameStates.IsMeeting) yield break;
 
-        const int frameBudget = 4; // milliseconds per frame
+        const int frameBudget = 3; // milliseconds per frame
         var stopwatch = new Stopwatch();
         var aapc = Main.AllAlivePlayerControls;
 
@@ -2633,8 +2633,8 @@ public static class Utils
             foreach (PlayerControl target in aapc)
             {
                 if (GameStates.IsMeeting || ReportDeadBodyPatch.MeetingStarted) yield break;
-                var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", SendOption.Reliable, log: false);
-                var hasValue = WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared) && !senderWasCleared;
+                var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", sendOption, log: false);
+                var hasValue = WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared, sendOption) && !senderWasCleared;
                 sender.SendMessage(!hasValue || sender.stream.Length <= 3);
                 
                 if (stopwatch.ElapsedMilliseconds >= frameBudget)
