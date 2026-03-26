@@ -103,6 +103,7 @@ insidepill#4245 | e951fad6f | EL MARTO | Cheating |
 pottedcane#6458 | 8b9a61f91 | Songr | Nuking streamer lobby | 
 reedspeedy#5294 | bdbb3b453 | Heisenberg | Association in racism | VIP/Mod/Helper of liableebb#5371
 cobwebpuce#5201 | 80c86bfd5 | @ | Cheat | 
+questhilly#1793 | 71cdfefcd |  | AUM | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
@@ -138,6 +139,7 @@ dimbottle#0386 | 607326ed0 | Bob | Toxic | Alt of banned user SIGMAMODE
 roundhour#1689 | 4be938470 | NateHigger | Racist | Racist Hostname
 winnerjust#2812 | a0221bf63 | rvzim | Racist | Used racial slurs in game
 liableebb#5371 | c37085a74 | NuckFigger | Racist | 
+jocundblur#4007 | 8d87eca3d | apk4u | Racist | Alluding to racial slurs in Sarha's lobby
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 
