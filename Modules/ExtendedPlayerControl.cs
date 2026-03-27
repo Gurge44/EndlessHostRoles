@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
@@ -370,15 +369,26 @@ internal static class ExtendedPlayerControl
             var hasValue = false;
 
             RoleTypes newRoleType = state.MainRole.GetRoleTypes();
+            CustomGameMode gameMode = Options.CurrentGameMode;
 
-            if (Options.CurrentGameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars or CustomGameMode.Snowdown)
+            if (gameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars or CustomGameMode.Snowdown)
                 hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
 
             player.ResetKillCooldown();
 
-            if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones)
-                LateTask.New(() => player.SetKillCooldown(), 0.2f, log: false);
-
+            switch (gameMode)
+            {
+                case CustomGameMode.CaptureTheFlag:
+                    LateTask.New(() => player.SetKillCooldownNonSync(CaptureTheFlag.KCD), 0.2f);
+                    break;
+                case CustomGameMode.Snowdown:
+                    LateTask.New(() => player.SetKillCooldownNonSync(5f), 0.2f);
+                    break;
+                default:
+                    LateTask.New(() => player.SetKillCooldown(), 0.2f);
+                    break;
+            }
+            
             if (newRoleType is not (RoleTypes.Crewmate or RoleTypes.Impostor or RoleTypes.Noisemaker))
                 hasValue |= sender.RpcResetAbilityCooldown(player);
 
@@ -1878,7 +1888,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.Runner => Speedrun.KCD,
             CustomRoles.Potato => 2f,
             CustomRoles.CTFPlayer => CaptureTheFlag.KCD * 2f,
-            CustomRoles.KOTZPlayer => KingOfTheZones.KCD,
+            CustomRoles.KOTZPlayer => KingOfTheZones.GetKillCooldown(player),
             CustomRoles.QuizPlayer => 3f,
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,

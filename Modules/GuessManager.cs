@@ -64,7 +64,7 @@ public static class GuessManager
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false, bool ssMenu = false)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
-        if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || pc == null) return false;
+        if (!GameStates.IsMeeting || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || !pc) return false;
 
         bool hasGuessingRole = pc.GetCustomRole() is CustomRoles.NiceGuesser or CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Judge or CustomRoles.Swapper or CustomRoles.Councillor or CustomRoles.NecroGuesser or CustomRoles.Augur;
         if (!hasGuessingRole && !pc.Is(CustomRoles.Guesser) && !Options.GuesserMode.GetBool()) return false;
@@ -141,7 +141,7 @@ public static class GuessManager
 
                 PlayerControl target = Utils.GetPlayerById(targetId);
 
-                if (target != null)
+                if (target)
                 {
                     Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
                     Main.GuesserGuessedMeeting.TryAdd(pc.PlayerId, 0);
@@ -749,7 +749,7 @@ public static class GuessManager
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
 
-            if (pc == null) continue;
+            if (!pc) continue;
 
             bool skip = PlayerControl.LocalPlayer.Is(CustomRoles.NecroGuesser) switch
             {
@@ -783,7 +783,7 @@ public static class GuessManager
 
             foreach (Transform roleBtn in roleButton.Value)
             {
-                if (roleBtn == null) continue;
+                if (!roleBtn) continue;
                 index++;
 
                 if (index <= (Page - 1) * 40 || Page * 40 < index)
@@ -798,7 +798,7 @@ public static class GuessManager
 
         foreach (KeyValuePair<CustomRoleTypes, SpriteRenderer> roleButton in RoleSelectButtons)
         {
-            if (roleButton.Value == null) continue;
+            if (!roleButton.Value) continue;
             roleButton.Value.color = new(0, 0, 0, roleButton.Key == role ? 1 : 0.25f);
         }
     }
@@ -806,7 +806,7 @@ public static class GuessManager
     private static void GuesserOnClick(byte playerId, MeetingHud __instance)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || GuesserUI != null || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
+        if (!pc || !pc.IsAlive() || GuesserUI || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
 
         try
         {
@@ -826,9 +826,9 @@ public static class GuessManager
             Transform smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
             TextTemplate.enabled = true;
             Transform roleTextMeeting = TextTemplate.transform.FindChild("RoleTextMeeting");
-            if (roleTextMeeting != null) Object.Destroy(roleTextMeeting.gameObject);
+            if (roleTextMeeting) Object.Destroy(roleTextMeeting.gameObject);
             Transform deathReasonTextMeeting = TextTemplate.transform.FindChild("DeathReasonTextMeeting");
-            if (deathReasonTextMeeting != null) Object.Destroy(deathReasonTextMeeting.gameObject);
+            if (deathReasonTextMeeting) Object.Destroy(deathReasonTextMeeting.gameObject);
 
             Transform exitButtonParent = new GameObject().transform;
             exitButtonParent.SetParent(container);
@@ -1238,7 +1238,7 @@ public static class GuessManager
                 ExistingCNOs.Clear();
                 NetIdToRawDisplay.Clear();
                 PlayerControl pc = guesserId.GetPlayer();
-                if (pc != null) Utils.SendGameDataTo(pc.OwnerId);
+                if (pc) Utils.SendGameDataTo(pc.OwnerId);
                 Logger.Msg($"Reset Meeting Shapeshift Menu For Guessing ({Main.AllPlayerNames.GetValueOrDefault(guesserId, "Someone")})", "Meeting Shapeshift For Guessing");
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -1678,5 +1678,4 @@ public static class GuessManager
         if (Data.TryGetValue(shapeshifter.PlayerId, out MeetingShapeshiftData msd))
             msd.AdvanceStep(target);
     }
-
 }

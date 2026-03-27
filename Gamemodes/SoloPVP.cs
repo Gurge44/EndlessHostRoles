@@ -235,9 +235,6 @@ internal static class SoloPVP
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
     }
 
     private static void OnPlayerBack(PlayerControl pc)
@@ -248,7 +245,6 @@ internal static class SoloPVP
         pc.ReviveFromTemporaryExile();
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.SpawnSound);
         SpawnMap.GetSpawnMap().RandomTeleport(pc);
-        Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
     }
 
     private static IEnumerator OnPlayerDead(PlayerControl target)
@@ -261,7 +257,6 @@ internal static class SoloPVP
             LastHurt[target.PlayerId] = Utils.TimeStamp;
             RPC.PlaySoundRPC(target.PlayerId, Sounds.SpawnSound);
             SpawnMap.GetSpawnMap().RandomTeleport(target);
-            Utils.NotifyRoles(SpecifyTarget: target, SendOption: SendOption.None);
             yield break;
         }
         
@@ -366,7 +361,7 @@ internal static class SoloPVP
             
             if (!RoundTimer.IsRunning) return;
 
-            Utils.NotifyRoles(SendOption: SendOption.None);
+            Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(sendOption: SendOption.None));
         }
     }
 

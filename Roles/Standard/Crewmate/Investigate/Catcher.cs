@@ -140,12 +140,10 @@ public class Catcher : RoleBase
     public override void OnReportDeadBody()
     {
         if (Traps.Count == 0) return;
-
-        Traps.Values.Do(x => x.Despawn());
         Traps = [];
 
         PlayerControl catcher = CatcherId.GetPlayer();
-        if (catcher == null || !catcher.IsAlive()) return;
+        if (!catcher || !catcher.IsAlive()) return;
 
         LateTask.New(() =>
         {

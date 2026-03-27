@@ -126,6 +126,8 @@ public static class NaturalDisasters
 
         if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) return;
 
+        FixedUpdatePatch.WaitTime = Chat ? 10 : 5;
+
         List<Vector2> rooms = Main.LIMap
             ? ShipStatus.Instance.AllRooms.Select(x => new Vector2(x.transform.position.x, x.transform.position.y)).ToList()
             : RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values.ToList();
@@ -137,6 +139,8 @@ public static class NaturalDisasters
 
         const float extend = 5f;
         MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
+        
+        RebuildSuffixText();
     }
 
     public static void ApplyGameOptions(IGameOptions opt, byte id)
@@ -144,19 +148,30 @@ public static class NaturalDisasters
         ActiveDisasters.ForEach(x => x.ApplyOwnGameOptions(opt, id));
     }
 
-    public static string SuffixText()
+    public static string SuffixText;
+
+    public static void RebuildSuffixText()
     {
         var allRooms = ShipStatus.Instance.AllRooms;
         var collapsedRooms = BuildingCollapse.CollapsedRooms;
-        string cb = allRooms.Count / 2 <= collapsedRooms.Count
-            ? (string.Format(Translator.GetString("AvailableBuildings"), allRooms.Count != collapsedRooms.Count
-                ? allRooms.Select(x => x.RoomId).Where(x => x is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.ToString().Contains("Decontamination")).Except(collapsedRooms.ConvertAll(x => x.RoomId)).Select(x => Translator.GetString($"{x}")).Distinct().Join()
-                : $"<#ff0000>{Translator.GetString("None")}</color>"))
-            : (string.Format(Translator.GetString("CollapsedBuildings"), collapsedRooms.Count > 0
+        string cb;
+
+        if (allRooms.Count / 2 <= collapsedRooms.Count)
+        {
+            SystemTypes[] remainingRooms = allRooms.Select(x => x.RoomId).Where(x => x is not (SystemTypes.Hallway or SystemTypes.Outside) && !x.ToString().Contains("Decontamination")).Except(collapsedRooms.ConvertAll(x => x.RoomId)).ToArray();
+            cb = string.Format(Translator.GetString("AvailableBuildings"), remainingRooms.Length > 0
+                ? remainingRooms.Select(x => Translator.GetString($"{x}")).Distinct().Join()
+                : $"<#ff0000>{Translator.GetString("None")}</color>");
+        }
+        else
+        {
+            cb = string.Format(Translator.GetString("CollapsedBuildings"), collapsedRooms.Count > 0
                 ? collapsedRooms.Select(x => Translator.GetString($"{x.RoomId}")).Distinct().Join()
-                : Translator.GetString("None")));
+                : Translator.GetString("None"));
+        }
+
         string ts = ActiveDisasters.Exists(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
-        return $"<size=70%>{cb}{ts}</size>";
+        SuffixText = $"<size=70%>{cb}{ts}</size>";
     }
 
     public static int SurvivalTime(byte id)
@@ -166,12 +181,18 @@ public static class NaturalDisasters
 
     public static void RecordDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
     {
-        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS);
+        SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS - FixedUpdatePatch.WaitTime);
 
-        string message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
-        message = Utils.ColorString(DeathReasonColor(deathReason), message);
+        string message = Translator.GetString($"ND_DRLaughMessage-{IRandom.Instance.Next(4)}.{deathReason}");
+        Color color = DeathReasonColor(deathReason);
+        message = Utils.ColorString(color, message);
         LateTask.New(() => pc.Notify(message, 20f), 1f, $"{pc.GetRealName()} died with the reason {deathReason}, survived for {SurvivalTime(pc.PlayerId)} seconds");
         Utils.SendRPC(CustomRPC.NaturalDisastersSync, pc.PlayerId, SurvivalTimes[pc.PlayerId]);
+
+        var aapc = Main.CachedAllPlayerControls();
+        string remaining = string.Format(Translator.GetString("ND_RemainingPlayers"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.NDPlayer), aapc.Count.ToString()));
+        string msgOthers = string.Format(Translator.GetString($"ND_DRLaughMessageOthers-{IRandom.Instance.Next(4)}.{deathReason}"), pc.PlayerId.ColoredPlayerName());
+        aapc.NotifyPlayers($"<#ff0000>[╳]</color> {Utils.ColorString(color, msgOthers)} {remaining}", 10f);
     }
 
     private static Color DeathReasonColor(PlayerState.DeathReason deathReason)
@@ -208,10 +229,11 @@ public static class NaturalDisasters
     {
         private static long LastDisaster = Utils.TimeStamp;
         private static long LastSync = Utils.TimeStamp;
+        public static int WaitTime;
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || IntroCutsceneDestroyPatch.IntroDestroyTS + 5 > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || IntroCutsceneDestroyPatch.IntroDestroyTS + WaitTime > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
             {
@@ -258,7 +280,6 @@ public static class NaturalDisasters
 
                             Disaster remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
                             if (remove != null) remove.Duration = 0;
-
                             remove?.RemoveIfExpired();
                             break;
                         }
@@ -322,6 +343,7 @@ public static class NaturalDisasters
                 {
                     BuildingCollapse.CollapsedRooms.Clear();
                     Sinkhole.RemoveRandomSinkhole();
+                    RebuildSuffixText();
                     Utils.NotifyRoles();
                 }
                 
@@ -694,7 +716,11 @@ public static class NaturalDisasters
 
             naturalDisaster.Despawn();
 
-            LateTask.New(() => Utils.NotifyRoles(), 0.2f, "Thunderstorm Notify");
+            LateTask.New(() =>
+            {
+                RebuildSuffixText();
+                Utils.NotifyRoles();
+            }, 0.2f, "Thunderstorm Notify");
         }
 
         public override int Duration { get; set; } = DurationOpt.GetInt();
@@ -747,6 +773,7 @@ public static class NaturalDisasters
             if (Duration == 0 || Utils.TimeStamp - StartTimeStamp >= Duration)
             {
                 ActiveDisasters.Remove(this);
+                RebuildSuffixText();
                 Utils.NotifyRoles();
                 return true;
             }
@@ -985,9 +1012,9 @@ public static class NaturalDisasters
         {
             NetObject = naturalDisaster;
             Update();
-
-            PlainShipRoom room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
-            if (!room) return;
+            
+            if (!naturalDisaster.Room.HasValue) return;
+            PlainShipRoom room = naturalDisaster.Room.Value.GetRoomClass();
 
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
@@ -996,6 +1023,7 @@ public static class NaturalDisasters
             }
 
             CollapsedRooms.Add(room);
+            RebuildSuffixText();
             Utils.NotifyRoles();
         }
 
@@ -1025,7 +1053,7 @@ public static class NaturalDisasters
                     }
                     else pc.DieToDisaster(PlayerState.DeathReason.Collapsed);
                 }
-                else LastPosition[pc.PlayerId] = pc.Pos();
+                else LastPosition[pc.PlayerId] = pc.transform.position;
             }
         }
     }

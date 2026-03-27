@@ -100,7 +100,7 @@ internal static class ExternalRpcPetPatch
 
     private static void OnPetUse(PlayerControl pc)
     {
-        if (pc == null ||
+        if (!pc ||
             pc.inVent ||
             pc.inMovingPlat ||
             pc.onLadder ||
@@ -126,7 +126,7 @@ internal static class ExternalRpcPetPatch
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
         {
             PlayerControl killTarget = SelectKillButtonTarget(pc);
-            if (killTarget != null) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
+            if (killTarget) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
 
             return;
         }
