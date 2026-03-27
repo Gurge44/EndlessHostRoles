@@ -1070,7 +1070,15 @@ internal static class TaskPanelBehaviourPatch
     private static readonly StringBuilder InnerSb = new();
     private static readonly StringBuilder RoleWithInfoBuilder = new();
     private static readonly StringBuilder FinalTextBuilder = new();
+
+    private static readonly List<(int, byte)> TempList = [];
+    // for RoomRush
+    private static readonly List<(PlayerControl pc, bool alive, float time)> TempPlayerData = [];
+    private static readonly List<(PlayerControl pc, string points_string, int points_int)> TempPointsData = [];
+
     private static readonly List<byte> SortedPlayers = [];
+    private static readonly List<string> SummaryTextList = [];
+    private static readonly Dictionary<byte, string> SummaryText = [];
 
     public static PassiveButton RolePanelButton;
     public static TaskPanelBehaviour TaskPanel;
@@ -1104,349 +1112,450 @@ internal static class TaskPanelBehaviourPatch
 
     internal static void UpdateRoleTab(TaskPanelBehaviour panel, CustomRoles role)
     {
-        Sb.Clear();
-        InnerSb.Clear();
-        RoleWithInfoBuilder.Clear();
-        FinalTextBuilder.Clear();
         if (!TabPanelName) TabPanelName = panel.tab.gameObject.GetComponentInChildren<TextMeshPro>();
         if (!TaskPanel) TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
         string panelName = GetString(Options.CurrentGameMode != CustomGameMode.Standard ? "GameInfo" : "RoleInfo");
         if (TabPanelName.text != panelName) TabPanelName.text = panelName;
 
         bool taskingGm = Utils.IsTaskingGameMode();
-        
+
         float y = TaskPanel.taskText.textBounds.size.y + 1;
         float defaultPos = taskingGm ? 2f : 0.6f;
         Vector3 targetClosed = new Vector3(TaskPanel.closedPosition.x, taskingGm && TaskPanel.open ? y + 0.2f : defaultPos, TaskPanel.closedPosition.z);
-        Vector3 targetOpen   = new Vector3(TaskPanel.openPosition.x,   taskingGm && TaskPanel.open ? y        : defaultPos, TaskPanel.openPosition.z);
+        Vector3 targetOpen = new Vector3(TaskPanel.openPosition.x, taskingGm && TaskPanel.open ? y : defaultPos, TaskPanel.openPosition.z);
 
         float t = 1f - Mathf.Exp(-PosSmoothSpeed * Time.deltaTime);
 
         panel.closedPosition = Vector3.Lerp(panel.closedPosition, targetClosed, t);
-        panel.openPosition   = Vector3.Lerp(panel.openPosition,   targetOpen,   t);
+        panel.openPosition = Vector3.Lerp(panel.openPosition, targetOpen, t);
 
         PlayerControl player = PlayerControl.LocalPlayer;
-        
         string roleInfo = player.GetRoleInfo();
 
-        RoleWithInfoBuilder.Append("<b>");
-        RoleWithInfoBuilder.Append(role.ToColoredString());
-        RoleWithInfoBuilder.Append(":</b>\r\n");
-        RoleWithInfoBuilder.Append(roleInfo);
+        Dictionary<byte, PlayerState> playerStates = Main.PlayerStates;
+        List<PlayerControl> AllPlayers = Main.CachedAllPlayerControls();
 
+        RoleWithInfoBuilder.Clear();
+        RoleWithInfoBuilder.Append("<b>")
+            .Append(role.ToColoredString())
+            .Append(":</b>\r\n")
+            .Append(roleInfo);
+
+        string[] splittedroleInfo = roleInfo.Split(' ');
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            string[] splitted = roleInfo.Split(' ');
-
             RoleWithInfoBuilder.Clear();
-            RoleWithInfoBuilder.Append("<b>");
-            RoleWithInfoBuilder.Append(GetString(Options.CurrentGameMode.ToString()));
-            RoleWithInfoBuilder.Append(":</b>\r\n");
-            if (splitted.Length <= 3)
+            RoleWithInfoBuilder.Append("<b>")
+                .Append(GetString(Options.CurrentGameMode.ToString()))
+                .Append(":</b>\r\n");
+
+            if (splittedroleInfo.Length <= 3)
             {
                 RoleWithInfoBuilder.Append(roleInfo);
             }
             else
             {
-                RoleWithInfoBuilder.Append(string.Join(' ', splitted[..3]));
-                RoleWithInfoBuilder.Append("\r\n");
-                RoleWithInfoBuilder.Append(string.Join(' ', splitted[3..]));
+                RoleWithInfoBuilder.Append(string.Join(' ', splittedroleInfo[..3]))
+                    .Append("\r\n")
+                    .Append(string.Join(' ', splittedroleInfo[3..]));
             }
         }
         else if (roleInfo.RemoveHtmlTags().Length > 35)
         {
-            string[] split = roleInfo.Split(' ');
-            int half = split.Length / 2;
+            int half = splittedroleInfo.Length / 2;
             RoleWithInfoBuilder.Clear();
-            RoleWithInfoBuilder.Append("<b>");
-            RoleWithInfoBuilder.Append(role.ToColoredString());
-            RoleWithInfoBuilder.Append(":</b>\r\n");
-            RoleWithInfoBuilder.Append(string.Join(' ', split[..half]));
-            RoleWithInfoBuilder.Append("\r\n");
-            RoleWithInfoBuilder.Append(string.Join(' ', split[half..]));
+            RoleWithInfoBuilder.Append("<b>")
+                .Append(role.ToColoredString())
+                .Append(":</b>\r\n")
+                .Append(string.Join(' ', splittedroleInfo[..half]))
+                .Append("\r\n")
+                .Append(string.Join(' ', splittedroleInfo[half..]));
         }
 
-        FinalTextBuilder.Append(Utils.ColorString(player.GetRoleColor(), RoleWithInfoBuilder.ToString()));
+        FinalTextBuilder.Clear().Append(Utils.ColorString(player.GetRoleColor(), RoleWithInfoBuilder.ToString()));
 
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.Standard:
-            {
-                List<CustomRoles> subRoles = player.GetCustomSubRoles();
-                int countSubRoles = subRoles.Count;
-
-                if (countSubRoles > 0)
                 {
-                    const int max = 3;
-                    FinalTextBuilder.Append("<size=80%>");
-                    
-                    int taken = 0;
-                    
-                    for (int subRoleId = 0; subRoleId < countSubRoles; subRoleId++)
+                    List<CustomRoles> subRoles = player.GetCustomSubRoles();
+                    int countSubRoles = subRoles.Count;
+
+                    if (countSubRoles > 0)
                     {
-                        CustomRoles subRole = subRoles[subRoleId];
-                        if (taken++ >= max) break;
+                        const int max = 3;
+                        FinalTextBuilder.Append("<size=80%>");
 
-                        InnerSb.Append("\r\n\r\n");
-                        InnerSb.Append(subRole.ToColoredString());
-                        InnerSb.Append(":\r\n");
-                        InnerSb.Append(GetString($"{subRole}Info"));
-                        
-                        FinalTextBuilder.Append(Utils.ColorString(Utils.GetRoleColor(subRole), InnerSb.ToString()));
-                    }
-
-                    FinalTextBuilder.Append("</size>");
-
-                    int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-
-                    if (countSubRoles > max)
-                    {
-                        FinalTextBuilder.Append("\r\n<size=80%>....\r\n(");
-                        
-                        bool firstChunk = true;
-
-                        foreach (var group in subRoles.Skip(max).Chunk(chunk))
+                        int limit = countSubRoles < max ? countSubRoles : max;
+                        for (int i = 0; i < limit; i++)
                         {
-                            if (!firstChunk) FinalTextBuilder.Append(",\r\n");
-                            firstChunk = false;
-                            
-                            bool first = true;
+                            var subRole = subRoles[i];
 
-                            foreach (var groupRole in group)
-                            {
-                                if (!first) FinalTextBuilder.Append(", ");
-                                first = false;
-                                FinalTextBuilder.Append(groupRole.ToColoredString());
-                            }
+                            InnerSb.Clear();
+                            InnerSb.Append("\r\n\r\n")
+                                   .Append(subRole.ToColoredString())
+                                   .Append(":\r\n")
+                                   .Append(GetString(subRole.ToString() + "Info"));
+
+                            FinalTextBuilder.Append(Utils.ColorString(Utils.GetRoleColor(subRole), InnerSb.ToString()));
                         }
 
-                        FinalTextBuilder.Append(")</size>");
+                        FinalTextBuilder.Append("</size>");
+
+                        if (countSubRoles > max)
+                        {
+                            var chunk = 4;
+                            for (int index = 0; index < countSubRoles; index++)
+                            {
+                                if (GetString(subRoles[index].ToString()).IndexOf(' ') >= 0)
+                                {
+                                    chunk = 3;
+                                    break;
+                                }
+                            }
+
+                            FinalTextBuilder.Append("\r\n<size=80%>....\r\n(");
+
+                            bool firstChunk = true;
+                            int temp = max;
+                            while (temp < countSubRoles)
+                            {
+                                if (!firstChunk) FinalTextBuilder.Append(",\r\n");
+
+                                firstChunk = false;
+                                int end = temp + chunk;
+                                if (end > countSubRoles) end = countSubRoles;
+                                bool first = true;
+
+                                for (int j = temp; j < end; j++)
+                                {
+                                    if (!first) FinalTextBuilder.Append(", ");
+
+                                    first = false;
+                                    FinalTextBuilder.Append(subRoles[j].ToColoredString());
+                                }
+                                temp = end;
+                            }
+
+                            FinalTextBuilder.Append(")</size>");
+                        }
                     }
-                }
 
-                FinalTextBuilder.Append("\r\n\r\n<size=90%>");
-                FinalTextBuilder.Append(GetString("PressF1ShowMainRoleDes"));
-                break;
-            }
+                    FinalTextBuilder.Append("\r\n\r\n<size=90%>").Append(GetString("PressF1ShowMainRoleDes"));
+                    break;
+                }
             case CustomGameMode.SoloPVP:
-            {
-                PlayerControl lpc = PlayerControl.LocalPlayer;
-
-                FinalTextBuilder.Append("\r\n\r\n");
-                FinalTextBuilder.Append(GetString("PVP.ATK"));
-                FinalTextBuilder.Append(": ");
-                FinalTextBuilder.Append($"{SoloPVP.PlayerATK[lpc.PlayerId]:N1}");
-                FinalTextBuilder.Append("\r\n");
-                FinalTextBuilder.Append(GetString("PVP.DF"));
-                FinalTextBuilder.Append(": ");
-                FinalTextBuilder.Append($"{SoloPVP.PlayerDF[lpc.PlayerId]:N1}");
-                FinalTextBuilder.Append("\r\n");
-                FinalTextBuilder.Append(GetString("PVP.RCO"));
-                FinalTextBuilder.Append(": ");
-                FinalTextBuilder.Append($"{SoloPVP.PlayerHPReco[lpc.PlayerId]:N1}");
-                FinalTextBuilder.Append("\r\n");
-
-                FinalTextBuilder.Append("<size=80%>");
-
-                SortedPlayers.Clear();
-                foreach (var key in Main.PlayerStates.Keys)
-                    SortedPlayers.Add(key);
-
-                SortedPlayers.Sort((a, b) =>
                 {
-                    return SoloPVP.GetRankFromScore(a)
-                        .CompareTo(SoloPVP.GetRankFromScore(b));
-                });
-                for (int sPId = 0; sPId < SortedPlayers.Count; sPId++)
-                {
-                    var pcId = SortedPlayers[sPId];
-                    FinalTextBuilder.Append("\r\n");
-                    FinalTextBuilder.Append(SoloPVP.GetRankFromScore(pcId));
-                    FinalTextBuilder.Append(". ");
-                    FinalTextBuilder.Append(pcId.ColoredPlayerName());
-                    FinalTextBuilder.Append(" - ");
-                    FinalTextBuilder.Append(string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.PlayerScore.GetValueOrDefault(pcId, 0)));
-                }
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
-            case CustomGameMode.FFA:
-            {
-                FinalTextBuilder.Append("<size=80%>");
+                    byte playerId = player.PlayerId;
 
-                SortedPlayers.Clear();
-                foreach (var key in Main.PlayerStates.Keys)
-                    SortedPlayers.Add(key);
+                    FinalTextBuilder.Append("\r\n\r\n")
+                        .Append(GetString("PVP.ATK")).Append(": ").Append(SoloPVP.PlayerATK[playerId].ToString("N1"))
+                        .Append("\r\n")
+                        .Append(GetString("PVP.DF")).Append(": ").Append(SoloPVP.PlayerDF[playerId].ToString("N1"))
+                        .Append("\r\n")
+                        .Append(GetString("PVP.RCO")).Append(": ").Append(SoloPVP.PlayerHPReco[playerId].ToString("N1"))
+                        .Append("\r\n").Append("<size=80%>");
 
-                SortedPlayers.Sort((a, b) =>
-                {
-                    return FreeForAll.GetRankFromScore(a)
-                            .CompareTo(FreeForAll.GetRankFromScore(b));
-                });
-                for (int sPId = 0; sPId < SortedPlayers.Count; sPId++)
-                {
-                    var pcId = SortedPlayers[sPId];
-                    FinalTextBuilder.Append("\r\n");
-                    FinalTextBuilder.Append(FreeForAll.GetRankFromScore(pcId));
-                    FinalTextBuilder.Append(". ");
-                    FinalTextBuilder.Append(pcId.ColoredPlayerName());
-                    FinalTextBuilder.Append(" -");
-                    FinalTextBuilder.Append(string.Format(GetString("KillCount"), FreeForAll.KillCount.GetValueOrDefault(pcId, 0)));
-                }
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
-            case CustomGameMode.StopAndGo:
-            {
-                Dictionary<byte, string> SummaryText3 = [];
+                    SortedPlayers.Clear();
+                    foreach (var key in playerStates.Keys)
+                        SortedPlayers.Add(key);
 
-                foreach (byte id in Main.PlayerStates.Keys)
-                {
-                    string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                    var summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                    if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
+                    if (SortedPlayers.Count >= 2)
+                        SortedPlayers.Sort((a, b) =>
+                        {
+                            return SoloPVP.GetRankFromScore(a)
+                                .CompareTo(SoloPVP.GetRankFromScore(b));
+                        });
 
-                    SummaryText3[id] = summary;
-                }
-
-                List<(int, byte)> list3 = [];
-                foreach (byte id in Main.PlayerStates.Keys) list3.Add((StopAndGo.GetRankFromScore(id), id));
-
-                list3.Sort();
-                list3 = list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive()).ToList();
-
-                int countlist3 = list3.Count;
-                for (int i = 0; i < countlist3; i++)
-                {
-                    var id = list3[i];
-                    if (!SummaryText3.ContainsKey(id.Item2)) continue;
-
-                    var pc = Utils.GetPlayerById(id.Item2);
-                    bool alive = pc.IsAlive();
-
-                    FinalTextBuilder.Append("<size=1.6>\r\n");
-                    if (!alive) FinalTextBuilder.Append("<#777777>");
-
-                    if (alive) FinalTextBuilder.Append(SummaryText3[id.Item2].Replace("<size=2>", "<size=1.6>"));
-                    else FinalTextBuilder.Append(SummaryText3[id.Item2].RemoveHtmlTags());
-
-                    if (!alive)
+                    for (int sPId = 0; sPId < SortedPlayers.Count; sPId++)
                     {
-                        FinalTextBuilder.Append("  <#ff0000>");
-                        FinalTextBuilder.Append(GetString("Dead"));
-                        FinalTextBuilder.Append("</color>");
+                        var pcId = SortedPlayers[sPId];
+                        FinalTextBuilder.Append("\r\n")
+                            .Append(SoloPVP.GetRankFromScore(pcId))
+                            .Append(". ")
+                            .Append(pcId.ColoredPlayerName())
+                            .Append(" - ")
+                            .Append(string.Format(GetString("KillCount").TrimStart(' '), SoloPVP.PlayerScore.GetValueOrDefault(pcId, 0)));
                     }
                     FinalTextBuilder.Append("</size>");
+                    break;
                 }
-                break;
-            }
-            case CustomGameMode.HotPotato:
-            {
-                List<string> summaryText4 = [];
-                summaryText4.AddRange(from pc in Main.EnumeratePlayerControls() let alive = pc.IsAlive() select $"{(!alive ? "<size=90%><#777777>" : "<size=90%>")}{HotPotato.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
-                FinalTextBuilder.Append("\r\n\r\n").Append(string.Join('\n', summaryText4));
-                break;
-            }
-            case CustomGameMode.HideAndSeek:
-            {
-                FinalTextBuilder.Append("\r\n\r\n").Append(CustomHnS.GetTaskBarText());
-                break;
-            }
-            case CustomGameMode.Speedrun:
-            {
-                FinalTextBuilder.Append("\r\n<size=90%>").Append(Speedrun.GetTaskBarText()).Append("</size>");
-                break;
-            }
-            case CustomGameMode.NaturalDisasters:
-            {
-                var ndList = Main.EnumeratePlayerControls()
-                    .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
-                    .OrderByDescending(x => x.alive)
-                    .ThenByDescending(x => x.time);
-                FinalTextBuilder.Append("<size=80%>");
-                foreach (var (pc, alive, time) in ndList)
+            case CustomGameMode.FFA:
                 {
-                    FinalTextBuilder.Append("\r\n");
-                    FinalTextBuilder.Append(pc.PlayerId.ColoredPlayerName());
-                    FinalTextBuilder.Append(" - ");
-                    if (alive) FinalTextBuilder.Append($"<#00ff00>{GetString("Alive")}</color>");
-                    else FinalTextBuilder.Append($"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), time)}");
-                }
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
-            case CustomGameMode.RoomRush:
-            {
-                FinalTextBuilder.Append("<size=80%>");
-                if (!RoomRush.PointsSystem)
-                {
-                    var rrList = Main.EnumeratePlayerControls()
-                        .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
-                        .OrderByDescending(x => x.alive)
-                        .ThenByDescending(x => x.time);
-                    foreach (var (pc, alive, time) in rrList)
+                    FinalTextBuilder.Append("<size=80%>");
+
+                    SortedPlayers.Clear();
+                    foreach (var key in playerStates.Keys)
+                        SortedPlayers.Add(key);
+
+                    if (SortedPlayers.Count >= 2)
+                        SortedPlayers.Sort((a, b) =>
+                        {
+                            return FreeForAll.GetRankFromScore(a)
+                                    .CompareTo(FreeForAll.GetRankFromScore(b));
+                        });
+
+                    for (int sPId = 0; sPId < SortedPlayers.Count; sPId++)
                     {
-                        FinalTextBuilder.Append("\r\n");
-                        FinalTextBuilder.Append(pc.PlayerId.ColoredPlayerName());
-                        FinalTextBuilder.Append(" - ");
+                        var pcId = SortedPlayers[sPId];
+                        FinalTextBuilder.Append("\r\n")
+                            .Append(FreeForAll.GetRankFromScore(pcId))
+                            .Append(". ")
+                            .Append(pcId.ColoredPlayerName())
+                            .Append(" -")
+                            .Append(string.Format(GetString("KillCount"), FreeForAll.KillCount.GetValueOrDefault(pcId, 0)));
+                    }
+                    FinalTextBuilder.Append("</size>");
+                    break;
+                }
+            case CustomGameMode.StopAndGo:
+                {
+                    SummaryText.Clear();
+                    var playerNames = Main.AllPlayerNames;
+                    var playerColors = Main.PlayerColors;
+
+                    foreach (var id in playerStates.Keys)
+                    {
+                        string progress = Utils.GetProgressText(id);
+                        if (string.IsNullOrWhiteSpace(progress)) continue;
+
+                        string name = playerNames[id];
+                        name = name.RemoveHtmlTags().Replace("\r\n", string.Empty);
+
+                        SummaryText[id] = progress + "  " + Utils.ColorString(playerColors[id], name);
+                    }
+
+                    TempList.Clear();
+                    foreach (byte id in playerStates.Keys) TempList.Add((StopAndGo.GetRankFromScore(id), id));
+
+                    if (TempList.Count >= 2)
+                        TempList.Sort((a, b) =>
+                        {
+                            bool aAlive = Utils.GetPlayerById(a.Item2).IsAlive();
+                            bool bAlive = Utils.GetPlayerById(b.Item2).IsAlive();
+
+                            if (aAlive != bAlive) return bAlive.CompareTo(aAlive);
+                            return a.Item1.CompareTo(b.Item1);
+                        });
+
+                    int count = TempList.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        var entry = TempList[i];
+                        byte id = entry.Item2;
+
+                        if (!SummaryText.TryGetValue(id, out var summary))continue;
+
+                        var SAGplayer = Utils.GetPlayerById(id);
+                        bool alive = SAGplayer.IsAlive();
+
+                        if (alive)
+                        {
+                            FinalTextBuilder.Append("<size=1.6>\r\n")
+                                .Append(summary.Replace("<size=2>", "<size=1.6>"))
+                                .Append("</size>");
+                        }
+                        else
+                        {
+                            FinalTextBuilder.Append("<#777777><size=1.6>\r\n")
+                                .Append(summary.RemoveHtmlTags())
+                                .Append("  <#ff0000>")
+                                .Append(GetString("Dead"))
+                                .Append("</color></size>");
+                        }
+                    }
+
+                    break;
+                }
+            case CustomGameMode.HotPotato:
+                {
+                    SummaryTextList.Clear();
+                    foreach (var pc in AllPlayers)
+                    {
+                        bool alive = pc.IsAlive();
+
+                        if (alive)
+                        {
+                            SummaryTextList.Add("<size=90%>" +
+                                HotPotato.GetIndicator(pc.PlayerId) +
+                                pc.PlayerId.ColoredPlayerName() +
+                                "</size>");
+                        }
+                        else
+                        {
+                            SummaryTextList.Add("<size=90%><#777777>" +
+                                HotPotato.GetIndicator(pc.PlayerId) +
+                                pc.PlayerId.ColoredPlayerName() +
+                                "</color>  <#ff0000>" +
+                                GetString("Dead") +
+                                "</color></size>");
+                        }
+                    }
+
+                    FinalTextBuilder.Append("\r\n\r\n");
+
+                    int count = SummaryTextList.Count;
+                    for (int index = 0; index < count; index++)
+                    {
+                        if (index > 0) FinalTextBuilder.Append('\n');
+                        FinalTextBuilder.Append(SummaryTextList[index]);
+                    }
+                    break;
+                }
+            case CustomGameMode.HideAndSeek:
+                {
+                    FinalTextBuilder.Append("\r\n\r\n").Append(CustomHnS.GetTaskBarText());
+                    break;
+                }
+            case CustomGameMode.Speedrun:
+                {
+                    FinalTextBuilder.Append("\r\n<size=90%>").Append(Speedrun.GetTaskBarText()).Append("</size>");
+                    break;
+                }
+            case CustomGameMode.NaturalDisasters:
+                {
+                    TempPlayerData.Clear();
+                    for (int i = 0; i < AllPlayers.Count; i++)
+                    {
+                        var pc = AllPlayers[i];
+                        TempPlayerData.Add((pc, pc.IsAlive(), NaturalDisasters.SurvivalTime(pc.PlayerId)));
+                    }
+                    if (TempPlayerData.Count >= 2)
+                        TempPlayerData.Sort((a, b) =>
+                        {
+                            if (a.alive != b.alive)
+                                return b.alive.CompareTo(a.alive);
+
+                            return b.time.CompareTo(a.time);
+                        });
+
+                    FinalTextBuilder.Append("<size=80%>");
+
+                    for (int i = 0; i < TempPlayerData.Count; i++)
+                    {
+                        var (pc, alive, time) = TempPlayerData[i];
+
+                        FinalTextBuilder.Append("\r\n")
+                            .Append(pc.PlayerId.ColoredPlayerName())
+                            .Append(" - ");
                         if (alive) FinalTextBuilder.Append($"<#00ff00>{GetString("Alive")}</color>");
                         else FinalTextBuilder.Append($"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), time)}");
                     }
+                    FinalTextBuilder.Append("</size>");
+                    break;
                 }
-                else
+            case CustomGameMode.RoomRush:
                 {
-                    var rrPoints = Main.EnumeratePlayerControls()
-                        .Select(x => (pc: x, points_string: RoomRush.GetPoints(x.PlayerId), points_int: int.TryParse(RoomRush.GetPoints(x.PlayerId).Split('/')[0], out int points) ? points : 0))
-                        .OrderByDescending(x => x.points_int);
-                    foreach (var (pc, points_string, points_int) in rrPoints)
+                    FinalTextBuilder.Append("<size=80%>");
+                    TempPlayerData.Clear();
+                    TempPointsData.Clear();
+
+                    if (!RoomRush.PointsSystem)
                     {
-                        FinalTextBuilder.Append("\r\n");
-                        FinalTextBuilder.Append(pc.PlayerId.ColoredPlayerName());
-                        FinalTextBuilder.Append(" - ");
-                        FinalTextBuilder.Append(points_string);
+                        for (int i = 0; i < AllPlayers.Count; i++)
+                        {
+                            var pc = AllPlayers[i];
+                            TempPlayerData.Add((pc, pc.IsAlive(), RoomRush.GetSurvivalTime(pc.PlayerId)));
+                        }
+                        if (TempPlayerData.Count >= 2)
+                            TempPlayerData.Sort((a, b) =>
+                            {
+                                if (a.alive != b.alive)
+                                    return b.alive.CompareTo(a.alive);
+
+                                return b.time.CompareTo(a.time);
+                            });
+
+                        for (int i = 0; i < TempPlayerData.Count; i++)
+                        {
+                            var (pc, alive, time) = TempPlayerData[i];
+
+                            FinalTextBuilder.Append("\r\n")
+                                .Append(pc.PlayerId.ColoredPlayerName())
+                                .Append(" - ");
+                            if (alive) FinalTextBuilder.Append("<#00ff00>").Append(GetString("Alive")).Append("</color>");
+                            else FinalTextBuilder.Append(GetString("Dead")).Append(": ").Append(string.Format(GetString("SurvivalTime"), time));
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < AllPlayers.Count; i++)
+                        {
+                            var pc = AllPlayers[i];
+
+                            string pointsStr = RoomRush.GetPoints(pc.PlayerId);
+                            int pointsInt = ParsePointsFast(pointsStr);
+
+                            TempPointsData.Add((pc, pointsStr, pointsInt));
+                        }
+                        if (TempPointsData.Count >= 2) TempPointsData.Sort((a, b) => b.points_int.CompareTo(a.points_int));
+
+                        for (int i = 0; i < TempPointsData.Count; i++)
+                        {
+                            var (pc, points_string, points_int) = TempPointsData[i];
+
+                            FinalTextBuilder.Append("\r\n")
+                                .Append(pc.PlayerId.ColoredPlayerName())
+                                .Append(" - ")
+                                .Append(points_string);
+                        }
+                    }
+
+                    FinalTextBuilder.Append("</size>");
+                    break;
+
+                    static int ParsePointsFast(string s)
+                    {
+                        int slash = s.IndexOf('/');
+                        if (slash <= 0) return 0;
+
+                        int val = 0;
+                        for (int i = 0; i < slash; i++)
+                        {
+                            char c = s[i];
+                            if ((uint)(c - '0') > 9) break;
+                            val = val * 10 + (c - '0');
+                        }
+                        return val;
                     }
                 }
-
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
             case CustomGameMode.Quiz when AmongUsClient.Instance.AmHost:
-            {
-                FinalTextBuilder.Append("\r\n\r\n<size=70%>");
-                FinalTextBuilder.Append(Quiz.GetTaskBarText());
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
+                {
+                    FinalTextBuilder.Append("\r\n\r\n<size=70%>")
+                        .Append(Quiz.GetTaskBarText())
+                        .Append("</size>");
+                    break;
+                }
             case CustomGameMode.TheMindGame when AmongUsClient.Instance.AmHost:
-            {
-                FinalTextBuilder.Append("\r\n\r\n\r\n<size=70%>");
-                FinalTextBuilder.Append(TheMindGame.GetTaskBarText());
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
+                {
+                    FinalTextBuilder.Append("\r\n\r\n\r\n<size=70%>")
+                        .Append(TheMindGame.GetTaskBarText())
+                        .Append("</size>");
+                    break;
+                }
             case CustomGameMode.BedWars when AmongUsClient.Instance.AmHost:
-            {
-                FinalTextBuilder.Append("\r\n\r\n<size=80%>");
-                FinalTextBuilder.Append(BedWars.GetHudText());
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
+                {
+                    FinalTextBuilder.Append("\r\n\r\n<size=80%>")
+                        .Append(BedWars.GetHudText())
+                        .Append("</size>");
+                    break;
+                }
             case CustomGameMode.Deathrace:
-            {
-                FinalTextBuilder.Append("\r\n\r\n<size=80%>");
-                FinalTextBuilder.Append(Deathrace.GetTaskBarText());
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
+                {
+                    FinalTextBuilder.Append("\r\n\r\n<size=80%>")
+                        .Append(Deathrace.GetTaskBarText())
+                        .Append("</size>");
+                    break;
+                }
             case CustomGameMode.Mingle:
-            {
-                FinalTextBuilder.Append("\r\n\r\n<size=80%>");
-                FinalTextBuilder.Append(Mingle.GetTaskBarText());
-                FinalTextBuilder.Append("</size>");
-                break;
-            }
+                {
+                    FinalTextBuilder.Append("\r\n\r\n<size=80%>")
+                        .Append(Mingle.GetTaskBarText())
+                        .Append("</size>");
+                    break;
+                }
         }
-        
+
         panel.SetTaskText(FinalTextBuilder.ToString());
     }
 
