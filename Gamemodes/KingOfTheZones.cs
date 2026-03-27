@@ -82,6 +82,7 @@ public static class KingOfTheZones
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
     public static Dictionary<byte, long> RespawnTimes = [];
     private static Dictionary<byte, long> SpawnProtectionTimes = [];
+    private static Dictionary<byte, int> PlayerPoints = [];
     private static Dictionary<KOTZTeam, int> Points = [];
     private static Dictionary<SystemTypes, KOTZTeam> ZoneDomination = [];
     private static Dictionary<SystemTypes, long> ZoneMoveSchedules = [];
@@ -249,6 +250,7 @@ public static class KingOfTheZones
 
         KOTZTeam[] teams = Enum.GetValues<KOTZTeam>();
         Points = teams.ToDictionary(x => x, _ => 0);
+        PlayerPoints = Main.PlayerStates.Keys.ToDictionary(x => x, _ => 0);
         ZoneDomination = Zones.ToDictionary(x => x, _ => KOTZTeam.None);
         ZoneMoveSchedules = [];
         ZoneDowntimeExpire = [];
@@ -591,13 +593,13 @@ public static class KingOfTheZones
 
     public static string GetStatistics(byte id)
     {
-        return string.Format(GetString("KOTZ.EndScreen.Statistics"), GetZoneTime(id));
+        return string.Format(GetString("KOTZ.EndScreen.Statistics"), PlayerPoints.TryGetValue(id, out int points) ? points : 0);
     }
 
     public static int GetZoneTime(byte id)
     {
-        try { return Points[PlayerTeams[id]]; }
-        catch { return 0; }
+        if (!PlayerPoints.TryGetValue(id, out int points)) return 0;
+        return points;
     }
 
     public static bool CheckForGameEnd(out GameOverReason reason)
@@ -897,7 +899,17 @@ public static class KingOfTheZones
                     foreach (KOTZTeam team in ZoneDomination.Values)
                     {
                         if (team != KOTZTeam.None)
+                        {
                             Points[team]++;
+                            
+                            foreach ((byte playerId, KOTZTeam playerTeam) in PlayerTeams)
+                            {
+                                if (playerTeam != team || RespawnTimes.ContainsKey(playerId)) continue;
+                                if (!Main.PlayerStates.TryGetValue(playerId, out PlayerState state) || state.IsDead) continue;
+
+                                PlayerPoints[playerId]++;
+                            }
+                        }
                     }
 
                     Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
