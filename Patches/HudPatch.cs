@@ -804,7 +804,7 @@ internal static class MapBehaviourShowPatch
 
         PlayerControl player = PlayerControl.LocalPlayer;
 
-        if (player.GetCustomRole() == CustomRoles.Hacker && Hacker.PlayerIdList.ContainsKey(player.PlayerId))
+        if (player.GetCustomRole() == CustomRoles.Hacker && opts.Mode is not MapOptions.Modes.CountOverlay && Hacker.PlayerIdList.ContainsKey(player.PlayerId))
         {
             Logger.Info("Modded Client uses Map", "Hacker");
             Hacker.MapHandle(player, __instance, opts);
