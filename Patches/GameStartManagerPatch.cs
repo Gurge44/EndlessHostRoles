@@ -7,7 +7,6 @@ using EHR.Gamemodes;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
-using Hazel;
 using InnerNet;
 using TMPro;
 using UnityEngine;
@@ -235,6 +234,9 @@ public static class GameStartManagerPatch
             GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
             GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
             __instance?.StartButton.gameObject.SetActive(false);
+            
+            if (HudManager.InstanceExists)
+                HudManager.Instance.Dialogue.Hide();
         }
 
         private static void VanillaUpdate(GameStartManager instance)
