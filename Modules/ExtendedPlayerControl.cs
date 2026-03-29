@@ -96,7 +96,14 @@ internal static class ExtendedPlayerControl
         if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         if (player.Is(CustomRoles.Blocked) && closestVentId != ventId) return false;
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || Main.Invisible.Contains(player.PlayerId)) return false;
-        return (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
+        if (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer)
+        {
+            foreach (var state in Main.PlayerStates.Values)
+                if (!state.Role.CanUseVent(player, ventId)) return false;
+
+            return true;
+        }
+        return false;
     }
 
     // Next 2: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs

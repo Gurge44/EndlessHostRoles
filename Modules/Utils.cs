@@ -236,7 +236,13 @@ public static class Utils
 
     public static bool IsAnySabotageActive()
     {
-        return CustomSabotage.Instances.Count > 0 || Main.AllSabotage.Any(IsActive);
+        if (CustomSabotage.Instances.Count > 0) return true;
+
+        for (int index = 0; index < ShipStatusSystem.AllSabotage.Length; index++)
+            if (IsActive(ShipStatusSystem.AllSabotage[index])) 
+                return true;
+
+        return false;
     }
 
     public static bool IsActive(SystemTypes type)
@@ -244,55 +250,53 @@ public static class Utils
         try
         {
             //if (GameStates.IsLobby || !Main.IntroDestroyed || !ShipStatus.Instance || !Main.SabotageIsActive.TryGetValue(type, out bool isActive)) return false;
-
             //return isActive;
 
             if (GameStates.IsLobby || !Main.IntroDestroyed || !ShipStatus.Instance) return false;
 
             int mapId = Main.NormalOptions.MapId;
-
             switch (type)
             {
                 case SystemTypes.Electrical:
                     {
                         if (mapId == 5) return false;
-                        return SabotageSystem.SwitchSystem.IsActive;
+                        return ShipStatusSystem.SwitchSystem.IsActive;
                     }
                 case SystemTypes.Reactor:
                     {
                         return mapId switch
                         {
                             2 => false,
-                            4 => SabotageSystem.HeliSabotageSystem.IsActive,
-                            _ => SabotageSystem.ReactorSystemType.IsActive
+                            4 => ShipStatusSystem.HeliSabotageSystem.IsActive,
+                            _ => ShipStatusSystem.ReactorSystemType.IsActive
                         };
                     }
                 case SystemTypes.Laboratory:
                     {
                         if (mapId != 2) return false;
-                        return SabotageSystem.ReactorSystemType.IsActive;
+                        return ShipStatusSystem.ReactorSystemType.IsActive;
                     }
                 case SystemTypes.LifeSupp:
                     {
                         if (mapId is 2 or 4 or 5) return false;
-                        return SabotageSystem.LifeSuppSystemType.IsActive;
+                        return ShipStatusSystem.LifeSuppSystemType.IsActive;
                     }
                 case SystemTypes.Comms:
                     {
                         if (mapId is 1 or 5)
-                            return SabotageSystem.HqHudSystemType.IsActive;
+                            return ShipStatusSystem.HqHudSystemType.IsActive;
 
-                        return SabotageSystem.HudOverrideSystemType.IsActive;
+                        return ShipStatusSystem.HudOverrideSystemType.IsActive;
                     }
                 case SystemTypes.HeliSabotage:
                     {
                         if (mapId != 4) return false;
-                        return SabotageSystem.HeliSabotageSystem.IsActive;
+                        return ShipStatusSystem.HeliSabotageSystem.IsActive;
                     }
                 case SystemTypes.MushroomMixupSabotage:
                     {
                         if (mapId != 5) return false;
-                        return SabotageSystem.MushroomMixupSabotageSystem.IsActive;
+                        return ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
                     }
                 default:
                     return false;
@@ -768,7 +772,7 @@ public static class Utils
 
     public static void SetAllVentInteractions()
     {
-        var ventilationSystem = ShipStatus.Instance.Systems[SystemTypes.Ventilation].CastFast<VentilationSystem>();
+        var ventilationSystem = ShipStatusSystem.VentilationSystem;
         if (ventilationSystem != null) VentilationSystemDeterioratePatch.SerializeV2(ventilationSystem);
     }
 

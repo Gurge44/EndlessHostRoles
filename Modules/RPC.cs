@@ -1495,7 +1495,7 @@ internal static class RPC
         var deathReason = (PlayerState.DeathReason)reader.ReadInt32();
         PlayerState state = Main.PlayerStates[playerId];
         state.deathReason = deathReason;
-        state.IsDead = true; /*reader.ReadByte();*/
+        state.IsDead = reader.ReadBoolean();
 
         Main.ForceRebuildCachesPlayerControls();
     }

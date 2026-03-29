@@ -43,7 +43,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.3.5";
     public const string PluginDisplayVersion = "7.3.5";
-    public const string Temp = "Optimization Test V3";
+    public const string Temp = "Optimization Test V4";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -137,18 +137,6 @@ public class Main : BasePlugin
         [CustomGameMode.CaptureTheFlag] = [],
         [CustomGameMode.NaturalDisasters] = [],
         [CustomGameMode.Snowdown] = []
-    };
-
-    public static readonly SystemTypes[] AllSabotage = [SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast];
-    public static readonly Dictionary<SystemTypes, bool> SabotageIsActive = new()
-    {
-        { SystemTypes.Electrical, false },
-        { SystemTypes.Reactor, false },
-        { SystemTypes.Laboratory, false },
-        { SystemTypes.LifeSupp, false },
-        { SystemTypes.Comms, false },
-        { SystemTypes.HeliSabotage, false },
-        { SystemTypes.MushroomMixupSabotage, false }
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];

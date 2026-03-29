@@ -120,7 +120,7 @@ public class Mechanic : RoleBase
         switch (activeSystem)
         {
             case SystemTypes.Electrical:
-                var switchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].CastFast<SwitchSystem>();
+                var switchSystem = ShipStatusSystem.SwitchSystem;
                 if (switchSystem == null) break;
                 switchSystem.ActualSwitches = switchSystem.ExpectedSwitches;
                 switchSystem.IsDirty = true;

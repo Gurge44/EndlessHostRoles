@@ -1454,7 +1454,7 @@ internal static class GameEndChecker
             LifeSuppSystemType lifeSupp;
 
             if (systems.ContainsKey(SystemTypes.LifeSupp) && // Confirmation of sabotage existence
-                (lifeSupp = systems[SystemTypes.LifeSupp].CastFast<LifeSuppSystemType>()) != null && // Confirmation that cast is possible
+                (lifeSupp = ShipStatusSystem.LifeSuppSystemType) != null && // Confirmation that cast is possible
                 lifeSupp.Countdown <= 0f) // Time up confirmation
             {
                 // oxygen sabotage
@@ -1476,7 +1476,7 @@ internal static class GameEndChecker
             ICriticalSabotage critical;
 
             if (sys != null && // Confirmation of sabotage existence
-                (critical = sys.CastFast<ICriticalSabotage>()) != null && // Confirmation that cast is possible
+                (critical = ShipStatusSystem.ICriticalSabotage) != null && // Confirmation that cast is exists
                 critical.Countdown <= 0f) // Time up confirmation
             {
                 // reactor sabotage
