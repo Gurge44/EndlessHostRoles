@@ -185,7 +185,7 @@ public class Farmer : RoleBase
         if (seer.PlayerId != FarmerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
         StringBuilder sb = new();
-        sb.AppendLine(Seeds.Count > 0 ? string.Format(Translator.GetString("Farmer.SelectedSeed"), Main.RoleColors[CustomRoles.Farmer], $"<#{GetHexColor(Seeds[0])}>{Translator.GetString($"Farmer.Seed.{Seeds[0]}")}</color>") : string.Format(Translator.GetString("Farmer.CompleteTaskToGetSeed"), Main.RoleColors[CustomRoles.Farmer]));
+        sb.AppendLine(Seeds.Count > 0 ? string.Format(Translator.GetString("Farmer.SelectedSeed"), Utils.GetRoleColorCode(CustomRoles.Farmer), $"<#{GetHexColor(Seeds[0])}>{Translator.GetString($"Farmer.Seed.{Seeds[0]}")}</color>") : string.Format(Translator.GetString("Farmer.CompleteTaskToGetSeed"), Utils.GetRoleColorCode(CustomRoles.Farmer)));
         if (Seeds.Count > 1) sb.AppendLine(string.Format(Translator.GetString("Farmer.MoreSeeds"), Seeds.Count - 1));
         sb.Append(LocateArrow.GetArrows(seer));
         return sb.ToString().Trim();

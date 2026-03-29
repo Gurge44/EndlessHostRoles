@@ -964,8 +964,9 @@ public static class Options
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
-            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => !x.IsAdditionRole() && x.IsCrewmate() && !x.IsForOtherGameMode()).ToList();
-            toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
+            List<CustomRoles> toChange = Main.RoleHtmlColors.Keys.Where(x => !x.IsAdditionRole() && x.IsCrewmate() && !x.IsForOtherGameMode()).ToList();
+            toChange.ForEach(x => Main.RoleHtmlColors[x] = "#8cffff");
+            Main.InitRoleColors();
         }
 
         CompileAutoGMRotationSettings();

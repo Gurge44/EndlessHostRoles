@@ -43,7 +43,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.3.5";
     public const string PluginDisplayVersion = "7.3.5";
-    public const string Temp = "Optimization Test V2";
+    public const string Temp = "Optimization Test V3";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -82,7 +82,8 @@ public class Main : BasePlugin
     public static Dictionary<(byte, byte), string> LastNotifyNames = [];
     public static Dictionary<byte, Color32> PlayerColors = [];
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
-    public static Dictionary<CustomRoles, string> RoleColors;
+    public static Dictionary<CustomRoles, string> RoleHtmlColors = [];
+    public static readonly Dictionary<CustomRoles, Color> RoleColors = [];
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> AlwaysSpawnTogetherCombos = [];
@@ -415,7 +416,7 @@ public class Main : BasePlugin
 
         try
         {
-            RoleColors = new()
+            RoleHtmlColors = new()
             {
                 // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
@@ -859,8 +860,10 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
-            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
+            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleHtmlColors.TryAdd(x, ImpostorColor));
+            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleHtmlColors.TryAdd(x, CovenColor));
+
+            InitRoleColors();
         }
         catch (ArgumentException ex)
         {
@@ -970,7 +973,7 @@ public class Main : BasePlugin
 
     private static void HandleRoleColorFiles()
     {
-        string serialized = JsonSerializer.Serialize(RoleColors, new JsonSerializerOptions { WriteIndented = true });
+        string serialized = JsonSerializer.Serialize(RoleHtmlColors, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
 
         if (!Directory.Exists($"{DataPath}/EHR_DATA"))
@@ -986,12 +989,22 @@ public class Main : BasePlugin
                 string json = File.ReadAllText(path);
                 if (string.IsNullOrWhiteSpace(json) || json == serialized || json.Length < serialized.Length) return;
                 var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                RoleColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
+                RoleHtmlColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
+                InitRoleColors();
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
     }
-
+    public static void InitRoleColors()
+    {
+        RoleColors.Clear();
+        foreach (var kvp in RoleHtmlColors)
+        {
+            var (role, hexColor) = kvp;
+            if (ColorUtility.TryParseHtmlString(hexColor, out Color color))
+                RoleColors[role] = color;
+        }
+    }
     public static void LoadRoleClasses()
     {
         AllRoleClasses = [];

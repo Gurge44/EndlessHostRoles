@@ -110,7 +110,7 @@ internal static class HudManagerPatch
                         PlayerControl pc = Utils.GetPlayerById(id);
                         Sb.Clear();
                         Sb.Append(first ? string.Empty : "\n");
-                        Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(Role, "#ffffff")}>{GetString(Role.ToString())}</color>");
+                        Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Utils.GetRoleColorCode(Role)}>{GetString(Role.ToString())}</color>");
                         ResultText[id] = Sb.ToString();
                         first = false;
                     }
@@ -131,13 +131,13 @@ internal static class HudManagerPatch
 
                             if (ResultText.ContainsKey(id))
                             {
-                                Sb.Append($" <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
+                                Sb.Append($" <#ffffff>(</color><color={Utils.GetRoleColorCode(role)}>{GetString(role.ToString())}</color><#ffffff>)</color>");
                                 ResultText[id] += Sb.ToString();
                             }
                             else
                             {
                                 Sb.Append(first ? string.Empty : "\n");
-                                Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>");
+                                Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Utils.GetRoleColorCode(role)}>{GetString(role.ToString())}</color><#ffffff>)</color>");
                                 ResultText[id] = Sb.ToString();
                                 first = false;
                             }
@@ -1141,35 +1141,59 @@ internal static class TaskPanelBehaviourPatch
             .Append(":</b>\r\n")
             .Append(roleInfo);
 
-        string[] splittedroleInfo = roleInfo.Split(' ');
+        int wordCount = 0;
+        int thirdSpaceIndex = -1;
+        for (int i = 0; i < roleInfo.Length; i++)
+        {
+            if (roleInfo[i] == ' ')
+            {
+                wordCount++;
+                if (wordCount == 3) thirdSpaceIndex = i;
+            }
+        }
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            RoleWithInfoBuilder.Clear();
-            RoleWithInfoBuilder.Append("<b>")
+            RoleWithInfoBuilder.Clear().Append("<b>")
                 .Append(GetString(Options.CurrentGameMode.ToString()))
                 .Append(":</b>\r\n");
 
-            if (splittedroleInfo.Length <= 3)
+            if (wordCount <= 3 || thirdSpaceIndex == -1)
             {
                 RoleWithInfoBuilder.Append(roleInfo);
             }
             else
             {
-                RoleWithInfoBuilder.Append(string.Join(' ', splittedroleInfo[..3]))
+                RoleWithInfoBuilder.Append(roleInfo, 0, thirdSpaceIndex)
                     .Append("\r\n")
-                    .Append(string.Join(' ', splittedroleInfo[3..]));
+                    .Append(roleInfo, thirdSpaceIndex + 1, roleInfo.Length - thirdSpaceIndex - 1);
             }
         }
         else if (roleInfo.RemoveHtmlTags().Length > 35)
         {
-            int half = splittedroleInfo.Length / 2;
-            RoleWithInfoBuilder.Clear();
-            RoleWithInfoBuilder.Append("<b>")
-                .Append(role.ToColoredString())
-                .Append(":</b>\r\n")
-                .Append(string.Join(' ', splittedroleInfo[..half]))
-                .Append("\r\n")
-                .Append(string.Join(' ', splittedroleInfo[half..]));
+            int halfWords = wordCount / 2;
+            int currentWords = 0;
+            int splitIndex = -1;
+            for (int i = 0; i < roleInfo.Length; i++)
+            {
+                if (roleInfo[i] == ' ')
+                {
+                    currentWords++;
+                    if (currentWords == halfWords)
+                    {
+                        splitIndex = i;
+                        break;
+                    }
+                }
+            }
+            if (splitIndex != -1)
+            {
+                RoleWithInfoBuilder.Clear().Append("<b>")
+                    .Append(role.ToColoredString())
+                    .Append(":</b>\r\n")
+                    .Append(roleInfo, 0, splitIndex)
+                    .Append("\r\n")
+                    .Append(roleInfo, splitIndex + 1, roleInfo.Length - splitIndex - 1);
+            }
         }
 
         FinalTextBuilder.Clear().Append(Utils.ColorString(player.GetRoleColor(), RoleWithInfoBuilder.ToString()));
@@ -1191,8 +1215,7 @@ internal static class TaskPanelBehaviourPatch
                         {
                             var subRole = subRoles[i];
 
-                            InnerSb.Clear();
-                            InnerSb.Append("\r\n\r\n")
+                            InnerSb.Clear().Append("\r\n\r\n")
                                    .Append(subRole.ToColoredString())
                                    .Append(":\r\n")
                                    .Append(GetString(subRole.ToString() + "Info"));
@@ -1223,9 +1246,9 @@ internal static class TaskPanelBehaviourPatch
                                 if (!firstChunk) FinalTextBuilder.Append(",\r\n");
 
                                 firstChunk = false;
+                                bool first = true;
                                 int end = temp + chunk;
                                 if (end > countSubRoles) end = countSubRoles;
-                                bool first = true;
 
                                 for (int j = temp; j < end; j++)
                                 {
@@ -1344,7 +1367,7 @@ internal static class TaskPanelBehaviourPatch
                         var entry = TempList[i];
                         byte id = entry.Item2;
 
-                        if (!SummaryText.TryGetValue(id, out var summary))continue;
+                        if (!SummaryText.TryGetValue(id, out var summary)) continue;
 
                         var SAGplayer = Utils.GetPlayerById(id);
                         bool alive = SAGplayer.IsAlive();

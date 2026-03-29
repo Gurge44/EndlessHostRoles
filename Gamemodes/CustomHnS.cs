@@ -289,15 +289,15 @@ internal static class CustomHnS
 
         if (PlayersSeeRoles.GetBool())
         {
-            color = Main.RoleColors[targetRole.Role];
-            if (targetRole.Role == CustomRoles.Agent) color = Main.RoleColors[CustomRoles.Hider];
+            color = Utils.GetRoleColorCode(targetRole.Role);
+            if (targetRole.Role == CustomRoles.Agent) color = Utils.GetRoleColorCode(CustomRoles.Hider);
 
             return true;
         }
 
         if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
         {
-            color = Main.RoleColors[CustomRoles.Seeker];
+            color = Utils.GetRoleColorCode(CustomRoles.Seeker);
             return true;
         }
 
@@ -371,7 +371,7 @@ internal static class CustomHnS
             Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
         }
 
-        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
+        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Utils.GetRoleColorCode(CustomRoles.Hider)}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
 
         int minutes = TimeLeft / 60;
         int seconds = TimeLeft % 60;

@@ -469,13 +469,6 @@ public static class Utils
         mode = mode.Replace("color=", string.Empty);
         return parentheses ? $"({mode})" : mode;
     }
-
-    public static Color GetRoleColor(CustomRoles role)
-    {
-        string hexColor = Main.RoleColors.GetValueOrDefault(role, "#ffffff");
-        _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
-        return c;
-    }
     public static Color GetTabColor(this TabGroup tab)
     {
         return tab switch
@@ -494,11 +487,14 @@ public static class Utils
         };
     }
 
-    public static string GetRoleColorCode(CustomRoles role)
+    public static string GetRoleColorCode(CustomRoles role, string defaultHtml = "#ffffff")
     {
-        return Main.RoleColors.GetValueOrDefault(role, "#ffffff");
+        return Main.RoleHtmlColors.GetValueOrDefault(role, defaultHtml);
     }
-
+    public static Color GetRoleColor(CustomRoles role)
+    {
+        return Main.RoleColors.GetValueOrDefault(role, Color.white);
+    }
     public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
         PlayerState seerState = Main.PlayerStates[seerId];
@@ -4650,10 +4646,33 @@ public static class Utils
         return sb.ToString();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string RemoveHtmlTags(this string str)
     {
         if (string.IsNullOrEmpty(str)) return string.Empty;
-        return /*Il2CppSystem.Text.RegularExpressions.*/Regex.Replace(str, "<[^>]*?>", string.Empty);
+        if (str.IndexOf('<') == -1) return str;
+
+        int len = str.Length;
+        char[] buffer = new char[len];
+        int idx = 0;
+        bool insideTag = false;
+
+        for (int i = 0; i < len; i++)
+        {
+            char c = str[i];
+            if (c == '<')
+            {
+                insideTag = true;
+                continue;
+            }
+            if (c == '>')
+            {
+                insideTag = false;
+                continue;
+            }
+            if (!insideTag) buffer[idx++] = c;
+        }
+        return idx == len ? str : new string(buffer, 0, idx);
     }
 
     public static void FlashColor(Color color, float duration = 1f)
@@ -4712,9 +4731,15 @@ public static class Utils
         return null;
     }
 
+    private static readonly Dictionary<Color32, string> ColorPrefixCache = [];
     public static string ColorString(Color32 color, string str)
     {
-        return $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>{str}</color>";
+        if (!ColorPrefixCache.TryGetValue(color, out var prefix))
+        {
+            prefix = $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>";
+            ColorPrefixCache[color] = prefix;
+        }
+        return prefix + str + "</color>";
     }
 
     /// <summary>

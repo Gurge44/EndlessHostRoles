@@ -96,7 +96,7 @@ internal static class ControllerManagerUpdatePatch
 
             if (KeysDown(ResolutionManagerKey)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
 
-            if (inGame && (GameStates.IsCanMove || GameStates.IsMeeting))
+            if (inGame && (GameStates.IsCanMove || isMeeting))
             {
                 // PS4/PS5: Touchpad
                 if (Input.GetKeyDown(KeyCode.JoystickButton13))
@@ -164,33 +164,7 @@ internal static class ControllerManagerUpdatePatch
 
                 if (KeysDown(StartAndStopMeetingHudKey))
                 {
-                    if (GameStates.IsMeeting)
-                    {
-                        MeetingHudRpcClosePatch.AllowClose = true;
-                        MeetingHud.Instance.RpcClose();
-                    }
-                    else
-                        PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
-                }
-
-                if (KeysDown(HostKillSelfKey))
-                {
-                    PlayerControl.LocalPlayer.Data.IsDead = true;
-                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
-                    PlayerControl.LocalPlayer.RpcExileV2();
-                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
-                    Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, GameStates.IsMeeting);
-                    Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
-                }
-            }
-            if (inGame)
-            {
-                if (KeysDown(SetChatVisibleForAllKey))
-                    Utils.SetChatVisibleForAll();
-
-                if (KeysDown(StartAndStopMeetingHudKey))
-                {
-                    if (GameStates.IsMeeting)
+                    if (isMeeting)
                     {
                         MeetingHudRpcClosePatch.AllowClose = true;
                         MeetingHud.Instance.RpcClose();
@@ -209,7 +183,7 @@ internal static class ControllerManagerUpdatePatch
                     Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
                 }
             }
-            if (isLobby)
+            else if (isLobby)
             {
                 if (GameStates.IsCountDown && !chatIsOpen)
                 {

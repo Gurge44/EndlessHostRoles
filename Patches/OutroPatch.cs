@@ -777,7 +777,7 @@ internal static class SetEverythingUpPatch
 
                         CustomRoles role = Main.PlayerStates[id].MainRole;
 
-                        string color = Main.RoleColors[role];
+                        string color = Utils.GetRoleColorCode(role);
                         string rolename = Utils.GetRoleName(role);
 
                         poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";

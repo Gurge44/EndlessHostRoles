@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 
 namespace EHR;
 
@@ -17,6 +17,7 @@ public static class Translator
     private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
     public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
     public static readonly StringNames[] AllStringNames = Enum.GetValues<StringNames>();
+    private static readonly Dictionary<string, StringNames> CachedStringName = [];
 
     public static void Init()
     {
@@ -143,34 +144,46 @@ public static class Translator
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
-        if (SubmergedCompatibility.IsSubmerged() && int.TryParse(s, out int roomNumber) && roomNumber is >= 128 and <= 135)
-            s = $"SubmergedRoomName.{roomNumber}";
+        bool isNumber = int.TryParse(s, out int roomNumber);
 
-        if (GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Deathrace && int.TryParse(s, out roomNumber) && Deathrace.CoordinateChecks.ContainsKey(roomNumber))
+        if (isNumber && SubmergedCompatibility.IsSubmerged() && roomNumber is >= 128 and <= 135)
+        {
+            s = $"SubmergedRoomName.{roomNumber}";
+            isNumber = false;
+        }
+        if (isNumber && GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Deathrace && Deathrace.CoordinateChecks.ContainsKey(roomNumber))
             s = "Deathrace.CoordinateCheck";
 
-        SupportedLangs langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
-        if (console) langId = SupportedLangs.English;
+        SupportedLangs langId;
 
-        if (Main.ForceOwnLanguage.Value) langId = GetUserTrueLang();
+        if (console)
+            langId = SupportedLangs.English;
+        else
+        {
+            if (Main.ForceOwnLanguage.Value)
+                langId = GetUserTrueLang();
+            else
+                langId = TranslationController.InstanceExists
+                ? TranslationController.Instance.currentLanguage.languageID
+                : SupportedLangs.English;
+        }
 
         int modLanguageId = 0;
 
         if (Options.IsLoaded)
         {
             modLanguageId = Options.ModLanguage.GetValue();
-            if (modLanguageId != 0) langId = (SupportedLangs)(modLanguageId + 100 - 1);
+            if (modLanguageId != 0) langId = (SupportedLangs)(modLanguageId + 99);
         }
 
         string str = GetString(s, langId);
 
-        if (replacementDic != null)
+        if (replacementDic != null && replacementDic.Count > 0)
         {
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);
         }
-
-        if (modLanguageId == 1) // Hungarian (none of the fonts support ő/ű and innersloth doesn't care, thankfully at least German has ö/ü)
+        if (modLanguageId == 1 && (str.Contains('ő') || str.Contains('ű'))) // Hungarian (none of the fonts support ő/ű and innersloth doesn't care, thankfully at least German has ö/ü)
             str = str.Replace("ő", "ö", StringComparison.CurrentCultureIgnoreCase).Replace("ű", "ü", StringComparison.CurrentCultureIgnoreCase);
 
         return str;
@@ -178,15 +191,24 @@ public static class Translator
 
     public static string GetString(string str, SupportedLangs langId)
     {
-        var res = $"*{str}";
-
         try
         {
-            if (TranslateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || string.IsNullOrEmpty(res) || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese))))
-                res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
+            if (TranslateMaps.TryGetValue(str, out var dic))
+            {
+                if (dic.TryGetValue((int)langId, out var res) && !string.IsNullOrEmpty(res))
+                {
+                    if (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && ContainsChinese(res))
+                    {
+                        var cn = GetString(str, SupportedLangs.SChinese);
+                        if (res == cn) return GetString(str, SupportedLangs.English);
+                    }
+                    return res;
+                }
 
-            if (!TranslateMaps.ContainsKey(str) && AllStringNames.FindFirst(x => x.ToString() == str, out StringNames stringNames))
-                res = GetString(stringNames);
+                if (langId != SupportedLangs.English)
+                    return GetString(str, SupportedLangs.English);
+            }
+            else if (TryGetStringName(str, out var stringName)) return GetString(stringName);
         }
         catch (Exception ex)
         {
@@ -194,7 +216,7 @@ public static class Translator
             Logger.Error("Here was the error:\n" + ex, "Translator");
         }
 
-        return res;
+        return $"*{str}";
     }
 
     public static string GetString(StringNames stringName)
@@ -202,6 +224,33 @@ public static class Translator
         return TranslationController.Instance.GetString(stringName);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool ContainsChinese(string s)
+    {
+        for (int index = 0; index < s.Length; index++)
+        {
+            char c = s[index];
+            if (c >= '\u4e00' && c <= '\u9fa5')
+                return true;
+        }
+        return false;
+    }
+    private static bool TryGetStringName(string str, out StringNames result)
+    {
+        if (CachedStringName.TryGetValue(str, out result)) return true;
+        for (int i = 0; i < AllStringNames.Length; i++)
+        {
+            var val = AllStringNames[i];
+            if (val.ToString() == str)
+            {
+                CachedStringName[str] = val;
+                result = val;
+                return true;
+            }
+        }
+        result = default;
+        return false;
+    }
     public static string GetRoleString(string str, bool forUser = true)
     {
         SupportedLangs currentLanguage = TranslationController.Instance.currentLanguage.languageID;

@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace EHR;
@@ -1525,9 +1526,10 @@ internal static class CustomRolesHelper
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToColoredString(this CustomRoles role)
     {
-        return Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
+        return Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString(role.ToString()));
     }
 
     #region OptionsAndCategories

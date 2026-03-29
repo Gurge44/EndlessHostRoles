@@ -1003,7 +1003,7 @@ internal static class ChatCommands
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
     {
         string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..^1]
-            .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out CustomRoles role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
+            .Select(x => (GameMode: x, Color: Utils.GetRoleColorCode(CustomRoleSelector.GameModeRoles.TryGetValue(x, out CustomRoles role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
             .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b></u></color><size=75%>\n{GetString($"ModeDescribe.{x.GameMode}").Split("\n\n")[0]}</size>"));
 
         Utils.SendMessage(info, player.PlayerId, GetString("GameModeListTitle"));
@@ -1502,7 +1502,7 @@ internal static class ChatCommands
 
         void AddSettings(StringOptionItem stringOptionItem)
         {
-            settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[role]}>{roleName}</color>:</u>");
+            settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Utils.GetRoleColorCode(role)}>{roleName}</color>:</u>");
             Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
             settings.Append("</size>");
         }
