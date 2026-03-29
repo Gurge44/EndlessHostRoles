@@ -4307,6 +4307,8 @@ public static class Utils
         {
             if (sendLog)
             {
+                ContAliveLog.Clear();
+
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
                     int countTypesCount = CountTypesArray.Length;
@@ -4320,7 +4322,7 @@ public static class Utils
                     }
                 }
 
-                ContAliveLog.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
+                ContAliveLog.Append($" All: {AllAlivePlayersCount}/{AllPlayersCount}");
                 Logger.Info(ContAliveLog.ToString(), "CountAlivePlayers");
             }
 
