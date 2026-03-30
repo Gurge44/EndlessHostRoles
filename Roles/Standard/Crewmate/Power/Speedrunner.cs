@@ -71,7 +71,7 @@ internal class Speedrunner : RoleBase
         {
             LateTask.New(() =>
             {
-                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (!pc.Is(Team.Crewmate))
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

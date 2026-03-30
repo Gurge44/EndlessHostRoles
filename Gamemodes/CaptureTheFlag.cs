@@ -379,7 +379,7 @@ public static class CaptureTheFlag
         TeamData[CTFTeam.Yellow] = new(CTFTeam.Yellow, yellowFlag, yellowPlayers, byte.MaxValue);
 
         // Teleport players to their respective bases
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team))
             {

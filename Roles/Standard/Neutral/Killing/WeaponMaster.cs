@@ -190,7 +190,7 @@ public class WeaponMaster : RoleBase
             case 1:
                 LateTask.New(() =>
                 {
-                    foreach (PlayerControl player in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                     {
                         if (player == killer || target == player || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.Contains(target.PlayerId)) continue;
 

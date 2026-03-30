@@ -54,7 +54,7 @@ public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRa
         List<byte> killers = NearbyKillers.Select(x => x.PlayerId).ToList();
         int timeLeft = (int)Timer.Remaining.TotalSeconds;
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             bool nowInRange = killers.Contains(pc.PlayerId);
             bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);

@@ -47,7 +47,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.ShieldAll:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         AddEffectForPlayer(pc, effect);
                         NotifyAboutRNG(pc);
@@ -57,7 +57,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.TPEveryoneToVents:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         pc.TPToRandomVent();
                         NotifyAboutRNG(pc);
@@ -72,7 +72,7 @@ internal static class EffectExtenstions
                 {
                     List<byte> changePositionPlayers = [];
 
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (changePositionPlayers.Contains(pc.PlayerId) || pc.onLadder || pc.inVent || pc.inMovingPlat || GameStates.IsMeeting) continue;
 
@@ -109,7 +109,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.SuperSpeedForAll:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         RevertSpeedChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
@@ -147,7 +147,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.SuperVisionForAll:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         RevertVisionChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
@@ -170,7 +170,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.BlindnessForAll:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         RevertVisionChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
@@ -183,7 +183,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.AllKCDsReset:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (pc.HasKillButton() && pc.CanUseKillButton())
                         {
@@ -196,7 +196,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.AllKCDsTo0:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (pc.HasKillButton() && pc.CanUseKillButton())
                         {
@@ -263,7 +263,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.InvertControls:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         RevertSpeedChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
@@ -312,7 +312,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.HandcuffAll:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         AddEffectForPlayer(pc, effect);
                         pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
@@ -323,7 +323,7 @@ internal static class EffectExtenstions
                     break;
                 case Effect.DonutForAll:
                 {
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls()) DonutDelivery.RandomNotifyTarget(pc);
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls()) DonutDelivery.RandomNotifyTarget(pc);
                 }
 
                     break;

@@ -156,7 +156,7 @@ public class Cultist : RoleBase
     {
         if (!CharmedDiesOnCultistDeath.GetBool() || !target.Is(CustomRoles.Cultist)) return;
 
-        foreach (PlayerControl charmed in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl charmed in Main.EnumerateAlivePlayerControls())
             if (charmed.Is(CustomRoles.Charmed))
                 charmed.Suicide(realKiller: target);
     }

@@ -433,7 +433,7 @@ public static class NaturalDisasters
 
         protected void KillNearbyPlayers(PlayerState.DeathReason deathReason, float range = Range)
         {
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (FastVector2.DistanceWithinRange(pc.Pos(), Position, range))
                     pc.DieToDisaster(deathReason);
@@ -479,9 +479,9 @@ public static class NaturalDisasters
         {
             if (RemoveIfExpired()) return;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                float speed = (FastVector2.DistanceWithinRange(pc.Pos(), Position, Range)) switch
+                float speed = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range) switch
                 {
                     true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
                     false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
@@ -500,7 +500,7 @@ public static class NaturalDisasters
         {
             if (base.RemoveIfExpired())
             {
-                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (AffectedPlayers.Remove(pc.PlayerId))
                     {
@@ -651,7 +651,7 @@ public static class NaturalDisasters
             const float eyeRange = Range / 4f;
             const float dragRange = Range * 1.5f;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 Vector2 pos = pc.Pos();
 
@@ -759,7 +759,7 @@ public static class NaturalDisasters
                 {
                     _ = new Lightning(hit);
                     
-                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (FastVector2.DistanceWithinRange(pc.Pos(), hit, Range / 2f))
                             pc.DieToDisaster(PlayerState.DeathReason.Lightning);
@@ -820,7 +820,7 @@ public static class NaturalDisasters
         {
             if (RemoveIfExpired()) return;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range);
                 
@@ -833,7 +833,7 @@ public static class NaturalDisasters
         {
             if (base.RemoveIfExpired())
             {
-                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (AffectedPlayers.Remove(pc.PlayerId))
                         pc.MarkDirtySettings();
@@ -899,7 +899,7 @@ public static class NaturalDisasters
         {
             if (RemoveIfExpired()) return;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 Vector2 pos = pc.Pos();
 
@@ -980,7 +980,7 @@ public static class NaturalDisasters
         {
             if (Sinkholes.Count == 0) return;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 Vector2 pos = pc.Pos();
 
@@ -1016,7 +1016,7 @@ public static class NaturalDisasters
             if (!naturalDisaster.Room.HasValue) return;
             PlainShipRoom room = naturalDisaster.Room.Value.GetRoomClass();
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.IsInRoom(room))
                     pc.DieToDisaster(PlayerState.DeathReason.Collapsed);
@@ -1040,7 +1040,7 @@ public static class NaturalDisasters
             if (Count++ < 10) return;
             Count = 0;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.onLadder || pc.inMovingPlat || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation()) continue;
                 

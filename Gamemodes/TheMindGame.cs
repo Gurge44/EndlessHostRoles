@@ -270,7 +270,7 @@ public static class TheMindGame
         AllRooms.RemoveAll(x => x.ToString().Contains("Decontamination"));
         if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveAll(x => (byte)x > 135);
 
-        var aapc = Main.CachedAlivePlayerControls();
+        var aapc = Main.EnumerateAlivePlayerControls();
         Points = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         SuperPoints = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         DefaultColorIds = aapc.ToDictionary(x => x, x => x.Data.DefaultOutfit.ColorId);
@@ -308,8 +308,8 @@ public static class TheMindGame
         MaxPlayersForRound4 = MaxPlayersForRound4Option.GetInt();
         MindDetectiveFailChance = MindDetectiveFailChanceOption.GetInt();
 
-        if (MinPlayersInRound2 > aapc.Count)
-            MinPlayersInRound2 = aapc.Count;
+        if (MinPlayersInRound2 > Main.CachedAlivePlayerControls().Count)
+            MinPlayersInRound2 = Main.CachedAlivePlayerControls().Count;
 
         {
             IEnumerable<IEnumerable<PlayerControl>> groups = aapc.Partition(NumGroupsForRound1);
@@ -378,7 +378,7 @@ public static class TheMindGame
 
             ShowSuffixOtherThanPoints = false;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 Group group = Groups[pc.PlayerId];
                 int pick = Pick[pc.PlayerId];
@@ -396,7 +396,7 @@ public static class TheMindGame
             if (Points.Values.Any(x => x >= NumPointsToAdvanceInRound1)) break;
         }
 
-        aapc = Main.CachedAlivePlayerControls();
+        aapc = Main.EnumerateAlivePlayerControls();
         aapc.Join(Points, x => x.PlayerId, x => x.Key, (pc, kvp) => (pc, points: kvp.Value)).OrderBy(x => x.points).SkipLast(MinPlayersInRound2).Do(x => x.pc.Suicide());
 
         Round = 2;
@@ -453,7 +453,7 @@ public static class TheMindGame
         Item[] items = Enum.GetValues<Item>();
         int[] itemIds = items.Select(x => (int)x).ToArray();
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             ItemIds[pc.PlayerId] = items.Zip(itemIds.Shuffle()).ToDictionary(x => x.First, x => x.Second);
 
         AuctionValue = 0;
@@ -521,7 +521,7 @@ public static class TheMindGame
 
             ShowSuffixOtherThanPoints = false;
 
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 int pick = Pick[pc.PlayerId];
                 bool sameAsSomeoneElse = Main.EnumerateAlivePlayerControls().Without(pc).FindFirst(x => Pick.TryGetValue(x.PlayerId, out int p) && p == pick, out PlayerControl otherPc);
@@ -591,16 +591,17 @@ public static class TheMindGame
 
             yield return new WaitForSecondsRealtime(1f);
 
-            aapc = Main.CachedAlivePlayerControls();
+            aapc = Main.EnumerateAlivePlayerControls();
+            var countPC = Main.CachedAlivePlayerControls().Count;
 
-            if (aapc.Count <= 2)
+            if (countPC <= 2)
             {
-                if (aapc.Count >= 1)
+                if (countPC >= 1)
                 {
                     WinningBriefcaseHolderId = aapc.RandomElement().PlayerId;
                     Round4PlacesFromLast.Add(WinningBriefcaseHolderId);
 
-                    if (aapc.Count == 2)
+                    if (countPC == 2)
                         Round4PlacesFromFirst.Add(aapc.Select(x => x.PlayerId).Without(WinningBriefcaseHolderId).Single());
 
                     yield return NotifyEveryone("TMG.Notify.Round4EndLastHolder", 3, WinningBriefcaseHolderId.ColoredPlayerName());
@@ -637,7 +638,7 @@ public static class TheMindGame
         yield return NotifyEveryone("TMG.Notify.Round4PointGain", 5, join);
         if (Stop) yield break;
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             int superPoints = SuperPoints[pc.PlayerId];
 
@@ -683,7 +684,7 @@ public static class TheMindGame
     {
         while (Round == 1 && !GameStates.IsEnded && GameStates.IsInTask && !ExileController.Instance)
         {
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 Group group = Groups[pc.PlayerId];
                 SystemTypes groupRoom = GroupRooms[group];

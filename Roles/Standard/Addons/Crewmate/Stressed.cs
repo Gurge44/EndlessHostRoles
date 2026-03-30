@@ -96,7 +96,7 @@ public class Stressed : IAddon
 
         LateTask.New(() =>
         {
-            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Stressed))
                 {

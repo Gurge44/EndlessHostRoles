@@ -2430,7 +2430,7 @@ public static class Utils
     {
         Dictionary<string, int> playerRooms = [];
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             Il2CppReferenceArray<PlainShipRoom> rooms = ShipStatus.Instance.AllRooms;
 
@@ -3805,7 +3805,7 @@ public static class Utils
         if (CustomRoles.Romantic.RoleExist(true)) nums[Options.GameStateInfo.RomanticState] = 1;
         if (Romantic.HasPickedPartner) nums[Options.GameStateInfo.RomanticState] = 2;
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (!Forger.Forges.ContainsKey(pc.PlayerId))
             {
@@ -4386,7 +4386,7 @@ public static class Utils
     {
         int doused = 0, all = 0;
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (pc.PlayerId == playerId) continue;
 
@@ -4918,7 +4918,7 @@ public static class Utils
         var count = 0;
         // ReSharper disable once LoopCanBeConvertedToQuery
         // We want less memory allocation here
-        foreach (var pc in Main.CachedAlivePlayerControls())
+        foreach (var pc in Main.EnumerateAlivePlayerControls())
         {
             if (pc.Is(countTypes))
                 count++;

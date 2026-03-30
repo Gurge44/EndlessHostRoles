@@ -51,7 +51,7 @@ public class Exclusionary : RoleBase
                 
                 if (target.AmOwner)
                 {
-                    foreach (PlayerControl player in Main.CachedAlivePlayerControls())
+                    foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                     {
                         if (player.AmOwner) continue;
                         player.SetPet("");
@@ -75,7 +75,7 @@ public class Exclusionary : RoleBase
                 var sender = CustomRpcSender.Create("Exclusionary", SendOption.Reliable);
                 sender.StartMessage(target.OwnerId);
 
-                foreach (PlayerControl player in Main.CachedAlivePlayerControls())
+                foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                 {
                     if (target == player) continue;
 

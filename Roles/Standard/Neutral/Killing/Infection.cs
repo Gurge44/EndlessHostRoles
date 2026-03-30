@@ -203,7 +203,7 @@ public class Infection : RoleBase
             var changed = false;
             bool inVent = player.inVent;
 
-            foreach (PlayerControl target in Main.CachedAlivePlayerControls())
+            foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
             {
                 // Plague doctors are excluded if they cannot infect themselves.
                 if (!CanInfect(target)) continue;
@@ -268,7 +268,7 @@ public class Infection : RoleBase
 
         var str = new StringBuilder(40);
 
-        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
+        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
         {
             if (!player.Is(CustomRoles.Infection))
                 str.Append(GetInfectRateCharactor(player, pd));
