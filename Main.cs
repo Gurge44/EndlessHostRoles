@@ -111,6 +111,7 @@ public class Main : BasePlugin
     public static bool HasJustStarted;
     public static Dictionary<byte, bool> CheckShapeshift = [];
     public static Dictionary<byte, byte> ShapeshiftTarget = [];
+    public static Dictionary<byte, bool> ShapeshiftIsAnimated = [];
     public static bool VisibleTasksCount;
     public static string NickName = "";
     public static bool IntroDestroyed = true;
