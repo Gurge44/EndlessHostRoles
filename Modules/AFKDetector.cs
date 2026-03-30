@@ -113,10 +113,8 @@ public static class AFKDetector
             if (ExtendedPlayerControl.BlackScreenWaitingPlayers.Contains(id))
                 ExtendedPlayerControl.CancelBlackScreenFix.Add(id);
 
-            PlayerData.Remove(id);
-            ShieldedPlayers.Remove(id);
-
-            Utils.NotifyRoles(SpecifyTarget: id.GetPlayer());
+            if (PlayerData.Remove(id) | ShieldedPlayers.Remove(id))
+                Utils.NotifyRoles(SpecifyTarget: id.GetPlayer());
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
