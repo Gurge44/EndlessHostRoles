@@ -145,7 +145,7 @@ internal class Arsonist : RoleBase
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                 }
 
-                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     pc.KillFlash();
 
                 if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor)

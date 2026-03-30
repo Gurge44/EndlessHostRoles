@@ -145,7 +145,7 @@ internal class Bomber : RoleBase
 
         var murderCount = 0;
 
-        foreach (PlayerControl tg in Main.CachedAllPlayerControls())
+        foreach (PlayerControl tg in Main.EnumeratePlayerControls())
         {
             try
             {

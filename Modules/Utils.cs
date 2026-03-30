@@ -4021,7 +4021,7 @@ public static class Utils
         }
         catch (Exception e) { ThrowException(e); }
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             try
             {

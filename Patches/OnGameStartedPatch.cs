@@ -719,7 +719,7 @@ internal static class StartGameHostPatch
 
                 if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn || bloodlustSpawn || examinerSpawn || venomSpawn)
                 {
-                    foreach (PlayerControl player in Main.CachedAllPlayerControls())
+                    foreach (PlayerControl player in Main.EnumeratePlayerControls())
                     {
                         if (IsBasisChangingPlayer(player.PlayerId, CustomRoles.Bloodlust)) continue;
 
@@ -857,7 +857,7 @@ internal static class StartGameHostPatch
 
         try
         {
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 if (!Main.PlayerStates.ContainsKey(pc.PlayerId)) Main.PlayerStates[pc.PlayerId] = new PlayerState(pc.PlayerId);
                 
@@ -975,7 +975,7 @@ internal static class StartGameHostPatch
                 }
             }
 
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 try
                 {
@@ -984,7 +984,7 @@ internal static class StartGameHostPatch
 
                     if (pc.AmOwner && pc.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
                     {
-                        foreach (PlayerControl target in Main.CachedAllPlayerControls())
+                        foreach (PlayerControl target in Main.EnumeratePlayerControls())
                         {
                             target.Data.Role.CanBeKilled = true;
 
@@ -1048,7 +1048,7 @@ internal static class StartGameHostPatch
 
             HudManager.Instance.SetHudActive(true);
 
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 pc.ResetKillCooldown(false);
 
 
@@ -1196,7 +1196,7 @@ internal static class StartGameHostPatch
             RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
             // Set Desync role for self and for others
-            foreach (PlayerControl target in Main.CachedAllPlayerControls())
+            foreach (PlayerControl target in Main.EnumeratePlayerControls())
             {
                 try
                 {
@@ -1211,7 +1211,7 @@ internal static class StartGameHostPatch
             }
 
             // Set Desync role for others
-            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
             {
                 try
                 {
@@ -1237,9 +1237,9 @@ internal static class StartGameHostPatch
     {
         try
         {
-            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+            foreach (PlayerControl seer in Main.EnumeratePlayerControls())
             {
-                foreach (PlayerControl target in Main.CachedAllPlayerControls())
+                foreach (PlayerControl target in Main.EnumeratePlayerControls())
                 {
                     try
                     {
@@ -1378,7 +1378,7 @@ internal static class StartGameHostPatch
         {
             try
             {
-                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
                     try
                     {
@@ -1460,7 +1460,7 @@ internal static class StartGameHostPatch
                             StoragedData[playerId] = roleType;
                             doneIds.Add(playerId);
 
-                            foreach (PlayerControl target in Main.CachedAllPlayerControls())
+                            foreach (PlayerControl target in Main.EnumeratePlayerControls())
                             {
                                 try
                                 {
@@ -1485,7 +1485,7 @@ internal static class StartGameHostPatch
 
                 try
                 {
-                    foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+                    foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     {
                         try
                         {
@@ -1493,7 +1493,7 @@ internal static class StartGameHostPatch
                             {
                                 StoragedData[pc.PlayerId] = RoleTypes.Crewmate;
 
-                                foreach (PlayerControl target in Main.CachedAllPlayerControls())
+                                foreach (PlayerControl target in Main.EnumeratePlayerControls())
                                 {
                                     try
                                     {

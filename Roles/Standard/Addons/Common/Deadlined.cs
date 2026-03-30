@@ -33,7 +33,7 @@ public class Deadlined : IAddon
         MeetingEndTS = Utils.TimeStamp;
         Utils.SendRPC(CustomRPC.Deadlined, 2);
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             TaskState ts = pc.GetTaskState();
             if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || (!ts.HasTasks && !pc.CanUseKillButton())))

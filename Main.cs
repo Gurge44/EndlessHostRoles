@@ -293,6 +293,10 @@ public class Main : BasePlugin
                 CachedAlivePlayerControlsList.Add(pc);
         }
     }
+    // ################# - WARNING!!! - #####################
+    // Don't use CachedAll/AlivePlayerControls in LateTask and IEnumerator (Async) functions
+    // Use Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
+    // ######################################
     public static List<PlayerControl> CachedAllPlayerControls()
     {
         RebuildCaches();

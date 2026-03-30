@@ -93,7 +93,7 @@ internal class QuizMaster : RoleBase
 
         LateTask.New(() =>
         {
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 int colorId = pc.Data.DefaultOutfit.ColorId;
                 AllColors.Add(Palette.GetColorName(colorId));

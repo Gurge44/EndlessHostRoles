@@ -403,7 +403,7 @@ internal static class GameEndChecker
         List<byte> playersToRevive = [];
         CustomWinner winner = WinnerTeam;
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             if (winner == CustomWinner.Draw)
             {

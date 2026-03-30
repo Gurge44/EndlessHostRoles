@@ -314,7 +314,7 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
                     if (pc.AmOwner) continue;
 

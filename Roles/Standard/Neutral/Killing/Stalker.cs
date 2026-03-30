@@ -128,7 +128,7 @@ public class Stalker : RoleBase
         sender.WriteNetObject(killer);
         sender.EndRpc();
 
-        foreach (PlayerControl target in Main.CachedAllPlayerControls())
+        foreach (PlayerControl target in Main.EnumeratePlayerControls())
         {
             if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
 

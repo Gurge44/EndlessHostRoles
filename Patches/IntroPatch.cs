@@ -62,7 +62,7 @@ static class CoShowIntroPatch
                     ShipStatus.Instance.Begin();
 
                     GameOptionsSender.AllSenders.Clear();
-                    foreach (PlayerControl pc in Main.CachedAllPlayerControls()) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
+                    foreach (PlayerControl pc in Main.EnumeratePlayerControls()) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
                 }
             }
             catch { Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin"); }
@@ -356,7 +356,7 @@ internal static class SetUpRoleTextPatch
 
         sb.Append("------------Display Names------------\n");
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text.Trim()} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})\n");
             pc.cosmetics.nameText.text = pc.name;
@@ -366,14 +366,14 @@ internal static class SetUpRoleTextPatch
 
         sb.Append("------------Roles------------\n");
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
 
         yield return null;
 
         sb.Append("------------Platforms------------\n");
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             try
             {
@@ -1131,7 +1131,7 @@ internal static class IntroCutsceneDestroyPatch
         PreventKill = true;
         LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
 
-        var apc = Main.CachedAllPlayerControls();
+        var apc = Main.EnumeratePlayerControls();
 
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
@@ -1142,9 +1142,9 @@ internal static class IntroCutsceneDestroyPatch
             apc.DoIf(x => x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM));
             LateTask.New(() => apc.DoIf(x => x && x.Is(CustomRoles.NotAssigned) && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
             
-            var aapc = Main.CachedAlivePlayerControls();
+            var aapc = Main.EnumerateAlivePlayerControls();
 
-            Utils.NumSnapToCallsThisRound = aapc.Count;
+            Utils.NumSnapToCallsThisRound = aapc.Count();
             
             if (Main.NormalOptions.MapId != 4)
             {

@@ -65,7 +65,7 @@ public static class AntiBlackout
         }
 
         // Set the temporarily revived crewmate back to dead.
-        //foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        //foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         //{
         //    try
         //    {
@@ -105,7 +105,7 @@ public static class AntiBlackout
         {
             var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
             
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 try
                 {

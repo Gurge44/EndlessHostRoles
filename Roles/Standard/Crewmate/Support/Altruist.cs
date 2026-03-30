@@ -122,7 +122,7 @@ public class Altruist : RoleBase
         {
             if (!On || !ReviveTargetsKillerGetsArrow.GetBool()) return;
         
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out byte revived))
                 {
