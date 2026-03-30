@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx;
 using EHR.Gamemodes;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
+using MS.Internal.Xml.XPath;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 #if DEBUG
 using EHR.Patches;
@@ -369,6 +370,92 @@ public static class HauntMenuMinigameSetHauntTargetPatch
     }
 }
 
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
+internal static class ShipStatusOnEnablePatch
+{
+    public static void Postfix(ShipStatus __instance)
+    {
+        int mapId = Main.NormalOptions.MapId;
+        List<SystemTypes> SystemTypesList = ShipStatusSystem.AllSabotage.ToList();
+        SystemTypesList.Add(SystemTypes.Ventilation);
+
+        foreach (var systemType in SystemTypesList)
+        {
+            try
+            {
+                if (!__instance.Systems.TryGetValue(systemType, out ISystemType ISystemType)) continue;
+
+                switch (systemType)
+                {
+                    case SystemTypes.Reactor:
+                        {
+                            switch (mapId)
+                            {
+                                case 2: continue;
+                                case 4:
+                                    ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
+                                    ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
+                                    break;
+                                default:
+                                    ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
+                                    ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
+                                    break;
+                            }
+                        }
+                        break;
+                    case SystemTypes.Laboratory:
+                        {
+                            if (mapId != 2) continue;
+                            ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
+                            ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
+                        }
+                        break;
+                    case SystemTypes.HeliSabotage:
+                        {
+                            if (mapId != 4) continue;
+                            ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
+                            ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
+                        }
+                        break;
+                    case SystemTypes.LifeSupp:
+                        {
+                            if (mapId is 2 or 4 or 5) continue;
+                            ShipStatusSystem.LifeSuppSystemType = ISystemType.TryCast<LifeSuppSystemType>();
+                        }
+                        break;
+                    case SystemTypes.Electrical:
+                        {
+                            if (mapId == 5) continue;
+                            ShipStatusSystem.SwitchSystem = ISystemType.TryCast<SwitchSystem>();
+                        }
+                        break;
+                    case SystemTypes.Comms:
+                        {
+                            if (mapId is 1 or 5)
+                                ShipStatusSystem.HqHudSystemType = ISystemType.TryCast<HqHudSystemType>();
+                            else
+                                ShipStatusSystem.HudOverrideSystemType = ISystemType.TryCast<HudOverrideSystemType>();
+                        }
+                        break;
+                    case SystemTypes.MushroomMixupSabotage:
+                        {
+                            if (mapId != 5) continue;
+                            ShipStatusSystem.MushroomMixupSabotageSystem = ISystemType.TryCast<MushroomMixupSabotageSystem>();
+                        }
+                        break;
+                    case SystemTypes.Ventilation:
+                        {
+                            ShipStatusSystem.VentilationSystem = ISystemType.TryCast<VentilationSystem>();
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            { Utils.ThrowException(e); }
+        }
+    }
+}
+
 // From https://github.com/0xDrMoe/TownofHost-Enhanced
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]
 internal static class ShipStatusBeginPatch
@@ -388,86 +475,6 @@ internal static class ShipStatusBeginPatch
 
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-
-            int mapId = Main.NormalOptions.MapId;
-            List<SystemTypes> SystemTypesList = ShipStatusSystem.AllSabotage.ToList();
-            SystemTypesList.Add(SystemTypes.Ventilation);
-            foreach (var systemType in SystemTypesList)
-            {
-                try
-                {
-                    if (__instance.Systems.TryGetValue(systemType, out ISystemType ISystemType))
-                    {
-                        switch (systemType)
-                        {
-                            case SystemTypes.Reactor:
-                                {
-                                    switch (mapId)
-                                    {
-                                        case 2:
-                                            continue;
-                                        case 4:
-                                            ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
-                                            ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
-                                            break;
-                                        default:
-                                            ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
-                                            ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
-                                            break;
-                                    }
-                                }
-                                break;
-                            case SystemTypes.Laboratory:
-                                {
-                                    if (mapId != 2) continue;
-                                    ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
-                                    ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
-                                }
-                                break;
-                            case SystemTypes.HeliSabotage:
-                                {
-                                    if (mapId != 4) continue;
-                                    ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
-                                    ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
-                                }
-                                break;
-                            case SystemTypes.LifeSupp:
-                                {
-                                    if (mapId is 2 or 4 or 5) continue;
-                                    ShipStatusSystem.LifeSuppSystemType = ISystemType.TryCast<LifeSuppSystemType>();
-                                }
-                                break;
-                            case SystemTypes.Electrical:
-                                {
-                                    if (mapId == 5) continue;
-                                    ShipStatusSystem.SwitchSystem = ISystemType.TryCast<SwitchSystem>();
-                                }
-                                break;
-                            case SystemTypes.Comms:
-                                {
-                                    if (mapId is 1 or 5)
-                                        ShipStatusSystem.HqHudSystemType = ISystemType.TryCast<HqHudSystemType>();
-                                    else
-                                        ShipStatusSystem.HudOverrideSystemType = ISystemType.TryCast<HudOverrideSystemType>();
-                                }
-                                break;
-                            case SystemTypes.MushroomMixupSabotage:
-                                {
-                                    if (mapId != 5) continue;
-                                    ShipStatusSystem.MushroomMixupSabotageSystem = ISystemType.TryCast<MushroomMixupSabotageSystem>();
-                                }
-                                break;
-                            case SystemTypes.Ventilation:
-                                {
-                                    ShipStatusSystem.VentilationSystem = ISystemType.TryCast<VentilationSystem>();
-                                }
-                                break;
-                        }
-                    }
-                }
-                catch (Exception e)
-                { Utils.ThrowException(e); }
-            }
         }
     }
 }
