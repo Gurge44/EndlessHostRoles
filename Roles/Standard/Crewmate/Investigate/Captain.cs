@@ -96,11 +96,10 @@ public class Captain : RoleBase
         }
 
         var alivePlayers = Main.CachedAlivePlayerControls();
-        int playerCount = alivePlayers.Count;
         byte pcId = pc.PlayerId;
         Sb.Clear();
         bool first = true;
-        for (int index = 0; index < playerCount; index++)
+        for (int index = 0; index < alivePlayers.Count; index++)
         {
             var other = alivePlayers[index];
             if (other.PlayerId == pcId) continue;

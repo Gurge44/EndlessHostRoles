@@ -378,10 +378,9 @@ internal class Chemist : RoleBase
             var otherAcidPlayers = acidData.OtherAcidPlayers;
 
             var alivePlayers = Main.CachedAlivePlayerControls();
-            int count = alivePlayers.Count;
             byte chemistId = ChemistPC.PlayerId;
 
-            for (int index = 0; index < count; index++)
+            for (int index = 0; index < alivePlayers.Count; index++)
             {
                 PlayerControl target = alivePlayers[index];
                 byte targetId = target.PlayerId;
@@ -401,12 +400,9 @@ internal class Chemist : RoleBase
 
                 byte chemistId = ChemistPC.PlayerId;
                 float radius = GrenadeExplodeRadius.GetFloat();
-                var alivePlayers = Main.CachedAlivePlayerControls();
-                int count = alivePlayers.Count;
 
-                for (int index = 0; index < count; index++)
+                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
                 {
-                    PlayerControl target = alivePlayers[index];
                     byte targetId = target.PlayerId;
 
                     if (targetId == chemistId || !FastVector2.DistanceWithinRange(target.Pos(), pos, radius)) continue;

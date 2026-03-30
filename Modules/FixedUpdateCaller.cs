@@ -121,7 +121,7 @@ public static class FixedUpdateCaller
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
                 //bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
-                for (byte playerIndex = 0; playerIndex < playerCount; playerIndex++)
+                for (byte playerIndex = 0; playerIndex < players.Count; playerIndex++)
                 {
                     try
                     {

@@ -53,8 +53,7 @@ public class LastImpostor : IAddon
         if (Options.CurrentGameMode != CustomGameMode.Standard || !CustomRoles.LastImpostor.IsEnable() || Main.EnumerateAlivePlayerControls().Count(pc => pc.Is(CustomRoleTypes.Impostor)) != 1) return;
 
         var players = Main.CachedAlivePlayerControls();
-        int countPlayers = players.Count;
-        for (byte playerId = 0; playerId < countPlayers; playerId++)
+        for (byte playerId = 0; playerId < players.Count; playerId++)
         {
             PlayerControl pc = players[playerId];
             if (CanBeLastImpostor(pc))

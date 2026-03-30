@@ -82,7 +82,7 @@ internal static class OnGameJoinedPatch
             if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
             LateTask.New(() =>
-            {
+            {                
                 JoiningGame = false;
 
                 Options.AutoSetFactionMinMaxSettings();
@@ -97,7 +97,7 @@ internal static class OnGameJoinedPatch
                 Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
 
                 //Main.Instance.StartCoroutine(OptionShower.GetText());
-            }, 1f, "OnGameJoinedPatch");
+            }, 1.5f, "OnGameJoinedPatch");
 
             LateTask.New(() =>
             {

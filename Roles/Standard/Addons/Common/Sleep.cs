@@ -19,9 +19,8 @@ public class Sleep : IAddon
         Vector2 pos = pc.Pos();
         byte pcId = pc.PlayerId;
         var alivePlayers = Main.CachedAlivePlayerControls();
-        int count = alivePlayers.Count;
 
-        for (int index = 0; index < count; index++)
+        for (int index = 0; index < alivePlayers.Count; index++)
         {
             PlayerControl target = alivePlayers[index];
             if (!target.Is(CustomRoles.Glow) || !FastVector2.DistanceWithinRange(target.Pos(), pos, 1.5f)) continue;

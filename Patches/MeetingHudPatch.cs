@@ -1036,7 +1036,7 @@ internal static class MeetingHudStartPatch
                 {
                     if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
 
-                    var aapc = Main.CachedAlivePlayerControls();
+                    var aapc = Main.EnumerateAlivePlayerControls();
                     bool restrictions = Options.GuesserNumRestrictions.GetBool();
                     bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
 

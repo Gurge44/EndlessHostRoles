@@ -1073,7 +1073,7 @@ internal static class TaskPanelBehaviourPatch
 
     private static readonly List<(int, byte)> TempList = [];
     // for RoomRush
-    private static readonly List<(PlayerControl pc, bool alive, float time)> TempPlayerData = [];
+    private static readonly List<(PlayerControl pc, bool alive, int time)> TempPlayerData = [];
     private static readonly List<(PlayerControl pc, string points_string, int points_int)> TempPointsData = [];
 
     private static readonly List<byte> SortedPlayers = [];

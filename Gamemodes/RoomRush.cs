@@ -212,12 +212,13 @@ public static class RoomRush
 
         yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
-        var aapc = Main.CachedAlivePlayerControls();
+        var aapc = Main.EnumerateAlivePlayerControls();
+        var pcCount = aapc.Count();
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
-        PointsToWinValue = PointsToWin.GetInt() * aapc.Count;
+        PointsToWinValue = PointsToWin.GetInt() * pcCount;
 
-        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count / 2;
+        bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > pcCount / 2;
 
         if (showTutorial)
         {
@@ -521,8 +522,9 @@ public static class RoomRush
                 }
             }
 
-            foreach (PlayerControl pc in aapc)
+            for (int index = 0; index < aapc.Count; index++)
             {
+                PlayerControl pc = aapc[index];
                 bool isInRoom = pc.IsInRoom(RoomGoal);
 
                 if (!pc.inMovingPlat && !pc.inVent && isInRoom && RegisterHost(pc) && DonePlayers.Add(pc.PlayerId))

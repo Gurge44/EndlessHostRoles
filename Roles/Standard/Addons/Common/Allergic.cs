@@ -34,7 +34,7 @@ public class Allergic : IAddon
 
         LateTask.New(() =>
         {
-            var aapc = Main.CachedAlivePlayerControls();
+            var aapc = Main.EnumerateAlivePlayerControls();
 
             foreach (PlayerControl pc in aapc)
             {

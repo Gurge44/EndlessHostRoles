@@ -629,7 +629,7 @@ internal static class GameEndChecker
             int crew = 0;
             int coven = 0;
 
-            for (int i = 0; i < aliveCount; i++)
+            for (int i = 0; i < aapc.Count; i++)
             {
                 var pc = aapc[i];
                 var role = pc.GetCustomRole();
@@ -661,7 +661,7 @@ internal static class GameEndChecker
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
             bool allAliveAreLovers = true;
-            for (int aliveIndex = 0; aliveIndex < aliveCount; aliveIndex++)
+            for (int aliveIndex = 0; aliveIndex < aapc.Count; aliveIndex++)
             {
                 bool found = false;
                 int id = aapc[aliveIndex].PlayerId;
@@ -773,7 +773,7 @@ internal static class GameEndChecker
             }
 
             RoleCounts.Clear();
-            for (int aliveIndex = 0; aliveIndex < aliveCount; aliveIndex++)
+            for (int aliveIndex = 0; aliveIndex < aapc.Count; aliveIndex++)
             {
                 var role = aapc[aliveIndex].GetCustomRole();
                 if ((!role.IsNK() && role is not CustomRoles.Bloodlust and not CustomRoles.Gaslighter) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
@@ -785,7 +785,7 @@ internal static class GameEndChecker
                 var keyWinner = (CustomWinner)role;
                 int value = 0;
 
-                for (int j = 0; j < aliveCount; j++)
+                for (int j = 0; j < aapc.Count; j++)
                     if (aapc[j].GetCountTypes() == countTypes) value++;
 
                 RoleCounts[(keyRole, keyWinner)] = value;
@@ -793,7 +793,7 @@ internal static class GameEndChecker
 
             if (CustomRoles.Schizophrenic.IsEnable())
             {
-                for (int aliveIndex = 0; aliveIndex < aliveCount; aliveIndex++)
+                for (int aliveIndex = 0; aliveIndex < aapc.Count; aliveIndex++)
                 {
                     var x = aapc[aliveIndex];
                     if (!x.Is(CustomRoles.Schizophrenic)) continue;
