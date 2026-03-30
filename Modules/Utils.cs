@@ -1689,7 +1689,7 @@ public static class Utils
 
         if (taskState.IsTaskFinished && (!Main.PlayerStates[terrorist.PlayerId].IsSuicide || Terrorist.CanTerroristSuicideWin.GetBool()))
         {
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 if (pc.Is(CustomRoles.Terrorist))
                     Main.PlayerStates[pc.PlayerId].deathReason = Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote ? PlayerState.DeathReason.etc : PlayerState.DeathReason.Suicide;
@@ -2604,7 +2604,7 @@ public static class Utils
 
         const int frameBudget = 3; // milliseconds per frame
         var stopwatch = new Stopwatch();
-        var aapc = Main.CachedAlivePlayerControls();
+        var aapc = Main.EnumerateAlivePlayerControls();
 
         foreach (PlayerControl seer in aapc)
         {

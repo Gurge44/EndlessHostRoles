@@ -140,7 +140,7 @@ public static class Camouflage
 
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
             {
