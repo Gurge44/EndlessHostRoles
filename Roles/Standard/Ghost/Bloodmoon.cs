@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
@@ -60,10 +60,14 @@ internal class Bloodmoon : IGhostRole
             .SetValueFormat(OptionFormat.Seconds);
     }
 
+    //public void OnFixedUpdate(PlayerControl pc)
+    //{
+    //    if (Main.AllPlayerSpeed[pc.PlayerId] != Speed.GetFloat()) Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
+    //}
+
     public static void Update(PlayerControl pc, Bloodmoon instance)
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
-
         long now = Utils.TimeStamp;
         if (now == instance.LastUpdate) return;
         instance.LastUpdate = now;
@@ -94,7 +98,7 @@ internal class Bloodmoon : IGhostRole
                 PlayerControl pc = Utils.GetPlayerById(id);
                 if (pc == null || !pc.IsAlive()) continue;
 
-                pc.Suicide();
+                pc.Suicide(PlayerState.DeathReason.LossOfBlood, pc);
             }
         }
 
