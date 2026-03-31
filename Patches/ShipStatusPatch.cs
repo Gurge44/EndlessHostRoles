@@ -369,11 +369,12 @@ public static class HauntMenuMinigameSetHauntTargetPatch
         return false;
     }
 }
-
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
+[HarmonyPatch(typeof(PolusShipStatus), nameof(PolusShipStatus.OnEnable))]
+[HarmonyPatch(typeof(AirshipStatus), nameof(AirshipStatus.OnEnable))]
 internal static class ShipStatusOnEnablePatch
 {
-    public static void Postfix(ShipStatus __instance)
+    public static void Postfix()
     {
         int mapId = Main.NormalOptions.MapId;
         List<SystemTypes> SystemTypesList = ShipStatusSystem.AllSabotage.ToList();
@@ -383,7 +384,7 @@ internal static class ShipStatusOnEnablePatch
         {
             try
             {
-                if (!__instance.Systems.TryGetValue(systemType, out ISystemType ISystemType)) continue;
+                if (!ShipStatus.Instance.Systems.TryGetValue(systemType, out ISystemType ISystemType)) continue;
 
                 switch (systemType)
                 {

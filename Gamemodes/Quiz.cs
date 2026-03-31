@@ -257,7 +257,7 @@ public static class Quiz
         AllowKills = false;
         NoSuffix = true;
 
-        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             NumCorrectAnswers[pc.PlayerId] = new Dictionary<Difficulty, int[]>
             {
