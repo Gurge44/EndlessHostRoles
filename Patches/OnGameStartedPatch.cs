@@ -210,6 +210,7 @@ internal static class ChangeRoleSettings
             Main.ClientIdList = [];
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
+            Main.ShapeshiftIsAnimated = [];
             Main.LoversPlayers = [];
             Main.DiedThisRound = [];
             Main.GuesserGuessed = [];
