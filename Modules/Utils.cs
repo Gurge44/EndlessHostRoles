@@ -3815,6 +3815,7 @@ public static class Utils
                     TaskMaster.AfterMeetingTasks(pc);
 
                 Main.CheckShapeshift[pc.PlayerId] = false;
+                Main.ShapeshiftIsAnimated[pc.PlayerId] = false;
             }
             catch (Exception e) { ThrowException(e); }
         }
