@@ -841,23 +841,22 @@ public static class KingOfTheZones
 
                 try
                 {
-                    Dictionary<SystemTypes, int[]> zoneTeamCounts = new(Zones.Count);
-                    
-                    foreach (SystemTypes zone in Zones)
-                        zoneTeamCounts[zone] = new int[TeamsEnumSize];
+                    Dictionary<SystemTypes, int[]> zoneTeamCounts = Zones.ToDictionary(x => x, _ => new int[TeamsEnumSize]);
+                    Dictionary<SystemTypes, List<byte>> playersInZone = Zones.ToDictionary(x => x, _ => new List<byte>());
 
                     foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                     {
-                        if (RespawnTimes.ContainsKey(player.PlayerId))
-                            continue;
+                        if (RespawnTimes.ContainsKey(player.PlayerId)) continue;
+
+                        PlainShipRoom room = player.GetPlainShipRoom();
+                        if (!room) continue;
+
+                        SystemTypes playerZone = room.RoomId;
+                        if (!playersInZone.TryGetValue(playerZone, out List<byte> occupants)) continue;
 
                         int team = (int)PlayerTeams[player.PlayerId];
-
-                        foreach (SystemTypes zone in Zones)
-                        {
-                            if (player.IsInRoom(zone))
-                                zoneTeamCounts[zone][team]++;
-                        }
+                        zoneTeamCounts[playerZone][team]++;
+                        occupants.Add(player.PlayerId);
                     }
 
                     foreach (SystemTypes zone in Zones)
@@ -896,23 +895,20 @@ public static class KingOfTheZones
                                 : (KOTZTeam)maxTeam;
                     }
 
-                    foreach (KOTZTeam team in ZoneDomination.Values)
+                    foreach ((SystemTypes zone, KOTZTeam winningTeam) in ZoneDomination)
                     {
-                        if (team != KOTZTeam.None)
-                        {
-                            Points[team]++;
-                            
-                            foreach ((byte playerId, KOTZTeam playerTeam) in PlayerTeams)
-                            {
-                                if (playerTeam != team || RespawnTimes.ContainsKey(playerId)) continue;
-                                if (!Main.PlayerStates.TryGetValue(playerId, out PlayerState state) || state.IsDead) continue;
+                        if (winningTeam == KOTZTeam.None) continue;
 
-                                PlayerPoints[playerId]++;
-                            }
+                        Points[winningTeam]++;
+
+                        foreach (byte playerId in playersInZone[zone])
+                        {
+                            if (PlayerTeams[playerId] != winningTeam) continue;
+                            if (!Main.PlayerStates.TryGetValue(playerId, out PlayerState state) || state.IsDead) continue;
+
+                            PlayerPoints[playerId]++;
                         }
                     }
-
-                    Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
