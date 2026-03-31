@@ -25,6 +25,7 @@ internal class TimeMaster : RoleBase
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
 
     private static Dictionary<long, Dictionary<byte, Vector2>> BackTrack = [];
+    private static Dictionary<byte, float> AllPlayerSpeedBackup = [];
     private static List<byte> RevivedPlayers = [];
     public static bool Rewinding;
 
@@ -82,6 +83,7 @@ internal class TimeMaster : RoleBase
         On = false;
         Rewinding = false;
         RevivedPlayers = [];
+        AllPlayerSpeedBackup = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -139,6 +141,7 @@ internal class TimeMaster : RoleBase
             long now = Utils.TimeStamp;
             int length = TimeMasterRewindTimeLength.GetInt();
 
+            AllPlayerSpeedBackup = new Dictionary<byte, float>(Main.AllPlayerSpeed);
             Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
@@ -195,7 +198,7 @@ internal class TimeMaster : RoleBase
                 }
             }
 
-            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            Main.AllPlayerSpeed = new Dictionary<byte, float>(AllPlayerSpeedBackup);
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Utils.MarkEveryoneDirtySettings();
         }
