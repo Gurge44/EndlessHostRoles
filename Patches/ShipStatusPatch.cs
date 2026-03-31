@@ -369,9 +369,23 @@ public static class HauntMenuMinigameSetHauntTargetPatch
         return false;
     }
 }
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
 [HarmonyPatch(typeof(PolusShipStatus), nameof(PolusShipStatus.OnEnable))]
+internal static class PolusShipStatusOnEnablePatch
+{
+    public static void Postfix()
+    {
+        ShipStatusOnEnablePatch.Postfix();
+    }
+}
 [HarmonyPatch(typeof(AirshipStatus), nameof(AirshipStatus.OnEnable))]
+internal static class AirshipStatusOnEnablePatch
+{
+    public static void Postfix()
+    {
+        ShipStatusOnEnablePatch.Postfix();
+    }
+}
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
 internal static class ShipStatusOnEnablePatch
 {
     public static void Postfix()
