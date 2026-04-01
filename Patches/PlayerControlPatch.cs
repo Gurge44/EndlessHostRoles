@@ -942,16 +942,16 @@ internal static class ShapeshiftPatch
     {
         if (!Main.ProcessShapeshifts || !GameStates.IsInTask || !__instance || !target) return;
 
-        if (shouldAnimate)
+        if (AmongUsClient.Instance.AmHost && shouldAnimate)
         {
             LateTask.New(() =>
             {
-                if (AmongUsClient.Instance.AmHost)
-                {
-                    __instance.RpcSetName(Main.AllPlayerNames[target.PlayerId]);
-                    NotifyRoles(SpecifyTarget: __instance, NoCache: true);
-                }
-            }, 1.2f, "PlayerControl.Shapeshift Prefix Patch - Force Name");
+                if (!__instance || !target) return;
+                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
+
+                __instance.RpcSetName(Main.AllPlayerNames[target.PlayerId]);
+                NotifyRoles(SpecifyTarget: __instance, NoCache: true);
+            }, 1.2f, "ShapeshiftPatch - Force Name");
         }
 
         bool shapeshifting = __instance.PlayerId != target.PlayerId;
@@ -978,10 +978,11 @@ internal static class ShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcShapeshift))]
 internal static class RpcShapeshiftPatch
 {
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool shouldAnimate)
     {
         Main.CheckShapeshift[__instance.PlayerId] = __instance.PlayerId != target.PlayerId;
-        
+        Main.ShapeshiftIsAnimated[__instance.PlayerId] = shouldAnimate;
+
         if (__instance.Is(CustomRoles.Morphling) && __instance.IsNonHostModdedClient())
             SendRPC(CustomRPC.SyncRoleData, __instance.PlayerId, __instance.PlayerId, Main.CheckShapeshift[__instance.PlayerId]);
     }
@@ -1358,6 +1359,13 @@ internal static class ReportDeadBodyPatch
             
                 if (Main.Invisible.Contains(pc.PlayerId))
                     LateTask.New(() => pc.RpcMakeVisible(), 1f, log: false);
+
+                // Fix name when LateTask "Shapeshift Patch - Force Name" was not revert name back before meeting started
+                if (pc.IsShifted() && Main.ShapeshiftIsAnimated.GetValueOrDefault(pc.PlayerId))
+                {
+                    Logger.Info($"Revert name back for shifted player: {player.GetNameWithRole().RemoveHtmlTags()}", "ReportDeadBody");
+                    pc.RpcSetName(Main.AllPlayerNames[pc.PlayerId]);
+                }
 
                 // PhantomRolePatch.OnReportDeadBody(pc);
             }

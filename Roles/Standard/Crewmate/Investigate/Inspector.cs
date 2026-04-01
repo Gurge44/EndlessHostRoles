@@ -21,8 +21,7 @@ public class Inspector : RoleBase
         "EgoistCountMode.Original",
         "EgoistCountMode.Neutral"
     ];
-
-    private static OptionItem TryHideMsg;
+    
     private static OptionItem InspectorCheckLimitMax;
     private static OptionItem InspectorCheckLimitPerMeeting;
     private static OptionItem InspectorCheckTargetKnow;
@@ -38,10 +37,6 @@ public class Inspector : RoleBase
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Inspector);
-
-        TryHideMsg = new BooleanOptionItem(Id + 10, "InspectorTryHideMsg", true, TabGroup.CrewmateRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Inspector])
-            .SetColor(Color.green);
 
         InspectorCheckLimitMax = new IntegerOptionItem(Id + 11, "MaxInspectorCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Inspector])
@@ -134,7 +129,7 @@ public class Inspector : RoleBase
                 break;
             case 2:
             {
-                if (TryHideMsg.GetBool() && !isUI && spamRequired)
+                if (!isUI && spamRequired)
                     Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!MsgToPlayerAndRole(msg, out byte targetId1, out byte targetId2, out string error))

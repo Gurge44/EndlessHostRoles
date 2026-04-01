@@ -525,7 +525,7 @@ public static class KingOfTheZones
         target.ExileTemporarily();
     }
 
-    private static float GetKillCooldown(PlayerControl player)
+    public static float GetKillCooldown(PlayerControl player)
     {
         float cd = TagCooldown.GetInt();
         if (!PlayerTeams.TryGetValue(player.PlayerId, out KOTZTeam playerTeam)) return cd;
@@ -817,7 +817,6 @@ public static class KingOfTheZones
 
                                 player.ReviveFromTemporaryExile();
                                 player.TP(RandomSpawn.SpawnMap.GetSpawnMap().Positions.ExceptBy(Zones, x => x.Key).RandomElement().Value);
-                                LateTask.New(() => player.SetKillCooldown(GetKillCooldown(player)), 1.5f, log: false);
                                 RPC.PlaySoundRPC(player.PlayerId, Sounds.SpawnSound);
                                 Utils.NotifyRoles(SpecifyTarget: player, SendOption: SendOption.None);
 

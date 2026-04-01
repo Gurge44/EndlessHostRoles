@@ -167,7 +167,6 @@ public class Medic : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
         if (ProtectList.Contains(target.PlayerId)) return false;
 
         killer.RpcRemoveAbilityUse();
@@ -201,7 +200,7 @@ public class Medic : RoleBase
             else Achievements.Type.ImUnstoppable.Complete();
         }
 
-        if (killer.GetAbilityUseLimit() < 1f)
+        if (killer.GetAbilityUseLimit() < 1f && (!Options.UsePets.GetBool() || !UsePet.GetBool()))
         {
             killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
             killer.RpcResetTasks();
@@ -220,7 +219,6 @@ public class Medic : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
         if (!ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown(ResetCooldown.GetFloat());

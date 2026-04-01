@@ -274,7 +274,7 @@ internal static class HudManagerPatch
                         CustomGameMode.StopAndGo => StopAndGo.GetHudText(),
                         CustomGameMode.HotPotato => HotPotato.GetSuffixText(player.PlayerId, true),
                         CustomGameMode.HideAndSeek => CustomHnS.GetSuffixText(player, player, true),
-                        CustomGameMode.NaturalDisasters when AmongUsClient.Instance.AmHost => NaturalDisasters.SuffixText(),
+                        CustomGameMode.NaturalDisasters when AmongUsClient.Instance.AmHost => NaturalDisasters.SuffixText,
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
                         CustomGameMode.Snowdown => Snowdown.GetHudText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
@@ -804,7 +804,7 @@ internal static class MapBehaviourShowPatch
 
         PlayerControl player = PlayerControl.LocalPlayer;
 
-        if (player.GetCustomRole() == CustomRoles.Hacker && Hacker.PlayerIdList.ContainsKey(player.PlayerId))
+        if (player.GetCustomRole() == CustomRoles.Hacker && opts.Mode is not MapOptions.Modes.CountOverlay && Hacker.PlayerIdList.ContainsKey(player.PlayerId))
         {
             Logger.Info("Modded Client uses Map", "Hacker");
             Hacker.MapHandle(player, __instance, opts);
