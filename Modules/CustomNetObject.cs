@@ -578,7 +578,7 @@ namespace EHR
 
             if (SpawnTimer <= 0f)
             {
-                RpcChangeSprite(DisasterSprite);
+                if (!Room.HasValue) RpcChangeSprite(DisasterSprite);
                 SpawnTimer = float.NaN;
             }
             else

@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -270,14 +269,13 @@ public static class NaturalDisasters
                             AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "SandStorm" or "Tsunami");
                             break;
                         }
+                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(AllDisasters.Count) == 0:
+                        {
+                            Sinkhole.RemoveRandomSinkhole();
+                            break;
+                        }
                         case 1:
                         {
-                            if (IRandom.Instance.Next(AllDisasters.Count) == 0)
-                            {
-                                Sinkhole.RemoveRandomSinkhole();
-                                return;
-                            }
-
                             Disaster remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
                             if (remove != null) remove.Duration = 0;
                             remove?.RemoveIfExpired();
@@ -309,6 +307,13 @@ public static class NaturalDisasters
                     disasters.RemoveAll(x => x.Name == "BuildingCollapse");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+
+                if (disaster.Name == "Thunderstorm")
+                {
+                    _ = new Thunderstorm(Vector2.zero, null);
+                    return;
+                }
+                
                 KeyValuePair<SystemTypes, Vector2> roomKvp;
 
                 if (Main.LIMap)
@@ -324,16 +329,15 @@ public static class NaturalDisasters
                         .RandomElement();
                 }
 
-                Vector2 position = disaster.Name switch
-                {
-                    "BuildingCollapse" => roomKvp.Value,
-                    "Thunderstorm" => Pelican.GetBlackRoomPS(),
-                    _ => IRandom.Instance.Next(2) == 0 && Options.CurrentGameMode == CustomGameMode.NaturalDisasters
+                bool bc = disaster.Name == "BuildingCollapse";
+                
+                Vector2 position = bc
+                    ? roomKvp.Value
+                    : IRandom.Instance.Next(2) == 0 && Options.CurrentGameMode == CustomGameMode.NaturalDisasters
                         ? Main.EnumerateAlivePlayerControls().RandomElement().Pos()
-                        : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
-                };
+                        : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
 
-                SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
+                SystemTypes? room = bc ? roomKvp.Key : null;
                 AddPreparingDisaster(position, disaster.Name, room);
             }
 
@@ -713,8 +717,6 @@ public static class NaturalDisasters
         {
             NetObject = naturalDisaster;
             Update();
-
-            naturalDisaster.Despawn();
 
             LateTask.New(() =>
             {
