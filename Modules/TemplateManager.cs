@@ -336,7 +336,7 @@ public static class TemplateManager
             return;
         }
 
-        List<TemplateEntry> eligible = [.. allMatched.Where(e => e.MatchesContext())];
+        List<TemplateEntry> eligible = allMatched.FindAll(e => e.MatchesContext());
         if (eligible.Count == 0)
         {
             if (!noErr) Utils.SendMessage(GetString("Message.TemplateConditionsNotMet"), playerId, importance: MessageImportance.Low);
@@ -375,12 +375,12 @@ public static class TemplateManager
             return;
         }
 
-        List<TemplateEntry> immediate = [.. eligible.Where(e => e.Delay == 0)];
-        List<TemplateEntry> delayed = [.. eligible.Where(e => e.Delay > 0)];
+        List<TemplateEntry> immediate = eligible.FindAll(e => e.Delay == 0);
+        List<TemplateEntry> delayed = eligible.FindAll(e => e.Delay > 0);
 
         if (immediate.Count > 0)
         {
-            bool hasWeights = immediate.Any(e => e.Weight != 1);
+            bool hasWeights = immediate.Exists(e => e.Weight != 1);
 
             if (hasWeights)
             {
@@ -403,19 +403,19 @@ public static class TemplateManager
 
     private static List<TemplateEntry> ApplyFilter(
         List<TemplateEntry> eligible,
-        Func<TemplateEntry, bool> hasCondition,
-        Func<TemplateEntry, bool> meetsCondition,
+        Predicate<TemplateEntry> hasCondition,
+        Predicate<TemplateEntry> meetsCondition,
         out bool blocked,
         out TemplateEntry blockSource)
     {
         blocked = false;
         blockSource = null;
 
-        List<TemplateEntry> restricted = [.. eligible.Where(hasCondition)];
+        List<TemplateEntry> restricted = [.. eligible.FindAll(hasCondition)];
         if (restricted.Count == 0) return eligible;
 
-        List<TemplateEntry> unrestricted = [.. eligible.Where(e => !hasCondition(e))];
-        List<TemplateEntry> passing = [.. restricted.Where(meetsCondition)];
+        List<TemplateEntry> unrestricted = [.. eligible.FindAll(e => !hasCondition(e))];
+        List<TemplateEntry> passing = [.. restricted.FindAll(meetsCondition)];
 
         if (passing.Count > 0) return passing;
         if (unrestricted.Count > 0) return unrestricted;

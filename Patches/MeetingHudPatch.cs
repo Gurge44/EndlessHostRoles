@@ -709,17 +709,19 @@ internal static class MeetingHudStartPatch
                 StringBuilder settings = new();
                 settings.Append("<size=70%>");
                 titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
-                sb.Append("<size=90%>");
                 sb.Append(pc.GetRoleInfo(true).TrimStart());
-                if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+                
+                if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt))
+                    Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
 
                 settings.Append("</size>");
-                if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                
+                if (role.PetActivatedAbility())
+                    sb.Append($"<size=1>{GetString("SupportsPetMessage")}</size>");
 
                 string searchStr = GetString(role.ToString());
                 sb.Replace(searchStr, role.ToColoredString());
                 sb.Replace(searchStr.ToLower(), role.ToColoredString());
-                sb.Append("<size=70%>");
 
                 foreach (CustomRoles subRole in Main.PlayerStates[pc.PlayerId].SubRoles)
                 {
@@ -733,7 +735,7 @@ internal static class MeetingHudStartPatch
                 if (role.UsesPetInsteadOfKill()) roleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesPetInsteadOfKillNotice")));
                 if (pc.UsesMeetingShapeshift()) roleDescMsgs.Add(new("\n", pc.PlayerId, GetString("UsesMeetingShapeshiftNotice")));
 
-                roleDescMsgs.Add(new(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString()));
+                roleDescMsgs.Add(new(sb.ToString(), pc.PlayerId, titleSb.ToString()));
             }
 
             LateTask.New(() =>

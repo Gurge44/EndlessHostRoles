@@ -1494,7 +1494,7 @@ internal static class ChatCommands
         sb.Append(GetString($"{role}InfoLong").FixRoleName(role).TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem chance)) AddSettings(chance);
         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
-        string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
+        string txt = sb.ToString().Replace(roleName, coloredString).Replace(roleName.ToLower(), coloredString);
         sb.Clear().Append(txt);
         if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
         Utils.SendMessage(sb.ToString(), player.PlayerId, title);
@@ -2292,17 +2292,20 @@ internal static class ChatCommands
             StringBuilder settings = new();
             settings.Append("<size=70%>");
             titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
-            sb.Append("<size=90%>");
+
             sb.Append(player.GetRoleInfo(true).TrimStart());
-            if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+            
+            if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt))
+                Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
 
             settings.Append("</size>");
-            if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+            
+            if (role.PetActivatedAbility())
+                sb.Append($"<size=1>{GetString("SupportsPetMessage")}</size>");
 
             string searchStr = GetString(role.ToString());
             sb.Replace(searchStr, role.ToColoredString());
             sb.Replace(searchStr.ToLower(), role.ToColoredString());
-            sb.Append("<size=70%>");
 
             foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
             {
@@ -2314,7 +2317,7 @@ internal static class ChatCommands
 
             if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
 
-            Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString(), importance: MessageImportance.High);
+            Utils.SendMessage(sb.ToString(), player.PlayerId, titleSb.ToString(), importance: MessageImportance.High);
             if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
             if (player.UsesMeetingShapeshift()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesMeetingShapeshiftNotice"));
         }
@@ -3207,11 +3210,8 @@ internal static class ChatCommands
                 {
                     var devMark = "▲";
                     if (rl.IsAdditionRole() || rl is CustomRoles.GM) devMark = string.Empty;
-
                     if (rl.GetCount() < 1 || rl.GetMode() == 0) devMark = string.Empty;
-
                     if (isUp) Utils.SendMessage(devMark == "▲" ? string.Format(GetString("Message.YTPlanSelected"), roleName) : string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId, importance: MessageImportance.Low);
-
                     if (isUp) return;
                 }
 
@@ -3220,13 +3220,14 @@ internal static class ChatCommands
                 StringBuilder settings = new();
                 var title = $"{coloredString} {Utils.GetRoleMode(rl)}";
                 sb.Append(GetString($"{rl}InfoLong").FixRoleName(rl).TrimStart());
+                
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
-                string txt = $"<size=90%>{sb}</size>".Replace(roleName, coloredString, StringComparison.OrdinalIgnoreCase);
+                string txt = sb.ToString().Replace(roleName, coloredString, StringComparison.OrdinalIgnoreCase);
                 sb.Clear().Append(txt);
 
-                if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                if (rl.PetActivatedAbility()) sb.Append($"<size=1>{GetString("SupportsPetMessage")}</size>");
 
                 if (settings.Length > 0) Utils.SendMessage("\n", playerId, settings.ToString());
                 if (rl.UsesPetInsteadOfKill()) Utils.SendMessage("\n", playerId, GetString("UsesPetInsteadOfKillNotice"));
