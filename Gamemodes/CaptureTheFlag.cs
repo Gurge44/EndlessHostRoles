@@ -834,14 +834,10 @@ public static class CaptureTheFlag
             if (SpawnProtectionTimes.TryGetValue(__instance.PlayerId, out long protectionEndTS))
             {
                 if (now >= protectionEndTS)
-                {
                     SpawnProtectionTimes.Remove(__instance.PlayerId);
+                
+                if (!notified)
                     Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
-                }
-                else if (!notified)
-                {
-                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
-                }
             }
         }
     }
