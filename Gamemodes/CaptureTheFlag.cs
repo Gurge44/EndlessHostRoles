@@ -22,6 +22,7 @@ public static class CaptureTheFlag
     private static OptionItem WhenFlagCarrierGetsTagged;
     private static OptionItem SpeedReductionForFlagCarrier;
     private static OptionItem TagCooldown;
+    private static OptionItem SpawnProtectionTime;
     private static OptionItem GameEndCriteria;
     private static OptionItem RoundsToPlay;
     private static OptionItem PointsToWin;
@@ -55,6 +56,7 @@ public static class CaptureTheFlag
     private static Dictionary<byte, CTFPlayerData> PlayerData = [];
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, long> TemporarilyOutPlayers = [];
+    private static Dictionary<byte, long> SpawnProtectionTimes = [];
     private static bool ValidTag;
     private static long GameStartTS;
     private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
@@ -172,6 +174,11 @@ public static class CaptureTheFlag
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color);
+
+        SpawnProtectionTime = new IntegerOptionItem(id + 13, "CTF_SpawnProtectionTime", new(0, 30, 1), 5, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(color);
     }
 
     public static bool KnowTargetRoleColor(PlayerControl target, ref string color)
@@ -238,6 +245,11 @@ public static class CaptureTheFlag
         if (TemporarilyOutPlayers.TryGetValue(id, out long backTS))
         {
             sb.Append(string.Format(Translator.GetString("CTF_BackIn"), backTS - Utils.TimeStamp));
+            sb.Append('\n');
+        }
+        else if (SpawnProtectionTimes.TryGetValue(id, out long protectionEndTS))
+        {
+            sb.Append(string.Format(Translator.GetString("CTF_Suffix.SpawnProtectionTime"), protectionEndTS - Utils.TimeStamp));
             sb.Append('\n');
         }
 
@@ -326,6 +338,7 @@ public static class CaptureTheFlag
         PlayerData = Main.PlayerStates.Keys.ToDictionary(x => x, _ => new CTFPlayerData());
         DefaultOutfits = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
         TemporarilyOutPlayers = [];
+        SpawnProtectionTimes = [];
         ValidTag = false;
         SendRPC();
     }
@@ -472,7 +485,7 @@ public static class CaptureTheFlag
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out CTFTeam killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
+        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || SpawnProtectionTimes.ContainsKey(target.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out CTFTeam killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
         new[] { killer, target }.Do(x => x.SetKillCooldownNonSync(KCD));
 
@@ -488,6 +501,7 @@ public static class CaptureTheFlag
                 target.TP(targetTeam.GetFlagBase().Position);
                 Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 target.MarkDirtySettings();
+                SpawnProtectionTimes[target.PlayerId] = Utils.TimeStamp + SpawnProtectionTime.GetInt();
                 break;
             case 1:
                 target.Suicide(PlayerState.DeathReason.Kill);
@@ -811,9 +825,23 @@ public static class CaptureTheFlag
                     __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);
                     RPC.PlaySoundRPC(__instance.PlayerId, Sounds.SpawnSound);
+                    SpawnProtectionTimes[__instance.PlayerId] = Utils.TimeStamp + SpawnProtectionTime.GetInt();
                 }
                 
                 if (!notified) Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
+            }
+
+            if (SpawnProtectionTimes.TryGetValue(__instance.PlayerId, out long protectionEndTS))
+            {
+                if (now >= protectionEndTS)
+                {
+                    SpawnProtectionTimes.Remove(__instance.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
+                }
+                else if (!notified)
+                {
+                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
+                }
             }
         }
     }

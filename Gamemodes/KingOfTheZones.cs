@@ -82,6 +82,7 @@ public static class KingOfTheZones
     private static Dictionary<byte, KOTZTeam> PlayerTeams = [];
     public static Dictionary<byte, long> RespawnTimes = [];
     private static Dictionary<byte, long> SpawnProtectionTimes = [];
+    private static Dictionary<byte, int> PlayerPoints = [];
     private static Dictionary<KOTZTeam, int> Points = [];
     private static Dictionary<SystemTypes, KOTZTeam> ZoneDomination = [];
     private static Dictionary<SystemTypes, long> ZoneMoveSchedules = [];
@@ -249,6 +250,7 @@ public static class KingOfTheZones
 
         KOTZTeam[] teams = Enum.GetValues<KOTZTeam>();
         Points = teams.ToDictionary(x => x, _ => 0);
+        PlayerPoints = Main.PlayerStates.Keys.ToDictionary(x => x, _ => 0);
         ZoneDomination = Zones.ToDictionary(x => x, _ => KOTZTeam.None);
         ZoneMoveSchedules = [];
         ZoneDowntimeExpire = [];
@@ -591,13 +593,13 @@ public static class KingOfTheZones
 
     public static string GetStatistics(byte id)
     {
-        return string.Format(GetString("KOTZ.EndScreen.Statistics"), GetZoneTime(id));
+        return string.Format(GetString("KOTZ.EndScreen.Statistics"), PlayerPoints.TryGetValue(id, out int points) ? points : 0);
     }
 
     public static int GetZoneTime(byte id)
     {
-        try { return Points[PlayerTeams[id]]; }
-        catch { return 0; }
+        if (!PlayerPoints.TryGetValue(id, out int points)) return 0;
+        return points;
     }
 
     public static bool CheckForGameEnd(out GameOverReason reason)
@@ -839,23 +841,22 @@ public static class KingOfTheZones
 
                 try
                 {
-                    Dictionary<SystemTypes, int[]> zoneTeamCounts = new(Zones.Count);
-                    
-                    foreach (SystemTypes zone in Zones)
-                        zoneTeamCounts[zone] = new int[TeamsEnumSize];
+                    Dictionary<SystemTypes, int[]> zoneTeamCounts = Zones.ToDictionary(x => x, _ => new int[TeamsEnumSize]);
+                    Dictionary<SystemTypes, List<byte>> playersInZone = Zones.ToDictionary(x => x, _ => new List<byte>());
 
                     foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                     {
-                        if (RespawnTimes.ContainsKey(player.PlayerId))
-                            continue;
+                        if (RespawnTimes.ContainsKey(player.PlayerId)) continue;
+
+                        PlainShipRoom room = player.GetPlainShipRoom();
+                        if (!room) continue;
+
+                        SystemTypes playerZone = room.RoomId;
+                        if (!playersInZone.TryGetValue(playerZone, out List<byte> occupants)) continue;
 
                         int team = (int)PlayerTeams[player.PlayerId];
-
-                        foreach (SystemTypes zone in Zones)
-                        {
-                            if (player.IsInRoom(zone))
-                                zoneTeamCounts[zone][team]++;
-                        }
+                        zoneTeamCounts[playerZone][team]++;
+                        occupants.Add(player.PlayerId);
                     }
 
                     foreach (SystemTypes zone in Zones)
@@ -894,13 +895,20 @@ public static class KingOfTheZones
                                 : (KOTZTeam)maxTeam;
                     }
 
-                    foreach (KOTZTeam team in ZoneDomination.Values)
+                    foreach ((SystemTypes zone, KOTZTeam winningTeam) in ZoneDomination)
                     {
-                        if (team != KOTZTeam.None)
-                            Points[team]++;
-                    }
+                        if (winningTeam == KOTZTeam.None) continue;
 
-                    Logger.Info($"Zone domination: {string.Join(", ", ZoneDomination.Select(x => $"{x.Key} = {x.Value}"))}", "KOTZ");
+                        Points[winningTeam]++;
+
+                        foreach (byte playerId in playersInZone[zone])
+                        {
+                            if (PlayerTeams[playerId] != winningTeam) continue;
+                            if (!Main.PlayerStates.TryGetValue(playerId, out PlayerState state) || state.IsDead) continue;
+
+                            PlayerPoints[playerId]++;
+                        }
+                    }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
 
