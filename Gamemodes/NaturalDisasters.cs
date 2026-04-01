@@ -361,7 +361,7 @@ public static class NaturalDisasters
                 if (float.IsNaN(naturalDisaster.SpawnTimer))
                 {
                     Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
-                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), 1f, log: false);
+                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), Utils.CalculatePingDelay(), log: false);
                     PreparingDisasters.Remove(naturalDisaster);
                 }
             }
@@ -757,7 +757,8 @@ public static class NaturalDisasters
 
                 if (!hit.GetPlainShipRoom())
                 {
-                    _ = new Lightning(hit);
+                    if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                        _ = new Lightning(hit);
                     
                     foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {

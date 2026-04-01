@@ -792,9 +792,12 @@ internal static class MurderPlayerPatch
         target.SetRealKiller(killer, true);
         CountAlivePlayers(true);
 
-        __instance.MarkDirtySettings();
-        target.MarkDirtySettings();
-        Main.Instance.StartCoroutine(NotifyEveryoneAsync(false));
+        if (Options.CurrentGameMode == CustomGameMode.Standard)
+        {
+            __instance.MarkDirtySettings();
+            target.MarkDirtySettings();
+            Main.Instance.StartCoroutine(NotifyEveryoneAsync(false));
+        }
 
         Statistics.OnMurder(killer, target);
     }
