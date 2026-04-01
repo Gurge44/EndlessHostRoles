@@ -57,7 +57,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2025.9.9";
+    public const string SupportedAUVersion = "2026.3.31";
 
     public static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
 
