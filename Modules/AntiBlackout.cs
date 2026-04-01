@@ -126,10 +126,10 @@ public static class AntiBlackout
                     else
                     {
                         if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
-                        
+
                         // Ensure that the players who are considered dead by the mod are actually dead in the game.
-                        pc.RpcSetRoleGlobal(pc.GetGhostRoleBasis());
-                        
+                        pc.RpcExiled();
+
                         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
                             pc.RpcResetAbilityCooldown();
                     }
