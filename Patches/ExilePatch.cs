@@ -220,33 +220,11 @@ internal static class ExileControllerWrapUpPatch
     [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
     private static class AirshipExileControllerPatchAndroid
     {
-        public static bool Prepare()
-        {
-            return OperatingSystem.IsAndroid();
-        }
-
         public static void Postfix(AirshipExileController __instance)
-        {
-            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
-            finally { WrapUpFinalizer(); }
-        }
-    }
-
-    [HarmonyPatch(typeof(AirshipExileController._WrapUpAndSpawn_d__11), nameof(AirshipExileController._WrapUpAndSpawn_d__11.MoveNext))]
-    private static class AirshipExileControllerPatch
-    {
-        public static bool Prepare()
-        {
-            return !OperatingSystem.IsAndroid();
-        }
-
-        public static void Postfix(AirshipExileController._WrapUpAndSpawn_d__11 __instance, ref bool __result)
         {
             if (Main.LIMap) return;
 
-            if (__result) return;
-
-            try { WrapUpPostfix(__instance.__4__this.initData.networkedPlayer); }
+            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
             finally { WrapUpFinalizer(); }
         }
     }
