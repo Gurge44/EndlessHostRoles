@@ -1971,7 +1971,9 @@ internal static class ExtendedPlayerControl
 
     public static void RpcExileV2(this PlayerControl player)
     {
-        player.RpcSetRoleGlobal(player.GetGhostRoleBasis());
+        player.Exiled();
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }
 
