@@ -33,7 +33,7 @@ public static class LobbySharingAPI
         string serverName = Utils.GetRegionName();
         string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
-        string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString(), SupportedLangs.English).RemoveHtmlTags().ToUpper();
+        string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
         string hostHashedPuid = Options.SendHashedPuidToUseLinkedAccount.GetBool() ? PlayerControl.LocalPlayer.GetClient().GetHashedPuid() : string.Empty;
         const string version = $"EHR v{Main.PluginDisplayVersion}";
         Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode, hostHashedPuid));
