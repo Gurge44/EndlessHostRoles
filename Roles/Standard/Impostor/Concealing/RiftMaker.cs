@@ -83,10 +83,13 @@ public class RiftMaker : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
-        if (!player.IsAliveWithConditions()) return;
         if (Marks.Count != 2) return;
+        if (!player.IsAliveWithConditions()) return;
 
-        if (FastVector2.DistanceWithinRange(Marks[0], Marks[1], 4f))
+        var marks = Marks;
+        Vector2 mark0 = marks[0], mark1 = marks[1];
+
+        if (FastVector2.DistanceWithinRange(mark0, mark1, 4f))
         {
             player.Notify(GetString("IncorrectMarks"));
             Marks.Clear();
@@ -95,13 +98,14 @@ public class RiftMaker : RoleBase
         }
 
         long now = TimeStamp;
-        if (LastTP + 5 > now) return;
+        if (now - LastTP < 5) return;
 
         Vector2 pos = player.Pos();
-        if (!Marks.FindFirst(x => FastVector2.DistanceWithinRange(x, pos, 1f), out Vector2 nearMark)) return;
+        var near0 = FastVector2.DistanceWithinRange(mark0, pos, 1f);
+        var near1 = FastVector2.DistanceWithinRange(mark1, pos, 1f);
+        if (!near0 && !near1) return;
 
-        int index = Marks.IndexOf(nearMark);
-        Vector2 target = Marks[1 - index];
+        Vector2 target = near0 ? mark1 : mark0;
         player.TP(target);
         LastTP = now;
     }

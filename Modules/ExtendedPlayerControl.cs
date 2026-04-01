@@ -2425,8 +2425,7 @@ internal static class ExtendedPlayerControl
     {
         if (!room) return false;
         var roomArea = room.roomArea;
-        if (!roomArea) return false;
-        if (!pc.IsAlive()) return false;
+        if (!roomArea || !pc.IsAlive()) return false;
         Vector2 pos = pc.Pos();
         return roomArea.bounds.Contains2D(pos) && Check(room, roomArea, pc, pos, OverlappingRooms.GetValueOrDefault(Main.CurrentMap, EmptyOverlap), out _);
     }
@@ -2444,7 +2443,15 @@ internal static class ExtendedPlayerControl
 
     public static PlainShipRoom GetRoomClass(this SystemTypes systemTypes)
     {
-        return ShipStatus.Instance.FastRooms.TryGetValue(systemTypes, out var room) ? room : ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == systemTypes);
+        if (ShipStatus.Instance.FastRooms.TryGetValue(systemTypes, out var fastRoom))
+            return fastRoom;
+        else
+        {
+            foreach (var room in ShipStatus.Instance.AllRooms)
+                if (room.RoomId == systemTypes)
+                    return room;
+        }
+        return null;
     }
 
     public static bool IsImpostor(this PlayerControl pc)

@@ -24,6 +24,7 @@ internal class TimeMaster : RoleBase
     public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
 
+    private static Dictionary<byte, Vector2> TargetPosition = [];
     private static Dictionary<long, Dictionary<byte, Vector2>> BackTrack = [];
     private static List<byte> RevivedPlayers = [];
     public static bool Rewinding;
@@ -212,20 +213,30 @@ internal class TimeMaster : RoleBase
         if (GameStates.IsMeeting || ExileController.Instance || !player.IsAlive()) return;
 
         long now = Utils.TimeStamp;
-        if (BackTrack.ContainsKey(now)) return;
+        if (!BackTrack.TryAdd(now, null)) return;
 
-        BackTrack[now] = Main.EnumerateAlivePlayerControls().Where(x => !x.inVent && !x.onLadder && !x.inMovingPlat).ToDictionary(x => x.PlayerId, x => x.Pos());
+        TargetPosition.Clear();
+        var alivePlayers = Main.CachedAlivePlayerControls();
+
+        foreach (PlayerControl pc in alivePlayers)
+        {
+            if (pc.inVent || pc.onLadder || pc.inMovingPlat) continue;
+
+            TargetPosition[pc.PlayerId] = pc.Pos();
+        }
+        BackTrack[now] = TargetPosition;
 
         if (TimeMasterCanUseVitals.GetBool()) return;
 
         var doComms = false;
         bool commsSaboActive = Utils.IsActive(SystemTypes.Comms);
         float usableDistance = DisableDevice.UsableDistance + 2f;
+        var mapId = Main.NormalOptions.MapId;
         Vector2 pos = player.Pos();
 
         if (!commsSaboActive)
         {
-            switch (Main.NormalOptions.MapId)
+            switch (mapId)
             {
                 case 2:
                     doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["PolusVital"], usableDistance);
@@ -239,27 +250,37 @@ internal class TimeMaster : RoleBase
             }
         }
 
-        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
         var hasValue = false;
+        var activateSabComms = false;
 
         if (doComms && !player.inVent && !DisableDevice.DesyncComms.Contains(player.PlayerId))
         {
             DesyncCommsActive = true;
-            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 128);
             hasValue = true;
+            activateSabComms = true;
         }
         else if (!commsSaboActive && DesyncCommsActive)
         {
             DesyncCommsActive = false;
-            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 16);
-
-            if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
-                sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 17);
-
             hasValue = true;
+            activateSabComms = false;
         }
 
-        sender.SendMessage(!hasValue);
+        if (!hasValue) return;
+
+        var sender = CustomRpcSender.Create("TimeMaster.DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
+
+        if (activateSabComms)
+            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 128);
+        else
+        {
+            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 16);
+
+            if (mapId is 1 or 5) // Mira HQ or The Fungle
+                sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 17);
+        }
+
+        sender.SendMessage();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

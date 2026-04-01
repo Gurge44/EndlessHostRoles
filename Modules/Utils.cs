@@ -260,43 +260,43 @@ public static class Utils
                 case SystemTypes.Electrical:
                     {
                         if (mapId == 5) return false;
-                        return ShipStatusSystem.SwitchSystem.IsActive;
+                        return ShipStatusSystem.SwitchSystem != null && ShipStatusSystem.SwitchSystem.IsActive;
                     }
                 case SystemTypes.Reactor:
                     {
                         return mapId switch
                         {
                             2 => false,
-                            4 => ShipStatusSystem.HeliSabotageSystem.IsActive,
-                            _ => ShipStatusSystem.ReactorSystemType.IsActive
+                            4 => ShipStatusSystem.HeliSabotageSystem != null && ShipStatusSystem.HeliSabotageSystem.IsActive,
+                            _ => ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive
                         };
                     }
                 case SystemTypes.Laboratory:
                     {
                         if (mapId != 2) return false;
-                        return ShipStatusSystem.ReactorSystemType.IsActive;
+                        return ShipStatusSystem.ReactorSystemType != null && ShipStatusSystem.ReactorSystemType.IsActive;
                     }
                 case SystemTypes.LifeSupp:
                     {
                         if (mapId is 2 or 4 or 5) return false;
-                        return ShipStatusSystem.LifeSuppSystemType.IsActive;
+                        return ShipStatusSystem.LifeSuppSystemType != null && ShipStatusSystem.LifeSuppSystemType.IsActive;
                     }
                 case SystemTypes.Comms:
                     {
                         if (mapId is 1 or 5)
-                            return ShipStatusSystem.HqHudSystemType.IsActive;
+                            return ShipStatusSystem.HqHudSystemType != null && ShipStatusSystem.HqHudSystemType.IsActive;
 
-                        return ShipStatusSystem.HudOverrideSystemType.IsActive;
+                        return ShipStatusSystem.HudOverrideSystemType != null && ShipStatusSystem.HudOverrideSystemType.IsActive;
                     }
                 case SystemTypes.HeliSabotage:
                     {
                         if (mapId != 4) return false;
-                        return ShipStatusSystem.HeliSabotageSystem.IsActive;
+                        return ShipStatusSystem.HeliSabotageSystem != null && ShipStatusSystem.HeliSabotageSystem.IsActive;
                     }
                 case SystemTypes.MushroomMixupSabotage:
                     {
                         if (mapId != 5) return false;
-                        return ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
+                        return ShipStatusSystem.MushroomMixupSabotageSystem != null && ShipStatusSystem.MushroomMixupSabotageSystem.IsActive;
                     }
                 default:
                     return false;

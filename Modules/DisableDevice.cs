@@ -75,6 +75,7 @@ internal static class DisableDevice
         try
         {
             var doComms = false;
+            var mapId = Main.NormalOptions.MapId;
             Vector2 PlayerPos = pc.Pos();
 
             bool ignore = (Options.DisableDevicesIgnoreImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) ||
@@ -86,7 +87,7 @@ internal static class DisableDevice
 
             if (pc.IsAlive() && !Utils.IsActive(SystemTypes.Comms))
             {
-                switch (Main.NormalOptions.MapId)
+                switch (mapId)
                 {
                     case 0:
                         if (Options.DisableSkeldAdmin.GetBool() || rogueForce) doComms |= FastVector2.DistanceWithinRange(PlayerPos, DevicePos["SkeldAdmin"], UsableDistance);
@@ -125,27 +126,37 @@ internal static class DisableDevice
 
             doComms &= !ignore;
 
-            var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
             var hasValue = false;
+            var activateSabComms = false;
 
             if (doComms && !pc.inVent)
             {
                 if (!DesyncComms.Contains(pc.PlayerId)) DesyncComms.Add(pc.PlayerId);
-                sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 128);
                 hasValue = true;
+                activateSabComms = true;
             }
             else if (!Utils.IsActive(SystemTypes.Comms) && DesyncComms.Contains(pc.PlayerId))
             {
                 DesyncComms.Remove(pc.PlayerId);
-                sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 16);
-
-                if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
-                    sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 17);
-
                 hasValue = true;
+                activateSabComms = false;
             }
 
-            sender.SendMessage(!hasValue);
+            if (!hasValue) return;
+
+            var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
+
+            if (activateSabComms)
+                sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 128);
+            else
+            {
+                sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 16);
+
+                if (mapId is 1 or 5) // Mira HQ or The Fungle
+                    sender.RpcDesyncUpdateSystem(pc, SystemTypes.Comms, 17);
+            }
+
+            sender.SendMessage();
         }
         catch (Exception ex) { Logger.Exception(ex, "DisableDevice"); }
     }
