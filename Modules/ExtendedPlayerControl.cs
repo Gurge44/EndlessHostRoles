@@ -1723,10 +1723,7 @@ internal static class ExtendedPlayerControl
             
             var sender = CustomRpcSender.Create("RpcResetInvisibility", SendOption.Reliable);
             sender.StartMessage(pc.OwnerId);
-            sender.StartRpc(player.NetId, RpcCalls.SetRole)
-                .Write((ushort)player.GetGhostRoleBasis())
-                .Write(true)
-                .EndRpc();
+            sender.RpcExiled(player, autoStartRpc: false, exileForHost: false);
             RoleTypes role = Utils.GetRoleMap(pc.PlayerId, player.PlayerId).RoleType;
             sender.StartRpc(player.NetId, RpcCalls.SetRole)
                 .Write((ushort)role)
@@ -1969,11 +1966,15 @@ internal static class ExtendedPlayerControl
         return count.Item1 >= count.Item2;
     }
 
-    public static void RpcExileV2(this PlayerControl player)
+    public static void RpcExiled(this PlayerControl player)
     {
         player.Exiled();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.Reliable);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+    public static void RpcExileV2(this PlayerControl player)
+    {
+        player.RpcExiled();
         FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }
 

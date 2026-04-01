@@ -708,13 +708,17 @@ public static class CustomRpcSenderExtensions
         newSender = sender;
         return hasValue;
     }
-
-    public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl player)
+    public static bool RpcExiled(this CustomRpcSender sender, PlayerControl target, bool autoStartRpc = true, int targetClientId = -1, bool exileForHost = true)
     {
-        player.Exiled();
-        sender.AutoStartRpc(player.NetId, RpcCalls.Exiled);
-        sender.EndRpc();
-        FixedUpdatePatch.LoversSuicide(player.PlayerId);
+        if (exileForHost) target.Exiled();
+        if (autoStartRpc) sender.AutoStartRpc(target.NetId, RpcCalls.Exiled, targetClientId).EndRpc();
+        else sender.StartRpc(target.NetId, RpcCalls.Exiled).EndRpc();
+        return true;
+    }
+    public static bool RpcExileV2(this CustomRpcSender sender, PlayerControl target, bool autoStartRpc = true, int targetClientId = -1, bool exileForHost = true)
+    {
+        sender.RpcExiled(target, autoStartRpc, targetClientId, exileForHost);
+        FixedUpdatePatch.LoversSuicide(target.PlayerId);
         return true;
     }
 
