@@ -22,9 +22,10 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem SwitchVanilla;
     private static ClientOptionItem DarkTheme;
     private static ClientOptionItem DarkThemeForMeetingUI;
+    private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem HorseMode;
     private static ClientOptionItem LongMode;
-    private static ClientOptionItem ShowPlayerInfoInLobby;
+    private static ClientOptionItem ClassicMode;
     private static ClientOptionItem LobbyMusic;
     private static ClientOptionItem EnableCommandHelper;
     private static ClientOptionItem ShowModdedClientText;
@@ -133,6 +134,13 @@ public static class OptionsMenuBehaviourStartPatch
         if (DarkThemeForMeetingUI == null || !DarkThemeForMeetingUI.ToggleButton)
             DarkThemeForMeetingUI = ClientOptionItem.Create("DarkThemeForMeetingUI", Main.DarkThemeForMeetingUI, __instance);
 
+        if (ShowPlayerInfoInLobby == null || !ShowPlayerInfoInLobby.ToggleButton)
+        {
+            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance, ShowPlayerInfoInLobbyButtonToggle);
+
+            static void ShowPlayerInfoInLobbyButtonToggle() => Utils.DirtyName.UnionWith(Main.EnumeratePlayerControls().Select(x => x.PlayerId));
+        }
+
         if (HorseMode == null || !HorseMode.ToggleButton)
         {
             HorseMode = ClientOptionItem.Create("HorseMode", Main.HorseMode, __instance, SwitchHorseMode);
@@ -140,8 +148,10 @@ public static class OptionsMenuBehaviourStartPatch
             static void SwitchHorseMode()
             {
                 Main.LongMode.Value = false;
+                Main.ClassicMode.Value = false;
                 HorseMode.UpdateToggle();
                 LongMode.UpdateToggle();
+                ClassicMode.UpdateToggle();
 
                 foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
@@ -158,8 +168,10 @@ public static class OptionsMenuBehaviourStartPatch
             static void SwitchLongMode()
             {
                 Main.HorseMode.Value = false;
+                Main.ClassicMode.Value = false;
                 HorseMode.UpdateToggle();
                 LongMode.UpdateToggle();
+                ClassicMode.UpdateToggle();
 
                 foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
@@ -169,11 +181,24 @@ public static class OptionsMenuBehaviourStartPatch
             }
         }
 
-        if (ShowPlayerInfoInLobby == null || !ShowPlayerInfoInLobby.ToggleButton)
+        if (ClassicMode == null || !ClassicMode.ToggleButton)
         {
-            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance, ShowPlayerInfoInLobbyButtonToggle);
+            ClassicMode = ClientOptionItem.Create("ClassicMode", Main.ClassicMode, __instance, SwitchClassicMode);
 
-            static void ShowPlayerInfoInLobbyButtonToggle() => Utils.DirtyName.UnionWith(Main.EnumeratePlayerControls().Select(x => x.PlayerId));
+            static void SwitchClassicMode()
+            {
+                Main.HorseMode.Value = false;
+                Main.LongMode.Value = false;
+                HorseMode.UpdateToggle();
+                LongMode.UpdateToggle();
+                ClassicMode.UpdateToggle();
+
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                {
+                    pc.MyPhysics.SetBodyType(pc.BodyType);
+                    if (pc.BodyType == PlayerBodyTypes.Normal) pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
+                }
+            }
         }
 
         if (LobbyMusic == null || !LobbyMusic.ToggleButton)

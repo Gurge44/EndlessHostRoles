@@ -1,5 +1,4 @@
-﻿using AmongUs.Data;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Il2CppSystem;
 using static CosmeticsLayer;
 using Action = Il2CppSystem.Action;
@@ -29,12 +28,11 @@ public static class GetNormalBodyTypePatch
             __result = PlayerBodyTypes.Long;
             return;
         }
-        if (AprilFoolsMode.ShouldClassicMode())
+        if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
         {
             __result = PlayerBodyTypes.Classic;
             return;
         }
-        __result = PlayerBodyTypes.Normal;
     }
 }
 
@@ -57,6 +55,11 @@ public static class GetHnsBodyTypePatch
                     __result = PlayerBodyTypes.Long;
                     return;
                 }
+                if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
+                {
+                    __result = PlayerBodyTypes.Classic;
+                    return;
+                }
                 __result = PlayerBodyTypes.Normal;
             }
             else if (Main.HorseMode.Value || AprilFoolsMode.ShouldHorseAround())
@@ -77,22 +80,13 @@ public static class GetHnsBodyTypePatch
                 }
                 __result = PlayerBodyTypes.Long;
             }
-            else if (AprilFoolsMode.ShouldClassicMode())
+            else if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
             {
                 if (player.Data.Role.IsImpostor)
                 {
                     __result = PlayerBodyTypes.Seeker;
                 }
                 __result = PlayerBodyTypes.Classic;
-            }
-            else
-            {
-                if (player.Data.Role.IsImpostor)
-                {
-                    __result = PlayerBodyTypes.Seeker;
-                    return;
-                }
-                __result = PlayerBodyTypes.Normal;
             }
         }
         catch { }
