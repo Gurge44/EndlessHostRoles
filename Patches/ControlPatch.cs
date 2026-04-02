@@ -29,6 +29,9 @@ internal static class ControllerManagerUpdatePatch
     {
         try
         {
+            if (ClientControlGUI.Instance && (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus)))
+                ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
+            
             if (HudManager.InstanceExists)
             {
                 if (PlayerControl.LocalPlayer)
@@ -223,9 +226,9 @@ internal static class ControllerManagerUpdatePatch
                 Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
             }
 
+#if DEBUG        
             if (!Options.NoGameEnd.GetBool()) return;
 
-#if DEBUG        
             if (KeysDown(KeyCode.F2, KeyCode.LeftControl))
             {
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
@@ -369,10 +372,12 @@ internal static class ControllerManagerUpdatePatch
         return false;
     }
 
+/*
     private static bool OrGetKeysDown(params KeyCode[] keys)
     {
         return keys.Any(Input.GetKeyDown);
     }
+*/
 }
 
 [HarmonyPatch(typeof(ConsoleJoystick), nameof(ConsoleJoystick.HandleHUD))]

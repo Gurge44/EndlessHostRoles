@@ -78,21 +78,23 @@ public static class HandshakePatch
 
     public static void Postfix(ref Il2CppStructArray<byte> __result)
     {
+        if (GameStates.CurrentServerType is not (GameStates.ServerType.Modded or GameStates.ServerType.Niko)) return;
+        
         var handshake = new MessageWriter(1000);
 
         // Original data
         handshake.Write(__result);
 
         // Reactor Header
-        var version = (byte) ReactorProtocolVersion.Latest;
-        var value = (MAGIC << 8) | version;
+        const byte version = (byte)ReactorProtocolVersion.Latest;
+        const ulong value = (MAGIC << 8) | version;
         handshake.Write(value);
 
         // ModdedHandshakeC2S
         handshake.WritePacked(1);
         handshake.Write(Main.PluginGuid);
         handshake.Write(Main.PluginVersion);
-        handshake.Write((ushort) (ModFlags.RequireOnHost | ModFlags.RequireOnAllClients));
+        handshake.Write((ushort)(ModFlags.RequireOnHost | ModFlags.RequireOnAllClients));
 
         __result = handshake.ToByteArray(true);
         handshake.Recycle();

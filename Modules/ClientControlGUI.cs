@@ -5,6 +5,7 @@ using EHR.Patches;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static EHR.Translator;
+// ReSharper disable InconsistentNaming
 
 namespace EHR;
 
@@ -12,9 +13,8 @@ public class ClientControlGUI : MonoBehaviour
 {
     public static ClientControlGUI Instance;
 
-    public bool IsOpen => _open;
-    
-    private bool _open;           // whether the panel is visible
+    public bool IsOpen;           // whether the panel is visible
+
     private Vector2 _scroll;      // current scroll position inside the panel
     private float _contentH;      // total height of all drawn buttons, updated each frame
 
@@ -25,7 +25,7 @@ public class ClientControlGUI : MonoBehaviour
 
     // Scale helpers - everything is relative to a 1080px-wide reference screen.
     // On PC the UI is scaled down to 60% but on Android we keep it at full size for better readability.
-    private static float PS  => OperatingSystem.IsAndroid() ? 1.0f : 0.6f;  // PS: platform scale multiplier (Android full size, PC smaller)
+    private static float PS  => OperatingSystem.IsAndroid() ? 1.0f : 0.5f;  // PS: platform scale multiplier (Android full size, PC smaller)
     private static float S   => Screen.width / 1080f * PS;                  // S: global scale factor
     private static int   FS  => Mathf.Max(12, Mathf.RoundToInt(21f * S));   // FS: font size
     private static float BH  => 66f * S;                                    // BH: button height
@@ -278,7 +278,7 @@ public class ClientControlGUI : MonoBehaviour
 
         HandleDrag();
         DrawToggle();
-        if (_open) DrawWindow();
+        if (IsOpen) DrawWindow();
     }
 
     // Draws the small square button that opens/closes the panel.
@@ -288,7 +288,7 @@ public class ClientControlGUI : MonoBehaviour
         float size = 48f * S;
         float x, y;
 
-        if (_open)
+        if (IsOpen)
         {
             // Sits just to the right of the window, vertically centred on it
             x = _windowRect.x + _windowRect.width + 8f * S;
@@ -296,27 +296,18 @@ public class ClientControlGUI : MonoBehaviour
         }
         else
         {
-            if (OperatingSystem.IsAndroid())
-            {
-                // Bottom-left center: horizontally centred on the left quarter of the screen,
-                x = Screen.width * 0.25f - size * 0.5f;
-                y = Screen.height - size - 10f * S;
-            }
-            else
-            {
-                // PC: left side, vertically centred but shifted down to avoid overlapping with game UI
-                x = 20f * S;
-                y = (Screen.height - size) * 0.5f + 60f * S;
-            }
+            // Bottom-left center: horizontally centred on the left quarter of the screen,
+            x = Screen.width * 0.3f - size * 0.5f;
+            y = Screen.height - size - 10f * S;
         }
 
         // 90% transparent when in game and panel is closed, full opacity otherwise
-        bool fadeOut = !_open && GameStates.IsInGame;
+        bool fadeOut = !IsOpen && GameStates.IsInGame;
         Color prev = GUI.color;
         if (fadeOut) GUI.color = new Color(1f, 1f, 1f, 0.10f);
 
-        if (GUI.Button(new Rect(x, y, size, size), _open ? "X" : "=", _sToggle))
-            _open = !_open;
+        if (GUI.Button(new Rect(x, y, size, size), IsOpen ? "X" : "=", _sToggle))
+            IsOpen = !IsOpen;
 
         if (fadeOut) GUI.color = prev;
     }
@@ -325,7 +316,7 @@ public class ClientControlGUI : MonoBehaviour
     // ImGUI doesn't have built-in window dragging, so we do it manually with mouse events.
     private void HandleDrag()
     {
-        if (!_open) return;
+        if (!IsOpen) return;
 
         Event e = Event.current;
         float titleH = BH * 0.80f + P;
