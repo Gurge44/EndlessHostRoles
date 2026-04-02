@@ -58,6 +58,7 @@ Syntax: `tag[property=value]:` (chain with `|`)
 `{{HostName}} {{Players}} {{AlivePlayers}} {{DeadPlayers}} {{PlayerCount}} {{AlivePlayerCount}} {{DeadPlayerCount}} {{GameDuration}} {{MeetingCount}} {{PresetName}}`
 
 ## Additions
+- Client Control GUI (by Zypherus)
 - New setting for Capture The Flag: `Spawn Protection Time` (by Zypherus)
 - New setting for Natural Disasters: `Disaster Spawn Mode` (`All On Players`/`All On Random Places`/`On Players & Random Places`)
 - Death messages for others in Natural Disasters
