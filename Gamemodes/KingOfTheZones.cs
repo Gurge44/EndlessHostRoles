@@ -248,8 +248,7 @@ public static class KingOfTheZones
 
         Zones = DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
 
-        KOTZTeam[] teams = Enum.GetValues<KOTZTeam>();
-        Points = teams.ToDictionary(x => x, _ => 0);
+        Points = Enum.GetValues<KOTZTeam>().ToDictionary(x => x, _ => 0);
         PlayerPoints = Main.PlayerStates.Keys.ToDictionary(x => x, _ => 0);
         ZoneDomination = Zones.ToDictionary(x => x, _ => KOTZTeam.None);
         ZoneMoveSchedules = [];
@@ -260,11 +259,20 @@ public static class KingOfTheZones
 
         DefaultOutfits = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
 
-        List<byte> ids = Main.PlayerStates.Keys.Shuffle();
-        if (Main.GM.Value) ids.Remove(0);
-        ids.RemoveAll(ChatCommands.Spectators.Contains);
+        GameGoing = false;
+        SendRPC();
+    }
 
-        int numPlayers = ids.Count;
+    public static IEnumerator GameStart()
+    {
+        if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones) yield break;
+
+        yield return new WaitForSecondsRealtime(3f);
+
+        var aapc = Main.AllAlivePlayerControls;
+        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Count / 2;
+        NameNotifyManager.Reset();
+        int numPlayers = aapc.Count;
 
         if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0)
         {
@@ -281,32 +289,18 @@ public static class KingOfTheZones
                 }
             }
         }
-        
-        int numTeams = NumTeams.GetInt();
-        FixedUpdatePatch.NumTeamsCache = numTeams;
-
-        PlayerTeams = ids
-            .Partition(numTeams)
-            .Zip(teams[1..], (players, team) => players.ToDictionary(x => x, _ => team))
-            .SelectMany(x => x)
-            .ToDictionary(x => x.Key, x => x.Value);
-
-        GameGoing = false;
-        SendRPC();
-    }
-
-    public static IEnumerator GameStart()
-    {
-        if (Options.CurrentGameMode != CustomGameMode.KingOfTheZones) yield break;
-
-        yield return new WaitForSecondsRealtime(3f);
-
-        var aapc = Main.AllAlivePlayerControls;
-        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Count / 2;
-        NameNotifyManager.Reset();
 
         int teams = NumTeams.GetInt();
         int zones = NumZones.GetInt();
+        
+        FixedUpdatePatch.NumTeamsCache = teams;
+
+        PlayerTeams = aapc
+            .Select(x => x.PlayerId)
+            .Partition(teams)
+            .Zip(Enum.GetValues<KOTZTeam>()[1..], (players, team) => players.ToDictionary(x => x, _ => team))
+            .SelectMany(x => x)
+            .ToDictionary(x => x.Key, x => x.Value);
 
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
         {
