@@ -2581,12 +2581,23 @@ public static class Utils
                             tooLong = true;
                         }
 
-                        for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
-                        {
-                            if (tooLong && i > 296) break;
+                        int start = 0;
 
-                            int index = longInfo.LastIndexOf(' ', i);
-                            if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
+                        while (start + charsInOneLine < longInfo.Length)
+                        {
+                            if (tooLong && start > 296) break;
+
+                            int searchEnd = Math.Min(start + charsInOneLine, longInfo.Length - 1);
+                            int index = longInfo.LastIndexOf(' ', searchEnd, charsInOneLine);
+
+                            if (index == -1)
+                            {
+                                start += charsInOneLine;
+                                continue;
+                            }
+
+                            longInfo = $"{longInfo[..index]}\n{longInfo[(index + 1)..]}";
+                            start = index + 1;
                         }
                     }
 
