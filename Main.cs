@@ -57,9 +57,12 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2025.9.9";
+    public const string SupportedAUVersion = "2026.3.31";
 
-    public static readonly string DataPath = OperatingSystem.IsAndroid() ? Application.persistentDataPath : ".";
+    public static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
+
+    public static readonly string DataPath =
+        OperatingSystem.IsAndroid() ? StarData : ".";
 
     public static readonly Version Version = Version.Parse(PluginVersion);
 
@@ -195,6 +198,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> DarkThemeForMeetingUI { get; private set; }
     public static ConfigEntry<bool> HorseMode { get; private set; }
     public static ConfigEntry<bool> LongMode { get; private set; }
+    public static ConfigEntry<bool> ClassicMode { get; private set; }
     public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
     public static ConfigEntry<bool> LobbyMusic { get; private set; }
     public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
@@ -287,6 +291,7 @@ public class Main : BasePlugin
         DarkThemeForMeetingUI = Config.Bind("Client Options", "DarkThemeForMeetingUI", false);
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
         LongMode = Config.Bind("Client Options", "LongMode", false);
+        ClassicMode = Config.Bind("Client Options", "ClassicMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
         LobbyMusic = Config.Bind("Client Options", "LobbyMusic", true);
         EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
@@ -1216,5 +1221,3 @@ public enum TieMode
 }
 
 public class Coroutines : MonoBehaviour { }
-
-
