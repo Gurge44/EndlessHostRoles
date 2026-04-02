@@ -78,8 +78,6 @@ public static class HandshakePatch
 
     public static void Postfix(ref Il2CppStructArray<byte> __result)
     {
-        if (GameStates.CurrentServerType is not (GameStates.ServerType.Modded or GameStates.ServerType.Niko)) return;
-        
         var handshake = new MessageWriter(1000);
 
         // Original data
