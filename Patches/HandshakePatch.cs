@@ -94,7 +94,7 @@ public static class HandshakePatch
         handshake.WritePacked(1);
         handshake.Write(Main.PluginGuid);
         handshake.Write(Main.PluginVersion);
-        handshake.Write((ushort)(ModFlags.RequireOnHost | ModFlags.RequireOnAllClients));
+        handshake.Write((ushort)(ModFlags.RequireOnHost | ModFlags.DisableServerAuthority));
 
         __result = handshake.ToByteArray(true);
         handshake.Recycle();
