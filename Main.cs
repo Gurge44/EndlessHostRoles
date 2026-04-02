@@ -302,6 +302,9 @@ public class Main : BasePlugin
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
+        AddComponent<ClientControlGUI>();
+        Log.LogInfo("ClientControlGUI registered");
+
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
         Logger.Enable();
@@ -1218,5 +1221,3 @@ public enum TieMode
 }
 
 public class Coroutines : MonoBehaviour { }
-
-
