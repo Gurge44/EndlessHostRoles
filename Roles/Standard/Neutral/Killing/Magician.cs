@@ -319,8 +319,7 @@ public class Magician : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask) return;
-        if (!pc.IsAliveWithConditions()) return;
+        if (!GameStates.IsInTask || !pc.IsAliveWithConditions()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 

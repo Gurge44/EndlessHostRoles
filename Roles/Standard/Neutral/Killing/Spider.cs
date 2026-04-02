@@ -23,6 +23,7 @@ public class Spider : RoleBase
     public override bool IsEnable => On;
 
     private Dictionary<Vector2, Dictionary<byte, long>> Webs = [];
+    private readonly List<Vector2> ToRemove = [];
     private long LastNotifyTS;
     private bool NameDirty;
     private byte SpiderId;
@@ -153,17 +154,17 @@ public class Spider : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        long now = Utils.TimeStamp;
-        List<Vector2> toRemove = [];
+        if (Webs.Count <= 0) return;
         
+        long now = Utils.TimeStamp;
+        ToRemove.Clear();
+
         foreach ((Vector2 pos, Dictionary<byte, long> trapped) in Webs)
         {
-            if (trapped.Count > 0)
-                NameDirty = true;
-            
+            if (trapped.Count > 0) NameDirty = true;
             if (trapped.Values.Min() <= now)
             {
-                toRemove.Add(pos);
+                ToRemove.Add(pos);
                 LateTask.New(() =>
                 {
                     trapped.Keys.ToValidPlayers().Do(x =>
@@ -175,13 +176,14 @@ public class Spider : RoleBase
                 }, 0.2f, log: false);
             }
         }
-        
-        toRemove.ForEach(x =>
-        {
-            Webs.Remove(x);
-            LocateArrow.Remove(pc.PlayerId, x);
-            Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 2, x);
-        });
+
+        if (ToRemove.Count > 0)
+            ToRemove.ForEach(x =>
+            {
+                Webs.Remove(x);
+                LocateArrow.Remove(pc.PlayerId, x);
+                Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 2, x);
+            });
 
         if (NameDirty && now != LastNotifyTS)
         {

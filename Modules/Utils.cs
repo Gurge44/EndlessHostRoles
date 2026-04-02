@@ -4414,12 +4414,19 @@ public static class Utils
     public static (int Drawn, int All) GetDrawPlayerCount(byte playerId, out List<PlayerControl> winnerList)
     {
         int all = Revolutionist.RevolutionistDrawCount.GetInt();
-        int max = Main.CachedAlivePlayerControls().Count;
+        var players = Main.CachedAlivePlayerControls();
+        int max = players.Count;
+        winnerList = [];
 
         if (!Main.PlayerStates[playerId].IsDead) max--;
         if (all > max) all = max;
 
-        winnerList = Main.EnumeratePlayerControls().Where(pc => Revolutionist.IsDraw.TryGetValue((playerId, pc.PlayerId), out bool isDraw) && isDraw).ToList();
+        for (int inedx = 0; inedx < players.Count; inedx++)
+        {
+            PlayerControl pc = players[inedx];
+            if (Revolutionist.IsDraw.GetValueOrDefault((playerId, pc.PlayerId)))
+                winnerList.Add(pc);
+        }
         return (winnerList.Count, all);
     }
 

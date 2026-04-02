@@ -228,20 +228,13 @@ public class Pelican : RoleBase
     {
         if (!GameStates.IsInTask)
         {
-            if (EatenList.Count > 0)
-            {
-                ClearOrRemoveEatenList();
-            }
-
+            if (EatenList.Count > 0) ClearOrRemoveEatenList();
             return;
         }
-
         if (!IsEnable) return;
+        if (--Count > 0) return;
 
-        Count--;
-        if (Count > 0) return;
         Count = 20;
-
         if (!EatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
 
         foreach (byte tar in list)

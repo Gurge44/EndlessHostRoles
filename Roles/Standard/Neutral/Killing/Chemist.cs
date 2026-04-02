@@ -512,47 +512,79 @@ internal class Chemist : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
+        if (!GameStates.IsInTask || !pc.IsAlive()) return;
 
-        LastUpdate = Utils.TimeStamp;
+        var now = Utils.TimeStamp;
+        if (LastUpdate >= now) return;
 
-        if (ItemCounts[Item.Air] < 900)
+        var playerId = pc.PlayerId;
+        var itemCounts = ItemCounts;
+        var airGain = AirGainedPerSecond.GetInt();
+        var waterGain = WaterGainedPerSecond.GetInt();
+
+        int air = itemCounts[Item.Air];
+        if (air < 900)
         {
-            ItemCounts[Item.Air] += AirGainedPerSecond.GetInt();
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.Air, AirGainedPerSecond.GetInt());
+            air += airGain;
+            itemCounts[Item.Air] = air;
+            Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, (int)Item.Air, airGain);
         }
 
-        if (ItemCounts[Item.Water] < 900)
+        int water = itemCounts[Item.Water];
+        if (water < 900)
         {
-            ItemCounts[Item.Water] += WaterGainedPerSecond.GetInt();
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.Water, WaterGainedPerSecond.GetInt());
+            water += waterGain;
+            itemCounts[Item.Water] = water;
+            Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, (int)Item.Water, waterGain);
         }
 
         Factory beforeFactory = CurrentFactory;
         PlainShipRoom room = pc.GetPlainShipRoom();
-
-        if (ItemCounts[Item.ThermalWater] < 50 && room != null && room.RoomId == HottestRoom[Main.CurrentMap])
+        if (room == null) goto AFTER_ROOM;
+        
+        SystemTypes roomId = room.RoomId;
+        if (itemCounts[Item.ThermalWater] < 50 && roomId == HottestRoom[Main.CurrentMap])
         {
-            ItemCounts[Item.ThermalWater]++;
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.ThermalWater, 1);
+            itemCounts[Item.ThermalWater]++;
+            Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, (int)Item.ThermalWater, 1);
         }
 
-        if (room != null)
-        {
-            CurrentFactory = FactoryLocations.GetValueOrDefault(room.RoomId);
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3, (int)CurrentFactory);
+        if (!FactoryLocations.TryGetValue(roomId, out var newFactory)) newFactory = default;
 
-            if (CurrentFactory != beforeFactory)
+        CurrentFactory = newFactory;
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3, (int)CurrentFactory);
+
+        if (CurrentFactory != beforeFactory)
+        {
+            var processes = Processes[newFactory];
+            string bestProcess = null;
+
+            foreach (var kv in processes)
             {
-                SortedAvailableProcesses = Processes[CurrentFactory]
-                    .OrderByDescending(x => x.Value.Ingredients.TrueForAll(y => ItemCounts[y.Item] >= y.Count))
-                    .Select(x => x.Key)
-                    .ToList();
+                bool canDo = true;
+                var ingredients = kv.Value.Ingredients;
 
-                SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
-                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, SelectedProcess);
+                for (int i = 0; i < ingredients.Count; i++)
+                {
+                    var ing = ingredients[i];
+                    if (itemCounts[ing.Item] < ing.Count)
+                    {
+                        canDo = false;
+                        break;
+                    }
+                }
+                if (canDo)
+                {
+                    bestProcess = kv.Key;
+                    break;
+                }
             }
+
+            SelectedProcess = bestProcess ?? string.Empty;
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, SelectedProcess);
         }
+
+    AFTER_ROOM:
 
         if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
             CheckAndKillAcidPlayers();

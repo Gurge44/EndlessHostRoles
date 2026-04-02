@@ -139,8 +139,7 @@ internal class Revolutionist : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         byte playerId = player.PlayerId;
-
-        if (GameStates.IsInTask && RevolutionistTimer.TryGetValue(playerId, out var value))
+        if (RevolutionistTimer.TryGetValue(playerId, out var value))
         {
             PlayerControl rvTarget = value.Player;
 
@@ -191,8 +190,7 @@ internal class Revolutionist : RoleBase
                 }
             }
         }
-
-        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
+        if (player.IsDrawDone() && player.IsAlive())
         {
             if (RevolutionistStart.TryGetValue(playerId, out var start))
             {
