@@ -71,7 +71,7 @@ internal class Bloodmoon : IGhostRole
         foreach (KeyValuePair<byte, long> death in ScheduledDeaths)
         {
             PlayerControl player = Utils.GetPlayerById(death.Key);
-            if (player == null || !player.IsAlive()) continue;
+            if (!player || !player.IsAlive()) continue;
 
             if (now - death.Value < Duration.GetInt())
             {
@@ -82,7 +82,7 @@ internal class Bloodmoon : IGhostRole
             if (pc.RpcCheckAndMurder(player, true)) player.Suicide(PlayerState.DeathReason.LossOfBlood, pc);
         }
 
-        FastVector2.GetPlayersInRange(pc.Pos(), 4f).DoIf(x => !x.Is(Team.Impostor), x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None));
+        FastVector2.GetPlayersInRange(pc.Pos(), 4f, x => !x.Is(Team.Impostor)).Do(x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None));
     }
 
     public static void OnMeetingStart()
@@ -92,9 +92,9 @@ internal class Bloodmoon : IGhostRole
             foreach (byte id in ScheduledDeaths.Keys)
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
 
-                pc.Suicide();
+                pc.Suicide(PlayerState.DeathReason.LossOfBlood);
             }
         }
 

@@ -32,6 +32,7 @@ public static class NaturalDisasters
     private static OptionItem WhenLimitIsReached;
     private static OptionItem PreferRemovingThunderstorm;
     private static OptionItem ChatDuringGame;
+    private static OptionItem DisasterSpawnMode;
     private static readonly Dictionary<string, OptionItem> DisasterSpawnChances = [];
 
     private static readonly string[] LimitReachedOptions =
@@ -39,6 +40,13 @@ public static class NaturalDisasters
         "ND_LimitReachedOptions.OnlySpawnInstantDisasters",
         "ND_LimitReachedOptions.RemoveRandom",
         "ND_LimitReachedOptions.RemoveOldest"
+    ];
+
+    private static readonly string[] DisasterSpawnModes =
+    [
+        "ND_DisasterSpawnModes.AllOnPlayers",
+        "ND_DisasterSpawnModes.AllOnRandomPlaces",
+        "ND_DisasterSpawnModes.OnPlayersAndRandomPlaces"
     ];
 
     public static List<Disaster> GetActiveDisasters()
@@ -92,6 +100,10 @@ public static class NaturalDisasters
             .SetColor(color);
         
         ChatDuringGame = new BooleanOptionItem(id++, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        DisasterSpawnMode = new StringOptionItem(id++, "ND_DisasterSpawnMode", DisasterSpawnModes, 2, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetColor(color);
 
@@ -269,7 +281,7 @@ public static class NaturalDisasters
                             AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "SandStorm" or "Tsunami");
                             break;
                         }
-                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(AllDisasters.Count) == 0:
+                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(2) == 0:
                         {
                             Sinkhole.RemoveRandomSinkhole();
                             break;
@@ -329,12 +341,19 @@ public static class NaturalDisasters
                         .RandomElement();
                 }
 
+                var aapc = Main.AllAlivePlayerControls;
                 bool bc = disaster.Name == "BuildingCollapse";
+                bool spawnOnPlayer = aapc.Count > 0 && DisasterSpawnMode.GetValue() switch
+                {
+                    0 => true,
+                    1 => false,
+                    _ => IRandom.Instance.Next(2) == 0
+                };
                 
                 Vector2 position = bc
                     ? roomKvp.Value
-                    : IRandom.Instance.Next(2) == 0 && Options.CurrentGameMode == CustomGameMode.NaturalDisasters
-                        ? Main.EnumerateAlivePlayerControls().RandomElement().Pos()
+                    :  spawnOnPlayer
+                        ? aapc.RandomElement().Pos()
                         : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
 
                 SystemTypes? room = bc ? roomKvp.Key : null;

@@ -585,7 +585,9 @@ namespace EHR
             {
                 int newTime = TimeInt;
                 if (oldTime == newTime) return;
-                RpcChangeSprite($"<size=250%>{newTime:N0}</size>\n{DisasterNameTranslated}");
+                string warning = $"<size=250%>{newTime:N0}</size>\n{DisasterNameTranslated}";
+                if (Room.HasValue) warning = $"<#ff4444>{warning}</color>";
+                RpcChangeSprite(warning);
             }
         }
     }

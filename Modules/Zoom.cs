@@ -19,7 +19,7 @@ public static class Zoom
             if (!Main) Main = Camera.main;
             if (!Main) return;
 
-            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
+            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing && !ClientControlGUI.Instance.IsOpen)
             {
                 if (Main.orthographicSize > 3.0f) ResetButtons = true;
 
@@ -83,7 +83,7 @@ public static class Zoom
                 Flag.NewFlag("Zoom");
             }
             else
-                Flag.Run(() => { SetZoomSize(reset: true); }, "Zoom");
+                Flag.Run(() => SetZoomSize(reset: true), "Zoom");
         }
         catch { }
     }

@@ -139,6 +139,7 @@ internal class TimeMaster : RoleBase
             long now = Utils.TimeStamp;
             int length = TimeMasterRewindTimeLength.GetInt();
 
+            Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
             Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
@@ -195,7 +196,7 @@ internal class TimeMaster : RoleBase
                 }
             }
 
-            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            Main.AllPlayerSpeed = originalSpeeds;
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Utils.MarkEveryoneDirtySettings();
         }

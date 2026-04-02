@@ -3307,7 +3307,8 @@ public static class Options
             OptionSaver.Save();
             OptionItem.SyncAllOptions();
             
-            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+            if (CurrentGameMode == CustomGameMode.Standard)
+                Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
 
             LastUsedPlayerCount = usedPlayerCount;
         }
