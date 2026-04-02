@@ -154,7 +154,7 @@ internal static class Logger
 
 public class CustomLogger
 {
-    public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_DATA" : "BepInEx", "log.html");
+    public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_Logs" : "BepInEx", "log.html");
 
     private const string HtmlHeader =
         """
