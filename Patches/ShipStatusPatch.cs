@@ -4,7 +4,6 @@ using EHR.Gamemodes;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using MS.Internal.Xml.XPath;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -147,7 +146,7 @@ internal static class UpdateSystemPatch
                 }
 
                 var switchSystem = ShipStatusSystem.SwitchSystem;
-                if (switchSystem is { IsActive: true })
+                if (switchSystem != null && switchSystem is { IsActive: true })
                 {
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
@@ -598,21 +597,21 @@ internal static class ShipStatusSerializePatch
         }
 
         var hudOverrideSystem = ShipStatusSystem.HudOverrideSystemType;
-        if (Options.CurrentGameMode == CustomGameMode.Standard && hudOverrideSystem is { IsDirty: true })
+        if (Options.CurrentGameMode == CustomGameMode.Standard && hudOverrideSystem != null && hudOverrideSystem is { IsDirty: true })
         {
             SerializeHudOverrideSystemV2(hudOverrideSystem);
             hudOverrideSystem.IsDirty = false;
         }
 
         var hqHudSystem = ShipStatusSystem.HqHudSystemType;
-        if (Options.CurrentGameMode == CustomGameMode.Standard && hqHudSystem is { IsDirty: true })
+        if (Options.CurrentGameMode == CustomGameMode.Standard && hqHudSystem != null && hqHudSystem is { IsDirty: true })
         {
             SerializeHqHudSystemV2(hqHudSystem);
             hqHudSystem.IsDirty = false;
         }
 
         var ventilationSystem = ShipStatusSystem.VentilationSystem;
-        if (cancel && ventilationSystem is { IsDirty: true })
+        if (cancel && ventilationSystem != null && ventilationSystem is { IsDirty: true })
         {
             Utils.SetAllVentInteractions();
             ventilationSystem.IsDirty = false;
