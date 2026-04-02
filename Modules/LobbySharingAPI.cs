@@ -35,7 +35,7 @@ public static class LobbySharingAPI
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
         string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
         string hostHashedPuid = Options.SendHashedPuidToUseLinkedAccount.GetBool() ? PlayerControl.LocalPlayer.GetClient().GetHashedPuid() : string.Empty;
-        const string version = $"EHR v{Main.PluginDisplayVersion}";
+        const string version = $"{Main.ModName} v{Main.PluginVersion}";
         Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode, hostHashedPuid));
     }
 
@@ -55,7 +55,7 @@ public static class LobbySharingAPI
         };
 
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
+        request.SetRequestHeader("User-Agent", $"{version} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;

@@ -42,8 +42,8 @@ public class Main : BasePlugin
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.3.5";
-    public const string PluginDisplayVersion = "7.3.5";
-    public const string Temp = "Optimization Test V5";
+    public const string PluginDisplayVersion = "7.4.1";
+    public const string Temp = "Optimization Test V6";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
