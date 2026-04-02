@@ -10,6 +10,10 @@ namespace EHR;
 
 public class ClientControlGUI : MonoBehaviour
 {
+    public static ClientControlGUI Instance;
+
+    public bool IsOpen => _open;
+    
     private bool _open;           // whether the panel is visible
     private Vector2 _scroll;      // current scroll position inside the panel
     private float _contentH;      // total height of all drawn buttons, updated each frame
@@ -46,6 +50,7 @@ public class ClientControlGUI : MonoBehaviour
     // Subscribes to scene load events so we can rebuild styles after transitions.
     private void Awake()
     {
+        Instance = this;
         _sceneLoadedHandler = OnSceneLoaded;
         SceneManager.add_sceneLoaded(_sceneLoadedHandler);
         Logger.Info("ClientControlGUI initialised", "ClientControlGUI");
@@ -73,7 +78,7 @@ public class ClientControlGUI : MonoBehaviour
     private void DestroyTextures()
     {
         foreach (var t in _textures)
-            if (t != null) Destroy(t);
+            if (t) Destroy(t);
         _textures.Clear();
 
         _sAction = _sHost = _sDanger = _sSection = _sToggle = _sWindow = _sTitleBar = _sDragHint = null;
@@ -205,8 +210,10 @@ public class ClientControlGUI : MonoBehaviour
         w = Mathf.Max(1, w);
         h = Mathf.Max(1, h);
         radius = Mathf.Clamp(radius, 0, Mathf.Min(w, h) / 2);
-        var tex = new Texture2D(w, h, TextureFormat.ARGB32, false);
-        tex.filterMode = FilterMode.Bilinear;
+        var tex = new Texture2D(w, h, TextureFormat.ARGB32, false)
+        {
+            filterMode = FilterMode.Bilinear
+        };
 
         for (int py = 0; py < h; py++)
         {
@@ -245,15 +252,15 @@ public class ClientControlGUI : MonoBehaviour
     // This happens after a scene load destroys the textures.
     private bool StylesValid() =>
         _sAction != null
-        && _sAction.normal.background != null
+        && _sAction.normal.background
         && _sHost  != null
-        && _sHost.normal.background   != null
+        && _sHost.normal.background
         && _sDanger != null
-        && _sDanger.normal.background != null
+        && _sDanger.normal.background
         && _sToggle != null
-        && _sToggle.normal.background != null
+        && _sToggle.normal.background
         && _sWindow != null
-        && _sWindow.normal.background != null;
+        && _sWindow.normal.background;
 
     // OnGUI is called by Unity every frame (and sometimes multiple times per frame).
     private void OnGUI()
@@ -324,23 +331,29 @@ public class ClientControlGUI : MonoBehaviour
         float titleH = BH * 0.80f + P;
         var titleRect = new Rect(_windowRect.x, _windowRect.y, _windowRect.width, titleH);
 
-        if (e.type == EventType.MouseDown && titleRect.Contains(e.mousePosition))
+        switch (e.type)
         {
-            _dragging = true;
-            _dragOffset = e.mousePosition - new Vector2(_windowRect.x, _windowRect.y);
-            e.Use(); // consume the event so nothing else receives it
-        }
-        else if (e.type == EventType.MouseDrag && _dragging)
-        {
-            float nx = Mathf.Clamp(e.mousePosition.x - _dragOffset.x, 0, Screen.width  - _windowRect.width);
-            float ny = Mathf.Clamp(e.mousePosition.y - _dragOffset.y, 0, Screen.height - _windowRect.height);
-            _windowRect.x = nx;
-            _windowRect.y = ny;
-            e.Use();
-        }
-        else if (e.type == EventType.MouseUp)
-        {
-            _dragging = false;
+            case EventType.MouseDown when titleRect.Contains(e.mousePosition):
+            {
+                _dragging = true;
+                _dragOffset = e.mousePosition - new Vector2(_windowRect.x, _windowRect.y);
+                e.Use(); // consume the event so nothing else receives it
+                break;
+            }
+            case EventType.MouseDrag when _dragging:
+            {
+                float nx = Mathf.Clamp(e.mousePosition.x - _dragOffset.x, 0, Screen.width  - _windowRect.width);
+                float ny = Mathf.Clamp(e.mousePosition.y - _dragOffset.y, 0, Screen.height - _windowRect.height);
+                _windowRect.x = nx;
+                _windowRect.y = ny;
+                e.Use();
+                break;
+            }
+            case EventType.MouseUp:
+            {
+                _dragging = false;
+                break;
+            }
         }
     }
 
@@ -394,34 +407,15 @@ public class ClientControlGUI : MonoBehaviour
     // 'w' is the available width, passed in from DrawWindow to match innerRect exactly.
     private void DrawButtons(ref float y, float w)
     {
-        bool amHost     = AmongUsClient.Instance != null && AmongUsClient.Instance.AmHost;
+        bool amHost     = AmongUsClient.Instance && AmongUsClient.Instance.AmHost;
         bool inGame     = GameStates.IsInGame;
         bool inLobby    = GameStates.IsLobby;
         bool inMeeting  = GameStates.IsMeeting;
         bool countdown  = GameStates.IsCountDown;
         bool notJoined  = GameStates.IsNotJoined;
-        bool localAlive = PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.IsAlive();
+        bool localAlive = PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.IsAlive();
         bool canMove    = GameStates.IsCanMove;
         bool noGameEnd  = Options.NoGameEnd.GetBool();
-
-        // Draws a section heading with spacing above it
-        void Section(ref float sy, string title)
-        {
-            sy += P * 2f;
-            GUI.Label(new Rect(0, sy, w, BH * 0.50f), title, _sSection);
-            sy += BH * 0.52f + P * 0.4f;
-        }
-
-        // Draws a button and advances the cursor. try/catch prevents one bad action from crashing the GUI.
-        void Btn(ref float by, string label, GUIStyle style, Action action)
-        {
-            if (GUI.Button(new Rect(0, by, w, BH), label, style))
-            {
-                try { action(); }
-                catch (Exception e) { Logger.Error(e.ToString(), "ClientControlGUI"); }
-            }
-            by += BH + P * 0.7f;
-        }
 
         Section(ref y, "General");
 
@@ -443,7 +437,7 @@ public class ClientControlGUI : MonoBehaviour
             Logger.SendInGame("Exported Custom Translation File");
         });
         if (!notJoined)
-            Btn(ref y, "Copy Settings", _sAction, () => Utils.CopyCurrentSettings());
+            Btn(ref y, "Copy Settings", _sAction, Utils.CopyCurrentSettings);
 
         Btn(ref y, "Fix Button Positions", _sAction, () =>
             LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
@@ -555,9 +549,7 @@ public class ClientControlGUI : MonoBehaviour
                 Btn(ref y, "Open Your Chat", _sHost, () =>
                     HudManager.Instance.Chat.SetVisible(true)
                 );
-                Btn(ref y, "Open Chat for All", _sHost, () =>
-                    Utils.SetChatVisibleForAll()
-                );
+                Btn(ref y, "Open Chat for All", _sHost, Utils.SetChatVisibleForAll);
 
                 if (noGameEnd)
                     Btn(ref y, "Force Game End", _sDanger, () =>
@@ -566,6 +558,27 @@ public class ClientControlGUI : MonoBehaviour
                         GameEndChecker.CheckCustomEndCriteria();
                     });
             }
+        }
+
+        return;
+
+        // Draws a section heading with spacing above it
+        void Section(ref float sy, string title)
+        {
+            sy += P * 2f;
+            GUI.Label(new Rect(0, sy, w, BH * 0.50f), title, _sSection);
+            sy += BH * 0.52f + P * 0.4f;
+        }
+
+        // Draws a button and advances the cursor. try/catch prevents one bad action from crashing the GUI.
+        void Btn(ref float by, string label, GUIStyle style, Action action)
+        {
+            if (GUI.Button(new Rect(0, by, w, BH), label, style))
+            {
+                try { action(); }
+                catch (Exception e) { Logger.Error(e.ToString(), "ClientControlGUI"); }
+            }
+            by += BH + P * 0.7f;
         }
     }
 

@@ -35,6 +35,28 @@
 - Snowdown auto enables pet use, just like Bed Wars
 - Many more small improvements
 
+### Template System Overhaul (by Zypherus)
+
+- `/t` with no args → lists all tags
+- Supports real/visual line breaks (`\n` still works)
+- Variables (`@Name = value`) usable anywhere
+- Lines starting with `#` = comment (ignored)
+
+#### Properties
+Syntax: `tag[property=value]:` (chain with `|`)
+
+- `weight=N` → weighted random (1–10)
+- `delay=N` → send after N sec (1–30, always fires; others are weighted)
+- `map=X|Y` → specific maps
+- `role=X|Y` / `!X` → role filter / exclude
+- `rank=X|Y` → Host/Admin/Mod/VIP only
+- `players><>=<=!=N` → player count condition
+- `preset=X|Y` → specific presets
+- `hidden` → hides from `/t` list
+
+#### New Placeholders
+`{{HostName}} {{Players}} {{AlivePlayers}} {{DeadPlayers}} {{PlayerCount}} {{AlivePlayerCount}} {{DeadPlayerCount}} {{GameDuration}} {{MeetingCount}} {{PresetName}}`
+
 ## Additions
 - New setting for Capture The Flag: `Spawn Protection Time` (by Zypherus)
 - New setting for Natural Disasters: `Disaster Spawn Mode` (`All On Players`/`All On Random Places`/`On Players & Random Places`)
