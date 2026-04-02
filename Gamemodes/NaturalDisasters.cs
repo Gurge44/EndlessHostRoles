@@ -281,7 +281,7 @@ public static class NaturalDisasters
                             AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "SandStorm" or "Tsunami");
                             break;
                         }
-                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(AllDisasters.Count) == 0:
+                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(2) == 0:
                         {
                             Sinkhole.RemoveRandomSinkhole();
                             break;
