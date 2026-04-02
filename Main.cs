@@ -59,7 +59,7 @@ public class Main : BasePlugin
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2026.3.31";
 
-    public static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
+    private static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
 
     public static readonly string DataPath =
         OperatingSystem.IsAndroid() ? StarData : ".";
