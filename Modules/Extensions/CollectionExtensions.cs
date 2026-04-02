@@ -68,10 +68,9 @@ public static class CollectionExtensions
     ///     A random element from the collection, or the default value of <typeparamref name="T" /> if the collection is
     ///     empty
     /// </returns>
-    public static T RandomElement<T>(this IList<T> collection)
+    public static T RandomElement<T>(this IReadOnlyList<T> collection)
     {
         if (collection.Count == 0) return default(T);
-
         return collection[IRandom.Instance.Next(collection.Count)];
     }
 
@@ -86,8 +85,7 @@ public static class CollectionExtensions
     /// </returns>
     public static T RandomElement<T>(this IEnumerable<T> collection)
     {
-        if (collection is IList<T> list) return list.RandomElement();
-
+        if (collection is IReadOnlyList<T> list) return list.RandomElement();
         return collection.ToList().RandomElement();
     }
 
@@ -484,7 +482,7 @@ public static class CollectionExtensions
     /// <param name="parts">The number of parts to partition the list into</param>
     /// <typeparam name="T">The type of the elements in the list</typeparam>
     /// <returns>A list of lists, each containing a part of the original list</returns>
-    public static IEnumerable<IEnumerable<T>> Partition<T>(this IList<T> collection, int parts)
+    public static IEnumerable<IEnumerable<T>> Partition<T>(this IReadOnlyList<T> collection, int parts)
     {
         int length = collection.Count;
         if (parts <= 0 || length == 0) yield break;

@@ -25,12 +25,12 @@ namespace EHR
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
-        protected string Sprite;
+        private string Sprite;
 
         public void RpcChangeSprite(string sprite)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (this is not DisasterWarningTimer) Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
+            if (this is not NaturalDisaster nd || nd.SpawnTimer <= 0f) Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
 
             Sprite = sprite;
 
@@ -40,7 +40,8 @@ namespace EHR
             string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
             string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
             string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-            var sender = CustomRpcSender.Create("CustomNetObject.RpcChangeSprite", this is BedWarsItemGenerator ? SendOption.None : SendOption.Reliable, log: false);
+            bool notImportant = this is BedWarsItemGenerator || (this is NaturalDisaster { SpawnTimer: > 1f } && Options.CurrentGameMode != CustomGameMode.NaturalDisasters && GameStates.CurrentServerType == GameStates.ServerType.Vanilla);
+            var sender = CustomRpcSender.Create("CustomNetObject.RpcChangeSprite", notImportant ? SendOption.None : SendOption.Reliable, log: false);
             MessageWriter writer = sender.stream;
             sender.StartMessage();
             PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -541,71 +542,55 @@ namespace EHR
         }
     }
 
-    internal sealed class DisasterWarningTimer : CustomNetObject
-    {
-        public DisasterWarningTimer(Vector2 position, float time, string disaster)
-        {
-            CreateNetObject($"<size=250%>{Math.Ceiling(time):N0}</size>\n{disaster}", position);
-            Disaster = disaster;
-            Timer = time;
-        }
-
-        private string Disaster { get; }
-        private float Timer { get; set; }
-        private int Time => (int)Math.Ceiling(Timer);
-
-        protected override void OnFixedUpdate()
-        {
-            base.OnFixedUpdate();
-            
-            int oldTime = Time;
-            
-            if (oldTime <= 0)
-            {
-                Despawn();
-                return;
-            }
-            
-            Timer -= UnityEngine.Time.fixedDeltaTime;
-            if (Time != oldTime) RpcChangeSprite($"<size=250%>{Time:N0}</size>\n{Disaster}");
-        }
-    }
-
     public sealed class NaturalDisaster : CustomNetObject
     {
         public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
             string name = Translator.GetString($"ND_{disasterName}");
+            string warning = $"<size=250%>{Math.Ceiling(time):N0}</size>\n{name}";
 
             if (room.HasValue)
             {
-                name = $"<#ff0000>{name}</color>";
+                warning = $"<#ff4444>{warning}</color>";
                 Main.EnumerateAlivePlayerControls().DoIf(x => x.IsInRoom(room.Value), x => x.ReactorFlash());
             }
 
-            WarningTimer = new(position, time, name);
             SpawnTimer = time;
-            Sprite = sprite;
+            DisasterSprite = sprite;
             DisasterName = disasterName;
+            DisasterNameTranslated = name;
             Room = room;
+
+            CreateNetObject(warning, position);
         }
 
         public SystemTypes? Room { get; }
         public string DisasterName { get; }
         public float SpawnTimer { get; private set; }
-        private DisasterWarningTimer WarningTimer { get; }
+        private string DisasterSprite { get; }
+        
+        private int TimeInt => (int)Math.Ceiling(SpawnTimer);
+        private string DisasterNameTranslated { get; }
 
         public void Update()
         {
             if (float.IsNaN(SpawnTimer)) return;
 
+            int oldTime = TimeInt;
             SpawnTimer -= Time.fixedDeltaTime;
 
             if (SpawnTimer <= 0f)
             {
-                WarningTimer.Despawn();
-                CreateNetObject(Sprite, WarningTimer.Position);
+                if (!Room.HasValue) RpcChangeSprite(DisasterSprite);
                 SpawnTimer = float.NaN;
+            }
+            else
+            {
+                int newTime = TimeInt;
+                if (oldTime == newTime) return;
+                string warning = $"<size=250%>{newTime:N0}</size>\n{DisasterNameTranslated}";
+                if (Room.HasValue) warning = $"<#ff4444>{warning}</color>";
+                RpcChangeSprite(warning);
             }
         }
     }

@@ -228,7 +228,7 @@ internal static class CustomHnS
             .Where(x => x != null)
             .ToDictionary(x => x.GetType().Name, x => x);
 
-        PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
+        PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces.GetValueOrDefault(x.Value.ToString(), new Hider()), x.Value));
 
         if (Main.GM.Value)
         {

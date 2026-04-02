@@ -101,9 +101,9 @@ internal class Bloodmoon : IGhostRole
             foreach (byte id in ScheduledDeaths.Keys)
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
 
-                pc.Suicide();
+                pc.Suicide(PlayerState.DeathReason.LossOfBlood);
             }
         }
 

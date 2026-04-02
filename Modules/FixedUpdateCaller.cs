@@ -46,7 +46,7 @@ public static class FixedUpdateCaller
                 if (Options.EnableAutoMessage.GetBool() && Now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
                 {
                     LastAutoMessageSendTS = Now;
-                    TemplateManager.SendTemplate("Notification", importance: MessageImportance.Low);
+                    TemplateManager.SendTemplate("Notification", noErr: true, importance: MessageImportance.Low);
                 }
             }
 

@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles;
 using HarmonyLib;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -33,6 +32,7 @@ public static class NaturalDisasters
     private static OptionItem WhenLimitIsReached;
     private static OptionItem PreferRemovingThunderstorm;
     private static OptionItem ChatDuringGame;
+    private static OptionItem DisasterSpawnMode;
     private static readonly Dictionary<string, OptionItem> DisasterSpawnChances = [];
 
     private static readonly string[] LimitReachedOptions =
@@ -40,6 +40,13 @@ public static class NaturalDisasters
         "ND_LimitReachedOptions.OnlySpawnInstantDisasters",
         "ND_LimitReachedOptions.RemoveRandom",
         "ND_LimitReachedOptions.RemoveOldest"
+    ];
+
+    private static readonly string[] DisasterSpawnModes =
+    [
+        "ND_DisasterSpawnModes.AllOnPlayers",
+        "ND_DisasterSpawnModes.AllOnRandomPlaces",
+        "ND_DisasterSpawnModes.OnPlayersAndRandomPlaces"
     ];
 
     public static List<Disaster> GetActiveDisasters()
@@ -93,6 +100,10 @@ public static class NaturalDisasters
             .SetColor(color);
         
         ChatDuringGame = new BooleanOptionItem(id++, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            .SetGameMode(gameMode)
+            .SetColor(color);
+
+        DisasterSpawnMode = new StringOptionItem(id++, "ND_DisasterSpawnMode", DisasterSpawnModes, 2, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetColor(color);
 
@@ -270,14 +281,13 @@ public static class NaturalDisasters
                             AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "SandStorm" or "Tsunami");
                             break;
                         }
+                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(2) == 0:
+                        {
+                            Sinkhole.RemoveRandomSinkhole();
+                            break;
+                        }
                         case 1:
                         {
-                            if (IRandom.Instance.Next(AllDisasters.Count) == 0)
-                            {
-                                Sinkhole.RemoveRandomSinkhole();
-                                return;
-                            }
-
                             Disaster remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
                             if (remove != null) remove.Duration = 0;
                             remove?.RemoveIfExpired();
@@ -309,6 +319,13 @@ public static class NaturalDisasters
                     disasters.RemoveAll(x => x.Name == "BuildingCollapse");
 
                 Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+
+                if (disaster.Name == "Thunderstorm")
+                {
+                    _ = new Thunderstorm(Vector2.zero, null);
+                    return;
+                }
+                
                 KeyValuePair<SystemTypes, Vector2> roomKvp;
 
                 if (Main.LIMap)
@@ -324,16 +341,22 @@ public static class NaturalDisasters
                         .RandomElement();
                 }
 
-                Vector2 position = disaster.Name switch
+                var aapc = Main.CachedAlivePlayerControls().ToList();
+                bool bc = disaster.Name == "BuildingCollapse";
+                bool spawnOnPlayer = aapc.Count > 0 && DisasterSpawnMode.GetValue() switch
                 {
-                    "BuildingCollapse" => roomKvp.Value,
-                    "Thunderstorm" => Pelican.GetBlackRoomPS(),
-                    _ => IRandom.Instance.Next(2) == 0 && Options.CurrentGameMode == CustomGameMode.NaturalDisasters
-                        ? Main.EnumerateAlivePlayerControls().RandomElement().Pos()
-                        : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
+                    0 => true,
+                    1 => false,
+                    _ => IRandom.Instance.Next(2) == 0
                 };
+                
+                Vector2 position = bc
+                    ? roomKvp.Value
+                    :  spawnOnPlayer
+                        ? aapc.RandomElement().Pos()
+                        : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
 
-                SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
+                SystemTypes? room = bc ? roomKvp.Key : null;
                 AddPreparingDisaster(position, disaster.Name, room);
             }
 
@@ -361,7 +384,7 @@ public static class NaturalDisasters
                 if (float.IsNaN(naturalDisaster.SpawnTimer))
                 {
                     Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
-                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), 1f, "Activator.CreateInstance", log: false);
+                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), Utils.CalculatePingDelay(), "Activator.CreateInstance", log: false);
                     PreparingDisasters.Remove(naturalDisaster);
                 }
             }
@@ -714,8 +737,6 @@ public static class NaturalDisasters
             NetObject = naturalDisaster;
             Update();
 
-            naturalDisaster.Despawn();
-
             LateTask.New(() =>
             {
                 RebuildSuffixText();
@@ -757,7 +778,8 @@ public static class NaturalDisasters
 
                 if (!hit.GetPlainShipRoom())
                 {
-                    _ = new Lightning(hit);
+                    if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                        _ = new Lightning(hit);
                     
                     foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {

@@ -104,6 +104,7 @@ public class Stasis : RoleBase
         UsingAbility = true;
 
         ReportDeadBodyPatch.CanReport.SetAllValues(false);
+        Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
         Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
         Main.PlayerStates.Values.DoIf(x => !x.IsDead, x => x.IsBlackOut = true);
 
@@ -149,7 +150,7 @@ public class Stasis : RoleBase
             catch (Exception e) { Utils.ThrowException(e); }
 
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
-            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            Main.AllPlayerSpeed = originalSpeeds;
             Main.PlayerStates.Values.Do(x => x.IsBlackOut = false);
             Utils.MarkEveryoneDirtySettings();
 
