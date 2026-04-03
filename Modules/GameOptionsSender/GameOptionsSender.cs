@@ -19,12 +19,13 @@ public abstract class GameOptionsSender
     private Il2CppStructArray<byte> BuildOptionArray()
     {
         IGameOptions opt = BuildGameOptions();
+        var currentGameMode = AprilFoolsMode.IsAprilFoolsModeToggledOn ? opt.AprilFoolsOnMode : opt.GameMode;
 
         // option => byte[]
         MessageWriter writer = MessageWriter.Get();
         writer.Write(opt.Version);
         writer.StartMessage(0);
-        writer.Write((byte)opt.GameMode);
+        writer.Write((byte)currentGameMode);
 
         if (opt.TryCast(out NormalGameOptionsV10 normalOpt))
             NormalGameOptionsV10.Serialize(writer, normalOpt);
