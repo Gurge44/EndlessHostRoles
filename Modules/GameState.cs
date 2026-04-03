@@ -355,6 +355,9 @@ public class PlayerState(byte playerId)
 
             RPC.SendDeathReason(PlayerId, deathReason, IsDead);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
+
+            if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted)
+                MeetingHud.Instance.CheckForEndVoting();
         }
     }
     public void SetAlive()

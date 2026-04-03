@@ -87,17 +87,21 @@ internal static class OnGameJoinedPatch
 
                 Options.AutoSetFactionMinMaxSettings();
 
-                if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()) && GameStates.IsOnlineGame)
+                try
                 {
-                    AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
-                    SceneChanger.ChangeScene("MainMenu");
-                }
+                    ClientData client = PlayerControl.LocalPlayer?.GetClient();
 
-                ClientData client = PlayerControl.LocalPlayer.GetClient();
-                Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
+                    if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, client.GetHashedPuid()) && GameStates.IsOnlineGame)
+                    {
+                        AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
+                        SceneChanger.ChangeScene("MainMenu");
+                    }
+                    Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
+                }
+                catch (Exception e) { Logger.Error($"ClientData null:{PlayerControl.LocalPlayer?.GetClient() == null}, PlayerControl.LocalPlayer null:{PlayerControl.LocalPlayer == null} - {e}", "OnGameJoinedPatch"); }
 
                 //Main.Instance.StartCoroutine(OptionShower.GetText());
-            }, 1.5f, "OnGameJoinedPatch");
+            }, 2f, "OnGameJoinedPatch");
 
             LateTask.New(() =>
             {
