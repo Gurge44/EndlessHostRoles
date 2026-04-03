@@ -14,13 +14,25 @@ internal static class AllMapIconsPatch
     [HarmonyPrefix]
     public static void GameStartManagerStart_Prefix(GameStartManager __instance)
     {
-        if (__instance.AllMapIcons.ToArray().Any(x => x.Name == MapNames.Dleks)) return;
-
-        __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
+        if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == MapNames.Dleks))
         {
-            Name = MapNames.Dleks,
-            MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
-        });
+            __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
+            {
+                Name = MapNames.Dleks,
+                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
+            });
+        }
+        if (SubmergedCompatibility.Loaded)
+        {
+            if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == (MapNames)6))
+            {
+                __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
+                {
+                    Name = (MapNames)6,
+                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f),
+                });
+            }
+        }
     }
     [HarmonyPatch(nameof(GameStartManager.Start))]
     [HarmonyPostfix]
@@ -40,15 +52,6 @@ internal static class AllMapIconsPatch
                     if (!Options.RandomMapsMode.GetBool()) GameOptionsMapPickerPatch.SetDleks = true;
                 }
             }, AmongUsClient.Instance.AmHost ? 1f : 4f, "Set Skeld Icon For Dleks Map");
-
-            if (SubmergedCompatibility.Loaded)
-            {
-                MapIconByName submergedIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0];
-                submergedIcon.Name = (MapNames)6;
-                submergedIcon.MapImage = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
-                submergedIcon.NameImage = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f);
-                __instance.AllMapIcons.Add(submergedIcon);
-            }
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -95,6 +98,8 @@ public static class CreateGameOptionsPatch
             __instance.SetCrewmateGraphic(__instance.capacityOption.Value - 1f);
             return false;
         }
+        if (SubmergedCompatibility.Loaded && __instance.mapPicker.GetSelectedID() is (int)(MapNames)6)
+            return false;
 
         return true;
     }

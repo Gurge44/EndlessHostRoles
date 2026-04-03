@@ -25,15 +25,29 @@ public static class GameOptionsMapPickerPatch
     [HarmonyPrefix]
     public static void Postfix_Prefix(GameOptionsMapPicker __instance)
     {
-        if (__instance.AllMapIcons.ToArray().Any(x => x.Name == MapNames.Dleks)) return;
-
-        __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
+        if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == MapNames.Dleks))
         {
-            Name = MapNames.Dleks,
-            MapImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f),
-            MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Icon.png", 95f),
-            NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
-        });
+            __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
+            {
+                Name = MapNames.Dleks,
+                MapImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f),
+                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Icon.png", 95f),
+                NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
+            });
+        }
+        if (SubmergedCompatibility.Loaded)
+        {
+            if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == (MapNames)6))
+            {
+                __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
+                {
+                    Name = (MapNames)6,
+                    MapImage = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f),
+                    //MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Icon.png", 100f),
+                    NameImage = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f),
+                });
+            }
+        }
     }
     [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.SetupMapButtons))]
     [HarmonyPostfix]
@@ -46,35 +60,18 @@ public static class GameOptionsMapPickerPatch
 
         MapSelectButton[] AllMapButton = __instance.transform.GetComponentsInChildren<MapSelectButton>();
 
-        if (AllMapButton != null)
+        try
         {
-            // Dleks Button
+            if (AllMapButton != null)
             {
-                var dleksButton_MapButton = __instance.mapButtons[dleksPos];
-                dleksButton_MapButton.Button.OnClick.RemoveAllListeners();
-                dleksButton_MapButton.Button.OnClick.AddListener((Action)(() =>
+                // Dleks Button
                 {
-                    __instance.SelectMap(__instance.AllMapIcons[0]);
-
-                    if (__instance.selectedButton)
-                        __instance.selectedButton.Button.SelectButton(false);
-
-                    __instance.selectedButton = dleksButton_MapButton;
-                    __instance.selectedButton.Button.SelectButton(true);
-                    __instance.selectedMapId = dleksPos;
-
-                    SetDleks = true;
-
-                    Main.NormalOptions.MapId = 0;
-
-                    __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
-                    __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
-                }));
-
-                if (dleksButton_MapButton != null)
-                {
-                    if (SetDleks)
+                    var dleksButton_MapButton = __instance.mapButtons[dleksPos];
+                    dleksButton_MapButton.Button.OnClick.RemoveAllListeners();
+                    dleksButton_MapButton.Button.OnClick.AddListener((Action)(() =>
                     {
+                        __instance.SelectMap(__instance.AllMapIcons[0]);
+
                         if (__instance.selectedButton)
                             __instance.selectedButton.Button.SelectButton(false);
 
@@ -82,52 +79,73 @@ public static class GameOptionsMapPickerPatch
                         __instance.selectedButton.Button.SelectButton(true);
                         __instance.selectedMapId = dleksPos;
 
+                        SetDleks = true;
+
+                        Main.NormalOptions.MapId = 0;
+
                         __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
                         __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
-                    }
-                    else
-                        __instance.mapButtons[dleksPos].Button.SelectButton(false);
-                }
-            }
+                    }));
 
-            // Submerged Button
-            if (SubmergedCompatibility.Loaded)
-            {
-                var submergedButton_MapButton = __instance.mapButtons[submergedPos];
-                submergedButton_MapButton.Button.OnClick.RemoveAllListeners();
-                submergedButton_MapButton.Button.OnClick.AddListener((Action)(() =>
-                {
-                    __instance.SelectMap(__instance.AllMapIcons[submergedPos]);
-
-                    if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
-
-                    __instance.selectedButton = submergedButton_MapButton;
-                    __instance.selectedMapId = 6;
-
-                    Main.NormalOptions.MapId = 6;
-
-                    __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
-                    __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner-Wordart.png", 100f);
-                }));
-
-                if (submergedButton_MapButton != null)
-                {
-                    if (SetSubmerged)
+                    if (dleksButton_MapButton != null)
                     {
+                        if (SetDleks)
+                        {
+                            if (__instance.selectedButton)
+                                __instance.selectedButton.Button.SelectButton(false);
+
+                            __instance.selectedButton = dleksButton_MapButton;
+                            __instance.selectedButton.Button.SelectButton(true);
+                            __instance.selectedMapId = dleksPos;
+
+                            __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f);
+                            __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
+                        }
+                        else
+                            dleksButton_MapButton.Button.SelectButton(false);
+                    }
+                }
+
+                // Submerged Button
+                if (SubmergedCompatibility.Loaded)
+                {
+                    var submergedButton_MapButton = __instance.mapButtons[submergedPos];
+                    submergedButton_MapButton.Button.OnClick.RemoveAllListeners();
+                    submergedButton_MapButton.Button.OnClick.AddListener((Action)(() =>
+                    {
+                        __instance.SelectMap(__instance.AllMapIcons[submergedPos]);
+
                         if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
 
-                        submergedButton_MapButton.Button.SelectButton(true);
                         __instance.selectedButton = submergedButton_MapButton;
-                        __instance.selectedMapId = 6;
+                        __instance.selectedMapId = submergedPos;
 
-                        __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
-                        __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner-Wordart.png", 100f);
+                        Main.NormalOptions.MapId = submergedPos;
+
+                        //__instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
+                        //__instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f);
+                    }));
+
+                    if (submergedButton_MapButton != null)
+                    {
+                        if (SetSubmerged)
+                        {
+                            if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
+
+                            submergedButton_MapButton.Button.SelectButton(true);
+                            __instance.selectedButton = submergedButton_MapButton;
+                            __instance.selectedMapId = submergedPos;
+
+                            //__instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f);
+                            //__instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f);
+                        }
+                        else
+                            submergedButton_MapButton.Button.SelectButton(false);
                     }
-                    else
-                        submergedButton_MapButton.Button.SelectButton(false);
                 }
             }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     [HarmonyPatch(typeof(GameOptionsMapPicker), nameof(GameOptionsMapPicker.FixedUpdate))]
