@@ -207,10 +207,10 @@ public static class GameStartManagerPatch
             if (Options.RandomMapsMode.GetBool())
             {
                 Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
-                CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+                GameOptionsMapPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
             }
-            else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
-            else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+            else if (GameOptionsMapPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+            else if (GameOptionsMapPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
 
             if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
                 Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
@@ -535,10 +535,10 @@ public static class GameStartRandomMap
         if (Options.RandomMapsMode.GetBool())
         {
             Main.NormalOptions.MapId = SelectRandomMap();
-            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+            GameOptionsMapPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
         }
-        else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
-        else if (CreateOptionsPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+        else if (GameOptionsMapPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+        else if (GameOptionsMapPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
 
         if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
             Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
