@@ -59,6 +59,9 @@ internal static class ControllerManagerUpdatePatch
             bool inGame = GameStates.IsInGame;
             bool isMeeting = GameStates.IsMeeting;
 
+            if (ClientControlGUI.Instance && (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus)))
+                ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
+
             if (hudManagerExists)
             {
                 if (PlayerControl.LocalPlayer)
@@ -261,8 +264,9 @@ internal static class ControllerManagerUpdatePatch
                 Utils.ShowActiveSettings();
             }
 
+#if DEBUG        
             if (!Options.NoGameEnd.GetBool()) return;
-#if DEBUG
+    
             if (KeysDown(IsAlsoInGameKey))
             {
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
@@ -422,6 +426,7 @@ internal static class ControllerManagerUpdatePatch
         return false;
     }
 
+/*
     private static bool OrGetKeysDown(params KeyCode[] keys)
     {
         for (int i = 0; i < keys.Length; i++)
@@ -431,6 +436,7 @@ internal static class ControllerManagerUpdatePatch
         }
         return false;
     }
+*/
 }
 
 [HarmonyPatch(typeof(ConsoleJoystick), nameof(ConsoleJoystick.HandleHUD))]

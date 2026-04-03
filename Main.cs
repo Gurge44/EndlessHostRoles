@@ -40,8 +40,8 @@ public class Main : BasePlugin
 {
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
-    private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.3.5";
+    public const string PluginGuid = "com.gurge44.endlesshostroles";
+    public const string PluginVersion = "7.4.0";
     public const string PluginDisplayVersion = "7.4.1";
     public const string Temp = "Optimization Test V6";
     public const bool TestBuild = false;
@@ -60,7 +60,7 @@ public class Main : BasePlugin
     public const string ForkId = "EHR";
     public const string SupportedAUVersion = "2026.3.31";
 
-    public static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
+    private static string StarData => Environment.GetEnvironmentVariable("STAR_DATA_PATH");    
 
     public static readonly string DataPath =
         OperatingSystem.IsAndroid() ? StarData : ".";
@@ -157,7 +157,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, int> NumEmergencyMeetingsUsed = [];
     public static int MadmateNum;
 
-    public static Stopwatch GameTimer = new();
+    public static readonly Stopwatch GameTimer = new();
     public static bool GameEndDueToTimer;
 
     public static bool ShowResult = true;
@@ -356,6 +356,9 @@ public class Main : BasePlugin
         CancelPetAnimation = Config.Bind("Client Options", "CancelPetAnimation", true);
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
+
+        AddComponent<ClientControlGUI>();
+        Log.LogInfo("ClientControlGUI registered");
 
         //Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -1286,5 +1289,3 @@ public enum TieMode
 }
 
 public class Coroutines : MonoBehaviour { }
-
-
