@@ -9704,7 +9704,7 @@
   "ErrorEndTextDescription": "To avoid crashing, the game was forcibly ended.",
   "ErrorLevel1": "Bugs may occur.",
   "ErrorLevel2": "This can cause serious issues with the game.",
-  "ErrorLevel3": "Current EHR version not supported this Among Us version\nPlease update Among Us",
+  "ErrorLevel3": "The current EHR version does not support this version of Among Us.\\nPlease update Among Us!",
   "ErrorTeleport": "Teleport failed",
   "FailChance": "Chance of showing incorrect result",
   "FailToTrack": "Failed To Track",
