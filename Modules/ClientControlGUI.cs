@@ -302,7 +302,7 @@ public class ClientControlGUI : MonoBehaviour
         }
 
         // 90% transparent when in game and panel is closed, full opacity otherwise
-        bool fadeOut = !IsOpen && GameStates.IsInGame;
+        bool fadeOut = !IsOpen && (GameStates.IsInGame || GameSettingMenu.Instance);
         Color prev = GUI.color;
         if (fadeOut) GUI.color = new Color(1f, 1f, 1f, 0.10f);
 
