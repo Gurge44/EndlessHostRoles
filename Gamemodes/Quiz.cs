@@ -187,7 +187,7 @@ public static class Quiz
 
                     string prefix = isInThisRoom ? "\u27a1 <u>" : string.Empty;
                     string suffix = isInThisRoom ? "</u>" : string.Empty;
-                    string add = $"{prefix}{letter}: {answer} ({GetString(room.ToString())}){suffix}\n";
+                    string add = $"{prefix}{letter}: {answer} ({GetString(room)}){suffix}\n";
 
                     answers += add;
                 }
@@ -315,7 +315,7 @@ public static class Quiz
         {
             NoSuffix = true;
             var settings = Settings[CurrentDifficulty];
-            Main.EnumerateAlivePlayerControls().NotifyPlayers(string.Format(GetString("Quiz.Notify.NextStage"), (int)CurrentDifficulty, settings.Rounds.GetInt(), settings.QuestionsAsked.GetInt(), settings.CorrectRequirement.GetInt(), settings.QuestionsAsked.GetInt(), settings.TimeLimit.GetInt()), 8f);
+            aapc.NotifyPlayers(string.Format(GetString("Quiz.Notify.NextStage"), (int)CurrentDifficulty, settings.Rounds.GetInt(), settings.QuestionsAsked.GetInt(), settings.CorrectRequirement.GetInt(), settings.QuestionsAsked.GetInt(), settings.TimeLimit.GetInt()), 8f);
             yield return new WaitForSecondsRealtime(6f);
         }
 

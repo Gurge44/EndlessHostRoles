@@ -73,7 +73,7 @@ public static class BedWars
     private static OptionItem SuddenDeathOption;
     private static OptionItem AllBedsBrokenAfterTimeOption;
 
-    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
     {
@@ -543,7 +543,7 @@ public static class BedWars
             var itemShop = new BedWarsShop(itemShopPos, itemShopText);
             var upgradeShop = new BedWarsShop(upgradeShopPos, upgradeShopText);
             if (bed != null) AllNetObjects[team] = new(bed, new(itemShop), new(upgradeShop));
-            rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString($"{room}")));
+            rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString(room)));
 
             yield return WaitFrameIfNecessary();
         }

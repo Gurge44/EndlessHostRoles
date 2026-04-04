@@ -391,7 +391,7 @@ public static class RoomRush
             time = (int)Math.Ceiling(32 / speed * GlobalTimeMultiplier.GetFloat());
 
         TimeLimitEndTS = Utils.TimeStamp + time;
-        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
+        Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous)} ({previous}), to: {Translator.GetString(RoomGoal)} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
 
         Main.EnumeratePlayerControls().Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
         if (DisplayArrowToRoom.GetBool()) Main.EnumeratePlayerControls().Do(x => LocateArrow.Add(x.PlayerId, goalPos));
@@ -429,7 +429,7 @@ public static class RoomRush
         bool done = dead || DonePlayers.Contains(seer.PlayerId);
         Color color = done ? Color.green : Color.yellow;
 
-        if (DisplayRoomName.GetBool()) sb.Append(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())) + "\n");
+        if (DisplayRoomName.GetBool()) sb.Append(Utils.ColorString(color, Translator.GetString(RoomGoal)) + "\n");
         if (DisplayArrowToRoom.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
 
         color = done ? Color.white : Color.yellow;

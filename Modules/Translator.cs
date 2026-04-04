@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Runtime.CompilerServices;
 
 namespace EHR;
 
@@ -17,7 +16,6 @@ public static class Translator
     private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
     public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
     public static readonly StringNames[] AllStringNames = Enum.GetValues<StringNames>();
-    private static readonly Dictionary<string, StringNames> CachedStringName = [];
 
     public static void Init()
     {
@@ -142,25 +140,18 @@ public static class Translator
         return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && (resourceName.EndsWith(".jsonc") || resourceName.EndsWith(".json"))).ToArray();
     }
 
-    public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
+    public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false, bool cache = true)
     {
-        bool isNumber = int.TryParse(s, out int roomNumber);
-
-        if (isNumber && SubmergedCompatibility.IsSubmerged() && roomNumber is >= 128 and <= 135)
-        {
-            s = $"SubmergedRoomName.{roomNumber}";
-            isNumber = false;
-        }
-        if (isNumber && GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Deathrace && Deathrace.CoordinateChecks.ContainsKey(roomNumber))
-            s = "Deathrace.CoordinateCheck";
-
         SupportedLangs langId;
+        int modLanguageId = Options.IsLoaded ? Options.ModLanguage.GetValue() : 0;
 
         if (console)
             langId = SupportedLangs.English;
         else
         {
-            if (Main.ForceOwnLanguage.Value)
+            if (modLanguageId != 0)
+                langId = (SupportedLangs)(modLanguageId + 99);
+            else if (Main.ForceOwnLanguage.Value)
                 langId = GetUserTrueLang();
             else
                 langId = TranslationController.InstanceExists
@@ -168,12 +159,17 @@ public static class Translator
                 : SupportedLangs.English;
         }
 
-        int modLanguageId = 0;
-
-        if (Options.IsLoaded)
+        if (GameStates.InGame)
         {
-            modLanguageId = Options.ModLanguage.GetValue();
-            if (modLanguageId != 0) langId = (SupportedLangs)(modLanguageId + 99);
+            int roomNumber = -1;
+            if (SubmergedCompatibility.IsSubmerged() && int.TryParse(s, out roomNumber) && roomNumber is >= 128 and <= 135)
+                s = $"SubmergedRoomName.{roomNumber}";
+
+            if (Options.CurrentGameMode == CustomGameMode.Deathrace)
+            {
+                if ((roomNumber != -1 || int.TryParse(s, out roomNumber)) && Deathrace.CoordinateChecks.ContainsKey(roomNumber))
+                    s = "Deathrace.CoordinateCheck";
+            }
         }
 
         string str = GetString(s, langId);
@@ -196,14 +192,7 @@ public static class Translator
             if (TranslateMaps.TryGetValue(str, out var dic))
             {
                 if (dic.TryGetValue((int)langId, out var res) && !string.IsNullOrEmpty(res))
-                {
-                    if (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && ContainsChinese(res))
-                    {
-                        var cn = GetString(str, SupportedLangs.SChinese);
-                        if (res == cn) return GetString(str, SupportedLangs.English);
-                    }
                     return res;
-                }
 
                 if (langId != SupportedLangs.English)
                     return GetString(str, SupportedLangs.English);
@@ -223,27 +212,17 @@ public static class Translator
     {
         return TranslationController.Instance.GetString(stringName);
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool ContainsChinese(string s)
+    public static string GetString(SystemTypes room)
     {
-        for (int index = 0; index < s.Length; index++)
-        {
-            char c = s[index];
-            if (c >= '\u4e00' && c <= '\u9fa5')
-                return true;
-        }
-        return false;
+        return TranslationController.Instance.GetString(room);
     }
     private static bool TryGetStringName(string str, out StringNames result)
     {
-        if (CachedStringName.TryGetValue(str, out result)) return true;
         for (int i = 0; i < AllStringNames.Length; i++)
         {
             var val = AllStringNames[i];
             if (val.ToString() == str)
             {
-                CachedStringName[str] = val;
                 result = val;
                 return true;
             }
@@ -383,5 +362,13 @@ public static class Translator
                 SupportedLangs.SChinese or
                 SupportedLangs.TChinese;
     }
-
+    public static bool LangHasSensitiveOutlineText(SupportedLangs lang = SupportedLangs.English)
+    {
+        return lang is
+            SupportedLangs.Russian or
+            SupportedLangs.Korean or
+            SupportedLangs.Japanese or
+            SupportedLangs.SChinese or
+            SupportedLangs.TChinese;
+    }
 }

@@ -158,7 +158,7 @@ public static class Mingle
                 sb.Append($"<#{color}>");
             }
 
-            sb.Append(Translator.GetString(room.ToString()));
+            sb.Append(Translator.GetString(room));
             sb.Append(':');
             sb.Append(' ');
             
