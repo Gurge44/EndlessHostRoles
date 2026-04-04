@@ -191,9 +191,10 @@ public class Amogus : RoleBase
         return sb.ToString();
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return $"{base.GetProgressText(playerId, comms)} {string.Format(Translator.GetString("ExtraVotesPT"), ExtraVotes)}";
+        base.GetProgressText(playerId, comms, resultText);
+        resultText.Append(' ').AppendFormat(Translator.GetString("ExtraVotesPT"), ExtraVotes);
     }
 
     private enum Levels

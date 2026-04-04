@@ -37,6 +37,7 @@ public class Doppelganger : RoleBase
     ];
 
     private byte DGId;
+    private static Color32 ShadeColor;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -76,6 +77,8 @@ public class Doppelganger : RoleBase
         DGId = byte.MaxValue;
 
         LocalPlayerChangeSkinTimes = 0;
+
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Doppelganger).ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -305,8 +308,21 @@ public class Doppelganger : RoleBase
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Doppelganger).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out int stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");
+        int maxSteals = MaxSteals.GetInt();
+        if (!TotalSteals.TryGetValue(playerId, out int stealLimit))
+        {
+            resultText.Append("Invalid");
+            return;
+        }
+
+        int remaining = maxSteals - stealLimit;
+        Color32 color = remaining > 0 ? ShadeColor : Color.gray;
+        
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append('(')
+            .Append(remaining)
+            .Append(")</color>");
     }
 }

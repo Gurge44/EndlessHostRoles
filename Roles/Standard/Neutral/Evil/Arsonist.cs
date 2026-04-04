@@ -23,6 +23,7 @@ internal class Arsonist : RoleBase
     public static OptionItem ArsonistHasImpostorVision;
 
     public static bool On;
+    private static Color32 ShadeColor;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -59,6 +60,7 @@ internal class Arsonist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f);
         foreach (PlayerControl ar in Main.CachedAllPlayerControls()) IsDoused.Add((playerId, ar.PlayerId), false);
     }
 
@@ -87,11 +89,24 @@ internal class Arsonist : RoleBase
         opt.SetVision(ArsonistHasImpostorVision.GetBool());
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         (int, int) doused = Utils.GetDousedPlayerCount(playerId);
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), !ArsonistCanIgniteAnytime.GetBool() ? $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}" : $"<color=#777777>-</color> {doused.Item1}/{ArsonistMaxPlayersToIgnite.GetInt()}");
+        Color32 color = ShadeColor;
+
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append("<color=#777777>-</color> ")
+            .Append(doused.Item1)
+            .Append('/');
+
+        if (!ArsonistCanIgniteAnytime.GetBool())
+            resultText.Append(doused.Item2);
+        else
+            resultText.Append(ArsonistMaxPlayersToIgnite.GetInt());
+
+        resultText.Append("</color>");
     }
+
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

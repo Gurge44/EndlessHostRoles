@@ -170,13 +170,10 @@ public abstract class RoleBase : IComparable<RoleBase>
         AfterMeetingTasks();
     }
 
-    private readonly StringBuilder ProgressText = new();
-    public virtual string GetProgressText(byte playerId, bool comms)
+    public virtual void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        ProgressText.Clear();
-        ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId));
-        ProgressText.Append(Utils.GetTaskCount(playerId, comms));
-        return ProgressText.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public virtual void SetButtonTexts(HudManager hud, byte id) { }

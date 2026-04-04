@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -11,6 +11,7 @@ public class Timelord : CovenBase
     private static OptionItem CanVentBeforeNecronomicon;
     private static OptionItem CanVentAfterNecronomicon;
 
+    private static Color32 ShadeColor;
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
@@ -27,6 +28,7 @@ public class Timelord : CovenBase
     public override void Init()
     {
         On = false;
+        ShadeColor = Team.Coven.GetColor().ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -60,15 +62,28 @@ public class Timelord : CovenBase
 
     public static int GetTotalStolenTime()
     {
-        return Main.PlayerStates.Values.Where(x => x.MainRole == CustomRoles.Timelord).Sum(x => x.GetKillCount()) * TimeStolenWithEachKill.GetInt();
+        int totalKills = 0;
+        var states = Main.PlayerStates.Values;
+
+        foreach (var state in states)
+        {
+            if (state.MainRole != CustomRoles.Timelord) continue;
+
+            totalKills += state.GetKillCount();
+        }
+
+        int perKill = TimeStolenWithEachKill.GetInt();
+        return totalKills * perKill;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        string baseText = base.GetProgressText(playerId, comms);
-        if (!HasNecronomicon) return baseText;
+        base.GetProgressText(playerId, comms, resultText);
+        if (!HasNecronomicon) return;
 
-        string stolen = Utils.ColorString(Team.Coven.GetColor().ShadeColor(0.25f), $" -{GetTotalStolenTime()}s");
-        return baseText + stolen;
+        resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+            .Append(" -")
+            .Append(GetTotalStolenTime())
+            .Append("s</color>");
     }
 }

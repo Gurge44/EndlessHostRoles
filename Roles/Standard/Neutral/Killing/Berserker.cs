@@ -101,9 +101,15 @@ public class Berserker : RoleBase
         return false;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + Utils.ColorString(Color.Lerp(Color.white, Color.red, Mathf.Clamp01(Form / 5f)), $" {Form}/5");
+        base.GetProgressText(playerId, comms, resultText);
+        Color color = Color.Lerp(Color.white, Color.red, Mathf.Clamp01(Form / 5f));
+        
+        resultText.Append(' ')
+            .Append(Utils.ColorStringPrefix(color))
+            .Append(Form)
+            .Append("/5</color>");
     }
 
     public void ReceiveRPC(MessageReader reader)

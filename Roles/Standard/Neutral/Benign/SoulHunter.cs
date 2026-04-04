@@ -262,11 +262,20 @@ internal class SoulHunter : RoleBase
         return sh.CurrentTarget.Frozen ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
     }
 
-    public override string GetProgressText(byte id, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (Main.PlayerStates[id].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
+        if (Main.PlayerStates[playerId].Role is not SoulHunter { IsEnable: true } sh) return;
 
-        int souldsNeeded = NumOfSoulsToWin.GetInt();
-        return $"<#777777>-</color> <#{(sh.Souls >= souldsNeeded ? "00ff00" : "ffffff")}>{sh.Souls}/{souldsNeeded}</color>";
+        int soulsNeeded = NumOfSoulsToWin.GetInt();
+        bool enough = sh.Souls >= soulsNeeded;
+        string colorCode = enough ? "00ff00" : "ffffff";
+
+        resultText.Append("<color=#777777>-</color> <color=#")
+            .Append(colorCode)
+            .Append('>')
+            .Append(sh.Souls)
+            .Append('/')
+            .Append(soulsNeeded)
+            .Append("</color>");
     }
 }

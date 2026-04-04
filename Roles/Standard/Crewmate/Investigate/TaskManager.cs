@@ -20,15 +20,16 @@ internal class TaskManager : RoleBase
         On = false;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var ProgressText = new StringBuilder();
+        resultText.Append(Utils.GetTaskCount(playerId, comms))
+            .Append(" <color=#777777>-</color> <color=#00ffa5>");
 
-        ProgressText.Append(Utils.GetTaskCount(playerId, comms));
+        if (comms) resultText.Append('?');
+        else resultText.Append(GameData.Instance.CompletedTasks);
 
-        string totalCompleted = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
-        ProgressText.Append($" <color=#777777>-</color> <color=#00ffa5>{totalCompleted}</color><color=#ffffff>/{GameData.Instance.TotalTasks}</color>");
-
-        return ProgressText.ToString();
+        resultText.Append("</color><color=#ffffff>/")
+            .Append(GameData.Instance.TotalTasks)
+            .Append("</color>");
     }
 }

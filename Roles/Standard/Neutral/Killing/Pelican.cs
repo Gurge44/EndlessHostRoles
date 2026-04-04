@@ -145,15 +145,23 @@ public class Pelican : RoleBase
         };
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         PlayerControl player = Utils.GetPlayerById(playerId);
-        if (player == null) return "Invalid";
+        if (player == null)
+        {
+            resultText.Append("Invalid");
+            return;
+        }
 
-        var eatenNum = 0;
+        int eatenNum = 0;
         if (EatenList.TryGetValue(playerId, out List<byte> value)) eatenNum = value.Count;
 
-        return Utils.ColorString(eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican), $"({eatenNum})");
+        Color32 color = eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican);
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append('(')
+            .Append(eatenNum)
+            .Append(")</color>");
     }
 
     public static void EatPlayer(PlayerControl pc, PlayerControl target)

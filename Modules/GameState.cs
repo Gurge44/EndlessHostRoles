@@ -390,7 +390,19 @@ public class PlayerState(byte playerId)
 
     public int GetKillCount()
     {
-        return Main.PlayerStates.Values.Count(state => state.PlayerId != PlayerId && state.GetRealKiller() == PlayerId);
+        int count = 0;
+        var states = Main.PlayerStates.Values;
+        byte myId = PlayerId;
+
+        foreach (var state in states)
+        {
+            if (state.PlayerId == myId) continue;
+
+            if (state.GetRealKiller() == myId) 
+                count++;
+        }
+
+        return count;
     }
 }
 

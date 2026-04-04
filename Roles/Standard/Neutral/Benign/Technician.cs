@@ -198,11 +198,16 @@ public class Technician : RoleBase
         technician.IncreasePoints(SystemTypes.Electrical);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var points = (int)Math.Round(playerId.GetAbilityUseLimit());
+        int points = (int)Math.Round(playerId.GetAbilityUseLimit());
         int needed = RequiredPoints.GetInt();
         Color color = points >= needed ? Color.green : Color.white;
-        return Utils.ColorString(color, $"{points}/{needed}");
+        
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append(points)
+            .Append('/')
+            .Append(needed)
+            .Append("</color>");
     }
 }

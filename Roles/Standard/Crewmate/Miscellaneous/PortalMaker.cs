@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EHR.Modules;
+﻿using EHR.Modules;
 using Hazel;
-using Color = UnityEngine.Color;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -94,8 +94,14 @@ public class PortalMaker : RoleBase
         Marks.Add(reader.ReadVector2());
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + Utils.ColorString(Marks.Count == 2 ? Color.green : Color.red, $" {Marks.Count}/2");
+        base.GetProgressText(playerId, comms, resultText);
+        Color32 color = Marks.Count == 2 ? Color.green : Color.red;
+        resultText
+            .Append(Utils.ColorStringPrefix(color))
+            .Append(' ')
+            .Append(Marks.Count)
+            .Append("/2</color>");
     }
 }

@@ -34,6 +34,7 @@ public class Infection : RoleBase
     private static bool InfectActive;
     private static bool LateCheckWin;
 
+    private static Color32 ShadeColor;
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -70,6 +71,7 @@ public class Infection : RoleBase
         PlayerIdList.Clear();
         InfectInfos.Clear();
         InfectActive = false;
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Infection).ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -113,9 +115,12 @@ public class Infection : RoleBase
         return false;
     }
 
-    public override string GetProgressText(byte id, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infection).ShadeColor(0.25f), $"({id.GetAbilityUseLimit()})");
+        resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+            .Append('(')
+            .Append(playerId.GetAbilityUseLimit())
+            .Append(")</color>");
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)

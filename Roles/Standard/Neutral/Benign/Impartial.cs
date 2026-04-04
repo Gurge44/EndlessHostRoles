@@ -151,15 +151,18 @@ internal class Impartial : RoleBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (IsWon) return " \u2713";
+        if (IsWon)
+        {
+            resultText.Append(" \u2713");
+            return;
+        }
 
-        var sb = new StringBuilder();
-        sb.Append($" <{Main.ImpostorColor}>{ImpKillCount.Killed}/{ImpKillCount.Limit}</color>");
-        sb.Append($" <{Main.NeutralColor}>{NeutralKillCount.Killed}/{NeutralKillCount.Limit}</color>");
-        sb.Append($" <{Main.CrewmateColor}>{CrewKillCount.Killed}/{CrewKillCount.Limit}</color>");
-        sb.Append($" <{Main.CovenColor}>{CovenKillCount.Killed}/{CovenKillCount.Limit}</color>");
-        return sb.ToString();
+        resultText
+            .Append($" <{Main.ImpostorColor}>{ImpKillCount.Killed}/{ImpKillCount.Limit}</color>")
+            .Append($" <{Main.NeutralColor}>{NeutralKillCount.Killed}/{NeutralKillCount.Limit}</color>")
+            .Append($" <{Main.CrewmateColor}>{CrewKillCount.Killed}/{CrewKillCount.Limit}</color>")
+            .Append($" <{Main.CovenColor}>{CovenKillCount.Killed}/{CovenKillCount.Limit}</color>");
     }
 }

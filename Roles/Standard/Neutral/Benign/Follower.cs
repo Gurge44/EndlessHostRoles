@@ -169,12 +169,18 @@ public class Follower : RoleBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
+        if (Main.PlayerStates[playerId].Role is not Follower tc) return;
+        
         PlayerControl player = Utils.GetPlayerById(playerId);
-        if (Main.PlayerStates[playerId].Role is not Follower tc) return string.Empty;
+        if (player == null) return;
 
-        return player == null ? string.Empty : Utils.ColorString(tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray, $"({tc.BetTimes})");
+        Color32 color = tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray;
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append('(')
+            .Append(tc.BetTimes)
+            .Append(")</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

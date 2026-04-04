@@ -177,9 +177,13 @@ public class Wyrd : CovenBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + $" <#ffffff>{MarkedPlayers.Count}/{MaxMarkedPlayersAtOnce.GetInt()}</color>";
+        base.GetProgressText(playerId, comms, resultText);
+        
+        resultText.Append($" <#ffffff>")
+            .Append(MarkedPlayers.Count).Append('/').Append(MaxMarkedPlayersAtOnce.GetInt())
+            .Append("</color>");
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

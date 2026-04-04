@@ -53,9 +53,15 @@ internal class Vector : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(Color.white, $"<color=#777777>-</color> {VectorVentCount.GetValueOrDefault(playerId, 0)}/{VectorVentNumWin}");
+        int count = VectorVentCount.GetValueOrDefault(playerId, 0);
+        resultText.Append(Utils.ColorStringPrefix(Color.white))
+            .Append("<color=#777777>-</color> ")
+            .Append(count)
+            .Append('/')
+            .Append(VectorVentNumWin)
+            .Append("</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

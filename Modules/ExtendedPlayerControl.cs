@@ -2286,7 +2286,7 @@ internal static class ExtendedPlayerControl
         if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
         string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);
-        string roleInfo = GetString($"{role.ToString()}{info}");
+        string roleInfo = GetString($"{role}{info}");
         return infoLong ? roleInfo.FixRoleName(role) : roleInfo;
     }
 

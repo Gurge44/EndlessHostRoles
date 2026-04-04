@@ -306,22 +306,33 @@ public class Alchemist : RoleBase
 
     private const string HeaderColour = "#00ffa5";
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || playerId.IsPlayerModdedClient()) return base.GetProgressText(playerId, comms);
+        if (Utils.GetPlayerById(playerId) == null || !GameStates.IsInTask || playerId.IsPlayerModdedClient())
+        {
+            base.GetProgressText(playerId, comms, resultText);
+            return;
+        }
 
-        var sb = new StringBuilder(base.GetProgressText(playerId, comms));
+        base.GetProgressText(playerId, comms, resultText);
 
         if (PotionStyles.TryGetValue(PotionID, out PotionStyle style))
         {
-            sb.Append(
-                $" <{HeaderColour}>{GetString("Stored")}:</color>" +
-                $" <{style.Colour}>{GetString(style.NameKey)}</color>");
+            resultText.Append(" <")
+                .Append(HeaderColour)
+                .Append('>')
+                .Append(GetString("Stored"))
+                .Append(":</color> <")
+                .Append(style.Colour)
+                .Append('>')
+                .Append(GetString(style.NameKey))
+                .Append("</color>");
         }
 
-        if (FixNextSabo) sb.Append($" <#777777>({GetString("QuickFix")})</color>");
-
-        return sb.ToString();
+        if (FixNextSabo) 
+            resultText.Append(" <#777777>(")
+                .Append(GetString("QuickFix"))
+                .Append(")</color>");
     }
 
     public static void UpdateSystem(PlayerControl pc, SystemTypes systemType, byte amount)

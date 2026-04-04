@@ -16,6 +16,7 @@ internal class Revolutionist : RoleBase
     public static byte CurrentDrawTarget = byte.MaxValue;
 
     public static bool On;
+    private static Color32 ShadeColor;
 
     public static OptionItem RevolutionistDrawTime;
     public static OptionItem RevolutionistCooldown;
@@ -53,6 +54,7 @@ internal class Revolutionist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Revolutionist).ShadeColor(0.25f);
         foreach (PlayerControl ar in Main.CachedAllPlayerControls())
             IsDraw.Add((playerId, ar.PlayerId), false);
     }
@@ -87,10 +89,17 @@ internal class Revolutionist : RoleBase
         opt.SetVision(false);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         (int, int) draw = Utils.GetDrawPlayerCount(playerId, out _);
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist).ShadeColor(0.25f), $"<color=#777777>-</color> {draw.Item1}/{draw.Item2}");
+        Color32 color = ShadeColor;
+        
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append("<color=#777777>-</color> ")
+            .Append(draw.Item1)
+            .Append('/')
+            .Append(draw.Item2)
+            .Append("</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

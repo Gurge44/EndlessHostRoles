@@ -24,6 +24,7 @@ public class EvilTracker : RoleBase
     private static TargetMode CurrentTargetMode;
     private static RoleTypes RoleTypes;
     public static bool CanSeeLastRoomInMeeting;
+    private static Color32 ShadeColor;
 
     private static readonly string[] TargetModeText =
     [
@@ -61,6 +62,7 @@ public class EvilTracker : RoleBase
         Target = byte.MaxValue;
         CanSetTarget = false;
         EvilTrackerId = byte.MaxValue;
+        ShadeColor = Palette.ImpostorRed.ShadeColor(0.5f);
     }
 
     public override void Add(byte playerId)
@@ -190,9 +192,11 @@ public class EvilTracker : RoleBase
         (Main.PlayerStates[trackerId].Role as EvilTracker)?.SetTarget(trackerId, targetId);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
+        if (CanTarget(playerId))
+            resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+                .Append("◁</color>");
     }
 
     public static string GetTargetMark(PlayerControl seer, PlayerControl target)

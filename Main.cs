@@ -43,7 +43,7 @@ public class Main : BasePlugin
     public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.4.0";
     public const string PluginDisplayVersion = "7.4.1";
-    public const string Temp = "Optimization Test V6";
+    public const string Temp = "Optimization Test V7";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";

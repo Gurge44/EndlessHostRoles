@@ -30,6 +30,7 @@ public class Bandit : RoleBase
         "BanditStealMode.Instantly"
     ];
 
+    private static Color32 ShadeColor;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -67,6 +68,7 @@ public class Bandit : RoleBase
         Targets = [];
         TotalSteals = [];
         On = false;
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Bandit).ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -222,8 +224,20 @@ public class Bandit : RoleBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Bandit).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out int stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");
+        int maxSteals = MaxSteals.GetInt();
+        if (!TotalSteals.TryGetValue(playerId, out int stealLimit))
+        {
+            resultText.Append("Invalid");
+            return;
+        }
+
+        int remaining = maxSteals - stealLimit;
+        Color32 color = remaining > 0 ? ShadeColor : Color.gray;
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append('(')
+            .Append(remaining)
+            .Append(")</color>");
     }
 }

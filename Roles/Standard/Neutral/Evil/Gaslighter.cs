@@ -240,11 +240,10 @@ public class Gaslighter : RoleBase
         return On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return CurrentRound is Round.Knight or Round.Shield
-            ? base.GetProgressText(playerId, comms)
-            : Utils.GetTaskCount(playerId, comms);
+        if (CurrentRound is Round.Knight or Round.Shield) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)

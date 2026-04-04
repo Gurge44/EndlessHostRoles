@@ -169,8 +169,11 @@ public class RiftMaker : RoleBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";
+        resultText.Append(" <color=#777777>-</color> ")
+            .Append(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")
+            .Append(Marks.Count)
+            .Append("/2</color>");
     }
 }

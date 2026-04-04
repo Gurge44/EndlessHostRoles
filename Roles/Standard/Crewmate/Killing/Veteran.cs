@@ -9,7 +9,6 @@ namespace EHR.Roles;
 internal class Veteran : RoleBase
 {
     public static HashSet<byte> VeteranInProtect = [];
-    private readonly static StringBuilder ProgressText = new();
 
     public static bool On;
     public override bool IsEnable => On;
@@ -69,14 +68,10 @@ internal class Veteran : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        ProgressText.Clear();
-
-        ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.Contains(playerId)));
-        ProgressText.Append(Utils.GetTaskCount(playerId, comms));
-
-        return ProgressText.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.Contains(playerId)))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

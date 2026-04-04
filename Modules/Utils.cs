@@ -1083,17 +1083,19 @@ public static class Utils
         ProgressText.Clear();
         PlayerControl pc = GetPlayerById(playerId);
 
-        try { ProgressText.Append(Main.PlayerStates[playerId].Role.GetProgressText(playerId, comms)); }
+        try { Main.PlayerStates[playerId].Role.GetProgressText(playerId, comms, ProgressText); }
         catch (Exception ex) { Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText"); }
 
-        if (pc.Is(CustomRoles.Damocles)) ProgressText.Append($" {Damocles.GetProgressText(playerId)}");
-        if (pc.Is(CustomRoles.Stressed)) ProgressText.Append($" {Stressed.GetProgressText(playerId)}");
-        if (pc.Is(CustomRoles.Circumvent)) ProgressText.Append($" {Circumvent.GetProgressText(playerId)}");
+        if (pc.Is(CustomRoles.Damocles)) Damocles.GetProgressText(playerId, ProgressText);
+        if (pc.Is(CustomRoles.Stressed)) Stressed.GetProgressText(playerId, ProgressText);
+        if (pc.Is(CustomRoles.Circumvent)) Circumvent.GetProgressText(playerId, ProgressText);
 
         if (pc.Is(CustomRoles.Taskcounter))
         {
-            string totalCompleted = comms ? "?" : $"{GameData.Instance.CompletedTasks}";
-            ProgressText.Append($" <#00ffa5>{totalCompleted}</color><#ffffff>/{GameData.Instance.TotalTasks}</color>");
+            ProgressText.Append(" <#00ffa5>");
+            if (comms) ProgressText.Append('?');
+            else ProgressText.Append(GameData.Instance.CompletedTasks);
+            ProgressText.Append("</color><#ffffff>/").Append(GameData.Instance.TotalTasks).Append("</color>");
         }
 
         if (ProgressText.Length != 0 && !ProgressText.ToString().RemoveHtmlTags().StartsWith(' '))
@@ -4765,6 +4767,15 @@ public static class Utils
             ColorPrefixCache[color] = prefix;
         }
         return prefix + str + "</color>";
+    }
+    public static string ColorStringPrefix(Color32 color)
+    {
+        if (!ColorPrefixCache.TryGetValue(color, out var prefix))
+        {
+            prefix = $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>";
+            ColorPrefixCache[color] = prefix;
+        }
+        return prefix;
     }
 
     /// <summary>

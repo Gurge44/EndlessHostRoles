@@ -238,9 +238,9 @@ public class WeaponMaster : RoleBase
         if (Mode == 2) pc?.MyPhysics?.RpcExitVent(vent.Id);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return !playerId.IsPlayerModdedClient() ? GetHudAndProgressText(playerId) : string.Empty;
+        if (!playerId.IsPlayerModdedClient()) resultText.Append(GetHudAndProgressText(playerId));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

@@ -17,6 +17,7 @@ internal class QuickShooter : RoleBase
 
     public static Dictionary<byte, int> ShotLimit = [];
 
+    private static Color32 ShadeColor;
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -40,6 +41,7 @@ internal class QuickShooter : RoleBase
     {
         PlayerIdList = [];
         ShotLimit = [];
+        ShadeColor = Utils.GetRoleColor(CustomRoles.QuickShooter).ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -140,9 +142,14 @@ internal class QuickShooter : RoleBase
         SendRPC(killer.PlayerId);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(ShotLimit.ContainsKey(playerId) && ShotLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.QuickShooter).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out int shotLimit) ? $"({shotLimit})" : "Invalid");
+        bool hasLimit = ShotLimit.TryGetValue(playerId, out int shotLimit);
+        Color32 color = hasLimit && shotLimit > 0 ? ShadeColor : Color.gray;
+
+        resultText.Append(Utils.ColorStringPrefix(color))
+            .Append(hasLimit ? $"({shotLimit})" : "Invalid")
+            .Append("</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

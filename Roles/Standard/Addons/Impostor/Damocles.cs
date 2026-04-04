@@ -191,8 +191,8 @@ public class Damocles : IAddon
         Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
     }
 
-    public static string GetProgressText(byte id)
+    public static void GetProgressText(byte id, StringBuilder resultText)
     {
-        return string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
+        resultText.AppendFormat(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
     }
 }

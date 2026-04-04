@@ -195,11 +195,17 @@ public class BountyHunter : RoleBase
         Main.AllPlayerKillCooldown[BountyHunterId] = Options.AdjustedDefaultKillCooldown;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (!AmongUsClient.Instance.AmHost) return string.Empty;
-        if (Timer.Remaining.TotalSeconds > 15) return base.GetProgressText(playerId, comms);
-        return $"{base.GetProgressText(playerId, comms)} <#777777>-</color> {string.Format(GetString("BountyHunterSwapTimer"), (int)Timer.Remaining.TotalSeconds)}";
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        base.GetProgressText(playerId, comms, resultText);
+
+        if (Timer.Remaining.TotalSeconds <= 15)
+        {
+            resultText.Append(" <#777777>-</color> ")
+                .Append(string.Format(GetString("BountyHunterSwapTimer"), (int)Timer.Remaining.TotalSeconds));
+        }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

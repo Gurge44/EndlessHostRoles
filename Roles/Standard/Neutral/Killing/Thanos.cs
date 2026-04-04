@@ -11,6 +11,7 @@ public class Thanos : RoleBase
 {
     public static bool On;
     private static List<Thanos> Instances = [];
+    private static readonly Stone[] StoneEnum = Enum.GetValues<Stone>();
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
@@ -56,7 +57,7 @@ public class Thanos : RoleBase
         CollectedStones = [];
         ActiveStone = null;
         MindStoneUsed = false;
-        PlayersWithStones = Main.EnumerateAlivePlayerControls().Shuffle().Take(Enum.GetValues<Stone>().Length).Select(x => x.PlayerId).ToList();
+        PlayersWithStones = Main.EnumerateAlivePlayerControls().Shuffle().Take(StoneEnum.Length).Select(x => x.PlayerId).ToList();
         ThanosId = playerId;
         Instances.Add(this);
     }
@@ -128,13 +129,12 @@ public class Thanos : RoleBase
     {
         if (PlayersWithStones.Contains(target.PlayerId))
         {
-            Stone[] stones = Enum.GetValues<Stone>();
-            Stone stone = CollectedStones.Count == 0 && FirstKillAlwaysSoulStone.GetBool() ? Stone.Soul : stones.Except(CollectedStones).RandomElement();
+            Stone stone = CollectedStones.Count == 0 && FirstKillAlwaysSoulStone.GetBool() ? Stone.Soul : StoneEnum.Except(CollectedStones).RandomElement();
             CollectedStones.Add(stone);
             StonesWaitingForUse.Add(stone);
             Utils.SendRPC(CustomRPC.SyncRoleData, ThanosId, 1, (int)stone);
             
-            if (killer.AmOwner && CollectedStones.Count == stones.Length)
+            if (killer.AmOwner && CollectedStones.Count == StoneEnum.Length)
                 Achievements.Type.MasterOfTheStones.Complete();
         }
     }
@@ -158,7 +158,7 @@ public class Thanos : RoleBase
 
     void UseStone(PlayerControl pc)
     {
-        if (CollectedStones.Count == Enum.GetValues<Stone>().Length && CanWinAfterCollectingAllStones.GetBool())
+        if (CollectedStones.Count == StoneEnum.Length && CanWinAfterCollectingAllStones.GetBool())
         {
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Thanos);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
@@ -273,9 +273,14 @@ public class Thanos : RoleBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + $" {CollectedStones.Count}/{Enum.GetValues<Stone>().Length}";
+        base.GetProgressText(playerId, comms, resultText);
+        
+        resultText.Append(' ')
+            .Append(CollectedStones.Count)
+            .Append('/')
+            .Append(StoneEnum.Length);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
