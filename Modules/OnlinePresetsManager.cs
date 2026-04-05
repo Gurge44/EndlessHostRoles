@@ -22,12 +22,12 @@ public static class OnlinePresetsManager
         float y = 2.0f;
 
         {
-            CategoryHeaderMasked header = Object.Instantiate(
+            CategoryHeaderMasked header = ModGameOptionsMenu.Track(Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 Vector3.zero,
                 Quaternion.identity,
                 menu.settingsContainer
-            );
+            ));
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
@@ -37,7 +37,7 @@ public static class OnlinePresetsManager
 
             y -= 0.8f;
 
-            StringOption upload = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
+            StringOption upload = ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
             upload.name = nameof(OnlinePresetsManager) + ";" + Translator.GetString("UploadPreset");
             upload.transform.localPosition = new Vector3(0.952f, y, -2f);
             upload.SetClickMask(menu.ButtonClickMask);
@@ -62,12 +62,12 @@ public static class OnlinePresetsManager
         }
 
         {
-            CategoryHeaderMasked header = Object.Instantiate(
+            CategoryHeaderMasked header = ModGameOptionsMenu.Track(Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 Vector3.zero,
                 Quaternion.identity,
                 menu.settingsContainer
-            );
+            ));
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
@@ -82,7 +82,7 @@ public static class OnlinePresetsManager
 
         foreach (PresetMeta preset in CachedPresets)
         {
-            StringOption row = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
+            StringOption row = ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
             row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads)}";
             row.transform.localPosition = new Vector3(0.952f, y, -2f);
             row.SetClickMask(menu.ButtonClickMask);
