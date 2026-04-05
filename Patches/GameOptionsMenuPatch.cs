@@ -244,7 +244,7 @@ public static class GameOptionsMenuPatch
                         num -= 0.18f;
 
                     BaseGameSetting baseGameSetting = GetSetting(option);
-                    if (baseGameSetting is null) continue;
+                    if (!baseGameSetting) continue;
 
                     OptionBehaviour optionBehaviour;
 
