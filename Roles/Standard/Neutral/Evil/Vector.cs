@@ -30,7 +30,7 @@ internal class Vector : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vector])
             .SetValueFormat(OptionFormat.Seconds);
 
-        MapWinCounts = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new IntegerOptionItem(18312 + (int)x, $"Vector.NumVentsToWinOn.{x}", new(0, 900, 5), 80, TabGroup.NeutralRoles)
+        MapWinCounts = Main.MapNamesValues.ToDictionary(x => x, x => new IntegerOptionItem(18312 + (int)x, $"Vector.NumVentsToWinOn.{x}", new(0, 900, 5), 80, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vector])
             .SetValueFormat(OptionFormat.Times));
     }

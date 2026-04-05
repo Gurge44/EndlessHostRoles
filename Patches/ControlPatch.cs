@@ -526,6 +526,10 @@ public static class InGameRoleInfoMenu
         AddonsInfo.transform.localScale = new(0.7f, 0.7f, 0.7f);
     }
 
+    private static readonly StringBuilder Sb = new();
+    private static readonly StringBuilder TitleSb = new();
+    private static readonly StringBuilder Settings = new();
+    private static readonly StringBuilder Addons = new();
     public static void SetRoleInfoRef(PlayerControl player)
     {
         if (!player) return;
@@ -533,46 +537,46 @@ public static class InGameRoleInfoMenu
         if (!Fill || !Menu) Init();
 
         CustomRoles role = player.GetCustomRole();
-        StringBuilder sb = new();
-        StringBuilder titleSb = new();
-        StringBuilder settings = new();
-        StringBuilder addons = new();
-        settings.Append("<size=75%>");
-        titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
-        sb.Append("<size=90%>");
-        sb.Append(player.GetRoleInfo(true).TrimStart());
-        if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
+        Sb.Clear();
+        TitleSb.Clear();
+        Settings.Clear();
+        Addons.Clear();
+        Settings.Append("<size=75%>");
+        TitleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+        Sb.Append("<size=90%>");
+        Sb.Append(player.GetRoleInfo(true).TrimStart());
+        if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, Settings, f1: true, disableColor: false);
 
-        settings.Append("</size>");
-        if (settings.Length > 0) addons.Append($"{settings}\n\n");
+        Settings.Append("</size>");
+        if (Settings.Length > 0) Addons.AppendLine(Settings.ToString());
 
-        if (role.PetActivatedAbility()) sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
+        if (role.PetActivatedAbility()) Sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
 
         string searchStr = GetString(role.ToString());
-        sb.Replace(searchStr, role.ToColoredString());
-        sb.Replace(searchStr.ToLower(), role.ToColoredString());
-        sb.Append("</size>");
+        Sb.Replace(searchStr, role.ToColoredString());
+        Sb.Replace(searchStr.ToLower(), role.ToColoredString());
+        Sb.Append("</size>");
         List<CustomRoles> subRoles = Main.PlayerStates[player.PlayerId].SubRoles;
-        if (subRoles.Count > 0) addons.Append(GetString("AddonListTitle"));
+        if (subRoles.Count > 0) Addons.Append(GetString("AddonListTitle"));
 
-        addons.Append("<size=75%>");
+        Addons.Append("<size=75%>");
 
         subRoles.ForEach(subRole =>
         {
-            addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
+            Addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
             string searchSubStr = GetString(subRole.ToString());
-            addons.Replace(searchSubStr, subRole.ToColoredString());
-            addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
+            Addons.Replace(searchSubStr, subRole.ToColoredString());
+            Addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
         });
 
-        addons.Append("</size>");
-        if (role.UsesPetInsteadOfKill()) sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
-        if (player.UsesMeetingShapeshift()) sb.Append($"\n\n<size=85%>{GetString("UsesMeetingShapeshiftNotice")}</size>");
+        Addons.Append("</size>");
+        if (role.UsesPetInsteadOfKill()) Sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
+        if (player.UsesMeetingShapeshift()) Sb.Append($"\n\n<size=85%>{GetString("UsesMeetingShapeshiftNotice")}</size>");
 
-        sb.Insert(0, $"{titleSb}\n");
+        Sb.Insert(0, $"{TitleSb}\n");
 
-        MainInfoTMP.text = sb.ToString();
-        AddonsInfoTMP.text = addons.ToString();
+        MainInfoTMP.text = Sb.ToString();
+        AddonsInfoTMP.text = Addons.ToString();
     }
 
     public static void Show()

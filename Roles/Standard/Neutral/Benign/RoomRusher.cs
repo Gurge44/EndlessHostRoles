@@ -13,6 +13,7 @@ public class RoomRusher : RoleBase
 {
     public static bool On;
 
+    private static readonly StringBuilder Suffix = new();
     private static HashSet<SystemTypes> AllRooms = [];
     private static RandomSpawn.SpawnMap Map;
 
@@ -252,22 +253,22 @@ public class RoomRusher : RoleBase
     {
         if (seer.PlayerId != RoomRusherId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || !seer.IsAlive()) return string.Empty;
 
-        StringBuilder sb = new();
+        Suffix.Clear();
         bool done = Won;
         Color color = done ? Color.green : Color.yellow;
 
-        if (RoomNameDisplay.GetBool()) sb.Append(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())) + "\n");
-        if (Arrow.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
+        if (RoomNameDisplay.GetBool()) Suffix.Append(Utils.ColorString(color, Translator.GetString(RoomGoal))).Append('\n');
+        if (Arrow.GetBool()) Suffix.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer))).Append('\n');
 
         color = done ? Color.white : Color.yellow;
-        sb.Append(Utils.ColorString(color, TimeLeft.ToString()) + "\n");
+        Suffix.Append(Utils.ColorString(color, TimeLeft.ToString())).Append('\n');
 
-        if (!CanVent || seer.IsModdedClient()) return sb.ToString().Trim();
+        if (!CanVent || seer.IsModdedClient()) return Suffix.ToString().Trim();
 
-        sb.Append('\n');
-        sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), VentsLeft));
+        Suffix.Append('\n');
+        Suffix.AppendFormat(Translator.GetString("RR_VentsRemaining"), VentsLeft);
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

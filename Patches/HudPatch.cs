@@ -33,6 +33,7 @@ internal static class HudManagerPatch
     private static readonly Dictionary<byte, string> ResultText = [];
     private static readonly StringBuilder Sb = new();
     private static readonly List<string> Suffixes = [];
+    private static readonly StringBuilder RotationStatusText = new();
 
     public static void ClearLowerInfoText()
     {
@@ -525,22 +526,22 @@ internal static class HudManagerPatch
         CustomGameMode nextGM = index == list.Count - 1 ? list[0] : list[index + 1];
         CustomGameMode nextNextGM = index >= list.Count - 2 ? list[1] : list[index + 2];
 
-        var sb = new StringBuilder();
-        if (!chatMessage) sb.AppendLine(GetString("AutoGMRotationStatusText"));
-        sb.AppendLine("....");
-        if (!includesRandomChoice || index > 0) sb.AppendLine($"> {ToString(previousGM)}");
-        sb.AppendLine($"<b>{GetString("AutoGMRotationStatusText.NextGM")}: {ToString(currentGM)}</b>");
-        if (!includesRandomChoice || index < list.Count - 1) sb.AppendLine(ToString(nextGM));
-        if (!includesRandomChoice || index < list.Count - 2) sb.AppendLine(ToString(nextNextGM));
-        sb.AppendLine("....");
+        RotationStatusText.Clear();
+        if (!chatMessage) RotationStatusText.AppendLine(GetString("AutoGMRotationStatusText"));
+        RotationStatusText.AppendLine("....");
+        if (!includesRandomChoice || index > 0) RotationStatusText.AppendLine($"> {ToString(previousGM)}");
+        RotationStatusText.AppendLine($"<b>{GetString("AutoGMRotationStatusText.NextGM")}: {ToString(currentGM)}</b>");
+        if (!includesRandomChoice || index < list.Count - 1) RotationStatusText.AppendLine(ToString(nextGM));
+        if (!includesRandomChoice || index < list.Count - 2) RotationStatusText.AppendLine(ToString(nextNextGM));
+        RotationStatusText.AppendLine("....");
 
         if (!chatMessage)
         {
             long timerSecondsLeft = AutoGMRotationCooldownTimerEndTS - Utils.TimeStamp;
-            if (timerSecondsLeft > 0) sb.AppendLine(string.Format(GetString("AutoGMRotationStatusText.CooldownTimer"), timerSecondsLeft));
+            if (timerSecondsLeft > 0) RotationStatusText.AppendFormat(GetString("AutoGMRotationStatusText.CooldownTimer"), timerSecondsLeft);
         }
 
-        return sb.ToString().Trim();
+        return RotationStatusText.ToString().Trim();
 
         string ToString(CustomGameMode gm) => gm == CustomGameMode.All
             ? GetString("AutoGMRotationStatusText.GMPoll")

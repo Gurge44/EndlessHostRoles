@@ -29,6 +29,8 @@ public class Glitch : RoleBase
     public long LastKill;
     private long LastUpdate;
 
+    private readonly StringBuilder Suffix = new();
+
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -210,16 +212,16 @@ public class Glitch : RoleBase
     {
         if (seer == null || seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
-        if (!hud) sb.Append("<size=70%>");
+        if (!hud) Suffix.Append("<size=70%>");
 
-        if (HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), HackCDTimer)}\n");
-        if (KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), KCDTimer)}\n");
+        if (HackCDTimer > 0) Suffix.AppendFormat(Translator.GetString("HackCD"), HackCDTimer).Append('\n');
+        if (KCDTimer > 0) Suffix.AppendFormat(Translator.GetString("KCD"), KCDTimer).Append('\n');
 
-        if (!hud) sb.Append("</size>");
+        if (!hud) Suffix.Append("</size>");
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     public override void AfterMeetingTasks()

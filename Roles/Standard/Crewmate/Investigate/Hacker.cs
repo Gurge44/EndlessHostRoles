@@ -19,8 +19,6 @@ public class Hacker : RoleBase
     public static Dictionary<byte, float> UseLimit = [];
     public static Dictionary<byte, float> UseLimitSeconds = [];
 
-    private static Dictionary<byte, long> LastUpdate = [];
-
     public static OptionItem AbilityCD;
     public static OptionItem UseLimitOpt;
     public static OptionItem HackerAbilityUseGainWithEachTaskCompleted;
@@ -68,7 +66,6 @@ public class Hacker : RoleBase
         PlayerIdList = [];
         UseLimit = [];
         UseLimitSeconds = [];
-        LastUpdate = [];
     }
 
     public override void Add(byte playerId)

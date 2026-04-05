@@ -1270,7 +1270,7 @@ public static class Utils
             mode = mode.Replace("color=", string.Empty);
 
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
+            ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], sb);
         }
 
         foreach (OptionItem opt in OptionItem.AllOptions)
@@ -1282,7 +1282,7 @@ public static class Utils
                 else
                     sb.Append($"\n【{opt.GetName(true)}】\n");
 
-                ShowChildrenSettings(opt, ref sb);
+                ShowChildrenSettings(opt, sb);
             }
         }
 
@@ -1318,7 +1318,7 @@ public static class Utils
             mode = mode.Replace("color=", string.Empty);
 
             sb.Append($"\n【{GetRoleName(role.Key)}:{mode} ×{role.Key.GetCount()}】\n");
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
+            ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], sb);
         }
 
         sb.Append($"━━━━━━━━━━━━【{GetString("Settings")}】━━━━━━━━━━━━");
@@ -1330,7 +1330,7 @@ public static class Utils
             else
                 sb.Append($"\n【{opt.GetName(true)}】\n");
 
-            ShowChildrenSettings(opt, ref sb);
+            ShowChildrenSettings(opt, sb);
         }
 
         sb.Append("\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501");
@@ -1385,7 +1385,7 @@ public static class Utils
         SendMessage("\n", playerId, sb.ToString().Replace("color=", string.Empty).Trim());
     }
 
-    public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
+    public static void ShowChildrenSettings(OptionItem option, StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
     {
         foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
         {
@@ -1410,7 +1410,7 @@ public static class Utils
             string value = opt.Value.GetString().Replace("ON", "<#00ffa5>ON</color>").Replace("OFF", "<#ff0000>OFF</color>");
             var name = $"{opt.Value.GetName(disableColor).Replace("color=", string.Empty)}</color>";
             sb.Append($"{name}: <#ffff00>{value}</color>\n");
-            if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1, disableColor: disableColor);
+            if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, sb, deep + 1, disableColor: disableColor);
         }
     }
 
@@ -4314,7 +4314,6 @@ public static class Utils
             target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), targetRealKiller.PlayerId.ColoredPlayerName(), (targetRealKiller.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + targetRealKiller.GetCustomRole().ToColoredString())}</color>", 10f);
     }
 
-    private static readonly CountTypes[] CountTypesArray = Enum.GetValues<CountTypes>();
     public static void CountAlivePlayers(bool sendLog = false)
     {
         try
@@ -4325,10 +4324,10 @@ public static class Utils
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    int countTypesCount = CountTypesArray.Length;
+                    int countTypesCount = Main.CountTypesValues.Length;
                     for (int countTypeId = 0; countTypeId < countTypesCount; countTypeId++)
                     {
-                        CountTypes countTypes = CountTypesArray[countTypeId];
+                        CountTypes countTypes = Main.CountTypesValues[countTypeId];
                         int playersCount = PlayersCount(countTypes);
                         if (playersCount == 0) continue;
 

@@ -90,7 +90,7 @@ public class Oracle : RoleBase
         Team team = target.GetTeam();
 
         if (IRandom.Instance.Next(100) < FailChance.GetInt())
-            team = Enum.GetValues<Team>()[1..].Without(team).RandomElement();
+            team = Main.TeamValues[1..].Without(team).RandomElement();
 
         string msg = string.Format(GetString($"OracleCheck.{GetString($"ShortTeamName.{team}", SupportedLangs.English)}"), target.GetRealName());
 

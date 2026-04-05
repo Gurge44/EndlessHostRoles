@@ -43,7 +43,7 @@ public class Main : BasePlugin
     public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.4.0";
     public const string PluginDisplayVersion = "7.4.1";
-    public const string Temp = "Optimization Test V7";
+    public const string Temp = "Optimization Test V8";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -74,6 +74,14 @@ public class Main : BasePlugin
     // Cache
     public static readonly Type[] AllTypes = Assembly.GetExecutingAssembly().GetTypes();
     public static readonly CustomRoles[] CustomRoleValues = Enum.GetValues<CustomRoles>();
+    public static readonly CustomGameMode[] CustomGameModeValues = Enum.GetValues<CustomGameMode>();
+    public static readonly CountTypes[] CountTypesValues = Enum.GetValues<CountTypes>();
+    public static readonly RoleOptionType[] RoleOptionTypeValues = Enum.GetValues<RoleOptionType>();
+    public static readonly Team[] TeamValues = Enum.GetValues<Team>();
+    public static readonly CustomRoleTypes[] CustomRoleTypesValues = Enum.GetValues<CustomRoleTypes>();
+    public static readonly TabGroup[] TabGroupValues = Enum.GetValues<TabGroup>();
+    public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
+    public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
 
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];

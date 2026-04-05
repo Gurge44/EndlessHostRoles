@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static EHR.Options;
+using static EHR.Roles.Adventurer;
 
 namespace EHR.Roles;
 
@@ -23,6 +24,7 @@ internal class Chemist : RoleBase
     private static OptionItem IronOreGainedPerVent;
 
     private static Dictionary<Item, OptionItem> FinalProductUsageAmounts = [];
+    private readonly StringBuilder Suffix = new();
 
     private static OptionItem AcidPlayersDie;
     private static OptionItem AcidPlayersDieAfterTime;
@@ -684,7 +686,7 @@ internal class Chemist : RoleBase
         bool self = seer.PlayerId == target.PlayerId;
         if (self && seer.IsModdedClient() && !hud) return string.Empty;
 
-        StringBuilder sb = new StringBuilder().Append("<size=80%>");
+        Suffix.Clear().Append("<size=80%>");
 
         if (self)
         {
@@ -698,22 +700,22 @@ internal class Chemist : RoleBase
             {
                 if (items.Count == 0) continue;
 
-                sb.Append($"{type.ToString()[0]}: ");
+                Suffix.Append($"{type.ToString()[0]}: ");
 
-                foreach ((Item item, int count) in items) sb.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out OptionItem opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
+                foreach ((Item item, int count) in items) Suffix.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out OptionItem opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
 
-                sb.Length -= 2;
-                sb.AppendLine();
+                Suffix.Length -= 2;
+                Suffix.AppendLine();
             }
 
-            if (SelectedProcess == string.Empty) return sb.ToString().TrimEnd();
+            if (SelectedProcess == string.Empty) return Suffix.ToString().TrimEnd();
 
             (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
 
             Func<(int Count, Item Item), string> selector = x => $"{x.Count} {Utils.ColorString(GetItemColor(x.Item), $"{GetChemicalForm(x.Item)}")}";
-            sb.Append(string.Join(", ", Ingredients.Select(selector)));
-            sb.Append(Ingredients.Count + Results.Count > 2 ? "\n\u2192  " : " → ");
-            sb.Append(string.Join(", ", Results.Select(selector)));
+            Suffix.Append(string.Join(", ", Ingredients.Select(selector)));
+            Suffix.Append(Ingredients.Count + Results.Count > 2 ? "\n\u2192  " : " → ");
+            Suffix.Append(string.Join(", ", Results.Select(selector)));
         }
 
         if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
@@ -725,13 +727,13 @@ internal class Chemist : RoleBase
             {
                 if (kvp.Key == target.PlayerId || kvp.Value.OtherAcidPlayers.Contains(target.PlayerId))
                 {
-                    sb.Append(Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}"));
+                    Suffix.Append(Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}"));
                     break;
                 }
             }
         }
 
-        return sb.Append("</size>").ToString();
+        return Suffix.Append("</size>").ToString();
     }
 
     public static string GetProcessesInfo()

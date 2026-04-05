@@ -25,6 +25,8 @@ internal class Warlock : RoleBase
     public static Dictionary<byte, float> WarlockTimer = [];
     public static Dictionary<byte, PlayerControl> CursedPlayers = [];
     public static Dictionary<byte, bool> IsCurseAndKill = [];
+    private readonly StringBuilder Suffix = new();
+
     public static bool IsCursed;
 
     private CountdownTimer CurseCD;
@@ -303,9 +305,9 @@ internal class Warlock : RoleBase
     {
         if (seer.PlayerId != WarlockId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var sb = new StringBuilder();
-        if (KCD != null) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(KCD.Remaining.TotalSeconds)}s</color>");
-        if (CurseCD != null) sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(CurseCD.Remaining.TotalSeconds)}s</color>");
-        return hud ? sb.ToString() : $"<size=1.7>{sb}</size>";
+        Suffix.Clear();
+        if (KCD != null) Suffix.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(KCD.Remaining.TotalSeconds)}s</color>");
+        if (CurseCD != null) Suffix.Append($"{(Suffix.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Ceiling(CurseCD.Remaining.TotalSeconds)}s</color>");
+        return hud ? Suffix.ToString() : $"<size=1.7>{Suffix}</size>";
     }
 }

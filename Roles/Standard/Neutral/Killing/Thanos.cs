@@ -12,6 +12,7 @@ public class Thanos : RoleBase
     public static bool On;
     private static List<Thanos> Instances = [];
     private static readonly Stone[] StoneEnum = Enum.GetValues<Stone>();
+    private static readonly StringBuilder Suffix = new();
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
@@ -287,19 +288,19 @@ public class Thanos : RoleBase
     {
         if (seer.PlayerId != ThanosId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        StringBuilder sb = new();
+        Suffix.Clear();
 
-        if (ActiveStone.HasValue) sb.AppendLine(string.Format(Translator.GetString("Thanos.ActiveStone"), Translator.GetString($"Thanos.Stone.{ActiveStone.Value}")));
-        if (MindStoneUsed) sb.AppendLine(Translator.GetString("Thanos.MindStoneUsed"));
+        if (ActiveStone.HasValue) Suffix.AppendFormat(Translator.GetString("Thanos.ActiveStone"), Translator.GetString($"Thanos.Stone.{ActiveStone.Value}")).AppendLine();
+        if (MindStoneUsed) Suffix.AppendLine(Translator.GetString("Thanos.MindStoneUsed"));
         
         if (StonesWaitingForUse.Count > 0)
         {
             string action = Translator.GetString(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? "AbilityButtonText.Phantom" : Options.UsePets.GetBool() ? "PetButtonText" : "Shapeshift");
-            sb.AppendLine(string.Format(Translator.GetString("Thanos.StoneWaitingForUse"), action, Translator.GetString($"Thanos.Stone.{StonesWaitingForUse[0]}")));
+            Suffix.AppendFormat(Translator.GetString("Thanos.StoneWaitingForUse"), action, Translator.GetString($"Thanos.Stone.{StonesWaitingForUse[0]}")).AppendLine();
         }
 
-        sb.AppendLine(TargetArrow.GetAllArrows(seer.PlayerId));
+        Suffix.AppendLine(TargetArrow.GetAllArrows(seer.PlayerId));
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 }

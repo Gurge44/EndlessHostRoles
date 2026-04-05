@@ -29,7 +29,7 @@ public static class RoomRush
 
     public static readonly HashSet<string> HasPlayedFriendCodes = [];
     public static Dictionary<byte, int> VentLimit = [];
-
+    private static readonly StringBuilder Suffix = new();
     private static HashSet<SystemTypes> AllRooms = [];
     private static SystemTypes RoomGoal;
     private static long TimeLimitEndTS;
@@ -424,20 +424,20 @@ public static class RoomRush
     {
         if (!GameGoing || Main.HasJustStarted) return string.Empty;
 
-        StringBuilder sb = new();
+        Suffix.Clear();
         bool dead = !seer.IsAlive();
         bool done = dead || DonePlayers.Contains(seer.PlayerId);
         Color color = done ? Color.green : Color.yellow;
 
-        if (DisplayRoomName.GetBool()) sb.Append(Utils.ColorString(color, Translator.GetString(RoomGoal)) + "\n");
-        if (DisplayArrowToRoom.GetBool()) sb.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer)) + "\n");
+        if (DisplayRoomName.GetBool()) Suffix.Append(Utils.ColorString(color, Translator.GetString(RoomGoal))).Append('\n');
+        if (DisplayArrowToRoom.GetBool()) Suffix.Append(Utils.ColorString(color, LocateArrow.GetArrows(seer))).Append('\n');
 
         color = done ? Color.white : Color.yellow;
-        sb.Append(Utils.ColorString(color, (TimeLimitEndTS - Utils.TimeStamp).ToString()) + "\n");
+        Suffix.Append(Utils.ColorString(color, (TimeLimitEndTS - Utils.TimeStamp).ToString())).Append('\n');
 
         if (WinByPointsInsteadOfDeaths.GetBool() && Points.TryGetValue(seer.PlayerId, out int points))
         {
-            sb.Append(string.Format(Translator.GetString("RR_Points"), points, PointsToWinValue));
+            Suffix.AppendFormat(Translator.GetString("RR_Points"), points, PointsToWinValue);
 
             int highestPoints = Points.Values.Max();
             bool tie = Points.Values.Count(x => x == highestPoints) > 1;
@@ -445,26 +445,26 @@ public static class RoomRush
             if (tie && highestPoints >= PointsToWinValue)
             {
                 byte tieWith = Points.First(x => x.Key != seer.PlayerId && x.Value == highestPoints).Key;
-                sb.Append("\n" + string.Format(Translator.GetString("RR_Tie"), tieWith.ColoredPlayerName()));
+                Suffix.Append('\n').AppendFormat(Translator.GetString("RR_Tie"), tieWith.ColoredPlayerName());
             }
             else
             {
-                sb.Append("<size=80%>");
+                Suffix.Append("<size=80%>");
                 byte first = Points.GetKeyByValue(highestPoints);
-                if (first != seer.PlayerId) sb.Append("\n" + string.Format(Translator.GetString("RR_FirstPoints"), first.ColoredPlayerName(), highestPoints));
-                else sb.Append("\n" + Translator.GetString("RR_YouAreFirst"));
-                sb.Append("</size>");
+                if (first != seer.PlayerId) Suffix.Append('\n').AppendFormat(Translator.GetString("RR_FirstPoints"), first.ColoredPlayerName(), highestPoints);
+                else Suffix.Append('\n').Append(Translator.GetString("RR_YouAreFirst"));
+                Suffix.Append("</size>");
             }
         }
 
-        if (VentTimes.GetInt() == 0 || dead || seer.IsModdedClient()) return sb.ToString().Trim();
+        if (VentTimes.GetInt() == 0 || dead || seer.IsModdedClient()) return Suffix.ToString().Trim();
 
-        sb.Append('\n');
+        Suffix.Append('\n');
 
         int vents = VentLimit.GetValueOrDefault(seer.PlayerId);
-        sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), vents));
+        Suffix.AppendFormat(Translator.GetString("RR_VentsRemaining"), vents);
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 
     public static void ReceiveRPC(MessageReader reader)

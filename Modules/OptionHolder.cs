@@ -1347,7 +1347,7 @@ public static class Options
 
         HashSet<TabGroup> doneTabs = [];
 
-        foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
+        foreach (RoleOptionType roleOptionType in Main.RoleOptionTypeValues)
         {
             if (roleOptionType is RoleOptionType.Coven_Miscellaneous or RoleOptionType.Impostor_Madmate) continue;
 
@@ -1947,7 +1947,7 @@ public static class Options
         OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
-        MapSpeeds = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+        MapSpeeds = Main.MapNamesValues.ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
             .SetParent(OverrideSpeedForEachMap)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue))
@@ -2844,7 +2844,7 @@ public static class Options
 
         var goId = 19723;
 
-        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
+        NumGuessersOnEachTeam = Main.TeamValues[1..].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
@@ -3071,7 +3071,7 @@ public static class Options
         OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        InVentVision = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
+        InVentVision = Main.TeamValues[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
             .SetParent(OverrideVisionInVents)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
@@ -3165,7 +3165,7 @@ public static class Options
         new TextOptionItem(110020, "MenuTitle.GMPoll", TabGroup.SystemSettings)
             .SetHeader(true);
         
-        GMPollGameModesSettings = Enum.GetValues<CustomGameMode>()[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
+        GMPollGameModesSettings = Main.CustomGameModeValues[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
             .SetColor(Main.GameModeColors[x])
             .SetHeader(x == CustomGameMode.Standard)
             .AddReplacement(("{gm}", Translator.GetString($"{x}"))));
@@ -3175,7 +3175,7 @@ public static class Options
         new TextOptionItem(110030, "MenuTitle.MPoll", TabGroup.SystemSettings)
             .SetHeader(true);
 
-        MPollMapsSettings = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
+        MPollMapsSettings = Main.MapNamesValues.ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
             .SetHeader(x == MapNames.Skeld)
             .AddReplacement(("{m}", Translator.GetString($"{x}"))));
         
@@ -3258,7 +3258,7 @@ public static class Options
 
             Dictionary<CustomGameMode, OptionItem> dict = [];
 
-            foreach (CustomGameMode customGameMode in Enum.GetValues<CustomGameMode>()[..^1])
+            foreach (CustomGameMode customGameMode in Main.CustomGameModeValues[..^1])
             {
                 OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, "AGMR.RandomGroup.GMChance", new(0, 100, 5), 50, TabGroup.SystemSettings)
                     .SetParent(EnableAutoGMRotation)

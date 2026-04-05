@@ -97,7 +97,7 @@ public static class TemplateManager
 
                 bool has = Main.CustomRoleValues.FindFirst(r => string.Equals(GetString(r.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoles role)
                     ? player.Is(role)
-                    : Enum.GetValues<CustomRoleTypes>().FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
+                    : Main.CustomRoleTypesValues.FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
 
                 return negate ? !has : has;
             });

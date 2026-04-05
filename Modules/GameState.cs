@@ -11,6 +11,7 @@ namespace EHR;
 
 public class PlayerState(byte playerId)
 {
+    public static readonly DeathReason[] AllDeathReason = Enum.GetValues<DeathReason>();
     public enum DeathReason
     {
         Kill,
@@ -351,7 +352,7 @@ public class PlayerState(byte playerId)
         if (AmongUsClient.Instance.AmHost)
         {
             if (Enchanter.EnchantedPlayers.Contains(PlayerId))
-                deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
+                deathReason = AllDeathReason[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason, IsDead);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));

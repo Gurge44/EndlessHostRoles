@@ -38,6 +38,9 @@ public class Wyrd : CovenBase
     public HashSet<byte> MarkedPlayers;
     private byte WyrdID;
 
+    private static readonly Action[] AllAction = Enum.GetValues<Action>();
+    private readonly StringBuilder Suffix = new();
+
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
     public override bool IsEnable => On;
@@ -200,22 +203,22 @@ public class Wyrd : CovenBase
                 return string.Empty;
         }
 
-        var sb = new StringBuilder();
-        if (Countdown <= 0) sb.Append("<#ff0000>");
-        sb.AppendLine(string.Format(Translator.GetString("Wyrd.Suffix.FateCountdown"), Countdown));
+        Suffix.Clear();
+        if (Countdown <= 0) Suffix.Append("<#ff0000>");
+        Suffix.AppendFormat(Translator.GetString("Wyrd.Suffix.FateCountdown"), Countdown);
 
         if (Countdown <= 0)
         {
-            sb.Append("</color>");
+            Suffix.AppendLine("</color>");
 
             if (!seerIsWyrd)
             {
-                var suicideActions = Enum.GetValues<Action>().Where(x => ActionSuicideSettings[x]).ToList();
+                var suicideActions = AllAction.Where(x => ActionSuicideSettings[x]).ToList();
                 var join = string.Join(", ", suicideActions.ConvertAll(x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}")));
-                sb.AppendLine(string.Format(Translator.GetString("Wyrd.Suffix.SuicideWarnings"), join));
+                Suffix.AppendFormat(Translator.GetString("Wyrd.Suffix.SuicideWarnings"), join);
             }
         }
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 }

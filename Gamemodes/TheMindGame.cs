@@ -38,6 +38,8 @@ public static class TheMindGame
     private static bool PreventGameEnd;
     private static int Round;
 
+    private static readonly Item[] AllItem = Enum.GetValues<Item>();
+
     // Settings
     private static bool PlayersCanSeeOthersPoints = true;
     private static int NumGroupsForRound1 = 5;
@@ -133,7 +135,7 @@ public static class TheMindGame
             .SetColor(color)
             .SetGameMode(gameMode);
 
-        foreach (Item item in Enum.GetValues<Item>())
+        foreach (Item item in AllItem)
         {
             int defaultValue = item switch
             {
@@ -217,7 +219,7 @@ public static class TheMindGame
                     sb.Append('\n');
                     sb.Append('\n');
                     sb.Append("<size=80%>");
-                    sb.Append(string.Join('\n', Enum.GetValues<Item>().Select(x => $"{Translator.GetString($"TMG.Item.{x}")} (ID {ItemIds[seer.PlayerId][x]}) ({string.Format(Translator.GetString("TMG.Suffix.ItemCost"), ItemCosts[x])}) - {Translator.GetString($"TMG.ItemDescription.{x}")}")));
+                    sb.Append(string.Join('\n', AllItem.Select(x => $"{Translator.GetString($"TMG.Item.{x}")} (ID {ItemIds[seer.PlayerId][x]}) ({string.Format(Translator.GetString("TMG.Suffix.ItemCost"), ItemCosts[x])}) - {Translator.GetString($"TMG.ItemDescription.{x}")}")));
                     sb.Append('\n');
                     sb.Append('\n');
                     sb.Append(Translator.GetString("TMG.Suffix.BuyItemHint"));
@@ -450,7 +452,7 @@ public static class TheMindGame
         yield return NotifyEveryone("TMG.Notify.ItemPurchasingBegins", 6, TimeForItemPurchasingInRound2);
         if (Stop) yield break;
 
-        Item[] items = Enum.GetValues<Item>();
+        Item[] items = AllItem;
         int[] itemIds = items.Select(x => (int)x).ToArray();
 
         foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())

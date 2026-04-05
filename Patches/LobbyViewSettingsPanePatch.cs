@@ -293,7 +293,7 @@ public static class LobbyViewSettingsPanePatch
             rightPassiveButton.OnClick.AddListener((UnityAction)(() =>
             {
                 LastGameModeSelected++;
-                CustomGameMode[] enumGameModes = Enum.GetValues<CustomGameMode>().Without(CustomGameMode.All).ToArray();
+                CustomGameMode[] enumGameModes = Main.CustomGameModeValues.Without(CustomGameMode.All).ToArray();
                 if ((int)LastGameModeSelected > enumGameModes.Length)
                     LastGameModeSelected = CustomGameMode.Standard;
                 __instance.ChangeTab(VanillaSettingsTabName);
@@ -313,7 +313,7 @@ public static class LobbyViewSettingsPanePatch
             leftButtonPassiveButton.OnClick.AddListener((UnityAction)(() =>
             {
                 LastGameModeSelected--;
-                CustomGameMode[] enumGameModes = Enum.GetValues<CustomGameMode>().Without(CustomGameMode.All).ToArray();
+                CustomGameMode[] enumGameModes = Main.CustomGameModeValues.Without(CustomGameMode.All).ToArray();
                 if ((int)LastGameModeSelected < 0x01)
                     LastGameModeSelected = (CustomGameMode)enumGameModes.Length;
                 __instance.ChangeTab(VanillaSettingsTabName);
@@ -333,7 +333,7 @@ public static class LobbyViewSettingsPanePatch
             var indexSettings = 1;
             var indexRoles = 0;
 
-            foreach (TabGroup tabGroup in Enum.GetValues<TabGroup>())
+            foreach (TabGroup tabGroup in Main.TabGroupValues)
             {
                 Vector3 newXPos;
                 var stringName = (StringNames)(5000 + tabGroup);
@@ -726,7 +726,7 @@ public static class LobbyViewSettingsPanePatch
         float xPosOpt;
         var index = 0;
         RoleEnabledList.Clear();
-        CustomRoles[] allCustomRoles = Enum.GetValues<CustomRoles>();
+        CustomRoles[] allCustomRoles = Main.CustomRoleValues;
         Color roleColorHeaderOrigin = tabName switch
         {
             TabGroup.ImpostorRoles => new(1f, 0f, 0f),

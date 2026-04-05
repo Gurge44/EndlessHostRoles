@@ -213,6 +213,7 @@ public static class ChatManager
         if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
     }
 
+    private static readonly StringBuilder TitleText = new();
     public static void SendPreviousMessagesToAll()
     {
         if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return;
@@ -226,18 +227,18 @@ public static class ChatManager
         {
             ClearChat();
 
-            StringBuilder sb = new();
+            TitleText.Clear();
             ChatHistory.ForEach(x =>
             {
                 string[] split = x.Split(':');
                 byte id = byte.Parse(split[0].Trim());
                 string msg = string.Join(':', split[1..]).Trim();
-                sb.Append(id.ColoredPlayerName());
-                sb.Append(':');
-                sb.Append(' ');
-                sb.AppendLine(msg);
+                TitleText.Append(id.ColoredPlayerName())
+                    .Append(':')
+                    .Append(' ')
+                    .AppendLine(msg);
             });
-            LateTask.New(() => Utils.SendMessage("\n", title: sb.ToString().Trim()), 0.2f);
+            LateTask.New(() => Utils.SendMessage("\n", title: TitleText.ToString().Trim()), 0.2f);
             
             return;
         }

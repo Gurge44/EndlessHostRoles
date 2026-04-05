@@ -482,6 +482,8 @@ internal static class SetEverythingUpPatch
             Camera main = Camera.main;
             if (!main) yield break;
 
+            yield return null;
+
             // Clear unused assets
             Resources.UnloadUnusedAssets();
             yield return null;

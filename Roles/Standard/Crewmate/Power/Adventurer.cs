@@ -6,12 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static MS.Internal.Xml.XPath.QueryBuilder;
 
 namespace EHR.Roles;
 
 internal class Adventurer : RoleBase
 {
+    private static readonly Weapon[] AllWeapon = Enum.GetValues<Weapon>();
+    private static readonly Resource[] AllResource = Enum.GetValues<Resource>();
     public enum Resource
     {
         TaskCompletion,
@@ -106,7 +107,7 @@ internal class Adventurer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        foreach (Weapon weapon in Enum.GetValues<Weapon>()) WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
+        foreach (Weapon weapon in AllWeapon) WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
     }
 
     public override void Add(byte playerId)
@@ -126,7 +127,7 @@ internal class Adventurer : RoleBase
         LastGroupingResourceTimeStamp = Utils.TimeStamp + 30;
         ResourceLocations = [];
 
-        foreach (Resource resource in Enum.GetValues<Resource>()) ResourceCounts[resource] = 0;
+        foreach (Resource resource in AllResource) ResourceCounts[resource] = 0;
     }
 
     public override void Init()
@@ -444,7 +445,7 @@ internal class Adventurer : RoleBase
         if ((seer.IsModdedClient() && !hud) || seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
         IEnumerable<string> resources =
-            from resource in Enum.GetValues<Resource>()
+            from resource in AllResource
             let displayData = ResourceDisplayData[resource]
             select $"{Utils.ColorString(displayData.Color, $"{displayData.Icon}")}{ResourceCounts[resource]}";
 

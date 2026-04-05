@@ -29,6 +29,7 @@ public class Gaslighter : RoleBase
 
     private byte GaslighterId;
     private HashSet<byte> ShieldedPlayers;
+    private static readonly StringBuilder Suffix = new();
 
     public override bool IsEnable => On;
 
@@ -249,15 +250,15 @@ public class Gaslighter : RoleBase
     public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
     {
         bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
         if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId))
-            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+            Suffix.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
 
         if (IsCursed(target) && (meeting || seerIsGaslighter))
-            sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
+            Suffix.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     public bool AddAsAdditionalWinner()

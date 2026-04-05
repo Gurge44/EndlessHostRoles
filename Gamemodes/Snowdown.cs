@@ -1,8 +1,8 @@
-﻿using System;
+﻿using EHR.Roles;
+using Hazel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
@@ -38,6 +38,11 @@ public static class Snowdown
     private static OptionItem GameEndsWhenPointsReachedOption;
     private static OptionItem PointsToReachOption;
     private static Dictionary<PowerUp, OptionItem> PowerUpPriceOptions = [];
+    
+    private static readonly PowerUp[] AllPowerUp = Enum.GetValues<PowerUp>();
+    private static readonly StringBuilder SelfSuffix = new();
+    private static readonly StringBuilder Suffix = new();
+    private static readonly StringBuilder Statistics = new();
 
     public static Dictionary<byte, PlayerData> Data = [];
     private static List<Snowball> Snowballs = [];
@@ -96,7 +101,7 @@ public static class Snowdown
             .SetParent(GameEndsWhenPointsReachedOption)
             .SetValueFormat(OptionFormat.Pieces);
 
-        PowerUpPriceOptions = Enum.GetValues<PowerUp>().ToDictionary(x => x, x => new IntegerOptionItem(id++, "Snowdown.PowerUpPriceOption", new(1, 20, 1), PowerUpPrices[x], tab)
+        PowerUpPriceOptions = AllPowerUp.ToDictionary(x => x, x => new IntegerOptionItem(id++, "Snowdown.PowerUpPriceOption", new(1, 20, 1), PowerUpPrices[x], tab)
             .SetColor(color)
             .SetGameMode(gameMode)
             .SetValueFormat(OptionFormat.Pieces)
@@ -115,42 +120,39 @@ public static class Snowdown
         
         if (seer.PlayerId == target.PlayerId)
             return seerData.GetSelfSuffix();
-        
-        StringBuilder sb = new("<#ffffff>");
-        AddStats(sb, targetData);
-        sb.Append("</color>");
-        return sb.ToString();
+
+        Suffix.Clear().Append("<#ffffff>");
+        AddStats(Suffix, targetData);
+        Suffix.Append("</color>");
+        return Suffix.ToString();
     }
 
     private static void AddStats(StringBuilder sb, PlayerData targetData)
     {
-        sb.Append("<#e4fdff>");
-        sb.Append(Nums1[targetData.SnowballsReady]);
-        sb.Append("</color>");
-
-        sb.Append(' ');
-        
-        sb.Append("<#dfc57b>");
-        sb.Append(Nums2[targetData.Coins]);
-        sb.Append("</color>");
+        sb.Append("<#e4fdff>")
+            .Append(Nums1[targetData.SnowballsReady])
+            .Append("</color>")
+            .Append(' ')
+            .Append("<#dfc57b>")
+            .Append(Nums2[targetData.Coins])
+            .Append("</color>");
 
         if (targetData.Points > 0)
         {
-            sb.Append(' ');
-            
-            sb.Append("<#e5acff>");
-            sb.Append(Nums3[targetData.Points - 1]);
-            sb.Append("</color>");
+            sb.Append(' ')
+                .Append("<#e5acff>")
+                .Append(Nums3[targetData.Points - 1])
+                .Append("</color>");
         }
     }
 
     public static string GetStatistics(byte id)
     {
         if (!Data.TryGetValue(id, out PlayerData data)) return string.Empty;
-        StringBuilder sb = new("<#ffffff>");
-        AddStats(sb, data);
-        sb.Append("</color>");
-        return sb.ToString();
+        Statistics.Clear().Append("<#ffffff>");
+        AddStats(Statistics, data);
+        Statistics.Append("</color>");
+        return Statistics.ToString();
     }
 
     public static string GetHudText()
@@ -188,7 +190,7 @@ public static class Snowdown
                 {
                     int max = Data.Values.Max(x => x.Points);
                     CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer()).Select(x => x.Key).ToHashSet();
-                    Logger.Info($"Winners: {(string.Join(", ", CustomWinnerHolder.WinnerIds.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, "[Unknown player]"))))}", "Snowdown");
+                    Logger.Info($"Winners: {string.Join(", ", CustomWinnerHolder.WinnerIds.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, "[Unknown player]")))}", "Snowdown");
                     Main.DoBlockNameChange = true;
                     return true;
                 }
@@ -316,7 +318,7 @@ public static class Snowdown
                 return;
             }
 
-            PowerUp powerUp = Enum.GetValues<PowerUp>()[ShopSelectedIndex];
+            PowerUp powerUp = AllPowerUp[ShopSelectedIndex];
             int cost = PowerUpPrices[powerUp];
             if (Coins < cost) return;
 
@@ -368,7 +370,7 @@ public static class Snowdown
             {
                 ShopSelectedIndex++;
                 
-                if (ShopSelectedIndex >= Enum.GetValues<PowerUp>().Length)
+                if (ShopSelectedIndex >= AllPowerUp.Length)
                     ShopSelectedIndex = 0;
             }
             else
@@ -388,39 +390,39 @@ public static class Snowdown
 
         public string GetSelfSuffix()
         {
-            StringBuilder sb = new("<#ffffff><size=140%>");
+            SelfSuffix.Clear().Append("<#ffffff><size=140%>");
             
-            AddStats(sb, this);
+            AddStats(SelfSuffix, this);
 
-            sb.Append("</size>");
+            SelfSuffix.Append("</size>");
 
             if (InShop)
             {
-                PowerUp powerUp = Enum.GetValues<PowerUp>()[ShopSelectedIndex];
-                sb.Append('\n');
-                sb.Append('\n');
-                sb.Append(Translator.GetString($"Snowdown.PowerUp.{powerUp}"));
-                sb.Append(' ');
-                sb.Append("<#dfc57b>");
-                sb.Append(Nums2[PowerUpPrices[powerUp]]);
-                sb.Append("</color>");
-                sb.Append('\n');
-                sb.Append("<size=90%>");
-                sb.Append(Translator.GetString($"Snowdown.PowerUp.{powerUp}.Description"));
-                sb.Append("</size>");
+                PowerUp powerUp = AllPowerUp[ShopSelectedIndex];
+                SelfSuffix.Append('\n')
+                    .Append('\n')
+                    .Append(Translator.GetString($"Snowdown.PowerUp.{powerUp}"))
+                    .Append(' ')
+                    .Append("<#dfc57b>")
+                    .Append(Nums2[PowerUpPrices[powerUp]])
+                    .Append("</color>")
+                    .Append('\n')
+                    .Append("<size=90%>")
+                    .Append(Translator.GetString($"Snowdown.PowerUp.{powerUp}.Description"))
+                    .Append("</size>");
 
                 if (ShowHelp)
                 {
-                    sb.Append('\n');
-                    sb.Append('\n');
-                    sb.Append("<size=80%>");
-                    sb.Append(Translator.GetString("Snowdown.ShopHelp"));
-                    sb.Append("</size>");
+                    SelfSuffix.Append('\n')
+                        .Append('\n')
+                        .Append("<size=80%>")
+                        .Append(Translator.GetString("Snowdown.ShopHelp"))
+                        .Append("</size>");
                 }
             }
 
-            sb.Append("</color>");
-            return sb.ToString();
+            SelfSuffix.Append("</color>");
+            return SelfSuffix.ToString();
         }
     }
 
