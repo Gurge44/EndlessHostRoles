@@ -1090,18 +1090,22 @@ public static class GameSettingMenuPatch
 
         foreach (var tab in ModSettingsTabs.Values)
         {
-            if (tab)
+            if (!tab) continue;
+
+            if (tab.Children != null)
             {
-                if (tab.Children != null)
+                foreach (var child in tab.Children)
                 {
-                    foreach (var child in tab.Children)
-                    {
-                        if (child) Object.Destroy(child.gameObject);
-                    }
-                    tab.Children.Clear();
+                    if (!child) continue;
+
+                    if (child.TryGetComponent<PassiveButton>(out var btn))
+                        btn.OnClick.RemoveAllListeners();
+
+                    Object.Destroy(child.gameObject);
                 }
-                Object.Destroy(tab.gameObject);
+                tab.Children.Clear();
             }
+            Object.Destroy(tab.gameObject);
         }
 
         foreach (var gmButton in GMButtons)
