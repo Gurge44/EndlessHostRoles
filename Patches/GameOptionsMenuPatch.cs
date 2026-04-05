@@ -32,11 +32,6 @@ public static class GameOptionsMenuPatch
     [HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
     {
-        if (__instance.Children != null)
-            Logger.Info($"{__instance.Children.Count}", "Initialize.Children.Count");
-        else
-            Logger.Info("Is null", "Initialize.Children.Count");
-
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
         if (__instance.Children == null || __instance.Children.Count == 0)
