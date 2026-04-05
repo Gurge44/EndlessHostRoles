@@ -41,6 +41,8 @@ internal static class ControllerManagerUpdatePatch
     private static readonly KeyCode[] RpcUpdateSystemKey = [KeyCode.Return, KeyCode.D, KeyCode.LeftShift];
     private static readonly KeyCode[] SetKillTimerKey = [KeyCode.Return, KeyCode.K, KeyCode.LeftShift];
     private static readonly KeyCode[] RpcCompleteTaskKey = [KeyCode.Return, KeyCode.T, KeyCode.LeftShift];
+    private static readonly KeyCode[] OpenClientControlGUILeftKey = [KeyCode.LeftControl, KeyCode.Tilde];
+    private static readonly KeyCode[] OpenClientControlGUIRightKey = [KeyCode.RightControl, KeyCode.Tilde];
 
     private static bool IsResetting;
 
@@ -53,14 +55,15 @@ internal static class ControllerManagerUpdatePatch
     {
         try
         {
+            var clientControlGUI = ClientControlGUI.Instance;
             bool hudManagerExists = HudManager.InstanceExists;
             bool chatIsOpen = hudManagerExists && HudManager.Instance.Chat.IsOpenOrOpening;
             bool isLobby = GameStates.IsLobby;
             bool inGame = GameStates.IsInGame;
             bool isMeeting = GameStates.IsMeeting;
 
-            if (ClientControlGUI.Instance && (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus)))
-                ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
+            if (clientControlGUI && (Input.GetKeyDown(KeyCode.Insert) || KeysDown(OpenClientControlGUILeftKey) || KeysDown(OpenClientControlGUIRightKey)))
+                clientControlGUI.IsOpen = !clientControlGUI.IsOpen;
 
             if (hudManagerExists)
             {
