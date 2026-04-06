@@ -600,8 +600,6 @@ public static class Options
     public static OptionItem DisableZiplineForNeutrals;
     public static OptionItem DisableZiplineForCrew;
     public static OptionItem DisableZiplineForCoven;
-    public static OptionItem ZiplineTravelTimeFromBottom;
-    public static OptionItem ZiplineTravelTimeFromTop;
 
     // Sabotage
     public static OptionItem CommsCamouflage;
@@ -2000,12 +1998,6 @@ public static class Options
 
         DisableZiplineForCoven = new BooleanOptionItem(22322, "DisableZiplineForCoven", false, TabGroup.GameSettings)
             .SetParent(DisableZiplineOnFungle)
-            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
-
-        ZiplineTravelTimeFromBottom = new FloatOptionItem(22312, "ZiplineTravelTimeFromBottom", new(0.5f, 10f, 0.5f), 4f, TabGroup.GameSettings)
-            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
-
-        ZiplineTravelTimeFromTop = new FloatOptionItem(22314, "ZiplineTravelTimeFromTop", new(0.5f, 10f, 0.5f), 2f, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Reset Doors After Meeting
