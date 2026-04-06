@@ -29,7 +29,7 @@ internal static class ControllerManagerUpdatePatch
     {
         try
         {
-            if (ClientControlGUI.Instance && (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus)))
+            if (ClientControlGUI.Instance && (Input.GetKeyDown(KeyCode.Insert) || KeysDown(KeyCode.LeftControl, KeyCode.Tilde) || KeysDown(KeyCode.RightControl, KeyCode.Tilde)))
                 ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
             
             if (HudManager.InstanceExists)

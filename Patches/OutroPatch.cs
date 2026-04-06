@@ -472,6 +472,9 @@ internal static class SetEverythingUpPatch
         EndOfText:
 
         LastWinsText = winnerText.text /*.RemoveHtmlTags()*/;
+
+        // Cleam up memory for objects that are no longer referenced
+        GC.Collect();
         return;
 
         IEnumerator SetupPoolablePlayers()
@@ -479,6 +482,8 @@ internal static class SetEverythingUpPatch
             Camera main = Camera.main;
             if (!main) yield break;
 
+            // Clear unused assets
+            Resources.UnloadUnusedAssets();
             yield return null;
 
             Vector3 pos = main.ViewportToWorldPoint(new(0f, 1f, main.nearClipPlane));
