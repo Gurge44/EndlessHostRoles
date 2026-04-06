@@ -80,9 +80,6 @@ namespace EHR
 
             sender.EndMessage();
             sender.SendMessage();
-
-            playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
-            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.3f);
         }
 
         public void TP(Vector2 position)
@@ -300,7 +297,7 @@ namespace EHR
 
                     sender.EndMessage();
                     sender.SendMessage();
-                }, 0.2f);
+                }, 0.25f);
             }
 
             playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
@@ -347,9 +344,6 @@ namespace EHR
             
                 playerControl.CachedPlayerData = PlayerControl.LocalPlayer.Data;
             }, 0.1f);
-
-            LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.3f); // Fix for Host
-            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.6f); // Fix for Non-Host Modded
         }
         
         public virtual void OnMeeting()

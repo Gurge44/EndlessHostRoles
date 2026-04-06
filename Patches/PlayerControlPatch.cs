@@ -976,6 +976,13 @@ internal static class ShapeshiftPatch
             }
         }
     }
+
+    public static void Postfix(PlayerControl __instance)
+    {
+        // Set CNO name visible for modded clients after shapeshift
+        if (__instance.PlayerId >= 254)
+            __instance.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+    }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcShapeshift))]
