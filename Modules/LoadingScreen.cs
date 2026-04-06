@@ -51,10 +51,18 @@ internal static class LoadingScreen
         bool joke = IRandom.Instance.Next(20) == 0;
         if (joke) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
 
+        index = 45;
+
         string text = Translator.GetString($"LoadingHint.{index}");
         text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
         if (text.Contains('\n')) text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
         text += "</color>";
+
+        int sizePercent = 100;
+        if (OperatingSystem.IsAndroid()) sizePercent += 20;
+        if (!Main.IntroDestroyed) sizePercent += 25;
+        if (sizePercent != 100) text = text.Insert(0, $"<size={sizePercent}%>");
+        
         Hint = text;
     }
 
@@ -65,7 +73,7 @@ internal static class LoadingScreen
             if (HintHideTimer <= 15f) HintHideTimer += Time.deltaTime;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
-            if (lp == null) return;
+            if (!lp) return;
 
             PlayerAnimations anims = lp.MyPhysics.Animations;
 
