@@ -1360,7 +1360,7 @@ internal static class ChatCommands
 
         if (gameMode == CustomGameMode.HideAndSeek)
         {
-            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), (IHideAndSeekRole)Activator.CreateInstance(x))).ToList();
+            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => x.Role is CustomRoles.Seeker or CustomRoles.Hider || x.Role.GetMode() != 0).ToList();
             Dictionary<Team, int> memberNum = new()
             {
                 [Team.Impostor] = Main.NormalOptions.NumImpostors,
