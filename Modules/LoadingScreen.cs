@@ -51,8 +51,6 @@ internal static class LoadingScreen
         bool joke = IRandom.Instance.Next(20) == 0;
         if (joke) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
 
-        index = 45;
-
         string text = Translator.GetString($"LoadingHint.{index}");
         text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
         if (text.Contains('\n')) text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
