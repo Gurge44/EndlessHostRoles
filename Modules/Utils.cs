@@ -4324,6 +4324,7 @@ public static class Utils
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
+                    Main.SetDirtyRebuildPC();
                     int countTypesCount = Main.CountTypesValues.Length;
                     for (int countTypeId = 0; countTypeId < countTypesCount; countTypeId++)
                     {
@@ -4331,11 +4332,11 @@ public static class Utils
                         int playersCount = PlayersCount(countTypes);
                         if (playersCount == 0) continue;
 
-                        ContAliveLog.Append($"{countTypes}: {AlivePlayersCount(countTypes)}/{playersCount}, ");
+                        ContAliveLog.Append(countTypes).Append(": ").Append(AlivePlayersCount(countTypes)).Append('/').Append(playersCount).Append(", ");
                     }
                 }
 
-                ContAliveLog.Append($" All: {AllAlivePlayersCount}/{AllPlayersCount}");
+                ContAliveLog.Append(" All: ").Append(AllAlivePlayersCount).Append('/').Append(AllPlayersCount);
                 Logger.Info(ContAliveLog.ToString(), "CountAlivePlayers");
             }
 
@@ -4945,9 +4946,7 @@ public static class Utils
     public static int AlivePlayersCount(CountTypes countTypes)
     {
         var count = 0;
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        // We want less memory allocation here
-        foreach (var pc in Main.EnumerateAlivePlayerControls())
+        foreach (var pc in Main.CachedAlivePlayerControls())
         {
             if (pc.Is(countTypes))
                 count++;

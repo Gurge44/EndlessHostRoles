@@ -1,5 +1,6 @@
 ﻿using EHR.Modules;
 using Hazel;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public static class NameNotifyManager
     public static readonly Dictionary<byte, Dictionary<string, long>> Notifies = [];
     private static readonly List<string> ToRemove = [];
     private static readonly List<KeyValuePair<string, long>> NameList = [];
+    private static readonly Comparison<KeyValuePair<string, long>> CompareByValue = static (a, b) => a.Value.CompareTo(b.Value);
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
 
@@ -25,18 +27,17 @@ public static class NameNotifyManager
 
         text = text.Trim();
         if (!text.Contains("<color=") && !text.Contains("</color>") && !text.Contains("<#")) text = Utils.ColorString(Color.white, text);
-        if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
+        if (!text.Contains("<size=")) text = "<size=1.9>" + text + "</size>";
 
         long expireTS = Utils.TimeStamp + (long)time;
         byte pcId = pc.PlayerId;
 
         if (overrideAll || !Notifies.TryGetValue(pcId, out Dictionary<string, long> notifies))
         {
-            var dict = new Dictionary<string, long>(1)
+            Notifies[pcId] = new Dictionary<string, long>(1)
             {
                 [text] = expireTS
             };
-            Notifies[pcId] = dict;
         }
         else
             notifies[text] = expireTS;
@@ -73,8 +74,9 @@ public static class NameNotifyManager
             var innerEnumerator = dict.GetEnumerator();
             while (innerEnumerator.MoveNext())
             {
-                if (innerEnumerator.Current.Value <= now)
-                    ToRemove.Add(innerEnumerator.Current.Key);
+                var innerCurrent = innerEnumerator.Current;
+                if (innerCurrent.Value <= now)
+                    ToRemove.Add(innerCurrent.Key);
             }
 
             if (ToRemove.Count > 0)
@@ -100,10 +102,11 @@ public static class NameNotifyManager
 
         NameList.Clear();
         var enumerator = notifies.GetEnumerator();
+
         while (enumerator.MoveNext())
             NameList.Add(enumerator.Current);
 
-        if (NameList.Count >= 2) NameList.Sort((a, b) => a.Value.CompareTo(b.Value));
+        if (NameList.Count >= 2) NameList.Sort(CompareByValue);
 
         Sb.Clear();
         for (int index = 0; index < NameList.Count; index++)

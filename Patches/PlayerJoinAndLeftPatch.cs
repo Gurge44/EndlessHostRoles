@@ -481,7 +481,7 @@ internal static class OnPlayerJoinedPatch
     {
         Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / Hashed PUID: {client.GetHashedPuid()}) joined the lobby", "Session");
 
-        Main.ForceRebuildCachesPlayerControls();
+        Main.SetDirtyRebuildPC();
         LateTask.New(() =>
         {
             try

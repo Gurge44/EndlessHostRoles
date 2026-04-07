@@ -251,6 +251,10 @@ public class Main : BasePlugin
     //public static PlayerControl[] AllPlayerControls => EnumeratePlayerControls().ToArray();
     //public static PlayerControl[] AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
 
+
+    // ################# - WARNING!!! - #####################
+    // Don't use Enumerate(Alive)PlayerControls if it updates every frame or every second
+    // Better use CachedAll/AlivePlayerControls, but in LateTask and Coroutines (Async) functions need use "for (...)" loop
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
         foreach (var pc in PlayerControl.AllPlayerControls)
@@ -259,19 +263,18 @@ public class Main : BasePlugin
             yield return pc;
         }
     }
-
     public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
         return EnumeratePlayerControls()
             .Where(pc => pc.IsAliveWithConditions());
     }
 
-    private static long LastPlayerControlUpdated = -1;
+    private static bool SetDirtyPlayer = true;
     private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
     private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
     public static void SetDirtyRebuildPC()
     {
-        LastPlayerControlUpdated = -1;
+        SetDirtyPlayer = true;
     }
     public static void ForceRebuildCachesPlayerControls()
     {
@@ -280,16 +283,8 @@ public class Main : BasePlugin
     }
     private static void RebuildCaches()
     {
-        // Update every frame
-
-        //if (LastPlayerControlUpdated == Time.frameCount) return;
-        //LastPlayerControlUpdated = Time.frameCount;
-
-        var now = Utils.TimeStamp;
-        if (LastPlayerControlUpdated == now) return;
-        LastPlayerControlUpdated = now;
-
-        //Logger.Warn($"Cached Player Controls", "Debug");
+        if (!SetDirtyPlayer) return;
+        SetDirtyPlayer = false;
 
         CachedAllPlayerControlsList.Clear();
         CachedAlivePlayerControlsList.Clear();
@@ -300,16 +295,18 @@ public class Main : BasePlugin
         for (byte playerIndex = 0; playerIndex < count; playerIndex++)
         {
             PlayerControl pc = players[playerIndex];
-            if (pc == null || pc.PlayerId >= 254) continue;
+            if (!pc || pc.PlayerId >= 254) continue;
 
             CachedAllPlayerControlsList.Add(pc);
             if (pc.IsAliveWithConditions())
                 CachedAlivePlayerControlsList.Add(pc);
         }
+        //Logger.Info("All Count: " + CachedAllPlayerControlsList.Count, "RebuildPlayerControl");
+        //Logger.Info("Alive Count: " + CachedAlivePlayerControlsList.Count, "RebuildPlayerControl");
     }
     // ################# - WARNING!!! - #####################
-    // Don't use CachedAll/AlivePlayerControls in LateTask and IEnumerator (Async) functions
-    // Use Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
+    // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in LateTask and Coroutines (Async) functions
+    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
     // ######################################
     public static List<PlayerControl> CachedAllPlayerControls()
     {
@@ -893,7 +890,7 @@ public class Main : BasePlugin
         IRandom.SetInstance(new NetRandomWrapper());
 
         Logger.Info($"{Application.version}", "AmongUs Version");
-        Logger.Info(Temp, "Test Build");
+        Logger.Info(Temp, "Test Optimized Build");
 
         LogHandler handler = Logger.Handler("GitVersion");
         handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");
