@@ -33,6 +33,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem ButtonCooldownInDecimalUnder10s;
     private static ClientOptionItem CancelPetAnimation;
     private static ClientOptionItem TryFixStuttering;
+    private static ClientOptionItem ShowClientControlGUI;
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -253,6 +254,24 @@ public static class OptionsMenuBehaviourStartPatch
                         proc.ProcessorAffinity = Main.OriginalAffinity.Value;
                         Main.OriginalAffinity = null;
                     }
+                }
+            }
+        }
+        
+        if (ShowClientControlGUI == null || !ShowClientControlGUI.ToggleButton)
+        {
+            ShowClientControlGUI = ClientOptionItem.Create("ShowClientControlGUI", Main.ShowClientControlGUI, __instance, ShowClientControlGUIButtonToggle);
+
+            static void ShowClientControlGUIButtonToggle()
+            {
+                switch (Main.ShowClientControlGUI.Value)
+                {
+                    case true when !ClientControlGUI.Instance:
+                        Main.Instance.AddComponent<ClientControlGUI>();
+                        break;
+                    case false when ClientControlGUI.Instance:
+                        Object.Destroy(ClientControlGUI.Instance);
+                        break;
                 }
             }
         }

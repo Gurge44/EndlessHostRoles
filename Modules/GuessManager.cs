@@ -1200,6 +1200,34 @@ public static class GuessManager
         public static void Postfix()
         {
             Object.Destroy(TextTemplate.gameObject);
+            if (GuesserUI) Object.Destroy(GuesserUI);
+
+            foreach (List<Transform> roleButtonsValue in RoleButtons.Values)
+            {
+                foreach (Transform transform in roleButtonsValue)
+                {
+                    if (transform.gameObject)
+                        Object.Destroy(transform.gameObject);
+                }
+            }
+
+            foreach (SpriteRenderer spriteRenderer in RoleSelectButtons.Values)
+            {
+                if (spriteRenderer.gameObject)
+                    Object.Destroy(spriteRenderer.gameObject);
+            }
+
+            foreach (SpriteRenderer spriteRenderer in PageButtons)
+            {
+                if (spriteRenderer.gameObject)
+                    Object.Destroy(spriteRenderer.gameObject);
+            }
+            
+            TextTemplate = null;
+            GuesserUI = null;
+            RoleButtons.Clear();
+            RoleSelectButtons.Clear();
+            PageButtons.Clear();
         }
     }
 

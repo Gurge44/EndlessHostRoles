@@ -10589,6 +10589,7 @@
   "ButtonCooldownInDecimalUnder10s": "Button Cooldown in Decimal Under 10s",
   "CancelPetAnimation": "Fully Cancel Self Pet Animation As Host",
   "TryFixStuttering": "Try to Fix Stuttering",
+  "ShowClientControlGUI": "Show Client Control GUI",
   "GM": "Game Master",
   "GMInfo": "Spectate the chaos!",
   "GMInfoLong": "(Other):\\nThe Game Master is an observer role. Their presence does not affect the game; all players know who the Game Master is. The Game Master role will be assigned to the Host/Spectators, who will automatically become a ghost at the start of the game.",

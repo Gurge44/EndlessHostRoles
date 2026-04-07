@@ -207,6 +207,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> ButtonCooldownInDecimalUnder10s { get; private set; }
     public static ConfigEntry<bool> CancelPetAnimation { get; private set; }
     public static ConfigEntry<bool> TryFixStuttering { get; private set; }
+    public static ConfigEntry<bool> ShowClientControlGUI { get; private set; }
     public static ConfigEntry<float> UIScaleFactor { get; private set; }
 
     // Preset Name Options
@@ -300,6 +301,7 @@ public class Main : BasePlugin
         ButtonCooldownInDecimalUnder10s = Config.Bind("Client Options", "ButtonCooldownInDecimalUnder10s", false);
         CancelPetAnimation = Config.Bind("Client Options", "CancelPetAnimation", true);
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
+        ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
         AddComponent<ClientControlGUI>();

@@ -28,6 +28,20 @@ public static class LobbyViewSettingsPanePatch
     private static readonly HashSet<CustomRoles> RoleEnabledList = [];
     private static StringNames VanillaSettingsTabName => StringNames.OverviewCategory;
     private static StringNames VanillaRolesTabName => StringNames.RolesCategory;
+    
+    // Storing Unity objects in static variables prevents GC from collecting them
+    // (and everything inside them, like event listeners)
+    // even if the object was destroyed
+    // This method doesn't check object lifetime because it's called when a game starts,
+    // and these are guaranteed to be destroyed by then
+    public static void ClearReferences()
+    {
+        RoleListCoroutine = null;
+        OptionsCoroutine = null;
+        ShowOnlyEnabledRolesButton = null;
+        TabButtons.Clear();
+        AllTabButtons.Clear();
+    }
 
     [HarmonyPatch(nameof(LobbyViewSettingsPane.Awake))]
     [HarmonyPostfix]
@@ -293,7 +307,7 @@ public static class LobbyViewSettingsPanePatch
             rightPassiveButton.OnClick.AddListener((UnityAction)(() =>
             {
                 LastGameModeSelected++;
-                CustomGameMode[] enumGameModes = Enum.GetValues<CustomGameMode>().Without(CustomGameMode.All).ToArray();
+                CustomGameMode[] enumGameModes = Enum.GetValues<CustomGameMode>()[..^1];
                 if ((int)LastGameModeSelected > enumGameModes.Length)
                     LastGameModeSelected = CustomGameMode.Standard;
                 __instance.ChangeTab(VanillaSettingsTabName);
@@ -313,7 +327,7 @@ public static class LobbyViewSettingsPanePatch
             leftButtonPassiveButton.OnClick.AddListener((UnityAction)(() =>
             {
                 LastGameModeSelected--;
-                CustomGameMode[] enumGameModes = Enum.GetValues<CustomGameMode>().Without(CustomGameMode.All).ToArray();
+                CustomGameMode[] enumGameModes = Enum.GetValues<CustomGameMode>()[..^1];
                 if ((int)LastGameModeSelected < 0x01)
                     LastGameModeSelected = (CustomGameMode)enumGameModes.Length;
                 __instance.ChangeTab(VanillaSettingsTabName);
@@ -722,7 +736,7 @@ public static class LobbyViewSettingsPanePatch
     private static void DrawRoles(LobbyViewSettingsPane viewSettings, TabGroup tabName)
     {
         var yPos = 1.3f;
-        var xPos = -6.53f;
+        const float xPos = -6.53f;
         float xPosOpt;
         var index = 0;
         RoleEnabledList.Clear();
@@ -828,7 +842,7 @@ public static class LobbyViewSettingsPanePatch
                 // Roles
                 if (allCustomRoles.FindFirst(x => x.ToString() == realName, out CustomRoles role))
                 {
-                    if (role == default(CustomRoles) || role is CustomRoles.CovenLeader) continue;
+                    if (role is default(CustomRoles) or CustomRoles.CovenLeader) continue;
 
                     try
                     {
@@ -911,9 +925,7 @@ public static class LobbyViewSettingsPanePatch
                             viewSettings.settingsInfo.Add(viewSettingsInfoPanelRoleVariant.gameObject);
                             yPos -= 0.65f;
                         }
-                        else if (LastGameModeSelected == CustomGameMode.HideAndSeek && role is CustomRoles.Seeker or CustomRoles.Hider)
-                            RoleEnabledList.Add(role);
-                        else if (!enabledOrNotCollapsed && enabled && !roleDisabled)
+                        else if (LastGameModeSelected == CustomGameMode.HideAndSeek && role is CustomRoles.Seeker or CustomRoles.Hider || !enabledOrNotCollapsed && enabled && !roleDisabled)
                             RoleEnabledList.Add(role);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
@@ -922,8 +934,8 @@ public static class LobbyViewSettingsPanePatch
                 {
                     // Skip all role settings
                     if (option.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Name)) continue;
-                    else if (option.Parent?.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Parent?.Name)) continue;
-                    else if (option.Parent?.Parent?.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Parent?.Parent.Name)) continue;
+                    if (option.Parent?.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Parent?.Name)) continue;
+                    if (option.Parent?.Parent?.Parent != null && allCustomRoles.Any(x => x.ToString() == option.Parent?.Parent?.Parent.Name)) continue;
 
                     ViewSettingsInfoPanel viewSettingsInfoPanel = Object.Instantiate(viewSettings.infoPanelOrigin, Vector3.zero, Quaternion.identity, viewSettings.settingsContainer);
                     viewSettingsInfoPanel.name = option.Name;
@@ -986,6 +998,7 @@ public static class LobbyViewSettingsPanePatch
 
             if (RoleEnabledList.Count <= 0) yield break;
             yield return CoShowRoleSettings().WrapToIl2Cpp();
+            yield break;
 
             IEnumerator CoShowRoleSettings()
             {
@@ -1001,8 +1014,8 @@ public static class LobbyViewSettingsPanePatch
 
                 float leftY = startY;
                 float rightY = startY;
-                float leftX = -5.8f;
-                var rightX = 0.15f;
+                const float leftX = -5.8f;
+                const float rightX = 0.15f;
 
                 foreach (CustomRoles role in RoleEnabledList)
                 {

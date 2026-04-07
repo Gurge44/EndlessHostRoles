@@ -30,6 +30,7 @@ public static class ModUpdater
     public static string DownloadUrl;
     private static GenericPopup InfoPopup;
     private static GenericPopup InfoPopupV2;
+    private static readonly HttpClient HttpClient = new();
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
     [HarmonyPrefix]
@@ -75,8 +76,7 @@ public static class ModUpdater
     public static string Get(string url)
     {
         string result;
-        HttpClient req = new();
-        HttpResponseMessage res = req.GetAsync(url).Result;
+        HttpResponseMessage res = HttpClient.GetAsync(url).Result;
         Stream stream = res.Content.ReadAsStreamAsync().Result;
 
         try
@@ -227,9 +227,7 @@ public static class ModUpdater
             // Delete the temporary file if it exists
             if (File.Exists(savePath)) File.Delete(savePath);
 
-            HttpResponseMessage response;
-
-            using (HttpClient client = new()) response = await client.GetAsync(url);
+            HttpResponseMessage response = await HttpClient.GetAsync(url);
 
             if (response is not { IsSuccessStatusCode: true }) throw new($"File retrieval failed with status code: {response.StatusCode}");
 
@@ -266,9 +264,7 @@ public static class ModUpdater
             // Delete the temporary file if it exists
             if (File.Exists(savePath)) File.Delete(savePath);
 
-            HttpResponseMessage response;
-
-            using (HttpClient client = new()) response = await client.GetAsync(url);
+            HttpResponseMessage response = await HttpClient.GetAsync(url);
 
             if (response is not { IsSuccessStatusCode: true }) throw new($"File retrieval failed with status code: {response.StatusCode}");
 
@@ -302,41 +298,44 @@ public static class ModUpdater
 
     public static void ShowPopup(string message, StringNames buttonText, bool showButton = false, bool buttonIsExit = true)
     {
-        if (InfoPopup == null) return;
+        if (!InfoPopup) return;
 
         InfoPopup.Show(message);
         Transform button = InfoPopup.transform.FindChild("ExitGame");
 
-        if (button != null)
+        if (button)
         {
             button.gameObject.SetActive(showButton);
-            button.GetChild(0).GetComponent<TextTranslatorTMP>().TargetText = buttonText;
-            button.GetChild(0).GetComponent<TextTranslatorTMP>().ResetText();
-            button.GetComponent<PassiveButton>().OnClick = new();
+            var textTranslatorTMP = button.GetChild(0).GetComponent<TextTranslatorTMP>();
+            textTranslatorTMP.TargetText = buttonText;
+            textTranslatorTMP.ResetText();
+            var passiveButton = button.GetComponent<PassiveButton>();
+            passiveButton.OnClick = new();
 
             if (buttonIsExit)
-                button.GetComponent<PassiveButton>().OnClick.AddListener((Action)Application.Quit);
+                passiveButton.OnClick.AddListener((Action)Application.Quit);
             else
-                button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => InfoPopup.Close()));
+                passiveButton.OnClick.AddListener((Action)(() => InfoPopup.Close()));
         }
     }
 
     private static void ShowPopupWithTwoButtons(string message, string firstButtonText, string secondButtonText = "", Action onClickOnFirstButton = null, Action onClickOnSecondButton = null)
     {
-        if (InfoPopupV2 != null)
+        if (InfoPopupV2)
         {
             var templateExitGame = InfoPopupV2.transform.FindChild("ExitGame");
-            if (templateExitGame == null) return;
+            if (!templateExitGame) return;
 
             var background = InfoPopupV2.transform.FindChild("Background");
-            if (background == null) return;
+            if (!background) return;
             background.localScale *= 2f;
 
             InfoPopupV2.Show(message);
             templateExitGame.gameObject.SetActive(false);
             var firstButton = Object.Instantiate(templateExitGame, InfoPopupV2.transform);
             var secondButton = Object.Instantiate(templateExitGame, InfoPopupV2.transform);
-            if (firstButton != null)
+            
+            if (firstButton)
             {
                 firstButton.gameObject.SetActive(true);
                 firstButton.name = "FirstButton";
@@ -344,17 +343,20 @@ public static class ModUpdater
                 firstButton.transform.localPosition = new Vector3(firstButtonTransform.localPosition.x - 1f, firstButtonTransform.localPosition.y - 0.7f, firstButtonTransform.localPosition.z);
                 firstButton.transform.localScale *= 1.2f;
                 var firstButtonGetChild = firstButton.GetChild(0);
-                firstButtonGetChild.GetComponent<TextTranslatorTMP>().TargetText = StringNames.Cancel;
-                firstButtonGetChild.GetComponent<TextTranslatorTMP>().ResetText();
-                firstButtonGetChild.GetComponent<TextTranslatorTMP>().DestroyTranslator();
+                var textTranslatorTMP = firstButtonGetChild.GetComponent<TextTranslatorTMP>();
+                textTranslatorTMP.TargetText = StringNames.Cancel;
+                textTranslatorTMP.ResetText();
+                textTranslatorTMP.DestroyTranslator();
                 firstButtonGetChild.GetComponent<TextMeshPro>().text = firstButtonText;
                 firstButtonGetChild.GetComponent<TMP_Text>().text = firstButtonText;
-                firstButton.GetComponent<PassiveButton>().OnClick = new();
+                var passiveButton = firstButton.GetComponent<PassiveButton>();
+                passiveButton.OnClick = new();
                 if (onClickOnFirstButton != null)
-                    firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
-                else firstButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
+                    passiveButton.OnClick.AddListener((UnityAction)(() => { onClickOnFirstButton(); InfoPopupV2.Close();}));
+                else passiveButton.OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
             }
-            if (secondButton != null)
+            
+            if (secondButton)
             {
                 secondButton.gameObject.SetActive(true);
                 secondButton.name = "SecondButton";
@@ -362,18 +364,21 @@ public static class ModUpdater
                 secondButton.transform.localPosition = new Vector3(secondButtonTransform.localPosition.x + 1f, secondButtonTransform.localPosition.y - 0.7f, secondButtonTransform.localPosition.z);
                 secondButton.transform.localScale *= 1.2f;
                 var secondButtonGetChild = secondButton.GetChild(0);
-                secondButtonGetChild.GetComponent<TextTranslatorTMP>().TargetText = StringNames.Cancel;
-                secondButtonGetChild.GetComponent<TextTranslatorTMP>().ResetText();
+                var textTranslatorTMP = secondButtonGetChild.GetComponent<TextTranslatorTMP>();
+                textTranslatorTMP.TargetText = StringNames.Cancel;
+                textTranslatorTMP.ResetText();
                 if (!string.IsNullOrWhiteSpace(secondButtonText))
                 {
-                    secondButtonGetChild.GetComponent<TextTranslatorTMP>().DestroyTranslator();
+                    textTranslatorTMP.DestroyTranslator();
                     secondButtonGetChild.GetComponent<TextMeshPro>().text = secondButtonText;
                     secondButtonGetChild.GetComponent<TMP_Text>().text = secondButtonText;
                 }
-                secondButton.GetComponent<PassiveButton>().OnClick = new();
+
+                var passiveButton = secondButton.GetComponent<PassiveButton>();
+                passiveButton.OnClick = new();
                 if (onClickOnSecondButton != null)
-                    secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
-                else secondButton.GetComponent<PassiveButton>().OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
+                    passiveButton.OnClick.AddListener((UnityAction)(() => { onClickOnSecondButton(); InfoPopupV2.Close(); }));
+                else passiveButton.OnClick.AddListener((UnityAction)(() => InfoPopupV2.Close()));
             }
         }
     }

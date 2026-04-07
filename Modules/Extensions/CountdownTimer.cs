@@ -8,7 +8,6 @@ namespace EHR.Modules.Extensions;
 public sealed class CountdownTimer : IDisposable
 {
     private readonly float _durationSeconds;
-    private readonly Stopwatch _stopwatch;
     private Coroutine _coroutine;
     private bool _completed;
 
@@ -27,7 +26,7 @@ public sealed class CountdownTimer : IDisposable
             throw new ArgumentOutOfRangeException(nameof(durationSeconds));
 
         _durationSeconds = durationSeconds;
-        _stopwatch = new Stopwatch();
+        Stopwatch = new Stopwatch();
 
         _cancelOnMeeting = cancelOnMeeting;
         _cancelOnGameEnd = cancelOnGameEnd;
@@ -57,12 +56,12 @@ public sealed class CountdownTimer : IDisposable
             if (_completed)
                 return TimeSpan.Zero;
 
-            TimeSpan remaining = TimeSpan.FromSeconds(_durationSeconds) - _stopwatch.Elapsed;
+            TimeSpan remaining = TimeSpan.FromSeconds(_durationSeconds) - Stopwatch.Elapsed;
             return remaining >= TimeSpan.Zero ? remaining : TimeSpan.Zero;
         }
     }
 
-    public Stopwatch Stopwatch => _stopwatch;
+    public Stopwatch Stopwatch { get; }
 
     public void Start()
     {
@@ -70,7 +69,7 @@ public sealed class CountdownTimer : IDisposable
             return;
 
         _completed = false;
-        _stopwatch.Restart();
+        Stopwatch.Restart();
         _coroutine = Main.Instance.StartCoroutine(_hasTickEvent ? Run() : RunWithoutTicks());
     }
 
@@ -84,7 +83,7 @@ public sealed class CountdownTimer : IDisposable
     {
         int lastRemaining = (int)Math.Ceiling(Remaining.TotalSeconds);
 
-        while (_stopwatch.Elapsed.TotalSeconds < _durationSeconds)
+        while (Stopwatch.Elapsed.TotalSeconds < _durationSeconds)
         {
             int remaining = (int)Math.Ceiling(Remaining.TotalSeconds);
 
@@ -101,7 +100,7 @@ public sealed class CountdownTimer : IDisposable
             if (remaining > 1)
                 yield return new WaitForSecondsRealtime(1f);
             else
-                yield return new WaitForSecondsRealtime((float)(_durationSeconds - _stopwatch.Elapsed.TotalSeconds));
+                yield return new WaitForSecondsRealtime((float)(_durationSeconds - Stopwatch.Elapsed.TotalSeconds));
         }
 
         Complete();
@@ -119,7 +118,7 @@ public sealed class CountdownTimer : IDisposable
             return;
 
         _completed = true;
-        _stopwatch.Stop();
+        Stopwatch.Stop();
 
         try
         {
@@ -146,7 +145,7 @@ public sealed class CountdownTimer : IDisposable
             _coroutine = null;
         }
 
-        _stopwatch.Stop();
+        Stopwatch.Stop();
         OnElapsed = null;
         OnTick = null;
         OnCanceled = null;

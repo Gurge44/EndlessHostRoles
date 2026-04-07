@@ -98,7 +98,6 @@ public static class OnlinePresetsManager
             TextMeshPro plusText = row.PlusBtn.GetComponentInChildren<TextMeshPro>();
             plusText.DestroyTranslator();
             plusText.text = "ⓘ";
-            row.PlusBtn.transform.localPosition += new Vector3(1.8f, 0f, 0f);
             row.PlusBtn.OnClick = new();
             row.PlusBtn.OnClick.AddListener((UnityAction)(() =>
             {
