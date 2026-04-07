@@ -45,10 +45,12 @@ public class ClientControlGUI : MonoBehaviour
 
     // GUIStyle holds font, colors, and the background texture for each widget type
     private GUIStyle _sAction, _sHost, _sDanger, _sSection, _sToggle, _sWindow, _sTitleBar, _sDragHint;
+    private Camera _cam;
 
     // Credit: Xtracube for pointing out the add_sceneLoaded workaround
     private void Awake()
     {
+        _cam = Camera.main;
         Instance = this;
         SceneManager.add_sceneLoaded((Action<Scene, LoadSceneMode>)OnSceneLoaded);
         Logger.Info("ClientControlGUI initialised", "ClientControlGUI");
@@ -443,15 +445,14 @@ public class ClientControlGUI : MonoBehaviour
             Section(ref y, "Camera");
 
             // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
-            var cam = Camera.main;
-            if (cam) _zoomValue = cam.orthographicSize;
+            if (_cam) _zoomValue = _cam.orthographicSize;
 
             float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
             if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
             {
                 _zoomValue = newZoom;
                 Zoom.SetZoomSize(reset: false);
-                if (cam) cam.orthographicSize = _zoomValue;
+                if (_cam) _cam.orthographicSize = _zoomValue;
                 if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
             }
 
