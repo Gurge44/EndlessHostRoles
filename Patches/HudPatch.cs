@@ -1119,6 +1119,7 @@ internal static class TaskPanelBehaviourPatch
                     }
                 }
 
+                if (OperatingSystem.IsAndroid()) break;
                 finalTextBuilder.Append("\r\n\r\n<size=90%>");
                 finalTextBuilder.Append(GetString("PressF1ShowMainRoleDes"));
                 break;
