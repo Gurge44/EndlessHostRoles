@@ -930,9 +930,13 @@ public class Main : BasePlugin
             try
             {
                 string json = File.ReadAllText(path);
-                if (string.IsNullOrWhiteSpace(json) || json == serialized || json.Length < serialized.Length) return;
-                var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                RoleColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
+                if (string.IsNullOrWhiteSpace(json) || json == serialized) return;
+
+                foreach ((string roleName, string hex) in JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [])
+                {
+                    if (!Enum.TryParse(roleName, true, out CustomRoles role)) continue;
+                    RoleColors[role] = hex;
+                }
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
