@@ -976,6 +976,13 @@ internal static class ShapeshiftPatch
             }
         }
     }
+
+    public static void Postfix(PlayerControl __instance)
+    {
+        // Set CNO name visible for modded clients after shapeshift
+        if (__instance.PlayerId >= 254)
+            __instance.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+    }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcShapeshift))]
@@ -2457,9 +2464,6 @@ public static class PlayerControlCheckUseZiplinePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] ZiplineBehaviour ziplineBehaviour, [HarmonyArgument(2)] bool fromTop)
     {
-        ziplineBehaviour.downTravelTime = Options.ZiplineTravelTimeFromTop.GetFloat();
-        ziplineBehaviour.upTravelTime = Options.ZiplineTravelTimeFromBottom.GetFloat();
-
         Logger.Info($"{__instance.GetNameWithRole()}, target: {target.GetNameWithRole()}, {(fromTop ? $"from Top, travel time: {ziplineBehaviour.downTravelTime}s" : $"from Bottom, travel time: {ziplineBehaviour.upTravelTime}s")}", "Zipline Use");
 
         if (Options.CurrentGameMode == CustomGameMode.Deathrace) return true;

@@ -185,7 +185,7 @@ public static class MainMenuManagerPatch
         {
             GameOptionsManager.Instance.Initialize();
             
-            if (GameOptionsManager.Instance.normalGameHostOptions.MapId is 3 or > 5)
+            if (GameOptionsManager.Instance.normalGameHostOptions.MapId == 3 || (GameOptionsManager.Instance.normalGameHostOptions.MapId > 5 && !SubmergedCompatibility.Loaded))
             {
                 GameOptionsManager.Instance.normalGameHostOptions.MapId = 0;
                 GameOptionsManager.Instance.SaveNormalHostOptions();

@@ -20,7 +20,7 @@ namespace EHR;
 public static class ModGameOptionsMenu
 {
     public static int TabIndex;
-    public static readonly List<BaseGameSetting> BaseGameSettingCache = new();
+    public static readonly List<Coroutine> RunningMainCoroutines = new();
     public static readonly Dictionary<OptionBehaviour, int> OptionList = new();
     public static readonly Dictionary<int, OptionBehaviour> BehaviourList = new();
     public static readonly Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
@@ -46,7 +46,7 @@ public static class ModGameOptionsMenu
             foreach (var btn in ui.GetComponentsInChildren<PassiveButton>(true))
                 btn.OnClick.RemoveAllListeners();
 
-            Object.Destroy(ui);
+            Object.DestroyImmediate(ui);
         }
         SpawnedUI.Clear();
 
@@ -64,7 +64,7 @@ public static class ModGameOptionsMenu
                 kv.Key.SetClickMask(null);
                 if (kv.Key.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
-                Object.Destroy(kv.Key.gameObject);
+                Object.DestroyImmediate(kv.Key.gameObject);
             }
         }
 
@@ -76,7 +76,7 @@ public static class ModGameOptionsMenu
                 kv.Value.SetClickMask(null);
                 if (kv.Value.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
-                Object.Destroy(kv.Value.gameObject);
+                Object.DestroyImmediate(kv.Value.gameObject);
             }
         }
 
@@ -86,18 +86,20 @@ public static class ModGameOptionsMenu
             {
                 if (kv.Value.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
-                Object.Destroy(kv.Value.gameObject);
+                Object.DestroyImmediate(kv.Value.gameObject);
             }
         }
-        foreach (var setting in BaseGameSettingCache)
+        
+        foreach (var co in RunningMainCoroutines)
         {
-            if (setting) Object.Destroy(setting);
+            if (co != null)
+                Main.Instance.StopCoroutine(co);
         }
 
         OptionList.Clear();
         BehaviourList.Clear();
         CategoryHeaderList.Clear();
-        BaseGameSettingCache.Clear();
+        RunningMainCoroutines.Clear();
     }
 }
 
@@ -289,8 +291,6 @@ public static class GameOptionsMenuPatch
 
             foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
                 __instance.ControllerSelectable.Add(x);
-
-            yield break;
         }
 
         float CalculateScrollBarYBoundsMax()
@@ -468,6 +468,8 @@ public static class GameOptionsMenuPatch
     }
     public static BaseGameSetting GetSetting(OptionItem item)
     {
+        if (item.CachedSetting) return item.CachedSetting;
+        
         BaseGameSetting baseGameSetting;
 
         switch (item)
@@ -525,7 +527,7 @@ public static class GameOptionsMenuPatch
         if (baseGameSetting)
         {
             baseGameSetting.Title = StringNames.Accept;
-            ModGameOptionsMenu.BaseGameSettingCache.Add(baseGameSetting);
+            item.CachedSetting = baseGameSetting;
         }
         return baseGameSetting;
     }
@@ -878,7 +880,11 @@ public static class StringOptionPatch
                     long now = Utils.TimeStamp;
                     bool startCoRoutine = now > HelpShowEndTS;
                     HelpShowEndTS = now + 15;
-                    if (startCoRoutine) Main.Instance.StartCoroutine(CoRoutine());
+                    if (startCoRoutine)
+                    {
+                        var co = Main.Instance.StartCoroutine(CoRoutine());
+                        ModGameOptionsMenu.RunningMainCoroutines.Add(co);
+                    }
 
                     IEnumerator CoRoutine()
                     {
@@ -1077,14 +1083,14 @@ public static class GameSettingMenuPatch
     private static float VanillaKillCooldownOnOpen = 1;
     private static float ModdedKillCooldownOnOpen = 1;
 
-    public static void DestroySetting()
+    private static void DestroySetting()
     {
         foreach (var button in ModSettingsButtons.Values)
         {
             if (button)
             {
                 button.OnClick.RemoveAllListeners();
-                Object.Destroy(button.gameObject);
+                Object.DestroyImmediate(button.gameObject);
             }
         }
 
@@ -1101,7 +1107,7 @@ public static class GameSettingMenuPatch
                     if (child.TryGetComponent<PassiveButton>(out var btn))
                         btn.OnClick.RemoveAllListeners();
 
-                    Object.Destroy(child.gameObject);
+                    Object.DestroyImmediate(child.gameObject);
                 }
                 tab.Children.Clear();
             }
@@ -1109,7 +1115,7 @@ public static class GameSettingMenuPatch
         }
 
         foreach (var gmButton in GMButtons)
-            if (gmButton) Object.Destroy(gmButton);
+            if (gmButton) Object.DestroyImmediate(gmButton);
 
         ModSettingsButtons.Clear();
         ModSettingsTabs.Clear();
@@ -1499,7 +1505,7 @@ public static class GameSettingMenuPatch
         
         if (!OnlinePresetsManager.PresetsLoaded && tabGroup == TabGroup.PresetExplorer)
         {
-            Main.Instance.StartCoroutine(
+            var co = Main.Instance.StartCoroutine(
                 OnlinePresetsManager.FetchPresetList(list =>
                 {
                     OnlinePresetsManager.CachedPresets = list;
@@ -1507,6 +1513,7 @@ public static class GameSettingMenuPatch
                     GameOptionsMenuPatch.ReloadUI();
                 })
             );
+            ModGameOptionsMenu.RunningMainCoroutines.Add(co);
         }
 
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
@@ -1678,5 +1685,4 @@ public static class RpcSyncSettingsPatch
     {
         OptionItem.SyncAllOptions();
     }
-
 }

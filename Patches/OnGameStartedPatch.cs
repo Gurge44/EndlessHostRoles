@@ -280,6 +280,8 @@ internal static class ChangeRoleSettings
             ChatCommands.LastSpectators.UnionWith(ChatCommands.Spectators);
 
             RPCHandlerPatch.RemoveExpiredWhiteList();
+            
+            LobbyViewSettingsPanePatch.ClearReferences();
 
             try
             {

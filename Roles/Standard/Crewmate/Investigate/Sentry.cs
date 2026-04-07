@@ -124,9 +124,9 @@ internal class Sentry : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         PlainShipRoom room = pc.GetPlainShipRoom();
-        bool hasntChosenRoom = MonitoredRoom == null || MonitoredRoom == null || MonitoredRoom == null;
+        bool hasntChosenRoom = !MonitoredRoom;
 
-        if (room == null && hasntChosenRoom)
+        if (!room && hasntChosenRoom)
         {
             pc.AddAbilityCD(3);
             pc.Notify(Translator.GetString("Sentry.Notify.InvalidRoom"));
@@ -152,7 +152,7 @@ internal class Sentry : RoleBase
             pc.RpcRemoveAbilityUse();
         }
 
-        string roomName = Translator.GetString(MonitoredRoom.RoomId.ToString());
+        string roomName = Translator.GetString(MonitoredRoom.RoomId);
         var alivePlayers = Main.CachedAlivePlayerControls();
         PlayersBuilder.Clear();
         BodiesBuilder.Clear();
@@ -161,8 +161,7 @@ internal class Sentry : RoleBase
         {
             PlayerControl target = alivePlayers[aliveIndex];
 
-            if (!IsInMonitoredRoom(target))
-                continue;
+            if (!IsInMonitoredRoom(target)) continue;
 
             PlayerControl realTarget = null;
 
@@ -183,8 +182,7 @@ internal class Sentry : RoleBase
         foreach (byte id in DeadBodiesInRoom)
         {
             PlayerControl bodyPc = Utils.GetPlayerById(id);
-            if (bodyPc == null)
-                continue;
+            if (bodyPc == null) continue;
 
             string coloredName = Utils.ColorString(Main.PlayerColors[id], bodyPc.GetRealName());
 
@@ -204,24 +202,23 @@ internal class Sentry : RoleBase
 
     private bool IsInMonitoredRoom(PlayerControl pc)
     {
-        return MonitoredRoom != null && SentryPC.IsAlive() && pc.IsInRoom(MonitoredRoom);
+        return SentryPC.IsAlive() && pc.IsInRoom(MonitoredRoom);
     }
 
     public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter, PlayerControl target)
     {
-        if (IsInMonitoredRoom(shapeshifter) && NameNotifyManager.Notifies.TryGetValue(SentryPC.PlayerId, out Dictionary<string, long> notifies) && notifies.Count > 0)
-        {
-            bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
-            PlayerControl ssTarget = shapeshifting ? target : shapeshifter;
-            PlayerControl ss = shapeshifting ? shapeshifter : Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
+        if (!AmongUsClient.Instance.AmHost || !IsInMonitoredRoom(shapeshifter) || !NameNotifyManager.Notifies.TryGetValue(SentryPC.PlayerId, out Dictionary<string, long> notifies) || notifies.Count <= 0) return;
+        
+        bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
+        PlayerControl ssTarget = shapeshifting ? target : shapeshifter;
+        PlayerControl ss = shapeshifting ? shapeshifter : Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
 
-            string text = "\n" + string.Format(
-                Translator.GetString("Sentry.Notify.Shapeshifted"),
-                Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
-                Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], Main.AllPlayerNames[ssTarget.PlayerId]));
+        string text = "\n" + string.Format(
+            Translator.GetString("Sentry.Notify.Shapeshifted"),
+            Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
+            Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], Main.AllPlayerNames[ssTarget.PlayerId]));
 
-            SentryPC.Notify(text, 3f);
-        }
+        SentryPC.Notify(text, 3f);
     }
 
     public static void OnAnyoneMurder(PlayerControl target)
@@ -254,7 +251,7 @@ internal class Sentry : RoleBase
     {
         if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-        if (seer.PlayerId == SentryPC.PlayerId && MonitoredRoom != null)
+        if (seer.PlayerId == SentryPC.PlayerId && MonitoredRoom)
             return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{MonitoredRoom.RoomId}"));
 
         if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;

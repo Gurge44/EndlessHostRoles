@@ -377,6 +377,7 @@ internal class Adventurer : RoleBase
 
     public static void OnAnyoneShapeshiftLoop(Adventurer av, PlayerControl shapeshifter)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
         Vector2 pos = shapeshifter.Pos();
         av.ResourceLocations[Resource.ShapeshiftSkin] = pos;
         HideObject(Resource.ShapeshiftSkin);

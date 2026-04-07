@@ -217,6 +217,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> ButtonCooldownInDecimalUnder10s { get; private set; }
     public static ConfigEntry<bool> CancelPetAnimation { get; private set; }
     public static ConfigEntry<bool> TryFixStuttering { get; private set; }
+    public static ConfigEntry<bool> ShowClientControlGUI { get; private set; }
     public static ConfigEntry<float> UIScaleFactor { get; private set; }
 
     // Preset Name Options
@@ -363,6 +364,7 @@ public class Main : BasePlugin
         ButtonCooldownInDecimalUnder10s = Config.Bind("Client Options", "ButtonCooldownInDecimalUnder10s", false);
         CancelPetAnimation = Config.Bind("Client Options", "CancelPetAnimation", true);
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
+        ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
 
         AddComponent<ClientControlGUI>();
@@ -996,9 +998,13 @@ public class Main : BasePlugin
             try
             {
                 string json = File.ReadAllText(path);
-                if (string.IsNullOrWhiteSpace(json) || json == serialized || json.Length < serialized.Length) return;
-                var deserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                RoleHtmlColors = deserialized.ToDictionary(x => Enum.Parse<CustomRoles>(x.Key), x => x.Value);
+                if (string.IsNullOrWhiteSpace(json) || json == serialized) return;
+
+                foreach ((string roleName, string hex) in JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [])
+                {
+                    if (!Enum.TryParse(roleName, true, out CustomRoles role)) continue;
+                    RoleHtmlColors[role] = hex;
+                }
                 InitRoleColors();
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -1007,9 +1013,8 @@ public class Main : BasePlugin
     public static void InitRoleColors()
     {
         RoleColors.Clear();
-        foreach (var kvp in RoleHtmlColors)
+        foreach ((CustomRoles role, string hexColor) in RoleHtmlColors)
         {
-            var (role, hexColor) = kvp;
             if (ColorUtility.TryParseHtmlString(hexColor, out Color color))
                 RoleColors[role] = color;
         }
