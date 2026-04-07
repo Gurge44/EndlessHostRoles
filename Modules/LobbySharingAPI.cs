@@ -85,7 +85,11 @@ public static class LobbySharingAPI
     {
         if (!Options.PostLobbyCodeToEHRWebsite.GetBool() || !AmongUsClient.Instance.AmHost) return;
 
-        if (status != LobbyStatus.Closed && GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
+        if (status == LobbyStatus.Closed)
+        {
+            LastRoomCode = string.Empty;
+        }
+        else if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
         {
             status = LobbyStatus.Closed;
             StartMessageEdit();

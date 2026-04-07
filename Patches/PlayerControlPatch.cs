@@ -1724,7 +1724,7 @@ internal static class FixedUpdatePatch
                     }
                 }
                 
-                if (self && inTask && alive && !lowLoad)
+                if (inTask && alive && !lowLoad)
                     Asthmatic.OnFixedUpdate();
 
                 if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))

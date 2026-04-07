@@ -259,8 +259,8 @@ internal static class ChangeRoleSettings
 
             try
             {
-                SabotageMapPatch.TimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
-                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
+                SabotageMapPatch.TimerTexts.Values.DoIf(x => x, x => Object.Destroy(x.gameObject));
+                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x, x => Object.Destroy(x.gameObject));
             }
             catch (Exception e) { Utils.ThrowException(e); }
             
@@ -449,6 +449,9 @@ internal static class ChangeRoleSettings
             GameStates.AlreadyDied = false;
 
             Main.Instance.StartCoroutine(PopulateSkinItems());
+            
+            GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
         catch (Exception ex)
         {
