@@ -15,6 +15,7 @@ namespace EHR;
 [HarmonyPatch(typeof(ControllerManager), nameof(ControllerManager.Update))]
 internal static class ControllerManagerUpdatePatch
 {
+    public static bool NoClipEnabled;
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
     private static int ResolutionIndex;
 
@@ -29,24 +30,21 @@ internal static class ControllerManagerUpdatePatch
     {
         try
         {
-            if (ClientControlGUI.Instance && (Input.GetKeyDown(KeyCode.Insert) || KeysDown(KeyCode.LeftControl, KeyCode.Tilde) || KeysDown(KeyCode.RightControl, KeyCode.Tilde)))
+            if (ClientControlGUI.Instance &&
+                (Input.GetKeyDown(KeyCode.Delete) ||
+                KeysDown(KeyCode.LeftControl, KeyCode.BackQuote) ||
+                KeysDown(KeyCode.RightControl, KeyCode.BackQuote)))
                 ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
             
             if (HudManager.InstanceExists)
             {
                 if (PlayerControl.LocalPlayer)
                 {
-                    if (Input.GetKeyDown(KeyCode.LeftControl))
-                    {
-                        if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && PlayerControl.LocalPlayer.CanMove)
-                            PlayerControl.LocalPlayer.Collider.offset = new(0f, 127f);
-                    }
+                    bool shouldNoclip =
+                        NoClipEnabled || (Input.GetKey(KeyCode.LeftControl) && 
+                        (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && PlayerControl.LocalPlayer.CanMove);
 
-                    if (Math.Abs(PlayerControl.LocalPlayer.Collider.offset.y - 127f) < 0.1f)
-                    {
-                        if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
-                            PlayerControl.LocalPlayer.Collider.offset = new(0f, -0.3636f);
-                    }
+                    PlayerControl.LocalPlayer.Collider.offset = shouldNoclip ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 }
             
                 if (GameStates.IsLobby && (!HudManager.Instance.Chat || !HudManager.Instance.Chat.IsOpenOrOpening))
