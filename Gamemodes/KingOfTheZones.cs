@@ -853,9 +853,8 @@ public static class KingOfTheZones
                         {
                             if (player.IsInRoom(zone))
                             {
-                                (int[] TeamCounts, List<(byte Id, int Team)> Players) info = zoneInfo[zone];
-                                info.TeamCounts[team]++;
-                                info.Players.Add((player.PlayerId, team));
+                                zoneInfo[zone].TeamCounts[team]++;
+                                zoneInfo[zone].Players.Add((player.PlayerId, team));
                             }
                         }
                     }
