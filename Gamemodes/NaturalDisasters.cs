@@ -201,7 +201,7 @@ public static class NaturalDisasters
         Utils.SendRPC(CustomRPC.NaturalDisastersSync, pc.PlayerId, SurvivalTimes[pc.PlayerId]);
 
         var aapc = Main.CachedAllPlayerControls();
-        string remaining = string.Format(Translator.GetString("ND_RemainingPlayers"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.NDPlayer), aapc.Count.ToString()));
+        string remaining = string.Format(Translator.GetString("ND_RemainingPlayers"), CustomRoles.NDPlayer.ColoredTextByRole(aapc.Count.ToString()));
         string msgOthers = string.Format(Translator.GetString($"ND_DRLaughMessageOthers-{IRandom.Instance.Next(4)}.{deathReason}"), pc.PlayerId.ColoredPlayerName());
         aapc.NotifyPlayers($"<#ff0000>[╳]</color> {Utils.ColorString(color, msgOthers)} {remaining}", 10f);
     }

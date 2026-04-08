@@ -475,7 +475,7 @@ internal class Randomizer : RoleBase
 
     private static int Id => 643490;
 
-    private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
+    private static string RNGString => CustomRoles.Randomizer.ColoredTextByRole(Translator.GetString("RNGHasSpoken"));
 
     public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
 

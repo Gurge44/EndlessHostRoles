@@ -139,7 +139,7 @@ public class Spiritcaller : RoleBase
 
     public static void HauntPlayer(PlayerControl target)
     {
-        if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
+        if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(CustomRoles.Spiritcaller.ColoredTextByRole(GetString("HauntedByEvilSpirit")));
 
         if (SpiritCauseVisionTime.GetFloat() > 0 && PlayersHaunted.Add(target.PlayerId))
         {

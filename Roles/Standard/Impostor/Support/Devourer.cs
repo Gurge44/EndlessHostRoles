@@ -90,8 +90,8 @@ public class Devourer : RoleBase
             if (!Camouflage.IsCamouflage) SetSkin(target, ConsumedOutfit);
 
             PlayerSkinsCosumed.Add(target.PlayerId);
-            pc.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Devourer), GetString("DevourerEatenSkin")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Devourer), GetString("EatenByDevourer")));
+            pc.Notify(CustomRoles.Devourer.ColoredTextByRole(GetString("DevourerEatenSkin")));
+            target.Notify(CustomRoles.Devourer.ColoredTextByRole(GetString("EatenByDevourer")));
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
 

@@ -205,7 +205,7 @@ public class Gaslighter : RoleBase
                 target.RpcSetCustomRole(CustomRoles.Knighted);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), Translator.GetString("KnightedByMonarch")));
+                target.Notify(CustomRoles.Monarch.ColoredTextByRole(Translator.GetString("KnightedByMonarch")));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 killer.RpcRemoveAbilityUse();
                 killer.SetKillCooldown();
@@ -253,7 +253,7 @@ public class Gaslighter : RoleBase
         Suffix.Clear();
 
         if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId))
-            Suffix.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+            Suffix.Append(CustomRoles.Medic.ColoredTextByRole(" ●"));
 
         if (IsCursed(target) && (meeting || seerIsGaslighter))
             Suffix.Append(Utils.ColorString(Palette.ImpostorRed, "†"));

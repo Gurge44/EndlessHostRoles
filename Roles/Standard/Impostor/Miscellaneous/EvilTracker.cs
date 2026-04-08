@@ -216,7 +216,7 @@ public class EvilTracker : RoleBase
 
         if (imps.Length > 0)
         {
-            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
+            sb.Append(Utils.ColorStringPrefix(Utils.GetRoleColor(CustomRoles.Impostor)));
             foreach (byte impostorId in imps) sb.Append(TargetArrow.GetArrows(target, impostorId));
             sb.Append("</color>");
         }

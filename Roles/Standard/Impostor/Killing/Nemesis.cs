@@ -168,7 +168,7 @@ internal class Nemesis : RoleBase
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Nemesis), GetString("NemesisRevengeTitle")), importance: MessageImportance.High), 0.6f, "Nemesis Kill");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, CustomRoles.Nemesis.ColoredTextByRole(GetString("NemesisRevengeTitle")), importance: MessageImportance.High), 0.6f, "Nemesis Kill");
         }, 0.2f, "Nemesis Kill");
 
         return true;

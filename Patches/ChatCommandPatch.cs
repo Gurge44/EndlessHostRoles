@@ -747,7 +747,7 @@ internal static class ChatCommands
                 Medic.IsDead(killer);
                 killer.RpcGuesserMurderPlayer();
                 Utils.AfterPlayerDeathTasks(killer, true);
-                Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())), importance: MessageImportance.High);
+                Utils.SendMessage("\n", title: CustomRoles.Retributionist.ColoredTextByRole(string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())), importance: MessageImportance.High);
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
             }
         }
@@ -1020,7 +1020,7 @@ internal static class ChatCommands
         bool amJailed = player.PlayerId == jailor.JailorTarget;
         if (!amJailor && !amJailed) return;
 
-        string title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailTalkTitle"));
+        string title = CustomRoles.Jailor.ColoredTextByRole(GetString("JailTalkTitle"));
 
         string message = string.Join(' ', args[1..]);
 

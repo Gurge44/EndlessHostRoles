@@ -330,7 +330,7 @@ public class Medic : RoleBase
     {
         if (ProtectList.Count > 0)
         {
-            var shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
+            var shieldMark = CustomRoles.Medic.ColoredTextByRole(" ●");
 
             bool self = seer.PlayerId == target.PlayerId;
             bool seerIsMedic = seer.Is(CustomRoles.Medic);

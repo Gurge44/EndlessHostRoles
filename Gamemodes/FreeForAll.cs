@@ -362,7 +362,7 @@ internal static class FreeForAll
         if (!otherPlayer) return string.Empty;
 
         string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
+        return CustomRoles.Killer.ColoredTextByRole(arrow);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]

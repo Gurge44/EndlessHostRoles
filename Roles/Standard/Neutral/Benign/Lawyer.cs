@@ -163,11 +163,11 @@ public class Lawyer : RoleBase
         {
             if (!TargetKnowsLawyer.GetBool() && seer.IsAlive()) return string.Empty;
 
-            return Target.TryGetValue(target.PlayerId, out byte x) && (seer.PlayerId == x || !seer.IsAlive()) ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
+            return Target.TryGetValue(target.PlayerId, out byte x) && (seer.PlayerId == x || !seer.IsAlive()) ? CustomRoles.Lawyer.ColoredTextByRole("§") : string.Empty;
         }
 
         bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
+        return GetValue && targetId == target.PlayerId ? CustomRoles.Lawyer.ColoredTextByRole("§") : string.Empty;
     }
 
     private static void ChangeRole(PlayerControl lawyer)

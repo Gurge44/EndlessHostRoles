@@ -1531,6 +1531,10 @@ internal static class CustomRolesHelper
     {
         return Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString(role.ToString()));
     }
+    public static string ColoredTextByRole(this CustomRoles role, string str)
+    {
+        return Utils.ColorString(Utils.GetRoleColor(role), str);
+    }
 
     #region OptionsAndCategories
 

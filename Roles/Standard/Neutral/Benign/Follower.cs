@@ -145,7 +145,7 @@ public class Follower : RoleBase
         killer.RPCPlayCustomSound("Bet");
 
         killer.Notify(GetString("FollowerBetPlayer"));
-        if (BetTargetKnowFollower.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), GetString("FollowerBetOnYou")));
+        if (BetTargetKnowFollower.GetBool()) target.Notify(CustomRoles.Follower.ColoredTextByRole(GetString("FollowerBetOnYou")));
 
         Logger.Info($"Target selected: {killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Follower");
         return false;
@@ -159,13 +159,13 @@ public class Follower : RoleBase
 
             if (Main.PlayerStates[target.PlayerId].Role is not Follower tc) return string.Empty;
 
-            return seer.PlayerId == tc.BetPlayer ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), "♦") : string.Empty;
+            return seer.PlayerId == tc.BetPlayer ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
         else
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Follower tc) return string.Empty;
 
-            return tc.BetPlayer == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), "♦") : string.Empty;
+            return tc.BetPlayer == target.PlayerId ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
     }
 

@@ -264,7 +264,7 @@ public class Infection : RoleBase
         seen ??= seer;
         if (!pd.CanInfect(seen) || !seer.Is(CustomRoles.Infection) && seer.IsAlive()) return string.Empty;
 
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infection), GetInfectRateCharactor(seen, pd));
+        return CustomRoles.Infection.ColoredTextByRole(GetInfectRateCharactor(seen, pd));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -279,7 +279,7 @@ public class Infection : RoleBase
                 str.Append(GetInfectRateCharactor(player, pd));
         }
 
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Infection), str.ToString());
+        return CustomRoles.Infection.ColoredTextByRole(str.ToString());
     }
 
     public static bool IsInfected(byte playerId)

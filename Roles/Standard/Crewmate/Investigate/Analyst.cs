@@ -19,7 +19,7 @@ internal class Analyst : RoleBase
     private static OptionItem SeeRoleBasis;
     public static OptionItem UsePet;
 
-    private static readonly Dictionary<string, string> ReplacementDict = new() { { "Analyze", Utils.ColorString(Utils.GetRoleColor(CustomRoles.Analyst), "Analyze") } };
+    private static readonly Dictionary<string, string> ReplacementDict = new() { { "Analyze", CustomRoles.Analyst.ColoredTextByRole("Analyze") } };
 
     public static Dictionary<byte, int> VentCount = [];
     public (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
@@ -73,16 +73,16 @@ internal class Analyst : RoleBase
         return SeeRoleBasis.GetBool()
             ? role.GetVNRole(true) switch
             {
-                CustomRoles.Impostor or CustomRoles.ImpostorEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
-                CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
-                CustomRoles.Phantom or CustomRoles.PhantomEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Witness), GetString("Specter")),
-                CustomRoles.Viper or CustomRoles.ViperEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Poisoner), GetString("Viper")),
-                CustomRoles.Crewmate or CustomRoles.CrewmateEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Crewmate), GetString("Crewmate")),
-                CustomRoles.Engineer or CustomRoles.EngineerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Autocrat), GetString("Engineer")),
-                CustomRoles.Scientist or CustomRoles.ScientistEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), GetString("Scientist")),
-                CustomRoles.Noisemaker or CustomRoles.NoisemakerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Bubble), GetString("Noisemaker")),
-                CustomRoles.Tracker or CustomRoles.TrackerEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scout), GetString("Tracker")),
-                CustomRoles.Detective or CustomRoles.DetectiveEHR => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Forensic), GetString("Detective")),
+                CustomRoles.Impostor or CustomRoles.ImpostorEHR => CustomRoles.Impostor.ColoredTextByRole(GetString("Impostor")),
+                CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR => CustomRoles.Speedrunner.ColoredTextByRole(GetString("Shapeshifter")),
+                CustomRoles.Phantom or CustomRoles.PhantomEHR => CustomRoles.Witness.ColoredTextByRole(GetString("Specter")),
+                CustomRoles.Viper or CustomRoles.ViperEHR => CustomRoles.Poisoner.ColoredTextByRole(GetString("Viper")),
+                CustomRoles.Crewmate or CustomRoles.CrewmateEHR => CustomRoles.Crewmate.ColoredTextByRole(GetString("Crewmate")),
+                CustomRoles.Engineer or CustomRoles.EngineerEHR => CustomRoles.Autocrat.ColoredTextByRole(GetString("Engineer")),
+                CustomRoles.Scientist or CustomRoles.ScientistEHR => CustomRoles.Doctor.ColoredTextByRole(GetString("Scientist")),
+                CustomRoles.Noisemaker or CustomRoles.NoisemakerEHR => CustomRoles.Bubble.ColoredTextByRole(GetString("Noisemaker")),
+                CustomRoles.Tracker or CustomRoles.TrackerEHR => CustomRoles.Scout.ColoredTextByRole(GetString("Tracker")),
+                CustomRoles.Detective or CustomRoles.DetectiveEHR => CustomRoles.Forensic.ColoredTextByRole(GetString("Detective")),
                 _ => string.Empty
             }
             : string.Empty;

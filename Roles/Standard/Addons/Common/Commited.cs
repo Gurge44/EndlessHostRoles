@@ -68,6 +68,6 @@ public class Commited : IAddon
     public static string GetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.Is(CustomRoles.Commited) || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Commited), "⌆");
+        return CustomRoles.Commited.ColoredTextByRole("⌆");
     }
 }

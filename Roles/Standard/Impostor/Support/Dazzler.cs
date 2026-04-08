@@ -84,7 +84,7 @@ public class Dazzler : RoleBase
 
         if (!PlayersDazzled.Contains(target.PlayerId) && PlayersDazzled.Count < pc.GetAbilityUseLimit())
         {
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Dazzler), GetString("DazzlerDazzled")));
+            target.Notify(CustomRoles.Dazzler.ColoredTextByRole(GetString("DazzlerDazzled")));
             PlayersDazzled.Add(target.PlayerId);
             target.MarkDirtySettings();
         }

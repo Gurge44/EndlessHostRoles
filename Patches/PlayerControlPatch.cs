@@ -573,7 +573,7 @@ internal static class CheckMurderPatch
             target.RpcSetCustomRole(CustomRoles.Madmate);
             ExtendedPlayerControl.RpcSetCustomRole(target.PlayerId, CustomRoles.Madmate);
             var sender = CustomRpcSender.Create("RpcCheckAndMurder - Madmate", SendOption.Reliable);
-            sender.Notify(target, ColorString(GetRoleColor(CustomRoles.Madmate), GetString("BecomeMadmateCuzMadmateMode")));
+            sender.Notify(target, CustomRoles.Madmate.ColoredTextByRole(GetString("BecomeMadmateCuzMadmateMode")));
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
             sender.RpcGuardAndKill(killer, target);
@@ -766,7 +766,7 @@ internal static class MurderPlayerPatch
                         delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
 
                     delay = Math.Max(delay, 0.15f);
-                    if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
+                    if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(CustomRoles.Bait.ColoredTextByRole(string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
 
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
@@ -1874,10 +1874,10 @@ internal static class FixedUpdatePatch
             if (target.AmOwner && inTask)
             {
                 if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
-                    realName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString(Options.UsePets.GetBool() ? "PetToWin" : "EnterVentToWin"));
-                else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone()) realName = ColorString(GetRoleColor(CustomRoles.Revolutionist), string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(lpId, 10)));
+                    realName = CustomRoles.Arsonist.ColoredTextByRole(GetString(Options.UsePets.GetBool() ? "PetToWin" : "EnterVentToWin"));
+                else if (target.Is(CustomRoles.Revolutionist) && target.IsDrawDone()) realName = CustomRoles.Revolutionist.ColoredTextByRole(string.Format(GetString("EnterVentWinCountDown"), Revolutionist.RevolutionistCountdown.GetValueOrDefault(lpId, 10)));
 
-                if (Pelican.IsEaten(lpId)) realName = ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"));
+                if (Pelican.IsEaten(lpId)) realName = CustomRoles.Pelican.ColoredTextByRole(GetString("EatenByPelican"));
 
                 switch (Options.CurrentGameMode)
                 {
@@ -1913,13 +1913,13 @@ internal static class FixedUpdatePatch
             switch (target.GetCustomRole())
             {
                 case CustomRoles.Snitch when seer.IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
-                    Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
+                    Mark.Append(CustomRoles.Impostor.ColoredTextByRole("★"));
                     break;
                 case CustomRoles.Marshall when Marshall.CanSeeMarshall(seer) && target.GetTaskState().IsTaskFinished:
-                    Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
+                    Mark.Append(CustomRoles.Marshall.ColoredTextByRole("★"));
                     break;
                 case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
-                    Mark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
+                    Mark.Append(CustomRoles.SuperStar.ColoredTextByRole("★"));
                     break;
                 case CustomRoles.Infection:
                     Mark.Append(Infection.GetMarkOthers(seer, target));
@@ -1929,45 +1929,45 @@ internal static class FixedUpdatePatch
             switch (seer.GetCustomRole())
             {
                 case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive():
-                    Mark.Append(ColorString(GetRoleColor(CustomRoles.Lookout), " " + target.PlayerId) + " ");
+                    Mark.Append(CustomRoles.Lookout.ColoredTextByRole(" " + target.PlayerId) + " ");
                     break;
                 case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(lpId, target.PlayerId):
-                    Mark.Append($"<color={GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
+                    Mark.Append(CustomRoles.PlagueBearer.ColoredTextByRole("●"));
                     break;
                 case CustomRoles.Arsonist:
                     if (seer.IsDousedPlayer(target))
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
+                        Mark.Append(CustomRoles.Arsonist.ColoredTextByRole("▲"));
                     else if (
                             Arsonist.CurrentDousingTarget != byte.MaxValue &&
                             Arsonist.CurrentDousingTarget == target.PlayerId
                         )
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
+                        Mark.Append(CustomRoles.Arsonist.ColoredTextByRole("△"));
 
                     break;
                 case CustomRoles.Revolutionist:
                     if (seer.IsDrawPlayer(target))
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>●</color>");
+                        Mark.Append(CustomRoles.Revolutionist.ColoredTextByRole("●"));
                     else if (
                             Revolutionist.CurrentDrawTarget != byte.MaxValue &&
                             Revolutionist.CurrentDrawTarget == target.PlayerId
                         )
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Revolutionist)}>○</color>");
+                        Mark.Append(CustomRoles.Revolutionist.ColoredTextByRole("○"));
 
                     break;
                 case CustomRoles.Investigator:
                     if (Revolutionist.CurrentDrawTarget != byte.MaxValue &&
                         Revolutionist.CurrentDrawTarget == target.PlayerId)
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Investigator)}>○</color>");
+                        Mark.Append(CustomRoles.Investigator.ColoredTextByRole("○"));
 
                     break;
                 case CustomRoles.Analyst when (localPlayerState.Role as Analyst).CurrentTarget.ID == target.PlayerId:
-                    Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
+                    Mark.Append(CustomRoles.Analyst.ColoredTextByRole("○"));
                     break;
                 case CustomRoles.Samurai when (localPlayerState.Role as Samurai).Target.Id == target.PlayerId:
-                    Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
+                    Mark.Append(CustomRoles.Samurai.ColoredTextByRole("○"));
                     break;
                 case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(lpId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
-                    Mark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
+                    Mark.Append(CustomRoles.Impostor.ColoredTextByRole("◆"));
                     break;
                 case CustomRoles.EvilTracker:
                     Mark.Append(EvilTracker.GetTargetMark(seer, target));
@@ -1998,11 +1998,11 @@ internal static class FixedUpdatePatch
             Mark.Append(Lawyer.LawyerMark(seer, target));
             Mark.Append(Marshall.GetWarningMark(seer, target));
 
-            if (Randomizer.IsShielded(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.Randomizer), "✚"));
+            if (Randomizer.IsShielded(target)) Mark.Append(CustomRoles.Randomizer.ColoredTextByRole("✚"));
 
             if (target.AmOwner) Mark.Append(Sniper.GetShotNotify(target.PlayerId));
 
-            if (Roles.Lightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
+            if (Roles.Lightning.IsGhost(target)) Mark.Append(CustomRoles.Lightning.ColoredTextByRole("■"));
 
             Mark.Append(Medic.GetMark(seer, target));
             Mark.Append(Gaslighter.GetMark(seer, target));
@@ -2017,7 +2017,7 @@ internal static class FixedUpdatePatch
             }
 
             if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Exists(x => x.PlayerId == lpId) || !seer.IsAlive()))
-                Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
+                Mark.Append(CustomRoles.Lovers.ColoredTextByRole("♥"));
 
             if (self)
             {
@@ -2123,7 +2123,7 @@ internal static class FixedUpdatePatch
             
             string suffix = Suffix.ToString().Trim();
             string newLineBeforeSuffix = !(Options.CurrentGameMode == CustomGameMode.BedWars && !self && GameStates.InGame) ? "\n" : " - ";
-            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
+            string deathReason = !seer.IsAlive() && seer.KnowDeathReason(target) ? $"{newLineBeforeSuffix}<size=1.5>『{CustomRoles.Doctor.ColoredTextByRole(GetVitalText(target.PlayerId))}』</size>" : string.Empty;
             
             target.cosmetics.nameText.text = $"{roleText}{realName}{deathReason}{Mark}{newLineBeforeSuffix}{suffix}";
 
