@@ -13,7 +13,7 @@ public class ClientControlGUI : MonoBehaviour
     public static ClientControlGUI Instance;
 
     public bool IsOpen;           // whether the panel is visible
-
+    private bool _lastOpenState;
     private Vector2 _scroll;      // current scroll position inside the panel
     private float _contentH;      // total height of all drawn buttons, updated each frame
 
@@ -26,31 +26,31 @@ public class ClientControlGUI : MonoBehaviour
     // Range matches Zoom.cs: 3.0 (default) to 18.0 (max out)
     private float _zoomValue = 3.0f;
 
+    // Whether the game HUD has been hidden; restored automatically on scene change
+    private bool _hudHidden;
+
     // Scale helpers - everything is relative to a 1080px-wide reference screen
-    // On PC the UI is scaled down to 60% but on Android we keep it at full size for better readability
-    private static float PS  => OperatingSystem.IsAndroid() ? 1.0f : 0.5f;  // PS: platform scale multiplier (Android full size, PC smaller)
+    // On PC the UI is scaled down to 50% but on Android we keep it slightly larger (60%) for better readability
+    private static float PS  => OperatingSystem.IsAndroid() ? 0.6f : 0.5f;  // PS: platform scale multiplier
     private static float S   => Screen.width / 1080f * PS;                  // S: global scale factor
     private static int   FS  => Mathf.Max(12, Mathf.RoundToInt(21f * S));   // FS: font size
     private static float BH  => 66f * S;                                    // BH: button height
-    private static float BW  => 340f * S;                                   // BW: button width
+    private static float BW  => (OperatingSystem.IsAndroid() ? 360f : 340f) * S; // BW: button width
     private static float P   => 10f * S;                                    // P: padding
     private static int ChipFS => Mathf.Max(10, FS - 4);                     // Shortcut chip font size
 
-    // Scrollbar column width - kept intentionally small so it never causes horizontal overflow
-    private static float SBW => 22f * S;
+    // Scrollbar column width - slightly thicker on Android for touch support
+    private static float SBW => (OperatingSystem.IsAndroid() ? 42f : 22f) * S;
 
-    // Used to detect when a rebuild is needed
+    // Used to detect when a rebuild is needed (screen resize)
     private float _lastS = -1f;
-    private string _lastScene = "";
 
     // GUIStyle holds font, colors, and the background texture for each widget type
     private GUIStyle _sAction, _sHost, _sDanger, _sSection, _sToggle, _sWindow, _sTitleBar, _sDragHint;
-    private Camera _cam;
 
-    // Credit: Xtracube for pointing out the add_sceneLoaded workaround
+    // Credits: Xtracube (add_sceneLoaded workaround), astra1dev (HideFlags.HideAndDontSave suggestion)
     private void Awake()
     {
-        _cam = Camera.main;
         Instance = this;
         SceneManager.add_sceneLoaded((Action<Scene, LoadSceneMode>)OnSceneLoaded);
         Logger.Info("ClientControlGUI initialised", "ClientControlGUI");
@@ -61,36 +61,18 @@ public class ClientControlGUI : MonoBehaviour
         SceneManager.remove_sceneLoaded((Action<Scene, LoadSceneMode>)OnSceneLoaded);
     }
 
-    // Called by Unity whenever a scene loads (e.g. lobby -> game)
-    // Resetting _lastS forces a full style rebuild on the next OnGUI call
-    // Textures use HideFlags.HideAndDontSave so Unity manages their lifetime automatically
+    // Resets HUD visibility flag on scene change; HudManager is recreated each load so its new instance is always active
+    // Textures use HideFlags.HideAndDontSave so they survive scene transitions without any rebuild needed
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        _lastS = -1f;
-        NullStyles();
+        _hudHidden = false;
     }
 
-    // Nulls out every GUIStyle so StylesValid() returns false and RebuildStyles() is triggered next frame
-    private void NullStyles()
-    {
-        _sAction = _sHost = _sDanger = _sSection = _sToggle = _sWindow = _sTitleBar = _sDragHint = null;
-    }
-
-    // Called once, sets the initial window position to the left side, vertically centred
-    private void InitWindowRect()
-    {
-        // Window width accounts for button width + padding on both sides + scrollbar column
-        float w = BW + P * 4f + SBW;
-        float h = Screen.height * (OperatingSystem.IsAndroid() ? 0.78f : 0.65f);
-        _windowRect = new Rect(20f * S, (Screen.height - h) * 0.5f, w, h);
-        _windowInitialized = true;
-    }
-
-    // Creates all GUIStyles. Called on first draw and after every scene change
+    // Creates all GUIStyles; only called on first draw or if the screen scale changes
+    // Textures use HideFlags.HideAndDontSave so Unity keeps them alive across scene loads without rebuilding
     private void RebuildStyles()
     {
         _lastS = S;
-        NullStyles();
 
         int toggleSize = Mathf.Max(1, Mathf.RoundToInt(48f * S));
         int toggleRadius = toggleSize / 4; // gentler radius for the toggle square
@@ -107,7 +89,7 @@ public class ClientControlGUI : MonoBehaviour
         };
 
         int winW = Mathf.Max(1, Mathf.RoundToInt(BW + P * 4f + SBW));
-        int winH = Mathf.Max(1, Mathf.RoundToInt(Screen.height * (OperatingSystem.IsAndroid() ? 0.78f : 0.65f)));
+        int winH = Mathf.Max(1, Mathf.RoundToInt(Screen.height * (OperatingSystem.IsAndroid() ? 0.82f : 0.65f)));
 
         // Floating window background
         _sWindow = new GUIStyle
@@ -162,7 +144,7 @@ public class ClientControlGUI : MonoBehaviour
         );
     }
 
-// Creates a button GUIStyle with normal, hover, and pressed states using a high-res, pixel-drawn rounded rectangle for smooth corners.
+    // Creates a button GUIStyle with normal, hover, and pressed states using a high-res, pixel-drawn rounded rectangle for smooth corners
     private GUIStyle MakeBtn(Color normal, Color hover, Color active)
     {
         int w = Mathf.Max(1, Mathf.RoundToInt(BW));
@@ -237,33 +219,39 @@ public class ClientControlGUI : MonoBehaviour
         return r + 0.5f - d;         // on the edge - fractional for smoothing
     }
 
-    // Returns false if any style or its background texture is missing
-    // This happens after a scene load, triggering RebuildStyles() on the next OnGUI call
-    private bool StylesValid() =>
-        _sAction != null
-        && _sAction.normal.background
-        && _sHost  != null
-        && _sHost.normal.background
-        && _sDanger != null
-        && _sDanger.normal.background
-        && _sToggle != null
-        && _sToggle.normal.background
-        && _sWindow != null
-        && _sWindow.normal.background;
+    // Called once, sets the initial window position to the left side, vertically centred
+    private void InitWindowRect()
+    {
+        // Window width accounts for button width + padding on both sides + scrollbar column
+        float w = BW + P * 4f + SBW;
+        float h = Screen.height * (OperatingSystem.IsAndroid() ? 0.82f : 0.65f);
+        _windowRect = new Rect(20f * S, (Screen.height - h) * 0.5f, w, h);
+        _windowInitialized = true;
+    }
 
     // OnGUI is called by Unity every frame (and sometimes multiple times per frame)
     private void OnGUI()
     {
         if (!HudManager.InstanceExists) return;
+
+        // Disable movement when GUI is open
+        if (Instance != null && PlayerControl.LocalPlayer != null)
+        {
+            if (_lastOpenState != IsOpen)
+            {
+                PlayerControl.LocalPlayer.moveable = !IsOpen;
+
+                if (IsOpen)
+                    PlayerControl.LocalPlayer.NetTransform.Halt();
+
+                _lastOpenState = IsOpen;
+            }
+        }
+
         if (!_windowInitialized) InitWindowRect();
 
-        // Rebuild styles if the screen scale changed or a scene transition wiped the styles
-        string scene = SceneManager.GetActiveScene().name;
-        if (Math.Abs(_lastS - S) > 0.01f || scene != _lastScene || !StylesValid())
-        {
-            _lastScene = scene;
-            RebuildStyles();
-        }
+        // Rebuild styles only when screen scale changes; HideAndDontSave keeps textures alive across scene transitions
+        if (Math.Abs(_lastS - S) > 0.01f) RebuildStyles();
 
         HandleDrag();
         DrawToggle();
@@ -359,9 +347,9 @@ public class ClientControlGUI : MonoBehaviour
         float scrollH   = _windowRect.height - titleH - P;
         float visibleW  = _windowRect.width - P * 2f;
 
-    // outerRect: the visible scroll area on screen
-    // innerRect: the full content area (taller than outerRect when there are enough buttons)
-    // Content width is set slightly less than outerRect.width to prevent horizontal overflow and hide the horizontal scrollbar
+        // outerRect: the visible scroll area on screen
+        // innerRect: the full content area (taller than outerRect when there are enough buttons)
+        // Content width is set slightly less than outerRect.width to prevent horizontal overflow and hide the horizontal scrollbar
         float contentW = visibleW - SBW - 1f;
         var outerRect = new Rect(_windowRect.x + P, scrollY, visibleW, scrollH);
         var innerRect = new Rect(0, 0, contentW, _contentH);
@@ -369,7 +357,7 @@ public class ClientControlGUI : MonoBehaviour
         GUI.skin.verticalScrollbar.fixedWidth      = SBW;
         GUI.skin.verticalScrollbarThumb.fixedWidth = SBW;
 
-    // Horizontal scroll is disabled; vertical scroll appears when _contentH > scrollH
+        // Horizontal scroll is disabled; vertical scroll appears when _contentH > scrollH
         _scroll = GUI.BeginScrollView(outerRect, _scroll, innerRect, false, false);
         float y = P * 0.5f;
         DrawButtons(ref y, contentW);
@@ -445,14 +433,16 @@ public class ClientControlGUI : MonoBehaviour
             Section(ref y, "Camera");
 
             // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
-            if (_cam) _zoomValue = _cam.orthographicSize;
+            // Camera.main is read inline each frame - caching it across scene loads causes the zoom to drift
+            var cam = Camera.main;
+            if (cam) _zoomValue = cam.orthographicSize;
 
             float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
             if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
             {
                 _zoomValue = newZoom;
                 Zoom.SetZoomSize(reset: false);
-                if (_cam) _cam.orthographicSize = _zoomValue;
+                if (cam) cam.orthographicSize = _zoomValue;
                 if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
             }
 
@@ -475,6 +465,13 @@ public class ClientControlGUI : MonoBehaviour
                     if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 });
             }
+
+            Btn(ref y, _hudHidden ? "Show HUD" : "Hide HUD", _hudHidden ? _sHost : _sAction, () =>
+            {
+                _hudHidden = !_hudHidden;
+                if (HudManager.InstanceExists)
+                    HudManager.Instance.gameObject.SetActive(!_hudHidden);
+            });
         }
 
         if (inLobby)
@@ -557,11 +554,17 @@ public class ClientControlGUI : MonoBehaviour
                         PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true)
                     );
                 else
+                {
                     Btn(ref y, L("End Meeting", "SHIFT + ENTER + M"), _sHost, () =>
                     {
                         MeetingHudRpcClosePatch.AllowClose = true;
                         MeetingHud.Instance.RpcClose();
                     });
+                    Btn(ref y, L("End By Votes", "F6"), _sHost, () =>
+                    {
+                        // Good luck implementing this one Gurge (>ᴗ•) !
+                    });
+                }
 
                 Btn(ref y, L("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
                     HudManager.Instance.Chat.SetVisible(true)
@@ -587,7 +590,7 @@ public class ClientControlGUI : MonoBehaviour
             sy += BH * 0.52f + P * 0.4f;
         }
 
-            // Draws a button and moves the cursor; try/catch stops one bad action from crashing the GUI
+        // Draws a button and moves the cursor; try/catch stops one bad action from crashing the GUI
         void Btn(ref float by, string label, GUIStyle style, Action action)
         {
             if (GUI.Button(new Rect(0, by, w, BH), label, style))

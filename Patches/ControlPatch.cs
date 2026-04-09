@@ -28,6 +28,8 @@ internal static class ControllerManagerUpdatePatch
 
     public static void Postfix( /*ControllerManager __instance*/)
     {
+        if (ClientControlGUI.Instance != null && ClientControlGUI.Instance.IsOpen) return;
+
         try
         {
             if (ClientControlGUI.Instance &&
