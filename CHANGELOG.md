@@ -10,7 +10,7 @@
 - Fixed King Of The Zones sometimes not registering zone domination
 - Fixed Asthmatic not working after the host dies
 - New client option: `Show Client Control GUI` (Enabled by default)
-- Improved Client Control GUI (by Zypherus)
+- Improved Client Control GUI (by Zypherus) + keybinds to open/close it: DELETE or CTRL + `
 - Fixed Dleks button (by TommyXL)
 - Other internal fixes and optimizations
 
