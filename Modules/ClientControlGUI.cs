@@ -482,6 +482,11 @@ public class ClientControlGUI : MonoBehaviour
             }
             y += ButtonHeight + Padding * 0.7f;
         }
+        else if (!Mathf.Approximately(_zoomValue, 3.0f))
+        {
+            Zoom.SetZoomSize(reset: true);
+            _zoomValue = 3.0f;
+        }
 
         if (canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame))
         {
