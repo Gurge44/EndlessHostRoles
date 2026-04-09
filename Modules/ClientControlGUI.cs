@@ -463,9 +463,7 @@ public class ClientControlGUI : MonoBehaviour
             }
             y += BH + P * 0.7f;
 
-            bool canNoclip = PlayerControl.LocalPlayer
-                && PlayerControl.LocalPlayer.CanMove
-                && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame);
+            bool canNoclip = canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame);
 
             if (canNoclip)
             {
@@ -473,7 +471,8 @@ public class ClientControlGUI : MonoBehaviour
                 bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
                 Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
                 {
-                    ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
+                    ControllerManagerUpdatePatch.NoClipEnabled = canNoclip && !ControllerManagerUpdatePatch.NoClipEnabled;
+                    if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 });
             }
         }
