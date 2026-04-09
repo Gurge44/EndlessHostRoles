@@ -1377,6 +1377,8 @@ internal static class IntroCutsceneDestroyPatch
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");
+        
+        GameStates.InGame = true;
 
         LateTask.New(() =>
         {
@@ -1416,5 +1418,4 @@ internal static class IntroCutsceneDestroyPatch
                 PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8));
         }, 4f, "Airship Spawn FailSafe");
     }
-
 }
