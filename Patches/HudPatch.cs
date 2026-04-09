@@ -110,7 +110,7 @@ internal static class HudManagerPatch
 
                         PlayerControl pc = Utils.GetPlayerById(id);
                         Sb.Clear();
-                        Sb.Append(first ? string.Empty : "\n");
+                        if (!first) Sb.Append('\n');
                         Sb.Append($"{(id == 0 ? "Host" : $"{(!pc ? $"ID {id}" : $"{pc.GetRealName()}")}")} - <color={Utils.GetRoleColorCode(Role)}>{GetString(Role.ToString())}</color>");
                         ResultText[id] = Sb.ToString();
                         first = false;
