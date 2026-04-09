@@ -9709,7 +9709,7 @@
   "FailChance": "Chance of showing incorrect result",
   "FailToTrack": "Failed To Track",
   "ForceEnd": "Aborted",
-  "ForceEndText": "The Host/a Staff has aborted the game",
+  "ForceEndText": "The host forcefully ended the game",
   "InvalidArgs": "Invalid Args",
   "InvalidArguments": "Invalid Arguments",
   "InvalidUndeadTarget": "Target cannot be recruited",
