@@ -28,16 +28,18 @@ internal static class ControllerManagerUpdatePatch
 
     public static void Postfix( /*ControllerManager __instance*/)
     {
-        if (ClientControlGUI.Instance != null && ClientControlGUI.Instance.IsOpen) return;
-
         try
         {
-            if (ClientControlGUI.Instance &&
-                (Input.GetKeyDown(KeyCode.Delete) ||
-                KeysDown(KeyCode.LeftControl, KeyCode.BackQuote) ||
-                KeysDown(KeyCode.RightControl, KeyCode.BackQuote)))
-                ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
-            
+            if (ClientControlGUI.Instance)
+            {
+                if (Input.GetKeyDown(KeyCode.Delete) ||
+                    KeysDown(KeyCode.LeftControl, KeyCode.BackQuote) ||
+                    KeysDown(KeyCode.RightControl, KeyCode.BackQuote))
+                    ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
+                
+                if (ClientControlGUI.Instance.IsOpen) return;
+            }
+
             if (HudManager.InstanceExists)
             {
                 if (PlayerControl.LocalPlayer)
