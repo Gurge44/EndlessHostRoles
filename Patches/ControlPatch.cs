@@ -41,8 +41,8 @@ internal static class ControllerManagerUpdatePatch
                 if (PlayerControl.LocalPlayer)
                 {
                     bool shouldNoclip =
-                        NoClipEnabled || (Input.GetKey(KeyCode.LeftControl) && 
-                        (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && PlayerControl.LocalPlayer.CanMove);
+                        (NoClipEnabled || Input.GetKey(KeyCode.LeftControl)) &&
+                        (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && PlayerControl.LocalPlayer.CanMove;
 
                     PlayerControl.LocalPlayer.Collider.offset = shouldNoclip ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 }
