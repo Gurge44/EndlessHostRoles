@@ -688,7 +688,7 @@ internal static class ChatCommands
             var json = $"{{\"uuid\":\"{uuid}\",\"friend_code\":\"{friendCode}\",\"puid\":\"{puid}\",\"game_id\":\"{gameId}\"}}";
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-            var uwr = new UnityWebRequest("https://gurge44.pythonanywhere.com/api/verify_ingame", "POST")
+            var uwr = new UnityWebRequest("https://app.gurge44.eu/api/verify_ingame", "POST")
             {
                 uploadHandler = new UploadHandlerRaw(bodyRaw),
                 downloadHandler = new DownloadHandlerBuffer()

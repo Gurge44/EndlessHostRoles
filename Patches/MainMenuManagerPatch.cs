@@ -163,7 +163,7 @@ public static class MainMenuManagerPatch
                 new(1.3f, -1.3f, 1f),
                 new(251, 81, 44, byte.MaxValue),
                 new(211, 77, 48, byte.MaxValue),
-                () => Application.OpenURL("https://gurge44.pythonanywhere.com"),
+                () => Application.OpenURL("https://app.gurge44.eu"),
                 Translator.GetString("Website")); //"Website"
         }
 

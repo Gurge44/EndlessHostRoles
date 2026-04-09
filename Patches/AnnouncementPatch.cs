@@ -50,7 +50,7 @@ public class ModNews
 
 public static class ModNewsFetcher
 {
-    private const string NewsUrl = "https://gurge44.pythonanywhere.com/modnews";
+    private const string NewsUrl = "https://app.gurge44.eu/modnews";
 
     public static IEnumerator FetchNews()
     {

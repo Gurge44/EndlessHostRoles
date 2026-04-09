@@ -48,7 +48,7 @@ public static class LobbySharingAPI
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\",\"hostHashedPuid\":\"{hostHashedPuid}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        var request = new UnityWebRequest("https://gurge44.pythonanywhere.com/lobby_created", "POST")
+        var request = new UnityWebRequest("https://app.gurge44.eu/lobby_created", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()
@@ -119,7 +119,7 @@ public static class LobbySharingAPI
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        var request = new UnityWebRequest("https://gurge44.pythonanywhere.com/update_status", "POST")
+        var request = new UnityWebRequest("https://app.gurge44.eu/update_status", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()

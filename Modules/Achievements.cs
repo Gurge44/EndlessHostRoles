@@ -141,7 +141,7 @@ public static class Achievements
 
     private static readonly string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";
 
-    private const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
+    private const string ApiBaseUrl = "https://app.gurge44.eu/achievements";
     private const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
     private const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
 
