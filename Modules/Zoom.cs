@@ -12,6 +12,8 @@ public static class Zoom
     private static bool ResetButtons;
     private static Camera Main;
 
+    public static bool CanZoom => ((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing;
+
     public static void Postfix()
     {
         try
@@ -19,68 +21,71 @@ public static class Zoom
             if (!Main) Main = Camera.main;
             if (!Main) return;
 
-            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && !PlayerControl.LocalPlayer.IsAlive()) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing && !ClientControlGUI.Instance.IsOpen)
+            if (CanZoom)
             {
-                if (Main.orthographicSize > 3.0f) ResetButtons = true;
-
-                if (Input.touchSupported && !MapBehaviour.Instance.IsOpen)
+                if (!ClientControlGUI.Instance.IsOpen)
                 {
-                    if (Input.touchCount == 2)
+                    if (Main.orthographicSize > 3.0f) ResetButtons = true;
+
+                    if (Input.touchSupported && !MapBehaviour.Instance.IsOpen)
                     {
-                        Touch touch0 = Input.GetTouch(0);
-                        Touch touch1 = Input.GetTouch(1);
-
-                        Vector2 touch0PrevPos = touch0.position - touch0.deltaPosition;
-                        Vector2 touch1PrevPos = touch1.position - touch1.deltaPosition;
-
-                        float prevTouchDeltaMag = (touch0PrevPos - touch1PrevPos).magnitude;
-                        float currentTouchDeltaMag = (touch0.position - touch1.position).magnitude;
-                        float deltaMagnitudeDiff = currentTouchDeltaMag - prevTouchDeltaMag;
-
-                        switch (deltaMagnitudeDiff)
+                        if (Input.touchCount == 2)
                         {
-                            case > 0:
-                            {
-                                if (Main.orthographicSize > 3.0f)
-                                    SetZoomSize();
+                            Touch touch0 = Input.GetTouch(0);
+                            Touch touch1 = Input.GetTouch(1);
 
-                                break;
-                            }
-                            case < 0:
+                            Vector2 touch0PrevPos = touch0.position - touch0.deltaPosition;
+                            Vector2 touch1PrevPos = touch1.position - touch1.deltaPosition;
+
+                            float prevTouchDeltaMag = (touch0PrevPos - touch1PrevPos).magnitude;
+                            float currentTouchDeltaMag = (touch0.position - touch1.position).magnitude;
+                            float deltaMagnitudeDiff = currentTouchDeltaMag - prevTouchDeltaMag;
+
+                            switch (deltaMagnitudeDiff)
                             {
-                                if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                                case > 0:
                                 {
-                                    if (Main.orthographicSize < 18.0f)
-                                        SetZoomSize(true);
-                                }
+                                    if (Main.orthographicSize > 3.0f)
+                                        SetZoomSize();
 
-                                break;
+                                    break;
+                                }
+                                case < 0:
+                                {
+                                    if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                                    {
+                                        if (Main.orthographicSize < 18.0f)
+                                            SetZoomSize(true);
+                                    }
+
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                switch (Input.mouseScrollDelta.y)
-                {
-                    case > 0:
+                    switch (Input.mouseScrollDelta.y)
                     {
-                        if (Main.orthographicSize > 3.0f)
-                            SetZoomSize();
-
-                        break;
-                    }
-                    case < 0:
-                    {
-                        if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                        case > 0:
                         {
-                            if (Main.orthographicSize < 18.0f)
-                                SetZoomSize(true);
-                        }
+                            if (Main.orthographicSize > 3.0f)
+                                SetZoomSize();
 
-                        break;
+                            break;
+                        }
+                        case < 0:
+                        {
+                            if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby)
+                            {
+                                if (Main.orthographicSize < 18.0f)
+                                    SetZoomSize(true);
+                            }
+
+                            break;
+                        }
                     }
+                    Flag.NewFlag("Zoom");
                 }
-                Flag.NewFlag("Zoom");
             }
             else
                 Flag.Run(() => SetZoomSize(reset: true), "Zoom");
@@ -97,23 +102,33 @@ public static class Zoom
 
         if (reset)
         {
-            Main.orthographicSize = 3.0f;
-            HudManager.Instance.UICamera.orthographicSize = 3.0f;
-            HudManager.Instance.Chat.transform.localScale = Vector3.one;
-            if (GameStates.IsMeeting) MeetingHud.Instance.transform.localScale = Vector3.one;
+            Reset();
         }
         else
         {
             Main.orthographicSize *= size;
             HudManager.Instance.UICamera.orthographicSize *= size;
+
+            if (Main.orthographicSize < 3.0f || HudManager.Instance.UICamera.orthographicSize < 3.0f)
+                Reset();
         }
 
-        HudManager.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
+        HudManager.Instance.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
 
         if (ResetButtons)
         {
             ResolutionManager.ResolutionChanged.Invoke((float)Screen.width / Screen.height, Screen.width, Screen.height, Screen.fullScreen);
             ResetButtons = false;
+        }
+
+        return;
+
+        static void Reset()
+        {
+            Main.orthographicSize = 3.0f;
+            HudManager.Instance.UICamera.orthographicSize = 3.0f;
+            HudManager.Instance.Chat.transform.localScale = Vector3.one;
+            if (GameStates.IsMeeting) MeetingHud.Instance.transform.localScale = Vector3.one;
         }
     }
 

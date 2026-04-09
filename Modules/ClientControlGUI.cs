@@ -16,12 +16,7 @@ public class ClientControlGUI : MonoBehaviour
     /// Whether the panel is currently visible or should be visible
     /// </summary>
     public bool IsOpen;
-    
-    /// <summary>
-    /// The value of <see cref="IsOpen"/> in the last frame
-    /// </summary>
-    private bool _lastOpenState;
-    
+
     /// <summary>
     /// Current scroll position inside the panel
     /// </summary>
@@ -284,13 +279,6 @@ public class ClientControlGUI : MonoBehaviour
     {
         if (!HudManager.InstanceExists) return;
 
-        // Disable movement when GUI is open
-        if (_lastOpenState != IsOpen)
-        {
-            if (PlayerControl.LocalPlayer) KillAnimation.SetMovement(PlayerControl.LocalPlayer, !IsOpen);
-            _lastOpenState = IsOpen;
-        }
-
         if (!_windowInitialized) InitWindowRect();
 
         // Rebuild styles only when screen scale changes; HideAndDontSave keeps textures alive across scene transitions
@@ -470,13 +458,12 @@ public class ClientControlGUI : MonoBehaviour
                     InGameRoleInfoMenu.Show();
                 }
             });
+        
+        Section(ref y, "Camera");
 
-        if (inLobby || (inGame && !inMeeting && canMove && (!localAlive || GameStates.IsFreePlay || DebugModeManager.AmDebugger)))
+        if (Zoom.CanZoom)
         {
-            Section(ref y, "Camera");
-
             // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
-            // Camera.main is read inline each frame - caching it across scene loads causes the zoom to drift
             if (_cam) _zoomValue = _cam.orthographicSize;
 
             float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
@@ -494,27 +481,26 @@ public class ClientControlGUI : MonoBehaviour
                 _zoomValue = 3.0f;
             }
             y += ButtonHeight + Padding * 0.7f;
+        }
 
-            bool canNoclip = canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame);
-
-            if (canNoclip)
+        if (canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame))
+        {
+            // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
+            bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
+            Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
             {
-                // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
-                bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
-                Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
-                {
-                    ControllerManagerUpdatePatch.NoClipEnabled = canNoclip && !ControllerManagerUpdatePatch.NoClipEnabled;
-                    if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
-                });
-            }
-
-            Btn(ref y, _hudHidden ? "Show HUD" : "Hide HUD", _hudHidden ? _sHost : _sAction, () =>
-            {
-                _hudHidden = !_hudHidden;
-                if (HudManager.InstanceExists)
-                    HudManager.Instance.gameObject.SetActive(!_hudHidden);
+                ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
+                if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
             });
         }
+        else if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
+
+        Btn(ref y, _hudHidden ? "Show HUD" : "Hide HUD", _hudHidden ? _sHost : _sAction, () =>
+        {
+            _hudHidden = !_hudHidden;
+            if (HudManager.InstanceExists)
+                HudManager.Instance.gameObject.SetActive(!_hudHidden);
+        });
 
         if (inLobby)
         {

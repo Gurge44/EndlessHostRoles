@@ -142,7 +142,7 @@ public static class KingOfTheZones
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        AllZonesMoveAtOnce = new BooleanOptionItem(id++, "KingOfTheZones.AllZonesMoveAtOnce", true, TabGroup.GameSettings)
+        AllZonesMoveAtOnce = new BooleanOptionItem(id++, "KingOfTheZones.AllZonesMoveAtOnce", false, TabGroup.GameSettings)
             .SetParent(ZonesMove)
             .SetGameMode(gameMode)
             .SetColor(color);
