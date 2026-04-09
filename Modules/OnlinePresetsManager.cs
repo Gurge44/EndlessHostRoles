@@ -189,7 +189,7 @@ public static class OnlinePresetsManager
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/presets/draft", "POST")
+        UnityWebRequest request = new UnityWebRequest("https://app.gurge44.eu/presets/draft", "POST")
         {
             uploadHandler = new UploadHandlerRaw(bodyRaw),
             downloadHandler = new DownloadHandlerBuffer()
@@ -234,7 +234,7 @@ public static class OnlinePresetsManager
     
     static void OpenPublishPage(string draftId)
     {
-        string url = $"https://gurge44.pythonanywhere.com/publish?preset={draftId}";
+        string url = $"https://app.gurge44.eu/publish?preset={draftId}";
     
         try
         {
@@ -248,7 +248,7 @@ public static class OnlinePresetsManager
 
     private static IEnumerator DownloadPreset(string presetId, Action<Dictionary<int,int>> onSuccess)
     {
-        UnityWebRequest request = UnityWebRequest.Get($"https://gurge44.pythonanywhere.com/presets/{presetId}");
+        UnityWebRequest request = UnityWebRequest.Get($"https://app.gurge44.eu/presets/{presetId}");
 
         request.timeout = 5;
 
@@ -289,7 +289,7 @@ public static class OnlinePresetsManager
     
     public static IEnumerator FetchPresetList(Action<List<PresetMeta>> onSuccess)
     {
-        UnityWebRequest request = UnityWebRequest.Get("https://gurge44.pythonanywhere.com/presets/list");
+        UnityWebRequest request = UnityWebRequest.Get("https://app.gurge44.eu/presets/list");
 
         yield return request.SendWebRequest();
 

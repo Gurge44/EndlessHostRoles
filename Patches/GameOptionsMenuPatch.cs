@@ -20,6 +20,7 @@ namespace EHR;
 public static class ModGameOptionsMenu
 {
     public static int TabIndex;
+    public static bool Reloading;
     public static readonly List<Coroutine> RunningMainCoroutines = new();
     public static readonly Dictionary<OptionBehaviour, int> OptionList = new();
     public static readonly Dictionary<int, OptionBehaviour> BehaviourList = new();
@@ -46,7 +47,7 @@ public static class ModGameOptionsMenu
             foreach (var btn in ui.GetComponentsInChildren<PassiveButton>(true))
                 btn.OnClick.RemoveAllListeners();
 
-            Object.DestroyImmediate(ui);
+            Destroy(ui);
         }
         SpawnedUI.Clear();
 
@@ -64,7 +65,7 @@ public static class ModGameOptionsMenu
                 kv.Key.SetClickMask(null);
                 if (kv.Key.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
-                Object.DestroyImmediate(kv.Key.gameObject);
+                Destroy(kv.Key.gameObject);
             }
         }
 
@@ -76,7 +77,7 @@ public static class ModGameOptionsMenu
                 kv.Value.SetClickMask(null);
                 if (kv.Value.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
-                Object.DestroyImmediate(kv.Value.gameObject);
+                Destroy(kv.Value.gameObject);
             }
         }
 
@@ -86,7 +87,7 @@ public static class ModGameOptionsMenu
             {
                 if (kv.Value.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
-                Object.DestroyImmediate(kv.Value.gameObject);
+                Destroy(kv.Value.gameObject);
             }
         }
         
@@ -100,6 +101,12 @@ public static class ModGameOptionsMenu
         BehaviourList.Clear();
         CategoryHeaderList.Clear();
         RunningMainCoroutines.Clear();
+    }
+
+    public static void Destroy(GameObject gameObject)
+    {
+        if (Reloading) Object.DestroyImmediate(gameObject);
+        else Object.Destroy(gameObject);
     }
 }
 
@@ -537,7 +544,12 @@ public static class GameOptionsMenuPatch
     {
         int tab = ModGameOptionsMenu.TabIndex;
         if (!GameSettingMenu.Instance) return;
+        
+        ModGameOptionsMenu.Reloading = true;
+        LateTask.New(() => ModGameOptionsMenu.Reloading = false, 0.01f);
+        
         GameSettingMenu.Instance.Close();
+        
         OptionsConsole optionsConsole = null;
 
         foreach (OptionsConsole console in Object.FindObjectsOfType<OptionsConsole>())
@@ -1090,7 +1102,7 @@ public static class GameSettingMenuPatch
             if (button)
             {
                 button.OnClick.RemoveAllListeners();
-                Object.DestroyImmediate(button.gameObject);
+                ModGameOptionsMenu.Destroy(button.gameObject);
             }
         }
 
@@ -1107,15 +1119,15 @@ public static class GameSettingMenuPatch
                     if (child.TryGetComponent<PassiveButton>(out var btn))
                         btn.OnClick.RemoveAllListeners();
 
-                    Object.DestroyImmediate(child.gameObject);
+                    ModGameOptionsMenu.Destroy(child.gameObject);
                 }
                 tab.Children.Clear();
             }
-            Object.Destroy(tab.gameObject);
+            ModGameOptionsMenu.Destroy(tab.gameObject);
         }
 
         foreach (var gmButton in GMButtons)
-            if (gmButton) Object.DestroyImmediate(gmButton);
+            if (gmButton) ModGameOptionsMenu.Destroy(gmButton);
 
         ModSettingsButtons.Clear();
         ModSettingsTabs.Clear();
@@ -1589,7 +1601,7 @@ public static class GameSettingMenuPatch
                 if (opt.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
 
-                Object.Destroy(opt.gameObject);
+                ModGameOptionsMenu.Destroy(opt.gameObject);
             }
         }
 

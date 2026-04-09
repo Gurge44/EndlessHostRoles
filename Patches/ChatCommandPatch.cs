@@ -110,7 +110,7 @@ internal static class ChatCommands
     private static List<CustomGameMode> GMPollGameModes = [];
     private static List<MapNames> MPollMaps = [];
 
-    public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
+    public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration, long LastMessageTimeStamp)> MutedPlayers = [];
 
     public static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
     public static Dictionary<byte, CustomRoles> DraftResult = [];
@@ -442,7 +442,7 @@ internal static class ChatCommands
         }
 
         if (!Main.IsChatCommand && Astral.On && !PlayerControl.LocalPlayer.Is(CustomRoles.Astral))
-            LateTask.New(() => Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { Timer: not null } && x.Player != null, x => ChatManager.ClearChat(x.Player)), 0.2f, log: false);
+            LateTask.New(() => Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { Timer: not null } && x.Player, x => ChatManager.ClearChat(x.Player)), 0.2f, log: false);
 
         if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
             goto Canceled;
@@ -688,7 +688,7 @@ internal static class ChatCommands
             var json = $"{{\"uuid\":\"{uuid}\",\"friend_code\":\"{friendCode}\",\"puid\":\"{puid}\",\"game_id\":\"{gameId}\"}}";
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-            var uwr = new UnityWebRequest("https://gurge44.pythonanywhere.com/api/verify_ingame", "POST")
+            var uwr = new UnityWebRequest("https://app.gurge44.eu/api/verify_ingame", "POST")
             {
                 uploadHandler = new UploadHandlerRaw(bodyRaw),
                 downloadHandler = new DownloadHandlerBuffer()
@@ -1360,7 +1360,7 @@ internal static class ChatCommands
 
         if (gameMode == CustomGameMode.HideAndSeek)
         {
-            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), (IHideAndSeekRole)Activator.CreateInstance(x))).ToList();
+            List<(CustomRoles Role, IHideAndSeekRole Interface)> hnsRoles = CustomHnS.GetAllHnsRoleTypes().Select(x => (Role: Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name), Interface: (IHideAndSeekRole)Activator.CreateInstance(x))).Where(x => x.Role is CustomRoles.Seeker or CustomRoles.Hider || x.Role.GetMode() != 0).ToList();
             Dictionary<Team, int> memberNum = new()
             {
                 [Team.Impostor] = Main.NormalOptions.NumImpostors,
@@ -1532,8 +1532,9 @@ internal static class ChatCommands
         if (!host && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
         if (!byte.TryParse(args[1], out byte id) || id.IsHost() || (!host && IsPlayerModerator(id.GetPlayer()?.FriendCode))) return;
 
+        long now = Utils.TimeStamp;
         int duration = args.Length < 3 || !int.TryParse(args[2], out int dur) ? 60 : dur;
-        MutedPlayers[id] = (Utils.TimeStamp, duration);
+        MutedPlayers[id] = (now, duration, now);
 
         List<Message> messages =
         [
@@ -3109,9 +3110,10 @@ internal static class ChatCommands
 
     private static bool CheckMute(byte id)
     {
-        if (!MutedPlayers.TryGetValue(id, out (long MuteTimeStamp, int Duration) mute)) return false;
+        if (!MutedPlayers.TryGetValue(id, out (long MuteTimeStamp, int Duration, long LastMessageTimeStamp) mute)) return false;
 
-        long timeLeft = mute.Duration - (Utils.TimeStamp - mute.MuteTimeStamp);
+        long now = Utils.TimeStamp;
+        long timeLeft = mute.Duration - (now - mute.MuteTimeStamp);
 
         if (timeLeft <= 0)
         {
@@ -3119,6 +3121,9 @@ internal static class ChatCommands
             return false;
         }
 
+        if (now - mute.LastMessageTimeStamp < 5) return true;
+        mute.LastMessageTimeStamp = now;
+        MutedPlayers[id] = mute;
         Utils.SendMessage("\n", id, string.Format(GetString("MuteMessage"), timeLeft));
         return true;
     }
@@ -3355,7 +3360,7 @@ internal static class ChatCommands
         }
 
         if (!commandEntered && Astral.On && !player.Is(CustomRoles.Astral))
-            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { Timer: not null } && x.Player != null, x => ChatManager.ClearChat(x.Player));
+            Main.PlayerStates.Values.DoIf(x => !x.IsDead && x.Role is Astral { Timer: not null } && x.Player, x => ChatManager.ClearChat(x.Player));
 
         if (CheckMute(player.PlayerId))
         {

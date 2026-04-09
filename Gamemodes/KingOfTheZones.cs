@@ -145,7 +145,7 @@ public static class KingOfTheZones
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        AllZonesMoveAtOnce = new BooleanOptionItem(id++, "KingOfTheZones.AllZonesMoveAtOnce", true, TabGroup.GameSettings)
+        AllZonesMoveAtOnce = new BooleanOptionItem(id++, "KingOfTheZones.AllZonesMoveAtOnce", false, TabGroup.GameSettings)
             .SetParent(ZonesMove)
             .SetGameMode(gameMode)
             .SetColor(color);
@@ -856,9 +856,8 @@ public static class KingOfTheZones
                         {
                             if (player.IsInRoom(zone))
                             {
-                                (int[] TeamCounts, List<(byte Id, int Team)> Players) info = zoneInfo[zone];
-                                info.TeamCounts[team]++;
-                                info.Players.Add((player.PlayerId, team));
+                                zoneInfo[zone].TeamCounts[team]++;
+                                zoneInfo[zone].Players.Add((player.PlayerId, team));
                             }
                         }
                     }
@@ -904,7 +903,7 @@ public static class KingOfTheZones
                         if (team != KOTZTeam.None)
                         {
                             Points[team]++;
-                            zoneInfo[zone].Players.FindAll(x => x.Team == (int)team).ForEach(x => PlayerPoints[x.Id]++);
+                            zoneInfo[zone].Players.DoIf(x => x.Team == (int)team, x => PlayerPoints[x.Id]++);
                         }
                     }
 

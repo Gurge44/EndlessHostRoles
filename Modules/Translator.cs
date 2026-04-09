@@ -362,7 +362,7 @@ public static class Translator
                 SupportedLangs.SChinese or
                 SupportedLangs.TChinese;
     }
-    public static bool LangHasSensitiveOutlineText(SupportedLangs lang = SupportedLangs.English)
+    public static bool LangHasSensitiveOutlineText(SupportedLangs lang)
     {
         return lang is
             SupportedLangs.Russian or

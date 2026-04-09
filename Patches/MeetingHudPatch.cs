@@ -19,6 +19,7 @@ internal static class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
     public static NetworkedPlayerInfo TempExiledPlayer;
+    public static bool ShouldSkip;
 
     private static readonly List<MeetingHud.VoterState> StatesList = [];
     private static MeetingHud.VoterState[] States = [];
@@ -29,7 +30,7 @@ internal static class CheckForEndVotingPatch
         if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
 
         // Meeting Skip with vote counting
-        bool shouldSkip = Input.GetKeyDown(KeyCode.F6);
+        ShouldSkip |= Input.GetKeyDown(KeyCode.F6);
 
         LogHandler voteLog = Logger.Handler("Vote");
 
@@ -108,7 +109,7 @@ internal static class CheckForEndVotingPatch
                 }
             }
 
-            if (!shouldSkip && !__instance.playerStates.All(ps =>
+            if (!ShouldSkip && !__instance.playerStates.All(ps =>
             {
                 if (!ps || Silencer.ForSilencer.Contains(ps.TargetPlayerId) || !Main.PlayerStates.TryGetValue(ps.TargetPlayerId, out PlayerState st) || st.IsDead || ps.AmDead || ps.DidVote) return true;
                 PlayerControl targetPlayer = Utils.GetPlayerById(ps.TargetPlayerId);
@@ -1195,7 +1196,7 @@ internal static class MeetingHudUpdatePatch
     private static void ClearShootButton(MeetingHud __instance, bool forceAll = false)
     {
         __instance.playerStates.DoIf(
-            x => (forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out PlayerState ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null,
+            x => (forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out PlayerState ps) || ps.IsDead) && x.transform.FindChild("ShootButton"),
             x => Object.Destroy(x.transform.FindChild("ShootButton").gameObject));
     }
 
@@ -1232,7 +1233,7 @@ internal static class MeetingHudUpdatePatch
                 {
                     PlayerControl player = Utils.GetPlayerById(x.TargetPlayerId);
 
-                    if (player != null && player.IsAlive())
+                    if (player && player.IsAlive())
                     {
                         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.Execution;
                         player.RpcExileV2();
@@ -1306,13 +1307,14 @@ internal static class MeetingHudOnDestroyPatch
 {
     public static void Postfix()
     {
-        if (!GameStates.InGame) return;
-        
-        MeetingStates.FirstMeeting = false;
         Logger.Info("------------End of meeting------------", "Phase");
 
+        MeetingStates.FirstMeeting = false;
         ReportDeadBodyPatch.MeetingStarted = false;
+        CheckForEndVotingPatch.ShouldSkip = false;
 
+        if (!GameStates.InGame) return;
+        
         if (AmongUsClient.Instance.AmHost)
         {
             GameEndChecker.ShouldNotCheck = true;

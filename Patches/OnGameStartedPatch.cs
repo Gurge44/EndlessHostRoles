@@ -259,8 +259,8 @@ internal static class ChangeRoleSettings
 
             try
             {
-                SabotageMapPatch.TimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
-                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x != null, x => Object.Destroy(x.gameObject));
+                SabotageMapPatch.TimerTexts.Values.DoIf(x => x, x => Object.Destroy(x.gameObject));
+                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x, x => Object.Destroy(x.gameObject));
             }
             catch (Exception e) { Utils.ThrowException(e); }
             
@@ -449,6 +449,9 @@ internal static class ChangeRoleSettings
             GameStates.AlreadyDied = false;
 
             Main.Instance.StartCoroutine(PopulateSkinItems());
+            
+            GC.Collect();
+            Resources.UnloadUnusedAssets();
         }
         catch (Exception ex)
         {
@@ -944,7 +947,7 @@ internal static class StartGameHostPatch
             foreach (PlayerState state in Main.PlayerStates.Values)
             {
                 if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(state.MainRole, out List<CustomRoles> bannedAddonList))
-                    bannedAddonList.ForEach(x => state.RemoveSubRole(x));
+                    bannedAddonList.ForEach(state.RemoveSubRole);
 
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(state.MainRole, out List<CustomRoles> addonList))
                     addonList.ForEach(x => state.SetSubRole(x));

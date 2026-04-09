@@ -143,7 +143,16 @@ internal static class CustomHnS
 
         Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "HnsRoleAssigner");
 
-        foreach (KeyValuePair<byte, CustomRoles> item in Main.SetRoles.AddRange(ChatCommands.DraftResult, false))
+        Dictionary<byte, CustomRoles> preSetRoles = Main.SetRoles.AddRange(ChatCommands.DraftResult, false);
+
+        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + preSetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value is not (CustomRoles.Seeker or CustomRoles.Locator or CustomRoles.Dasher or CustomRoles.Venter or CustomRoles.Agent)))
+        {
+            byte removeKey = ChatCommands.DraftResult.Keys.RandomElement();
+            ChatCommands.DraftResult.Remove(removeKey);
+            preSetRoles.Remove(removeKey);
+        }
+
+        foreach (KeyValuePair<byte, CustomRoles> item in preSetRoles)
         {
             try
             {
