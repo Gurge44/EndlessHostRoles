@@ -493,7 +493,7 @@ public class ClientControlGUI : MonoBehaviour
                 if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
             });
         }
-        else if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
+        else if (OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer) PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
 
         Btn(ref y, _hudHidden ? "Show HUD" : "Hide HUD", _hudHidden ? _sHost : _sAction, () =>
         {
