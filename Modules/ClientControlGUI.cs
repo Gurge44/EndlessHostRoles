@@ -594,6 +594,11 @@ public class ClientControlGUI : MonoBehaviour
                     );
                 });
 
+            if (amHost || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode))
+                Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sAction, () =>
+                    HudManager.Instance.Chat.SetVisible(true)
+                );
+
             if (amHost)
             {
                 Section(ref y, "Host Controls");
@@ -616,9 +621,6 @@ public class ClientControlGUI : MonoBehaviour
                     });
                 }
 
-                Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
-                    HudManager.Instance.Chat.SetVisible(true)
-                );
                 Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, Utils.SetChatVisibleForAll);
 
                 if (noGameEnd)
