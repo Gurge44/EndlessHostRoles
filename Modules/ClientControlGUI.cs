@@ -13,6 +13,12 @@ public class ClientControlGUI : MonoBehaviour
     public static ClientControlGUI Instance;
 
     /// <summary>
+    /// Whether the game HUD has been hidden
+    /// <remarks>Restored automatically on scene change</remarks>
+    /// </summary>
+    public static bool HudHidden;
+
+    /// <summary>
     /// Whether the panel is currently visible or should be visible
     /// </summary>
     public bool IsOpen;
@@ -53,12 +59,6 @@ public class ClientControlGUI : MonoBehaviour
     /// <returns> Range matching Zoom.cs: 3.0 (default) to 18.0 (max out) </returns>
     /// </summary>
     private float _zoomValue = 3.0f;
-
-    /// <summary>
-    /// Whether the game HUD has been hidden
-    /// <remarks>Restored automatically on scene change</remarks>
-    /// </summary>
-    private bool _hudHidden;
 
     // Scale helpers - everything is relative to a 1080px-wide reference screen
     // On PC the UI is scaled down to 50% but on Android we keep it slightly larger (60%) for better readability
@@ -102,7 +102,7 @@ public class ClientControlGUI : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _cam = Camera.main;
-        _hudHidden = false;
+        HudHidden = false;
     }
 
     // Creates all GUIStyles; only called on first draw or if the screen scale changes
@@ -461,7 +461,7 @@ public class ClientControlGUI : MonoBehaviour
 
         bool canZoom = Zoom.CanZoom;
         bool canNoClip = canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame);
-        bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance;
+        bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
 
         if (canZoom || canNoClip || canToggleHud)
         {
@@ -508,16 +508,16 @@ public class ClientControlGUI : MonoBehaviour
 
             if (canToggleHud)
             {
-                Btn(ref y, _hudHidden ? "Show HUD" : "Hide HUD", _hudHidden ? _sHost : _sAction, () =>
+                Btn(ref y, HudHidden ? "Show HUD" : "Hide HUD", HudHidden ? _sHost : _sAction, () =>
                 {
-                    _hudHidden = !_hudHidden;
+                    HudHidden = !HudHidden;
                     if (HudManager.InstanceExists)
-                        HudManager.Instance.gameObject.SetActive(!_hudHidden);
+                        HudManager.Instance.gameObject.SetActive(!HudHidden);
                 });
             }
-            else if (_hudHidden)
+            else if (HudHidden)
             {
-                _hudHidden = false;
+                HudHidden = false;
                 if (HudManager.InstanceExists)
                     HudManager.Instance.gameObject.SetActive(true);
             }

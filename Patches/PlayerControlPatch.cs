@@ -1201,6 +1201,13 @@ internal static class ReportDeadBodyPatch
         MeetingStarted = true;
         LateTask.New(() => MeetingStarted = false, 1f, "ResetMeetingStarted");
 
+        if (ClientControlGUI.HudHidden)
+        {
+            ClientControlGUI.HudHidden = false;
+            if (HudManager.InstanceExists)
+                HudManager.Instance.gameObject.SetActive(true);
+        }
+
         if (!SubmergedCompatibility.IsSubmerged())
         {
             try
