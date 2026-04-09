@@ -71,7 +71,7 @@ public class Collector : RoleBase
         int CollectNum = CollectorCollectAmount.GetInt();
         Color32 color = ShadeColor;
 
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append('(')
             .Append(VoteAmount)
             .Append('/')

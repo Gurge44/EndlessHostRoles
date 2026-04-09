@@ -81,7 +81,7 @@ public class Timelord : CovenBase
         base.GetProgressText(playerId, comms, resultText);
         if (!HasNecronomicon) return;
 
-        resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+        resultText.Append(Utils.ColorPrefix(ShadeColor))
             .Append(" -")
             .Append(GetTotalStolenTime())
             .Append("s</color>");

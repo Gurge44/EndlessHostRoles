@@ -195,7 +195,7 @@ public class EvilTracker : RoleBase
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         if (CanTarget(playerId))
-            resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+            resultText.Append(Utils.ColorPrefix(ShadeColor))
                 .Append("◁</color>");
     }
 
@@ -216,7 +216,7 @@ public class EvilTracker : RoleBase
 
         if (imps.Length > 0)
         {
-            sb.Append(Utils.ColorStringPrefix(Utils.GetRoleColor(CustomRoles.Impostor)));
+            sb.Append(Utils.ColorPrefix(Utils.GetRoleColor(CustomRoles.Impostor)));
             foreach (byte impostorId in imps) sb.Append(TargetArrow.GetArrows(target, impostorId));
             sb.Append("</color>");
         }

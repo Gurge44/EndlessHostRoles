@@ -94,7 +94,7 @@ internal class Arsonist : RoleBase
         (int, int) doused = Utils.GetDousedPlayerCount(playerId);
         Color32 color = ShadeColor;
 
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append("<color=#777777>-</color> ")
             .Append(doused.Item1)
             .Append('/');

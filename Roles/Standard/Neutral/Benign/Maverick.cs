@@ -83,7 +83,7 @@ public class Maverick : RoleBase
         int min = MinKillsToWin.GetInt();
         Color color = kills >= min ? Color.green : Color.red;
 
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append(kills)
             .Append('/')
             .Append(min)

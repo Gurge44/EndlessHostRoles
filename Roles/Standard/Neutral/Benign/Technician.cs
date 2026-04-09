@@ -204,7 +204,7 @@ public class Technician : RoleBase
         int needed = RequiredPoints.GetInt();
         Color color = points >= needed ? Color.green : Color.white;
         
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append(points)
             .Append('/')
             .Append(needed)

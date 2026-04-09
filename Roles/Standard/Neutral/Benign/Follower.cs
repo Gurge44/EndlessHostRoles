@@ -177,7 +177,7 @@ public class Follower : RoleBase
         if (player == null) return;
 
         Color32 color = tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray;
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append('(')
             .Append(tc.BetTimes)
             .Append(")</color>");

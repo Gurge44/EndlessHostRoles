@@ -4768,7 +4768,7 @@ public static class Utils
         }
         return prefix + str + "</color>";
     }
-    public static string ColorStringPrefix(Color32 color)
+    public static string ColorPrefix(Color32 color)
     {
         if (!ColorPrefixCache.TryGetValue(color, out var prefix))
         {
@@ -4797,7 +4797,7 @@ public static class Utils
     {
         if (!GameStates.IsInGame) return;
         
-        var aapc = Main.CachedAlivePlayerControls();
+        var aapc = Main.EnumerateAlivePlayerControls();
         
         if (Options.CurrentGameMode is CustomGameMode.Mingle or CustomGameMode.Quiz or CustomGameMode.NaturalDisasters) 
         {

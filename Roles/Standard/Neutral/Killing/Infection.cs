@@ -117,7 +117,7 @@ public class Infection : RoleBase
 
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+        resultText.Append(Utils.ColorPrefix(ShadeColor))
             .Append('(')
             .Append(playerId.GetAbilityUseLimit())
             .Append(")</color>");

@@ -107,7 +107,7 @@ public class Berserker : RoleBase
         Color color = Color.Lerp(Color.white, Color.red, Mathf.Clamp01(Form / 5f));
         
         resultText.Append(' ')
-            .Append(Utils.ColorStringPrefix(color))
+            .Append(Utils.ColorPrefix(color))
             .Append(Form)
             .Append("/5</color>");
     }

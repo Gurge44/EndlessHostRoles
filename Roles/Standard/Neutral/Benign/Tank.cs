@@ -79,7 +79,7 @@ public class Tank : RoleBase
         }
         else
         {
-            string prefix = Utils.ColorStringPrefix(Utils.GetRoleColor(CustomRoles.Tank));
+            string prefix = Utils.ColorPrefix(Utils.GetRoleColor(CustomRoles.Tank));
             resultText.Append(prefix)
                 .Append(entered)
                 .Append("</color>/")

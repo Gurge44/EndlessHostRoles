@@ -238,12 +238,12 @@ public class RoomRusher : RoleBase
 
         Color32 color1 = Won ? Color.green : Color.white;
         resultText.Append(' ')
-            .Append(Utils.ColorStringPrefix(color1))
+            .Append(Utils.ColorPrefix(color1))
             .Append(CompletedNum)
             .Append("</color>");
 
         Color32 color2 = Won ? Color.white : Color.yellow;
-        resultText.Append(Utils.ColorStringPrefix(color2))
+        resultText.Append(Utils.ColorPrefix(color2))
             .Append('/')
             .Append(RoomsToWin.GetInt())
             .Append("</color>");

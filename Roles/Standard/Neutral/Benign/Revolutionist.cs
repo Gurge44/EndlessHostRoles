@@ -94,7 +94,7 @@ internal class Revolutionist : RoleBase
         (int, int) draw = Utils.GetDrawPlayerCount(playerId, out _);
         Color32 color = ShadeColor;
         
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append("<color=#777777>-</color> ")
             .Append(draw.Item1)
             .Append('/')

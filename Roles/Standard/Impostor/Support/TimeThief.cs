@@ -77,7 +77,7 @@ public class TimeThief : RoleBase
         int stolen = StolenTime(playerId);
         if (stolen <= 0) return;
 
-        resultText.Append(Utils.ColorStringPrefix(ShadeColor))
+        resultText.Append(Utils.ColorPrefix(ShadeColor))
             .Append(-stolen)
             .Append("s</color>");
     }

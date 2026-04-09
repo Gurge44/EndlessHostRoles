@@ -99,7 +99,7 @@ public class PortalMaker : RoleBase
         base.GetProgressText(playerId, comms, resultText);
         Color32 color = Marks.Count == 2 ? Color.green : Color.red;
         resultText
-            .Append(Utils.ColorStringPrefix(color))
+            .Append(Utils.ColorPrefix(color))
             .Append(' ')
             .Append(Marks.Count)
             .Append("/2</color>");

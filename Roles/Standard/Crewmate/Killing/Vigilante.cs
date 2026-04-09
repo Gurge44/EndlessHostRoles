@@ -71,7 +71,7 @@ public class Vigilante : RoleBase
         Color32 color = killed ? Color.gray : ShadeColor;
         
         resultText
-            .Append(Utils.ColorStringPrefix(color))
+            .Append(Utils.ColorPrefix(color))
             .Append(killed ? "(0)" : "(1)")
             .Append("</color>");
     }

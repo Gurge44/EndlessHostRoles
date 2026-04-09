@@ -56,7 +56,7 @@ internal class Vector : RoleBase
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         int count = VectorVentCount.GetValueOrDefault(playerId, 0);
-        resultText.Append(Utils.ColorStringPrefix(Color.white))
+        resultText.Append(Utils.ColorPrefix(Color.white))
             .Append("<color=#777777>-</color> ")
             .Append(count)
             .Append('/')

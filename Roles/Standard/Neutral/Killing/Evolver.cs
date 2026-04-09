@@ -292,7 +292,7 @@ public class Evolver : RoleBase
 
         if (hasAny)
         {
-            string prefix = Utils.ColorStringPrefix(Color.white);
+            string prefix = Utils.ColorPrefix(Color.white);
             resultText.Insert(0, prefix);
             resultText.Append("</color>");
         }

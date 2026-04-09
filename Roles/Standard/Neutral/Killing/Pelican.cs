@@ -158,7 +158,7 @@ public class Pelican : RoleBase
         if (EatenList.TryGetValue(playerId, out List<byte> value)) eatenNum = value.Count;
 
         Color32 color = eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican);
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append('(')
             .Append(eatenNum)
             .Append(")</color>");

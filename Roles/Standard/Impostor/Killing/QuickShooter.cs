@@ -147,7 +147,7 @@ internal class QuickShooter : RoleBase
         bool hasLimit = ShotLimit.TryGetValue(playerId, out int shotLimit);
         Color32 color = hasLimit && shotLimit > 0 ? ShadeColor : Color.gray;
 
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append(hasLimit ? $"({shotLimit})" : "Invalid")
             .Append("</color>");
     }

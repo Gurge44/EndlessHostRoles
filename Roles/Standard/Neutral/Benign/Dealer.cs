@@ -108,7 +108,7 @@ public class Dealer : RoleBase
         var color = IsWon ? Color.green : Color.white;
         
         resultText.Append(' ')
-            .Append(Utils.ColorStringPrefix(color))
+            .Append(Utils.ColorPrefix(color))
             .Append(AssignedNum)
             .Append('/')
             .Append(AssignNeedToWin.GetInt())

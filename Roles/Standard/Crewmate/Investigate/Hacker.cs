@@ -225,7 +225,7 @@ public class Hacker : RoleBase
 
         resultText.Append(GetTaskCount(playerId, comms))
             .Append(" <color=#777777>-</color> ")
-            .Append(ColorStringPrefix(limit < 1 ? Color.red : Color.white))
+            .Append(ColorPrefix(limit < 1 ? Color.red : Color.white))
             .Append(Math.Round(limit, 1))
             .Append("</color>");
     }

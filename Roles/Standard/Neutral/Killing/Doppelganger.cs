@@ -320,7 +320,7 @@ public class Doppelganger : RoleBase
         int remaining = maxSteals - stealLimit;
         Color32 color = remaining > 0 ? ShadeColor : Color.gray;
         
-        resultText.Append(Utils.ColorStringPrefix(color))
+        resultText.Append(Utils.ColorPrefix(color))
             .Append('(')
             .Append(remaining)
             .Append(")</color>");
