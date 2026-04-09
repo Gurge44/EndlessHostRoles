@@ -947,7 +947,7 @@ internal static class StartGameHostPatch
             foreach (PlayerState state in Main.PlayerStates.Values)
             {
                 if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(state.MainRole, out List<CustomRoles> bannedAddonList))
-                    bannedAddonList.ForEach(x => state.RemoveSubRole(x));
+                    bannedAddonList.ForEach(state.RemoveSubRole);
 
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(state.MainRole, out List<CustomRoles> addonList))
                     addonList.ForEach(x => state.SetSubRole(x));

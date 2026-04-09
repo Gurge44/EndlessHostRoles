@@ -900,7 +900,7 @@ public static class KingOfTheZones
                         if (team != KOTZTeam.None)
                         {
                             Points[team]++;
-                            zoneInfo[zone].Players.FindAll(x => x.Team == (int)team).ForEach(x => PlayerPoints[x.Id]++);
+                            zoneInfo[zone].Players.DoIf(x => x.Team == (int)team, x => PlayerPoints[x.Id]++);
                         }
                     }
 

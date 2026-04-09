@@ -1684,7 +1684,7 @@ internal static class FixedUpdatePatch
                     var state = Main.PlayerStates[playerId];
                     state.SubRoles
                         .FindAll(x => x is CustomRoles.Fragile or CustomRoles.Unbound or CustomRoles.Diseased or CustomRoles.Antidote or CustomRoles.Beartrap or CustomRoles.Youtuber or CustomRoles.Lucky or CustomRoles.Onbound or CustomRoles.Allergic or CustomRoles.Asthmatic or CustomRoles.Bewilder or CustomRoles.Compelled or CustomRoles.Unlucky or CustomRoles.Bait)
-                        .ForEach(x => state.RemoveSubRole(x));
+                        .ForEach(state.RemoveSubRole);
 
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);

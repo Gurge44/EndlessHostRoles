@@ -288,7 +288,7 @@ public static class NaturalDisasters
                         }
                         case 1:
                         {
-                            Disaster remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
+                            Disaster remove = PreferRemovingThunderstorm.GetBool() && ActiveDisasters.FindFirst(x => x is Thunderstorm, out Disaster thunderstorm) ? thunderstorm : ActiveDisasters.RandomElement();
                             if (remove != null) remove.Duration = 0;
                             remove?.RemoveIfExpired();
                             break;
