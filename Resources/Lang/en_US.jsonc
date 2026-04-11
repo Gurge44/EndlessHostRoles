@@ -919,6 +919,7 @@
   "HackerModdedClientAbilityUseSecondsMultiplier": "Modded clients, for 1 ability use, can view Admin map for",
   "HackerModdedClientCanMoveWhileViewingMap": "Modded clients can move while looking at Admin map",
   "HackerVanillaClientSeesInfoFor": "Vanilla clients see admin info notify for",
+  "HackerAdminButton": "Admin",
   "Helper": "Helper",
   "HelperInfo": "Complete Tasks For Others",
   "HelperInfoLong": "(Crewmates):\\nAs the Helper, whenever you complete a task, a random crewmate will also have one of their tasks completed.",
