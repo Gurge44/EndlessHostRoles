@@ -154,19 +154,19 @@ internal static class ControllerManagerUpdatePatch
             if (KeysDown(CopyCurrentSettingsKey) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
                 Utils.CopyCurrentSettings();
 
-            if (KeysDown(ChatSetVisibleKey) && (AmongUsClient.Instance.AmHost || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode)))
-                HudManager.Instance.Chat.SetVisible(true);
-
-            if (KeysDown(SetWinnerDrawKey) && inGame && (AmongUsClient.Instance.AmHost || ChatCommands.IsPlayerAdmin(PlayerControl.LocalPlayer.FriendCode)))
-            {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                GameEndChecker.CheckCustomEndCriteria();
-            }
-
             if (!AmongUsClient.Instance.AmHost) return;
+            
+            if (KeysDown(ChatSetVisibleKey))
+                HudManager.Instance.Chat.SetVisible(true);
 
             if (inGame)
             {
+                if (KeysDown(SetWinnerDrawKey))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                    GameEndChecker.CheckCustomEndCriteria();
+                }
+
                 if (KeysDown(SetChatVisibleForAllKey))
                     Utils.SetChatVisibleForAll();
 
@@ -218,13 +218,13 @@ internal static class ControllerManagerUpdatePatch
                 {
                     Prompt.Show(GetString("Promt.ResetAllOptions"), ResetAllOptions, () => { });
 
-                    void ResetAllOptions()
+                    static void ResetAllOptions()
                     {
                         IsResetting = true;
                         Main.Instance.StartCoroutine(Reset());
                         return;
 
-                        IEnumerator Reset()
+                        static IEnumerator Reset()
                         {
                             yield return new WaitForSecondsRealtime(0.1f);
 

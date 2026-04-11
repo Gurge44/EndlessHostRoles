@@ -13,6 +13,12 @@ public class ClientControlGUI : MonoBehaviour
     public static ClientControlGUI Instance;
 
     /// <summary>
+    /// Whether the game HUD has been hidden
+    /// <remarks>Restored automatically on scene change</remarks>
+    /// </summary>
+    public static bool HudHidden;
+
+    /// <summary>
     /// Whether the panel is currently visible or should be visible
     /// </summary>
     public bool IsOpen;
@@ -53,12 +59,6 @@ public class ClientControlGUI : MonoBehaviour
     /// <returns> Range matching Zoom.cs: 3.0 (default) to 18.0 (max out) </returns>
     /// </summary>
     private float _zoomValue = 3.0f;
-
-    /// <summary>
-    /// Whether the game HUD has been hidden
-    /// <remarks>Restored automatically on scene change</remarks>
-    /// </summary>
-    private bool _hudHidden;
 
     // Scale helpers - everything is relative to a 1080px-wide reference screen
     // On PC the UI is scaled down to 50% but on Android we keep it slightly larger (60%) for better readability
@@ -102,7 +102,7 @@ public class ClientControlGUI : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _cam = Camera.main;
-        _hudHidden = false;
+        HudHidden = false;
     }
 
     // Creates all GUIStyles; only called on first draw or if the screen scale changes
@@ -458,54 +458,70 @@ public class ClientControlGUI : MonoBehaviour
                     InGameRoleInfoMenu.Show();
                 }
             });
-        
-        Section(ref y, "Camera");
 
-        if (Zoom.CanZoom)
+        bool canZoom = Zoom.CanZoom;
+        bool canNoClip = canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame);
+        bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
+
+        if (canZoom || canNoClip || canToggleHud)
         {
-            // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
-            if (_cam) _zoomValue = _cam.orthographicSize;
+            Section(ref y, "Camera");
 
-            float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
-            if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
+            if (canZoom)
             {
-                _zoomValue = newZoom;
-                Zoom.SetZoomSize(reset: false);
-                if (_cam) _cam.orthographicSize = _zoomValue;
-                if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
-            }
+                // Sync slider to actual camera value so external changes (scroll wheel, touch pinch) are reflected
+                if (_cam) _zoomValue = _cam.orthographicSize;
 
-            if (GUI.Button(new Rect(0, y, w, ButtonHeight), "Reset Zoom", _sAction))
+                float newZoom = Slider(ref y, $"Zoom  {_zoomValue:F1}x", _zoomValue, 3.0f, 18.0f, w);
+                if (Mathf.Abs(newZoom - _zoomValue) > 0.01f)
+                {
+                    _zoomValue = newZoom;
+                    Zoom.SetZoomSize(reset: false);
+                    if (_cam) _cam.orthographicSize = _zoomValue;
+                    if (HudManager.InstanceExists) HudManager.Instance.UICamera.orthographicSize = _zoomValue;
+                }
+
+                if (GUI.Button(new Rect(0, y, w, ButtonHeight), "Reset Zoom", _sAction))
+                {
+                    Zoom.SetZoomSize(reset: true);
+                    _zoomValue = 3.0f;
+                }
+                y += ButtonHeight + Padding * 0.7f;
+            }
+            else if (!Mathf.Approximately(_zoomValue, 3.0f))
             {
                 Zoom.SetZoomSize(reset: true);
                 _zoomValue = 3.0f;
             }
-            y += ButtonHeight + Padding * 0.7f;
-        }
-        else if (!Mathf.Approximately(_zoomValue, 3.0f))
-        {
-            Zoom.SetZoomSize(reset: true);
-            _zoomValue = 3.0f;
-        }
 
-        if (canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame))
-        {
-            // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
-            bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
-            Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
+            if (canNoClip)
             {
-                ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
-                if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
-            });
-        }
-        else if (OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer) PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
+                // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
+                bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
+                Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
+                {
+                    ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
+                    if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
+                });
+            }
+            else if (OperatingSystem.IsAndroid() && PlayerControl.LocalPlayer) PlayerControl.LocalPlayer.Collider.offset = new Vector2(0f, -0.3636f);
 
-        Btn(ref y, _hudHidden ? "Show HUD" : "Hide HUD", _hudHidden ? _sHost : _sAction, () =>
-        {
-            _hudHidden = !_hudHidden;
-            if (HudManager.InstanceExists)
-                HudManager.Instance.gameObject.SetActive(!_hudHidden);
-        });
+            if (canToggleHud)
+            {
+                Btn(ref y, HudHidden ? "Show HUD" : "Hide HUD", HudHidden ? _sHost : _sAction, () =>
+                {
+                    HudHidden = !HudHidden;
+                    if (HudManager.InstanceExists)
+                        HudManager.Instance.gameObject.SetActive(!HudHidden);
+                });
+            }
+            else if (HudHidden)
+            {
+                HudHidden = false;
+                if (HudManager.InstanceExists)
+                    HudManager.Instance.gameObject.SetActive(true);
+            }
+        }
 
         if (inLobby)
         {
