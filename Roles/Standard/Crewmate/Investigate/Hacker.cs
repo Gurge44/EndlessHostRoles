@@ -145,7 +145,12 @@ public class Hacker : RoleBase
         else
             pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
     }
-
+    
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.SabotageButton.buttonLabelText.text = Translator.GetString("HackerAdminButton");
+    }
+    
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         if (!pc.IsAlive()) return;
