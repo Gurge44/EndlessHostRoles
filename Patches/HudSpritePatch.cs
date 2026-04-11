@@ -376,6 +376,11 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Fakeshift");
                     break;
                 }
+                case CustomRoles.Hacker:
+                {
+                    newSabotageButton = CustomButton.Get("HackerAdmin");
+                    break;
+                }
                 case CustomRoles.Amnesiac:
                 {
                     if (Amnesiac.RememberMode.GetValue() == 1) newKillButton = CustomButton.Get("AmnesiacKill");
