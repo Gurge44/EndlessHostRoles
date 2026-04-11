@@ -18,21 +18,25 @@ public static class GetNormalBodyTypePatch
 {
     public static void Postfix(ref PlayerBodyTypes __result)
     {
-        if (Main.HorseMode.Value || AprilFoolsMode.ShouldHorseAround())
+        try
         {
-            __result = PlayerBodyTypes.Horse;
-            return;
+            if (Main.HorseMode.Value || AprilFoolsMode.ShouldHorseAround())
+            {
+                __result = PlayerBodyTypes.Horse;
+                return;
+            }
+            if (Main.LongMode.Value || AprilFoolsMode.ShouldLongAround())
+            {
+                __result = PlayerBodyTypes.Long;
+                return;
+            }
+            if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
+            {
+                __result = PlayerBodyTypes.Classic;
+                return;
+            }
         }
-        if (Main.LongMode.Value || AprilFoolsMode.ShouldLongAround())
-        {
-            __result = PlayerBodyTypes.Long;
-            return;
-        }
-        if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
-        {
-            __result = PlayerBodyTypes.Classic;
-            return;
-        }
+        catch { }
     }
 }
 
