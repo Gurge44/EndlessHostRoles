@@ -196,7 +196,7 @@ public abstract class OptionItem
     public string GetName(bool disableColor = false, bool console = false)
     {
         if (Name.Contains("CTA.FLAG")) return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
-        return disableColor ? Translator.GetString(Name, ReplacementDictionary, console, cache: false) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary, cache: false));
+        return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
     }
 
     public bool GetBool()

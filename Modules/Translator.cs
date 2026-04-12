@@ -140,7 +140,7 @@ public static class Translator
         return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && (resourceName.EndsWith(".jsonc") || resourceName.EndsWith(".json"))).ToArray();
     }
 
-    public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false, bool cache = true)
+    public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
         SupportedLangs langId;
         int modLanguageId = Options.IsLoaded ? Options.ModLanguage.GetValue() : 0;
