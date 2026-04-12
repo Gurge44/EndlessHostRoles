@@ -1594,10 +1594,12 @@ public static class GameSettingMenuPatch
         DestroySetting();
         ModGameOptionsMenu.DestroyOption();
 
-        foreach (var opt in __instance.GameSettingsTab.Children)
+        if (__instance.GameSettingsTab && __instance.GameSettingsTab.Children != null)
         {
-            if (opt)
+            foreach (var opt in __instance.GameSettingsTab.Children)
             {
+                if (!opt) continue;
+
                 if (opt.TryGetComponent<PassiveButton>(out var btn))
                     btn.OnClick.RemoveAllListeners();
 

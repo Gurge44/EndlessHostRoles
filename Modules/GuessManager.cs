@@ -1199,27 +1199,27 @@ public static class GuessManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            Object.Destroy(TextTemplate.gameObject);
+            if (TextTemplate) Object.Destroy(TextTemplate.gameObject);
             if (GuesserUI) Object.Destroy(GuesserUI);
 
             foreach (List<Transform> roleButtonsValue in RoleButtons.Values)
             {
                 foreach (Transform transform in roleButtonsValue)
                 {
-                    if (transform.gameObject)
+                    if (transform?.gameObject)
                         Object.Destroy(transform.gameObject);
                 }
             }
 
             foreach (SpriteRenderer spriteRenderer in RoleSelectButtons.Values)
             {
-                if (spriteRenderer.gameObject)
+                if (spriteRenderer?.gameObject)
                     Object.Destroy(spriteRenderer.gameObject);
             }
 
             foreach (SpriteRenderer spriteRenderer in PageButtons)
             {
-                if (spriteRenderer.gameObject)
+                if (spriteRenderer?.gameObject)
                     Object.Destroy(spriteRenderer.gameObject);
             }
             
