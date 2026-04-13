@@ -67,7 +67,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://ehr.gurge44.eu/lookup)
 
-### You can make yourself a global EHR tag and see active EHR lobbies here: [Active EHR Lobbies](https://gurge44.pythonanywhere.com/lobbies)
+### You can make yourself a global EHR tag and see active EHR lobbies here: [Active EHR Lobbies](https://app.gurge44.eu/lobbies)
 
 #### Over 450+ roles and add-ons, 16 custom game modes, and a Custom Team Assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
