@@ -212,8 +212,8 @@ public static class RoomRush
 
         yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
-        var aapc = Main.EnumerateAlivePlayerControls();
-        var pcCount = aapc.Count();
+        var aapc = Main.AllAlivePlayerControlsToList;
+        var pcCount = aapc.Count;
         aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
         PointsToWinValue = PointsToWin.GetInt() * pcCount;
@@ -472,7 +472,7 @@ public static class RoomRush
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                PointsToWinValue = PointsToWin.GetInt() * Main.CachedAlivePlayerControls().Count;
+                PointsToWinValue = PointsToWin.GetInt() * Main.AllAlivePlayerControlsCount;
                 int ventLimit = VentTimes.GetInt();
                 VentLimit = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => ventLimit);
                 if (WinByPointsInsteadOfDeaths.GetBool()) Points = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => 0);

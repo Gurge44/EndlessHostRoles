@@ -85,7 +85,7 @@ internal static class ExtendedPlayerControl
         {
             case CustomGameMode.RoomRush:
                 return true;
-            case CustomGameMode.Standard when Options.DisableVentingOn1v1.GetBool() && Main.CachedAlivePlayerControls().Count == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
+            case CustomGameMode.Standard when Options.DisableVentingOn1v1.GetBool() && Main.AllAlivePlayerControlsCount == 2 && player.GetRoleTypes() != RoleTypes.Engineer:
                 return false;
             case CustomGameMode.StopAndGo:
                 return StopAndGo.IsEventActive && StopAndGo.Event.Type == StopAndGo.Events.VentAccess;
@@ -575,13 +575,16 @@ internal static class ExtendedPlayerControl
         CustomRoles newRoleVN = newCustomRole.GetVNRole();
         RoleTypes newRoleDY = newCustomRole.GetDYRole();
 
+        var players = Main.CachedAllPlayerControls();
+
         switch (oldRoleIsDesync, newRoleIsDesync)
         {
             // Desync role to normal role
             case (true, false):
             {
-                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+                for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
                 {
+                    PlayerControl seer = players[playerIndex];
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
 
@@ -630,8 +633,9 @@ internal static class ExtendedPlayerControl
             // Normal role to desync role
             case (false, true):
             {
-                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+                for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
                 {
+                    PlayerControl seer = players[playerIndex];
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
 
@@ -679,8 +683,9 @@ internal static class ExtendedPlayerControl
             {
                 bool playerIsDesync = player.HasDesyncRole();
 
-                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+                for (int playerIndex = 0; playerIndex < players.Count; playerIndex++)
                 {
+                    PlayerControl seer = players[playerIndex];
                     int seerClientId = seer.OwnerId;
                     if (seerClientId == -1) continue;
 
@@ -699,12 +704,14 @@ internal static class ExtendedPlayerControl
 
         if (loggerRoleMap)
         {
-            foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+            for (int seerIndex = 0; seerIndex < players.Count; seerIndex++)
             {
+                PlayerControl seer = players[seerIndex];
                 NetworkedPlayerInfo seerData = seer.Data;
 
-                foreach (PlayerControl target in Main.CachedAllPlayerControls())
+                for (int targetIndex = 0; targetIndex < players.Count; targetIndex++)
                 {
+                    PlayerControl target = players[targetIndex];
                     NetworkedPlayerInfo targetData = target.Data;
                     (RoleTypes roleType, CustomRoles customRole) = seer.GetRoleMap(targetData.PlayerId);
                     Logger.Info($"seer {seerData?.PlayerName}-{seerData?.PlayerId}, target {targetData.PlayerName}-{targetData.PlayerId} => {roleType}, {customRole}", "Role Map");
@@ -1517,7 +1524,7 @@ internal static class ExtendedPlayerControl
         return Options.CurrentGameMode switch
         {
             CustomGameMode.SoloPVP => SoloPVP.CanVent,
-            CustomGameMode.FFA => !(FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers.GetValueOrDefault(pc.PlayerId) <= 0) && !(FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.CachedAlivePlayerControls().Count <= 2),
+            CustomGameMode.FFA => !(FreeForAll.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers.GetValueOrDefault(pc.PlayerId) <= 0) && !(FreeForAll.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControlsCount <= 2),
             CustomGameMode.StopAndGo => false,
             CustomGameMode.HotPotato => false,
             CustomGameMode.Speedrun => false,
@@ -1897,7 +1904,7 @@ internal static class ExtendedPlayerControl
             CustomRoles.BedWarsPlayer => 1f,
             CustomRoles.Racer => 3f,
             CustomRoles.SnowdownPlayer => 10f,
-            _ when player.Is(CustomRoles.Underdog) => Main.CachedAlivePlayerControls().Count <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
+            _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControlsCount <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
 

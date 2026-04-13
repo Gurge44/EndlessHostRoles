@@ -176,7 +176,7 @@ public class Fireworker : RoleBase
 
                 if (suicide)
                 {
-                    int totalAlive = Main.CachedAlivePlayerControls().Count;
+                    int totalAlive = Main.AllAlivePlayerControlsCount;
                     if (totalAlive != 1) pc.Suicide();
                 }
 

@@ -1,8 +1,9 @@
+using EHR.Modules;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Modules;
-using HarmonyLib;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,17 +18,20 @@ internal static class PingTrackerUpdatePatch
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
-    private static readonly List<float> LastFPS = [];
+
+    private static readonly float[] FpsBuffer = new float[10];
+    private static int FpsIndex;
+    private static int FpsCount;
 
     public static bool Prefix(PingTracker __instance)
     {
         FpsSampler.TickFrame();
-        
         PingTracker instance = !Instance ? __instance : Instance;
+        
+        var client = AmongUsClient.Instance;
+        if (!client) return false;
 
-        if (!AmongUsClient.Instance) return false;
-
-        if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
+        if (client.NetworkMode == NetworkModes.FreePlay)
         {
             instance.gameObject.SetActive(false);
             return false;
@@ -35,7 +39,8 @@ internal static class PingTrackerUpdatePatch
 
         if (instance.name != "EHR_SettingsText")
         {
-            instance.aspectPosition.DistanceFromEdge = !AmongUsClient.Instance.IsGameStarted ? instance.lobbyPos : instance.gamePos;
+            instance.aspectPosition.DistanceFromEdge = !client.IsGameStarted ? instance.lobbyPos : instance.gamePos;
+
             instance.text.alignment = TextAlignmentOptions.Center;
             instance.text.text = Sb.ToString();
         }
@@ -46,69 +51,90 @@ internal static class PingTrackerUpdatePatch
         if (now == LastUpdate) return false;
         LastUpdate = now;
 
-        Sb.Clear();
+        bool inGame = GameStates.InGame;
+        Sb.Clear()
+            .Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>")
+            .Append(Main.CredentialsText);
 
-        Sb.Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>");
+        int ping = client.Ping;
 
-        Sb.Append(Main.CredentialsText);
+        string color =
+            ping < 30 ? "#44dfcc" :
+            ping < 100 ? "#7bc690" :
+            ping < 200 ? "#f3920e" :
+            ping < 400 ? "#ff146e" :
+            "#ff4500";
 
-        int ping = AmongUsClient.Instance.Ping;
+        Sb.Append(inGame ? "    -    " : "\r\n")
+            .Append("<color=")
+            .Append(color)
+            .Append('>')
+            .Append(GetString("PingText"))
+            .Append(": ")
+            .Append(ping)
+            .Append("</color>");
 
-        string color = ping switch
+        AppendSeparator(inGame);
+
+        Sb.Append(GetString("Server"))
+            .Append("<b>")
+            .Append(Utils.GetRegionName())
+            .Append("</b>");
+
+        if (Main.ShowFps.Value && FpsCount > 0)
         {
-            < 30 => "#44dfcc",
-            < 100 => "#7bc690",
-            < 200 => "#f3920e",
-            < 400 => "#ff146e",
-            _ => "#ff4500"
-        };
+            float sum = 0f;
+            for (int i = 0; i < FpsCount; i++)
+                sum += FpsBuffer[i];
 
-        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
-        Sb.Append($"<color={color}>{GetString("PingText")}: {ping}</color>");
-        AppendSeparator();
-        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
+            float fps = sum / FpsCount;
 
-        if (Main.ShowFps.Value && LastFPS.Count > 0)
-        {
-            float fps = LastFPS.Average();
+            Color fpsColor =
+                fps < 10f ? Color.red :
+                fps < 25f ? Color.yellow :
+                fps < 50f ? Color.green :
+                new Color32(0, 165, 255, 255);
 
-            Color fpscolor = fps switch
-            {
-                < 10f => Color.red,
-                < 25f => Color.yellow,
-                < 50f => Color.green,
-                _ => new Color32(0, 165, 255, 255)
-            };
+            AppendSeparator(inGame);
 
-            AppendSeparator();
-            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + (int)fps)}");
+            Sb.Append(Utils.ColorPrefix(fpsColor))
+                .Append(Utils.ColorPrefix(Color.cyan))
+                .Append(GetString("FPSGame"))
+                .Append((int)fps)
+                .Append("</color>")
+                .Append("</color>");
         }
 
-        if (GameStates.InGame) Sb.Append("\r\n.");
+        if (inGame) Sb.Append("\r\n.");
         return false;
-
-        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
     }
-    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AppendSeparator(bool inGame)
+    {
+        Sb.Append(inGame ? "    -    " : "  -  ");
+    }
+
     static class FpsSampler
     {
         private static int Frames;
         private static float Elapsed;
         private const float SampleInterval = 0.5f; // half-second window
-    
+
         public static void TickFrame()
         {
             Frames++;
             Elapsed += Time.unscaledDeltaTime;
             if (Elapsed < SampleInterval) return;
-            LastFPS.Add(Frames / Elapsed);
-            if (LastFPS.Count > 10) LastFPS.RemoveAt(0);
+            float fps = Frames / Elapsed;
+            FpsBuffer[FpsIndex] = fps;
+            if (FpsCount < 10) FpsCount++;
+            FpsIndex++;
+            if (FpsIndex >= 10) FpsIndex = 0;
             Frames = 0;
             Elapsed = 0f;
         }
     }
 }
-
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
 internal static class VersionShowerStartPatch
 {
@@ -119,7 +145,7 @@ internal static class VersionShowerStartPatch
         string testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
 #pragma warning restore CS0162 // Unreachable code detected
 
-        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} {Main.Temp}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        Main.CredentialsText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 

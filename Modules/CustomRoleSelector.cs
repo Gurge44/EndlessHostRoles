@@ -64,7 +64,7 @@ internal static class CustomRoleSelector
         }
 
         var rd = IRandom.Instance;
-        int playerCount = Main.CachedAlivePlayerControls().Count;
+        int playerCount = Main.AllAlivePlayerControlsCount;
 
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
 

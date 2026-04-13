@@ -4797,7 +4797,7 @@ public static class Utils
     {
         if (!GameStates.IsInGame) return;
         
-        var aapc = Main.EnumerateAlivePlayerControls();
+        var aapc = Main.AllAlivePlayerControlsToList;
         
         if (Options.CurrentGameMode is CustomGameMode.Mingle or CustomGameMode.Quiz or CustomGameMode.NaturalDisasters) 
         {

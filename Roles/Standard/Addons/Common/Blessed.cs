@@ -32,8 +32,8 @@ public class Blessed : IAddon
 
     public static void AfterMeetingTasks()
     {
-        var aapc = Main.EnumerateAlivePlayerControls();
-        if (aapc.Count() < MinLivingPlayersToActivateShield.GetInt()) return;
+        var aapc = Main.AllAlivePlayerControlsToList
+        if (aapc.Count < MinLivingPlayersToActivateShield.GetInt()) return;
         
         foreach (PlayerControl pc in aapc)
         {

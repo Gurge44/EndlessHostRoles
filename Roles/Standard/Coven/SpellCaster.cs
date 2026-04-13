@@ -69,7 +69,7 @@ public class SpellCaster : CovenBase
     {
         VisibleHexes = HexedPlayers.Keys.Concat(PlayerIdList).ToHashSet();
 
-        if (Main.CachedAlivePlayerControls().Count / 2 >= HexedPlayers.Keys.Count)
+        if (Main.AllAlivePlayerControlsCount / 2 >= HexedPlayers.Keys.Count)
             VisibleHexes.ExceptWith(PlayerIdList);
 
         HexedPlayers.SetAllValues(true);

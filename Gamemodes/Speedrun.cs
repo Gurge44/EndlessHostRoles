@@ -102,7 +102,7 @@ public static class Speedrun
         if (!pc.IsAlive()) return string.Empty;
 
         int time = Timers[pc.PlayerId];
-        int alive = Main.CachedAlivePlayerControls().Count;
+        int alive = Main.AllAlivePlayerControlsCount;
         int apc = PlayerControl.AllPlayerControls.Count;
         int killers = CanKill.Count;
 

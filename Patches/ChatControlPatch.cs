@@ -292,7 +292,7 @@ public static class ChatManager
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (!player) return;
-        if (targets.Count == 0 || targets.Count >= Main.CachedAlivePlayerControls().Count) SendEmptyMessage(null);
+        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 

@@ -10,7 +10,7 @@ namespace EHR.Modules;
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
 public static class FixedUpdateCaller
 {
-    private static int NonLowLoadPlayerId;
+    private static int NonLowLoadPlayerIndex;
 
     private static long Now;
     private static long LastFileLoadTS;
@@ -110,13 +110,13 @@ public static class FixedUpdateCaller
 
             if (lobby || (Main.IntroDestroyed && GameStates.InGame && !GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks))
             {
-                NonLowLoadPlayerId++;
+                NonLowLoadPlayerIndex++;
 
                 var players = Main.CachedAllPlayerControls();
                 int playerCount = players.Count;
 
-                if (NonLowLoadPlayerId >= playerCount)
-                    NonLowLoadPlayerId = Math.Min(0, -(30 - playerCount));
+                if (NonLowLoadPlayerIndex >= playerCount)
+                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - playerCount));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
                 //bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
@@ -128,11 +128,11 @@ public static class FixedUpdateCaller
                         PlayerControl pc = players[playerIndex];
                         if (!pc || pc.PlayerId >= 254) continue;
 
-                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerId != playerIndex);
+                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != playerIndex);
 
                         if (lobby) continue;
 
-                        //if (vanilla && NonLowLoadPlayerId == playerId)
+                        //if (vanilla && NonLowLoadPlayerIndex == playerIndex)
                         //    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
 
                         switch (currentGameMode)

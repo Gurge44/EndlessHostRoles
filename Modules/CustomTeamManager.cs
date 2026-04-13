@@ -167,7 +167,7 @@ internal static class CustomTeamManager
     }
 
     private static readonly Dictionary<CustomTeam, HashSet<byte>> AliveTeamPlayers = [];
-    private static readonly HashSet<byte> AliveSet = [];
+    private static readonly List<byte> ToRemove = [];
     public static bool CheckCustomTeamGameEnd()
     {
         if (EnabledCustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
@@ -181,6 +181,7 @@ internal static class CustomTeamManager
             {
                 PlayerControl lastPlayer = aapc[0];
                 CustomTeam lastTeam = GetCustomTeam(lastPlayer.PlayerId);
+                
                 WinnerTeam = lastTeam;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
                 CustomWinnerHolder.WinnerIds = [lastPlayer.PlayerId];
@@ -189,13 +190,18 @@ internal static class CustomTeamManager
 
             foreach (var kvp in CustomTeamPlayerIds)
             {
-                var teamPlayers = kvp.Value;
+                var originalSet = kvp.Value;
+                ToRemove.Clear();
 
-                teamPlayers.RemoveWhere(p =>
+                foreach (var id in originalSet)
                 {
-                    PlayerControl pc = Utils.GetPlayerById(p);
-                    return !pc || !pc.Data || pc.Data.Disconnected;
-                });
+                    PlayerControl pc = Utils.GetPlayerById(id);
+                    if (!pc || !pc.Data || pc.Data.Disconnected)
+                        ToRemove.Add(id);
+                }
+
+                for (int i = 0; i < ToRemove.Count; i++)
+                    originalSet.Remove(ToRemove[i]);
             }
 
             AliveTeamPlayers.Clear();
@@ -203,46 +209,42 @@ internal static class CustomTeamManager
             {
                 CustomTeam teamKey = kvp.Key;
                 var originalSet = kvp.Value;
-                foreach (byte playerId in originalSet)
+
+                HashSet<byte> aliveSet = null;
+                foreach (var id in originalSet)
                 {
-                    PlayerControl pc = Utils.GetPlayerById(playerId);
+                    var pc = Utils.GetPlayerById(id);
                     if (pc.IsAlive())
-                        AliveSet.Add(playerId);
+                    {
+                        aliveSet ??= [];
+                        aliveSet.Add(id);
+                    }
                 }
-                if (AliveSet.Count > 0)
-                    AliveTeamPlayers[teamKey] = AliveSet;
+                if (aliveSet != null)
+                    AliveTeamPlayers[teamKey] = aliveSet;
             }
 
             if (AliveTeamPlayers.Count == 1)
             {
-                CustomTeam onlyTeam = null;
-                foreach (var kvp in AliveTeamPlayers)
-                {
-                    onlyTeam = kvp.Key;
-                    break;
-                }
-                bool allSameTeam = true;
+                var aliveTeam = AliveTeamPlayers.GetEnumerator();
+                aliveTeam.MoveNext();
+
+                var onlyTeam = aliveTeam.Current.Key;
+                var winners = aliveTeam.Current.Value;
+
                 for (int i = 0; i < aapc.Count; i++)
                 {
                     PlayerControl player = aapc[i];
                     CustomTeam playerTeam = GetCustomTeam(player.PlayerId);
-                    if (playerTeam == null || !playerTeam.Equals(onlyTeam))
-                    {
-                        allSameTeam = false;
-                        break;
-                    }
+
+                    if (playerTeam == null || playerTeam != onlyTeam)
+                        return false;
                 }
-                if (allSameTeam)
-                {
-                    WinnerTeam = onlyTeam;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
-                    foreach (var kvp in AliveTeamPlayers)
-                    {
-                        CustomWinnerHolder.WinnerIds = kvp.Value;
-                        break;
-                    }
-                    return true;
-                }
+
+                WinnerTeam = onlyTeam;
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
+                CustomWinnerHolder.WinnerIds = winners;
+                return true;
             }
         }
         catch (Exception e) { Logger.Error($"Error in CheckCustomTeamGameEnd: {e}", "CustomTeamManager"); }

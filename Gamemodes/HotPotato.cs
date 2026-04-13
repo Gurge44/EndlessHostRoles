@@ -184,8 +184,9 @@ internal static class HotPotato
         public static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
             var aapc = Main.CachedAlivePlayerControls();
-
-            if (!Main.IntroDestroyed || aapc.Count < 2) return;
+            var aapcCount = aapc.Count;
+            
+            if (!Main.IntroDestroyed || aapcCount < 2) return;
 
             if (resetTime)
             {
@@ -208,7 +209,7 @@ internal static class HotPotato
                     LateTask.New(() => target.SetKillCooldownNonSync(1f), 0.2f, log: false);
                 }
 
-                if (aapc.Count < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Count > 1)
+                if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapcCount > 1)
                 {
                     Vector2 pos = target.Pos();
                     TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);

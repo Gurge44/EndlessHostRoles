@@ -277,7 +277,7 @@ public static class Mingle
         if (GameStates.IsEnded) return;
 
         RequiredPlayerCount = [];
-        int playerCount = Main.CachedAlivePlayerControls().Count;
+        int playerCount = Main.AllAlivePlayerControlsCount;
         bool last2 = playerCount <= 2;
 
         while (playerCount > 0)

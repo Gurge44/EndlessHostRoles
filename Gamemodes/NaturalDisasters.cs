@@ -341,7 +341,7 @@ public static class NaturalDisasters
                         .RandomElement();
                 }
 
-                var aapc = Main.CachedAlivePlayerControls().ToList();
+                var aapc = Main.AllAlivePlayerControlsToList;
                 bool bc = disaster.Name == "BuildingCollapse";
                 bool spawnOnPlayer = aapc.Count > 0 && DisasterSpawnMode.GetValue() switch
                 {

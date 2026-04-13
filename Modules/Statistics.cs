@@ -274,9 +274,9 @@ public static class Statistics
             {
                 if (GameStates.IsEnded) return;
 
-                var aapc = Main.EnumerateAlivePlayerControls();
+                var aapc = Main.CachedAlivePlayerControls();
 
-                if (aapc.Count() == 2 && lp.IsAlive() && aapc.All(x => x.IsNeutralKiller() || x.IsImpostor()))
+                if (aapc.Count == 2 && lp.IsAlive() && aapc.All(x => x.IsNeutralKiller() || x.IsImpostor()))
                     Achievements.Type.Duel.Complete();
             }, 12f, log: false);
         }

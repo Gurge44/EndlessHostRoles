@@ -42,8 +42,7 @@ public class Main : BasePlugin
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "7.4.1";
-    public const string PluginDisplayVersion = "7.4.2";
-    public const string Temp = "Optimization Test V8.1";
+    public const string PluginDisplayVersion = "7.4.1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -248,13 +247,18 @@ public class Main : BasePlugin
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
 
-    //public static PlayerControl[] AllPlayerControls => EnumeratePlayerControls().ToArray();
-    //public static PlayerControl[] AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
+    public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
+    public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
+    public static List<PlayerControl> AllPlayerControlsToList => CachedAllPlayerControlsList.ToList();
+    public static List<PlayerControl> AllAlivePlayerControlsToList => CachedAlivePlayerControlsList.ToList();
+
+    public static int AllPlayerControlsCount => CachedAllPlayerControlsList.Count;
+    public static int AllAlivePlayerControlsCount => CachedAlivePlayerControlsList.Count;
 
 
     // ################# - WARNING!!! - #####################
     // Don't use Enumerate(Alive)PlayerControls if it updates every frame or every second
-    // Better use CachedAll/AlivePlayerControls, but in LateTask and Coroutines (Async) functions need use "for (...)" loop
+    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions need use "for (...)" loop
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
         foreach (var pc in PlayerControl.AllPlayerControls)
@@ -305,7 +309,7 @@ public class Main : BasePlugin
         //Logger.Info("Alive Count: " + CachedAlivePlayerControlsList.Count, "RebuildPlayerControl");
     }
     // ################# - WARNING!!! - #####################
-    // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in LateTask and Coroutines (Async) functions
+    // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in Coroutines (Async) functions
     // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
     // ######################################
     public static List<PlayerControl> CachedAllPlayerControls()
@@ -890,7 +894,6 @@ public class Main : BasePlugin
         IRandom.SetInstance(new NetRandomWrapper());
 
         Logger.Info($"{Application.version}", "AmongUs Version");
-        Logger.Info(Temp, "Test Optimized Build");
 
         LogHandler handler = Logger.Handler("GitVersion");
         handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");

@@ -1131,7 +1131,7 @@ internal static class IntroCutsceneDestroyPatch
         PreventKill = true;
         LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
 
-        var apc = Main.EnumeratePlayerControls();
+        var apc = Main.AllPlayerControlsToList;
 
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
@@ -1141,9 +1141,9 @@ internal static class IntroCutsceneDestroyPatch
         {
             LateTask.New(() => apc.DoIf(x => x && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
             
-            var aapc = Main.EnumerateAlivePlayerControls();
+            var aapc = Main.AllAlivePlayerControlsToList;
 
-            Utils.NumSnapToCallsThisRound = aapc.Count();
+            Utils.NumSnapToCallsThisRound = aapc.Count;
             
             if (Main.NormalOptions.MapId != 4)
             {

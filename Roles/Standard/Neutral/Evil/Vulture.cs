@@ -200,7 +200,7 @@ public class Vulture : RoleBase
             var pc = x.GetPlayer();
             if (!pc || !pc.IsAlive()) return;
 
-            if (ChangeRoleWhenCantWin.GetBool() && Main.CachedAlivePlayerControls().Count - 1 <= NumberOfReportsToWin.GetInt() - vulture.TotalEaten)
+            if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControlsCount - 1 <= NumberOfReportsToWin.GetInt() - vulture.TotalEaten)
             {
                 CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
                 pc.RpcSetCustomRole(role);

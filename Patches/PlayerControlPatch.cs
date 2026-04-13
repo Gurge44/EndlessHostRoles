@@ -212,7 +212,7 @@ internal static class CheckMurderPatch
                     return false;
                 case CustomGameMode.HotPotato:
                     (byte holderID, byte lastHolderID) = HotPotato.GetState();
-                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.CachedAlivePlayerControls().Count <= 2))
+                    if (HotPotato.CanPassViaKillButton && holderID == killer.PlayerId && (lastHolderID != target.PlayerId || Main.AllAlivePlayerControlsCount <= 2))
                         HotPotato.FixedUpdatePatch.PassHotPotato(target, false);
                     return false;
                 case CustomGameMode.Mingle:
@@ -1724,22 +1724,19 @@ internal static class FixedUpdatePatch
                 {
                     List<CustomRoles> subRoles = playerState.SubRoles;
 
-                    if (!lowLoad)
-                    {
-                        if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
-                        if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-                        if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
-                        if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
-                        if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
-                    }
+                    if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
+                    if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
+                    if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
+                    if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
                 }
                 
-                if (self && inTask && alive && !lowLoad)
+                if (inTask && alive && !lowLoad)
                     Asthmatic.OnFixedUpdate();
 
                 if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))

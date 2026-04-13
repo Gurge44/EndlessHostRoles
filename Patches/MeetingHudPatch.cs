@@ -183,7 +183,7 @@ internal static class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() != null && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
-                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.CachedAlivePlayerControls().Count > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
+                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
                 {
@@ -511,7 +511,7 @@ internal static class CheckForEndVotingPatch
 
                 name += (impnum, neutralnum, covennum) switch
                 {
-                    (0, 0, 0) when sum == 0 && !Main.EnumerateAlivePlayerControls().Any(x => x.IsConverted()) && !(Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() && (Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool() || neutralnum == 0) && Main.CachedAlivePlayerControls().Count >= Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt()) => "\n" + GetString("GG"),
+                    (0, 0, 0) when sum == 0 && !Main.EnumerateAlivePlayerControls().Any(x => x.IsConverted()) && !(Options.SpawnAdditionalRenegadeOnImpsDead.GetBool() && (Options.SpawnAdditionalRenegadeWhenNKAlive.GetBool() || neutralnum == 0) && Main.AllAlivePlayerControlsCount >= Options.SpawnAdditionalRenegadeMinAlivePlayers.GetInt()) => "\n" + GetString("GG"),
                     (0, 0, 0) when sum > 0 => string.Empty,
                     _ => "\n" + Utils.GetRemainingKillers(true, excludeId: exileId)
                 };
@@ -652,7 +652,7 @@ internal static class ExtendedMeetingHud
                 }
 
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
-                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.CachedAlivePlayerControls().Count > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
+                if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) voteNum += Magistrate.ExtraVotes.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
@@ -1044,7 +1044,7 @@ internal static class MeetingHudStartPatch
                 {
                     if (!MeetingHud.Instance || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding) return;
 
-                    var aapc = Main.EnumerateAlivePlayerControls();
+                    var aapc = Main.AllAlivePlayerControlsToList;
                     bool restrictions = Options.GuesserNumRestrictions.GetBool();
                     bool meetingSSForGuessing = Options.UseMeetingShapeshiftForGuessing.GetBool();
 
