@@ -24,6 +24,11 @@
 
 ---
 
+> [!IMPORTANT]
+> **Our webapp domain was changed from `gurge44.pythonanywhere.com` to `app.gurge44.eu`**
+
+---
+
 ### Regarding this mod
 
 <div align="left">
