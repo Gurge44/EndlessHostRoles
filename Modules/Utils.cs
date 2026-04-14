@@ -2768,16 +2768,24 @@ public static class Utils
                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode0;
 
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
-                if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
+                
+                if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId))
+                    SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
 
-                if (Roles.Lightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
+                if (Roles.Lightning.IsGhost(seer))
+                    SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lightning), "■"));
 
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gaslighter.GetMark(seer, seer, forMeeting));
                 SelfMark.Append(Demon.TargetMark(seer, seer));
                 SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
-                if (Silencer.ForSilencer.Contains(seer.PlayerId) && forMeeting) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
+                
+                if (Silencer.ForSilencer.Contains(seer.PlayerId) && forMeeting)
+                    SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
 
+                if (Main.PlayerStates[seer.PlayerId].Role is CovenBase { HasNecronomicon: true })
+                    SelfMark.Append($" <{Main.CovenColor}>♤</color>");
+                
                 GameMode0:
 
                 List<string> additionalSuffixes = [];
