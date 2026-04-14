@@ -121,6 +121,7 @@ public static class OptionsMenuBehaviourStartPatch
 
                 static void Unload()
                 {
+                    if (ClientControlGUI.Instance) Object.Destroy(ClientControlGUI.Instance);
                     MainMenuManagerPatch.ShowRightPanelImmediately();
 
                     Main.Instance.Harmony.UnpatchSelf();
