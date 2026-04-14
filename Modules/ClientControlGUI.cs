@@ -460,7 +460,7 @@ public class ClientControlGUI : MonoBehaviour
             });
 
         bool canZoom = Zoom.CanZoom;
-        bool canNoClip = canMove && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && (!GameStartManager.Instance || GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting);
+        bool canNoClip = canMove && Main.IntroDestroyed && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && (!GameStartManager.Instance || GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting);
         bool canToggleHud = Main.IntroDestroyed && !inMeeting && !ExileController.Instance && !ReportDeadBodyPatch.MeetingStarted;
 
         if (canZoom || canNoClip || canToggleHud)
