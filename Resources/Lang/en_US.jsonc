@@ -9566,7 +9566,7 @@
     Task Settings          
   ============================== */
   "Disable8ballCommand": "Disable /8ball command",
-  "EightballCommandIndexes": "Number of responses for /8ball command (Use the custom translate file to import additional responses. The response will be blank if no responses are imported)",
+  "EightballCommandIndexes": "Number of responses for /8ball command (Use the custom translate file to import additional responses. These responses will return blank if no definitions are made)",
   "DisableActivateWeatherNodes": "Disable Weather Nodes Task",
   "DisableAirshipCamera": "Disable Cameras",
   "DisableAirshipCargoLightsPanel": "Disable Cargo Lights Panel (<color=#ed0007>Airship</color>)",
