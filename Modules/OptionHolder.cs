@@ -2324,9 +2324,6 @@ public static class Options
         Disable8ballCommand = new BooleanOptionItem(22813, "Disable8ballCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
-        EightballCommandIndexes = new IntegerOptionItem(22817, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
-            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
         DisableVoteStartCommand = new BooleanOptionItem(22814, "DisableVoteStartCommand", false, TabGroup.GameSettings)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         
@@ -2996,6 +2993,9 @@ public static class Options
 
         LadderDeathChance = new StringOptionItem(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings)
             .SetParent(LadderDeath);
+
+        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 97;
 
