@@ -423,7 +423,7 @@ internal static class TitleLogoPatch
         };
 
         foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)
-            kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
+            kvp.Key.ForEach(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
 
         try { mainButtons.Keys.Flatten().DoIf(x => x, x => x.buttonText.color = Color.white); }
         catch { }

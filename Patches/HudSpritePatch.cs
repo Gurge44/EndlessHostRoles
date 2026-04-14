@@ -1,6 +1,4 @@
 using System;
-using System.Formats.Asn1;
-using System.Runtime.InteropServices;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Patches;
@@ -716,7 +714,12 @@ public static class HudSpritePatch
                 }
             }
 
-            if (usesPetInsteadOfKill) newPetButton = newKillButton;
+            if (usesPetInsteadOfKill)
+                newPetButton = newKillButton;
+
+            // shows default pet button if the ability can't be used yet due to cooldowns
+            if (player.HasAbilityCD())
+                newPetButton = DefaultIcons[4];
             
             SetButtonColors();
 

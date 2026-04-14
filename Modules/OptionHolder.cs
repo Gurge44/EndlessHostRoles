@@ -251,6 +251,7 @@ public static class Options
     public static OptionItem DisableWhisperCommand;
     public static OptionItem DisableSpectateCommand;
     public static OptionItem Disable8ballCommand;
+    public static OptionItem EightballCommandIndexes;
     public static OptionItem DisableVoteStartCommand;
     public static OptionItem DisableVentingOn1v1;
     public static OptionItem DisableSabotagingOn1v1;
@@ -2995,6 +2996,9 @@ public static class Options
 
         LadderDeathChance = new StringOptionItem(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings)
             .SetParent(LadderDeath);
+
+        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 97;
 

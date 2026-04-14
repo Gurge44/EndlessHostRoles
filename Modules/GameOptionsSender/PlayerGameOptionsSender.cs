@@ -411,11 +411,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             {
                 case CustomRoleTypes.Impostor:
                     AURoleOptions.ShapeshifterCooldown = Options.DefaultShapeshiftCooldown.GetFloat();
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
-                    break;
-                case CustomRoleTypes.Neutral:
-                case CustomRoleTypes.Crewmate:
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                     break;
             }
 

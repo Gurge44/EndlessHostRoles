@@ -296,7 +296,7 @@ public static class KingOfTheZones
         int teams = NumTeams.GetInt();
         int zones = NumZones.GetInt();
 
-        FixedUpdatePatch.NumTeamsCache = teams;
+        FixedUpdatePatch.NumTeamsCache = teams + 1;
 
         PlayerTeams = aapc
             .Select(x => x.PlayerId)
@@ -856,8 +856,9 @@ public static class KingOfTheZones
                         {
                             if (player.IsInRoom(zone))
                             {
-                                zoneInfo[zone].TeamCounts[team]++;
-                                zoneInfo[zone].Players.Add((player.PlayerId, team));
+                                (int[] TeamCounts, List<(byte Id, int Team)> Players) info = zoneInfo[zone];
+                                info.TeamCounts[team]++;
+                                info.Players.Add((player.PlayerId, team));
                             }
                         }
                     }

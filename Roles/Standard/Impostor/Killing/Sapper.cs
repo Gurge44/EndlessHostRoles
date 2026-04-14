@@ -19,6 +19,8 @@ public class Sapper : RoleBase
     private static OptionItem CanSabotage;
     private static OptionItem CanKill;
     private static OptionItem CooldownsResetEachOther;
+    private static OptionItem AbilityUseLimit;
+    private static OptionItem AbilityUseGainWithEachKill;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -46,6 +48,14 @@ public class Sapper : RoleBase
         
         CooldownsResetEachOther = new BooleanOptionItem(Id + 16, "CooldownsResetEachOther", true, TabGroup.ImpostorRoles)
             .SetParent(CanKill);
+
+        AbilityUseLimit = new FloatOptionItem(Id + 17, "AbilityUseLimit", new(0, 20, 0.05f), 1, TabGroup.ImpostorRoles)
+            .SetParent(CanKill)
+            .SetValueFormat(OptionFormat.Times);
+
+        AbilityUseGainWithEachKill = new FloatOptionItem(Id + 18, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
+            .SetParent(CanKill)
+            .SetValueFormat(OptionFormat.Times);
     }
 
     public override void Init()
@@ -56,6 +66,7 @@ public class Sapper : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+        if (CanKill.GetBool()) playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
     public override void Remove(byte playerId)
@@ -113,7 +124,15 @@ public class Sapper : RoleBase
     private static bool PlaceBomb(PlayerControl pc)
     {
         if (!pc.IsAliveWithConditions()) return false;
-        if (CanKill.GetBool() && CooldownsResetEachOther.GetBool()) pc.SetKillCooldown();
+
+        if (CanKill.GetBool())
+        {
+            if (pc.GetAbilityUseLimit() < 1) return false;
+            pc.RpcRemoveAbilityUse();
+
+            if (CooldownsResetEachOther.GetBool())
+                pc.SetKillCooldown();
+        }
         Vector2 pos = pc.Pos();
         CountdownTimer timer = null;
         timer = new CountdownTimer(Delay.GetInt(), () =>

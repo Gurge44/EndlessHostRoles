@@ -2035,6 +2035,9 @@ internal static class FixedUpdatePatch
                 if (seer.Is(CustomRoles.Sonar)) AdditionalSuffixes.Add(Sonar.GetSuffix(seer, GameStates.IsMeeting));
                 if (seer.Is(CustomRoles.Deadlined)) AdditionalSuffixes.Add(Deadlined.GetSuffix(seer));
                 if (seer.Is(CustomRoles.Allergic)) AdditionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
+
+                if (localPlayerState.Role is CovenBase { HasNecronomicon: true })
+                    Mark.Append(" <").Append(Main.CovenColor).Append(">♤</color>");
             }
 
             switch (Options.CurrentGameMode)

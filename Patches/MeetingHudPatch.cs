@@ -1152,6 +1152,9 @@ internal static class MeetingHudStartPatch
             if (!seer.IsAlive() && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
                 NameText.Append(CustomRoles.Medic.ColoredTextByRole(" ●"));
 
+            if (seer.PlayerId == target.PlayerId && Main.PlayerStates[seer.PlayerId].Role is CovenBase { HasNecronomicon: true })
+                NameText.Append(" <").Append(Main.CovenColor).Append(">♤</color>");
+
             NameText.Append(Follower.TargetMark(seer, target))
                 .Append(Romantic.TargetMark(seer, target))
                 .Append(Lawyer.LawyerMark(seer, target))

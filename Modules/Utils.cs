@@ -2767,16 +2767,22 @@ public static class Utils
                     seerIsLover = (loverIdFirst == seerId) || (loverIdSecond == seerId);
                 }
 
-                if (seerIsLover) 
+                if (seerIsLover)
                     SelfMark.Append(CustomRoles.Lovers.ColoredTextByRole(" ♥"));
 
-                if (Roles.Lightning.IsGhost(seer)) SelfMark.Append(CustomRoles.Lightning.ColoredTextByRole("■"));
+                if (Roles.Lightning.IsGhost(seer))
+                    SelfMark.Append(CustomRoles.Lightning.ColoredTextByRole("■"));
 
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gaslighter.GetMark(seer, seer, forMeeting));
                 SelfMark.Append(Demon.TargetMark(seer, seer));
                 SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
-                if (Silencer.ForSilencer.Contains(seer.PlayerId) && forMeeting) SelfMark.Append(CustomRoles.Silencer.ColoredTextByRole("╳"));
+                
+                if (Silencer.ForSilencer.Contains(seer.PlayerId) && forMeeting) 
+                    SelfMark.Append(CustomRoles.Silencer.ColoredTextByRole("╳"));
+
+                if (Main.PlayerStates[seer.PlayerId].Role is CovenBase { HasNecronomicon: true })
+                    SelfMark.Append(" <").Append(Main.CovenColor).Append(">♤</color>");
 
                 GameMode0:
 

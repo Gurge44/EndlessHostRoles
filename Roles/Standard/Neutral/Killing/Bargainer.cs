@@ -334,7 +334,7 @@ internal class Bargainer : RoleBase
 
         bool wasInShop = InShop;
         InShop = ShopLocations.Any(x => FastVector2.DistanceWithinRange(pc.Pos(), x, DisableDevice.UsableDistance));
-        Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, InShop);
+        if (wasInShop != InShop) Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, InShop);
 
         switch (wasInShop)
         {
