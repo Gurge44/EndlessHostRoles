@@ -22,6 +22,7 @@ internal static class PingTrackerUpdatePatch
     private static readonly float[] FpsBuffer = new float[10];
     private static int FpsIndex;
     private static int FpsCount;
+    private static Color32 FpsColor = new(0, 165, 255, 255);
 
     public static bool Prefix(PingTracker __instance)
     {
@@ -93,7 +94,7 @@ internal static class PingTrackerUpdatePatch
                 fps < 10f ? Color.red :
                 fps < 25f ? Color.yellow :
                 fps < 50f ? Color.green :
-                new Color32(0, 165, 255, 255);
+                FpsColor;
 
             AppendSeparator(inGame);
 

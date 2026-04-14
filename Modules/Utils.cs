@@ -2617,13 +2617,15 @@ public static class Utils
 
         const int frameBudget = 3; // milliseconds per frame
         var stopwatch = new Stopwatch();
-        var aapc = Main.EnumerateAlivePlayerControls();
+        var aapc = Main.CachedAlivePlayerControls();
 
-        foreach (PlayerControl seer in aapc)
+        for (int seerIndex = 0; seerIndex < aapc.Count; seerIndex++)
         {
-            foreach (PlayerControl target in aapc)
+            PlayerControl seer = aapc[seerIndex];
+            for (int targetIndex = 0; targetIndex < aapc.Count; targetIndex++)
             {
                 if (GameStates.IsMeeting || ReportDeadBodyPatch.MeetingStarted) yield break;
+                PlayerControl target = aapc[targetIndex];
                 var sender = CustomRpcSender.Create("Utils.NotifyEveryoneAsync", sendOption, log: false);
                 var hasValue = WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], [target], out bool senderWasCleared, sendOption) && !senderWasCleared;
                 sender.SendMessage(!hasValue || sender.stream.Length <= 3);
@@ -4424,7 +4426,8 @@ public static class Utils
         int all = Revolutionist.RevolutionistDrawCount.GetInt();
         var players = Main.CachedAlivePlayerControls();
         int max = players.Count;
-        winnerList = [];
+        winnerList = null; // Don't allocate memory unnecessarily
+        int drawn = 0;
 
         if (!Main.PlayerStates[playerId].IsDead) max--;
         if (all > max) all = max;
@@ -4433,9 +4436,13 @@ public static class Utils
         {
             PlayerControl pc = players[inedx];
             if (Revolutionist.IsDraw.GetValueOrDefault((playerId, pc.PlayerId)))
+            {
+                winnerList ??= [];
                 winnerList.Add(pc);
+                drawn++;
+            }
         }
-        return (winnerList.Count, all);
+        return (drawn, all);
     }
 
     public static string SummaryTexts(byte id, bool disableColor = true, bool check = false)
@@ -4683,14 +4690,21 @@ public static class Utils
     public static string RemoveHtmlTags(this string str)
     {
         if (string.IsNullOrEmpty(str)) return string.Empty;
-        if (str.IndexOf('<') == -1) return str;
+        int start = str.IndexOf('<');
+        if (start == -1) return str;
 
-        int len = str.Length;
-        char[] buffer = new char[len];
+        int length = str.Length;
+        char[] buffer = null;
         int idx = 0;
         bool insideTag = false;
 
-        for (int i = 0; i < len; i++)
+        if (start > 0)
+        {
+            buffer = new char[length];
+            str.CopyTo(0, buffer, 0, start);
+            idx = start;
+        }
+        for (int i = start; i < length; i++)
         {
             char c = str[i];
             if (c == '<')
@@ -4703,9 +4717,13 @@ public static class Utils
                 insideTag = false;
                 continue;
             }
-            if (!insideTag) buffer[idx++] = c;
+            if (!insideTag)
+            {
+                buffer ??= new char[length];
+                buffer[idx++] = c;
+            }
         }
-        return idx == len ? str : new string(buffer, 0, idx);
+        return idx == length ? str : new string(buffer, 0, idx);
     }
 
     public static void FlashColor(Color color, float duration = 1f)

@@ -273,8 +273,8 @@ public static class Quiz
         if (Chat) yield return new WaitForSecondsRealtime(1f);
 
         NoSuffix = true;
-        var aapc = Main.EnumerateAlivePlayerControls();
-        bool showTutorial = !SubmergedCompatibility.IsSubmerged() && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count() / 2;
+        var aapc = Main.AllAlivePlayerControlsToList;
+        bool showTutorial = !SubmergedCompatibility.IsSubmerged() && aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() > aapc.Count / 2;
 
         var usedRooms = string.Join('\n', UsedRooms[Main.CurrentMap].Select(x => $"{x.Key}: {GetString(x.Value.ToString())}"));
         aapc.NotifyPlayers(string.Format(GetString("Quiz.Tutorial.Basics"), usedRooms), 11f);

@@ -19,7 +19,7 @@ internal static class ControllerManagerUpdatePatch
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
     private static int ResolutionIndex;
 
-    // Cache KeyCode[] becouse the code checks the key array every frame
+    // Cache KeyCode[] because the code checks the key array every frame
     private static readonly KeyCode[] ReEnableGameplayKey = [KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X];
     private static readonly KeyCode[] ResolutionManagerKey = [KeyCode.LeftAlt, KeyCode.Return];
     private static readonly KeyCode[] ChangeReslutionsKey = [KeyCode.F11, KeyCode.LeftAlt];

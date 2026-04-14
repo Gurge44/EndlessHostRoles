@@ -351,7 +351,7 @@ public static class TheMindGame
         yield return NotifyEveryone("TMG.Notify.Round", 2, 1);
         if (Stop) yield break;
 
-        yield return NotifyEveryone("TMG.Tutorial.Round1", 12, TimeForEachPickInRound1, NumPointsToAdvanceInRound1, pcCount - MinPlayersInRound2);
+        yield return NotifyEveryone("TMG.Tutorial.Round1", 12, TimeForEachPickInRound1, NumPointsToAdvanceInRound1, Main.AllAlivePlayerControlsCount - MinPlayersInRound2);
         if (Stop) yield break;
 
         Main.EnumerateAlivePlayerControls().Do(x => x.RpcChangeRoleBasis(CustomRoles.PhantomEHR));

@@ -269,8 +269,11 @@ public class Main : BasePlugin
     }
     public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
-        return EnumeratePlayerControls()
-            .Where(pc => pc.IsAliveWithConditions());
+        foreach (var pc in PlayerControl.AllPlayerControls)
+        {
+            if (!pc.IsAliveWithConditions() || pc.PlayerId >= 254) continue;
+            yield return pc;
+        }
     }
 
     private static bool SetDirtyPlayer = true;

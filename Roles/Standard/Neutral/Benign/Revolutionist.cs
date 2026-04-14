@@ -215,12 +215,15 @@ internal class Revolutionist : RoleBase
                     {
                         Utils.GetDrawPlayerCount(playerId, out List<PlayerControl> y);
 
-                        foreach (PlayerControl pc in y)
+                        if (y != null)
                         {
-                            if (pc != null && pc.IsAlive())
+                            foreach (PlayerControl pc in y)
                             {
-                                pc.Suicide(PlayerState.DeathReason.Sacrifice);
-                                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                                if (pc != null && pc.IsAlive())
+                                {
+                                    pc.Suicide(PlayerState.DeathReason.Sacrifice);
+                                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                                }
                             }
                         }
 
@@ -244,7 +247,7 @@ internal class Revolutionist : RoleBase
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist);
             Utils.GetDrawPlayerCount(pc.PlayerId, out List<PlayerControl> x);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-            foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
+            if (x != null) foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
         }
     }
 
