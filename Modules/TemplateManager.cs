@@ -78,13 +78,14 @@ public static class TemplateManager
         public int Delay { get; init; }
         public bool Hidden { get; init; }
         public HashSet<MapNames> AllowedMaps { get; init; }
+        public HashSet<int> AllowedMeetings { get; init; }
         public HashSet<string> AllowedRoles { get; init; }
         public HashSet<string> AllowedRanks { get; init; }
         public HashSet<int> AllowedPresets { get; init; }
         public string PlayerCountOp { get; init; }
         public int PlayerCountVal { get; init; }
 
-        public bool MatchesContext() => MatchesMap() && MatchesPlayerCount() && MatchesPreset();
+        public bool MatchesContext() => MatchesMap() && MatchesMeeting() && MatchesPlayerCount() && MatchesPreset();
 
         public bool MatchesRole(PlayerControl player)
         {
@@ -119,7 +120,8 @@ public static class TemplateManager
         }
 
         private bool MatchesMap() => AllowedMaps == null || AllowedMaps.Contains(Main.CurrentMap);
-
+        private bool MatchesMeeting() => AllowedMeetings == null || AllowedMeetings.Contains(MeetingStates.MeetingNum);
+        
         private bool MatchesPlayerCount()
         {
             if (PlayerCountOp == null) return true;
@@ -255,6 +257,7 @@ public static class TemplateManager
         int delay = 0;
         bool hidden = props.ContainsKey("hidden");
         HashSet<MapNames> allowedMaps = null;
+        HashSet<int> allowedMeetings = null;
         HashSet<string> allowedRoles = null;
         HashSet<string> allowedRanks = null;
         HashSet<int> allowedPresets = null;
@@ -273,6 +276,14 @@ public static class TemplateManager
             foreach (string part in mapStr.TrimStart('=').Split('|'))
                 if (Enum.TryParse(part.Trim(), ignoreCase: true, out MapNames map))
                     allowedMaps.Add(map);
+        }
+
+        if (props.TryGetValue("meeting", out string meetingStr))
+        {
+            allowedMeetings = [];
+            foreach (string part in meetingStr.TrimStart('=').Split('|'))
+                if (int.TryParse(part.Trim(), out int meeting))
+                    allowedMeetings.Add(meeting);
         }
 
         if (props.TryGetValue("role", out string roleStr))
@@ -307,6 +318,7 @@ public static class TemplateManager
             Delay = delay,
             Hidden = hidden,
             AllowedMaps = allowedMaps,
+            AllowedMeetings = allowedMeetings,
             AllowedRoles = allowedRoles,
             AllowedRanks = allowedRanks,
             AllowedPresets = allowedPresets,

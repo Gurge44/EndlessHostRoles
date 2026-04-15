@@ -10,53 +10,73 @@ namespace EHR;
 
 public static class CollectionExtensions
 {
-    /// <summary>
-    ///     Returns the key of a dictionary by its value
-    /// </summary>
     /// <param name="dictionary">The <see cref="Dictionary{TKey,TValue}" /> to search</param>
-    /// <param name="value">The <typeparamref name="TValue" /> used to search for the corresponding key</param>
     /// <typeparam name="TKey">The type of the keys in the <paramref name="dictionary" /></typeparam>
     /// <typeparam name="TValue">The type of the values in the <paramref name="dictionary" /></typeparam>
-    /// <returns>
-    ///     The key of the <paramref name="dictionary" /> that corresponds to the given <paramref name="value" />, or the
-    ///     default value of <typeparamref name="TKey" /> if the <paramref name="value" /> is not found in the
-    ///     <paramref name="dictionary" />
-    /// </returns>
-    public static TKey GetKeyByValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
+    extension<TKey, TValue>(Dictionary<TKey, TValue> dictionary)
     {
-        foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+        /// <summary>
+        ///     Returns the key of a dictionary by its value
+        /// </summary>
+        /// <param name="value">The <typeparamref name="TValue" /> used to search for the corresponding key</param>
+        /// <returns>
+        ///     The key of the <paramref name="dictionary" /> that corresponds to the given <paramref name="value" />, or the
+        ///     default value of <typeparamref name="TKey" /> if the <paramref name="value" /> is not found in the
+        ///     <paramref name="dictionary" />
+        /// </returns>
+        public TKey GetKeyByValue(TValue value)
         {
-            if (pair.Value.Equals(value))
-                return pair.Key;
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            {
+                if (pair.Value.Equals(value))
+                    return pair.Key;
+            }
+
+            return default(TKey);
         }
 
-        return default(TKey);
-    }
+        /// <summary>
+        ///     Sets the value for all existing keys in a dictionary to a specific value
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetAllValues(TValue value)
+        {
+            foreach (TKey key in dictionary.Keys.ToArray())
+                dictionary[key] = value;
+        }
 
-    /// <summary>
-    ///     Sets the value for all existing keys in a dictionary to a specific value
-    /// </summary>
-    /// <param name="dictionary"></param>
-    /// <param name="value"></param>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    public static void SetAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
-    {
-        foreach (TKey key in dictionary.Keys.ToArray())
-            dictionary[key] = value;
-    }
+        /// <summary>
+        ///     Adjusts the value for all existing keys in a dictionary
+        /// </summary>
+        /// <param name="adjust">The function to adjust the values with</param>
+        public void AdjustAllValues(Func<TValue, TValue> adjust)
+        {
+            foreach (TKey key in dictionary.Keys.ToArray())
+                dictionary[key] = adjust(dictionary[key]);
+        }
 
-    /// <summary>
-    ///     Adjusts the value for all existing keys in a dictionary
-    /// </summary>
-    /// <param name="dictionary">The dictionary to adjust the values of</param>
-    /// <param name="adjust">The function to adjust the values with</param>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust)
-    {
-        foreach (TKey key in dictionary.Keys.ToArray())
-            dictionary[key] = adjust(dictionary[key]);
+        /// <summary>
+        ///     Adds a range of elements to a dictionary
+        /// </summary>
+        /// <param name="other">The dictionary containing the elements to add</param>
+        /// <param name="overrideExistingKeys">
+        ///     Whether to override existing keys in the <paramref name="dictionary" /> with the
+        ///     same keys in the <paramref name="other" /> dictionary. If <c>true</c>, the same keys in the
+        ///     <paramref name="dictionary" /> will be overwritten with the values from the <paramref name="other" /> dictionary.
+        ///     If <c>false</c>, the same keys in the <paramref name="dictionary" /> will be kept and the values from the
+        ///     <paramref name="other" /> dictionary will be ignored
+        /// </param>
+        /// <returns>The <paramref name="dictionary" /> with the elements from the <paramref name="other" /> dictionary added</returns>
+        public Dictionary<TKey, TValue> AddRange(Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
+        {
+            foreach ((TKey key, TValue value) in other)
+            {
+                if (overrideExistingKeys || !dictionary.ContainsKey(key))
+                    dictionary[key] = value;
+            }
+
+            return dictionary;
+        }
     }
 
     /// <summary>
@@ -74,141 +94,153 @@ public static class CollectionExtensions
         return collection[IRandom.Instance.Next(collection.Count)];
     }
 
-    /// <summary>
-    ///     Returns a random element from a collection
-    /// </summary>
     /// <param name="collection">The collection</param>
     /// <typeparam name="T">The type of the collection</typeparam>
-    /// <returns>
-    ///     A random element from the collection, or the default value of <typeparamref name="T" /> if the collection is
-    ///     empty
-    /// </returns>
-    public static T RandomElement<T>(this IEnumerable<T> collection)
+    extension<T>(IEnumerable<T> collection)
     {
-        if (collection is IReadOnlyList<T> list) return list.RandomElement();
-        return collection.ToList().RandomElement();
-    }
-
-    /// <summary>
-    ///     Combines multiple collections into a single collection
-    /// </summary>
-    /// <param name="firstCollection">The collection to start with</param>
-    /// <param name="collections">The other collections to add to <paramref name="firstCollection" /></param>
-    /// <typeparam name="T">The type of the elements in the collections to combine</typeparam>
-    /// <returns>
-    ///     A collection containing all elements of <paramref name="firstCollection" /> and all
-    ///     <paramref name="collections" />
-    /// </returns>
-    public static IEnumerable<T> CombineWith<T>(this IEnumerable<T> firstCollection, params IEnumerable<T>[] collections)
-    {
-        return firstCollection.Concat(collections.Flatten());
-    }
-
-    /// <summary>
-    ///     Executes an action for each element in a collection
-    /// </summary>
-    /// <param name="collection">The collection to iterate over</param>
-    /// <param name="action">The action to execute for each element</param>
-    /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
-    public static void Do<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Action<T> action)
-    {
-        if (collection is List<T> list)
+        /// <summary>
+        ///     Returns a random element from a collection
+        /// </summary>
+        /// <returns>
+        ///     A random element from the collection, or the default value of <typeparamref name="T" /> if the collection is
+        ///     empty
+        /// </returns>
+        public T RandomElement()
         {
-            for (var i = 0; i < list.Count; i++) action(list[i]);
-
-            return;
+            if (collection is IReadOnlyList<T> list) return list.RandomElement();
+            return collection.ToList().RandomElement();
         }
 
-        foreach (T element in collection) action(element);
-    }
+        /// <summary>
+        ///     Combines multiple collections into a single collection
+        /// </summary>
+        /// <param name="collections">The other collections to add to <paramref name="collection" /></param>
+        /// <returns>
+        ///     A collection containing all elements of <paramref name="collection" /> and all
+        ///     <paramref name="collections" />
+        /// </returns>
+        public IEnumerable<T> CombineWith(params IEnumerable<T>[] collections)
+        {
+            return collection.Concat(collections.Flatten());
+        }
 
-    /// <summary>
-    ///     Executes an action for each element in a collection if the predicate is true
-    /// </summary>
-    /// <param name="collection">The collection to iterate over</param>
-    /// <param name="fast">Whether to use a fast loop or linq</param>
-    /// <param name="predicate">The predicate to check for each element</param>
-    /// <param name="action">The action to execute for each element that satisfies the predicate</param>
-    /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
-    public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, [Annotations.InstantHandle] Action<T> action, bool fast = true)
-    {
-        if (fast)
+        /// <summary>
+        ///     Executes an action for each element in a collection
+        /// </summary>
+        /// <param name="action">The action to execute for each element</param>
+        [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+        public void Do([Annotations.InstantHandle] Action<T> action)
         {
             if (collection is List<T> list)
             {
-                for (var i = 0; i < list.Count; i++)
+                for (var i = 0; i < list.Count; i++) action(list[i]);
+
+                return;
+            }
+
+            foreach (T element in collection) action(element);
+        }
+
+        /// <summary>
+        ///     Executes an action for each element in a collection if the predicate is true
+        /// </summary>
+        /// <param name="fast">Whether to use a fast loop or linq</param>
+        /// <param name="predicate">The predicate to check for each element</param>
+        /// <param name="action">The action to execute for each element that satisfies the predicate</param>
+        [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+        public void DoIf(Func<T, bool> predicate, [Annotations.InstantHandle] Action<T> action, bool fast = true)
+        {
+            if (fast)
+            {
+                if (collection is List<T> list)
                 {
-                    T element = list[i];
-                    if (predicate(element)) action(element);
+                    for (var i = 0; i < list.Count; i++)
+                    {
+                        T element = list[i];
+                        if (predicate(element)) action(element);
+                    }
+
+                    return;
+                }
+
+                foreach (T element in collection)
+                {
+                    if (predicate(element))
+                        action(element);
                 }
 
                 return;
             }
 
+            collection.Where(predicate).ToArray().Do(action);
+        }
+
+        /// <summary>
+        ///     Splits a collection into two collections based on a predicate
+        /// </summary>
+        /// <param name="predicate">The predicate to split the collection by</param>
+        /// <returns>
+        ///     A tuple containing two collections: one with elements that satisfy the predicate, and one with elements that
+        ///     do not
+        /// </returns>
+        public (List<T> TrueList, List<T> FalseList) Split(Func<T, bool> predicate)
+        {
+            var list1 = new List<T>();
+            var list2 = new List<T>();
+
             foreach (T element in collection)
             {
                 if (predicate(element))
-                    action(element);
+                    list1.Add(element);
+                else
+                    list2.Add(element);
             }
 
-            return;
+            return (list1, list2);
         }
 
-        collection.Where(predicate).ToArray().Do(action);
-    }
-
-    /// <summary>
-    ///     Splits a collection into two collections based on a predicate
-    /// </summary>
-    /// <param name="collection">The collection to split</param>
-    /// <param name="predicate">The predicate to split the collection by</param>
-    /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    /// <returns>
-    ///     A tuple containing two collections: one with elements that satisfy the predicate, and one with elements that
-    ///     do not
-    /// </returns>
-    public static (List<T> TrueList, List<T> FalseList) Split<T>(this IEnumerable<T> collection, Func<T, bool> predicate)
-    {
-        var list1 = new List<T>();
-        var list2 = new List<T>();
-
-        foreach (T element in collection)
+        /// <summary>
+        ///     Determines whether a collection contains any elements that satisfy a predicate and returns the first element that
+        ///     satisfies the predicate
+        /// </summary>
+        /// <param name="predicate">The predicate to check for each element</param>
+        /// <param name="element">
+        ///     The first element that satisfies the predicate, or the default value of <typeparamref name="T" />
+        ///     if no elements satisfy the predicate
+        /// </param>
+        /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
+        [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
+        public bool FindFirst([Annotations.InstantHandle] Func<T, bool> predicate, out T element)
         {
-            if (predicate(element))
-                list1.Add(element);
-            else
-                list2.Add(element);
+            if (collection is List<T> list)
+            {
+                for (var i = 0; i < list.Count; i++)
+                {
+                    T item = list[i];
+
+                    if (predicate(item))
+                    {
+                        element = item;
+                        return true;
+                    }
+                }
+
+                element = default(T);
+                return false;
+            }
+
+            foreach (T item in collection)
+            {
+                if (predicate(item))
+                {
+                    element = item;
+                    return true;
+                }
+            }
+
+            element = default(T);
+            return false;
         }
-
-        return (list1, list2);
-    }
-
-    /// <summary>
-    ///     Adds a range of elements to a dictionary
-    /// </summary>
-    /// <param name="dictionary">The dictionary to add elements to</param>
-    /// <param name="other">The dictionary containing the elements to add</param>
-    /// <param name="overrideExistingKeys">
-    ///     Whether to override existing keys in the <paramref name="dictionary" /> with the
-    ///     same keys in the <paramref name="other" /> dictionary. If <c>true</c>, the same keys in the
-    ///     <paramref name="dictionary" /> will be overwritten with the values from the <paramref name="other" /> dictionary.
-    ///     If <c>false</c>, the same keys in the <paramref name="dictionary" /> will be kept and the values from the
-    ///     <paramref name="other" /> dictionary will be ignored
-    /// </param>
-    /// <typeparam name="TKey">The type of the keys in the dictionaries</typeparam>
-    /// <typeparam name="TValue">The type of the values in the dictionaries</typeparam>
-    /// <returns>The <paramref name="dictionary" /> with the elements from the <paramref name="other" /> dictionary added</returns>
-    public static Dictionary<TKey, TValue> AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
-    {
-        foreach ((TKey key, TValue value) in other)
-        {
-            if (overrideExistingKeys || !dictionary.ContainsKey(key))
-                dictionary[key] = value;
-        }
-
-        return dictionary;
     }
 
     /// <summary>
@@ -220,51 +252,6 @@ public static class CollectionExtensions
     public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
     {
         return collection.SelectMany(x => x);
-    }
-
-    /// <summary>
-    ///     Determines whether a collection contains any elements that satisfy a predicate and returns the first element that
-    ///     satisfies the predicate
-    /// </summary>
-    /// <param name="collection">The collection to search</param>
-    /// <param name="predicate">The predicate to check for each element</param>
-    /// <param name="element">
-    ///     The first element that satisfies the predicate, or the default value of <typeparamref name="T" />
-    ///     if no elements satisfy the predicate
-    /// </param>
-    /// <typeparam name="T">The type of the elements in the collection</typeparam>
-    /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
-    [Annotations.CollectionAccess(Annotations.CollectionAccessType.Read)]
-    public static bool FindFirst<T>(this IEnumerable<T> collection, [Annotations.InstantHandle] Func<T, bool> predicate, out T element)
-    {
-        if (collection is List<T> list)
-        {
-            for (var i = 0; i < list.Count; i++)
-            {
-                T item = list[i];
-
-                if (predicate(item))
-                {
-                    element = item;
-                    return true;
-                }
-            }
-
-            element = default(T);
-            return false;
-        }
-
-        foreach (T item in collection)
-        {
-            if (predicate(item))
-            {
-                element = item;
-                return true;
-            }
-        }
-
-        element = default(T);
-        return false;
     }
 
     public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
@@ -317,7 +304,7 @@ public static class CollectionExtensions
     /// <returns></returns>
     public static IEnumerable<PlayerControl> ToValidPlayers(this IEnumerable<byte> playerIds)
     {
-        return playerIds.Select(Utils.GetPlayer).Where(x => x != null);
+        return playerIds.Select(Utils.GetPlayer).Where(x => x);
     }
 
     /// <summary>
@@ -327,7 +314,7 @@ public static class CollectionExtensions
     /// <returns></returns>
     public static List<PlayerControl> ToValidPlayers(this List<byte> playerIds)
     {
-        return playerIds.ConvertAll(Utils.GetPlayer).FindAll(x => x != null);
+        return playerIds.ConvertAll(Utils.GetPlayer).FindAll(x => x);
     }
 
     #endregion

@@ -544,7 +544,7 @@ public static class CaptureTheFlag
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam);
+        return pc.IsValidTargetForKillButton() && (!PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam);
     }
 
     private static void SendRPC()
@@ -585,43 +585,46 @@ public static class CaptureTheFlag
         }
     }
 
-    private static Color GetTeamColor(this CTFTeam team)
+    extension(CTFTeam team)
     {
-        return team switch
+        private Color GetTeamColor()
         {
-            CTFTeam.Blue => Color.blue,
-            CTFTeam.Yellow => Color.yellow,
-            _ => Color.white
-        };
-    }
+            return team switch
+            {
+                CTFTeam.Blue => Color.blue,
+                CTFTeam.Yellow => Color.yellow,
+                _ => Color.white
+            };
+        }
 
-    private static string GetTeamName(this CTFTeam team)
-    {
-        return team switch
+        private string GetTeamName()
         {
-            CTFTeam.Blue => Translator.GetString("CTF_BlueTeamWins"),
-            CTFTeam.Yellow => Translator.GetString("CTF_YellowTeamWins"),
-            _ => string.Empty
-        };
-    }
+            return team switch
+            {
+                CTFTeam.Blue => Translator.GetString("CTF_BlueTeamWins"),
+                CTFTeam.Yellow => Translator.GetString("CTF_YellowTeamWins"),
+                _ => string.Empty
+            };
+        }
 
-    private static CTFTeam GetOppositeTeam(this CTFTeam team)
-    {
-        return team switch
+        private CTFTeam GetOppositeTeam()
         {
-            CTFTeam.Blue => CTFTeam.Yellow,
-            _ => CTFTeam.Blue
-        };
-    }
+            return team switch
+            {
+                CTFTeam.Blue => CTFTeam.Yellow,
+                _ => CTFTeam.Blue
+            };
+        }
 
-    private static (Vector2 Position, string RoomName) GetFlagBase(this CTFTeam team)
-    {
-        return team switch
+        private (Vector2 Position, string RoomName) GetFlagBase()
         {
-            CTFTeam.Blue => BlueFlagBase,
-            CTFTeam.Yellow => YellowFlagBase,
-            _ => (Vector2.zero, string.Empty)
-        };
+            return team switch
+            {
+                CTFTeam.Blue => BlueFlagBase,
+                CTFTeam.Yellow => YellowFlagBase,
+                _ => (Vector2.zero, string.Empty)
+            };
+        }
     }
 
     private enum CTFTeam

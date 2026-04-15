@@ -208,34 +208,37 @@ public static class KingOfTheZones
             .SetColor(color);
     }
 
-    private static Color GetColor(this KOTZTeam team)
+    extension(KOTZTeam team)
     {
-        return team switch
+        private Color GetColor()
         {
-            KOTZTeam.Red => Color.red,
-            KOTZTeam.Yellow => Color.yellow,
-            KOTZTeam.Blue => Color.cyan,
-            KOTZTeam.Green => Color.green,
-            KOTZTeam.Tan => Palette.Brown,
-            KOTZTeam.Rose => Color.magenta,
-            KOTZTeam.Orange => Palette.Orange,
-            _ => Color.white
-        };
-    }
+            return team switch
+            {
+                KOTZTeam.Red => Color.red,
+                KOTZTeam.Yellow => Color.yellow,
+                KOTZTeam.Blue => Color.cyan,
+                KOTZTeam.Green => Color.green,
+                KOTZTeam.Tan => Palette.Brown,
+                KOTZTeam.Rose => Color.magenta,
+                KOTZTeam.Orange => Palette.Orange,
+                _ => Color.white
+            };
+        }
 
-    private static byte GetColorId(this KOTZTeam team)
-    {
-        return team switch
+        private byte GetColorId()
         {
-            KOTZTeam.Red => 0,
-            KOTZTeam.Yellow => 5,
-            KOTZTeam.Blue => 10,
-            KOTZTeam.Green => 11,
-            KOTZTeam.Tan => 16,
-            KOTZTeam.Rose => 13,
-            KOTZTeam.Orange => 4,
-            _ => 7
-        };
+            return team switch
+            {
+                KOTZTeam.Red => 0,
+                KOTZTeam.Yellow => 5,
+                KOTZTeam.Blue => 10,
+                KOTZTeam.Green => 11,
+                KOTZTeam.Tan => 16,
+                KOTZTeam.Rose => 13,
+                KOTZTeam.Orange => 4,
+                _ => 7
+            };
+        }
     }
 
     public static void Init()
@@ -650,7 +653,7 @@ public static class KingOfTheZones
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!PlayerTeams.TryGetValue(pc.PlayerId, out KOTZTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out KOTZTeam lpTeam) || team != lpTeam);
+        return pc.IsValidTargetForKillButton() && (!PlayerTeams.TryGetValue(pc.PlayerId, out KOTZTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out KOTZTeam lpTeam) || team != lpTeam);
     }
 
     private static void SendRPC()

@@ -2505,14 +2505,22 @@ public static class Utils
         return add;
     }
 
-    public static string ColoredPlayerName(this byte id)
+    extension(byte id)
     {
-        return ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, GetPlayerById(id)?.GetRealName() ?? $"Someone (ID {id})"));
-    }
+        public string ColoredPlayerName()
+        {
+            return ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, GetPlayerById(id)?.GetRealName() ?? $"Someone (ID {id})"));
+        }
 
-    public static PlayerControl GetPlayer(this byte id)
-    {
-        return GetPlayerById(id);
+        public PlayerControl GetPlayer()
+        {
+            return GetPlayerById(id);
+        }
+
+        public bool IsPlayerModdedClient()
+        {
+            return Main.PlayerVersion.ContainsKey(id);
+        }
     }
 
     public static PlayerControl GetPlayerById(int playerId, bool fast = true)
@@ -4976,11 +4984,6 @@ public static class Utils
                 count++;
         }
         return count;
-    }
-
-    public static bool IsPlayerModdedClient(this byte id)
-    {
-        return Main.PlayerVersion.ContainsKey(id);
     }
 
     // The minimum number of seconds that should be waited between two CheckMurder calls
