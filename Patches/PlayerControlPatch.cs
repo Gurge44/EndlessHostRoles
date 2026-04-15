@@ -1319,7 +1319,7 @@ internal static class ReportDeadBodyPatch
                 if (tpc && !tpc.IsAlive())
                 {
                     if (player.Is(CustomRoles.Forensic) && player.PlayerId != target.PlayerId)
-                        Forensic.OnReportDeadBody(player, target.Object);
+                        Forensic.OnReportDeadBody(player, tpc);
                     else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
                     {
                         string msg = string.Format(GetString("SleuthMsg"), tpc.GetRealName(), tpc.GetDisplayRoleName());
@@ -1333,8 +1333,8 @@ internal static class ReportDeadBodyPatch
                 if (QuizMaster.On)
                 {
                     QuizMaster.Data.LastReporterName = player.GetRealName();
-                    QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), target.Object);
-                    if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
+                    QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), tpc);
+                    if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = tpc.GetRealName();
                 }
             
                 if (player.Is(CustomRoles.Looter))
@@ -1342,9 +1342,21 @@ internal static class ReportDeadBodyPatch
 
                 if (player.Is(CustomRoles.Absorber))
                 {
-                    float give = target.PlayerId.GetAbilityUseLimit();
-                    if (give < 1f)  player.RpcIncreaseAbilityUseLimitBy(give);
-                    else player.RpcIncreaseAbilityUseLimitBy(1f);
+                    float uses = tpc.GetAbilityUseLimit();
+
+                    if (!float.IsNaN(uses) && uses > 0f)
+                    {
+                        if (uses < 1f)
+                        {
+                            player.RpcIncreaseAbilityUseLimitBy(uses);
+                            tpc.SetAbilityUseLimit(0f);
+                        }
+                        else
+                        {
+                            player.RpcIncreaseAbilityUseLimitBy(1f);
+                            tpc.RpcRemoveAbilityUse();
+                        }
+                    }
                 }
             }
 
