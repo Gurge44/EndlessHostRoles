@@ -154,7 +154,67 @@ internal static class Logger
 
 public class CustomLogger
 {
-    public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_Logs" : "BepInEx", "log.html");
+    private static string cachedLogPath;
+    private static string cachedLogPathPlain;
+    private static bool pathsInitialized;
+
+    public static string LOGFilePath
+    {
+        get
+        {
+            if (!pathsInitialized) UpdateCachedPaths();
+            return cachedLogPath;
+        }
+    }
+
+    public static string LOGFilePathPlain
+    {
+        get
+        {
+            if (!pathsInitialized) UpdateCachedPaths();
+            return cachedLogPathPlain;
+        }
+    }
+
+    public static void UpdateCachedPaths()
+    {
+        try
+        {
+            string basePath;
+
+
+            if (OperatingSystem.IsAndroid())
+            {
+                basePath = Path.Combine(Main.DataPath, "EHR_Logs");
+                if (string.IsNullOrEmpty(Main.DataPath) || Main.DataPath == ".")
+                {
+                    basePath = Path.Combine(Application.persistentDataPath, "EHR_Logs");
+                }
+            }
+            else
+            {
+                bool isDesktop = Options.LogDirectoryMode?.GetBool() ?? true;
+                basePath = isDesktop
+                    ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "EHR_Logs")
+                    : Path.Combine(Main.DataPath, "EHR_Logs");
+            }
+
+
+            if (!Directory.Exists(basePath)) Directory.CreateDirectory(basePath);
+
+            cachedLogPath = Path.Combine(basePath, "log.html");
+            cachedLogPathPlain = Path.Combine(basePath, "log.txt");
+            pathsInitialized = true;
+        }
+        catch (Exception e)
+        {
+            // Fallback to a safe location if everything fails
+            cachedLogPath = Path.Combine(Application.persistentDataPath, "log.html");
+            cachedLogPathPlain = Path.Combine(Application.persistentDataPath, "log.txt");
+            pathsInitialized = true;
+            UnityEngine.Debug.LogError($"[EHR] Failed to update log paths: {e}");
+        }
+    }
 
     private const string HtmlHeader =
         """
@@ -190,21 +250,16 @@ public class CustomLogger
 
     private static CustomLogger PrivateInstance;
     private float timer = 1f;
+    private bool isDirty;
 
-    private readonly StringBuilder Builder;
+    private readonly StringBuilder Builder = new();
+    private readonly StringBuilder PlainBuilder = new();
 
     private CustomLogger()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(LOGFilePath) ?? throw new InvalidOperationException());
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
-        else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
-        {
-            ClearLog(false);
-            PrivateInstance ??= new();
-            LateTask.New(() => Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped."), 0.1f, log: false);
-        }
+        if (!File.Exists(LOGFilePathPlain)) File.WriteAllText(LOGFilePathPlain, string.Empty);
 
-        Builder = new();
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
@@ -214,15 +269,17 @@ public class CustomLogger
     {
         if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
         {
-            PrivateInstance?.Finish();
+            Instance.Finish(false);
             Utils.DumpLog(false, false);
         }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);
+        File.WriteAllText(LOGFilePathPlain, string.Empty);
     }
 
     public void Log(string level, string message, bool multiLine = false)
     {
+        string plainMessage = message;
         if (multiLine) message = message.Replace("\\n", "<br>");
 
         if (message.Contains("<b")) message += "</b>";
@@ -237,6 +294,11 @@ public class CustomLogger
                         """;
 
         Builder.Append(logEntry);
+        PlainBuilder.AppendLine(plainMessage);
+        
+        isDirty = true;
+        timer = 1f; // Reset inactivity timer
+
 #if DEBUG
         Finish(false);
 #endif
@@ -244,24 +306,64 @@ public class CustomLogger
 
     private IEnumerator InactivityCheck()
     {
-        while (timer > 0)
+        while (true)
         {
-            timer -= Time.deltaTime;
+            if (timer > 0)
+            {
+                timer -= Time.deltaTime;
+            }
+            else if (isDirty)
+            {
+                CheckSizeAndFlush();
+            }
             yield return null;
         }
-
-        Finish(false);
     }
 
-    public void Finish(bool dump = true)
+    private void CheckSizeAndFlush()
     {
-        var append = Builder.ToString();
-        if (string.IsNullOrWhiteSpace(append)) return;
-        if (dump) append += HtmlFooter;
-        File.AppendAllText(LOGFilePath, append);
-        PrivateInstance = null;
-#if DEBUG
-        Main.Instance.StopCoroutine(InactivityCheck());
-#endif
+        try
+        {
+            // Auto-clear if HTML log file is too large (4MB)
+            if (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024)
+            {
+                ClearLog(false);
+                LateTask.New(() => Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped."), 0.1f, log: false);
+            }
+            
+            Finish(false);
+        }
+        catch { /* Ignore I/O errors during background flush */ }
+    }
+
+    public void Finish(bool closeHtml = true)
+    {
+        if (!isDirty && !closeHtml) return;
+
+        try
+        {
+            string htmlContent = Builder.ToString();
+            string plainContent = PlainBuilder.ToString();
+
+            if (!string.IsNullOrEmpty(htmlContent))
+            {
+                File.AppendAllText(LOGFilePath, htmlContent);
+                Builder.Clear();
+            }
+
+            if (!string.IsNullOrEmpty(plainContent))
+            {
+                File.AppendAllText(cachedLogPathPlain, plainContent);
+                PlainBuilder.Clear();
+            }
+
+            if (closeHtml)
+            {
+                File.AppendAllText(LOGFilePath, HtmlFooter);
+            }
+        }
+        catch { /* Ignore I/O errors during finish */ }
+        
+        isDirty = false;
     }
 }

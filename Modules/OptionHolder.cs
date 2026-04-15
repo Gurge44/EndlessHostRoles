@@ -851,6 +851,7 @@ public static class Options
     public static OptionItem AutoReadyCheckCommandCooldown;
     
     public static OptionItem DumpLogAfterGameEnd;
+    public static OptionItem LogDirectoryMode;
 
     private static readonly string[] SuffixModes =
     [
@@ -1701,6 +1702,12 @@ public static class Options
 
         DumpLogAfterGameEnd = new BooleanOptionItem(19327, "DumpLogAfterGameEnd", true, TabGroup.SystemSettings)
             .SetColor(Color.yellow);
+
+        LogDirectoryMode = new BooleanOptionItem(19328, "LogDirectoryMode", true, TabGroup.SystemSettings);
+        LogDirectoryMode.RegisterUpdateValueEvent((_, _, _) => CustomLogger.UpdateCachedPaths());
+
+
+
 
         EndWhenPlayerBug = new BooleanOptionItem(19318, "EndWhenPlayerBug", true, TabGroup.SystemSettings)
             .SetHeader(true)

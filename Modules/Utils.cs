@@ -4128,8 +4128,8 @@ public static class Utils
 
             var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
             
-            FileInfo[] files = [new(Path.Combine(Paths.BepInExRootPath, "LogOutput.log")), new(CustomLogger.LOGFilePath)];
-            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+            FileInfo[] files = [new(Path.Combine(Paths.BepInExRootPath, "LogOutput.log")), new(CustomLogger.LOGFilePath), new(CustomLogger.LOGFilePathPlain)];
+            files.Do(x => { if (x.Exists) x.CopyTo($"{filename}{x.Extension}", true); });
 
             if (!open) return;
 
