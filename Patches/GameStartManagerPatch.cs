@@ -627,6 +627,7 @@ internal static class UnrestrictedNumImpostorsPatch
 {
     public static bool Prefix(ref int __result)
     {
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return true;
         __result = Main.NormalOptions.NumImpostors;
         return false;
     }
