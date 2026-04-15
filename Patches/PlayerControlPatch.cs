@@ -1342,7 +1342,7 @@ internal static class ReportDeadBodyPatch
 
                 if (player.Is(CustomRoles.Absorber))
                 {
-                    float give = GetAbilityUseLimit(target.PlayerId);
+                    float give = target.PlayerId.GetAbilityUseLimit();
                     if (give < 1f)  player.RpcIncreaseAbilityUseLimitBy(give);
                     else player.RpcIncreaseAbilityUseLimitBy(1f);
                 }
