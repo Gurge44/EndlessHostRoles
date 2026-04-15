@@ -691,6 +691,7 @@ public class Main : BasePlugin
                 { CustomRoles.Aide, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
+                { CustomRoles.Absorber, "#29f5a0" },
                 { CustomRoles.Allergic, "#e3bd56" },
                 { CustomRoles.Introvert, "#6293e3" },
                 { CustomRoles.Deadlined, "#ffa500" },
