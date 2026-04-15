@@ -1339,6 +1339,13 @@ internal static class ReportDeadBodyPatch
             
                 if (player.Is(CustomRoles.Looter))
                     tpc.GetCustomSubRoles().FindAll(x => !player.Is(x) && !x.IsGhostRole() && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, player)).ForEach(x => player.RpcSetCustomRole(x));
+
+                if (player.Is(CustomRoles.Absorber))
+                {
+                    float give = target.PlayerId.GetAbilityUseLimit();
+                    if (give < 1f)  player.RpcIncreaseAbilityUseLimitBy(give);
+                    else player.RpcIncreaseAbilityUseLimitBy(1f);
+                }
             }
 
             if (QuizMaster.On)

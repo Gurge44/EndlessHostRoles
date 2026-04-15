@@ -503,6 +503,7 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
+    Absorber,
     Aide,
     Allergic,
     Anchor,
