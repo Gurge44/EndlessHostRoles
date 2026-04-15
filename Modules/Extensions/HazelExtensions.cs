@@ -7,47 +7,53 @@ public static class HazelExtensions
 {
     // -------------------------------------------------------------------------------------------------------------------------
 
-    public static void Write(this MessageWriter writer, Vector2 vector)
+    extension(MessageWriter writer)
     {
-        NetHelpers.WriteVector2(vector, writer);
-    }
+        public void Write(Vector2 vector)
+        {
+            NetHelpers.WriteVector2(vector, writer);
+        }
 
-    public static void Write(this MessageWriter writer, Vector3 vector)
-    {
-        writer.Write(vector.x);
-        writer.Write(vector.y);
-        writer.Write(vector.z);
-    }
+        public void Write(Vector3 vector)
+        {
+            writer.Write(vector.x);
+            writer.Write(vector.y);
+            writer.Write(vector.z);
+        }
 
-    public static void Write(this MessageWriter writer, Color color)
-    {
-        writer.Write(color.r);
-        writer.Write(color.g);
-        writer.Write(color.b);
-        writer.Write(color.a);
+        public void Write(Color color)
+        {
+            writer.Write(color.r);
+            writer.Write(color.g);
+            writer.Write(color.b);
+            writer.Write(color.a);
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------------------------
 
-    public static Vector2 ReadVector2(this MessageReader reader)
+    extension(MessageReader reader)
     {
-        return NetHelpers.ReadVector2(reader);
-    }
+        public Vector2 ReadVector2()
+        {
+            return NetHelpers.ReadVector2(reader);
+        }
 
-    public static Vector3 ReadVector3(this MessageReader reader)
-    {
-        float x = reader.ReadSingle();
-        float y = reader.ReadSingle();
-        float z = reader.ReadSingle();
-        return new(x, y, z);
-    }
+        public Vector3 ReadVector3()
+        {
+            float x = reader.ReadSingle();
+            float y = reader.ReadSingle();
+            float z = reader.ReadSingle();
+            return new(x, y, z);
+        }
 
-    public static Color ReadColor(this MessageReader reader)
-    {
-        float r = reader.ReadSingle();
-        float g = reader.ReadSingle();
-        float b = reader.ReadSingle();
-        float a = reader.ReadSingle();
-        return new(r, g, b, a);
+        public Color ReadColor()
+        {
+            float r = reader.ReadSingle();
+            float g = reader.ReadSingle();
+            float b = reader.ReadSingle();
+            float a = reader.ReadSingle();
+            return new(r, g, b, a);
+        }
     }
 }
