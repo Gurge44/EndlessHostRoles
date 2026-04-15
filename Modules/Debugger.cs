@@ -154,7 +154,26 @@ internal static class Logger
 
 public class CustomLogger
 {
-    public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_Logs" : "BepInEx", "log.html");
+    public static string LOGFilePath
+    {
+        get
+        {
+            if (Options.LogDirectoryMode != null)
+            {
+                int mode = Options.LogDirectoryMode.GetInt();
+                string basePath = mode switch
+                {
+                    1 => Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                    2 => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    3 when Main.LogDirectory != null && !string.IsNullOrWhiteSpace(Main.LogDirectory.Value) => Main.LogDirectory.Value,
+                    _ => Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_Logs" : "BepInEx")
+                };
+                return Path.Combine(basePath, "log.html");
+            }
+            return Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_Logs" : "BepInEx", "log.html");
+        }
+    }
+    public static string LOGFilePathPlain => LOGFilePath.Replace(".html", ".log");
 
     private const string HtmlHeader =
         """
@@ -192,19 +211,16 @@ public class CustomLogger
     private float timer = 1f;
 
     private readonly StringBuilder Builder;
+    private readonly StringBuilder PlainBuilder;
 
     private CustomLogger()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(LOGFilePath) ?? throw new InvalidOperationException());
         if (!File.Exists(LOGFilePath)) File.WriteAllText(LOGFilePath, HtmlHeader);
-        else if (Options.IsLoaded && new FileInfo(LOGFilePath).Length > 4 * 1024 * 1024) // 4 MB
-        {
-            ClearLog(false);
-            PrivateInstance ??= new();
-            LateTask.New(() => Logger.SendInGame("The size of the log file exceeded 4 MB and was dumped."), 0.1f, log: false);
-        }
+        if (!File.Exists(LOGFilePathPlain)) File.WriteAllText(LOGFilePathPlain, string.Empty);
 
         Builder = new();
+        PlainBuilder = new();
         Main.Instance.StartCoroutine(InactivityCheck());
     }
 
@@ -219,10 +235,12 @@ public class CustomLogger
         }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);
+        File.WriteAllText(LOGFilePathPlain, string.Empty);
     }
 
     public void Log(string level, string message, bool multiLine = false)
     {
+        var rawMessage = message;
         if (multiLine) message = message.Replace("\\n", "<br>");
 
         if (message.Contains("<b")) message += "</b>";
@@ -237,6 +255,7 @@ public class CustomLogger
                         """;
 
         Builder.Append(logEntry);
+        PlainBuilder.AppendLine($"[{level}] {rawMessage.Replace("<br>", "\n")}");
 #if DEBUG
         Finish(false);
 #endif
@@ -255,10 +274,14 @@ public class CustomLogger
 
     public void Finish(bool dump = true)
     {
-        var append = Builder.ToString();
-        if (string.IsNullOrWhiteSpace(append)) return;
-        if (dump) append += HtmlFooter;
-        File.AppendAllText(LOGFilePath, append);
+        if (Builder.Length == 0) return;
+
+        File.AppendAllText(LOGFilePath, Builder.ToString());
+        File.AppendAllText(LOGFilePathPlain, PlainBuilder.ToString());
+        Builder.Clear();
+        PlainBuilder.Clear();
+
+        if (dump) File.AppendAllText(LOGFilePath, HtmlFooter);
         PrivateInstance = null;
 #if DEBUG
         Main.Instance.StopCoroutine(InactivityCheck());

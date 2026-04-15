@@ -615,7 +615,7 @@ internal static class ChatCommands
         if (args.Length < 2 || !float.TryParse(args[1], out float scale) || scale == 0f) return;
         HudManagerStartPatch.TryResizeUI(scale);
     }
-    
+
     private static void SelectCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;

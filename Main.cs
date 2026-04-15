@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -209,6 +209,8 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> TryFixStuttering { get; private set; }
     public static ConfigEntry<bool> ShowClientControlGUI { get; private set; }
     public static ConfigEntry<float> UIScaleFactor { get; private set; }
+    public static ConfigEntry<string> LogDirectory { get; private set; }
+    public static ConfigEntry<bool> StayClean { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -303,6 +305,20 @@ public class Main : BasePlugin
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
         ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
+        LogDirectory = Config.Bind("Logging", "Custom Log Directory", string.Empty, "If specified, EHR_Logs will be saved in this directory. If empty, the default directory will be used.");
+        StayClean = Config.Bind("Logging", "Stay Clean", false, "If true, BepInEx's LogOutput.log will not be created.");
+
+        if (StayClean.Value)
+        {
+            foreach (var listener in BepInEx.Logging.Logger.Listeners)
+            {
+                if (listener.GetType().Name == "DiskLogListener")
+                {
+                    BepInEx.Logging.Logger.Listeners.Remove(listener);
+                    break;
+                }
+            }
+        }
 
         AddComponent<ClientControlGUI>();
         Log.LogInfo("ClientControlGUI registered");

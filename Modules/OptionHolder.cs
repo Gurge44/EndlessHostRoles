@@ -186,6 +186,14 @@ public static class Options
         "CamouflageMode.TommyXL"
     ];
 
+    public static readonly string[] LogDirectoryModes =
+    [
+        "LogDirectoryMode.Default",
+        "LogDirectoryMode.Desktop",
+        "LogDirectoryMode.Documents",
+        "LogDirectoryMode.Custom"
+    ];
+
     public static readonly string[] PetToAssign =
     [
         "pet_Goose",
@@ -795,6 +803,7 @@ public static class Options
     public static OptionItem KickLowLevelPlayer;
     public static OptionItem ApplyBanList;
     public static OptionItem ApplyModeratorList;
+    public static OptionItem LogDirectoryMode;
     public static OptionItem ApplyVIPList;
     public static OptionItem ApplyAdminList;
     public static OptionItem AutoWarnStopWords;
@@ -1624,6 +1633,7 @@ public static class Options
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
         ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
+        LogDirectoryMode = new StringOptionItem(650005, "LogDirectoryMode", LogDirectoryModes, 0, TabGroup.SystemSettings);
         ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);
         ApplyAdminList = new BooleanOptionItem(19330, "ApplyAdminList", true, TabGroup.SystemSettings);
 
