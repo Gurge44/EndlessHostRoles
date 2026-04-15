@@ -287,6 +287,7 @@ internal static class ChangeRoleSettings
             {
                 (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
                 int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
+                if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) optImpNum = Math.Clamp(optImpNum, 1, 3);
                 GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = optImpNum;
                 GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, optImpNum);
             }

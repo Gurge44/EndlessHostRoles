@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Attributes;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using TMPro;
 using UnityEngine;
 
@@ -97,7 +97,7 @@ internal static class Crowded
                     playerButton.OnClick.AddListener((Action)(() =>
                     {
                         byte maxPlayers = byte.Parse(text.text);
-                        int maxImp = Mathf.Min(__instance.GetTargetOptions().NumImpostors, maxPlayers / 2);
+                        int maxImp = Math.Clamp(Mathf.Min(__instance.GetTargetOptions().NumImpostors, maxPlayers / 2), 1, 3);
                         __instance.GetTargetOptions().SetInt(Int32OptionNames.NumImpostors, maxImp);
                         __instance.ImpostorButtons[1].TextMesh.text = maxImp.ToString();
                         __instance.SetMaxPlayersButtons(maxPlayers);

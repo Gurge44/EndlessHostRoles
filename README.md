@@ -650,7 +650,7 @@ When using this integration, we collect the following non-personal information:
 - **Map Name:** The name of the map selected for the game (e.g., Skeld, Polus, Submerged).
 - **Game Mode:** The selected game mode (e.g., Standard, Room Rush, Free For All, Bed Wars).
 - **Lobby Status:** The current status of the lobby (e.g., In Lobby, In Game, Ended).
-- **Hashed PUID of the Host:** An encrypted version of the host's product user ID (see below), if `I have an EHR account linked to my discord account, send my hashed PUID to let discord users identify me` is enabled in System Settings, otherwise this field is left empty.
+- **EOS UserIdToken:** The user's EOS User ID Token.
 
 Furthermore, the following information is collected to enhance the user experience:
 
@@ -666,7 +666,9 @@ Furthermore, the following information is collected to enhance the user experien
 The collected information is used solely for the following purposes:
 
 - To notify players about available lobbies via the designated Discord server.
+- To make sure, that only genuine players can create lobbies on our server (prevent DDoS and fake data spam).
 - To update the status of the lobby in real time, enhancing coordination among players.
+- To provide lobby-management features for hosts, and track hosting statistics on Discord.
 - To ensure, that progress in custom achievements isn't lost when updating or reinstalling the mod.
 
 **No personal data** or any other information beyond what is listed above is collected or processed.

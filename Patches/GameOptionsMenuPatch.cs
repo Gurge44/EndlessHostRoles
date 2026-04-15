@@ -2,15 +2,15 @@ using System;
 using System.Collections;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
+using EHR.Roles;
 using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using EHR.Roles;
-using EHR.Gamemodes;
 
 // ReSharper disable PossibleLossOfFraction
 
@@ -672,7 +672,7 @@ public static class NumberOptionPatch
                 __instance.Increment = 0.05f;
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 break;
-            case StringNames.GameNumImpostors:
+            case StringNames.GameNumImpostors when GameStates.CurrentServerType != GameStates.ServerType.Vanilla:
                 __instance.ValidRange = new(0, Crowded.MaxImpostors);
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
