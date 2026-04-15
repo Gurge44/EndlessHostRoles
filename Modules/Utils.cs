@@ -2658,8 +2658,8 @@ public static class Utils
             if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
             var apc = Main.CachedAllPlayerControls();
-            if (SpecifySeer) SeerList = [SpecifySeer]; else SeerList = apc;
-            if (SpecifyTarget) TargetList = [SpecifyTarget]; else TargetList = apc;
+            SeerList = SpecifySeer ? [SpecifySeer] : apc;
+            TargetList = SpecifyTarget ? [SpecifyTarget] : apc;
 
             var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
             var hasValue = false;
@@ -4793,12 +4793,7 @@ public static class Utils
     private static readonly Dictionary<Color32, string> ColorPrefixCache = [];
     public static string ColorString(Color32 color, string str)
     {
-        if (!ColorPrefixCache.TryGetValue(color, out var prefix))
-        {
-            prefix = $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>";
-            ColorPrefixCache[color] = prefix;
-        }
-        return prefix + str + "</color>";
+        return ColorPrefix(color) + str + "</color>";
     }
     public static string ColorPrefix(Color32 color)
     {

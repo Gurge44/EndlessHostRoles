@@ -160,9 +160,9 @@ internal class Impartial : RoleBase
         }
 
         resultText
-            .Append($" <{Main.ImpostorColor}>{ImpKillCount.Killed}/{ImpKillCount.Limit}</color>")
-            .Append($" <{Main.NeutralColor}>{NeutralKillCount.Killed}/{NeutralKillCount.Limit}</color>")
-            .Append($" <{Main.CrewmateColor}>{CrewKillCount.Killed}/{CrewKillCount.Limit}</color>")
-            .Append($" <{Main.CovenColor}>{CovenKillCount.Killed}/{CovenKillCount.Limit}</color>");
+            .Append(" <").Append(Main.ImpostorColor).Append('>').Append(ImpKillCount.Killed).Append('/').Append(ImpKillCount.Limit).Append("</color>")
+            .Append(" <").Append(Main.NeutralColor).Append('>').Append(NeutralKillCount.Killed).Append('/').Append(NeutralKillCount.Limit).Append("</color>")
+            .Append(" <").Append(Main.CrewmateColor).Append('>').Append(CrewKillCount.Killed).Append('/').Append(CrewKillCount.Limit).Append("</color>")
+            .Append(" <").Append(Main.CovenColor).Append('>').Append(CovenKillCount.Killed).Append('/').Append(CovenKillCount.Limit).Append("</color>");
     }
 }

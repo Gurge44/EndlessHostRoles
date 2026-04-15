@@ -104,7 +104,7 @@ internal static class Logger
             if (level == LogLevel.Message) NowDetailedErrorLog.Clear();
         }
 
-        CustomLogger.Instance.Log(level.ToString(), LogText.ToString(), multiLine);
+        CustomLogger.Instance.Log(level.ToString(), LogText, multiLine);
     }
 
     public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false)
@@ -224,14 +224,24 @@ public class CustomLogger
         File.WriteAllText(LOGFilePath, HtmlHeader);
     }
 
-    public void Log(string level, string message, bool multiLine = false)
+    public void Log(string level, StringBuilder message, bool multiLine = false)
     {
-        if (multiLine) message = message.Replace("\\n", "<br>");
+        if (multiLine) message.Replace("\\n", "<br>");
 
-        if (message.Contains("<b")) message += "</b>";
-        if (message.Contains("<u")) message += "</u>";
-        if (message.Contains("<i")) message += "</i>";
-        if (message.Contains("<s")) message += "</s>";
+        bool hasB = false, hasU = false, hasI = false, hasS = false;
+        for (int i = 0; i < message.Length - 2; i++)
+        {
+            if (message[i] != '<') continue;
+            char c = message[i + 1];
+            if (c == 'b') hasB = true;
+            else if (c == 'u') hasU = true;
+            else if (c == 'i') hasI = true;
+            else if (c == 's') hasS = true;
+        }
+        if (hasB) message.Append("</b>");
+        if (hasU) message.Append("</u>");
+        if (hasI) message.Append("</i>");
+        if (hasS) message.Append("</s>");
 
         Builder.Append($"""
                         <div class='log-entry {level.ToLower()}'>

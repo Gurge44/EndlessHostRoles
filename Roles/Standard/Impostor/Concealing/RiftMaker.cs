@@ -98,7 +98,7 @@ public class RiftMaker : RoleBase
         }
 
         long now = TimeStamp;
-        if (now - LastTP < 5) return;
+        if (LastTP + 5 > now) return;
 
         Vector2 pos = player.Pos();
         var near0 = FastVector2.DistanceWithinRange(mark0, pos, 1f);

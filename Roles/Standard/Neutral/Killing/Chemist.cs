@@ -414,25 +414,6 @@ internal class Chemist : RoleBase
                 }
             }
         }
-
-        //if (AcidPlayers.TryGetValue(pc.PlayerId, out (HashSet<byte> OtherAcidPlayers, long TimeStamp) acidPlayers))
-        //{
-        //    Main.EnumerateAlivePlayerControls()
-        //        .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
-        //        .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, 2.5f))
-        //        .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
-        //}
-
-        //if (Grenades.TryGetValue(pc.PlayerId, out long ts) && ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
-        //{
-        //    Grenades.Remove(pc.PlayerId);
-
-        //    float radius = GrenadeExplodeRadius.GetFloat();
-
-        //    Main.EnumerateAlivePlayerControls()
-        //        .Where(x => x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && ChemistPC.RpcCheckAndMurder(x, true))
-        //        .Do(x => x.Suicide(realKiller: ChemistPC));
-        //}
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
