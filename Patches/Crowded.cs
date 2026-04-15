@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Attributes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using static EHR.GameStates;
 
 namespace EHR.Patches;
 
@@ -18,7 +19,7 @@ internal static class Crowded
 {
     private static CreateOptionsPicker Instance;
     public static readonly int MaxImpostors = GameOptionsManager.Instance.currentHostOptions.MaxPlayers / 2;
-    private static int MaxPlayers => GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? 15 : 127;
+    private static int MaxPlayers => CurrentServerType == ServerType.Vanilla ? 15 : 127;
 
     [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Awake))]
     public static class CreateOptionsPickerAwake
@@ -28,7 +29,7 @@ internal static class Crowded
         {
             Instance = __instance;
 
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            if (CurrentServerTypeInCreateMenu == ServerType.Vanilla)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null)
                 {
@@ -161,7 +162,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix()
         {
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            if (CurrentServerType == ServerType.Vanilla)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
                     GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
@@ -352,22 +353,37 @@ internal static class Crowded
 
     [HarmonyPatch(typeof(PSManager), nameof(PSManager.CreateGame))]
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.ContinueStart))]
+    [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.Confirm))]
     public static class BeforeHostGamePatch
     {
         public static void Prefix()
         {
-            Logger.Info("Host Game is being called!", "Crowded");
+            Logger.Info($"Host Game is being called! Region: {CurrentServerTypeInCreateMenu}", "CreateGameOptions");
+            if (CurrentServerTypeInCreateMenu != ServerType.Vanilla) return;
 
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !GameStates.IsLocalGame)
+            var GameHostOptions = GameOptionsManager.Instance.GameHostOptions;
+            var CurrentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
+            if (GameHostOptions != null)
             {
-                if (GameOptionsManager.Instance.GameHostOptions != null)
-                {
-                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
+                if (GameHostOptions.MaxPlayers > 15)
+                    GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
 
-                    if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3)
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
-                }
+                if (GameHostOptions.NumImpostors > 3)
+                    GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
+
+                if (GameHostOptions.NumImpostors < 1)
+                    GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 1);
+            }
+            if (CurrentGameOptions != null)
+            {
+                if (CurrentGameOptions.MaxPlayers > 15)
+                    CurrentGameOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
+
+                if (CurrentGameOptions.NumImpostors > 3)
+                    CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, 3);
+
+                if (CurrentGameOptions.NumImpostors < 1)
+                    CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, 1);
             }
         }
     }

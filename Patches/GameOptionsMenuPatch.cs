@@ -672,8 +672,9 @@ public static class NumberOptionPatch
                 __instance.Increment = 0.05f;
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 break;
-            case StringNames.GameNumImpostors when GameStates.CurrentServerType != GameStates.ServerType.Vanilla:
-                __instance.ValidRange = new(0, Crowded.MaxImpostors);
+            case StringNames.GameNumImpostors:
+                __instance.ValidRange = GameStates.CurrentServerType != GameStates.ServerType.Vanilla 
+                    ? new(0, Crowded.MaxImpostors) : new(1, 3);
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
                 break;

@@ -4527,13 +4527,13 @@ public static class Utils
         catch (Exception e) { ThrowException(e); }
     }
 
-    public static string GetRegionName(IRegionInfo region = null)
+    public static string GetRegionName(IRegionInfo region = null, bool ignoreNetworkMode = false)
     {
         region ??= ServerManager.Instance.CurrentRegion;
 
         string name = region.Name;
 
-        if (AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+        if (!ignoreNetworkMode && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
         {
             name = "Local Game";
             return name;

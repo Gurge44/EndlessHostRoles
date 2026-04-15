@@ -564,6 +564,23 @@ public static class GameStates
             };
         }
     }
+    public static ServerType CurrentServerTypeInCreateMenu
+    {
+        get
+        {
+            if (IsFreePlay) return ServerType.Local;
+
+            string regionName = Utils.GetRegionName(ignoreNetworkMode: true);
+
+            return regionName switch
+            {
+                "Local Game" => ServerType.Custom,
+                "EU" or "NA" or "AS" => ServerType.Vanilla,
+                "MEU" or "MAS" or "MNA" => ServerType.Modded,
+                _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
+            };
+        }
+    }
 
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance;
