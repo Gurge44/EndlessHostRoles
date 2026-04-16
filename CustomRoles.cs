@@ -598,6 +598,7 @@ public enum CustomRoles
     Stressed,
     Swift,
     Sunglasses,
+    Talkative,
     Taskcounter,
     TaskMaster,
     Tiebreaker,

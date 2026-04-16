@@ -256,6 +256,7 @@ internal static class ChangeRoleSettings
             Introvert.TeleportAwayDelays = [];
             Onbound.NumBlocked = [];
             Blessed.ShieldActive = [];
+            Talkative.NumMessagesThisMeeting = [];
 
             try
             {

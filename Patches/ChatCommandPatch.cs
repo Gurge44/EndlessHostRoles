@@ -497,9 +497,7 @@ internal static class ChatCommands
         }
         
         if (!canceled)
-        {
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
-        }
 
         return !canceled;
     }
