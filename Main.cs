@@ -675,6 +675,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Urgent, "#D49255" },
                 { CustomRoles.Talkative, "#6ADEDE" },
                 { CustomRoles.Blessed, "#7bfbff" },
                 { CustomRoles.Hidden, "#E2EAF4" },

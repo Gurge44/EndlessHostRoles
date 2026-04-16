@@ -609,6 +609,7 @@ public enum CustomRoles
     Undead,
     Underdog,
     Unlucky,
+    Urgent,
     Venom,
     Warden, // Ghost role
     Watcher,

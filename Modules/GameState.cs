@@ -204,6 +204,9 @@ public class PlayerState(byte playerId)
             case CustomRoles.BananaMan when Main.IntroDestroyed && !SubRoles.Contains(CustomRoles.BananaMan):
                 LateTask.New(() => Utils.RpcChangeSkin(Player, new()), 0.2f, log: false);
                 break;
+            case CustomRoles.Urgent when !SubRoles.Contains(CustomRoles.Urgent):
+                Main.NumEmergencyMeetingsUsed[PlayerId]--;
+                break;
         }
 
         if (replaceAll)
