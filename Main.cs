@@ -433,6 +433,7 @@ public class Main : BasePlugin
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Tar, "#8C796B" },
                 { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },
                 { CustomRoles.Captain, "#53B3EF" },

@@ -270,6 +270,7 @@ public enum CustomRoles
     Spy,
     SuperStar,
     Swapper,
+    Tar,
     TaskManager,
     Telekinetic,
     Tether,

@@ -40,6 +40,7 @@ internal static class CustomRolesHelper
         CustomRoles.Doorjammer,
         CustomRoles.Carrier,
         CustomRoles.Empress,
+        CustomRoles.Tar,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -245,6 +246,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Farmer => CustomRoles.Crewmate,
                 CustomRoles.Captain => CustomRoles.Crewmate,
                 CustomRoles.Transmitter => CustomRoles.Crewmate,
+                CustomRoles.Tar => CustomRoles.Crewmate,
                 CustomRoles.Sensor => CustomRoles.Crewmate,
                 CustomRoles.Doorjammer => CustomRoles.Crewmate,
                 CustomRoles.Tree => CustomRoles.Crewmate,
@@ -1342,6 +1344,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Ricochet => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Safeguard => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.SuperStar => RoleOptionType.Crewmate_Miscellaneous,
+                CustomRoles.Tar => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Tether => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Transmitter => RoleOptionType.Crewmate_Miscellaneous,
                 CustomRoles.Tracefinder => RoleOptionType.Crewmate_Miscellaneous,
