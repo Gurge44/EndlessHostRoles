@@ -683,6 +683,7 @@ public class Main : BasePlugin
                 { CustomRoles.Looter, "#F5D866" },
                 { CustomRoles.Tired, "#ff1919" },
                 { CustomRoles.Concealer, "#ff1919" },
+                { CustomRoles.Constricted, "#c561ec" },
                 { CustomRoles.Composter, "#8D6F64" },
                 { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },
