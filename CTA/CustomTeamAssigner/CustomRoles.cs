@@ -530,6 +530,7 @@ public enum CustomRoles
     Compelled,
     Composter,
     Concealer,
+    Constricted,
     Contagious,
     Damocles,
     Deadlined,
