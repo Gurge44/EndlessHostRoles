@@ -354,6 +354,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                                 opt.SetInt(Int32OptionNames.KillDistance, 2);
                                 break;
                             }
+                            case CustomRoles.Constricted:
+                            {
+                                opt.SetInt(Int32OptionNames.KillDistance, 0);
+                                break;
+                            }
                             case CustomRoles.Madmate:
                             {
                                 opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
