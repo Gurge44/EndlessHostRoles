@@ -1472,32 +1472,38 @@ internal static class ReportDeadBodyPatch
         {
             Main.ProcessShapeshifts = false;
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            void Action()
             {
-                try
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
-                    if (pc.IsAlive())
+                    try
                     {
-                        if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                            Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
-
-                        if (Magistrate.CallCourtNextMeeting)
+                        if (pc.IsAlive())
                         {
-                            string name = pc.GetRealName();
-                            RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
-                        }
+                            if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                                Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
 
-                        if (Main.CheckShapeshift.ContainsKey(pc.PlayerId))
-                            pc.RpcShapeshift(pc, false);
-                        
-                        if (pc.Is(CustomRoles.Truant))
-                            Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                            if (Magistrate.CallCourtNextMeeting)
+                            {
+                                string name = pc.GetRealName();
+                                RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                            }
+
+                            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId))
+                                pc.RpcShapeshift(pc, false);
+
+                            if (pc.Is(CustomRoles.Truant))
+                                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                        }
+                        else if (!pc.Data.IsDead && (!pc.AmOwner || !TempReviveHostRunning))
+                            pc.RpcExileV2();
                     }
-                    else if (!pc.Data.IsDead && (!pc.AmOwner || !TempReviveHostRunning))
-                        pc.RpcExileV2();
+                    catch (Exception e) { ThrowException(e); }
                 }
-                catch (Exception e) { ThrowException(e); }
             }
+
+            if (!Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting) Action();
+            else CombineSendTimeLowering(Action);
 
             RPCHandlerPatch.RemoveExpiredWhiteList();
 

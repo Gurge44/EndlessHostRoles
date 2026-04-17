@@ -319,13 +319,16 @@ public static class CaptureTheFlag
 
         void ResetSkins()
         {
-            foreach ((byte key, NetworkedPlayerInfo.PlayerOutfit outfit) in DefaultOutfits)
+            Utils.CombineSendTimeLowering(() =>
             {
-                PlayerControl pc = key.GetPlayer();
+                foreach ((byte key, NetworkedPlayerInfo.PlayerOutfit outfit) in DefaultOutfits)
+                {
+                    PlayerControl pc = key.GetPlayer();
 
-                if (pc && outfit != null)
-                    Utils.RpcChangeSkin(pc, outfit);
-            }
+                    if (pc && outfit != null)
+                        Utils.RpcChangeSkin(pc, outfit);
+                }
+            });
         }
     }
 

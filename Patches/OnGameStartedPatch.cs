@@ -1142,8 +1142,9 @@ internal static class StartGameHostPatch
                     yield return null;
 
             pc.Data.Disconnected = true;
-            pc.Data.SendGameData();
         }
+        
+        Utils.SendGameData();
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
@@ -1159,12 +1160,13 @@ internal static class StartGameHostPatch
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
-            if (pc == null || pc.Data == null) continue;
+            if (!pc || !pc.Data) continue;
 
             bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
             pc.Data.Disconnected = disconnected;
-            if (!disconnected) pc.Data.SendGameData();
         }
+        
+        Utils.SendGameData();
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)

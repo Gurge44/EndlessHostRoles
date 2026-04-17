@@ -24,6 +24,7 @@ internal static class ExtendedPlayerControl
     public static readonly HashSet<byte> CancelBlackScreenFix = [];
     private static readonly List<Vent> ResultBuffer = [];
     public static readonly HashSet<byte> TempExiled = [];
+    public static bool DontLowerSendTimer;
 
     extension(PlayerControl player)
     {
@@ -250,6 +251,9 @@ internal static class ExtendedPlayerControl
             writer.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
+
+            if (DontLowerSendTimer) return;
+            AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
         }
 
         public ClientData GetClient()
@@ -2443,6 +2447,9 @@ internal static class ExtendedPlayerControl
             writer.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
+
+            if (DontLowerSendTimer) return;
+            AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
         }
     }
 
