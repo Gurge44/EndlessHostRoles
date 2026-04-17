@@ -34,18 +34,17 @@ public static class LobbySharingAPI
         string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
         string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
-        string hostHashedPuid = Options.SendHashedPuidToUseLinkedAccount.GetBool() ? PlayerControl.LocalPlayer.GetClient().GetHashedPuid() : string.Empty;
         const string version = $"EHR v{Main.PluginDisplayVersion}";
-        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode, hostHashedPuid));
+        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode));
     }
 
-    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode, string hostHashedPuid)
+    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode)
     {
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\",\"hostHashedPuid\":\"{hostHashedPuid}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
         var request = new UnityWebRequest("https://app.gurge44.eu/lobby_created", "POST")
@@ -56,6 +55,7 @@ public static class LobbySharingAPI
 
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
+        request.SetRequestHeader("Authorization", "Bearer " + EOSManager.Instance.UserIDToken);
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;

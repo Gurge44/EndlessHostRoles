@@ -251,6 +251,7 @@ public static class Options
     public static OptionItem DisableWhisperCommand;
     public static OptionItem DisableSpectateCommand;
     public static OptionItem Disable8ballCommand;
+    public static OptionItem EightballCommandIndexes;
     public static OptionItem DisableVoteStartCommand;
     public static OptionItem DisableVentingOn1v1;
     public static OptionItem DisableSabotagingOn1v1;
@@ -736,7 +737,6 @@ public static class Options
     public static OptionItem PhantomCanGuess;
 
     public static OptionItem PostLobbyCodeToEHRWebsite;
-    public static OptionItem SendHashedPuidToUseLinkedAccount;
     public static OptionItem LobbyUpdateInterval;
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
@@ -1763,9 +1763,6 @@ public static class Options
 
         PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings)
             .SetHeader(true);
-
-        SendHashedPuidToUseLinkedAccount = new BooleanOptionItem(19501, "SendHashedPuidToUseLinkedAccount", true, TabGroup.SystemSettings)
-            .SetParent(PostLobbyCodeToEHRWebsite);
         
         LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 30, 5), 30, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite)
@@ -2992,6 +2989,9 @@ public static class Options
 
         LadderDeathChance = new StringOptionItem(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings)
             .SetParent(LadderDeath);
+
+        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 97;
 

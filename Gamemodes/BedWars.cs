@@ -621,7 +621,7 @@ public static class BedWars
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team);
+        return pc.IsValidTargetForKillButton() && (!Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -1060,40 +1060,43 @@ public static class BedWars
         Red
     }
 
-    private static Color GetColor(this BedWarsTeam team)
+    extension(BedWarsTeam team)
     {
-        return team switch
+        private Color GetColor()
         {
-            BedWarsTeam.Blue => Color.cyan,
-            BedWarsTeam.Yellow => Color.yellow,
-            BedWarsTeam.Green => Color.green,
-            BedWarsTeam.Red => Color.red,
-            _ => Color.white
-        };
-    }
+            return team switch
+            {
+                BedWarsTeam.Blue => Color.cyan,
+                BedWarsTeam.Yellow => Color.yellow,
+                BedWarsTeam.Green => Color.green,
+                BedWarsTeam.Red => Color.red,
+                _ => Color.white
+            };
+        }
 
-    private static byte GetColorId(this BedWarsTeam team)
-    {
-        return team switch
+        private byte GetColorId()
         {
-            BedWarsTeam.Red => 0,
-            BedWarsTeam.Yellow => 5,
-            BedWarsTeam.Blue => 10,
-            BedWarsTeam.Green => 11,
-            _ => 7
-        };
-    }
+            return team switch
+            {
+                BedWarsTeam.Red => 0,
+                BedWarsTeam.Yellow => 5,
+                BedWarsTeam.Blue => 10,
+                BedWarsTeam.Green => 11,
+                _ => 7
+            };
+        }
 
-    private static string GetName(this BedWarsTeam team)
-    {
-        return team switch
+        private string GetName()
         {
-            BedWarsTeam.Blue => Translator.GetString("Bedwars.BlueTeam"),
-            BedWarsTeam.Yellow => Translator.GetString("Bedwars.YellowTeam"),
-            BedWarsTeam.Green => Translator.GetString("Bedwars.GreenTeam"),
-            BedWarsTeam.Red => Translator.GetString("Bedwars.RedTeam"),
-            _ => string.Empty
-        };
+            return team switch
+            {
+                BedWarsTeam.Blue => Translator.GetString("Bedwars.BlueTeam"),
+                BedWarsTeam.Yellow => Translator.GetString("Bedwars.YellowTeam"),
+                BedWarsTeam.Green => Translator.GetString("Bedwars.GreenTeam"),
+                BedWarsTeam.Red => Translator.GetString("Bedwars.RedTeam"),
+                _ => string.Empty
+            };
+        }
     }
 
     private abstract class Shop

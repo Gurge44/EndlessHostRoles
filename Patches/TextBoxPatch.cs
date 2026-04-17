@@ -119,7 +119,7 @@ public static class TextBoxPatch
             bool startsWithCmd = input.StartsWith("/cmd ");
             if (startsWithCmd) input = "/" + input[5..];
 
-            if (!input.StartsWith('/') || input.Length < 2)
+            if (input.Length < 2 || !input.StartsWith('/') || input[1] == ' ')
             {
                 Destroy();
                 IsInvalidCommand = false;

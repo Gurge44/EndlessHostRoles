@@ -1319,7 +1319,7 @@ internal static class ReportDeadBodyPatch
                 if (tpc && !tpc.IsAlive())
                 {
                     if (player.Is(CustomRoles.Forensic) && player.PlayerId != target.PlayerId)
-                        Forensic.OnReportDeadBody(player, target.Object);
+                        Forensic.OnReportDeadBody(player, tpc);
                     else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
                     {
                         string msg = string.Format(GetString("SleuthMsg"), tpc.GetRealName(), tpc.GetDisplayRoleName());
@@ -1333,12 +1333,31 @@ internal static class ReportDeadBodyPatch
                 if (QuizMaster.On)
                 {
                     QuizMaster.Data.LastReporterName = player.GetRealName();
-                    QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), target.Object);
-                    if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
+                    QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), tpc);
+                    if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = tpc.GetRealName();
                 }
             
                 if (player.Is(CustomRoles.Looter))
                     tpc.GetCustomSubRoles().FindAll(x => !player.Is(x) && !x.IsGhostRole() && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, player)).ForEach(x => player.RpcSetCustomRole(x));
+
+                if (player.Is(CustomRoles.Absorber))
+                {
+                    float uses = tpc.GetAbilityUseLimit();
+
+                    if (!float.IsNaN(uses) && uses > 0f)
+                    {
+                        if (uses < 1f)
+                        {
+                            player.RpcIncreaseAbilityUseLimitBy(uses);
+                            tpc.SetAbilityUseLimit(0f);
+                        }
+                        else
+                        {
+                            player.RpcIncreaseAbilityUseLimitBy(1f);
+                            tpc.RpcRemoveAbilityUse();
+                        }
+                    }
+                }
             }
 
             if (QuizMaster.On)
@@ -2028,6 +2047,9 @@ internal static class FixedUpdatePatch
                 if (seer.Is(CustomRoles.Sonar)) additionalSuffixes.Add(Sonar.GetSuffix(seer, GameStates.IsMeeting));
                 if (seer.Is(CustomRoles.Deadlined)) additionalSuffixes.Add(Deadlined.GetSuffix(seer));
                 if (seer.Is(CustomRoles.Allergic)) additionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
+
+                if (Main.PlayerStates[seer.PlayerId].Role is CovenBase { HasNecronomicon: true })
+                    Mark.Append($" <{Main.CovenColor}>♤</color>");
             }
 
             switch (Options.CurrentGameMode)

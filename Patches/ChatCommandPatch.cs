@@ -497,9 +497,7 @@ internal static class ChatCommands
         }
         
         if (!canceled)
-        {
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
-        }
 
         return !canceled;
     }
@@ -981,7 +979,7 @@ internal static class ChatCommands
             return;
         }
 
-        Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(20)}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
+        Utils.SendMessage(GetString($"8BallResponse.{IRandom.Instance.Next(Options.EightballCommandIndexes.GetInt())}"), player.IsAlive() ? byte.MaxValue : player.PlayerId, GetString("8BallResponseTitle"));
     }
 
     public static void GameModePollCommand(PlayerControl player, string text, string[] args)

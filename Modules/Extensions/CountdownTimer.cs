@@ -112,7 +112,7 @@ public sealed class CountdownTimer : IDisposable
         return _cancelOnGameEnd && (GameStates.IsEnded || GameStates.IsLobby || !GameStates.InGame);
     }
 
-    private void Complete()
+    public void Complete()
     {
         if (_completed)
             return;

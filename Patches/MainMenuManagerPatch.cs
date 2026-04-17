@@ -1,4 +1,5 @@
 using System;
+using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -173,6 +174,7 @@ public static class MainMenuManagerPatch
 
         foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
         {
+            if (buttonName == "Inventory Button" && IL2CPPChainloader.Instance.Plugins.ContainsKey("com.DigiWorm.LevelImposter")) continue;
             var go = GameObject.Find(buttonName);
             if (!go) continue;
             var buttonText = go.GetComponentInChildren<TMP_Text>();

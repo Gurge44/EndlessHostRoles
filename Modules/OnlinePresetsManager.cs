@@ -83,7 +83,7 @@ public static class OnlinePresetsManager
         foreach (PresetMeta preset in CachedPresets)
         {
             StringOption row = ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
-            row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads)}";
+            row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, (Utils.TimeStamp - (long)preset.created_at) / 86400, preset.downloads)}";
             row.transform.localPosition = new Vector3(0.952f, y, -2f);
             row.SetClickMask(menu.ButtonClickMask);
             row.SetUpFromData(ScriptableObject.CreateInstance<StringGameSetting>(), 20);

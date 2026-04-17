@@ -503,6 +503,7 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
+    Absorber,
     Aide,
     Allergic,
     Anchor,
@@ -529,6 +530,7 @@ public enum CustomRoles
     Compelled,
     Composter,
     Concealer,
+    Constricted,
     Contagious,
     Damocles,
     Deadlined,
@@ -597,6 +599,7 @@ public enum CustomRoles
     Stressed,
     Swift,
     Sunglasses,
+    Talkative,
     Taskcounter,
     TaskMaster,
     Tiebreaker,

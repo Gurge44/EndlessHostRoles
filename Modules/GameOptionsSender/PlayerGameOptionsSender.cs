@@ -110,7 +110,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildGameOptions();
+            IGameOptions opt = BuildSendableGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {
@@ -131,7 +131,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildGameOptions();
+            IGameOptions opt = BuildSendableGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {
@@ -354,6 +354,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                                 opt.SetInt(Int32OptionNames.KillDistance, 2);
                                 break;
                             }
+                            case CustomRoles.Constricted:
+                            {
+                                opt.SetInt(Int32OptionNames.KillDistance, 0);
+                                break;
+                            }
                             case CustomRoles.Madmate:
                             {
                                 opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
@@ -411,11 +416,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             {
                 case CustomRoleTypes.Impostor:
                     AURoleOptions.ShapeshifterCooldown = Options.DefaultShapeshiftCooldown.GetFloat();
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
-                    break;
-                case CustomRoleTypes.Neutral:
-                case CustomRoleTypes.Crewmate:
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                     break;
             }
 

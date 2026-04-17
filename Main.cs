@@ -41,8 +41,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.4.1";
-    public const string PluginDisplayVersion = "7.4.1";
+    public const string PluginVersion = "7.4.2";
+    public const string PluginDisplayVersion = "7.4.2";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -433,6 +433,7 @@ public class Main : BasePlugin
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Tar, "#8C796B" },
                 { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },
                 { CustomRoles.Captain, "#53B3EF" },
@@ -675,11 +676,14 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Urgent, "#D49255" },
+                { CustomRoles.Talkative, "#6ADEDE" },
                 { CustomRoles.Blessed, "#7bfbff" },
                 { CustomRoles.Hidden, "#E2EAF4" },
                 { CustomRoles.Looter, "#F5D866" },
                 { CustomRoles.Tired, "#ff1919" },
                 { CustomRoles.Concealer, "#ff1919" },
+                { CustomRoles.Constricted, "#c561ec" },
                 { CustomRoles.Composter, "#8D6F64" },
                 { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },
@@ -691,6 +695,7 @@ public class Main : BasePlugin
                 { CustomRoles.Aide, "#ff1919" },
                 { CustomRoles.Anchor, "#6B4CE4" },
                 { CustomRoles.Fragile, "#debe66" },
+                { CustomRoles.Absorber, "#29f5a0" },
                 { CustomRoles.Allergic, "#e3bd56" },
                 { CustomRoles.Introvert, "#6293e3" },
                 { CustomRoles.Deadlined, "#ffa500" },

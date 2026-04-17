@@ -204,6 +204,9 @@ public class PlayerState(byte playerId)
             case CustomRoles.BananaMan when Main.IntroDestroyed && !SubRoles.Contains(CustomRoles.BananaMan):
                 LateTask.New(() => Utils.RpcChangeSkin(Player, new()), 0.2f, log: false);
                 break;
+            case CustomRoles.Urgent when !SubRoles.Contains(CustomRoles.Urgent):
+                Main.NumEmergencyMeetingsUsed[PlayerId]--;
+                break;
         }
 
         if (replaceAll)
@@ -554,6 +557,23 @@ public static class GameStates
             if (IsFreePlay || IsLocalGame || IsNotJoined) return ServerType.Local;
 
             string regionName = Utils.GetRegionName();
+
+            return regionName switch
+            {
+                "Local Game" => ServerType.Custom,
+                "EU" or "NA" or "AS" => ServerType.Vanilla,
+                "MEU" or "MAS" or "MNA" => ServerType.Modded,
+                _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
+            };
+        }
+    }
+    public static ServerType CurrentServerTypeInCreateMenu
+    {
+        get
+        {
+            if (IsFreePlay) return ServerType.Local;
+
+            string regionName = Utils.GetRegionName(ignoreNetworkMode: true);
 
             return regionName switch
             {

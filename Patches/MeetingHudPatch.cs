@@ -1145,6 +1145,9 @@ internal static class MeetingHudStartPatch
             if (!seer.IsAlive() && Medic.InProtect(target.PlayerId) && !seer.Is(CustomRoles.Medic))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medic), " ●"));
 
+            if (seer.PlayerId == target.PlayerId && Main.PlayerStates[seer.PlayerId].Role is CovenBase { HasNecronomicon: true })
+                sb.Append($" <{Main.CovenColor}>♤</color>");
+
             sb.Append(Follower.TargetMark(seer, target));
             sb.Append(Romantic.TargetMark(seer, target));
             sb.Append(Lawyer.LawyerMark(seer, target));
