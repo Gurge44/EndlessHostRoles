@@ -1319,7 +1319,7 @@ internal static class ReportDeadBodyPatch
                 if (tpc && !tpc.IsAlive())
                 {
                     if (player.Is(CustomRoles.Forensic) && player.PlayerId != target.PlayerId)
-                        Forensic.OnReportDeadBody(player, target.Object);
+                        Forensic.OnReportDeadBody(player, tpc);
                     else if (player.Is(CustomRoles.Sleuth) && player.PlayerId != target.PlayerId)
                     {
                         string msg = string.Format(GetString("SleuthMsg"), tpc.GetRealName(), tpc.GetDisplayRoleName());
@@ -1333,12 +1333,31 @@ internal static class ReportDeadBodyPatch
                 if (QuizMaster.On)
                 {
                     QuizMaster.Data.LastReporterName = player.GetRealName();
-                    QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), target.Object);
-                    if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
+                    QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), tpc);
+                    if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = tpc.GetRealName();
                 }
             
                 if (player.Is(CustomRoles.Looter))
                     tpc.GetCustomSubRoles().FindAll(x => !player.Is(x) && !x.IsGhostRole() && !x.IsNotAssignableMidGame() && CustomRolesHelper.CheckAddonConflict(x, player)).ForEach(x => player.RpcSetCustomRole(x));
+
+                if (player.Is(CustomRoles.Absorber))
+                {
+                    float uses = tpc.GetAbilityUseLimit();
+
+                    if (!float.IsNaN(uses) && uses > 0f)
+                    {
+                        if (uses < 1f)
+                        {
+                            player.RpcIncreaseAbilityUseLimitBy(uses);
+                            tpc.SetAbilityUseLimit(0f);
+                        }
+                        else
+                        {
+                            player.RpcIncreaseAbilityUseLimitBy(1f);
+                            tpc.RpcRemoveAbilityUse();
+                        }
+                    }
+                }
             }
 
             if (QuizMaster.On)
@@ -1453,32 +1472,38 @@ internal static class ReportDeadBodyPatch
         {
             Main.ProcessShapeshifts = false;
 
-            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
+            void Action()
             {
-                try
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
-                    if (pc.IsAlive())
+                    try
                     {
-                        if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                            Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
-
-                        if (Magistrate.CallCourtNextMeeting)
+                        if (pc.IsAlive())
                         {
-                            string name = pc.GetRealName();
-                            RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
-                        }
+                            if (Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                                Camouflage.RpcSetSkin(pc, revertToDefault: true, forceRevert: true);
 
-                        if (Main.CheckShapeshift.ContainsKey(pc.PlayerId))
-                            pc.RpcShapeshift(pc, false);
-                        
-                        if (pc.Is(CustomRoles.Truant))
-                            Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                            if (Magistrate.CallCourtNextMeeting)
+                            {
+                                string name = pc.GetRealName();
+                                RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+                            }
+
+                            if (Main.CheckShapeshift.ContainsKey(pc.PlayerId))
+                                pc.RpcShapeshift(pc, false);
+
+                            if (pc.Is(CustomRoles.Truant))
+                                Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                        }
+                        else if (!pc.Data.IsDead && (!pc.AmOwner || !TempReviveHostRunning))
+                            pc.RpcExileV2();
                     }
-                    else if (!pc.Data.IsDead && (!pc.AmOwner || !TempReviveHostRunning))
-                        pc.RpcExileV2();
+                    catch (Exception e) { ThrowException(e); }
                 }
-                catch (Exception e) { ThrowException(e); }
             }
+
+            if (!Camouflage.IsCamouflage && !Magistrate.CallCourtNextMeeting) Action();
+            else CombineSendTimeLowering(Action);
 
             RPCHandlerPatch.RemoveExpiredWhiteList();
 

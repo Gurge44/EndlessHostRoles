@@ -24,6 +24,7 @@ internal static class ExtendedPlayerControl
     public static readonly HashSet<byte> CancelBlackScreenFix = [];
     private static readonly List<Vent> ResultBuffer = [];
     public static readonly HashSet<byte> TempExiled = [];
+    public static bool DontLowerSendTimer;
 
     extension(PlayerControl player)
     {
@@ -98,6 +99,8 @@ internal static class ExtendedPlayerControl
             }
             return false;
         }
+
+        // Next 5: From MoreGamemodes by Rabek009 (https://github.com/Rabek009/MoreGamemodes)
 
         public Vent GetClosestVent()
         {
@@ -255,6 +258,9 @@ internal static class ExtendedPlayerControl
             writer.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
+
+            if (DontLowerSendTimer) return;
+            AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
         }
 
         public ClientData GetClient()
@@ -331,6 +337,7 @@ internal static class ExtendedPlayerControl
             Main.PlayerStates[player.PlayerId].SetDead();
         }
 
+        // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy
         public void ReviveFromTemporaryExile() // Only used in game modes
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -1452,6 +1459,8 @@ internal static class ExtendedPlayerControl
             return player.transform.position;
         }
 
+        // Next 5: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
+
         public void MakeInvisible()
         {
             player.invisibilityAlpha = player.AmOwner ? 0.5f : PlayerControl.LocalPlayer.Data.Role.IsDead ? 0.5f : 0f;
@@ -2356,19 +2365,7 @@ internal static class ExtendedPlayerControl
         }
     }
 
-    // Next 2: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
-
-    // Next 2 from https://github.com/Rabek009/MoreGamemodes/blob/master/Roles/Impostor/Concealing/Droner.cs
-
-    // From: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs - coded by Rabek009
-
-    // Saves some RPC calls for vanilla servers to make innersloth's rate limit happy
-
     // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
-
-    // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-
-    // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
 
     /*
     public static void RpcShowScanAnimationDesync(this PlayerControl target, PlayerControl seer, bool on)
@@ -2403,8 +2400,6 @@ internal static class ExtendedPlayerControl
         target.scannerCount = cnt;
     }
     */
-
-    // Next 6: From MoreGamemodes by Rabek009 (https://github.com/Rabek009/MoreGamemodes)
 
     extension(byte playerId)
     {
@@ -2469,6 +2464,9 @@ internal static class ExtendedPlayerControl
             writer.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
+
+            if (DontLowerSendTimer) return;
+            AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
         }
     }
 

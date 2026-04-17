@@ -165,7 +165,7 @@ public static class ChatManager
         string originalMessage = message.Trim();
         message = message.ToLower().Trim();
 
-        if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
+        if (!AmongUsClient.Instance.AmHost || !player.IsAlive() || Silencer.ForSilencer.Contains(player.PlayerId)) return;
 
         int operate = message switch
         {
@@ -178,6 +178,7 @@ public static class ChatManager
         switch (operate)
         {
             case 1: // Guessing Command & Such
+            {
                 Logger.Info("Special Command", "ChatManager");
                 if (player.AmOwner) break;
 
@@ -193,13 +194,22 @@ public static class ChatManager
                 }, 0.3f, "Trying Delayed Guess");
 
                 break;
+            }
             case 2: // /up and role ability commands
             case 4: // /r, /n, /m
+            {
                 Logger.Info($"Command: {message}", "ChatManager");
                 break;
+            }
             case 3: // In Lobby & Evertything Else
+            {
                 AddChatHistory(player, originalMessage);
+                
+                if (GameStates.IsMeeting && player.Is(CustomRoles.Talkative))
+                    Talkative.OnMessageSend(player);
+                
                 break;
+            }
         }
 
         if (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloPVP or CustomGameMode.NaturalDisasters or CustomGameMode.Mingle or CustomGameMode.HideAndSeek && GameStates.InGame && !message.StartsWith('/'))

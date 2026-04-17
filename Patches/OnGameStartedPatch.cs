@@ -256,6 +256,7 @@ internal static class ChangeRoleSettings
             Introvert.TeleportAwayDelays = [];
             Onbound.NumBlocked = [];
             Blessed.ShieldActive = [];
+            Talkative.NumMessagesThisMeeting = [];
 
             try
             {
@@ -318,6 +319,7 @@ internal static class ChangeRoleSettings
             Main.DefaultImpostorVision = Main.RealOptionsData.GetFloat(FloatOptionNames.ImpostorLightMod);
 
             Main.LastNotifyNames = [];
+            Main.NumEmergencyMeetingsUsed = [];
 
             CheckForEndVotingPatch.EjectionText = string.Empty;
 
@@ -330,41 +332,22 @@ internal static class ChangeRoleSettings
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
-
-            Main.NumEmergencyMeetingsUsed = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => 0);
-
-            if (AmongUsClient.Instance.AmHost)
-            {
-                string[] invalidColor = Main.EnumeratePlayerControls().Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
-
-                if (invalidColor.Length > 0)
-                {
-                    string msg = GetString("Error.InvalidColor");
-                    Logger.SendInGame(msg, Color.yellow);
-                    msg += "\n" + string.Join(",", invalidColor);
-                    Utils.SendMessage(msg, importance: MessageImportance.Low);
-                    Logger.Error(msg, "CoStartGame");
-                }
-            }
-
+            
             RoleResult = [];
-
-            foreach (PlayerControl target in Main.CachedAllPlayerControls())
-            {
-                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
-                {
-                    (byte, byte) pair = (target.PlayerId, seer.PlayerId);
-                    Main.LastNotifyNames[pair] = target.name;
-                }
-            }
 
             foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
+                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
+                {
+                    (byte, byte) pair = (pc.PlayerId, seer.PlayerId);
+                    Main.LastNotifyNames[pair] = pc.name;
+                }
+
                 int colorId = pc.Data.DefaultOutfit.ColorId;
                 if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
                 {
                     string colorName = Palette.GetColorName(colorId);
-                    string formattedColorName = char.ToUpper(colorName[0]) + colorName.Substring(1).ToLower();
+                    string formattedColorName = char.ToUpper(colorName[0]) + colorName[1..].ToLower();
                     pc.RpcSetName(formattedColorName);
                 }
 
@@ -377,6 +360,7 @@ internal static class ChangeRoleSettings
                     MapNames.Fungle => Options.ExtraKillCooldownOnFungle.GetFloat(),
                     _ => 0f
                 };
+                Main.NumEmergencyMeetingsUsed[pc.PlayerId] = 0;
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
@@ -1160,8 +1144,9 @@ internal static class StartGameHostPatch
                     yield return null;
 
             pc.Data.Disconnected = true;
-            pc.Data.SendGameData();
         }
+        
+        Utils.SendGameData();
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
@@ -1177,12 +1162,13 @@ internal static class StartGameHostPatch
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
-            if (pc == null || pc.Data == null) continue;
+            if (!pc || !pc.Data) continue;
 
             bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
             pc.Data.Disconnected = disconnected;
-            if (!disconnected) pc.Data.SendGameData();
         }
+        
+        Utils.SendGameData();
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)

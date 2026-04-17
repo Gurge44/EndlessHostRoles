@@ -648,7 +648,7 @@ public static class KingOfTheZones
                 }
         }
 
-        void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+        void ResetSkins() => Utils.CombineSendTimeLowering(() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit)));
     }
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
@@ -952,7 +952,7 @@ public static class KingOfTheZones
                 {
                     if (tie) return;
                     GameGoing = false;
-                    DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+                    Utils.CombineSendTimeLowering(() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit)));
                     KOTZTeam winner = Points.GetKeyByValue(highestPoints);
                     CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == winner).Select(x => x.Key).ToHashSet();
                     Color color = winner.GetColor();

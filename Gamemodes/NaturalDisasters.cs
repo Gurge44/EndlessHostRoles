@@ -1037,6 +1037,7 @@ public static class NaturalDisasters
             
             if (!naturalDisaster.Room.HasValue) return;
             PlainShipRoom room = naturalDisaster.Room.Value.GetRoomClass();
+            if (!room) return;
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {

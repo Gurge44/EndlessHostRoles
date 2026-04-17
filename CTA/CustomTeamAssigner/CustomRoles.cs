@@ -270,6 +270,7 @@ public enum CustomRoles
     Spy,
     SuperStar,
     Swapper,
+    Tar,
     TaskManager,
     Telekinetic,
     Tether,
@@ -503,6 +504,7 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
+    Absorber,
     Aide,
     Allergic,
     Anchor,
@@ -528,6 +530,7 @@ public enum CustomRoles
     Commited,
     Compelled,
     Composter,
+    Constricted,
     Concealer,
     Contagious,
     Damocles,
@@ -597,6 +600,7 @@ public enum CustomRoles
     Stressed,
     Swift,
     Sunglasses,
+    Talkative,
     Taskcounter,
     TaskMaster,
     Tiebreaker,
@@ -607,6 +611,7 @@ public enum CustomRoles
     Undead,
     Underdog,
     Unlucky,
+    Urgent,
     Venom,
     Warden, // Ghost role
     Watcher,
