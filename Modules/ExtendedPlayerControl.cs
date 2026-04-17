@@ -1344,7 +1344,6 @@ internal static class ExtendedPlayerControl
 
             if (Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) return true;
             if (Penguin.IsVictim(player)) return false;
-            if (Pelican.IsEaten(player.PlayerId)) return false;
             if (player.Data.Role.Role == RoleTypes.GuardianAngel) return false;
             if (player.Is(CustomRoles.Bloodlust)) return true;
 
