@@ -36,7 +36,7 @@ internal class Electric : RoleBase
     {
         if (pc == null) return;
 
-        List<PlayerControl> targetList = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList();
+        List<PlayerControl> targetList = Main.EnumerateAlivePlayerControls().Where(x => !x.Is(Team.Crewmate)).ToList();
         if (targetList.Count == 0) return;
 
         PlayerControl target = targetList.RandomElement();

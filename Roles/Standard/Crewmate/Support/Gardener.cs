@@ -45,7 +45,7 @@ public class Gardener : RoleBase
         Vector2 pos = pc.Pos();
         float range = PlantRange.GetFloat() * 2f;
 
-        if (Plants.Exists(x => Vector2.Distance(x.Position, pos) <= range))
+        if (Plants.Exists(x => FastVector2.DistanceWithinRange(x.Position, pos, range)))
         {
             pc.Notify(Translator.GetString("Gardener.PlantAlreadyExistsNearby"));
             return;
@@ -68,7 +68,7 @@ public class Gardener : RoleBase
         float range = PlantRange.GetFloat();
         List<Vector2> positions = [killer.Pos(), target.Pos()];
 
-        if (Plants.FindFirst(x => x.Spawned && positions.Exists(p => Vector2.Distance(p, x.Position) <= range), out Plant plant))
+        if (Plants.FindFirst(x => x.Spawned && positions.Exists(p => FastVector2.DistanceWithinRange(p, x.Position, range)), out Plant plant))
         {
             plant.Despawn();
             Plants.Remove(plant);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -41,7 +40,7 @@ internal class Changeling : RoleBase
     {
         try
         {
-            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
+            CustomRoles[] allRoles = Main.CustomRoleValues;
 
             IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
             {

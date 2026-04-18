@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -29,16 +30,16 @@ public static class Deathrace
     public static float EnergyDrinkSpeedIncreasement;
     public static float PowerUpPickupRange;
 
-    public static OptionItem ClockwiseOption;
-    public static OptionItem LapsToWinOption;
-    public static OptionItem EliminateLastToFinishEachLapOption;
-    public static OptionItem SpawnPowerUpsOption;
-    public static OptionItem PowerUpSpawnFrequencyOption;
-    public static OptionItem PowerUpEffectDurationOption;
-    public static OptionItem PowerUpEffectRangeOption;
-    public static OptionItem SmokeSpeedReductionOption;
-    public static OptionItem EnergyDrinkSpeedIncreasementOption;
-    public static OptionItem PowerUpPickupRangeOption;
+    private static OptionItem ClockwiseOption;
+    private static OptionItem LapsToWinOption;
+    private static OptionItem EliminateLastToFinishEachLapOption;
+    private static OptionItem SpawnPowerUpsOption;
+    private static OptionItem PowerUpSpawnFrequencyOption;
+    private static OptionItem PowerUpEffectDurationOption;
+    private static OptionItem PowerUpEffectRangeOption;
+    private static OptionItem SmokeSpeedReductionOption;
+    private static OptionItem EnergyDrinkSpeedIncreasementOption;
+    private static OptionItem PowerUpPickupRangeOption;
 
     public static readonly Dictionary<MapNames, List<SystemTypes>> Tracks = new()
     {
@@ -196,14 +197,14 @@ public static class Deathrace
         Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
     }
 
-    public static System.Collections.IEnumerator GameStart()
+    public static IEnumerator GameStart()
     {
         yield return new WaitForSecondsRealtime(2f);
 
         Track = Tracks[Main.CurrentMap].ToList();
         Logger.Info($"Track: {string.Join(" » ", Track)}", "Deathrace");
         
-        List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().ToList();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
         
@@ -262,7 +263,7 @@ public static class Deathrace
         Utils.NotifyRoles();
         
         Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Utils.SyncAllSettings();
+        Main.EnumerateAlivePlayerControls().Do(x => x.SyncSettings());
         
         GameGoing = true;
     }
@@ -340,9 +341,9 @@ public static class Deathrace
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !GameGoing) return false;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControls;
 
-        switch (aapc.Length)
+        switch (aapc.Count)
         {
             case 1:
                 PlayerControl winner = aapc[0];
@@ -376,7 +377,7 @@ public static class Deathrace
         target.MarkDirtySettings();
         LateTask.New(() =>
         {
-            if (target == null) return;
+            if (!target) return;
             Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
             target.MarkDirtySettings();
@@ -395,7 +396,7 @@ public static class Deathrace
         PowerUp powerUp = data.PowerUps[0];
         pc.RPCPlayCustomSound("Line");
         data.PowerUps.RemoveAt(0);
-        PlayerControl[] playersInRange = Utils.GetPlayersInRadius(PowerUpEffectRange, pc.Pos()).Without(pc).ToArray();
+        PlayerControl[] playersInRange = FastVector2.GetPlayersInRange(pc.Pos(), PowerUpEffectRange).Without(pc).ToArray();
 
         switch (powerUp)
         {
@@ -415,7 +416,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null) continue;
+                        if (!player) continue;
                         
                         if (Main.AllPlayerSpeed[player.PlayerId] < 0f) Main.AllPlayerSpeed[player.PlayerId] -= SmokeSpeedReduction;
                         else Main.AllPlayerSpeed[player.PlayerId] += SmokeSpeedReduction;
@@ -433,7 +434,7 @@ public static class Deathrace
                 
                 LateTask.New(() =>
                 {
-                    if (pc == null || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
+                    if (!pc || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod)) || Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], Main.MinSpeed)) return;
                     if (Main.AllPlayerSpeed[pc.PlayerId] < 0f) Main.AllPlayerSpeed[pc.PlayerId] += EnergyDrinkSpeedIncreasement;
                     else Main.AllPlayerSpeed[pc.PlayerId] -= EnergyDrinkSpeedIncreasement;
                     pc.MarkDirtySettings();
@@ -454,7 +455,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || !state.IsBlackOut) continue;
+                        if (!player || !Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || !state.IsBlackOut) continue;
                         state.IsBlackOut = false;
                         RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                         player.MarkDirtySettings();
@@ -475,7 +476,7 @@ public static class Deathrace
                 {
                     foreach (PlayerControl player in playersInRange)
                     {
-                        if (player == null || Main.AllPlayerSpeed[player.PlayerId] >= 0f) continue;
+                        if (!player || Main.AllPlayerSpeed[player.PlayerId] >= 0f) continue;
                         Main.AllPlayerSpeed[player.PlayerId] *= -1;
                         RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
                         player.MarkDirtySettings();
@@ -506,7 +507,7 @@ public static class Deathrace
             
             foreach ((byte id, PlayerData data) in Data)
             {
-                if (data.Player == null || !data.Player.IsAlive())
+                if (!data.Player || !data.Player.IsAlive())
                 {
                     removeId = id;
                     continue;
@@ -514,7 +515,7 @@ public static class Deathrace
                 
                 if (data.Player.inMovingPlat) continue;
 
-                if (SpawnedPowerUps.FindFirst(x => Vector2.Distance(data.Player.Pos(), x.Position) <= PowerUpPickupRange, out var powerUp))
+                if (SpawnedPowerUps.FindFirst(x => FastVector2.DistanceWithinRange(data.Player.Pos(), x.Position, PowerUpPickupRange), out var powerUp))
                 {
                     RPC.PlaySoundRPC(id, Sounds.TaskUpdateSound);
                     data.PowerUps.Add(powerUp.PowerUp);
@@ -524,15 +525,15 @@ public static class Deathrace
 
                 PlainShipRoom room = data.Player.GetPlainShipRoom();
                 bool coordinateCheck = CoordinateChecks.TryGetValue((int)data.NextRoom, out var coordinates);
-                if (room != null && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
+                if (room && room.RoomId is SystemTypes.Hallway or SystemTypes.Outside or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) room = null;
 
-                if ((room == null && !coordinateCheck) || (room != null && room.RoomId == data.LastRoom))
+                if ((!room && !coordinateCheck) || (room && room.RoomId == data.LastRoom))
                 {
                     CheckAndNotify(data);
                     continue;
                 }
 
-                if (coordinateCheck ? Vector2.Distance(coordinates, data.Player.Pos()) < 2f : room.RoomId == data.NextRoom)
+                if (coordinateCheck ? FastVector2.DistanceWithinRange(coordinates, data.Player.Pos(), 2f) : room.RoomId == data.NextRoom)
                 {
                     data.LastRoom = data.NextRoom;
                     int index = Track.IndexOf(data.NextRoom);

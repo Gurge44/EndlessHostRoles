@@ -134,21 +134,19 @@ internal class Necromancer : RoleBase
         return false;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public static void OnAnyoneDead()
     {
-        if (!GameStates.IsInTask || ExileController.Instance || !IsEnable) return;
+        if (!GameStates.IsInTask || ExileController.Instance) return;
 
-        if (!NecromancerPC.IsAlive() && Deathknight.DeathknightPC.IsAlive())
+        if ((!NecromancerPC || !NecromancerPC.IsAlive()) && (Deathknight.DeathknightPC && Deathknight.DeathknightPC.IsAlive()))
         {
             Deathknight.DeathknightPC.RpcSetCustomRole(CustomRoles.Necromancer);
-            Add(Deathknight.DeathknightId);
-
             Deathknight.DeathknightPC = null;
             Deathknight.DeathknightId = byte.MaxValue;
             return;
         }
 
-        if (!CustomRoles.Deathknight.RoleExist() && (Deathknight.DeathknightId != byte.MaxValue || Deathknight.DeathknightPC != null))
+        if (!CustomRoles.Deathknight.RoleExist() && (Deathknight.DeathknightId != byte.MaxValue || Deathknight.DeathknightPC))
         {
             Deathknight.DeathknightPC = null;
             Deathknight.DeathknightId = byte.MaxValue;

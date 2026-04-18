@@ -1,4 +1,5 @@
-﻿using EHR.Modules;
+﻿using System.Collections;
+using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
@@ -47,11 +48,11 @@ internal class Scavenger : RoleBase
             Main.Instance.StartCoroutine(CoRoutine());
             return false;
 
-            System.Collections.IEnumerator CoRoutine()
+            IEnumerator CoRoutine()
             {
                 while (dur > 0)
                 {
-                    if (killer == null || target == null || Vector2.Distance(killer.Pos(), target.Pos()) > 2f) yield break;
+                    if (killer == null || target == null || !FastVector2.DistanceWithinRange(killer.Pos(), target.Pos(), 2f)) yield break;
                     dur -= Time.fixedDeltaTime;
                     yield return null;
                 }

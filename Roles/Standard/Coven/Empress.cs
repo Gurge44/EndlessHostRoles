@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -97,7 +96,6 @@ public class Empress : CovenBase
     public override void OnReceiveNecronomicon()
     {
         SetKillCooldown(EmpressId);
-        PlayerGameOptionsSender.SetDirty(EmpressId);
     }
 
     public override bool OnVote(PlayerControl voter, PlayerControl target)
@@ -206,7 +204,7 @@ public class Empress : CovenBase
 
     public override void OnPet(PlayerControl pc)
     {
-        PlayerControl[] playersInRadius = Utils.GetPlayersInRadius(CoverageRange.GetFloat(), pc.Pos()).Where(x => x.Is(Team.Coven)).ToArray();
+        PlayerControl[] playersInRadius = FastVector2.GetPlayersInRange(pc.Pos(), CoverageRange.GetFloat()).Where(x => x.Is(Team.Coven)).ToArray();
         float duration = CoverageDuration.GetFloat();
         float delay = CoverageDelay.GetFloat();
         LateTask.New(() =>

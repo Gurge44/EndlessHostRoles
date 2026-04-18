@@ -53,7 +53,7 @@ internal class Revolutionist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.AllPlayerControls)
+        foreach (PlayerControl ar in Main.EnumeratePlayerControls())
             IsDraw.Add((playerId, ar.PlayerId), false);
     }
 
@@ -124,9 +124,9 @@ internal class Revolutionist : RoleBase
             PlayerControl tar = Utils.GetPlayerById(x.Key);
             if (tar == null || tar.Is(CustomRoles.Pestilence)) continue;
 
-            tar.Data.IsDead = true;
             Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
             tar.RpcExileV2();
+            tar.Data.IsDead = true;
             Main.PlayerStates[tar.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(tar, true);
         }
@@ -176,10 +176,9 @@ internal class Revolutionist : RoleBase
                 }
                 else
                 {
-                    float range = NormalGameOptionsV10.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.Pos(), rvTarget.Pos());
+                    float range = GameManager.Instance.LogicOptions.GetKillDistance();
 
-                    if (dis <= range)
+                    if (FastVector2.DistanceWithinRange(player.Pos(), rvTarget.Pos(), range))
                         RevolutionistTimer[playerId] = (rvTarget, rvTime + Time.fixedDeltaTime);
                     else
                     {

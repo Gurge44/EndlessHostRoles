@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
@@ -17,11 +19,12 @@ internal static class SoloPVP
     public static Dictionary<byte, float> PlayerDF = [];
 
     public static Dictionary<byte, int> PlayerScore = [];
-    public static int RoundTime;
+    public static Stopwatch RoundTimer;
+    public static int GameTime = 180;
 
     private static readonly Dictionary<byte, (string Text, long RemoveTimeStamp)> NameNotify = [];
 
-    private static Dictionary<byte, int> BackCountdown = [];
+    public static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
     private static Dictionary<byte, long> LastCountdownTime = [];
 
@@ -34,7 +37,7 @@ internal static class SoloPVP
 
     public static void SetupCustomOption()
     {
-        SoloPVP_GameTime = new IntegerOptionItem(66_233_001, "SoloPVP_GameTime", new(30, 300, 5), 180, TabGroup.GameSettings)
+        SoloPVP_GameTime = new IntegerOptionItem(66_233_001, "SoloPVP_GameTime", new(30, 600, 5), 180, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -55,7 +58,7 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
 
-        SoloPVP_RecoverPerSecond = new FloatOptionItem(66_233_005, "SoloPVP_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
+        SoloPVP_RecoverPerSecond = new FloatOptionItem(66_233_005, "SoloPVP_RecoverPerSecond", new(0f, 180f, 1f), 2f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
@@ -65,12 +68,12 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
+        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(0, 1000, 1), 15, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        SoloPVP_KillBonusMultiplier = new FloatOptionItem(66_233_007, "SoloPVP_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
+        SoloPVP_KillBonusMultiplier = new FloatOptionItem(66_233_007, "SoloPVP_KillBonusMultiplier", new(0f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
@@ -98,10 +101,16 @@ internal static class SoloPVP
         LastCountdownTime = [];
         BackCountdown = [];
         PlayerScore = [];
-        RoundTime = SoloPVP_GameTime.GetInt() + 8;
-        Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
+        GameTime = SoloPVP_GameTime.GetInt();
+        RoundTimer = Stopwatch.StartNew();
+        LateTask.New(() =>
+        {
+            if (RoundTimer.IsRunning)
+                RoundTimer.Restart();
+        }, 3f);
+        Utils.SendRPC(CustomRPC.SoloPVPSync, 1);
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
             PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
@@ -174,8 +183,6 @@ internal static class SoloPVP
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.SoloPVP || player == null) return;
-
         if (BackCountdown.TryGetValue(player.PlayerId, out int value))
         {
             name = string.Format(Translator.GetString("SoloPVP_BackCountDown"), value);
@@ -196,22 +203,18 @@ internal static class SoloPVP
             rank += PlayerScore.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Length; }
+        catch { return PlayerControl.AllPlayerControls.Count; }
     }
 
     public static string GetHudText()
     {
-        if (RoundTime == 60)
-        {
-            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
-        }
-        return $"{RoundTime / 60:00}:{RoundTime % 60:00}";
+        int roundTime = GameTime - (int)RoundTimer.Elapsed.TotalSeconds;
+        return $"{roundTime / 60:00}:{roundTime % 60:00}";
     }
 
     public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.SoloPVP || !Main.IntroDestroyed) return;
+        if (!Main.IntroDestroyed) return;
 
         if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) return;
 
@@ -227,14 +230,11 @@ internal static class SoloPVP
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
         float kcd = SoloPVP_ATKCooldown.GetFloat();
-        if (killer.IsHost()) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
+        if (killer.AmOwner) kcd += Math.Max(0.5f, Utils.CalculatePingDelay());
         killer.SetKillCooldown(kcd, target);
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
     }
 
     private static void OnPlayerBack(PlayerControl pc)
@@ -245,12 +245,22 @@ internal static class SoloPVP
         pc.ReviveFromTemporaryExile();
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.SpawnSound);
         SpawnMap.GetSpawnMap().RandomTeleport(pc);
-        Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
     }
 
-    private static System.Collections.IEnumerator OnPlayerDead(PlayerControl target)
+    private static IEnumerator OnPlayerDead(PlayerControl target)
     {
-        BackCountdown.TryAdd(target.PlayerId, SoloPVP_ResurrectionWaitingTime.GetInt());
+        int waitingTime = SoloPVP_ResurrectionWaitingTime.GetInt();
+
+        if (waitingTime <= 1)
+        {
+            PlayerHP[target.PlayerId] = PlayerHPMax[target.PlayerId];
+            LastHurt[target.PlayerId] = Utils.TimeStamp;
+            RPC.PlaySoundRPC(target.PlayerId, Sounds.SpawnSound);
+            SpawnMap.GetSpawnMap().RandomTeleport(target);
+            yield break;
+        }
+        
+        BackCountdown.TryAdd(target.PlayerId, waitingTime);
         if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
         while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) yield return null;
         if (BackCountdown.ContainsKey(target.PlayerId)) target.ExileTemporarily();
@@ -332,10 +342,26 @@ internal static class SoloPVP
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            RoundTime--;
-            Utils.SendRPC(CustomRPC.SoloPVPSync, 1, RoundTime);
+            if (Main.AllAlivePlayerControls.Count <= 1)
+            {
+                if (ExtendedPlayerControl.TempExiled.Count == 0)
+                {
+                    RoundTimer.Reset();
+                    return;
+                }
+                
+                // apart from 1 player, everyone is waiting for revival.... stop the timer temporarily
+                RoundTimer.Stop();
+            }
+            else if (!RoundTimer.IsRunning)
+            {
+                // resume the timer
+                RoundTimer.Start();
+            }
+            
+            if (!RoundTimer.IsRunning) return;
 
-            Utils.NotifyRoles(SendOption: SendOption.None);
+            Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(sendOption: SendOption.None));
         }
     }
 
@@ -347,7 +373,7 @@ internal static class SoloPVP
     private static OptionItem SoloPVP_ATK;
     private static OptionItem SoloPVP_RecoverAfterSecond;
     private static OptionItem SoloPVP_RecoverPerSecond;
-    private static OptionItem SoloPVP_ResurrectionWaitingTime;
+    public static OptionItem SoloPVP_ResurrectionWaitingTime;
     private static OptionItem SoloPVP_KillBonusMultiplier;
     private static OptionItem SoloPVP_CanVent;
     public static OptionItem SoloPVP_ChatDuringGame;

@@ -112,7 +112,7 @@ internal class Merchant : RoleBase
         CustomRoles addon = Addons.RandomElement();
 
         List<PlayerControl> availableTargets =
-            Main.AllAlivePlayerControls.Where(x =>
+            Main.EnumerateAlivePlayerControls().Where(x =>
                 x.PlayerId != player.PlayerId
                 && !x.Is(addon)
                 && CustomRolesHelper.CheckAddonConflict(addon, x)

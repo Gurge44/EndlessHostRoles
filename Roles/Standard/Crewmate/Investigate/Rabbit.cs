@@ -76,7 +76,7 @@ internal class Rabbit : RoleBase
         {
             if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished)) return;
 
-            PlayerControl[] impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
+            PlayerControl[] impostors = Main.EnumerateAlivePlayerControls().Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
             PlayerControl target = impostors.RandomElement();
             if (target == null) return;
 

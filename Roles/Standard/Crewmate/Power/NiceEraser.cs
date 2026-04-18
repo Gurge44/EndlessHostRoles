@@ -71,7 +71,7 @@ internal class NiceEraser : RoleBase
 
         if (target.PlayerId == player.PlayerId)
         {
-            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")), sendOption: SendOption.None);
+            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")), importance: MessageImportance.Low);
             return false;
         }
 

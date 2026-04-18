@@ -17,6 +17,7 @@ public class Slenderman : RoleBase
     private static OptionItem ImpostorVision;
     private static OptionItem BlindRange;
     private static OptionItem AfterMeetingBlindCooldown;
+    private static OptionItem AffectsPlayersInVents;
 
     private HashSet<byte> Blinded;
     private PlayerControl SlendermanPC;
@@ -29,7 +30,8 @@ public class Slenderman : RoleBase
             .AutoSetupOption(ref CanVent, true)
             .AutoSetupOption(ref ImpostorVision, true)
             .AutoSetupOption(ref BlindRange, 4f, new FloatValueRule(0.25f, 10f, 0.25f), OptionFormat.Multiplier)
-            .AutoSetupOption(ref AfterMeetingBlindCooldown, 8, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds);
+            .AutoSetupOption(ref AfterMeetingBlindCooldown, 8, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
+            .AutoSetupOption(ref AffectsPlayersInVents, false);
     }
 
     public override void Init()
@@ -74,15 +76,15 @@ public class Slenderman : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (pc.Is(CustomRoles.Slenderman)) return;
+        if (pc.Is(CustomRoles.Slenderman) || (pc.inVent && !AffectsPlayersInVents.GetBool())) return;
         
-        if (MeetingCooldownEndTS > Utils.TimeStamp || SlendermanPC == null || !SlendermanPC.IsAlive())
+        if (MeetingCooldownEndTS > Utils.TimeStamp || !SlendermanPC || !SlendermanPC.IsAlive())
         {
             Blinded.Clear();
             return;
         }
 
-        bool inRange = Vector2.Distance(pc.Pos(), SlendermanPC.Pos()) <= BlindRange.GetFloat();
+        bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), SlendermanPC.Pos(), BlindRange.GetFloat());
 
         if ((inRange && Blinded.Add(pc.PlayerId)) || (!inRange && Blinded.Remove(pc.PlayerId)))
         {

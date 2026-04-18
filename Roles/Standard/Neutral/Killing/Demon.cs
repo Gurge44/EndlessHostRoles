@@ -68,7 +68,7 @@ public class Demon : RoleBase
         PlayerIdList.Add(playerId);
         DemonHealth[playerId] = SelfHealthMax.GetInt();
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
     }
 

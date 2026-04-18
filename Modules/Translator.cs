@@ -1,3 +1,4 @@
+﻿using EHR.Gamemodes;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,11 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using EHR.Gamemodes;
-
-#if !ANDROID
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-#endif
 
 namespace EHR;
 
@@ -20,6 +16,7 @@ public static class Translator
     private const string LanguageFolderName = "Language";
     private static Dictionary<string, Dictionary<int, string>> TranslateMaps;
     public static Dictionary<CustomRoles, Dictionary<SupportedLangs, string>> OriginalRoleNames;
+    public static readonly StringNames[] AllStringNames = Enum.GetValues<StringNames>();
 
     public static void Init()
     {
@@ -27,6 +24,13 @@ public static class Translator
         LoadLangs();
         Logger.Info("Loaded Custom Translations", "Translator");
     }
+
+    // jsonc load options so that comments and trailing commas are allowed
+    private static readonly JsonSerializerOptions JsoncOptions = new()
+    {
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true
+    };
 
     public static void LoadLangs()
     {
@@ -48,30 +52,40 @@ public static class Translator
 
             foreach (string jsonFileName in jsonFileNames)
             {
-                // Read the JSON file content
                 using Stream resourceStream = assembly.GetManifestResourceStream(jsonFileName);
+                if (resourceStream == null) continue;
 
-                if (resourceStream != null)
+                try
                 {
-                    using StreamReader reader = new(resourceStream);
-                    string jsonContent = reader.ReadToEnd();
-                    
-                    // Deserialize the JSON into a dictionary
-                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                    // actually you can directly deserialize from resource stream
+                    var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(
+                        resourceStream,
+                        JsoncOptions);
 
-                    if (jsonDictionary.TryGetValue("LanguageID", out string languageIdObj) && int.TryParse(languageIdObj, out int languageId))
+                    if (jsonDictionary == null)
                     {
-                        // Remove the "LanguageID" entry
-                        jsonDictionary.Remove("LanguageID");
-
-                        // Handle the rest of the data and merge it into the resulting translation map
-                        MergeJsonIntoTranslationMap(TranslateMaps, languageId, jsonDictionary);
+                        Logger.Warn($"Failed to deserialize JSON file: {jsonFileName}. Is it a vaild jsonc?", "Translator");
+                        continue;
                     }
-                    else
+
+                    // read LanguageID
+                    if (!jsonDictionary.TryGetValue("LanguageID", out var langElem) ||
+                        !int.TryParse(langElem.GetString(), out int languageId))
                     {
-                        //Logger.Warn(jsonDictionary["HostText"], "Translator");
                         Logger.Warn($"Invalid JSON format in {jsonFileName}: Missing or invalid 'LanguageID' field.", "Translator");
+                        continue;
                     }
+
+                    jsonDictionary.Remove("LanguageID");
+
+                    // We expect every element in the jsonc file is a string value.
+                    // But just in case someone added a number or other stuff in it,
+                    // we put a check in the MergeJsonIntoTranslationMap function.
+                    MergeJsonIntoTranslationMap(TranslateMaps, languageId, jsonDictionary);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error parsing {jsonFileName}: {ex}", "Translator");
                 }
             }
         }
@@ -80,9 +94,9 @@ public static class Translator
         // Loading custom translation files
         if (!Directory.Exists($"{Main.DataPath}/{LanguageFolderName}")) Directory.CreateDirectory($"{Main.DataPath}/{LanguageFolderName}");
 
-        try { OriginalRoleNames = Enum.GetValues<CustomRoles>().ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
+        try { OriginalRoleNames = Main.CustomRoleValues.ToDictionary(x => x, x => Enum.GetValues<SupportedLangs>().ToDictionary(s => s, s => GetString($"{x}", s))); }
         catch (Exception e) { Utils.ThrowException(e); }
-        
+
         // Creating a translation template
         CreateTemplateFile();
 
@@ -96,20 +110,27 @@ public static class Translator
         }
     }
 
-    private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, string> jsonDictionary)
+    private static void MergeJsonIntoTranslationMap(Dictionary<string, Dictionary<int, string>> translationMaps, int languageId, Dictionary<string, JsonElement> jsonDictionary)
     {
-        foreach (KeyValuePair<string, string> kvp in jsonDictionary)
+        foreach ((string key, JsonElement value) in jsonDictionary)
         {
-            string textString = kvp.Key;
-
-            if (kvp.Value is { } translation)
+            if (value.ValueKind != JsonValueKind.String)
             {
-                // If the textString is not already in the translation map, add it
-                if (!translationMaps.ContainsKey(textString)) translationMaps[textString] = [];
-
-                // Add or update the translation for the current id and textString
-                translationMaps[textString][languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
+                Logger.Warn($"Invalid value type for key '{key}' in language ID {languageId}. Expected a string.", "Translator");
+                continue;
             }
+
+            string translation = value.GetString();
+            if (string.IsNullOrEmpty(translation))
+                continue;
+
+            if (!translationMaps.TryGetValue(key, out var langMap))
+            {
+                langMap = [];
+                translationMaps[key] = langMap;
+            }
+
+            langMap[languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
         }
     }
 
@@ -117,17 +138,17 @@ public static class Translator
     private static string[] GetJsonFileNames(Assembly assembly, string directoryName)
     {
         string[] resourceNames = assembly.GetManifestResourceNames();
-        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && resourceName.EndsWith(".json")).ToArray();
+        return resourceNames.Where(resourceName => resourceName.StartsWith(directoryName) && (resourceName.EndsWith(".jsonc") || resourceName.EndsWith(".json"))).ToArray();
     }
 
     public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
     {
         if (SubmergedCompatibility.IsSubmerged() && int.TryParse(s, out int roomNumber) && roomNumber is >= 128 and <= 135)
             s = $"SubmergedRoomName.{roomNumber}";
-        
+
         if (GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Deathrace && int.TryParse(s, out roomNumber) && Deathrace.CoordinateChecks.ContainsKey(roomNumber))
             s = "Deathrace.CoordinateCheck";
-        
+
         SupportedLangs langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
         if (console) langId = SupportedLangs.English;
 
@@ -148,7 +169,7 @@ public static class Translator
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);
         }
-        
+
         if (modLanguageId == 1) // Hungarian (none of the fonts support ő/ű and innersloth doesn't care, thankfully at least German has ö/ü)
             str = str.Replace("ő", "ö", StringComparison.CurrentCultureIgnoreCase).Replace("ű", "ü", StringComparison.CurrentCultureIgnoreCase);
 
@@ -164,7 +185,7 @@ public static class Translator
             if (TranslateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || string.IsNullOrEmpty(res) || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese))))
                 res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
 
-            if (!TranslateMaps.ContainsKey(str) && Enum.GetValues<StringNames>().FindFirst(x => x.ToString() == str, out StringNames stringNames))
+            if (!TranslateMaps.ContainsKey(str) && AllStringNames.FindFirst(x => x.ToString() == str, out StringNames stringNames))
                 res = GetString(stringNames);
         }
         catch (Exception ex)
@@ -178,11 +199,7 @@ public static class Translator
 
     public static string GetString(StringNames stringName)
     {
-#if ANDROID
         return TranslationController.Instance.GetString(stringName);
-#else
-        return TranslationController.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
-#endif
     }
 
     public static string GetRoleString(string str, bool forUser = true)
@@ -307,4 +324,15 @@ public static class Translator
     {
         return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
     }
+
+    public static bool LangHasSensitiveOutlineText()
+    {
+        return TranslationController.InstanceExists && TranslationController.Instance.currentLanguage.languageID is
+                SupportedLangs.Russian or
+                SupportedLangs.Korean or
+                SupportedLangs.Japanese or
+                SupportedLangs.SChinese or
+                SupportedLangs.TChinese;
+    }
+
 }

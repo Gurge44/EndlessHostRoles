@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -17,9 +19,8 @@ public class Rhapsode : RoleBase
     private static OptionItem AbilityUseLimit;
     public static OptionItem RhapsodeAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
-    private bool AbilityActive;
-    private long ActivateTimeStamp;
-    private long LastUpdate;
+    
+    private CountdownTimer Timer;
     private byte RhapsodeId;
 
     public override bool IsEnable => On;
@@ -64,9 +65,7 @@ public class Rhapsode : RoleBase
         On = true;
         Instances.Add(this);
         RhapsodeId = playerId;
-        AbilityActive = false;
-        ActivateTimeStamp = 0;
-        LastUpdate = 0;
+        Timer = null;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 
@@ -96,46 +95,26 @@ public class Rhapsode : RoleBase
 
     private void ActivateAbility(PlayerControl pc)
     {
-        AbilityActive = true;
-        ActivateTimeStamp = Utils.TimeStamp;
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, AbilityActive);
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-
-        LastUpdate = now;
-
-        if (AbilityActive && Utils.TimeStamp - ActivateTimeStamp >= AbilityDuration.GetInt())
-        {
-            AbilityActive = false;
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, AbilityActive);
-        }
-
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc), onCanceled: () => Timer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     public static bool CheckAbilityUse(PlayerControl pc)
     {
         if (pc.IsCrewmate() && ExcludeCrewmates.GetBool()) return true;
-
-        return !Instances.Any(x => x.AbilityActive);
+        return Instances.All(x => x.Timer == null);
     }
 
     public void ReceiveRPC(MessageReader reader)
     {
-        AbilityActive = reader.ReadBoolean();
-        if (AbilityActive) ActivateTimeStamp = Utils.TimeStamp;
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != RhapsodeId || hud || meeting || !AbilityActive) return string.Empty;
-
-        return $"\u25b6 ({AbilityDuration.GetInt() - (Utils.TimeStamp - ActivateTimeStamp)}s)";
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != RhapsodeId || hud || meeting || Timer == null) return string.Empty;
+        return $"\u25b6 ({(int)Math.Ceiling(Timer.Remaining.TotalSeconds)}s)";
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

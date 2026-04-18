@@ -10,6 +10,7 @@ using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
+using Tree = EHR.Roles.Tree;
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/AllObjects
 // Huge thanks to Rabek009 for this code!
@@ -24,12 +25,12 @@ namespace EHR
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
-        protected string Sprite;
+        private string Sprite;
 
         public void RpcChangeSprite(string sprite)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (this is not DisasterWarningTimer) Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
+            if (this is not NaturalDisaster nd || nd.SpawnTimer <= 0f) Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
 
             Sprite = sprite;
 
@@ -39,7 +40,8 @@ namespace EHR
             string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
             string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
             string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
-            var sender = CustomRpcSender.Create("CustomNetObject.RpcChangeSprite", this is BedWarsItemGenerator ? SendOption.None : SendOption.Reliable, log: false);
+            bool notImportant = this is BedWarsItemGenerator || (this is NaturalDisaster { SpawnTimer: > 1f } && Options.CurrentGameMode != CustomGameMode.NaturalDisasters && GameStates.CurrentServerType == GameStates.ServerType.Vanilla);
+            var sender = CustomRpcSender.Create("CustomNetObject.RpcChangeSprite", notImportant ? SendOption.None : SendOption.Reliable, log: false);
             MessageWriter writer = sender.stream;
             sender.StartMessage();
             PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
@@ -78,9 +80,6 @@ namespace EHR
 
             sender.EndMessage();
             sender.SendMessage();
-
-            playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
-            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.3f);
         }
 
         public void TP(Vector2 position)
@@ -95,7 +94,7 @@ namespace EHR
 
             try
             {
-                if (playerControl != null)
+                if (playerControl)
                 {
                     MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                     writer.StartMessage(5);
@@ -298,7 +297,7 @@ namespace EHR
 
                     sender.EndMessage();
                     sender.SendMessage();
-                }, 0.2f);
+                }, 0.25f);
             }
 
             playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
@@ -313,7 +312,7 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                 {
                     if (pc.AmOwner) continue;
 
@@ -345,9 +344,6 @@ namespace EHR
             
                 playerControl.CachedPlayerData = PlayerControl.LocalPlayer.Data;
             }, 0.1f);
-
-            LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.3f); // Fix for Host
-            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl, true), 0.6f); // Fix for Non-Host Modded
         }
         
         public virtual void OnMeeting()
@@ -408,7 +404,7 @@ namespace EHR
         {
             SpawnTimeStamp = Utils.TimeStamp;
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
-            LateTask.New(() => Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.7f);
+            LateTask.New(() => Main.EnumerateAlivePlayerControls().ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.4f);
         }
 
         protected override void OnFixedUpdate()
@@ -431,6 +427,11 @@ namespace EHR
                 finally { Gone = true; }
             }
         }
+
+        public override void OnMeeting()
+        {
+            Despawn();
+        }
     }
 
     internal sealed class PlayerDetector : CustomNetObject
@@ -438,7 +439,7 @@ namespace EHR
         public PlayerDetector(Vector2 position, List<byte> visibleList, out int id)
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
-            LateTask.New(() => Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.7f);
+            LateTask.New(() => Main.EnumerateAlivePlayerControls().ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.4f);
             id = Id;
         }
     }
@@ -452,7 +453,7 @@ namespace EHR
             Resource = resource;
             (char Icon, Color Color) data = Adventurer.ResourceDisplayData[resource];
             CreateNetObject($"<size=300%><font=\"VCR SDF\"><line-height=67%>{Utils.ColorString(data.Color, data.Icon.ToString())}</line-height></font></size>", position);
-            LateTask.New(() => Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.7f);
+            LateTask.New(() => Main.EnumerateAlivePlayerControls().ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.4f);
         }
     }
 
@@ -461,7 +462,7 @@ namespace EHR
         internal Toilet(Vector2 position, IEnumerable<PlayerControl> hideList)
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#dedede>\u2588<#dedede>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#454545>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
-            LateTask.New(() => hideList.Do(Hide), 0.7f);
+            LateTask.New(() => hideList.Do(Hide), 0.4f);
         }
     }
 
@@ -484,7 +485,12 @@ namespace EHR
         public SprayedArea(Vector2 position, IEnumerable<byte> visibleList)
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#ffd000>\u2588<#ffd000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<alpha=#00>\u2588<br><#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<br><#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<br><alpha=#00>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<#ffd000>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ffd000>\u2588<#ffd000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>", position);
-            LateTask.New(() => Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.7f);
+            LateTask.New(() => Main.EnumerateAlivePlayerControls().ExceptBy(visibleList, x => x.PlayerId).Do(Hide), 0.4f);
+        }
+
+        public override void OnMeeting()
+        {
+            Despawn();
         }
     }
 
@@ -493,7 +499,12 @@ namespace EHR
         public CatcherTrap(Vector2 position, PlayerControl catcher)
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<br><#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<br><#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<br><alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>", position);
-            LateTask.New(() => Main.AllAlivePlayerControls.Without(catcher).Do(Hide), 0.7f);
+            LateTask.New(() => Main.EnumerateAlivePlayerControls().Without(catcher).Do(Hide), 0.4f);
+        }
+
+        public override void OnMeeting()
+        {
+            Despawn();
         }
     }
 
@@ -518,37 +529,7 @@ namespace EHR
         public SoulObject(Vector2 position, PlayerControl whisperer)
         {
             CreateNetObject("<size=80%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#cfcfcf>\u2588<#cfcfcf>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<br></line-height></size>", position);
-            LateTask.New(() => Main.AllAlivePlayerControls.Without(whisperer).Do(Hide), 0.7f);
-        }
-    }
-
-    internal sealed class DisasterWarningTimer : CustomNetObject
-    {
-        public DisasterWarningTimer(Vector2 position, float time, string disaster)
-        {
-            CreateNetObject($"<size=250%>{Math.Ceiling(time):N0}</size>\n{disaster}", position);
-            Disaster = disaster;
-            Timer = time;
-        }
-
-        private string Disaster { get; }
-        private float Timer { get; set; }
-        private int Time => (int)Math.Ceiling(Timer);
-
-        protected override void OnFixedUpdate()
-        {
-            base.OnFixedUpdate();
-            
-            int oldTime = Time;
-            
-            if (oldTime <= 0)
-            {
-                Despawn();
-                return;
-            }
-            
-            Timer -= UnityEngine.Time.fixedDeltaTime;
-            if (Time != oldTime) RpcChangeSprite($"<size=250%>{Time:N0}</size>\n{Disaster}");
+            LateTask.New(() => Main.EnumerateAlivePlayerControls().Without(whisperer).Do(Hide), 0.4f);
         }
     }
 
@@ -557,36 +538,50 @@ namespace EHR
         public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
             string name = Translator.GetString($"ND_{disasterName}");
+            string warning = $"<size=250%>{Math.Ceiling(time):N0}</size>\n{name}";
 
             if (room.HasValue)
             {
-                name = $"<#ff0000>{name}</color>";
-                Main.AllAlivePlayerControls.DoIf(x => x.IsInRoom(room.Value), x => x.ReactorFlash());
+                warning = $"<#ff4444>{warning}</color>";
+                Main.EnumerateAlivePlayerControls().DoIf(x => x.IsInRoom(room.Value), x => x.ReactorFlash());
             }
 
-            WarningTimer = new(position, time, name);
             SpawnTimer = time;
-            Sprite = sprite;
+            DisasterSprite = sprite;
             DisasterName = disasterName;
+            DisasterNameTranslated = name;
             Room = room;
+
+            CreateNetObject(warning, position);
         }
 
         public SystemTypes? Room { get; }
         public string DisasterName { get; }
         public float SpawnTimer { get; private set; }
-        private DisasterWarningTimer WarningTimer { get; }
+        private string DisasterSprite { get; }
+        
+        private int TimeInt => (int)Math.Ceiling(SpawnTimer);
+        private string DisasterNameTranslated { get; }
 
         public void Update()
         {
             if (float.IsNaN(SpawnTimer)) return;
 
+            int oldTime = TimeInt;
             SpawnTimer -= Time.fixedDeltaTime;
 
             if (SpawnTimer <= 0f)
             {
-                WarningTimer.Despawn();
-                CreateNetObject(Sprite, WarningTimer.Position);
+                if (!Room.HasValue) RpcChangeSprite(DisasterSprite);
                 SpawnTimer = float.NaN;
+            }
+            else
+            {
+                int newTime = TimeInt;
+                if (oldTime == newTime) return;
+                string warning = $"<size=250%>{newTime:N0}</size>\n{DisasterNameTranslated}";
+                if (Room.HasValue) warning = $"<#ff4444>{warning}</color>";
+                RpcChangeSprite(warning);
             }
         }
     }
@@ -748,7 +743,7 @@ namespace EHR
     {
         public FallenTree(Vector2 position)
         {
-            CreateNetObject(Roles.Tree.FallenSprite, position);
+            CreateNetObject(Tree.FallenSprite, position);
         }
     }
 
@@ -757,7 +752,7 @@ namespace EHR
         public ShapeshiftMenuElement(byte visibleTo)
         {
             CreateNetObject(string.Empty, new Vector2(0f, 0f));
-            LateTask.New(() => Main.AllPlayerControls.DoIf(x => x.PlayerId != visibleTo, Hide), 0.7f);
+            LateTask.New(() => Main.EnumeratePlayerControls().DoIf(x => x.PlayerId != visibleTo, Hide), 0.4f);
         }
     }
 

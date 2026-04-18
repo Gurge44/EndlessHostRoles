@@ -144,14 +144,14 @@ public class Virus : RoleBase
         Logger.Info("Add-on assigned:" + target.Data?.PlayerName + " = " + target.GetCustomRole() + " + " + CustomRoles.Contagious, "Assign " + CustomRoles.Contagious);
     }
 
-    public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
+    public static void OnCheckForEndVoting(params byte[] exileIds)
     {
         try
         {
             if (!KillInfectedPlayerAfterMeeting.GetBool()) return;
 
-            PlayerControl virus = Main.AllAlivePlayerControls.FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
-            if (virus == null || deathReason != PlayerState.DeathReason.Vote) return;
+            PlayerControl virus = Main.EnumerateAlivePlayerControls().FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
+            if (!virus) return;
 
             if (exileIds.Contains(virus.PlayerId))
             {
@@ -161,7 +161,7 @@ public class Virus : RoleBase
 
             var infectedIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
                 if (!isInfected) continue;

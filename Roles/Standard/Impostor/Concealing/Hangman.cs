@@ -77,14 +77,14 @@ public class Hangman : RoleBase
         {
             if (target.Is(CustomRoles.Pestilence)) return false;
 
-            if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
+            if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.Contains(target.PlayerId)) return false;
 
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             killer.RpcRemoveAbilityUse();
-            target.Data.IsDead = true;
             target.SetRealKiller(killer);
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.LossOfHead;
             target.RpcExileV2();
+            target.Data.IsDead = true;
             Main.PlayerStates[target.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(target);
             target.SetRealKiller(killer);

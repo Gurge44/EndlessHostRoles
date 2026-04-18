@@ -1,7 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
-using static EHR.Utils;
 
 namespace EHR.Roles;
 
@@ -11,12 +10,9 @@ internal class Enderman : RoleBase
     private static OptionItem CanVent;
     private static OptionItem Time;
     private static OptionItem ImpostorVision;
-
-    private byte EndermanId = byte.MaxValue;
-    private (Vector2 Position, long MarkTimeStamp, bool TP) MarkedPosition = (Vector2.zero, 0, false);
     private static int Id => 643200;
 
-    private PlayerControl EndermanPC => GetPlayerById(EndermanId);
+    private byte EndermanId = byte.MaxValue;
 
     public override bool IsEnable => EndermanId != byte.MaxValue;
 
@@ -41,14 +37,12 @@ internal class Enderman : RoleBase
 
     public override void Init()
     {
-        EndermanId = byte.MaxValue;
-        MarkedPosition.TP = false;
+        
     }
 
     public override void Add(byte playerId)
     {
         EndermanId = playerId;
-        MarkedPosition = (Vector2.zero, 0, false);
     }
 
     public override void SetKillCooldown(byte id)
@@ -75,18 +69,18 @@ internal class Enderman : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        MarkPosition();
+        MarkPosition(pc);
     }
 
     public override bool OnSabotage(PlayerControl pc)
     {
-        MarkPosition();
+        MarkPosition(pc);
         return pc.Is(CustomRoles.Mischievous);
     }
 
     public override bool OnVanish(PlayerControl pc)
     {
-        MarkPosition();
+        MarkPosition(pc);
         return false;
     }
 
@@ -94,33 +88,22 @@ internal class Enderman : RoleBase
     {
         if (!shapeshifting) return true;
 
-        MarkPosition();
+        MarkPosition(shapeshifter);
         return false;
     }
 
-    private void MarkPosition()
+    private void MarkPosition(PlayerControl pc)
     {
-        if (!IsEnable || EndermanPC.HasAbilityCD()) return;
+        if (!IsEnable || pc.HasAbilityCD()) return;
 
-        EndermanPC.AddAbilityCD(Time.GetInt() + 2);
-        MarkedPosition.MarkTimeStamp = TimeStamp;
-        MarkedPosition.Position = EndermanPC.Pos();
-        MarkedPosition.TP = true;
-        EndermanPC.Notify(GetString("MarkDone"));
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !EndermanPC.IsAlive() || MarkedPosition.MarkTimeStamp + Time.GetInt() >= TimeStamp) return;
-
-        EndermanPC.TP(MarkedPosition.Position);
-        MarkedPosition.TP = false;
-    }
-
-    public override void OnReportDeadBody()
-    {
-        if (!IsEnable) return;
-
-        MarkedPosition.TP = false;
+        int time = Time.GetInt();
+        pc.AddAbilityCD(time + 2);
+        Vector2 pos = pc.Pos();
+        LateTask.New(() =>
+        {
+            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
+            pc.TP(pos);
+        }, time);
+        pc.Notify(GetString("MarkDone"));
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -11,7 +12,7 @@ public class Spy : RoleBase
 {
     private const int Id = 640400;
     private static List<byte> PlayerIdList = [];
-    public static Dictionary<byte, long> SpyRedNameList = [];
+    public static HashSet<byte> SpyRedNameList = [];
 
     private static OptionItem SpyRedNameDur;
     private static OptionItem UseLimitOpt;
@@ -61,25 +62,13 @@ public class Spy : RoleBase
         PlayerIdList.Remove(playerId);
     }
 
-    private static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
+    private static void SendRPC(int operate, byte id = byte.MaxValue)
     {
         if (!DoRPC) return;
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable);
         writer.Write(operate);
-
-        switch (operate)
-        {
-            case 1: // Red Name Add
-                writer.Write(id);
-                writer.Write(SpyRedNameList[id].ToString());
-                break;
-            case 3: // Red Name Remove
-                writer.Write(id);
-                writer.Write(changeColor);
-                break;
-        }
-
+        writer.Write(id);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -91,13 +80,10 @@ public class Spy : RoleBase
         {
             case 1:
                 byte susId = reader.ReadByte();
-                string stimeStamp = reader.ReadString();
-                if (long.TryParse(stimeStamp, out long timeStamp)) SpyRedNameList[susId] = timeStamp;
-
+                SpyRedNameList.Add(susId);
                 return;
             case 3:
                 SpyRedNameList.Remove(reader.ReadByte());
-                reader.ReadBoolean();
                 return;
         }
     }
@@ -107,31 +93,21 @@ public class Spy : RoleBase
         if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return true;
 
         target.RpcRemoveAbilityUse();
-        SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
+        SpyRedNameList.Add(killer.PlayerId);
         SendRPC(1, killer.PlayerId);
         NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
         killer.SetKillCooldown();
 
-        return false;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
-
-        long now = TimeStamp;
-        if (now == LastUpdate) return;
-
-        LastUpdate = now;
-
-        foreach (KeyValuePair<byte, long> x in SpyRedNameList)
+        _ = new CountdownTimer(SpyRedNameDur.GetInt(), () =>
         {
-            if (x.Value + SpyRedNameDur.GetInt() < now || !GameStates.IsInTask)
-            {
-                SpyRedNameList.Remove(x.Key);
-                SendRPC(3, x.Key, true);
-                NotifyRoles(SpecifySeer: pc, SpecifyTarget: x.Key.GetPlayer());
-            }
-        }
+            SpyRedNameList.Remove(killer.PlayerId);
+            SendRPC(3, killer.PlayerId);
+            NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+        }, onCanceled: () =>
+        {
+            SpyRedNameList.Remove(killer.PlayerId);
+            SendRPC(3, killer.PlayerId);
+        });
+        return false;
     }
 }

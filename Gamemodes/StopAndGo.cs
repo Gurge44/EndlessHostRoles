@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Modules;
 using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR.Gamemodes;
 
-public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, char symbol, bool isRed, Func<char, int> randomRedTimeFunc, Func<char, int> randomGreenTimeFunc, bool isYellow = false)
+public class Counter(int totalGreenTime, int totalRedTime, char symbol, bool isRed, Func<char, int> randomRedTimeFunc, Func<char, int> randomGreenTimeFunc, bool isYellow = false)
 {
     private int TotalGreenTime { get; set; } = totalGreenTime;
     public int TotalRedTime { get; private set; } = totalRedTime;
-    public long StartTimeStamp { get; set; } = startTimeStamp;
+    public Stopwatch Stopwatch { get; } = Stopwatch.StartNew();
     private char Symbol { get; } = symbol;
     public bool IsRed { get; private set; } = isRed;
     private Func<char, int> RandomRedTime { get; } = randomRedTimeFunc;
     private Func<char, int> RandomGreenTime { get; } = randomGreenTimeFunc;
     private bool IsYellow { get; set; } = isYellow;
-    private static int TotalYellowTime => 3;
+    private const int TotalYellowTime = 3;
 
-    public int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Math.Round((double)(Utils.TimeStamp - StartTimeStamp));
+    public int Timer => (IsRed ? TotalRedTime : IsYellow ? TotalYellowTime : TotalGreenTime) - (int)Stopwatch.Elapsed.TotalSeconds;
 
     public string ColoredTimerString
     {
@@ -29,11 +29,12 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
             if (StopAndGo.IsEventActive && StopAndGo.Event.Type == StopAndGo.Events.HiddenTimers)
                 return "--";
 
-            bool hidden = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed);
-            string result = hidden ? Utils.ColorString(Color.clear, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
+            int timer = Timer;
+            bool hidden = IsYellow || (timer == TotalGreenTime && !IsRed && !IsYellow) || (timer == TotalRedTime && IsRed);
+            string result = hidden ? Utils.ColorString(Color.clear, "--") : Utils.ColorString(IsRed ? Color.red : Color.green, timer < 10 ? $" {timer}" : timer.ToString());
 
-            if (Timer is <= 19 and >= 10 && !hidden) result = $" {result}";
-            if (Timer % 10 == 1 && !hidden) result = result.Insert(result.Length - 9, " ");
+            if (timer is <= 19 and >= 10 && !hidden) result = $" {result}";
+            if (timer % 10 == 1 && !hidden) result = result.Insert(result.Length - 9, " ");
 
             return result;
         }
@@ -43,29 +44,28 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
 
     public void Update()
     {
-        if (Timer <= 0)
-        {
-            switch (IsRed)
-            {
-                // Change from green to yellow
-                case false when !IsYellow:
-                    IsYellow = true;
-                    break;
-                // Change from red to green
-                case true when !IsYellow:
-                    TotalGreenTime = RandomGreenTime(Symbol);
-                    IsRed = false;
-                    break;
-                // Change from yellow to red
-                case false when IsYellow:
-                    TotalRedTime = RandomRedTime(Symbol);
-                    IsYellow = false;
-                    IsRed = true;
-                    break;
-            }
+        if (!Stopwatch.IsRunning || Timer > 0) return;
 
-            StartTimeStamp = Utils.TimeStamp;
+        switch (IsRed, IsYellow)
+        {
+            // Change from green to yellow
+            case (IsRed: false, IsYellow: false):
+                IsYellow = true;
+                break;
+            // Change from red to green
+            case (IsRed: true, IsYellow: false):
+                TotalGreenTime = RandomGreenTime(Symbol);
+                IsRed = false;
+                break;
+            // Change from yellow to red
+            case (IsRed: false, IsYellow: true):
+                TotalRedTime = RandomRedTime(Symbol);
+                IsYellow = false;
+                IsRed = true;
+                break;
         }
+
+        Stopwatch.Restart();
     }
 }
 
@@ -83,7 +83,7 @@ internal class StopAndGoPlayerData(Counter[] counters, float positionX, float po
 
     public int Lives { get; private set; } = lives;
 
-    private float LostLifeCooldownTimer { get; set; }
+    private Stopwatch LostLifeCooldownTimer { get; set; } = Stopwatch.StartNew();
 
     public override string ToString()
     {
@@ -100,8 +100,6 @@ internal class StopAndGoPlayerData(Counter[] counters, float positionX, float po
 
     public void UpdateCounters()
     {
-        if (LostLifeCooldownTimer > 0f) LostLifeCooldownTimer -= Time.deltaTime;
-
         LeftCounter.Update();
         MiddleCounter.Update();
         RightCounter.Update();
@@ -109,10 +107,10 @@ internal class StopAndGoPlayerData(Counter[] counters, float positionX, float po
 
     public bool RemoveLife(PlayerControl pc)
     {
-        if (pc.inVent || LostLifeCooldownTimer > 0f) return false;
+        if (pc.inVent || LostLifeCooldownTimer.ElapsedMilliseconds < 1000) return false;
 
         Lives--;
-        LostLifeCooldownTimer = 1f;
+        LostLifeCooldownTimer = Stopwatch.StartNew();
 
         if (Lives <= 0)
         {
@@ -169,9 +167,11 @@ internal static class StopAndGo
 
     private static IRandom Random => IRandom.Instance;
 
-    public static int RoundTime { get; set; }
+    public static Stopwatch RoundTimer { get; set; }
 
-    private static int TimeSinceStart => GameTime.GetInt() - RoundTime;
+    public static int RoundTime => GameTime.GetInt() - TimeSinceStart;
+
+    private static int TimeSinceStart => (int)RoundTimer.Elapsed.TotalSeconds;
 
     private static int ExtraGreenTime => Main.CurrentMap switch
     {
@@ -347,28 +347,24 @@ internal static class StopAndGo
     {
         if (Options.CurrentGameMode != CustomGameMode.StopAndGo) return;
 
-        FixedUpdatePatch.LastSuffix = [];
         FixedUpdatePatch.Limit = [];
         AllPlayerTimers = [];
-        RoundTime = GameTime.GetInt() + 14;
-        Utils.SendRPC(CustomRPC.SAGSync, RoundTime);
+        RoundTimer = Stopwatch.StartNew();
 
         FixedUpdatePatch.DoChecks = false;
     }
 
     public static void OnGameStart()
     {
-        RoundTime = GameTime.GetInt();
+        RoundTimer = Stopwatch.StartNew();
         FixedUpdatePatch.DoChecks = true;
 
-        long now = Utils.TimeStamp;
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();
 
-            Counter[] counters = new[] { '⬅', '⇅', '➡' }.Select(x => new Counter(startingGreenTime, RandomRedTime(x), now, x, false, RandomRedTime, RandomGreenTime)).ToArray();
+            Counter[] counters = new[] { '⬅', '⇅', '➡' }.Select(x => new Counter(startingGreenTime, RandomRedTime(x), x, false, RandomRedTime, RandomGreenTime)).ToArray();
             AllPlayerTimers[pc.PlayerId] = new(counters, pos.x, pos.y, PlayerLives.GetInt());
 
             float limit;
@@ -395,7 +391,7 @@ internal static class StopAndGo
             rank += Main.PlayerStates.Values.Where(x => x.TaskState.CompletedTasksCount == ms).ToList().IndexOf(state);
             return rank;
         }
-        catch { return Main.AllPlayerControls.Length; }
+        catch { return PlayerControl.AllPlayerControls.Count; }
     }
 
     public static string GetSuffixText(PlayerControl pc)
@@ -403,7 +399,7 @@ internal static class StopAndGo
         if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out StopAndGoPlayerData timers)) return string.Empty;
 
         string text = IsEventActive ? $"{string.Format(GetString("StopAndGo_EventActive"), GetString($"StopAndGo_Event_{Event.Type}"), Event.Duration + Event.StartTimeStamp - Utils.TimeStamp)}\n" : "\n";
-        text += IsEventActive && Event.Type == Events.FrozenTimers ? FixedUpdatePatch.LastSuffix[pc.PlayerId].Trim() : timers.ToString();
+        text += timers.ToString();
 
         if (TimeSinceStart < 20 && EnableTutorial.GetBool() && !HasPlayed.Contains(pc.FriendCode))
             text += $"\n\n{GetString("StopAndGo_Tutorial")}";
@@ -421,7 +417,6 @@ internal static class StopAndGo
     {
         public static bool DoChecks;
         private static long LastFixedUpdate;
-        public static Dictionary<byte, string> LastSuffix = [];
         public static Dictionary<byte, float> Limit = [];
 
         public static void Postfix(PlayerControl __instance)
@@ -447,11 +442,11 @@ internal static class StopAndGo
                     {
                         case Events.VentAccess:
                         {
-                            Main.AllAlivePlayerControls.Do(x => x.RpcSetRoleDesync(RoleTypes.Engineer, x.OwnerId));
+                            Main.EnumerateAlivePlayerControls().Do(x => x.RpcSetRoleDesync(RoleTypes.Engineer, x.OwnerId));
 
                             LateTask.New(() =>
                             {
-                                Main.AllAlivePlayerControls.Do(x =>
+                                Main.EnumerateAlivePlayerControls().Do(x =>
                                 {
                                     x.RpcSetRoleDesync(RoleTypes.Crewmate, x.OwnerId);
 
@@ -481,7 +476,8 @@ internal static class StopAndGo
                         }
                         case Events.FrozenTimers:
                         {
-                            AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.StartTimeStamp += duration);
+                            AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.Stopwatch.Stop());
+                            LateTask.New(() => AllPlayerTimers.Values.SelectMany(x => new[] { x.LeftCounter, x.MiddleCounter, x.RightCounter }).Do(x => x.Stopwatch.Start()), duration, log: false);
                             break;
                         }
                     }
@@ -567,20 +563,15 @@ internal static class StopAndGo
                 End:
 
                 data.UpdateCounters();
-
-                if (!IsEventActive || Event.Type != Events.FrozenTimers)
-                    LastSuffix[pc.PlayerId] = GetSuffixText(pc);
-
-                bool IsCounterRed(Counter counter) => counter.IsRed && (pc.IsHost() || counter.Timer != counter.TotalRedTime);
             }
 
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            RoundTime--;
-            Utils.SendRPC(CustomRPC.SAGSync, RoundTime);
-
             Utils.NotifyRoles();
+            return;
+
+            bool IsCounterRed(Counter counter) => counter.IsRed && (pc.AmOwner || counter.Timer != counter.TotalRedTime);
         }
     }
 }

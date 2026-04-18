@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -14,7 +15,7 @@ public class Poache : CovenBase
     private static OptionItem CanVentAfterNecronomicon;
 
     public static HashSet<byte> PoachedPlayers = [];
-    private static List<(byte ID, long KillTimeStamp)> KillDelays = [];
+    private static List<byte> KillDelays = [];
 
     private byte PoacheId;
 
@@ -54,6 +55,11 @@ public class Poache : CovenBase
         return pc.IsAlive();
     }
 
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = AbilityCooldown.GetFloat();
+    }
+
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!HasNecronomicon)
@@ -61,18 +67,18 @@ public class Poache : CovenBase
             PoachedPlayers.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, PoacheId, 1, target.PlayerId);
         }
-        else KillDelays.Add((target.PlayerId, Utils.TimeStamp + KillDelay.GetInt()));
+        else
+        {
+            KillDelays.Add(target.PlayerId);
+            _ = new CountdownTimer(KillDelay.GetInt(), () =>
+            {
+                if (!KillDelays.Remove(target.PlayerId)) return;
+                target.Suicide(PlayerState.DeathReason.Poison, realKiller: killer);
+            }, onCanceled: () => KillDelays.Remove(target.PlayerId));
+        }
 
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         return false;
-    }
-
-    public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
-    {
-        if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !KillDelays.FindFirst(x => x.ID == pc.PlayerId, out (byte ID, long KillTimeStamp) killData) || Utils.TimeStamp < killData.KillTimeStamp) return;
-
-        pc.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer());
-        KillDelays.Remove(killData);
     }
 
     public override void AfterMeetingTasks()
@@ -83,7 +89,7 @@ public class Poache : CovenBase
 
     public override void OnReportDeadBody()
     {
-        KillDelays.ForEach(x => x.ID.GetPlayer()?.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer()));
+        KillDelays.ForEach(x => x.GetPlayer()?.Suicide(PlayerState.DeathReason.Poison, realKiller: PoacheId.GetPlayer()));
         KillDelays.Clear();
     }
 

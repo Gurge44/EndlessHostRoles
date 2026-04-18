@@ -63,7 +63,11 @@ public static class PhantomRolePatch
         {
             if (phantom.AmOwner)
             {
-                HudManager.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                try
+                {
+                    HudManager.Instance.AbilityButton.SetFromSettings(phantom.Data.Role.Ability);
+                }
+                catch { }
                 if (Utils.ShouldNotApplyAbilityCooldown(roleBase)) return false;
                 phantom.RpcResetAbilityCooldown();
                 return false;

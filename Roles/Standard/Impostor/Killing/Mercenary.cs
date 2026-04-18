@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
@@ -14,8 +13,7 @@ public class Mercenary : RoleBase
     private static OptionItem TimeLimit;
     private static OptionItem WaitFor1Kill;
 
-    private Stopwatch Timer;
-    private long LastNotify;
+    private CountdownTimer Timer;
     private byte MercenaryId;
 
     public override bool IsEnable => On;
@@ -44,9 +42,48 @@ public class Mercenary : RoleBase
     public override void Add(byte serial)
     {
         On = true;
-        Timer = new();
         MercenaryId = serial;
-        if (!WaitFor1Kill.GetBool()) LateTask.New(() => Timer.Start(), 10f, log: false);
+        Timer = null;
+        if (!AmongUsClient.Instance.AmHost || WaitFor1Kill.GetBool()) return;
+        StartNewTimer(10);
+    }
+
+    private void StartNewTimer(int add = 0)
+    {
+        Timer?.Dispose();
+        Timer = new CountdownTimer(TimeLimit.GetInt() + add, () =>
+        {
+            Timer = null;
+            
+            var player = MercenaryId.GetPlayer();
+            if (player == null || !player.IsAlive()) return;
+
+            player.Suicide();
+
+            if (player.AmOwner)
+                Achievements.Type.OutOfTime.Complete();
+        }, onTick: () =>
+        {
+            if (Timer.Remaining.TotalSeconds > 20) return;
+
+            var player = MercenaryId.GetPlayer();
+
+            if (player == null || !player.IsAlive())
+            {
+                Timer.Dispose();
+                Timer = null;
+                Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, false);
+                return;
+            }
+
+            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+        }, onCanceled: () => Timer = null);
+        Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, true);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Timer = reader.ReadBoolean() ? new CountdownTimer(TimeLimit.GetInt(), () => Timer = null, onCanceled: () => Timer = null) : null;
     }
 
     public override void SetKillCooldown(byte id)
@@ -56,66 +93,19 @@ public class Mercenary : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        Timer.Restart();
-        Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, 1);
+        StartNewTimer();
         return true;
-    }
-
-    public override void OnReportDeadBody()
-    {
-        Timer.Reset();
-        Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, 2);
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        if (!GameStates.IsInTask || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks) return;
-
-        if (!Timer.IsRunning || (MeetingStates.FirstMeeting && WaitFor1Kill.GetBool())) return;
-
-        long remainingTime = Timer.GetRemainingTime(TimeLimit.GetInt());
-
-        if (remainingTime <= 0)
-        {
-            player.Suicide();
-            Timer.Reset();
-
-            if (player.AmOwner)
-                Achievements.Type.OutOfTime.Complete();
-        }
-        else
-        {
-            long now = Utils.TimeStamp;
-            if (now == LastNotify || remainingTime > 20) return;
-            LastNotify = now;
-            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, Timer);
-        }
     }
 
     public override void AfterMeetingTasks()
     {
-        Timer.Restart();
-        Utils.SendRPC(CustomRPC.SyncRoleData, MercenaryId, 1);
-    }
-
-    public void ReceiveRPC(MessageReader reader)
-    {
-        switch (reader.ReadPackedInt32())
-        {
-            case 1:
-                Timer = Stopwatch.StartNew();
-                break;
-            case 2:
-                Timer.Reset();
-                break;
-        }
+        StartNewTimer();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != MercenaryId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
-        long remainingTime = Timer.GetRemainingTime(TimeLimit.GetInt());
-        return !Timer.IsRunning || remainingTime > 20 ? string.Empty : string.Format(Translator.GetString("SerialKillerTimeLeft"), remainingTime - 1);
+        if (seer.PlayerId != MercenaryId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || Timer == null) return string.Empty;
+        long remainingTime = (int)Timer.Remaining.TotalSeconds;
+        return remainingTime > 20 ? string.Empty : string.Format(Translator.GetString("SerialKillerTimeLeft"), remainingTime);
     }
 }

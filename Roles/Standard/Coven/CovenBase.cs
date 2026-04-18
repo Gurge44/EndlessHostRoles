@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Hazel;
+using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -29,12 +29,14 @@ public abstract class CovenBase : RoleBase
         var covenRole = (CovenBase)receiver.Value.Role;
         covenRole.HasNecronomicon = true;
         covenRole.OnReceiveNecronomicon();
+        
+        Utils.SendRPC(CustomRPC.Necronomicon, receiver.Key);
 
         LateTask.New(() =>
         {
             string[] holders = Main.PlayerStates.Where(s => s.Value.Role is CovenBase { HasNecronomicon: true }).Select(s => s.Key.ColoredPlayerName()).ToArray();
-            Main.AllPlayerControls.Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders))));
-            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor));
+            Main.EnumeratePlayerControls().Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId).Without(receiver.Key).Do(x => Utils.SendMessage("\n", x, string.Format(Translator.GetString("PlayerReceivedTheNecronomicon"), receiver.Key.ColoredPlayerName(), Main.CovenColor, holders.Length, string.Join(", ", holders))));
+            Utils.SendMessage("\n", receiver.Key, string.Format(Translator.GetString("YouReceivedTheNecronomicon"), Main.CovenColor), importance: MessageImportance.High);
         }, 12f, log: false);
     }
 

@@ -94,8 +94,7 @@ public class SoulCollector : RoleBase
         {
             
             var sender = CustomRpcSender.Create("SoulCollector Kill: Target", SendOption.Reliable);
-            sender.AutoStartRpc(target.NetId, RpcCalls.Exiled, target.OwnerId)
-                .EndRpc();
+            sender.RpcExiled(target, targetClientId: target.OwnerId, exileForHost: false);
             sender.SendMessage();
         }
 
@@ -114,9 +113,7 @@ public class SoulCollector : RoleBase
             toExile.ForEach(x =>
             {
                 Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                x.Exiled();
-                sender.StartRpc(x.NetId, RpcCalls.Exiled)
-                    .EndRpc();
+                sender.RpcExiled(x, autoStartRpc: false);
             });
             sender.SendMessage();
         }

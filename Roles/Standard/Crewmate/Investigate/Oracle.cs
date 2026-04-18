@@ -83,7 +83,7 @@ public class Oracle : RoleBase
 
         if (player.PlayerId == target.PlayerId)
         {
-            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")), sendOption: SendOption.None);
+            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")), importance: MessageImportance.Low);
             return false;
         }
 
@@ -94,7 +94,7 @@ public class Oracle : RoleBase
 
         string msg = string.Format(GetString($"OracleCheck.{GetString($"ShortTeamName.{team}", SupportedLangs.English)}"), target.GetRealName());
 
-        Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
+        Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")), importance: MessageImportance.High);
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;

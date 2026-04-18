@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using static EHR.Options;
 
@@ -28,7 +27,7 @@ public class DoubleAgent : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        ShownRoles[playerId] = Enum.GetValues<CustomRoles>().Where(x => x is not CustomRoles.DoubleAgent and not CustomRoles.LovingImpostor && x.IsImpostor() && !x.IsVanilla() && !x.IsForOtherGameMode() && x.GetMode() != 0).RandomElement();
+        ShownRoles[playerId] = Main.CustomRoleValues.Where(x => x is not CustomRoles.DoubleAgent and not CustomRoles.LovingImpostor && x.IsImpostor() && !x.IsVanilla() && !x.IsForOtherGameMode() && x.GetMode() != 0).RandomElement();
     }
 
     public override string GetProgressText(byte playerId, bool comms)
@@ -39,6 +38,6 @@ public class DoubleAgent : RoleBase
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (base.KnowRole(seer, target)) return true;
-        return seer.IsImpostor() && Options.ImpKnowAlliesRole.GetBool() && ShownRoles.ContainsKey(target.PlayerId);
+        return seer.IsImpostor() && ImpKnowAlliesRole.GetBool() && ShownRoles.ContainsKey(target.PlayerId);
     }
 }

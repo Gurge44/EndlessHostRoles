@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Gamemodes;
 using EHR.Roles;
 using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
-using EHR.Gamemodes;
 
 // ReSharper disable ForCanBeConvertedToForeach
 
@@ -21,6 +22,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool IsDirty { get; set; }
 
+    protected override int TargetClientId => player.OwnerId;
+
     public static void SetDirty(byte playerId)
     {
         for (var index = 0; index < AllSenders.Count; index++)
@@ -30,6 +33,22 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
             {
                 sender.SetDirty();
+                break; // Only one sender can have the same player id
+            }
+        }
+    }
+
+    public static void SendImmediately(byte playerId)
+    {
+        for (var index = 0; index < AllSenders.Count; index++)
+        {
+            GameOptionsSender allSender = AllSenders[index];
+
+            if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
+            {
+                ForceWaitFrame = true;
+                sender.SendGameOptions();
+                sender.IsDirty = false;
                 break; // Only one sender can have the same player id
             }
         }
@@ -91,7 +110,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildGameOptions();
+            IGameOptions opt = BuildSendableGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {
@@ -108,17 +127,27 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             base.SendGameOptions();
     }
 
-    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    protected override IEnumerator SendGameOptionsAsync()
     {
-        try
+        if (player.AmOwner)
         {
-            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
+            IGameOptions opt = BuildSendableGameOptions();
+
+            if (GameManager.Instance?.LogicComponents != null)
             {
-                Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.OwnerId);
+                foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+                {
+                    if (com.TryCast(out LogicOptions lo))
+                        lo.SetGameOptions(opt);
+
+                    yield return WaitFrameIfNecessary();
+                }
             }
+
+            GameOptionsManager.Instance.CurrentGameOptions = opt;
         }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "PlayerGameOptionsSender.SendOptionsArray"); }
+        else
+            yield return base.SendGameOptionsAsync();
     }
 
     public static void RemoveSender(PlayerControl player)
@@ -248,6 +277,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.Standard:
                 {
                     President.OnAnyoneApplyGameOptions(opt);
+
+                    float playerSpeed = Main.AllPlayerSpeed.GetValueOrDefault(player.PlayerId);
+                    bool frozen = Mathf.Approximately(playerSpeed, Main.MinSpeed);
+                    bool inverted = playerSpeed < 0f;
             
                     foreach (CustomRoles subRole in state.SubRoles)
                     {
@@ -264,19 +297,19 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                                 break;
                             }
-                            case CustomRoles.Flash:
+                            case CustomRoles.Flash when !frozen:
                             {
-                                Main.AllPlayerSpeed[player.PlayerId] = Options.FlashSpeed.GetFloat();
+                                Main.AllPlayerSpeed[player.PlayerId] = inverted ? -Options.FlashSpeed.GetFloat() : Options.FlashSpeed.GetFloat();
                                 break;
                             }
-                            case CustomRoles.Giant:
+                            case CustomRoles.Giant when !frozen:
                             {
-                                Main.AllPlayerSpeed[player.PlayerId] = Options.GiantSpeed.GetFloat();
+                                Main.AllPlayerSpeed[player.PlayerId] = inverted ? -Options.GiantSpeed.GetFloat() : Options.GiantSpeed.GetFloat();
                                 break;
                             }
-                            case CustomRoles.Mare when Options.MareHasIncreasedSpeed.GetBool():
+                            case CustomRoles.Mare when !frozen && Options.MareHasIncreasedSpeed.GetBool():
                             {
-                                Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
+                                Main.AllPlayerSpeed[player.PlayerId] = inverted ? -Options.MareSpeedDuringLightsOut.GetFloat() : Options.MareSpeedDuringLightsOut.GetFloat();
                                 break;
                             }
                             case CustomRoles.Sleep when player.IsAlive() && Utils.IsActive(SystemTypes.Electrical):
@@ -319,6 +352,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                             case CustomRoles.Reach:
                             {
                                 opt.SetInt(Int32OptionNames.KillDistance, 2);
+                                break;
+                            }
+                            case CustomRoles.Constricted:
+                            {
+                                opt.SetInt(Int32OptionNames.KillDistance, 0);
                                 break;
                             }
                             case CustomRoles.Madmate:
@@ -378,11 +416,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             {
                 case CustomRoleTypes.Impostor:
                     AURoleOptions.ShapeshifterCooldown = Options.DefaultShapeshiftCooldown.GetFloat();
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
-                    break;
-                case CustomRoleTypes.Neutral:
-                case CustomRoleTypes.Crewmate:
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                     break;
             }
 
@@ -659,7 +692,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool AmValid()
     {
-        return base.AmValid() && player != null && player.Data != null && !player.Data.Disconnected && Main.RealOptionsData != null;
+        return base.AmValid() && player && player.Data && !player.Data.Disconnected && Main.RealOptionsData != null;
     }
-
 }

@@ -406,358 +406,391 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
-    public static bool RpcSetRole(this CustomRpcSender sender, PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true, bool changeRoleMap = false)
+    extension(CustomRpcSender sender)
     {
-        if (AmongUsClient.Instance.ClientId == targetClientId && noRpcForSelf)
+        public bool RpcSetRole(PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true, bool changeRoleMap = false)
         {
-            player.SetRole(role);
-            return false;
-        }
-
-        sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, targetClientId)
-            .Write((ushort)role)
-            .Write(true)
-            .EndRpc();
-
-        if (changeRoleMap)
-        {
-            try
+            if (AmongUsClient.Instance.ClientId == targetClientId && noRpcForSelf)
             {
-                if (targetClientId != -1) ChangeRoleMapForClient(Utils.GetClientById(targetClientId).Character.PlayerId);
-                else Main.PlayerStates.Keys.Do(ChangeRoleMapForClient);
+                player.SetRole(role);
+                return false;
             }
-            catch (Exception e) { Utils.ThrowException(e); }
 
-            void ChangeRoleMapForClient(byte id)
+            sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, targetClientId)
+                .Write((ushort)role)
+                .Write(true)
+                .EndRpc();
+
+            if (changeRoleMap)
             {
-                (byte, byte) key = (id, player.PlayerId);
-
-                if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
+                try
                 {
-                    pair.RoleType = role;
-                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = pair;
+                    if (targetClientId != -1) ChangeRoleMapForClient(Utils.GetClientById(targetClientId).Character.PlayerId);
+                    else Main.PlayerStates.Keys.Do(ChangeRoleMapForClient);
+                }
+                catch (Exception e) { Utils.ThrowException(e); }
+
+                void ChangeRoleMapForClient(byte id)
+                {
+                    (byte, byte) key = (id, player.PlayerId);
+
+                    if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue(key, out (RoleTypes RoleType, CustomRoles CustomRole) pair))
+                    {
+                        pair.RoleType = role;
+                        StartGameHostPatch.RpcSetRoleReplacer.RoleMap[key] = pair;
+                    }
                 }
             }
+
+            return true;
         }
 
-        return true;
-    }
-
-    // From TOH: https://github.com/tukasa0001/TownOfHost
-    public static void RpcSetName(this CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
-    {
-        bool seerIsNull = seer == null;
-        int targetClientId = seerIsNull ? -1 : seer.OwnerId;
-
-        name = name.Replace("color=", string.Empty);
-
-        switch (seerIsNull)
+        public void RpcSetName(PlayerControl player, string name, PlayerControl seer = null)
         {
-            case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
-            case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
-                return;
-            case true:
-                Main.AllPlayerControls.Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
-                break;
-            default:
-                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-                break;
-        }
+            bool seerIsNull = !seer;
+            int targetClientId = seerIsNull ? -1 : seer.OwnerId;
 
-        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
-            .Write(player.Data.NetId)
-            .Write(name)
-            .Write(false)
-            .EndRpc();
-    }
+            name = name.Replace("color=", string.Empty);
 
-    public static bool RpcGuardAndKill(this CustomRpcSender sender, PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
-    {
-        if (!AmongUsClient.Instance.AmHost)
-        {
-            StackFrame caller = new(1, false);
-            MethodBase callerMethod = caller.GetMethod();
-            string callerMethodName = callerMethod?.Name;
-            string callerClassName = callerMethod?.DeclaringType?.FullName;
-            Logger.Warn($"Modded non-host client activated RpcGuardAndKill from {callerClassName}.{callerMethodName}", "RpcGuardAndKill");
-            return false;
-        }
-
-        if (target == null) target = killer;
-
-        var returnValue = false;
-
-        // Check Observer
-        if (!forObserver && !MeetingStates.FirstMeeting)
-        {
-            foreach (PlayerControl x in Main.AllPlayerControls)
+            switch (seerIsNull)
             {
-                if (x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true))
-                    returnValue = true;
+                case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
+                case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
+                    return;
+                case true:
+                    Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
+                    break;
+                default:
+                    Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                    break;
             }
+
+            sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
+                .Write(player.Data.NetId)
+                .Write(name)
+                .Write(false)
+                .EndRpc();
         }
 
-        // Host
-        if (killer.AmOwner) killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
-
-        // Other Clients
-        if (!killer.IsHost())
+        public bool RpcGuardAndKill(PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)
         {
-            sender.AutoStartRpc(killer.NetId, RpcCalls.MurderPlayer, killer.OwnerId);
-            sender.WriteNetObject(target);
-            sender.Write((int)MurderResultFlags.FailedProtected);
-            sender.EndRpc();
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                StackFrame caller = new(1, false);
+                MethodBase callerMethod = caller.GetMethod();
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+                Logger.Warn($"Modded non-host client activated RpcGuardAndKill from {callerClassName}.{callerMethodName}", "RpcGuardAndKill");
+                return false;
+            }
 
-            if (!MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
-                sender.Notify(killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
+            if (!target) target = killer;
 
-            returnValue = true;
-        }
+            var returnValue = false;
 
-        if (!fromSetKCD) killer.AddKillTimerToDict(true);
+            // Check Observer
+            if (!forObserver && !MeetingStates.FirstMeeting)
+            {
+                foreach (PlayerControl x in Main.EnumeratePlayerControls())
+                {
+                    if (x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true))
+                        returnValue = true;
+                }
+            }
 
-        return returnValue;
-    }
+            // Host
+            if (killer.AmOwner) killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
 
-    public static bool SetKillCooldown(this CustomRpcSender sender, PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
-    {
-        if (player == null) return false;
-
-        Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(Math.Abs(time - -1f) < 0.5f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
-
-        if (player.GetCustomRole().UsesPetInsteadOfKill())
-        {
-            if (Math.Abs(time - -1f) < 0.5f)
-                player.AddKCDAsAbilityCD();
-            else
-                player.AddAbilityCD((int)Math.Round(time));
-
-            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Renegade and not CustomRoles.Sidekick) return false;
-        }
-
-        if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return false;
-
-        player.AddKillTimerToDict(cd: time);
-        if (target == null) target = player;
-
-        if (time >= 0f)
-            Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
-        else
-            Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
-
-        var returnValue = false;
-
-        if (player.Is(CustomRoles.Glitch) && Main.PlayerStates[player.PlayerId].Role is Glitch gc)
-        {
-            gc.LastKill = Utils.TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
-            gc.KCDTimer = (int)(time / 2);
-        }
-        else if (forceAnime || !player.IsModdedClient() || !Options.DisableShieldAnimations.GetBool())
-        {
-            returnValue |= sender.SyncSettings(player);
-            returnValue |= sender.RpcGuardAndKill(player, target, fromSetKCD: true);
-        }
-        else
-        {
-            time = Main.AllPlayerKillCooldown[player.PlayerId] / 2;
-
-            if (player.AmOwner)
-                PlayerControl.LocalPlayer.SetKillTimer(time);
+            // Other Clients
             else
             {
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.OwnerId);
-                sender.Write(time);
+                sender.AutoStartRpc(killer.NetId, RpcCalls.MurderPlayer, killer.OwnerId);
+                sender.WriteNetObject(target);
+                sender.Write((int)MurderResultFlags.FailedProtected);
                 sender.EndRpc();
+
+                if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
+                    sender.Notify(killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
 
                 returnValue = true;
             }
 
-            foreach (PlayerControl x in Main.AllPlayerControls)
+            if (!fromSetKCD) killer.AddKillTimerToDict(true);
+
+            return returnValue;
+        }
+
+        public bool SetKillCooldown(PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
+        {
+            if (!player) return false;
+
+            Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(Math.Abs(time - -1f) < 0.5f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
+
+            if (player.GetCustomRole().UsesPetInsteadOfKill())
             {
-                if (x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true, true))
-                    returnValue = true;
+                if (Math.Abs(time - -1f) < 0.5f)
+                    player.AddKCDAsAbilityCD();
+                else
+                    player.AddAbilityCD((int)Math.Round(time));
+
+                if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight and not CustomRoles.Renegade and not CustomRoles.Sidekick) return false;
             }
+
+            if (!player.CanUseKillButton() && !AntiBlackout.SkipTasks && !IntroCutsceneDestroyPatch.PreventKill) return false;
+
+            player.AddKillTimerToDict(cd: time);
+            if (!target) target = player;
+
+            if (time >= 0f)
+                Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
+            else
+                Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
+
+            var returnValue = false;
+
+            if (player.Is(CustomRoles.Glitch) && Main.PlayerStates[player.PlayerId].Role is Glitch gc)
+            {
+                gc.LastKill = Utils.TimeStamp + ((int)(time / 2) - Glitch.KillCooldown.GetInt());
+                gc.KCDTimer = (int)(time / 2);
+            }
+            else if (forceAnime || !player.IsModdedClient() || !Options.DisableShieldAnimations.GetBool())
+            {
+                returnValue |= sender.SyncSettings(player);
+                returnValue |= sender.RpcGuardAndKill(player, target, fromSetKCD: true);
+            }
+            else
+            {
+                time = Main.AllPlayerKillCooldown[player.PlayerId] / 2;
+
+                if (player.AmOwner)
+                    PlayerControl.LocalPlayer.SetKillTimer(time);
+                else
+                {
+                    sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetKillTimer, player.OwnerId);
+                    sender.Write(time);
+                    sender.EndRpc();
+
+                    returnValue = true;
+                }
+
+                foreach (PlayerControl x in Main.EnumeratePlayerControls())
+                {
+                    if (x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true, true))
+                        returnValue = true;
+                }
+            }
+
+            if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur)
+            {
+                player.ResetKillCooldown(sync: false);
+                LateTask.New(player.SyncSettings, 1f, log: false);
+            }
+
+            return returnValue;
         }
 
-        if (player.GetCustomRole() is not CustomRoles.Inhibitor and not CustomRoles.Saboteur)
+        public bool RpcResetAbilityCooldown(PlayerControl target)
         {
-            player.ResetKillCooldown(sync: false);
-            LateTask.New(player.SyncSettings, 1f, log: false);
-        }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-        return returnValue;
-    }
+            Logger.Info($"Reset Ability Cooldown for {target.name} (ID: {target.PlayerId})", "RpcResetAbilityCooldown");
 
-    public static bool RpcResetAbilityCooldown(this CustomRpcSender sender, PlayerControl target)
-    {
-        if (!AmongUsClient.Instance.AmHost) return false;
+            if (target.Is(CustomRoles.Glitch) && Main.PlayerStates[target.PlayerId].Role is Glitch gc)
+            {
+                gc.LastHack = Utils.TimeStamp;
+                gc.HackCDTimer = 10;
 
-        Logger.Info($"Reset Ability Cooldown for {target.name} (ID: {target.PlayerId})", "RpcResetAbilityCooldown");
+                return false;
+            }
 
-        if (target.Is(CustomRoles.Glitch) && Main.PlayerStates[target.PlayerId].Role is Glitch gc)
-        {
-            gc.LastHack = Utils.TimeStamp;
-            gc.HackCDTimer = 10;
+            if (target.AmOwner)
+            {
+                // If target is host
+                target.Data.Role.SetCooldown();
+                return false;
+            }
 
-            return false;
-        }
+            if (target.IsModdedClient())
+            {
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ResetAbilityCooldown, target.OwnerId);
+                sender.EndRpc();
+                return true;
+            }
 
-        if (target.AmOwner)
-        {
-            // If target is host
-            target.Data.Role.SetCooldown();
-            return false;
-        }
-
-        if (target.IsModdedClient())
-        {
-            sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ResetAbilityCooldown, target.OwnerId);
+            sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.OwnerId);
+            sender.WriteNetObject(target);
+            sender.Write(0);
             sender.EndRpc();
+
             return true;
         }
 
-        sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.OwnerId);
-        sender.WriteNetObject(target);
-        sender.Write(0);
-        sender.EndRpc();
+        public void RpcDesyncRepairSystem(PlayerControl target, SystemTypes systemType, int amount)
+        {
+            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
+            sender.Write((byte)systemType);
+            sender.WriteNetObject(target);
+            sender.Write((byte)amount);
+            sender.EndRpc();
+        }
 
-        return true;
-    }
+        public bool Notify(PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+        {
+            if (!AmongUsClient.Instance.AmHost || !pc) return false;
+            if (!GameStates.IsInTask) return false;
+            if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
+            if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
 
-    public static void RpcDesyncRepairSystem(this CustomRpcSender sender, PlayerControl target, SystemTypes systemType, int amount)
-    {
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
-        sender.Write((byte)systemType);
-        sender.WriteNetObject(target);
-        sender.Write((byte)amount);
-        sender.EndRpc();
-    }
+            long expireTS = Utils.TimeStamp + (long)time;
 
-    public static bool Notify(this CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
-    {
-        if (!AmongUsClient.Instance.AmHost || pc == null) return false;
-        if (!GameStates.IsInTask) return false;
-        if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
-        if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
+            if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
+                NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
+            else
+                notifies[text] = expireTS;
 
-        long expireTS = Utils.TimeStamp + (long)time;
+            bool returnValue = pc.IsNonHostModdedClient();
 
-        if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
-            NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
-        else
-            notifies[text] = expireTS;
+            if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
+            if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
+            if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
 
-        bool returnValue = pc.IsNonHostModdedClient();
+            return returnValue;
+        }
 
-        if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
-        if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
-        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
-
-        return returnValue;
-    }
-
-    public static bool TP(this CustomRpcSender sender, PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
-    {
-        if (!AmongUsClient.Instance.AmHost) return false;
+        public bool TP(PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
+        {
+            if (!AmongUsClient.Instance.AmHost) return false;
         
-        CustomNetworkTransform nt = pc.NetTransform;
+            CustomNetworkTransform nt = pc.NetTransform;
 
-        if (!noCheckState)
-        {
-            if (pc.Is(CustomRoles.AntiTP)) return false;
-
-            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+            if (!noCheckState)
             {
-                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
-                return false;
-            }
+                if (pc.Is(CustomRoles.AntiTP)) return false;
 
-            if (Vector2.Distance(pc.Pos(), location) < 0.5f)
-            {
-                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
-                return false;
-            }
-        }
-
-        
-        nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
-        nt.SetDirtyBit(uint.MaxValue);
-
-        var newSid = (ushort)(nt.lastSequenceId + 8);
-
-        sender.AutoStartRpc(nt.NetId, RpcCalls.SnapTo);
-        sender.WriteVector2(location);
-        sender.Write(newSid);
-        sender.EndRpc();
-
-        if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
-
-        CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
-        CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
-
-        if (sender.sendOption == SendOption.Reliable) Utils.NumSnapToCallsThisRound++;
-        return true;
-    }
-
-    public static bool NotifyRolesSpecific(this CustomRpcSender sender, PlayerControl seer, PlayerControl target, out CustomRpcSender newSender, out bool senderWasCleared)
-    {
-        senderWasCleared = false;
-        newSender = sender;
-        if (!AmongUsClient.Instance.AmHost || seer == null || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
-        var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
-        newSender = sender;
-        return hasValue;
-    }
-
-    public static bool SyncSettings(this CustomRpcSender sender, PlayerControl player)
-    {
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-        {
-            player.SyncSettings();
-            return false;
-        }
-
-        var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
-        if (optionsender == null) return false;
-
-        var options = optionsender.BuildGameOptions();
-
-        if (player.AmOwner)
-        {
-            foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
-            {
-                if (com.TryCast(out LogicOptions lo))
-                    lo.SetGameOptions(options);
-            }
-
-            GameOptionsManager.Instance.CurrentGameOptions = options;
-            return false;
-        }
-
-        var logicOptions = GameManager.Instance.LogicOptions;
-        var id = GameManager.Instance.LogicComponents.IndexOf(logicOptions);
-
-        if (sender.CurrentState == CustomRpcSender.State.InRootMessage) sender.EndMessage();
-
-        var writer = sender.stream;
-
-        writer.StartMessage(6);
-        {
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(player.OwnerId);
-            writer.StartMessage(1);
-            {
-                writer.WritePacked(GameManager.Instance.NetId);
-                writer.StartMessage((byte)id);
+                if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                 {
-                    writer.WriteBytesAndSize(logicOptions.gameOptionsFactory.ToBytes(options, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+                    return false;
+                }
+
+                if (FastVector2.DistanceWithinRange(pc.Pos(), location, 0.5f))
+                {
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    return false;
+                }
+            }
+
+        
+            nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
+            nt.SetDirtyBit(uint.MaxValue);
+
+            var newSid = (ushort)(nt.lastSequenceId + 8);
+
+            sender.AutoStartRpc(nt.NetId, RpcCalls.SnapTo);
+            sender.WriteVector2(location);
+            sender.Write(newSid);
+            sender.EndRpc();
+
+            if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+
+            CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
+            CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+
+            if (sender.sendOption == SendOption.Reliable) Utils.NumSnapToCallsThisRound++;
+            return true;
+        }
+
+        public bool NotifyRolesSpecific(PlayerControl seer, PlayerControl target, out CustomRpcSender newSender, out bool senderWasCleared)
+        {
+            senderWasCleared = false;
+            newSender = sender;
+            if (!AmongUsClient.Instance.AmHost || !seer || seer.Data.Disconnected || (seer.IsModdedClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard)) || (!SetUpRoleTextPatch.IsInIntro && GameStates.IsLobby)) return false;
+            var hasValue = Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, seer, [seer], [target], out senderWasCleared) && !senderWasCleared;
+            newSender = sender;
+            return hasValue;
+        }
+
+        public bool RpcExiled(PlayerControl target, bool autoStartRpc = true, int targetClientId = -1, bool exileForHost = true)
+        {
+            if (exileForHost) target.Exiled();
+            if (autoStartRpc) sender.AutoStartRpc(target.NetId, RpcCalls.Exiled, targetClientId).EndRpc();
+            else sender.StartRpc(target.NetId, RpcCalls.Exiled).EndRpc();
+            return true;
+        }
+
+        public bool RpcExileV2(PlayerControl target, bool autoStartRpc = true, int targetClientId = -1, bool exileForHost = true)
+        {
+            sender.RpcExiled(target, autoStartRpc, targetClientId, exileForHost);
+            FixedUpdatePatch.LoversSuicide(target.PlayerId);
+            return true;
+        }
+
+        public bool SyncSettings(PlayerControl player)
+        {
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            {
+                player.SyncSettings();
+                return false;
+            }
+
+            var optionsender = GameOptionsSender.AllSenders.OfType<PlayerGameOptionsSender>().FirstOrDefault(x => x.player.PlayerId == player.PlayerId);
+            if (optionsender == null) return false;
+
+            var options = optionsender.BuildGameOptions();
+
+            if (player.AmOwner)
+            {
+                foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
+                {
+                    if (com.TryCast(out LogicOptions lo))
+                        lo.SetGameOptions(options);
+                }
+
+                GameOptionsManager.Instance.CurrentGameOptions = options;
+                return false;
+            }
+
+            var logicOptions = GameManager.Instance.LogicOptions;
+            var id = GameManager.Instance.LogicComponents.IndexOf(logicOptions);
+
+            if (sender.CurrentState == CustomRpcSender.State.InRootMessage) sender.EndMessage();
+
+            var writer = sender.stream;
+
+            writer.StartMessage(6);
+            {
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(player.OwnerId);
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(GameManager.Instance.NetId);
+                    writer.StartMessage((byte)id);
+                    {
+                        writer.WriteBytesAndSize(logicOptions.gameOptionsFactory.ToBytes(options, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                    }
+                    writer.EndMessage();
                 }
                 writer.EndMessage();
             }
             writer.EndMessage();
-        }
-        writer.EndMessage();
 
-        return true;
+            return true;
+        }
+
+        public bool SyncGeneralOptions(PlayerControl player)
+        {
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !Utils.DoRPC) return false;
+
+            sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions);
+            sender.Write(player.PlayerId);
+            sender.WritePacked((int)player.GetCustomRole());
+            sender.Write(Main.PlayerStates[player.PlayerId].IsDead);
+            sender.WritePacked((int)Main.PlayerStates[player.PlayerId].deathReason);
+            sender.Write(Main.AllPlayerKillCooldown[player.PlayerId]);
+            sender.Write(Main.AllPlayerSpeed[player.PlayerId]);
+            sender.EndRpc();
+        
+            return true;
+        }
     }
 }

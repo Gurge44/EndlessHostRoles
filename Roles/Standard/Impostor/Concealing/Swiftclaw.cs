@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 
 namespace EHR.Roles;
 
@@ -8,7 +7,6 @@ internal class Swiftclaw : RoleBase
     public static OptionItem DashCD;
     public static OptionItem DashDuration;
     public static OptionItem DashSpeed;
-    private static readonly Dictionary<byte, (long StartTimeStamp, float NormalSpeed)> DashStart = [];
 
     public static bool On;
     private static int Id => 643340;
@@ -33,7 +31,6 @@ internal class Swiftclaw : RoleBase
 
     public override void Init()
     {
-        DashStart.Clear();
         On = false;
     }
 
@@ -68,28 +65,16 @@ internal class Swiftclaw : RoleBase
 
     private static void Dash(PlayerControl pc)
     {
-        if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
-
-        DashStart[pc.PlayerId] = (Utils.TimeStamp, Main.AllPlayerSpeed[pc.PlayerId]);
         Main.AllPlayerSpeed[pc.PlayerId] = DashSpeed.GetFloat();
         pc.MarkDirtySettings();
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out (long StartTimeStamp, float NormalSpeed) dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.TimeStamp) return;
-
-        Main.AllPlayerSpeed[pc.PlayerId] = dashInfo.NormalSpeed;
-        pc.MarkDirtySettings();
-        DashStart.Remove(pc.PlayerId);
-    }
-
-    public override void OnReportDeadBody()
-    {
-        foreach (KeyValuePair<byte, (long StartTimeStamp, float NormalSpeed)> item in DashStart)
-            Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
-
-        DashStart.Clear();
+        
+        LateTask.New(() =>
+        {
+            if (Main.RealOptionsData == null) return;
+            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+            pc.MarkDirtySettings();
+        }, DashDuration.GetInt(), "Swiftclaw Dash End");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

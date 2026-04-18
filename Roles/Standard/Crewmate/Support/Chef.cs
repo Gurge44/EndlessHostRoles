@@ -94,7 +94,7 @@ public class Chef : RoleBase
         if (!pc.IsAlive()) return;
 
         Vector2 pos = pc.Pos();
-        PlayerControl[] aapc = Main.AllAlivePlayerControls.Without(pc).ToArray();
+        PlayerControl[] aapc = Main.EnumerateAlivePlayerControls().Without(pc).ToArray();
         PlayerControl target = EventTarget.GetValue() == 0 ? aapc.RandomElement() : aapc.MinBy(x => Vector2.Distance(x.Pos(), pos));
 
         if (target.Is(Team.Impostor) || target.IsNeutralKiller() || target.Is(Team.Coven))

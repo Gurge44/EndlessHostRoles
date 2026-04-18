@@ -168,7 +168,7 @@ public class HeadHunter : RoleBase
         {
             try
             {
-                var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
+                var cTargets = new List<PlayerControl>(Main.EnumerateAlivePlayerControls().Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
                 if (cTargets.Count == 0) break;
 
                 PlayerControl target = cTargets.RandomElement();

@@ -48,24 +48,7 @@ public class Mortician : RoleBase
 
     public static void OnPlayerDead(PlayerControl target)
     {
-        Vector2 pos = target.Pos();
-        var minDis = float.MaxValue;
-        var minName = string.Empty;
-
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            if (pc.PlayerId == target.PlayerId) continue;
-
-            float dis = Vector2.Distance(pc.Pos(), pos);
-
-            if (dis < minDis && dis < 1.5f)
-            {
-                minDis = dis;
-                minName = pc.GetRealName();
-            }
-        }
-
-        LastPlayerName.TryAdd(target.PlayerId, minName);
+        LastPlayerName.TryAdd(target.PlayerId, FastVector2.TryGetClosestPlayerInRangeTo(target, 4f, out PlayerControl closest) ? closest.GetRealName() : string.Empty);
     }
 
     public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)

@@ -16,7 +16,7 @@ public static class Speedrun
     private static OptionItem KillersCanKillTaskingPlayers;
 
     public static HashSet<byte> CanKill = [];
-    public static Dictionary<byte, int> Timers = [];
+    private static Dictionary<byte, int> Timers = [];
 
     public static int KCD => KillCooldown.GetInt();
     public static int TimeLimitValue => TimeLimit.GetInt();
@@ -53,7 +53,7 @@ public static class Speedrun
     public static void Init()
     {
         CanKill = [];
-        Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
+        Timers = Main.EnumerateAlivePlayerControls().ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 10);
         Utils.SendRPC(CustomRPC.SpeedrunSync, 1);
     }
 
@@ -88,7 +88,7 @@ public static class Speedrun
     public static string GetTaskBarText()
     {
         return string.Join('\n', Main.PlayerStates
-            .Join(Main.AllAlivePlayerControls, x => x.Key, x => x.PlayerId, (kvp, _) => (
+            .Join(Main.EnumerateAlivePlayerControls(), x => x.Key, x => x.PlayerId, (kvp, _) => (
                 Name: kvp.Key.ColoredPlayerName(),
                 CompletedTasks: kvp.Value.TaskState.CompletedTasksCount,
                 AllTasks: kvp.Value.TaskState.AllTasksCount,
@@ -102,35 +102,25 @@ public static class Speedrun
         if (!pc.IsAlive()) return string.Empty;
 
         int time = Timers[pc.PlayerId];
-        int alive = Main.AllAlivePlayerControls.Length;
-        int apc = Main.AllPlayerControls.Length;
+        int alive = Main.AllAlivePlayerControls.Count;
+        int apc = PlayerControl.AllPlayerControls.Count;
         int killers = CanKill.Count;
 
         string arrows = TargetArrow.GetAllArrows(pc.PlayerId);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
 
+        string timeStr = time > 90 ? "> 90" : time.ToString();
+
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time) + arrows;
-        return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
+        if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, timeStr) + arrows;
+        return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, timeStr);
     }
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControls;
 
-        if (TaskFinishWins.GetBool())
-        {
-            PlayerControl player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
-
-            if (player != null)
-            {
-                CustomWinnerHolder.WinnerIds = [player.PlayerId];
-                reason = GameOverReason.CrewmatesByTask;
-                return true;
-            }
-        }
-
-        switch (aapc.Length)
+        switch (aapc.Count)
         {
             case 1:
                 CustomWinnerHolder.WinnerIds = [aapc[0].PlayerId];
@@ -140,6 +130,13 @@ public static class Speedrun
                 CustomWinnerHolder.WinnerIds = [];
                 reason = GameOverReason.CrewmateDisconnect;
                 return true;
+        }
+
+        if (TaskFinishWins.GetBool() && aapc.FindFirst(x => x.GetTaskState().IsTaskFinished, out PlayerControl winner))
+        {
+            CustomWinnerHolder.WinnerIds = [winner.PlayerId];
+            reason = GameOverReason.CrewmatesByTask;
+            return true;
         }
 
         reason = GameOverReason.ImpostorsByKill;
@@ -186,11 +183,15 @@ public static class Speedrun
 
             Timers.AdjustAllValues(x => x - 1);
 
-            CanKill.RemoveWhere(x => x.GetPlayer() == null || !x.GetPlayer().IsAlive());
+            CanKill.RemoveWhere(x =>
+            {
+                PlayerControl player = x.GetPlayer();
+                return !player || !player.IsAlive();
+            });
 
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControls;
 
-            switch (Arrow, aapc.Length == 2)
+            switch (Arrow, aapc.Count == 2)
             {
                 case (false, true):
                 {

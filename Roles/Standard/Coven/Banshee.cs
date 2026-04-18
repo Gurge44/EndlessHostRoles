@@ -61,7 +61,7 @@ public class Banshee : CovenBase
     {
         float radius = Radius.GetFloat();
         Vector2 pos = pc.Pos();
-        IEnumerable<PlayerControl> nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc);
+        IEnumerable<PlayerControl> nearbyPlayers = FastVector2.GetPlayersInRange(pos, radius).Without(pc);
 
         if (!HasNecronomicon) ScreechedPlayers = nearbyPlayers.Select(x => x.PlayerId).ToHashSet();
         else nearbyPlayers.Do(x => x.Suicide(PlayerState.DeathReason.Deafened, pc));
@@ -117,7 +117,7 @@ public class Banshee : CovenBase
 
         PlayerControl pc = BansheeId.GetPlayer();
         
-        if (pc != null && pc.AmOwner && Instances.SelectMany(x => x.ScreechedPlayers).Distinct().Count() == Main.AllAlivePlayerControls.Count(x => !Instances.Exists(a => a.BansheeId == x.PlayerId)))
+        if (pc != null && pc.AmOwner && Instances.SelectMany(x => x.ScreechedPlayers).Distinct().Count() == Main.EnumerateAlivePlayerControls().Count(x => !Instances.Exists(a => a.BansheeId == x.PlayerId)))
             Achievements.Type.GetMuted.CompleteAfterGameEnd();
     }
 }

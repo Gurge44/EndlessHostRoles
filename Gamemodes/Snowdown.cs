@@ -105,7 +105,7 @@ public static class Snowdown
 
     public static void ApplyGameOptions()
     {
-        AURoleOptions.PhantomCooldown = 2f;
+        AURoleOptions.PhantomCooldown = 1f;
         AURoleOptions.PhantomDuration = 0.1f;
     }
 
@@ -157,11 +157,6 @@ public static class Snowdown
     {
         if (!GameEndsAfterTime) return string.Empty;
         long timeLeft = GameEndTime - (Utils.TimeStamp - GameStartTS);
-        if (timeLeft == 60)
-        {
-            SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
-            Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
-        }
         return $"{timeLeft / 60:00}:{timeLeft % 60:00}";
     }
 
@@ -169,9 +164,9 @@ public static class Snowdown
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !Main.IntroDestroyed) return false;
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControls;
 
-        switch (aapc.Length)
+        switch (aapc.Count)
         {
             case 1:
             {
@@ -192,13 +187,13 @@ public static class Snowdown
                 if (GameEndsAfterTime && Utils.TimeStamp - GameStartTS >= GameEndTime)
                 {
                     int max = Data.Values.Max(x => x.Points);
-                    CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer() != null).Select(x => x.Key).ToHashSet();
+                    CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Points == max && x.Key.GetPlayer()).Select(x => x.Key).ToHashSet();
                     Logger.Info($"Winners: {(string.Join(", ", CustomWinnerHolder.WinnerIds.Select(x => Main.AllPlayerNames.GetValueOrDefault(x, "[Unknown player]"))))}", "Snowdown");
                     Main.DoBlockNameChange = true;
                     return true;
                 }
 
-                if (GameEndsWhenPointsReached && Data.IntersectBy(Main.AllAlivePlayerControls.Select(p => p.PlayerId), x => x.Key).FindFirst(x => x.Value.Points >= PointsToReach, out var winnerData))
+                if (GameEndsWhenPointsReached && Data.IntersectBy(Main.EnumerateAlivePlayerControls().Select(p => p.PlayerId), x => x.Key).FindFirst(x => x.Value.Points >= PointsToReach, out var winnerData))
                 {
                     CustomWinnerHolder.WinnerIds = [winnerData.Key];
                     Logger.Info($"Winners: {Main.AllPlayerNames.GetValueOrDefault(winnerData.Key, "[Unknown player]")}", "Snowdown");
@@ -223,7 +218,7 @@ public static class Snowdown
         PointsToReach = PointsToReachOption.GetInt();
         PowerUpPrices = PowerUpPriceOptions.ToDictionary(x => x.Key, x => x.Value.GetInt());
         
-        Data = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => new PlayerData());
+        Data = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => new PlayerData());
         Snowballs = [];
         
         Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RandomSpawn.SpawnMap.GetSpawnMap().Positions?.Values;
@@ -244,7 +239,7 @@ public static class Snowdown
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        killer.SetKillCooldown(5f);
+        killer.SetKillCooldownNonSync(5f);
         if (!Data.TryGetValue(killer.PlayerId, out PlayerData killerData) || !Data.TryGetValue(target.PlayerId, out PlayerData targetData) || killerData.SnowballsReady < 1 || targetData.SnowballsReady >= targetData.MaxSnowballsReady) return;
         killerData.SnowballsReady--;
         targetData.SnowballsReady++;
@@ -260,13 +255,13 @@ public static class Snowdown
 
             long now = Utils.TimeStamp;
             Vector2 pos = __instance.Pos();
-            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && Vector2.Distance(x.Position, pos) < 1.5f);
+            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && FastVector2.DistanceWithinRange(x.Position, pos, 1.5f));
 
             if (touchingSnowball != null)
             {
                 touchingSnowball.SetInactive();
                 
-                if (touchingSnowball.Thrower != null && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
+                if (touchingSnowball.Thrower && Data.TryGetValue(touchingSnowball.Thrower.PlayerId, out PlayerData throwerData) && throwerData.Coins < throwerData.MaxCoins)
                     throwerData.Coins++;
             }
 
@@ -276,7 +271,7 @@ public static class Snowdown
                 data.LastSnowballGainTS = now;
             }
 
-            if (Vector2.Distance(pos, data.LastPosition) > 0.01f)
+            if (!FastVector2.DistanceWithinRange(pos, data.LastPosition, 0.01f))
             {
                 data.LastLastPosition = data.LastPosition;
                 data.LastPosition = pos;

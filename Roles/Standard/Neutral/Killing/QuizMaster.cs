@@ -93,7 +93,7 @@ internal class QuizMaster : RoleBase
 
         LateTask.New(() =>
         {
-            foreach (PlayerControl pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
                 int colorId = pc.Data.DefaultOutfit.ColorId;
                 AllColors.Add(Palette.GetColorName(colorId));
@@ -154,18 +154,21 @@ internal class QuizMaster : RoleBase
         return CanVent.GetBool();
     }
 
-    public override void AfterMeetingTasks()
+    public static void OnMeetingEnd()
     {
         Data.NumPlayersDeadThisRound = 0;
-
-        if (Target != byte.MaxValue)
-        {
-            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.WrongAnswer, Target);
-            Target = byte.MaxValue;
-        }
-
         MessagesToSend = [];
-        CurrentQuestion = null;
+        
+        QuizMasters.ForEach(x =>
+        {
+            if (x.Target != byte.MaxValue)
+            {
+                CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.WrongAnswer, x.Target);
+                x.Target = byte.MaxValue;
+            }
+
+            x.CurrentQuestion = null;
+        });
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -228,7 +231,7 @@ internal class QuizMaster : RoleBase
         List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
         int index = indexes.RandomElement();
 
-        CustomRoles randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).RandomElement();
+        CustomRoles randomRole = Main.CustomRoleValues.Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).RandomElement();
 
         string title = index switch
         {
@@ -269,7 +272,7 @@ internal class QuizMaster : RoleBase
 
         return new(title, allAnswersList.ToArray(), correctIndex);
 
-        IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
+        IEnumerable<string> GetTwoRandomNames(string except) => Main.EnumeratePlayerControls().Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
 
         IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
     }
@@ -304,20 +307,20 @@ internal class QuizMaster : RoleBase
 
             if (CurrentQuestion.CorrectAnswerIndex == index)
             {
-                RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-                Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"));
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+                if (pc) RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
+                Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
 
                 Logger.Info($"Player {name} answered correctly", "QuizMaster");
             }
             else if (index != -1)
             {
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"));
-                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), Target, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
+                Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerIncorrect.Self"), CurrentQuestion.Answers[index], CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"), importance: MessageImportance.High);
 
-                if (pc.Is(CustomRoles.Pestilence)) return;
+                if (!pc || pc.Is(CustomRoles.Pestilence)) return;
                 Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
-                pc?.RpcGuesserMurderPlayer();
+                pc.RpcGuesserMurderPlayer();
                 Utils.AfterPlayerDeathTasks(pc, true);
 
                 Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");

@@ -1,4 +1,5 @@
 using System;
+using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -119,7 +120,7 @@ public static class MainMenuManagerPatch
     {
         Instance = __instance;
 
-        SimpleButton.SetBase(__instance.quitButton);
+        SimpleButton.SetBase(__instance.creditsButton);
         var logoObject = new GameObject("titleLogo_MG");
         Transform logoTransform = logoObject.transform;
         MgLogo = logoObject.AddComponent<SpriteRenderer>();
@@ -163,7 +164,7 @@ public static class MainMenuManagerPatch
                 new(1.3f, -1.3f, 1f),
                 new(251, 81, 44, byte.MaxValue),
                 new(211, 77, 48, byte.MaxValue),
-                () => Application.OpenURL("https://gurge44.pythonanywhere.com"),
+                () => Application.OpenURL("https://app.gurge44.eu"),
                 Translator.GetString("Website")); //"Website"
         }
 
@@ -173,6 +174,7 @@ public static class MainMenuManagerPatch
 
         foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
         {
+            if (buttonName == "Inventory Button" && IL2CPPChainloader.Instance.Plugins.ContainsKey("com.DigiWorm.LevelImposter")) continue;
             var go = GameObject.Find(buttonName);
             if (!go) continue;
             var buttonText = go.GetComponentInChildren<TMP_Text>();
@@ -185,7 +187,7 @@ public static class MainMenuManagerPatch
         {
             GameOptionsManager.Instance.Initialize();
             
-            if (GameOptionsManager.Instance.normalGameHostOptions.MapId is 3 or > 5)
+            if (GameOptionsManager.Instance.normalGameHostOptions.MapId == 3 || (GameOptionsManager.Instance.normalGameHostOptions.MapId > 5 && !SubmergedCompatibility.Loaded))
             {
                 GameOptionsManager.Instance.normalGameHostOptions.MapId = 0;
                 GameOptionsManager.Instance.SaveNormalHostOptions();

@@ -9,30 +9,33 @@ namespace EHR;
 
 internal static class PlayerOutfitExtension
 {
-    public static NetworkedPlayerInfo.PlayerOutfit Set(this NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
+    extension(NetworkedPlayerInfo.PlayerOutfit instance)
     {
-        instance.PlayerName = playerName;
-        instance.ColorId = colorId;
-        instance.HatId = hatId;
-        instance.SkinId = skinId;
-        instance.VisorId = visorId;
-        instance.PetId = petId;
-        instance.NamePlateId = nameplateId;
-        return instance;
-    }
+        public NetworkedPlayerInfo.PlayerOutfit Set(string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
+        {
+            instance.PlayerName = playerName;
+            instance.ColorId = colorId;
+            instance.HatId = hatId;
+            instance.SkinId = skinId;
+            instance.VisorId = visorId;
+            instance.PetId = petId;
+            instance.NamePlateId = nameplateId;
+            return instance;
+        }
 
-    public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
-    {
-        return instance.ColorId == targetOutfit.ColorId &&
-               instance.HatId == targetOutfit.HatId &&
-               instance.SkinId == targetOutfit.SkinId &&
-               instance.VisorId == targetOutfit.VisorId &&
-               instance.PetId == targetOutfit.PetId;
-    }
+        public bool Compare(NetworkedPlayerInfo.PlayerOutfit targetOutfit)
+        {
+            return instance.ColorId == targetOutfit.ColorId &&
+                   instance.HatId == targetOutfit.HatId &&
+                   instance.SkinId == targetOutfit.SkinId &&
+                   instance.VisorId == targetOutfit.VisorId &&
+                   instance.PetId == targetOutfit.PetId;
+        }
 
-    public static string GetString(this NetworkedPlayerInfo.PlayerOutfit instance)
-    {
-        return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
+        public string GetString()
+        {
+            return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
+        }
     }
 }
 
@@ -140,7 +143,7 @@ public static class Camouflage
 
     private static IEnumerator UpdateCamouflageStatusAsync()
     {
-        foreach (PlayerControl pc in Main.AllPlayerControls)
+        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
         {
             if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
             {
@@ -153,7 +156,7 @@ public static class Camouflage
             yield return null;
         }
 
-        yield return Utils.NotifyEveryoneAsync(5);
+        yield return Utils.NotifyEveryoneAsync();
     }
 
     public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)

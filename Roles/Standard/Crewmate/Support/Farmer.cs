@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 
 namespace EHR.Roles;
 
@@ -14,7 +14,7 @@ public class Farmer : RoleBase
 
     private List<Seed> Seeds;
     private List<(Seed Seed, EHR.Seed NetObject)> SeedPositions;
-    private Dictionary<Seed, long> ActiveSeeds;
+    private Dictionary<Seed, CountdownTimer> ActiveSeeds;
     private byte FarmerId;
 
     private static OptionItem HarvestRange;
@@ -68,7 +68,7 @@ public class Farmer : RoleBase
         Vector2 pos = pc.Pos();
         float range = HarvestRange.GetFloat();
 
-        if (SeedPositions.FindFirst(x => x.NetObject.Spawned && Vector2.Distance(pos, x.NetObject.Position) < range, out var existing))
+        if (SeedPositions.FindFirst(x => x.NetObject.Spawned && !FastVector2.DistanceWithinRange(pos, x.NetObject.Position, range), out var existing))
         {
             switch (existing.Seed)
             {
@@ -83,21 +83,43 @@ public class Farmer : RoleBase
                     pc.MarkDirtySettings();
                     goto default;
                 case Seed.Potato:
-                    Main.AllAlivePlayerControls.DoIf(x => !x.Is(Team.Crewmate), x => x.SetKillCooldown(Main.AllPlayerKillCooldown.GetValueOrDefault(x.PlayerId, -1f)));
+                    Main.EnumerateAlivePlayerControls().DoIf(x => !x.Is(Team.Crewmate), x => x.SetKillCooldown(Main.AllPlayerKillCooldown.GetValueOrDefault(x.PlayerId, -1f)));
                     break;
                 case Seed.Blueberry:
                     Object.FindObjectsOfType<DeadBody>().Do(x => LocateArrow.Add(pc.PlayerId, x.TruePosition));
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
                 default:
-                    ActiveSeeds[existing.Seed] = Utils.TimeStamp + existing.Seed switch
+                    ActiveSeeds[existing.Seed] = new CountdownTimer(existing.Seed switch
                     {
                         Seed.Wheat => IncreasedVisionDuration.GetInt(),
                         Seed.Carrot => ShieldDuration.GetInt(),
                         Seed.Apple => InvisibilityDuration.GetInt(),
                         Seed.Tomato => IncreasedSpeedDuration.GetInt(),
                         _ => 0
-                    };
+                    }, () =>
+                    {
+                        ActiveSeeds.Remove(existing.Seed);
+
+                        switch (existing.Seed)
+                        {
+                            case Seed.Wheat:
+                                Utils.MarkEveryoneDirtySettings();
+                                break;
+                            case Seed.Apple:
+                                pc.RpcMakeVisible();
+                                break;
+                            case Seed.Tomato:
+                                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                                pc.MarkDirtySettings();
+                                break;
+                        }
+                    }, onCanceled: () =>
+                    {
+                        ActiveSeeds.Remove(existing.Seed);
+                        if (existing.Seed != Seed.Tomato || Main.RealOptionsData == null) return;
+                        Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    });
                     break;
             }
             
@@ -123,32 +145,6 @@ public class Farmer : RoleBase
         Seed.Blueberry => "0000FF",
         _ => "FFFFFF"
     };
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
-        
-        Seed[] toRemove = ActiveSeeds.Where(x => x.Value <= Utils.TimeStamp).Select(x => x.Key).ToArray();
-
-        foreach (Seed seed in toRemove)
-        {
-            ActiveSeeds.Remove(seed);
-
-            switch (seed)
-            {
-                case Seed.Wheat:
-                    Utils.MarkEveryoneDirtySettings();
-                    break;
-                case Seed.Apple:
-                    pc.RpcMakeVisible();
-                    break;
-                case Seed.Tomato:
-                    Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                    pc.MarkDirtySettings();
-                    break;
-            }
-        }
-    }
 
     public override void AfterMeetingTasks()
     {

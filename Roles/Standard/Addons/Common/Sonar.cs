@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+
 namespace EHR.Roles;
 
 public class Sonar : IAddon
@@ -21,9 +21,9 @@ public class Sonar : IAddon
 
     public static void OnFixedUpdate(PlayerControl seer)
     {
-        if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent || Main.AllAlivePlayerControls.Length == 1) return;
-
-        PlayerControl closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != seer.PlayerId).MinBy(x => Vector2.Distance(seer.Pos(), x.Pos()));
+        if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent) return;
+        
+        if (!FastVector2.TryGetClosestPlayerTo(seer, out PlayerControl closest)) return;
 
         if (Target.TryGetValue(seer.PlayerId, out byte targetId))
         {

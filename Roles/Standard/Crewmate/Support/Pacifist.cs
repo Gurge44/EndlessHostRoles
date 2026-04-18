@@ -81,7 +81,7 @@ internal class Pacifist : RoleBase
         pc.RpcRemoveAbilityUse();
         bool isMadMate = pc.Is(CustomRoles.Madmate);
 
-        Main.AllAlivePlayerControls
+        Main.EnumerateAlivePlayerControls()
             .Where(x => isMadMate ? x.CanUseKillButton() && x.IsCrewmate() : x.CanUseKillButton())
             .Do(x =>
             {

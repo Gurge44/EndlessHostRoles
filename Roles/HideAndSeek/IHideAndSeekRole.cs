@@ -1,4 +1,6 @@
-﻿namespace EHR.Roles;
+﻿using EHR.Modules.Extensions;
+
+namespace EHR.Roles;
 
 internal interface IHideAndSeekRole
 {
@@ -11,8 +13,7 @@ internal interface IHideAndSeekRole
 
 public class DashStatus
 {
-    public long DashEndTime { get; set; } = Utils.TimeStamp;
-    public bool IsDashing { get; set; } = false;
+    public bool IsDashing { get; set; }
     public int Cooldown { get; init; } = 20;
     public int Duration { get; init; } = 5;
 }

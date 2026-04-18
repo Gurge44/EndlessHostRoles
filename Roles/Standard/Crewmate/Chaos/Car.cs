@@ -8,6 +8,7 @@ namespace EHR.Roles;
 public class Car : RoleBase
 {
     public static bool On;
+    private static bool IsSkeld;
 
     private static OptionItem PropelDistance;
 
@@ -30,6 +31,7 @@ public class Car : RoleBase
     public override void Init()
     {
         On = false;
+        IsSkeld = Main.CurrentMap is MapNames.Skeld or MapNames.Dleks;
     }
 
     public override void Add(byte playerId)
@@ -49,7 +51,7 @@ public class Car : RoleBase
         Count = 0;
 
         Vector2 pos = pc.Pos();
-        if (Vector2.Distance(pos, LastPosition) < 0.1f) return;
+        if (FastVector2.DistanceWithinRange(pos, LastPosition, 0.1f)) return;
 
         Direction direction = pos.x < LastPosition.x
             ? pos.y < LastPosition.y
@@ -71,7 +73,7 @@ public class Car : RoleBase
 
         LastPosition = pos;
 
-        if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out PlayerControl target) && CurrentlyPropelling.Add(target.PlayerId))
+        if (FastVector2.TryGetClosestPlayerInRange(pos, 1.2f, out PlayerControl target, x => x.PlayerId != pc.PlayerId) && CurrentlyPropelling.Add(target.PlayerId))
             Main.Instance.StartCoroutine(Propel(pc, target, direction));
     }
 
@@ -103,8 +105,9 @@ public class Car : RoleBase
         float distance = PropelDistance.GetFloat();
         Collider2D collider = target.Collider;
 
-        for (Vector2 newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && GameStates.IsInTask; newPos += addVector)
+        for (Vector2 newPos = target.Pos(); FastVector2.DistanceWithinRange(pos, newPos, distance) && GameStates.IsInTask; newPos += addVector)
         {
+            if (IsSkeld && (target.IsInRoom(SystemTypes.LowerEngine) || target.IsInRoom(SystemTypes.UpperEngine))) break;
             if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos + (addVector * 2), Constants.ShipOnlyMask, false)) break;
 
             target.TP(newPos, log: false);

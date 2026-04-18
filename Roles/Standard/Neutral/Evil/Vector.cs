@@ -63,18 +63,6 @@ internal class Vector : RoleBase
         hud.AbilityButton.buttonLabelText.text = Translator.GetString("VectorVentButtonText");
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        byte playerId = pc.PlayerId;
-
-        if (VectorVentCount[playerId] >= VectorVentNumWin)
-        {
-            VectorVentCount[playerId] = VectorVentNumWin;
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vector);
-            CustomWinnerHolder.WinnerIds.Add(playerId);
-        }
-    }
-
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         VectorVentCount.TryAdd(pc.PlayerId, 0);

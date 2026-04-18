@@ -374,9 +374,9 @@ internal class Chemist : RoleBase
 
         if (AcidPlayers.TryGetValue(pc.PlayerId, out (HashSet<byte> OtherAcidPlayers, long TimeStamp) acidPlayers))
         {
-            Main.AllAlivePlayerControls
+            Main.EnumerateAlivePlayerControls()
                 .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
-                .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < 2.5f)
+                .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, 2.5f))
                 .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
         }
 
@@ -386,8 +386,8 @@ internal class Chemist : RoleBase
 
             float radius = GrenadeExplodeRadius.GetFloat();
 
-            Main.AllAlivePlayerControls
-                .Where(x => x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < radius && ChemistPC.RpcCheckAndMurder(x, true))
+            Main.EnumerateAlivePlayerControls()
+                .Where(x => x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && ChemistPC.RpcCheckAndMurder(x, true))
                 .Do(x => x.Suicide(realKiller: ChemistPC));
         }
     }

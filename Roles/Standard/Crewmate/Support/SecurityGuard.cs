@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 
 namespace EHR.Roles;
 
 internal class SecurityGuard : RoleBase
 {
-    public static Dictionary<byte, long> BlockSabo = [];
+    public static HashSet<byte> BlockSabo = [];
 
     public static bool On;
     public override bool IsEnable => On;
@@ -59,19 +60,20 @@ internal class SecurityGuard : RoleBase
     {
         var progressText = new StringBuilder();
 
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.ContainsKey(playerId)));
+        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.Contains(playerId)));
         progressText.Append(Utils.GetTaskCount(playerId, comms));
 
         return progressText.ToString();
     }
-
-    public override void SetButtonTexts(HudManager hud, byte id)
-    {
-        if (UsePets.GetBool())
-            hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-        else
-            hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-    }
+    
+    // Revert this if needed, recommended to actually add a text called "SaboBlock" or something
+    //public override void SetButtonTexts(HudManager hud, byte id)
+    //{
+    //    if (UsePets.GetBool())
+    //        hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+    //    else
+    //        hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+    //}
 
     public override void OnPet(PlayerControl pc)
     {
@@ -86,28 +88,22 @@ internal class SecurityGuard : RoleBase
 
     private static void Guard(PlayerControl pc)
     {
-        if (BlockSabo.ContainsKey(pc.PlayerId)) return;
+        if (BlockSabo.Contains(pc.PlayerId)) return;
 
         if (pc.GetAbilityUseLimit() >= 1)
         {
-            BlockSabo[pc.PlayerId] = Utils.TimeStamp;
+            BlockSabo.Add(pc.PlayerId);
+            _ = new CountdownTimer(SecurityGuardSkillDuration.GetInt(), () =>
+            {
+                BlockSabo.Remove(pc.PlayerId);
+                pc.RpcResetAbilityCooldown();
+                pc.Notify(Translator.GetString("SecurityGuardSkillStop"));
+            }, onCanceled: () => BlockSabo.Remove(pc.PlayerId));
             pc.Notify(Translator.GetString("SecurityGuardSkillInUse"), SecurityGuardSkillDuration.GetFloat());
             pc.RpcRemoveAbilityUse();
         }
         else
             pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        byte playerId = player.PlayerId;
-
-        if (BlockSabo.TryGetValue(playerId, out long stime) && stime + SecurityGuardSkillDuration.GetInt() < Utils.TimeStamp)
-        {
-            BlockSabo.Remove(playerId);
-            player.RpcResetAbilityCooldown();
-            player.Notify(Translator.GetString("SecurityGuardSkillStop"));
-        }
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

@@ -2,6 +2,7 @@
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -12,7 +13,7 @@ public class Spiritcaller : RoleBase
     private const int Id = 13400;
     private static List<byte> PlayerIdList = [];
 
-    private static Dictionary<byte, long> PlayersHaunted = [];
+    private static HashSet<byte> PlayersHaunted = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -24,7 +25,8 @@ public class Spiritcaller : RoleBase
     private static OptionItem SpiritCauseVision;
     private static OptionItem SpiritCauseVisionTime;
 
-    private static long ProtectTimeStamp;
+    public static bool Protected;
+    private static int AddProtect;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -70,7 +72,8 @@ public class Spiritcaller : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        ProtectTimeStamp = 0;
+        Protected = false;
+        AddProtect = 0;
         PlayersHaunted = [];
     }
 
@@ -78,7 +81,6 @@ public class Spiritcaller : RoleBase
     {
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SpiritMax.GetFloat());
-        ProtectTimeStamp = 0;
     }
 
     public override void Remove(byte playerId)
@@ -99,11 +101,6 @@ public class Spiritcaller : RoleBase
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return CanVent.GetBool();
-    }
-
-    public static bool InProtect(PlayerControl player)
-    {
-        return player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -140,29 +137,18 @@ public class Spiritcaller : RoleBase
         return true;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask) return;
-
-        if (pc.Is(CustomRoles.Spiritcaller))
-        {
-            if (ProtectTimeStamp < Utils.TimeStamp && ProtectTimeStamp != 0) ProtectTimeStamp = 0;
-        }
-        else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.TimeStamp)
-        {
-            PlayersHaunted.Remove(pc.PlayerId);
-            pc.MarkDirtySettings();
-        }
-    }
-
     public static void HauntPlayer(PlayerControl target)
     {
         if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
 
-        if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
+        if (SpiritCauseVisionTime.GetFloat() > 0 && PlayersHaunted.Add(target.PlayerId))
         {
-            long time = Utils.TimeStamp + (long)SpiritCauseVisionTime.GetFloat();
-            PlayersHaunted[target.PlayerId] = time;
+            LateTask.New(() =>
+            {
+                PlayersHaunted.Remove(target.PlayerId);
+                if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+                target.MarkDirtySettings();
+            }, SpiritCauseVisionTime.GetFloat());
         }
 
         if (SpiritFreezeTime.GetFloat() > 0)
@@ -187,7 +173,7 @@ public class Spiritcaller : RoleBase
 
     public static void ReduceVision(IGameOptions opt, PlayerControl target)
     {
-        if (PlayersHaunted.ContainsKey(target.PlayerId))
+        if (PlayersHaunted.Contains(target.PlayerId))
         {
             opt.SetVision(false);
             opt.SetFloat(FloatOptionNames.CrewLightMod, SpiritCauseVision.GetFloat());
@@ -197,6 +183,20 @@ public class Spiritcaller : RoleBase
 
     public static void ProtectSpiritcaller()
     {
-        ProtectTimeStamp = Utils.TimeStamp + (long)SpiritProtectTime.GetFloat();
+        if (!Protected) Main.Instance.StartCoroutine(ProtectCoroutine());
+        else AddProtect++;
+    }
+
+    static System.Collections.IEnumerator ProtectCoroutine()
+    {
+        Protected = true;
+
+        while (Protected)
+        {
+            yield return new WaitForSecondsRealtime(SpiritProtectTime.GetFloat());
+            Protected = --AddProtect >= 0;
+        }
+        
+        AddProtect = 0;
     }
 }

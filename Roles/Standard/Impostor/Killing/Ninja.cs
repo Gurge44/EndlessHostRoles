@@ -22,6 +22,7 @@ internal class Ninja : RoleBase
     private bool IsUndertaker;
     private float MarkCooldown;
     public byte MarkedPlayer;
+    public byte NinjaId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -54,6 +55,7 @@ internal class Ninja : RoleBase
 
     public override void Add(byte playerId)
     {
+        NinjaId = playerId;
         PlayerIdList.Add(playerId);
         MarkedPlayer = byte.MaxValue;
         IsUndertaker = Main.PlayerStates[playerId].MainRole == CustomRoles.Undertaker;
@@ -109,7 +111,6 @@ internal class Ninja : RoleBase
         else
         {
             if (UsePets.GetBool()) return;
-
             AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
         }
     }
@@ -118,6 +119,15 @@ internal class Ninja : RoleBase
     {
         if (pc == null || !pc.IsAlive()) return false;
         return CanKillAfterAssassinate || (!pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false });
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        if (MarkedPlayer != byte.MaxValue && MarkedPlayer.GetPlayer() == null)
+        {
+            MarkedPlayer = byte.MaxValue;
+            SendRPC(NinjaId);
+        }
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -180,16 +190,41 @@ internal class Ninja : RoleBase
         if (!IsUndertaker)
         {
             float time = InvisibilityTimeAfterAssassinateOpt.GetFloat();
+            PlayerControl target = Utils.GetPlayerById(MarkedPlayer);
 
-            if (time >= 1f)
+            if (time >= 1f && target != null && target.IsAlive() && !Pelican.IsEaten(target.PlayerId) && !target.inVent && pc.RpcCheckAndMurder(target, check: true))
             {
-                pc.RpcMakeInvisible();
+                pc.RpcMakeInvisible(phantom: true);
+
+                Vector2 targetPosition = target.Pos();
+                    
+                CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = targetPosition;
+                CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+                AFKDetector.TempIgnoredPlayers.Add(pc.PlayerId);
+                LateTask.New(() => AFKDetector.TempIgnoredPlayers.Remove(pc.PlayerId), 0.2f + Utils.CalculatePingDelay(), log: false);
+
+                pc.NetTransform.SnapTo(targetPosition, (ushort)(pc.NetTransform.lastSequenceId + 328));
+                pc.NetTransform.SetDirtyBit(uint.MaxValue);
+
+                MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable, pc.OwnerId);
+                NetHelpers.WriteVector2(targetPosition, messageWriter);
+                messageWriter.Write((ushort)(pc.NetTransform.lastSequenceId + 8));
+                AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+                
+                target.Suicide(PlayerState.DeathReason.Kill, pc);
+                RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
+
+                MarkedPlayer = byte.MaxValue;
+                SendRPC(pc.PlayerId);
+                pc.SetKillCooldown(AdjustedDefaultKillCooldown);
 
                 LateTask.New(() =>
                 {
                     if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
-                    pc.RpcMakeVisible();
+                    pc.RpcMakeVisible(phantom: true);
                 }, time, log: false);
+
+                return false;
             }
         }
 
@@ -208,8 +243,6 @@ internal class Ninja : RoleBase
             {
                 MarkedPlayer = byte.MaxValue;
                 SendRPC(pc.PlayerId);
-                pc.ResetKillCooldown();
-                pc.SyncSettings();
                 pc.SetKillCooldown(AdjustedDefaultKillCooldown);
             }
             else if (!tpSuccess) pc.Notify(GetString("TargetCannotBeTeleported"));

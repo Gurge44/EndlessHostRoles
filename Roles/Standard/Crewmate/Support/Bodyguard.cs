@@ -52,8 +52,7 @@ internal class Bodyguard : RoleBase
             {
                 if (bodyguard.BodyguardPC == null || bodyguard.BodyguardPC.PlayerId == target.PlayerId) continue;
 
-                float dis = Vector2.Distance(bodyguard.BodyguardPC.Pos(), target.Pos());
-                if (dis > BodyguardProtectRadius.GetFloat()) return true;
+                if (!FastVector2.DistanceWithinRange(bodyguard.BodyguardPC.Pos(), target.Pos(), BodyguardProtectRadius.GetFloat())) continue;
 
                 if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
                 {

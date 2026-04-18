@@ -51,7 +51,7 @@ public class PortalMaker : RoleBase
         }
 
         Vector2 pos = pc.Pos();
-        if (Marks.Count == 1 && Vector2.Distance(Marks[0], pos) < 4f) return;
+        if (Marks.Count == 1 && FastVector2.DistanceWithinRange(Marks[0], pos, 4f)) return;
         Marks.Add(pos);
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, pos);
 
@@ -70,7 +70,7 @@ public class PortalMaker : RoleBase
         if (!LastTP.TryGetValue(pc.PlayerId, out long lastTP) || lastTP + 5 > now) return;
 
         Vector2 pos = pc.Pos();
-        if (!Marks.FindFirst(x => Vector2.Distance(x, pos) <= 1f, out Vector2 nearMark)) return;
+        if (!Marks.FindFirst(x => FastVector2.DistanceWithinRange(x, pos, 1f), out Vector2 nearMark)) return;
 
         int index = Marks.IndexOf(nearMark);
         Vector2 target = Marks[1 - index];

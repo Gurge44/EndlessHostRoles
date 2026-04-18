@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using static EHR.Options;
 
 namespace EHR.Roles;
 
 internal class Veteran : RoleBase
 {
-    public static Dictionary<byte, long> VeteranInProtect = [];
+    public static HashSet<byte> VeteranInProtect = [];
 
     public static bool On;
     public override bool IsEnable => On;
@@ -71,7 +72,7 @@ internal class Veteran : RoleBase
     {
         var progressText = new StringBuilder();
 
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.ContainsKey(playerId)));
+        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.Contains(playerId)));
         progressText.Append(Utils.GetTaskCount(playerId, comms));
 
         return progressText.ToString();
@@ -98,11 +99,17 @@ internal class Veteran : RoleBase
 
     private static void Alert(PlayerControl pc)
     {
-        if (VeteranInProtect.ContainsKey(pc.PlayerId)) return;
+        if (VeteranInProtect.Contains(pc.PlayerId)) return;
 
         if (pc.GetAbilityUseLimit() >= 1)
         {
-            VeteranInProtect[pc.PlayerId] = Utils.TimeStamp;
+            VeteranInProtect.Add(pc.PlayerId);
+            _ = new CountdownTimer(VeteranSkillDuration.GetInt(), () =>
+            {
+                VeteranInProtect.Remove(pc.PlayerId);
+                pc.RpcResetAbilityCooldown();
+                pc.Notify(string.Format(Translator.GetString("VeteranOffGuard"), (int)pc.GetAbilityUseLimit()));
+            }, onCanceled: () => VeteranInProtect.Remove(pc.PlayerId));
             pc.RpcRemoveAbilityUse();
             pc.RPCPlayCustomSound("Gunload");
             pc.Notify(Translator.GetString("VeteranOnGuard"), VeteranSkillDuration.GetFloat());
@@ -116,7 +123,7 @@ internal class Veteran : RoleBase
     {
         if (!killer.IsAlive()) return false;
         
-        if (VeteranInProtect.ContainsKey(target.PlayerId) && killer.PlayerId != target.PlayerId)
+        if (VeteranInProtect.Contains(target.PlayerId) && killer.PlayerId != target.PlayerId)
         {
             if (!killer.Is(CustomRoles.Pestilence))
             {
@@ -137,18 +144,6 @@ internal class Veteran : RoleBase
         }
 
         return true;
-    }
-
-    public override void OnFixedUpdate(PlayerControl player)
-    {
-        byte playerId = player.PlayerId;
-
-        if (VeteranInProtect.TryGetValue(playerId, out long vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
-        {
-            VeteranInProtect.Remove(playerId);
-            player.RpcResetAbilityCooldown();
-            player.Notify(string.Format(Translator.GetString("VeteranOffGuard"), (int)player.GetAbilityUseLimit()));
-        }
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

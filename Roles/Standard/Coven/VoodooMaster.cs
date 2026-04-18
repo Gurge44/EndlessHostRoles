@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace EHR.Roles;
 
 public class VoodooMaster : CovenBase

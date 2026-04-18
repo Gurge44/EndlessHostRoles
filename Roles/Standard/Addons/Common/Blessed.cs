@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
@@ -14,7 +14,7 @@ public class Blessed : IAddon
     private static OptionItem MinLivingPlayersToActivateShield;
 
     public static HashSet<byte> ShieldActive = [];
-    private static Stopwatch ShieldTimer;
+    private static CountdownTimer ShieldTimer;
 
     public void SetupCustomOption()
     {
@@ -31,8 +31,8 @@ public class Blessed : IAddon
 
     public static void AfterMeetingTasks()
     {
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
-        if (aapc.Length < MinLivingPlayersToActivateShield.GetInt()) return;
+        var aapc = Main.AllAlivePlayerControls;
+        if (aapc.Count < MinLivingPlayersToActivateShield.GetInt()) return;
         
         foreach (PlayerControl pc in aapc)
         {
@@ -40,41 +40,26 @@ public class Blessed : IAddon
             ShieldActive.Add(pc.PlayerId);
         }
         
-        ShieldTimer = Stopwatch.StartNew();
-        Utils.SendRPC(CustomRPC.Blessed, 1);
-        Main.Instance.StartCoroutine(CoRoutine());
-        return;
-
-        System.Collections.IEnumerator CoRoutine()
+        ShieldTimer = new CountdownTimer(ShieldDuration.GetInt(), () =>
         {
-            int duration = ShieldDuration.GetInt();
-            while (ShieldTimer.GetRemainingTime(duration) > 0 && !(GameStates.IsMeeting || ExileController.Instance || GameStates.IsEnded || !GameStates.InGame)) yield return null;
-            
-            ShieldTimer.Reset();
-            Utils.SendRPC(CustomRPC.Blessed, 2);
-            
-            if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks)
-                ShieldActive.ToValidPlayers().Do(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: x));
-            
-            ShieldActive = [];
-        }
+            ShieldTimer = null;
+            ShieldActive.ToValidPlayers().Do(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: x));
+            ShieldActive.Clear();
+        }, onCanceled: () =>
+        {
+            ShieldTimer = null;
+            ShieldActive.Clear();
+        });
+        Utils.SendRPC(CustomRPC.Blessed);
     }
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        switch (reader.ReadPackedInt32())
-        {
-            case 1:
-                ShieldTimer = Stopwatch.StartNew();
-                break;
-            case 2:
-                ShieldTimer.Reset();
-                break;
-        }
+        ShieldTimer = new CountdownTimer(ShieldDuration.GetInt(), () => ShieldTimer = null, onCanceled: () => ShieldTimer = null);
     }
 
     public static string GetSuffix(PlayerControl seer)
     {
-        return !ShieldTimer.IsRunning ? string.Empty : $"<size=80%>{(seer.IsModdedClient() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), ShieldTimer.GetRemainingTime(ShieldDuration.GetInt())) : Translator.GetString("SafeguardSuffix"))}</size>";
+        return ShieldTimer == null ? string.Empty : $"<size=80%>{(seer.IsModdedClient() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(ShieldTimer.Remaining.TotalSeconds)) : Translator.GetString("SafeguardSuffix"))}</size>";
     }
 }

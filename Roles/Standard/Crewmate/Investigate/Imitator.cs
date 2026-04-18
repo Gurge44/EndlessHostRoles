@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -36,19 +35,13 @@ public class Imitator : RoleBase
         PlayerIdList.Add(playerId);
     }
 
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
-        ImitatingRole.Remove(playerId);
-    }
-
     public static void SetRoles()
     {
         foreach (byte id in PlayerIdList)
         {
             PlayerControl pc = id.GetPlayer();
 
-            if (pc != null && pc.IsAlive() && ImitatingRole.TryGetValue(id, out CustomRoles role) && !pc.Is(role))
+            if (pc && pc.IsAlive() && ImitatingRole.TryGetValue(id, out CustomRoles role) && !pc.Is(role))
             {
                 Main.AbilityUseLimit.Remove(pc.PlayerId);
                 Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, pc.PlayerId);
@@ -88,7 +81,7 @@ public class Imitator : RoleBase
         foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (pc == null || pc.IsAlive()) continue;
+            if (!pc || pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);

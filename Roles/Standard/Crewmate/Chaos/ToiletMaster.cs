@@ -138,7 +138,7 @@ public class ToiletMaster : RoleBase
         IEnumerable<PlayerControl> hideList = ToiletVisible switch
         {
             ToiletVisibilityOptions.Instant => [],
-            _ => Main.AllPlayerControls.Without(pc)
+            _ => Main.EnumeratePlayerControls().Without(pc)
         };
 
         Toilets[pos] = (new(pos, hideList), 0, Utils.TimeStamp);
@@ -181,7 +181,7 @@ public class ToiletMaster : RoleBase
         try
         {
             Vector2 pos = pc.Pos();
-            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = Toilets.First(x => Vector2.Distance(x.Key, pos) <= ToiletUseRadius.GetFloat()).Value;
+            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = Toilets.First(x => FastVector2.DistanceWithinRange(x.Key, pos, ToiletUseRadius.GetFloat())).Value;
 
             if (toilet.Uses >= AbilityUses.GetInt()) return;
 
@@ -206,7 +206,7 @@ public class ToiletMaster : RoleBase
                     break;
                 case Poop.Green:
                     float radius = GreenPoopRadius.GetFloat();
-                    bool isKillerNearby = Main.AllAlivePlayerControls.Any(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) <= radius && (x.IsImpostor() || x.IsNeutralKiller()));
+                    bool isKillerNearby = Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != pc.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && (x.IsImpostor() || x.IsNeutralKiller()));
                     Color color = isKillerNearby ? Color.red : Color.green;
                     string str = Translator.GetString(isKillerNearby ? "TM.GreenPoopKiller" : "TM.GreenPoop");
                     pc.Notify(Utils.ColorString(color, str));
@@ -215,7 +215,7 @@ public class ToiletMaster : RoleBase
                     int duration = RedPoopRoleBlockDuration.GetInt();
                     List<PlayerControl> affectedPlayers = [];
 
-                    Utils.GetPlayersInRadius(RedPoopRadius.GetFloat(), pos).Without(pc).Do(x =>
+                    FastVector2.GetPlayersInRange(pos, RedPoopRadius.GetFloat()).Without(pc).Do(x =>
                     {
                         x.BlockRole(duration);
                         Main.AllPlayerSpeed[x.PlayerId] = Main.MinSpeed;
@@ -265,7 +265,6 @@ public class ToiletMaster : RoleBase
 
         long now = Utils.TimeStamp;
         if (LastUpdate >= now) return;
-
         LastUpdate = now;
 
         int duration = ToiletDuration.GetInt();

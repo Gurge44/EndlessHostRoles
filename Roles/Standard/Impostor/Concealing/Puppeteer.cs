@@ -180,14 +180,14 @@ internal class Puppeteer : RoleBase
                 PuppeteerList.Remove(playerId);
                 PuppeteerDelayList.Remove(playerId);
                 PuppeteerDelay.Remove(playerId);
-                Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
+                Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Puppeteer)).Do(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: player));
             }
             else if (PuppeteerDelayList[playerId] + PuppeteerDelay[playerId] < now)
             {
                 Vector2 puppeteerPos = player.Pos();
                 Dictionary<byte, float> targetDistance = [];
 
-                foreach (PlayerControl target in Main.AllAlivePlayerControls)
+                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
                 {
                     if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
                     if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
@@ -201,7 +201,7 @@ internal class Puppeteer : RoleBase
                 {
                     KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                     PlayerControl target = Utils.GetPlayerById(min.Key);
-                    float killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+                    float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
 
                     if (min.Value <= killRange && player.CanMove && target.CanMove)
                     {

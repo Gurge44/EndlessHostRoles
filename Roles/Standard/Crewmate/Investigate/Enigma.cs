@@ -287,7 +287,7 @@ public class Enigma : RoleBase
 
         private static string GetRandomLetter(PlayerControl killer, string letter)
         {
-            return Main.AllAlivePlayerControls.Without(killer).RandomElement().GetRealName().Replace(letter, "").Where(char.IsLetter).RandomElement().ToString().ToLower();
+            return Main.EnumerateAlivePlayerControls().Without(killer).RandomElement().GetRealName().Replace(letter, "").Where(char.IsLetter).RandomElement().ToString().ToLower();
         }
     }
 
@@ -428,7 +428,7 @@ public class Enigma : RoleBase
 
         public override string GetMessage(PlayerControl killer, bool showStageClue)
         {
-            var level = (int)killer.Data.PlayerLevel;
+            uint level = killer.Data.PlayerLevel;
 
             return ClueStage switch
             {
@@ -440,19 +440,19 @@ public class Enigma : RoleBase
             };
         }
 
-        private static string GetStage1Clue(int level)
+        private static string GetStage1Clue(uint level)
         {
             return GetString(level > 50 ? "EnigmaClueLevel1" : "EnigmaClueLevel2");
         }
 
-        private static string GetStage2Clue(int level)
+        private static string GetStage2Clue(uint level)
         {
-            int rangeStart = level - 15;
-            int rangeEnd = level + 15;
+            uint rangeStart = level - 15;
+            uint rangeEnd = level + 15;
             return string.Format(GetString("EnigmaClueLevel3"), rangeStart, rangeEnd >= 100 ? 100 : rangeEnd);
         }
 
-        private static string GetStage3Clue(int level)
+        private static string GetStage3Clue(uint level)
         {
             return string.Format(GetString("EnigmaClueLevel4"), level);
         }

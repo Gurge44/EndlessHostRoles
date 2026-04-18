@@ -60,6 +60,6 @@ public class Soothsayer : RoleBase
     public static void OnAnyoneDeath(PlayerControl killer)
     {
         if (killer == null) return;
-        Instances.DoIf(x => x.Target == killer.PlayerId, _ => Main.AllAlivePlayerControls.Do(p => p.Notify(string.Format(Translator.GetString("SoothsayerDiedNotify"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(killer.PlayerId), killer.GetRealName())), 10f)));
+        Instances.DoIf(x => x.Target == killer.PlayerId, _ => Main.EnumerateAlivePlayerControls().Do(p => p.Notify(string.Format(Translator.GetString("SoothsayerDiedNotify"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(killer.PlayerId), killer.GetRealName())), 10f)));
     }
 }

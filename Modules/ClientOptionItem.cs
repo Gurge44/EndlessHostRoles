@@ -25,7 +25,7 @@ public class ClientOptionItem
 
             ToggleButtonBehaviour mouseMoveToggle = optionsMenuBehaviour.DisableMouseMovement;
 
-            if (CustomBackground == null)
+            if (!CustomBackground)
             {
                 CustomBackground = Object.Instantiate(optionsMenuBehaviour.Background, optionsMenuBehaviour.transform);
                 CustomBackground.name = "CustomBackground";

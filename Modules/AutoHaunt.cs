@@ -12,7 +12,7 @@ public static class AutoHaunt
 {
     private static PlayerControl GetPreferredHauntTarget()
     {
-        IEnumerable<PlayerControl> validPCs = Main.AllAlivePlayerControls.Where(x => !AFKDetector.PlayerData.ContainsKey(x.PlayerId));
+        IEnumerable<PlayerControl> validPCs = Main.EnumerateAlivePlayerControls().Where(x => !AFKDetector.PlayerData.ContainsKey(x.PlayerId));
 
         return Options.CurrentGameMode switch
         {

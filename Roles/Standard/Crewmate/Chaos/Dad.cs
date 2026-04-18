@@ -198,7 +198,7 @@ public class Dad : RoleBase
         if (DrunkPlayers.Count > 0)
         {
             int chance = DrunkRoleIncorrectChance.GetInt();
-            List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).ToList();
+            List<CustomRoles> allRoles = Main.CustomRoleValues.Where(x => x.IsEnable() && !x.IsAdditionRole() && !CustomHnS.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).ToList();
 
             foreach (byte id in DrunkPlayers)
             {
@@ -245,7 +245,7 @@ public class Dad : RoleBase
         {
             case Ability.GoForMilk:
                 LateTask.New(() => pc.TP(Pelican.GetBlackRoomPS()), 2f, log: false);
-                Main.AllAlivePlayerControls.NotifyPlayers(Translator.GetString("Dad.GoForMilkNotify"), 10f);
+                Main.EnumerateAlivePlayerControls().NotifyPlayers(Translator.GetString("Dad.GoForMilkNotify"), 10f);
                 UsingAbilities.Add(SelectedAbility);
                 break;
             case Ability.SuperVision:
@@ -270,7 +270,7 @@ public class Dad : RoleBase
                 break;
             case Ability.GiveDrink:
                 Vector2 pos = pc.Pos();
-                DrunkPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => Vector2.Distance(x.Pos(), pos) <= GivingDrinkRange.GetFloat()).Select(x => x.PlayerId).ToList();
+                DrunkPlayers = Main.EnumerateAlivePlayerControls().Without(pc).Where(x => FastVector2.DistanceWithinRange(x.Pos(), pos, GivingDrinkRange.GetFloat())).Select(x => x.PlayerId).ToList();
                 Utils.NotifyRoles(SpecifySeer: pc);
                 break;
             case Ability.BecomeGodOfAlcohol:
@@ -318,13 +318,12 @@ public class Dad : RoleBase
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
         if (Count++ < 15) return;
-
         Count = 0;
 
-        Vector2 pos = pc.Pos();
-        if (UsingAbilities.Contains(Ability.Rage) && Main.AllAlivePlayerControls.FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out PlayerControl target) && pc.RpcCheckAndMurder(target)) UsingAbilities.Remove(Ability.Rage);
+        if (UsingAbilities.Contains(Ability.Rage) && FastVector2.TryGetClosestPlayerInRangeTo(pc, 1.3f, out PlayerControl target) && pc.RpcCheckAndMurder(target))
+            UsingAbilities.Remove(Ability.Rage);
 
-        bool notify = Vector2.Distance(pc.Pos(), Shop.transform.position) < 2f;
+        bool notify = FastVector2.DistanceWithinRange(pc.Pos(), Shop.transform.position, 2f);
 
         long now = Utils.TimeStamp;
         long elapsed = now - LastUpdate;
@@ -343,7 +342,7 @@ public class Dad : RoleBase
             {
                 pc.TPToRandomVent();
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
-                CustomWinnerHolder.WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.Is(Team.Crewmate)).Select(x => x.PlayerId));
+                CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.Is(Team.Crewmate)).Select(x => x.PlayerId));
             }
         }
 
@@ -440,7 +439,7 @@ public class Dad : RoleBase
 
         var sb = new StringBuilder();
 
-        if (Vector2.Distance(seer.Pos(), Shop.transform.position) <= 2f)
+        if (FastVector2.DistanceWithinRange(seer.Pos(), Shop.transform.position, 2f))
         {
             float canBuyAmount = seer.GetAbilityUseLimit() / AlcoholCost.GetInt();
             sb.Append(string.Format(Translator.GetString("Dad.ShopSuffix"), canBuyAmount));

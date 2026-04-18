@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using AmongUs.GameOptions;
 using UnityEngine;
 
@@ -35,11 +34,8 @@ public class Psychopath : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc.IsAlive() || Main.KillTimers[pc.PlayerId] > 0f || Count++ < 10) return;
-        var pos = pc.Pos();
-        var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-        var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Where(x => !x.IsImpostor()).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
-        PlayerControl closestPlayer = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
-        if (closestPlayer == null) return;
+        var killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+        if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl closestPlayer, x => !x.IsImpostor())) return;
         Count = 0;
         pc.RpcCheckAndMurder(closestPlayer);
     }

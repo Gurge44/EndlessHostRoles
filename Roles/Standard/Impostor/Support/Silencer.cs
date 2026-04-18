@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using Epic.OnlineServices.PlayerDataStorage;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -126,11 +125,8 @@ public class Silencer : RoleBase
     {
         if (SilenceMode.GetValue() == 2)
         {
-            var pos = pc.Pos();
-            var killRange = NormalGameOptionsV10.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
-            var nearPlayers = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(x.Pos(), pos))).Where(x => x.distance <= killRange).ToArray();
-            PlayerControl target = nearPlayers.Length == 0 ? null : nearPlayers.MinBy(x => x.distance).pc;
-            if (target == null) return false;
+            var killRange = GameManager.Instance.LogicOptions.GetKillDistance() + 1f;
+            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl target)) return false;
             
             ForSilencer = [target.PlayerId];
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, target.PlayerId);

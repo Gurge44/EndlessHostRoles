@@ -84,7 +84,7 @@ internal class Sprayer : RoleBase
         SprayerId = playerId;
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
 
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls()) TrappedCount[pc.PlayerId] = 0;
     }
 
     public override void SetKillCooldown(byte id)
@@ -161,7 +161,7 @@ internal class Sprayer : RoleBase
 
         foreach (KeyValuePair<Vector2, SprayedArea> trap in Traps)
         {
-            if (Vector2.Distance(pc.Pos(), trap.Key) <= 2f)
+            if (FastVector2.DistanceWithinRange(pc.Pos(), trap.Key, 2f))
             {
                 byte playerId = pc.PlayerId;
                 float tempSpeed = Main.AllPlayerSpeed[playerId];
@@ -191,7 +191,6 @@ internal class Sprayer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        Traps.Values.Do(x => x.Despawn());
         Traps.Clear();
     }
 

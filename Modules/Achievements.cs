@@ -141,55 +141,58 @@ public static class Achievements
 
     private static readonly string SaveFilePath = $"{Main.DataPath}/EHR_DATA/Achievements.json";
 
-    private const string ApiBaseUrl = "https://gurge44.pythonanywhere.com/achievements";
+    private const string ApiBaseUrl = "https://app.gurge44.eu/achievements";
     private const string ApiSaveEndpoint = $"{ApiBaseUrl}/save";
     private const string ApiLoadEndpoint = $"{ApiBaseUrl}/load";
 
     public static readonly HashSet<Type> WaitingAchievements = [];
     public static HashSet<Type> CompletedAchievements = [];
 
-    public static void Complete(this Type type)
+    extension(Type type)
     {
-        if (!CompletedAchievements.Add(type)) return;
-
-        if (GameStates.IsEnded) WaitingAchievements.Add(type);
-        else ShowAchievementCompletion(type);
-
-        SaveAllData();
-    }
-
-    public static void CompleteAfterGameEnd(this Type type)
-    {
-        if (!CompletedAchievements.Add(type)) return;
-        WaitingAchievements.Add(type);
-
-        SaveAllData();
-    }
-
-    public static void CompleteAfterDelay(this Type type, float delay)
-    {
-        if (!CompletedAchievements.Add(type)) return;
-        Main.Instance.StartCoroutine(CompleteAchievementAfterDelayAsync());
-        SaveAllData();
-        return;
-
-        IEnumerator CompleteAchievementAfterDelayAsync()
+        public void Complete()
         {
-            var timer = 0f;
+            if (!CompletedAchievements.Add(type)) return;
 
-            while (!GameStates.IsEnded && timer < delay)
+            if (GameStates.IsEnded) WaitingAchievements.Add(type);
+            else ShowAchievementCompletion(type);
+
+            SaveAllData();
+        }
+
+        public void CompleteAfterGameEnd()
+        {
+            if (!CompletedAchievements.Add(type)) return;
+            WaitingAchievements.Add(type);
+
+            SaveAllData();
+        }
+
+        public void CompleteAfterDelay(float delay)
+        {
+            if (!CompletedAchievements.Add(type)) return;
+            Main.Instance.StartCoroutine(CompleteAchievementAfterDelayAsync());
+            SaveAllData();
+            return;
+
+            IEnumerator CompleteAchievementAfterDelayAsync()
             {
-                yield return null;
-                timer += Time.deltaTime;
-            }
+                var timer = 0f;
 
-            if (GameStates.IsEnded)
-            {
-                WaitingAchievements.Add(type);
-                yield break;
-            }
+                while (!GameStates.IsEnded && timer < delay)
+                {
+                    yield return null;
+                    timer += Time.deltaTime;
+                }
 
-            ShowAchievementCompletion(type);
+                if (GameStates.IsEnded)
+                {
+                    WaitingAchievements.Add(type);
+                    yield break;
+                }
+
+                ShowAchievementCompletion(type);
+            }
         }
     }
 
@@ -219,7 +222,7 @@ public static class Achievements
 
         IEnumerator SendAchievementsToApiAsync()
         {
-            while (PlayerControl.LocalPlayer == null) yield return null;
+            while (!PlayerControl.LocalPlayer) yield return null;
 
             string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();
 
@@ -259,7 +262,7 @@ public static class Achievements
 
             IEnumerator FetchAchievementsFromApiAsync()
             {
-                while (PlayerControl.LocalPlayer == null) yield return null;
+                while (!PlayerControl.LocalPlayer) yield return null;
                 yield return new WaitForSecondsRealtime(3f);
 
                 string userId = PlayerControl.LocalPlayer.GetClient().GetHashedPuid();

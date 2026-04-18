@@ -39,7 +39,7 @@ public class Cultist : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cultist])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CharmCooldownIncrese = new FloatOptionItem(Id + 11, "CultistCharmCooldownIncrese", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles)
+        CharmCooldownIncrese = new FloatOptionItem(Id + 11, "CultistCharmCooldownIncrease", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cultist])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -152,13 +152,13 @@ public class Cultist : RoleBase
                               (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Curser) && !pc.Is(Team.Coven);
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public static void OnAnyoneDead(PlayerControl target)
     {
-        if (!CharmedDiesOnCultistDeath.GetBool() || !GameStates.IsInTask || !IsEnable) return;
+        if (!CharmedDiesOnCultistDeath.GetBool() || !target.Is(CustomRoles.Cultist)) return;
 
-        if (pc == null || pc.IsAlive()) return;
-
-        foreach (PlayerControl charmed in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Charmed))) charmed.Suicide(realKiller: pc);
+        foreach (PlayerControl charmed in Main.EnumerateAlivePlayerControls())
+            if (charmed.Is(CustomRoles.Charmed))
+                charmed.Suicide(realKiller: target);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

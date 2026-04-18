@@ -110,31 +110,22 @@ public class YinYanger : RoleBase
         SendRPC(true);
     }
 
-    public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
+    public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask) return;
+        if (!GameStates.IsInTask || !IsEnable || YinYangedPlayers.Count < 2) return;
+        
+        PlayerControl yyPc = YinYanger_;
+        PlayerControl pc1 = GetPlayerById(YinYangedPlayers[0]);
+        PlayerControl pc2 = GetPlayerById(YinYangedPlayers[1]);
 
-        foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+        if (pc1 == null || pc2 == null || yyPc == null || !pc1.IsAlive() || !pc2.IsAlive() || !yyPc.IsAlive()) return;
+
+        if (FastVector2.DistanceWithinRange(pc1.Pos(), pc2.Pos(), 2f))
         {
-            if (state.Value.Role is not YinYanger { IsEnable: true, YinYangedPlayers.Count: 2 } yy) continue;
+            if (!yyPc.RpcCheckAndMurder(pc1, true) || !yyPc.RpcCheckAndMurder(pc2, true)) return;
 
-            PlayerControl yyPc = yy.YinYanger_;
-            PlayerControl pc1 = GetPlayerById(yy.YinYangedPlayers[0]);
-            PlayerControl pc2 = GetPlayerById(yy.YinYangedPlayers[1]);
-
-            if (pc1 == null || pc2 == null || yyPc == null) return;
-
-            if (!pc1.IsAlive() || !pc2.IsAlive() || !yyPc.IsAlive()) return;
-
-            if (Vector2.Distance(pc1.Pos(), pc2.Pos()) <= 2f)
-            {
-                if (!yyPc.RpcCheckAndMurder(pc1, true)
-                    || !yyPc.RpcCheckAndMurder(pc2, true))
-                    return;
-
-                pc1.Suicide(PlayerState.DeathReason.YinYanged, yyPc);
-                pc2.Suicide(PlayerState.DeathReason.YinYanged, yyPc);
-            }
+            pc1.Suicide(PlayerState.DeathReason.YinYanged, yyPc);
+            pc2.Suicide(PlayerState.DeathReason.YinYanged, yyPc);
         }
     }
 

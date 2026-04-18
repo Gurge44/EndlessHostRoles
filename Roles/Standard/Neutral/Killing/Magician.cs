@@ -191,7 +191,7 @@ public class Magician : RoleBase
             case 1: // Slowness for everyone nearby
                 if (TempSpeeds.Count > 0) RevertSpeedChanges(true);
 
-                IEnumerable<PlayerControl> list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos());
+                IEnumerable<PlayerControl> list = FastVector2.GetPlayersInRange(pc.Pos(), SlownessRadius.GetFloat());
 
                 foreach (PlayerControl x in list)
                 {
@@ -259,7 +259,7 @@ public class Magician : RoleBase
 
                 break;
             case 6: // Blind everyone nearby
-                IEnumerable<PlayerControl> players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.Pos());
+                IEnumerable<PlayerControl> players = FastVector2.GetPlayersInRange(pc.Pos(), BlindRadius.GetFloat());
 
                 foreach (PlayerControl x in players)
                 {
@@ -267,6 +267,13 @@ public class Magician : RoleBase
 
                     BlindPpl.TryAdd(x.PlayerId, TimeStamp);
                     x.MarkDirtySettings();
+                    
+                    LateTask.New(() =>
+                    {
+                        BlindPpl.Remove(x.PlayerId);
+                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+                        x.MarkDirtySettings();
+                    }, BlindDur.GetInt());
                 }
 
                 CardId = byte.MaxValue;
@@ -312,15 +319,16 @@ public class Magician : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc == null) return;
         if (!GameStates.IsInTask) return;
         if (Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
-        if (PortalMarks.Count == 2 && LastTP + 5 < TimeStamp)
+        long now = TimeStamp;
+
+        if (PortalMarks.Count == 2 && LastTP + 5 < now)
         {
-            if (Vector2.Distance(PortalMarks[0], PortalMarks[1]) <= 4f)
+            if (FastVector2.DistanceWithinRange(PortalMarks[0], PortalMarks[1], 4f))
             {
                 pc.Notify(GetString("IncorrectMarks"));
                 PortalMarks.Clear();
@@ -329,53 +337,28 @@ public class Magician : RoleBase
             {
                 Vector2 position = pc.Pos();
 
-                var isTP = false;
-                Vector2 from = PortalMarks[0];
-
-                foreach (Vector2 mark in PortalMarks.ToArray())
+                if (PortalMarks.FindFirst(x => FastVector2.DistanceWithinRange(x, position, 1f), out Vector2 nearMark))
                 {
-                    float dis = Vector2.Distance(mark, position);
-                    if (dis > 2f) continue;
-
-                    isTP = true;
-                    from = mark;
+                    int index = PortalMarks.IndexOf(nearMark);
+                    Vector2 target = PortalMarks[1 - index];
+                    pc.TP(target);
+                    LastTP = now;
                 }
-
-                if (isTP)
-                {
-                    LastTP = TimeStamp;
-
-                    if (from == PortalMarks[0])
-                        pc.TP(PortalMarks[1]);
-                    else if (from == PortalMarks[1])
-                        pc.TP(PortalMarks[0]);
-                    else
-                        Logger.Error($"Teleport failed - from: {from}", "MagicianTP");
-                }
-            }
-        }
-
-        if (BlindPpl.Count > 0)
-        {
-            foreach (KeyValuePair<byte, long> x in BlindPpl.Where(x => x.Value + BlindDur.GetInt() < TimeStamp).ToArray())
-            {
-                BlindPpl.Remove(x.Key);
-                GetPlayerById(x.Key).MarkDirtySettings();
             }
         }
 
         if (Bombs.Count > 0)
         {
-            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp).ToArray())
+            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < now).ToArray())
             {
-                var b = false;
-                IEnumerable<PlayerControl> players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key);
-
-                foreach (PlayerControl tg in players)
+                foreach (PlayerControl tg in FastVector2.GetPlayersInRange(bomb.Key, BombRadius.GetFloat()))
                 {
                     if (tg.PlayerId == pc.PlayerId)
                     {
-                        b = true;
+                        LateTask.New(() =>
+                        {
+                            if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
+                        }, 0.5f, "Magician Bomb Suicide");
                         continue;
                     }
 
@@ -384,19 +367,11 @@ public class Magician : RoleBase
 
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
-
-                if (b)
-                {
-                    LateTask.New(() =>
-                    {
-                        if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
-                    }, 0.5f, "Magician Bomb Suicide");
-                }
             }
 
             var sb = new StringBuilder();
             long[] list = [.. Bombs.Values];
-            foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (TimeStamp - x) + 1));
+            foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (now - x) + 1));
 
             pc.Notify(sb.ToString());
         }
@@ -437,7 +412,7 @@ public class Magician : RoleBase
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.AllAlivePlayerControls)
+        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 

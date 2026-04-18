@@ -110,7 +110,7 @@ public class Vigilante : RoleBase
             SendRPC(killer.PlayerId);
             Killed.Add(killer.PlayerId);
             SetKillCooldown(killer.PlayerId);
-            if (UsePet.GetBool()) return;
+            if (Options.UsePets.GetBool() && UsePet.GetBool()) return;
             killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
             killer.RpcResetTasks();
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);

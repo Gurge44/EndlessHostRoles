@@ -84,12 +84,12 @@ public class Assumer : RoleBase
 
     public static void Assume(byte assumerId, byte id, int num)
     {
-        if (Main.AllAlivePlayerControls.Length < MinPlayersToAssume.GetInt()) return;
+        if (Main.AllAlivePlayerControls.Count < MinPlayersToAssume.GetInt()) return;
 
         Assumer assumer = Instances.Find(x => x.AssumerId == assumerId);
         if (assumer == null || assumer.HasAssumed) return;
 
         assumer.Assumption = (id, num);
-        Utils.SendMessage("\n", assumerId, string.Format(Translator.GetString("Assumer.AssumedMessage"), id.ColoredPlayerName(), num));
+        Utils.SendMessage("\n", assumerId, string.Format(Translator.GetString("Assumer.AssumedMessage"), id.ColoredPlayerName(), num), importance: MessageImportance.High);
     }
 }

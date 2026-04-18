@@ -83,7 +83,7 @@ internal class Haunter : IGhostRole
 
         WarnedImps = [];
 
-        IEnumerable<PlayerControl> filtered = Main.AllAlivePlayerControls.Where(x =>
+        IEnumerable<PlayerControl> filtered = Main.EnumerateAlivePlayerControls().Where(x =>
         {
             return x.GetTeam() switch
             {

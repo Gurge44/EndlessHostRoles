@@ -91,7 +91,7 @@ public static class OptionSaver
 
     public static void Save()
     {
-        if (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost) return;
+        if (AmongUsClient.Instance && !AmongUsClient.Instance.AmHost) return;
 
         string jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);

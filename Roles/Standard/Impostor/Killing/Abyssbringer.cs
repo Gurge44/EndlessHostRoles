@@ -168,9 +168,7 @@ public class Abyssbringer : RoleBase
                     continue;
             }
 
-            PlayerControl nearestPlayer = Main.AllAlivePlayerControls.Without(pc).MinBy(x => Vector2.Distance(x.Pos(), blackHole.Position));
-
-            if (nearestPlayer != null)
+            if (FastVector2.TryGetClosestPlayer(blackHole.Position, out PlayerControl nearestPlayer, x => x.PlayerId != pc.PlayerId))
             {
                 Vector2 pos = nearestPlayer.Pos();
 
@@ -182,7 +180,7 @@ public class Abyssbringer : RoleBase
                     blackHole.Position = newPosition;
                 }
 
-                if (Vector2.Distance(pos, blackHole.Position) <= BlackHoleRadius.GetFloat() && !nearestPlayer.Is(CustomRoles.Pestilence))
+                if (FastVector2.DistanceWithinRange(pos, blackHole.Position, BlackHoleRadius.GetFloat()) && !nearestPlayer.Is(CustomRoles.Pestilence))
                 {
                     nearestPlayer.RpcExileV2();
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);

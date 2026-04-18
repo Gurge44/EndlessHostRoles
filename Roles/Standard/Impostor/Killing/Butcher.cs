@@ -59,7 +59,7 @@ internal class Butcher : RoleBase
                 {
                     target.Suicide(PlayerState.DeathReason.Dismembered, killer);
 
-                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         pc.Suicide(PlayerState.DeathReason.Revenge, target);
 
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);

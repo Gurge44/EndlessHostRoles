@@ -33,6 +33,7 @@ public class Jackal : RoleBase
     public static bool On;
 
     public byte SidekickId;
+    private byte JackalId;
 
     public override bool IsEnable => Instances.Count > 0;
 
@@ -113,6 +114,7 @@ public class Jackal : RoleBase
         Instances.Add(this);
         playerId.SetAbilityUseLimit(1);
         SidekickId = byte.MaxValue;
+        JackalId = playerId;
     }
 
     public override void Remove(byte playerId)
@@ -150,7 +152,7 @@ public class Jackal : RoleBase
     {
         if (target.Is(CustomRoles.Jackal)) return;
 
-        Main.AllAlivePlayerControls
+        Main.EnumerateAlivePlayerControls()
             .Where(x => x.Is(CustomRoles.Jackal))
             .Do(x => x.SetKillCooldown(ResetKillCooldownOn.GetFloat()));
     }
@@ -194,14 +196,7 @@ public class Jackal : RoleBase
     {
         if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
         if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
-        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Bloodlust) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (pc.IsAlive()) return;
-
-        PromoteSidekick();
+        return pc && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Curser) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Bloodlust) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 
     public void PromoteSidekick()
@@ -211,12 +206,23 @@ public class Jackal : RoleBase
             if (!SKPromotesToJackal.GetBool()) return;
 
             PlayerControl sk = SidekickId.GetPlayer();
-            if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
+            if (!sk || !sk.Is(CustomRoles.Sidekick)) return;
 
             sk.RpcSetCustomRole(CustomRoles.Jackal);
             if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public static void OnAnyoneDead()
+    {
+        Instances.ForEach(x =>
+        {
+            var pc = x.JackalId.GetPlayer();
+            if (!pc || pc.IsAlive()) return;
+            
+            x.PromoteSidekick();
+        });
     }
 }
 

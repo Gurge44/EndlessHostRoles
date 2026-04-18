@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -64,7 +63,7 @@ internal static class ExternalRpcPetPatch
         PlayerControl pc = __instance.myPlayer;
         PlayerPhysics physics = __instance;
 
-        if (pc == null || !pc.IsAlive()) return;
+        if (!pc || !pc.IsAlive()) return;
 
         AFKDetector.SetNotAFK(pc.PlayerId);
 
@@ -101,7 +100,7 @@ internal static class ExternalRpcPetPatch
 
     private static void OnPetUse(PlayerControl pc)
     {
-        if (pc == null ||
+        if (!pc ||
             pc.inVent ||
             pc.inMovingPlat ||
             pc.onLadder ||
@@ -127,7 +126,7 @@ internal static class ExternalRpcPetPatch
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
         {
             PlayerControl killTarget = SelectKillButtonTarget(pc);
-            if (killTarget != null) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
+            if (killTarget) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
 
             return;
         }
@@ -148,11 +147,11 @@ internal static class ExternalRpcPetPatch
 
         var hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
-        if (target != null) hasKillTarget = true;
+        if (target) hasKillTarget = true;
 
         CustomRoles role = pc.GetCustomRole();
         
-        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger()) return;
+        if (Options.CurrentGameMode == CustomGameMode.Standard && Options.UsePhantomBasis.GetBool() && (!role.IsNK() || Options.UsePhantomBasisForNKs.GetBool()) && role.SimpleAbilityTrigger() && !role.AlwaysUsesPhantomBase() && role != CustomRoles.Chemist) return;
         
         bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade or CustomRoles.Sidekick;
 
@@ -190,27 +189,29 @@ internal static class ExternalRpcPetPatch
 
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
-        Vector2 pos = pc.Pos();
-        List<(PlayerControl pc, float distance)> players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 3.5f).OrderBy(x => x.distance).ToList();
-        PlayerControl target = players.Count > 0 ? players[0].pc : null;
+        PlayerControl target = FastVector2.TryGetClosestPlayerInRangeTo(pc, 3.5f, out PlayerControl closest) ? closest : null;
 
-        if (target != null && target.Is(CustomRoles.Detour))
+        if (target)
         {
-            PlayerControl tempTarget = target;
-            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
-            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
-
-            if (tempTarget.AmOwner)
+            if (target.Is(CustomRoles.Detour) && target.GetAbilityUseLimit() >= 1f)
             {
-                Detour.TotalRedirections++;
-                if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
-            }
-        }
+                target.RpcRemoveAbilityUse();
+                PlayerControl tempTarget = target;
+                FastVector2.TryGetClosestPlayerTo(tempTarget, out target, x => x.PlayerId != pc.PlayerId);
+                Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
 
-        if (target != null && Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
-        {
-            Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
-            target = newTarget;
+                if (tempTarget.AmOwner)
+                {
+                    Detour.TotalRedirections++;
+                    if (Detour.TotalRedirections >= 3) Achievements.Type.CantTouchThis.CompleteAfterGameEnd();
+                }
+            }
+            
+            if (Spirit.TryGetSwapTarget(target, out PlayerControl newTarget))
+            {
+                Logger.Info($"Target was {target.GetNameWithRole()}, new target is {newTarget.GetNameWithRole()}", "Spirit");
+                target = newTarget;
+            }
         }
 
         return target;

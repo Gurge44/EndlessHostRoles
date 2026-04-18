@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 using UnityEngine;
 
@@ -145,25 +146,36 @@ public class Hacker : RoleBase
             pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (pc == null) return;
-
-        if (GameStates.IsMeeting) return;
-
-        if (Main.PlayerStates[pc.PlayerId].TaskState.IsTaskFinished)
+        if (!pc.IsAlive()) return;
+        
+        if (completedTaskCount + 1 >= totalTaskCount)
         {
-            LastUpdate.TryAdd(pc.PlayerId, TimeStamp);
+            _ = new CountdownTimer(5, OnElapsed, cancelOnMeeting: false);
 
-            if (LastUpdate[pc.PlayerId] + 5 < TimeStamp)
+            void OnElapsed()
             {
-                if (pc.IsModdedClient())
-                    UseLimitSeconds[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
-                else
-                    UseLimit[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat();
-
-                LastUpdate[pc.PlayerId] = TimeStamp;
+                if (!GameStates.IsMeeting && !ExileController.Instance && !AntiBlackout.SkipTasks)
+                {
+                    if (pc.IsModdedClient())
+                        UseLimitSeconds[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
+                    else
+                        UseLimit[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat();
+                }
+                
+                _ = new CountdownTimer(5, OnElapsed, cancelOnMeeting: false);
             }
+        }
+        else
+        {
+            if (!pc.IsModdedClient() && UseLimit.ContainsKey(pc.PlayerId))
+                UseLimit[pc.PlayerId] += HackerAbilityUseGainWithEachTaskCompleted.GetFloat();
+            else if (UseLimitSeconds.ContainsKey(pc.PlayerId))
+                UseLimitSeconds[pc.PlayerId] += HackerAbilityUseGainWithEachTaskCompleted.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
+
+            if (UseLimitSeconds.ContainsKey(pc.PlayerId))
+                SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
         }
     }
 

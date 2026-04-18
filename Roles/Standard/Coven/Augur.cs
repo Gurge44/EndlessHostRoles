@@ -24,8 +24,8 @@ public class Augur : CovenBase
             .AutoSetupOption(ref MaxGuessesPerMeeting, 14, new IntegerValueRule(1, 14, 1), OptionFormat.Players)
             .AutoSetupOption(ref MaxGuessesPerGame, 14, new IntegerValueRule(1, 14, 1), OptionFormat.Players)
             .AutoSetupOption(ref CanVent, false)
-            .AutoSetupOption(ref VentCooldown, 5f, new FloatValueRule(0f, 120f, 1f), OptionFormat.Seconds)
-            .AutoSetupOption(ref MaxInVentTime, 60f, new FloatValueRule(0f, 120f, 1f), OptionFormat.Seconds);
+            .AutoSetupOption(ref VentCooldown, 5f, new FloatValueRule(0f, 120f, 1f), OptionFormat.Seconds, overrideParent: CanVent)
+            .AutoSetupOption(ref MaxInVentTime, 60f, new FloatValueRule(0f, 120f, 1f), OptionFormat.Seconds, overrideParent: CanVent);
     }
 
     public override void Init()

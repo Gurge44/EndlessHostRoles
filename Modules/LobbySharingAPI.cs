@@ -33,22 +33,21 @@ public static class LobbySharingAPI
         string serverName = Utils.GetRegionName();
         string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
-        string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString(), SupportedLangs.English).RemoveHtmlTags().ToUpper();
-        string hostHashedPuid = Options.SendHashedPuidToUseLinkedAccount.GetBool() ? PlayerControl.LocalPlayer.GetClient().GetHashedPuid() : string.Empty;
+        string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
         const string version = $"EHR v{Main.PluginDisplayVersion}";
-        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode, hostHashedPuid));
+        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode));
     }
 
-    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode, string hostHashedPuid)
+    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode)
     {
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\",\"hostHashedPuid\":\"{hostHashedPuid}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        var request = new UnityWebRequest("https://gurge44.pythonanywhere.com/lobby_created", "POST")
+        var request = new UnityWebRequest("https://app.gurge44.eu/lobby_created", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()
@@ -56,6 +55,7 @@ public static class LobbySharingAPI
 
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
+        request.SetRequestHeader("Authorization", "Bearer " + EOSManager.Instance.UserIDToken);
         yield return request.SendWebRequest();
 
         LastRequestTimeStamp = Utils.TimeStamp;
@@ -85,7 +85,11 @@ public static class LobbySharingAPI
     {
         if (!Options.PostLobbyCodeToEHRWebsite.GetBool() || !AmongUsClient.Instance.AmHost) return;
 
-        if (status != LobbyStatus.Closed && GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
+        if (status == LobbyStatus.Closed)
+        {
+            LastRoomCode = string.Empty;
+        }
+        else if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) != LastRoomCode)
         {
             status = LobbyStatus.Closed;
             StartMessageEdit();
@@ -115,7 +119,7 @@ public static class LobbySharingAPI
         var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
-        var request = new UnityWebRequest("https://gurge44.pythonanywhere.com/update_status", "POST")
+        var request = new UnityWebRequest("https://app.gurge44.eu/update_status", "POST")
         {
             uploadHandler = new UploadHandlerRaw(jsonToSend),
             downloadHandler = new DownloadHandlerBuffer()
@@ -150,12 +154,13 @@ public enum LobbyStatus
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
 internal static class ExitGamePatch
 {
-    public static void Prefix(InnerNetClient __instance)
+    public static void Prefix(InnerNetClient __instance, DisconnectReasons reason)
     {
         if (__instance is not AmongUsClient) return;
         
-        Logger.Msg("Exiting game", "ExitGamePatch.Prefix");
-        
+        Logger.Msg($"Exiting game - reason: {reason}", "ExitGamePatch.Prefix");
+
+        GameStates.InGame = false;
         Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
         
         if (SetUpRoleTextPatch.IsInIntro)

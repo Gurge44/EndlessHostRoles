@@ -169,7 +169,7 @@ public class Mafioso : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !IsEnable || pc == null || !pc.IsAlive()) return;
+        if (!GameStates.IsInTask || !IsEnable || !pc.IsAlive()) return;
 
         if (XP >= 100 && Tier < 5)
         {
@@ -182,15 +182,14 @@ public class Mafioso : RoleBase
             pc.Notify(GetString("MafiosoLevelUp"));
         }
 
-        if (lastUpdate >= TimeStamp) return;
-
-        lastUpdate = TimeStamp;
+        long now = TimeStamp;
+        if (lastUpdate >= now) return;
+        lastUpdate = now;
 
         int before1CD = Pistol1CD;
         int before2CD = Pistol2CD;
 
         if (Pistol1CD > 0) Pistol1CD--;
-
         if (Pistol2CD > 0) Pistol2CD--;
 
         if (before1CD != Pistol1CD || before2CD != Pistol2CD)

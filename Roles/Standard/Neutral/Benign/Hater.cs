@@ -84,8 +84,6 @@ public class Hater : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
-
         if (killer.PlayerId == target.PlayerId) return true;
 
         if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate)
@@ -151,7 +149,7 @@ public class Hater : RoleBase
     {
         if (!pc.IsAlive()) return;
 
-        if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
+        if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.EnumerateAlivePlayerControls().All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
         {
             CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
             pc.RpcSetCustomRole(role);

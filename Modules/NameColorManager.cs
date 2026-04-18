@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles;
-using EHR.Modules;
-using Hazel;
 using EHR.Gamemodes;
+using EHR.Modules;
+using EHR.Roles;
+using Hazel;
 
 namespace EHR;
 
@@ -162,7 +162,7 @@ public static class NameColorManager
             CustomRoles.Glitch when target.IsRoleBlocked() => Main.RoleColors[seerRole],
             CustomRoles.Slenderman when Slenderman.IsBlinded(target.PlayerId) => "000000",
             CustomRoles.Aid when Aid.ShieldedPlayers.ContainsKey(target.PlayerId) => Main.RoleColors[CustomRoles.Aid],
-            CustomRoles.Spy when Spy.SpyRedNameList.ContainsKey(target.PlayerId) => "#BA4A00",
+            CustomRoles.Spy when Spy.SpyRedNameList.Contains(target.PlayerId) => "#BA4A00",
             CustomRoles.Mastermind when Mastermind.ManipulateDelays.ContainsKey(target.PlayerId) => "#00ffa5",
             CustomRoles.Mastermind when Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId) => Main.RoleColors[CustomRoles.Arsonist],
             CustomRoles.Hitman when (seerRoleClass as Hitman)?.TargetId == target.PlayerId => "000000",

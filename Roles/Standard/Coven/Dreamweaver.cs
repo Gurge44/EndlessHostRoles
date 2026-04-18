@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
 
@@ -82,11 +81,7 @@ public class Dreamweaver : CovenBase
     {
         if (lowLoad || GameStates.IsMeeting || ExileController.Instance || !Main.IntroDestroyed || !pc.IsAlive() || !pc.Is(CustomRoles.Insane) || Main.KillTimers[pc.PlayerId] > 0f) return;
 
-        Vector2 pos = pc.Pos();
-        PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(1.5f, pos).Without(pc).ToArray();
-        if (nearbyPlayers.Length == 0) return;
-
-        PlayerControl nearestPlayer = nearbyPlayers.MinBy(x => Vector2.Distance(x.Pos(), pos));
+        if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, 1.5f, out PlayerControl nearestPlayer)) return;
 
         RoleBase roleBase = Main.PlayerStates[pc.PlayerId].Role;
         Type type = roleBase.GetType();

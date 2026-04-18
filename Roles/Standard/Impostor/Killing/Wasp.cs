@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Patches;
 using Hazel;
 
@@ -22,12 +23,11 @@ public class Wasp : RoleBase
     private static OptionItem PestControlSpeed;
     private static OptionItem PestControlVision;
 
-    public Dictionary<byte, long> DelayedKills;
+    public Dictionary<byte, CountdownTimer> DelayedKills;
     private bool EvadedKillThisRound;
-    private long LastUpdate;
     public HashSet<byte> MeetingKills;
-    private long PestControlEnd;
-    private long SwarmModeEnd;
+    private CountdownTimer PestControlEnd;
+    private CountdownTimer SwarmModeEnd;
     private PlayerControl WaspPC;
 
     public override bool IsEnable => On;
@@ -58,8 +58,8 @@ public class Wasp : RoleBase
         WaspPC = playerId.GetPlayer();
         DelayedKills = [];
         MeetingKills = [];
-        SwarmModeEnd = 0;
-        PestControlEnd = 0;
+        SwarmModeEnd = null;
+        PestControlEnd = null;
         EvadedKillThisRound = false;
     }
 
@@ -70,12 +70,12 @@ public class Wasp : RoleBase
 
     public override void SetKillCooldown(byte id)
     {
-        Main.AllPlayerKillCooldown[id] = SwarmModeEnd == 0 ? StingCooldown.GetInt() : 0.01f;
+        Main.AllPlayerKillCooldown[id] = SwarmModeEnd == null ? StingCooldown.GetInt() : 0.01f;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (PestControlEnd == 0) return;
+        if (PestControlEnd == null) return;
 
         opt.SetVision(false);
         opt.SetFloat(FloatOptionNames.ImpostorLightMod, PestControlVision.GetFloat());
@@ -87,7 +87,11 @@ public class Wasp : RoleBase
         if (DelayedKills.ContainsKey(target.PlayerId)) return false;
 
         if (target.HasKillButton())
-            DelayedKills[target.PlayerId] = Utils.TimeStamp + KillDelay.GetInt();
+            DelayedKills[target.PlayerId] = new CountdownTimer(KillDelay.GetInt(), () =>
+            {
+                target.Suicide(PlayerState.DeathReason.Stung, killer);
+                DelayedKills.Remove(target.PlayerId);
+            }, cancelOnMeeting: false, onCanceled: DelayedKills.Clear);
         else
             MeetingKills.Add(target.PlayerId);
 
@@ -95,53 +99,12 @@ public class Wasp : RoleBase
         return false;
     }
 
-    public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
-    {
-        if (lowLoad || !GameStates.IsInTask || ExileController.Instance || !DelayedKills.TryGetValue(pc.PlayerId, out long ts) || ts > Utils.TimeStamp) return;
-
-        pc.Suicide(PlayerState.DeathReason.Stung, WaspPC);
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (SwarmModeEnd == 0 && PestControlEnd == 0) return;
-
-        long now = Utils.TimeStamp;
-        if (LastUpdate == now) return;
-
-        LastUpdate = now;
-
-        if (SwarmModeEnd != 0)
-        {
-            if (SwarmModeEnd <= now)
-            {
-                SwarmModeEnd = 0;
-                Utils.SendRPC(CustomRPC.SyncRoleData, WaspPC.PlayerId, SwarmModeEnd);
-
-                if (WaspDiesAfterSwarmEnd.GetBool()) pc.Suicide();
-                else
-                {
-                    pc.ResetKillCooldown();
-                    pc.SyncSettings();
-                    pc.SetKillCooldown(StingCooldown.GetInt());
-                }
-            }
-
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-
-        if (PestControlEnd != 0 && PestControlEnd <= now)
-        {
-            PestControlEnd = 0;
-            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-            pc.MarkDirtySettings();
-        }
-    }
-
     public override void OnReportDeadBody()
     {
-        foreach (byte id in DelayedKills.Keys)
+        foreach ((byte id, CountdownTimer timer) in DelayedKills)
         {
+            timer.Dispose();
+            
             PlayerControl player = id.GetPlayer();
             if (player == null || !player.IsAlive()) continue;
 
@@ -160,8 +123,17 @@ public class Wasp : RoleBase
                 string stung = string.Join(", ", MeetingKills.Select(x => x.ColoredPlayerName()));
                 string role = CustomRoles.Wasp.ToColoredString();
                 string text = string.Format(Translator.GetString("WaspStungPlayersMessage"), stung, role);
-                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"));
+                Utils.SendMessage(text, title: Translator.GetString("MessageTitle.Attention"), importance: MessageImportance.High);
             }, 10f, "Wasp Stung Players Notify");
+        }
+
+        if (SwarmModeEnd != null)
+        {
+            SwarmModeEnd.Dispose();
+            SwarmModeEnd = null;
+
+            if (WaspDiesAfterSwarmEnd.GetBool()) WaspPC.Suicide();
+            else WaspPC.ResetKillCooldown();
         }
     }
 
@@ -171,14 +143,34 @@ public class Wasp : RoleBase
 
         if (IRandom.Instance.Next(2) == 0)
         {
-            SwarmModeEnd = Utils.TimeStamp + SwarmModeDuration.GetInt();
-            Utils.SendRPC(CustomRPC.SyncRoleData, WaspPC.PlayerId, SwarmModeEnd);
+            SwarmModeEnd = new CountdownTimer(SwarmModeDuration.GetInt(), () =>
+            {
+                SwarmModeEnd = null;
+
+                if (WaspDiesAfterSwarmEnd.GetBool()) target.Suicide();
+                else
+                {
+                    target.ResetKillCooldown();
+                    target.SyncSettings();
+                    target.SetKillCooldown(StingCooldown.GetInt());
+                }
+            }, onTick: () => Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target), cancelOnMeeting: false, onCanceled: () => SwarmModeEnd = null);
+            Utils.SendRPC(CustomRPC.SyncRoleData, WaspPC.PlayerId);
             target.SyncSettings();
             target.SetKillCooldown(0.01f);
         }
         else
         {
-            PestControlEnd = Utils.TimeStamp + PestControlDuration.GetInt();
+            PestControlEnd = new CountdownTimer(PestControlDuration.GetInt(), () =>
+            {
+                PestControlEnd = null;
+                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                target.MarkDirtySettings();
+            }, onCanceled: () =>
+            {
+                PestControlEnd = null;
+                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            });
             Main.AllPlayerSpeed[target.PlayerId] = PestControlSpeed.GetFloat();
             target.MarkDirtySettings();
         }
@@ -189,7 +181,7 @@ public class Wasp : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return !EvadedKillThisRound || SwarmModeEnd != 0;
+        return !EvadedKillThisRound || SwarmModeEnd != null;
     }
 
     public override bool CanUseSabotage(PlayerControl pc)
@@ -234,12 +226,12 @@ public class Wasp : RoleBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        SwarmModeEnd = long.Parse(reader.ReadString());
+        SwarmModeEnd = new CountdownTimer(SwarmModeDuration.GetInt(), () => SwarmModeEnd = null, onCanceled: () => SwarmModeEnd = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || SwarmModeEnd == 0) return string.Empty;
-        return string.Format(Translator.GetString("Wasp.SwarmModeSuffix"), SwarmModeEnd - Utils.TimeStamp);
+        if (seer.PlayerId != WaspPC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting || SwarmModeEnd == null) return string.Empty;
+        return string.Format(Translator.GetString("Wasp.SwarmModeSuffix"), (int)Math.Ceiling(SwarmModeEnd.Remaining.TotalSeconds));
     }
 }

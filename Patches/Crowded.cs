@@ -1,14 +1,14 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using Il2CppInterop.Runtime.Attributes;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-#if !ANDROID
-using System.Collections.Generic;
-using System.Linq;
-using Il2CppInterop.Runtime.Attributes;
-#endif
+using static EHR.GameStates;
 
 namespace EHR.Patches;
 
@@ -19,7 +19,7 @@ internal static class Crowded
 {
     private static CreateOptionsPicker Instance;
     public static readonly int MaxImpostors = GameOptionsManager.Instance.currentHostOptions.MaxPlayers / 2;
-    private static int MaxPlayers => GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? 15 : 127;
+    private static int MaxPlayers => CurrentServerType == ServerType.Vanilla ? 15 : 127;
 
     [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Awake))]
     public static class CreateOptionsPickerAwake
@@ -29,7 +29,7 @@ internal static class Crowded
         {
             Instance = __instance;
 
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            if (CurrentServerTypeInCreateMenu == ServerType.Vanilla)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null)
                 {
@@ -98,7 +98,7 @@ internal static class Crowded
                     playerButton.OnClick.AddListener((Action)(() =>
                     {
                         byte maxPlayers = byte.Parse(text.text);
-                        int maxImp = Mathf.Min(__instance.GetTargetOptions().NumImpostors, maxPlayers / 2);
+                        int maxImp = Math.Clamp(Mathf.Min(__instance.GetTargetOptions().NumImpostors, maxPlayers / 2), 1, 3);
                         __instance.GetTargetOptions().SetInt(Int32OptionNames.NumImpostors, maxImp);
                         __instance.ImpostorButtons[1].TextMesh.text = maxImp.ToString();
                         __instance.SetMaxPlayersButtons(maxPlayers);
@@ -162,7 +162,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix()
         {
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            if (CurrentServerType == ServerType.Vanilla)
             {
                 if (GameOptionsManager.Instance.GameHostOptions != null && GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
                     GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
@@ -286,7 +286,7 @@ internal static class Crowded
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public static void Postfix(ref SecurityLogger __instance)
         {
-            __instance.Timers = new float[127];
+            __instance.Timers = new Il2CppStructArray<float>(127);
         }
     }
 
@@ -321,7 +321,6 @@ internal static class Crowded
         }
     }
 
-#if !ANDROID
     //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public static class MeetingHudStartPatch
     {
@@ -351,32 +350,45 @@ internal static class Crowded
             __instance.gameObject.AddComponent<VitalsPagingBehaviour>().vitalsMinigame = __instance;
         }
     }
-#endif
 
     [HarmonyPatch(typeof(PSManager), nameof(PSManager.CreateGame))]
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.ContinueStart))]
+    [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.Confirm))]
     public static class BeforeHostGamePatch
     {
         public static void Prefix()
         {
-            Logger.Info("Host Game is being called!", "Crowded");
+            Logger.Info($"Host Game is being called! Region: {CurrentServerTypeInCreateMenu}", "CreateGameOptions");
+            if (CurrentServerTypeInCreateMenu != ServerType.Vanilla) return;
 
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !GameStates.IsLocalGame)
+            var GameHostOptions = GameOptionsManager.Instance.GameHostOptions;
+            var CurrentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
+            if (GameHostOptions != null)
             {
-                if (GameOptionsManager.Instance.GameHostOptions != null)
-                {
-                    if (GameOptionsManager.Instance.GameHostOptions.MaxPlayers > 15)
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
+                if (GameHostOptions.MaxPlayers > 15)
+                    GameHostOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
 
-                    if (GameOptionsManager.Instance.GameHostOptions.NumImpostors > 3)
-                        GameOptionsManager.Instance.GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
-                }
+                if (GameHostOptions.NumImpostors > 3)
+                    GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 3);
+
+                if (GameHostOptions.NumImpostors < 1)
+                    GameHostOptions.SetInt(Int32OptionNames.NumImpostors, 1);
+            }
+            if (CurrentGameOptions != null)
+            {
+                if (CurrentGameOptions.MaxPlayers > 15)
+                    CurrentGameOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
+
+                if (CurrentGameOptions.NumImpostors > 3)
+                    CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, 3);
+
+                if (CurrentGameOptions.NumImpostors < 1)
+                    CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, 1);
             }
         }
     }
 }
 
-#if !ANDROID
 public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
 {
     protected const string PageIndexGameObjectName = "CrowdedMod_PageIndex";
@@ -406,10 +418,31 @@ public class AbstractPagingBehaviour(IntPtr ptr) : MonoBehaviour(ptr)
     public virtual void Update()
     {
         bool chatIsOpen = HudManager.Instance.Chat.IsOpenOrOpening;
+        bool gameMenuIsOpen = HudManager.Instance.GameMenu.IsOpen;
+        
+        if (Input.touchSupported)
+        {
+            foreach (Touch touch in Input.touches)
+            {
+                if (touch.phase != TouchPhase.Moved) continue;
+                if (chatIsOpen || gameMenuIsOpen) break;
 
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || (!chatIsOpen && Input.mouseScrollDelta.y > 0f))
+                if (touch.deltaPosition.y > 0f)
+                {
+                    Cycle(false);
+                    break;
+                }
+                if (touch.deltaPosition.y < 0f)
+                {
+                    Cycle(true);
+                    break;
+                }
+            }
+        }
+
+        if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.mouseScrollDelta.y > 0f))
             Cycle(false);
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || (!chatIsOpen && Input.mouseScrollDelta.y < 0f))
+        else if (!chatIsOpen && !gameMenuIsOpen && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.mouseScrollDelta.y < 0f))
             Cycle(true);
     }
 
@@ -575,4 +608,3 @@ public class VitalsPagingBehaviour(IntPtr ptr) : AbstractPagingBehaviour(ptr)
         }
     }
 }
-#endif

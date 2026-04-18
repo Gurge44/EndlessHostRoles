@@ -24,16 +24,16 @@ internal class Lookout : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControls;
         var sb = new StringBuilder();
 
-        for (var i = 0; i < aapc.Length; i++)
+        for (var i = 0; i < aapc.Count; i++)
         {
             if (i % 3 == 0)
                 sb.AppendLine();
         }
 
-        for (var i = 0; i < aapc.Length; i++)
+        for (var i = 0; i < aapc.Count; i++)
         {
             PlayerControl player = aapc[i];
             if (player == null) continue;
@@ -45,7 +45,7 @@ internal class Lookout : RoleBase
             if (Main.PlayerColors.TryGetValue(id, out Color32 color)) name = Utils.ColorString(color, name);
 
             sb.Append($"{name} {id}");
-            if (i % 3 == 0 && i != aapc.Length - 1) sb.AppendLine();
+            if (i % 3 == 0 && i != aapc.Count - 1) sb.AppendLine();
         }
 
         pc.Notify(sb.ToString());

@@ -5,33 +5,38 @@ using Action = Il2CppSystem.Action;
 
 namespace EHR.Patches;
 
-[HarmonyPatch(typeof(AprilFoolsMode), nameof(AprilFoolsMode.ShouldShowAprilFoolsToggle))]
-public static class ShouldShowTogglePatch
-{
-    public static void Postfix(ref bool __result)
-    {
-        __result = false;
-    }
-}
-
+//[HarmonyPatch(typeof(AprilFoolsMode), nameof(AprilFoolsMode.ShouldShowAprilFoolsToggle))]
+//public static class ShouldShowTogglePatch
+//{
+//    public static void Postfix(ref bool __result)
+//    {
+//        __result = false;
+//    }
+//}
 [HarmonyPatch(typeof(NormalGameManager), nameof(NormalGameManager.GetBodyType))]
 public static class GetNormalBodyTypePatch
 {
     public static void Postfix(ref PlayerBodyTypes __result)
     {
-        if (Main.HorseMode.Value)
+        try
         {
-            __result = PlayerBodyTypes.Horse;
-            return;
+            if (Main.HorseMode.Value || AprilFoolsMode.ShouldHorseAround())
+            {
+                __result = PlayerBodyTypes.Horse;
+                return;
+            }
+            if (Main.LongMode.Value || AprilFoolsMode.ShouldLongAround())
+            {
+                __result = PlayerBodyTypes.Long;
+                return;
+            }
+            if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
+            {
+                __result = PlayerBodyTypes.Classic;
+                return;
+            }
         }
-
-        if (Main.LongMode.Value)
-        {
-            __result = PlayerBodyTypes.Long;
-            return;
-        }
-
-        __result = PlayerBodyTypes.Normal;
+        catch { }
     }
 }
 
@@ -44,49 +49,48 @@ public static class GetHnsBodyTypePatch
         {
             if (player == null || player.Data == null || player.Data.Role == null)
             {
-                if (Main.HorseMode.Value)
+                if (Main.HorseMode.Value || AprilFoolsMode.ShouldHorseAround())
                 {
                     __result = PlayerBodyTypes.Horse;
                     return;
                 }
-
-                if (Main.LongMode.Value)
+                if (Main.LongMode.Value || AprilFoolsMode.ShouldLongAround())
                 {
                     __result = PlayerBodyTypes.Long;
                     return;
                 }
-
+                if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
+                {
+                    __result = PlayerBodyTypes.Classic;
+                    return;
+                }
                 __result = PlayerBodyTypes.Normal;
             }
-            else if (Main.HorseMode.Value)
+            else if (Main.HorseMode.Value || AprilFoolsMode.ShouldHorseAround())
             {
                 if (player.Data.Role.IsImpostor)
                 {
                     __result = PlayerBodyTypes.Normal;
                     return;
                 }
-
                 __result = PlayerBodyTypes.Horse;
             }
-            else if (Main.LongMode.Value)
+            else if (Main.LongMode.Value || AprilFoolsMode.ShouldLongAround())
             {
                 if (player.Data.Role.IsImpostor)
                 {
                     __result = PlayerBodyTypes.LongSeeker;
                     return;
                 }
-
                 __result = PlayerBodyTypes.Long;
             }
-            else
+            else if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
             {
                 if (player.Data.Role.IsImpostor)
                 {
                     __result = PlayerBodyTypes.Seeker;
-                    return;
                 }
-
-                __result = PlayerBodyTypes.Normal;
+                __result = PlayerBodyTypes.Classic;
             }
         }
         catch { }
@@ -102,6 +106,8 @@ public static class LongBoiPatches
     {
         try
         {
+            if (!AprilFoolsMode.ShouldLongAround() && !Main.LongMode.Value) return false;
+
             __instance.cosmeticLayer.OnSetBodyAsGhost += (Action)__instance.SetPoolableGhost;
             __instance.cosmeticLayer.OnColorChange += (Action<int>)__instance.SetHeightFromColor;
             __instance.cosmeticLayer.OnCosmeticSet += (Action<string, int, CosmeticKind>)__instance.OnCosmeticSet;
@@ -118,6 +124,14 @@ public static class LongBoiPatches
     {
         try
         {
+            if (!AprilFoolsMode.ShouldLongAround() && !Main.LongMode.Value)
+            {
+                __instance.ShouldLongAround = false;
+                __instance.headSprite.gameObject.SetActive(false);
+                __instance.neckSprite.gameObject.SetActive(false);
+                __instance.foregroundNeckSprite.gameObject.SetActive(false);
+                return false;
+            }
             __instance.ShouldLongAround = true;
             if (__instance.hideCosmeticsQC) __instance.cosmeticLayer.SetHatVisorVisible(false);
 

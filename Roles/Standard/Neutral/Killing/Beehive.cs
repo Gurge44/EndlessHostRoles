@@ -107,7 +107,7 @@ public class Beehive : RoleBase
                 StungPlayers.Remove(pc.PlayerId);
                 Utils.SendRPC(CustomRPC.SyncRoleData, BeehiveId, 2, pc.PlayerId);
 
-                if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat())
+                if (FastVector2.DistanceWithinRange(pc.Pos(), sp.InitialPosition, Distance.GetFloat()))
                 {
                     pc.Suicide(deathReason: PlayerState.DeathReason.Stung, realKiller: Utils.GetPlayerById(BeehiveId));
 

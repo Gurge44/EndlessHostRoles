@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -17,8 +19,7 @@ public class Hypnotist : RoleBase
     public static OptionItem AbilityUseGainWithEachKill;
     public static OptionItem DoReportAfterHypnosisEnds;
 
-    private long ActivateTS;
-    private int Count;
+    private CountdownTimer Timer;
     private byte HypnotistId;
 
     public override bool IsEnable => On;
@@ -43,8 +44,7 @@ public class Hypnotist : RoleBase
     {
         On = true;
         Instances.Add(this);
-        Count = 0;
-        ActivateTS = 0;
+        Timer = null;
         HypnotistId = playerId;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
@@ -62,7 +62,7 @@ public class Hypnotist : RoleBase
 
     public static bool OnAnyoneReport()
     {
-        return Instances.All(x => x.ActivateTS == 0);
+        return Instances.All(x => x.Timer == null);
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -82,49 +82,37 @@ public class Hypnotist : RoleBase
         if (pc.GetAbilityUseLimit() < 1) return;
         pc.RpcRemoveAbilityUse();
 
-        Count = 0;
-        ActivateTS = Utils.TimeStamp;
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () =>
+        {
+            Timer = null;
+            if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
+            pc.RpcResetAbilityCooldown();
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onTick: () =>
+        {
+            if (Timer.Remaining.TotalSeconds >= 6) return;
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }, onCanceled: () =>
+        {
+            Timer = null;
+            if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
+        });
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
+        Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId);
 
         if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(false);
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (ActivateTS == 0) return;
-
-        var notify = false;
-        var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
-
-        switch (timeLeft)
-        {
-            case <= 0:
-                ActivateTS = 0;
-                notify = true;
-                pc.RpcResetAbilityCooldown();
-                Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
-                if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
-                break;
-            case <= 6 when Count++ >= 30:
-                Count = 0;
-                notify = true;
-                break;
-        }
-
-        if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-    }
-
     public void ReceiveRPC(MessageReader reader)
     {
-        ActivateTS = long.Parse(reader.ReadString());
+        Timer = new CountdownTimer(AbilityDuration.GetInt(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModdedClient() && !hud) || ActivateTS == 0) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModdedClient() && !hud) || Timer == null) return string.Empty;
 
-        var timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
-        return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
+        var timeLeft = (int)Math.Ceiling(Timer.Remaining.TotalSeconds);
+        return timeLeft <= 5 || hud ? $"\u25a9 ({timeLeft})" : "\u25a9";
     }
 }

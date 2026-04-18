@@ -1,92 +1,209 @@
-﻿using System;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using Hazel;
+using UnityEngine;
 
 namespace EHR.Modules;
 
 public static class CustomSoundsManager
 {
-#if !ANDROID
     private static readonly string SoundsPath = $"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
-#endif
 
-    public static void RPCPlayCustomSound(this PlayerControl pc, string sound, bool force = false)
+    public static void RPCPlayCustomSound(this PlayerControl pc, string sound, float volume = 1f, float pitch = 1f, bool force = false)
     {
-#if !ANDROID
-        if (!force)
+        try
         {
-            if (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())
+            if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
+
+            if (!pc || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
+            {
+                Play(sound, volume, pitch);
                 return;
-        }
+            }
 
-        if (pc == null || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
-        {
-            Play(sound);
-            return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None, pc.OwnerId);
+            writer.Write(sound);
+            writer.Write(volume);
+            writer.Write(pitch);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable, pc.OwnerId);
-        writer.Write(sound);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-#endif
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    public static void RPCPlayCustomSoundAll(string sound)
+    public static void RPCPlayCustomSoundAll(string sound, float volume = 1f, float pitch = 1f)
     {
-#if !ANDROID
-        if (!AmongUsClient.Instance.AmHost) return;
+        try
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable);
-        writer.Write(sound);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-        Play(sound);
-#endif
+            Play(sound, volume, pitch);
+        
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None);
+            writer.Write(sound);
+            writer.Write(volume);
+            writer.Write(pitch);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public static void ReceiveRPC(MessageReader reader)
     {
-        Play(reader.ReadString());
+        Play(reader.ReadString(), reader.ReadSingle(), reader.ReadSingle());
     }
 
-    public static void Play(string sound)
+    public static void Play(string sound, float volume = 1f, float pitch = 1f)
     {
-#if !ANDROID
-        if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value) return;
-
-        string path = SoundsPath + sound + ".wav";
-        if (!Directory.Exists(SoundsPath)) Directory.CreateDirectory(SoundsPath);
-
-        DirectoryInfo folder = new(SoundsPath);
-        if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden) folder.Attributes = FileAttributes.Hidden;
-
-        if (!File.Exists(path))
+        try
         {
-            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Sounds." + sound + ".wav");
+            if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value || !OperatingSystem.IsWindows()) return;
 
-            if (stream == null)
+            string path = SoundsPath + sound + ".wav";
+            if (!Directory.Exists(SoundsPath)) Directory.CreateDirectory(SoundsPath);
+
+            DirectoryInfo folder = new(SoundsPath);
+            if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden) folder.Attributes = FileAttributes.Hidden;
+
+            if (!File.Exists(path))
             {
-                Logger.Warn($"Could not find sound: {sound}", "CustomSounds");
-                return;
+                Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Sounds." + sound + ".wav");
+
+                if (stream == null)
+                {
+                    Logger.Warn($"Could not find sound: {sound}", "CustomSounds");
+                    return;
+                }
+
+                FileStream fileStream = File.Create(path);
+                stream.CopyTo(fileStream);
+                fileStream.Close();
             }
 
-            FileStream fs = File.Create(path);
-            stream.CopyTo(fs);
-            fs.Close();
+            StartPlay(path, volume, pitch);
+            Logger.Msg($"Playing sound: {sound}", "CustomSounds");
         }
-
-        StartPlay(path);
-        Logger.Msg($"Playing sound: {sound}", "CustomSounds");
-#endif
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    [DllImport("winmm.dll", CharSet = CharSet.Unicode)]
-    private static extern bool PlaySound(string Filename, int Mod, int Flags);
+    private static readonly Dictionary<string, AudioClip> audioCache = [];
 
-    public static void StartPlay(string path)
+    private static void StartPlay(string path, float volume = 1f, float pitch = 1f)
     {
-        PlaySound($"{path}", 0, 1);
-        // The third parameter, replace 1 with 9, and play continuously
+        if (!audioCache.TryGetValue(path, out var clip))
+        {
+            clip = LoadWAV(path);
+            audioCache[path] = clip;
+        }
+
+        if (clip)
+            SoundManager.Instance.PlaySoundImmediate(clip, false, volume);
+    }
+
+    private static AudioClip LoadWAV(string path)
+    {
+        var fileData = Il2CppSystem.IO.File.ReadAllBytes(path);
+        WAV wav = new(fileData);
+
+        Logger.Info($"[WAV: LeftChannel={wav.LeftChannel}, RightChannel={wav.RightChannel}, ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
+
+        AudioClip clip = AudioClip.Create(Path.GetFileNameWithoutExtension(path), wav.SampleCount, 1, wav.Frequency, false, false);
+        clip.SetData(wav.LeftChannel, 0);
+
+        return clip;
+    }
+
+    private class WAV
+    {
+        // Convert two bytes to one float in the range -1 to 1
+        private static float BytesToFloat(byte firstByte, byte secondByte)
+        {
+            // Convert two bytes to one short (little endian)
+            short s = (short)((secondByte << 8) | firstByte);
+            // Convert to range from -1 to (just below) 1
+            return s / 32768.0F;
+        }
+
+        private static int BytesToInt(Il2CppStructArray<byte> bytes, int offset = 0)
+        {
+            int value = 0;
+
+            for (int i = 0; i < 4; i++)
+                value |= bytes[offset + i] << (i * 8);
+            return value;
+        }
+
+        // Properties
+        public Il2CppStructArray<float> LeftChannel { get; }
+        public Il2CppStructArray<float> RightChannel { get; }
+        public int ChannelCount { get; }
+        public int SampleCount { get; }
+        public int Frequency { get; }
+
+        public WAV(Il2CppStructArray<byte> wav)
+        {
+            // Determine if mono or stereo
+            ChannelCount = wav[22]; // Forget byte 23 as 99.999% of WAVs are 1 or 2 channels
+            // Get the frequency
+            Frequency = BytesToInt(wav, 24);
+            // Get past all the other sub chunks to get to the data subchunk:
+            int pos = 12; // First Subchunk ID from 12 to 16
+
+            // Keep iterating until we find the data chunk (i.e. 64 61 74 61 ...... (i.e. 100 97 116 97 in decimal))
+            while (!(wav[pos] == 100 && wav[pos + 1] == 97 && wav[pos + 2] == 116 && wav[pos + 3] == 97))
+            {
+                pos += 4;
+                int chunkSize = wav[pos] + wav[pos + 1] * 256 + wav[pos + 2] * 65536 + wav[pos + 3] * 16777216;
+                pos += 4 + chunkSize;
+            }
+
+            pos += 4; // skip "data"
+            int dataSize = BytesToInt(wav, pos);
+            pos += 4; // now at PCM data
+
+            // Pos is now positioned to start of actual sound data.
+            SampleCount = dataSize / 2; // 2 bytes per sample (16 bit sound mono)
+            if (ChannelCount == 2) SampleCount /= 2; // 4 bytes per sample (16 bit stereo)
+
+            // Allocate memory (right will be null if only mono sound)
+            LeftChannel = new Il2CppStructArray<float>(SampleCount);
+            if (ChannelCount == 2) RightChannel = new Il2CppStructArray<float>(SampleCount);
+            else RightChannel = null;
+
+            int end = pos + dataSize;
+            // Write to double array/s:
+            int i = 0;
+
+            while (pos + (ChannelCount * 2) <= end && i < SampleCount)
+            {
+                LeftChannel[i] = BytesToFloat(wav[pos], wav[pos + 1]);
+                pos += 2;
+
+                if (ChannelCount == 2)
+                {
+                    RightChannel[i] = BytesToFloat(wav[pos], wav[pos + 1]);
+                    pos += 2;
+                }
+                i++;
+            }
+        }
+
+        // Returns left and right double arrays. 'right' will be null if sound is mono.
+        public Il2CppStructArray<float> GetStereoData()
+        {
+            if (RightChannel == null) return LeftChannel;
+
+            var stereoData = new Il2CppStructArray<float>(SampleCount * 2);
+
+            for (int i = 0; i < SampleCount; i++)
+            {
+                stereoData[i * 2] = LeftChannel[i]; // Left channel data
+                stereoData[i * 2 + 1] = RightChannel[i]; // Right channel data
+            }
+
+            return stereoData;
+        }
     }
 }

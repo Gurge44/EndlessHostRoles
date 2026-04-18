@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
@@ -20,7 +21,7 @@ public class Altruist : RoleBase
 
     private byte AlturistId;
 
-    public long ReviveStartTS;
+    public CountdownTimer ReviveTimer;
     private byte ReviveTarget;
     private Vector2 ReviveTargetPos;
 
@@ -48,7 +49,7 @@ public class Altruist : RoleBase
         On = true;
         RevivingMode = true;
         ReviveTarget = byte.MaxValue;
-        ReviveStartTS = 0;
+        ReviveTimer = null;
         AlturistId = playerId;
         ReviveTargetPos = Vector2.zero;
         RevivedPlayers = [];
@@ -72,8 +73,38 @@ public class Altruist : RoleBase
 
         RevivingMode = false;
         ReviveTarget = target.PlayerId;
-        ReviveStartTS = Utils.TimeStamp;
         ReviveTargetPos = reporter.Pos();
+
+        ReviveTimer = new CountdownTimer(ReviveTime.GetInt(), () =>
+        {
+            PlayerControl rtg = target.Object;
+
+            rtg?.RpcRevive();
+            rtg?.TP(ReviveTargetPos);
+            rtg?.Notify(Translator.GetString("RevivedByAltruist"), 15f);
+
+            RevivedPlayers.Add(ReviveTarget);
+
+            if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
+            {
+                if (ReviveTargetsKillerGetsArrow.GetBool()) TargetArrow.Add(killer.PlayerId, ReviveTarget);
+
+                killer.KillFlash();
+                killer.Notify(Translator.GetString("AltruistKillerAlert"), 10f);
+            }
+
+            ReviveTimer = null;
+            ReviveTarget = byte.MaxValue;
+            ReviveTargetPos = Vector2.zero;
+
+            if (reporter.AmOwner && rtg != null && !rtg.Is(Team.Crewmate))
+                Achievements.Type.IWishIReported.Complete();
+        }, onTick: () => Utils.NotifyRoles(SpecifySeer: reporter, SpecifyTarget: reporter), onCanceled: () =>
+        {
+            ReviveTimer = null;
+            ReviveTarget = byte.MaxValue;
+            ReviveTargetPos = Vector2.zero;
+        });
 
         PlayerState state = Main.PlayerStates[reporter.PlayerId];
         state.deathReason = PlayerState.DeathReason.Sacrifice;
@@ -85,55 +116,28 @@ public class Altruist : RoleBase
         return false;
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
+    public static void OnAnyoneDead()
     {
-        if (pc.IsAlive() || !GameStates.IsInTask || ReviveStartTS == 0 || ReviveTarget == byte.MaxValue) return;
-
-        if (Utils.TimeStamp - ReviveStartTS < ReviveTime.GetInt())
+        try
         {
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            return;
-        }
-
-        PlayerControl rtg = ReviveTarget.GetPlayer();
-        PlayerControl killer = rtg == null ? null : rtg.GetRealKiller();
+            if (!On || !ReviveTargetsKillerGetsArrow.GetBool()) return;
         
-        rtg?.RpcRevive();
-        rtg?.TP(ReviveTargetPos);
-        rtg?.Notify(Translator.GetString("RevivedByAltruist"), 15f);
-
-        RevivedPlayers.Add(ReviveTarget);
-
-        if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
-        {
-            if (ReviveTargetsKillerGetsArrow.GetBool()) TargetArrow.Add(killer.PlayerId, ReviveTarget);
-
-            killer.KillFlash();
-            killer.Notify(Translator.GetString("AltruistKillerAlert"), 10f);
-        }
-
-        ReviveTarget = byte.MaxValue;
-        ReviveStartTS = 0;
-        ReviveTargetPos = Vector2.zero;
-
-        if (pc.AmOwner && rtg != null && (rtg.IsImpostor() || rtg.IsNeutralKiller() || rtg.IsConverted()))
-            Achievements.Type.IWishIReported.Complete();
-    }
-
-    public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
-    {
-        if (lowLoad || !ReviveTargetsKillerGetsArrow.GetBool() || GameStates.IsMeeting || ExileController.Instance) return;
-
-        if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out byte revived))
-        {
-            PlayerControl revivedPlayer = revived.GetPlayer();
-
-            if (revivedPlayer == null || !revivedPlayer.IsAlive())
+            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
-                TargetArrow.Remove(pc.PlayerId, revived);
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out byte revived))
+                {
+                    PlayerControl revivedPlayer = revived.GetPlayer();
+
+                    if (!revivedPlayer || !revivedPlayer.IsAlive())
+                    {
+                        TargetArrow.Remove(pc.PlayerId, revived);
+                        if (GameStates.IsMeeting || ExileController.Instance) continue;
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    }
+                }
             }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 
     public override void OnPet(PlayerControl pc)
@@ -148,17 +152,10 @@ public class Altruist : RoleBase
         OnPet(pc);
     }
 
-    public override void OnReportDeadBody()
-    {
-        ReviveTarget = byte.MaxValue;
-        ReviveStartTS = 0;
-        ReviveTargetPos = Vector2.zero;
-    }
-
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
-        if (ReviveStartTS != 0) return string.Format(Translator.GetString("AltruistSuffixRevive"), ReviveTime.GetInt() - (Utils.TimeStamp - ReviveStartTS));
+        if (ReviveTimer != null) return string.Format(Translator.GetString("AltruistSuffixRevive"), (int)Math.Ceiling(ReviveTimer.Remaining.TotalSeconds));
         return string.Format(Translator.GetString("AltruistSuffix"), Translator.GetString(RevivingMode ? "AltruistReviveMode" : "AltruistReportMode"));
     }
 
@@ -169,7 +166,7 @@ public class Altruist : RoleBase
 
     public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
     {
-        keepGameGoing = ReviveStartTS != 0;
+        keepGameGoing = ReviveTimer != null;
         countsAs = 1;
     }
 }

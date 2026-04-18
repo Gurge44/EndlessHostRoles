@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
@@ -152,7 +153,7 @@ public class Fireworker : RoleBase
                 nowFireworksCount--;
 
                 state = nowFireworksCount == 0
-                    ? Main.AliveImpostorCount <= 1 ? FireworkerState.ReadyFire : FireworkerState.WaitTime
+                    ? Main.EnumerateAlivePlayerControls().Count(x => x.Is(CustomRoleTypes.Impostor)) <= 1 ? FireworkerState.ReadyFire : FireworkerState.WaitTime
                     : FireworkerState.SettingFireworks;
 
                 break;
@@ -160,12 +161,11 @@ public class Fireworker : RoleBase
                 Logger.Info("Explode fireworks", "Fireworker");
                 var suicide = false;
 
-                foreach (PlayerControl target in Main.AllAlivePlayerControls)
+                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
                 {
                     foreach (Vector3 pos in fireworksPosition)
                     {
-                        float dis = Vector2.Distance(pos, target.Pos());
-                        if (dis > FireworksRadius) continue;
+                        if (!FastVector2.DistanceWithinRange(pos, target.Pos(), FireworksRadius)) continue;
 
                         if (target == pc)
                             suicide = true;
@@ -176,7 +176,7 @@ public class Fireworker : RoleBase
 
                 if (suicide)
                 {
-                    int totalAlive = Main.AllAlivePlayerControls.Length;
+                    int totalAlive = Main.AllAlivePlayerControls.Count;
                     if (totalAlive != 1) pc.Suicide();
                 }
 
@@ -192,7 +192,7 @@ public class Fireworker : RoleBase
         var retText = string.Empty;
         if (seer == null || !seer.IsAlive() || seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Fireworker fw) return retText;
 
-        if (fw.state == FireworkerState.WaitTime && Main.AliveImpostorCount <= 1)
+        if (fw.state == FireworkerState.WaitTime && Main.EnumerateAlivePlayerControls().Count(pc => pc.Is(CustomRoleTypes.Impostor)) <= 1)
         {
             fw.state = FireworkerState.ReadyFire;
             fw.SendRPC(seer.PlayerId);

@@ -109,7 +109,7 @@ public class Greedy : RoleBase // Also used for Pulse as the NK version of this
 
     public override void OnReportDeadBody()
     {
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId)))
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(x => PlayerIdList.Contains(x.PlayerId)))
         {
             IsOdd = true;
             SendRPC(pc.PlayerId);

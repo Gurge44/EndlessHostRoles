@@ -56,7 +56,7 @@ public class Thanos : RoleBase
         CollectedStones = [];
         ActiveStone = null;
         MindStoneUsed = false;
-        PlayersWithStones = Main.AllAlivePlayerControls.Shuffle().Take(Enum.GetValues<Stone>().Length).Select(x => x.PlayerId).ToList();
+        PlayersWithStones = Main.EnumerateAlivePlayerControls().Shuffle().Take(Enum.GetValues<Stone>().Length).Select(x => x.PlayerId).ToList();
         ThanosId = playerId;
         Instances.Add(this);
     }
@@ -104,10 +104,10 @@ public class Thanos : RoleBase
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             ActiveStone = null;
             Utils.SendRPC(CustomRPC.SyncRoleData, ThanosId, 2);
-            target.Data.IsDead = true;
             target.SetRealKiller(killer);
             Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Scavenged;
             target.RpcExileV2();
+            target.Data.IsDead = true;
             Main.PlayerStates[target.PlayerId].SetDead();
             Utils.AfterPlayerDeathTasks(target);
             target.SetRealKiller(killer);
@@ -172,7 +172,7 @@ public class Thanos : RoleBase
             switch (ActiveStone)
             {
                 case Stone.Time:
-                    Main.AllAlivePlayerControls.DoIf(x => x.PlayerId != pc.PlayerId, x =>
+                    Main.EnumerateAlivePlayerControls().DoIf(x => x.PlayerId != pc.PlayerId, x =>
                     {
                         Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) x.MarkDirtySettings();
@@ -202,7 +202,7 @@ public class Thanos : RoleBase
                 pc.ResetKillCooldown();
                 break;
             case Stone.Time:
-                Main.AllAlivePlayerControls.DoIf(x => x.PlayerId != pc.PlayerId, x =>
+                Main.EnumerateAlivePlayerControls().DoIf(x => x.PlayerId != pc.PlayerId, x =>
                 {
                     Main.AllPlayerSpeed[x.PlayerId] -= TimeStoneReducesSpeedBy.GetFloat();
                     x.MarkDirtySettings();
@@ -224,7 +224,7 @@ public class Thanos : RoleBase
         foreach (Thanos instance in Instances)
         {
             if (!instance.PlayersWithStones.Remove(target.PlayerId)) continue;
-            instance.PlayersWithStones.Add(noKiller ? Main.AllAlivePlayerControls.RandomElement().PlayerId : killer.PlayerId);
+            instance.PlayersWithStones.Add(noKiller ? Main.EnumerateAlivePlayerControls().RandomElement().PlayerId : killer.PlayerId);
         }
     }
 

@@ -139,12 +139,13 @@ internal class TimeMaster : RoleBase
             long now = Utils.TimeStamp;
             int length = TimeMasterRewindTimeLength.GetInt();
 
+            Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
             Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
             
-            foreach (PlayerControl player in Main.AllPlayerControls)
+            foreach (PlayerControl player in Main.EnumeratePlayerControls())
             {
                 if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
                 player.ReactorFlash(flashDuration: length * delay + 0.55f);
@@ -186,7 +187,7 @@ internal class TimeMaster : RoleBase
                     {
                         var killer = ps.RealKiller.ID.GetPlayer();
 
-                        if (killer != null && killer.IsAlive())
+                        if (killer && killer.IsAlive())
                         {
                             killer.KillFlash();
                             killer.Notify(Translator.GetString("TimeMasterKillerAlert"), 10f);
@@ -195,7 +196,7 @@ internal class TimeMaster : RoleBase
                 }
             }
 
-            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            Main.AllPlayerSpeed = originalSpeeds;
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Utils.MarkEveryoneDirtySettings();
         }
@@ -214,7 +215,7 @@ internal class TimeMaster : RoleBase
         long now = Utils.TimeStamp;
         if (BackTrack.ContainsKey(now)) return;
 
-        BackTrack[now] = Main.AllAlivePlayerControls.Where(x => !x.inVent && !x.onLadder && !x.inMovingPlat).ToDictionary(x => x.PlayerId, x => x.Pos());
+        BackTrack[now] = Main.EnumerateAlivePlayerControls().Where(x => !x.inVent && !x.onLadder && !x.inMovingPlat).ToDictionary(x => x.PlayerId, x => x.Pos());
 
         if (TimeMasterCanUseVitals.GetBool()) return;
 
@@ -228,13 +229,13 @@ internal class TimeMaster : RoleBase
             switch (Main.NormalOptions.MapId)
             {
                 case 2:
-                    doComms |= Vector2.Distance(pos, DisableDevice.DevicePos["PolusVital"]) <= usableDistance;
+                    doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["PolusVital"], usableDistance);
                     break;
                 case 4:
-                    doComms |= Vector2.Distance(pos, DisableDevice.DevicePos["AirshipVital"]) <= usableDistance;
+                    doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["AirshipVital"], usableDistance);
                     break;
                 case 5:
-                    doComms |= Vector2.Distance(pos, DisableDevice.DevicePos["FungleVital"]) <= usableDistance;
+                    doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["FungleVital"], usableDistance);
                     break;
             }
         }

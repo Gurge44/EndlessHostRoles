@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -118,7 +119,7 @@ public class Venerer : RoleBase
                 Main.Instance.StartCoroutine(FreezeNearbyPlayers());
                 goto case 2;
 
-                System.Collections.IEnumerator FreezeNearbyPlayers()
+                IEnumerator FreezeNearbyPlayers()
                 {
                     HashSet<byte> frozenPlayers = [];
                     int timer = AbilityDuration.GetInt();
@@ -132,7 +133,7 @@ public class Venerer : RoleBase
                             yield break;
                         }
 
-                        HashSet<byte> nearbyPlayers = Utils.GetPlayersInRadius(radius, pc.Pos()).Without(pc).Select(x => x.PlayerId).ToHashSet();
+                        HashSet<byte> nearbyPlayers = FastVector2.GetPlayersInRange(pc.Pos(), radius).Without(pc).Select(x => x.PlayerId).ToHashSet();
                         frozenPlayers.Except(nearbyPlayers).Do(x =>
                         {
                             PlayerControl p = Utils.GetPlayerById(x);

@@ -107,7 +107,7 @@ public class Spider : RoleBase
     void UseAbility(PlayerControl player)
     {
         Vector2 pos = player.Pos();
-        if (Webs.Keys.Any(x => Vector2.Distance(x, pos) <= WebTrapRange.GetFloat() * 2f)) return;
+        if (Webs.Keys.Any(x => FastVector2.DistanceWithinRange(x, pos, WebTrapRange.GetFloat() * 2f))) return;
         Webs[pos] = [];
         player.RPCPlayCustomSound("Line");
         LocateArrow.Add(player.PlayerId, pos);
@@ -131,7 +131,7 @@ public class Spider : RoleBase
         
         Vector2 pos = pc.Pos();
 
-        if (Webs.FindFirst(x => Vector2.Distance(x.Key, pos) <= WebTrapRange.GetFloat() && x.Value.TryAdd(pc.PlayerId, Utils.TimeStamp + TrappedDuration.GetInt()), out KeyValuePair<Vector2, Dictionary<byte, long>> kvp))
+        if (Webs.FindFirst(x => FastVector2.DistanceWithinRange(x.Key, pos, WebTrapRange.GetFloat()) && x.Value.TryAdd(pc.PlayerId, Utils.TimeStamp + TrappedDuration.GetInt()), out KeyValuePair<Vector2, Dictionary<byte, long>> kvp))
         {
             RPC.PlaySoundRPC(SpiderId, Sounds.TaskUpdateSound);
             pc.RPCPlayCustomSound("FlashBang");

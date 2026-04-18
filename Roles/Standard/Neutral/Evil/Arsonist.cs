@@ -59,7 +59,7 @@ internal class Arsonist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.AllPlayerControls) IsDoused.Add((playerId, ar.PlayerId), false);
+        foreach (PlayerControl ar in Main.EnumeratePlayerControls()) IsDoused.Add((playerId, ar.PlayerId), false);
     }
 
     public override void Init()
@@ -139,13 +139,13 @@ internal class Arsonist : RoleBase
             {
                 CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 {
                     if (pc != physics.myPlayer)
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                 }
 
-                foreach (PlayerControl pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
                     pc.KillFlash();
 
                 if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor)
@@ -163,7 +163,7 @@ internal class Arsonist : RoleBase
                 {
                     if (douseCount > ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
 
-                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                     {
                         if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
@@ -171,7 +171,7 @@ internal class Arsonist : RoleBase
 
                     physics.myPlayer.KillFlash();
 
-                    int apc = Main.AllAlivePlayerControls.Length;
+                    int apc = Main.AllAlivePlayerControls.Count;
 
                     switch (apc)
                     {
@@ -180,7 +180,7 @@ internal class Arsonist : RoleBase
                             CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             break;
                         case 2:
-                            if (Main.AllAlivePlayerControls.Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
+                            if (Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
                             {
                                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
                                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
@@ -226,10 +226,9 @@ internal class Arsonist : RoleBase
                 }
                 else
                 {
-                    float range = NormalGameOptionsV10.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
-                    float dis = Vector2.Distance(player.Pos(), arTarget.Pos());
+                    float range = GameManager.Instance.LogicOptions.GetKillDistance();
 
-                    if (dis <= range)
+                    if (FastVector2.DistanceWithinRange(player.Pos(), arTarget.Pos(), range))
                         ArsonistTimer[playerId] = (arTarget, arTime + Time.fixedDeltaTime);
                     else
                     {

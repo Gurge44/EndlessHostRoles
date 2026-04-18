@@ -12,7 +12,6 @@ using UnityEngine.Networking;
 
 namespace EHR;
 
-#if !ANDROID
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ModNews
 {
@@ -51,10 +50,12 @@ public class ModNews
 
 public static class ModNewsFetcher
 {
-    private const string NewsUrl = "https://gurge44.pythonanywhere.com/modnews";
+    private const string NewsUrl = "https://app.gurge44.eu/modnews";
 
     public static IEnumerator FetchNews()
     {
+        if (OperatingSystem.IsAndroid()) yield break;
+        
         UnityWebRequest request = UnityWebRequest.Get(NewsUrl);
         request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion}");
 
@@ -81,6 +82,11 @@ public static class ModNewsHistory
 {
     public static List<ModNews> AllModNews = [];
 
+    public static bool Prepare()
+    {
+        return !OperatingSystem.IsAndroid();
+    }
+
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements))]
     [HarmonyPrefix]
     public static void SetModAnnouncements(ref Il2CppReferenceArray<Announcement> aRange)
@@ -101,4 +107,3 @@ public static class ModNewsHistory
             aRange[i] = finalAllNews[i];
     }
 }
-#endif

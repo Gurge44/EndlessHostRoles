@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -9,7 +11,7 @@ namespace EHR.Roles;
 public class Aid : RoleBase
 {
     private const int Id = 640200;
-    public static Dictionary<byte, long> ShieldedPlayers = [];
+    public static Dictionary<byte, CountdownTimer> ShieldedPlayers = [];
 
     public static OptionItem AidDur;
     public static OptionItem AidCD;
@@ -80,32 +82,9 @@ public class Aid : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null) return false;
-
-        if (target == null) return false;
-
         TargetId = target.PlayerId;
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         return false;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0) return;
-
-        var change = false;
-
-        foreach (KeyValuePair<byte, long> x in ShieldedPlayers.ToArray())
-        {
-            if (x.Value + AidDur.GetInt() <= Utils.TimeStamp || !GameStates.IsInTask)
-            {
-                ShieldedPlayers.Remove(x.Key);
-                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, x.Key);
-                change = true;
-            }
-        }
-
-        if (change && GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: pc);
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -113,9 +92,18 @@ public class Aid : RoleBase
         if (pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue)
         {
             pc.RpcRemoveAbilityUse();
-            ShieldedPlayers[TargetId] = Utils.TimeStamp;
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 0, TargetId);
             PlayerControl target = Utils.GetPlayerById(TargetId);
+            ShieldedPlayers[TargetId] = new CountdownTimer(AidDur.GetInt(), () =>
+            {
+                ShieldedPlayers.Remove(TargetId);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+            }, onTick: () =>
+            {
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target, SendOption: SendOption.None);
+            }, onCanceled: () => ShieldedPlayers.Remove(TargetId));
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, TargetId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
             TargetId = byte.MaxValue;
@@ -124,42 +112,22 @@ public class Aid : RoleBase
         pc.MyPhysics?.RpcExitVent(vent.Id);
     }
 
-    public override void OnReportDeadBody()
-    {
-        ShieldedPlayers.Clear();
-    }
-
     public void ReceiveRPC(MessageReader reader)
     {
-        switch (reader.ReadPackedInt32())
-        {
-            case 0:
-                ShieldedPlayers[reader.ReadByte()] = Utils.TimeStamp;
-                break;
-            case 1:
-                ShieldedPlayers.Remove(reader.ReadByte());
-                break;
-        }
+        byte id = reader.ReadByte();
+        ShieldedPlayers[id] = new CountdownTimer(AidDur.GetInt(), () => ShieldedPlayers.Remove(id), onCanceled: () => ShieldedPlayers.Remove(id));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
 
-        if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out long ts))
+        if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out CountdownTimer timer))
         {
-            long timeLeft = AidDur.GetInt() - (Utils.TimeStamp - ts);
+            int timeLeft = (int)Math.Ceiling(timer.Remaining.TotalSeconds);
             return string.Format(Translator.GetString("AidCounterSelf"), timeLeft);
         }
 
-        if (seer.PlayerId == AidId)
-        {
-            int duration = AidDur.GetInt();
-            long now = Utils.TimeStamp;
-            IEnumerable<string> formatted = ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), duration - (now - x.Value)));
-            return string.Join("\n", formatted);
-        }
-
-        return string.Empty;
+        return seer.PlayerId == AidId ? string.Join("\n", ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), (int)Math.Ceiling(x.Value.Remaining.TotalSeconds)))) : string.Empty;
     }
 }

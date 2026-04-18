@@ -1,14 +1,15 @@
+using EHR.Modules;
+using EHR.Patches;
 using System;
 using System.Collections.Generic;
-using EHR.Modules;
 using UnityEngine;
 
 namespace EHR;
 
 public abstract class OptionItem
 {
-    public const int NumPresets = 10;
-    private const int PresetId = 0;
+    public const int NumPresets = 20;
+    public const int PresetId = 0;
     public readonly List<OptionItem> Children;
 
     private Dictionary<string, string> _replacementDictionary;
@@ -64,7 +65,8 @@ public abstract class OptionItem
     private bool IsHidden { get; set; }
     public bool IsText { get; protected set; }
 
-    public TextOptionItem Header { get; set; } = null;
+    public TextOptionItem Header { get; set; }
+    public BaseGameSetting CachedSetting { get; set; }
 
     public Dictionary<string, string> ReplacementDictionary
     {
@@ -230,20 +232,24 @@ public abstract class OptionItem
         return IsSingleValue ? SingleValue : AllValues[CurrentPreset];
     }
 
-    public bool IsCurrentlyHidden()
+    public bool IsCurrentlyHidden(bool forLobbyView = false, bool checkCollapsedSection = true)
     {
-        for (OptionItem current = this; current != null; current = current.Parent)
+        try
         {
-            if (Hidden(current))
-                return true;
+            for (OptionItem current = this; current != null; current = current.Parent)
+            {
+                if (Hidden(current, forLobbyView, checkCollapsedSection))
+                    return true;
+            }
         }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         return false;
 
-        static bool Hidden(OptionItem oi)
+        static bool Hidden(OptionItem oi, bool forLobbyView, bool checkCollapsedSection)
         {
-            if (oi.Header is { CollapsesSection: true }) return true;
-            CustomGameMode mode = EHR.Options.CurrentGameMode;
+            if (checkCollapsedSection && oi.Header is { CollapsesSection: true }) return true;
+            CustomGameMode mode = !forLobbyView ? EHR.Options.CurrentGameMode : LobbyViewSettingsPanePatch.LastGameModeSelected;
             const CustomGameMode nd = CustomGameMode.NaturalDisasters;
             return (oi.IsHidden || (oi.GameMode != CustomGameMode.All && oi.GameMode != mode) ||
                     (oi.Name == "IntegrateNaturalDisasters" && mode == nd)) &&
@@ -321,7 +327,7 @@ public abstract class OptionItem
     public static void SyncAllOptions(int targetId = -1)
     {
         if (
-                Main.AllPlayerControls.Length <= 1
+                PlayerControl.AllPlayerControls.Count <= 1
                 || !AmongUsClient.Instance.AmHost
                 || PlayerControl.LocalPlayer == null
             )
@@ -364,7 +370,8 @@ public enum TabGroup
     NeutralRoles,
     CovenRoles,
     Addons,
-    OtherRoles
+    OtherRoles,
+    PresetExplorer
 }
 
 public enum OptionFormat
@@ -380,3 +387,4 @@ public enum OptionFormat
     Health,
     Level
 }
+

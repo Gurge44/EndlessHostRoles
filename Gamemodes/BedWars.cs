@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -72,7 +73,7 @@ public static class BedWars
     private static OptionItem SuddenDeathOption;
     private static OptionItem AllBedsBrokenAfterTimeOption;
 
-    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
     {
@@ -266,7 +267,7 @@ public static class BedWars
                 sb.AppendLine(Utils.ColorString(team.GetColor(), $"{team.GetName()} {Utils.ColorString(Color.green, "✓")}"));
             else
             {
-                int playersLeftInTeam = Main.AllAlivePlayerControls.Count(x => Data.TryGetValue(x.PlayerId, out PlayerData data) && data.Team == team);
+                int playersLeftInTeam = Main.EnumerateAlivePlayerControls().Count(x => Data.TryGetValue(x.PlayerId, out PlayerData data) && data.Team == team);
                 sb.AppendLine($"{Utils.ColorString(team.GetColor(), team.GetName())} ({playersLeftInTeam})");
             }
         }
@@ -280,7 +281,7 @@ public static class BedWars
 
         if (!Main.IntroDestroyed || IsGracePeriod || GameStates.IsEnded) return false;
 
-        if (Enum.GetValues<BedWarsTeam>().FindFirst(x => Main.AllAlivePlayerControls.Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
+        if (Enum.GetValues<BedWarsTeam>().FindFirst(x => Main.EnumerateAlivePlayerControls().Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
         {
             WinnerData = (team.GetColor(), team.GetName() + Translator.GetString("Win"));
             CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Team == team).Select(x => x.Key).ToHashSet();
@@ -432,9 +433,11 @@ public static class BedWars
             Logger.Error("Cannot start BedWars game due to invalid game state.", "BedWars");
             yield break;
         }
+        
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
         // Assign players to teams
-        List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
+        List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
         if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
@@ -445,11 +448,11 @@ public static class BedWars
             .Flatten()
             .ToDictionary(x => x.Key, x => x.Value);
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         Utils.SetChatVisibleForAll();
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         MapNames map = Main.CurrentMap;
         Dictionary<BedWarsTeam, Base> bases = Bases[map];
@@ -457,7 +460,7 @@ public static class BedWars
         foreach ((byte id, BedWarsTeam team) in playerTeams)
         {
             PlayerControl pc = id.GetPlayer();
-            if (pc == null) continue;
+            if (!pc) continue;
 
             var data = new PlayerData
             {
@@ -495,7 +498,7 @@ public static class BedWars
                 foreach ((byte otherId, BedWarsTeam otherTeam) in playerTeams)
                 {
                     PlayerControl target = otherId.GetPlayer();
-                    if (target == null || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
+                    if (!target || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
 
                     sender.StartRpc(target.NetId, RpcCalls.SetRole)
                         .Write((ushort)RoleTypes.Impostor)
@@ -512,10 +515,10 @@ public static class BedWars
 
             Data[pc.PlayerId] = data;
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return WaitFrameIfNecessary();
         }
 
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return WaitFrameIfNecessary();
 
         if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby)
         {
@@ -542,14 +545,14 @@ public static class BedWars
             if (bed != null) AllNetObjects[team] = new(bed, new(itemShop), new(upgradeShop));
             rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString($"{room}")));
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return WaitFrameIfNecessary();
         }
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         players.NotifyPlayers($"{rooms[0]}\n{string.Join(" | ", rooms.Skip(1))}", 20f, setName: false);
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return WaitFrameIfNecessary();
 
         foreach ((Item item, List<Vector2> positions) in ItemGeneratorPositions[map])
         {
@@ -570,10 +573,37 @@ public static class BedWars
                 if (generator != null) ItemGenerators.Add(generator);
             });
 
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return WaitFrameIfNecessary();
         }
 
         GracePeriodEnd = Utils.TimeStamp + GracePeriod;
+        
+        yield break;
+
+        IEnumerator WaitFrameIfNecessary()
+        {
+            if (stopwatch.ElapsedMilliseconds >= 5)
+            {
+                stopwatch.Reset();
+                yield return null;
+                stopwatch.Start();
+            }
+        }
+    }
+
+    public static void DisasterDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
+    {
+        if (!Data.TryGetValue(pc.PlayerId, out var data)) return;
+
+        if (!AllNetObjects.TryGetValue(data.Team, out var netObjectCollection) || netObjectCollection.Bed.IsBroken)
+        {
+            pc.Suicide(deathReason);
+            return;
+        }
+        
+        data.Inventory.Clear();
+        if (Reviving.Add(pc.PlayerId)) Main.Instance.StartCoroutine(data.ReviveCountdown(pc));
+        pc.ExileTemporarily();
     }
 
     private static Dictionary<byte, PlayerData> Data = [];
@@ -591,7 +621,7 @@ public static class BedWars
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return !Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team;
+        return pc.IsValidTargetForKillButton() && (!Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -601,7 +631,7 @@ public static class BedWars
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.BedWars || !Main.IntroDestroyed || GameStates.IsEnded || __instance == null || __instance.PlayerId >= 254 || IntroCutsceneDestroyPatch.IntroDestroyTS + 10 > Utils.TimeStamp) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.BedWars || !Main.IntroDestroyed || GameStates.IsEnded || !__instance || __instance.PlayerId >= 254 || IntroCutsceneDestroyPatch.IntroDestroyTS + 10 > Utils.TimeStamp) return;
 
             long now = Utils.TimeStamp;
 
@@ -625,17 +655,17 @@ public static class BedWars
                 {
                     PlainShipRoom room = __instance.GetPlainShipRoom();
 
-                    bool allowed = (room != null && data.Base.Room == room.RoomId) || (Main.CurrentMap, data.Base.Room) switch
+                    bool allowed = (room && data.Base.Room == room.RoomId) || (Main.CurrentMap, data.Base.Room) switch
                     {
                         (MapNames.Skeld, SystemTypes.Nav) => pos.x > 13f,
                         (MapNames.Dleks, SystemTypes.Nav) => pos.x < -13f,
                         (MapNames.MiraHQ, SystemTypes.Launchpad) => pos.x < 5f,
                         (MapNames.MiraHQ, SystemTypes.Reactor) => pos.y > 10f,
                         (MapNames.MiraHQ, SystemTypes.Balcony) => pos.y < 2f,
-                        (MapNames.Polus, SystemTypes.LifeSupp) => room != null && room.RoomId == SystemTypes.BoilerRoom,
-                        (MapNames.Airship, SystemTypes.CargoBay) => room != null && room.RoomId == SystemTypes.Ventilation,
-                        (MapNames.Airship, SystemTypes.MeetingRoom) => (room != null && room.RoomId == SystemTypes.GapRoom) || __instance.inMovingPlat || __instance.onLadder || __instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation(),
-                        (MapNames.Fungle, SystemTypes.Kitchen) => room != null && room.RoomId == SystemTypes.FishingDock,
+                        (MapNames.Polus, SystemTypes.LifeSupp) => room && room.RoomId == SystemTypes.BoilerRoom,
+                        (MapNames.Airship, SystemTypes.CargoBay) => room && room.RoomId == SystemTypes.Ventilation,
+                        (MapNames.Airship, SystemTypes.MeetingRoom) => (room && room.RoomId == SystemTypes.GapRoom) || __instance.inMovingPlat || __instance.onLadder || __instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation(),
+                        (MapNames.Fungle, SystemTypes.Kitchen) => room && room.RoomId == SystemTypes.FishingDock,
                         (MapNames.Fungle, SystemTypes.Comms) => pos is { y: > 8f, x: > 19f },
                         (MapNames.Fungle, SystemTypes.Jungle) => pos is { x: > 10f, y: < -11f },
                         _ => false
@@ -649,7 +679,7 @@ public static class BedWars
                     }
                 }
 
-                if (InShop.TryGetValue(__instance.PlayerId, out Shop shop) && Vector2.Distance(pos, shop.NetObject.Position) > ShopAndItemGeneratorRange)
+                if (InShop.TryGetValue(__instance.PlayerId, out Shop shop) && !FastVector2.DistanceWithinRange(pos, shop.NetObject.Position, ShopAndItemGeneratorRange * 2f))
                 {
                     shop.ExitShop(__instance);
                     InShop.Remove(__instance.PlayerId);
@@ -659,13 +689,11 @@ public static class BedWars
 
                 if (!InShop.ContainsKey(__instance.PlayerId))
                 {
-                    (Shop shop, float distance) nearestShop = AllNetObjects.Values.SelectMany(x => new Shop[] { x.ItemShop, x.UpgradeShop }).Select(x => (shop: x, distance: Vector2.Distance(pos, x.NetObject.Position))).MinBy(x => x.distance);
-
-                    if (nearestShop.distance <= ShopAndItemGeneratorRange)
+                    if (FastVector2.TryGetClosestInRange(pos, AllNetObjects.Values.SelectMany(x => new Shop[] { x.ItemShop, x.UpgradeShop }).ToDictionary(x => x.NetObject.Position, x => x), ShopAndItemGeneratorRange, out Shop nearestShop))
                     {
-                        InShop[__instance.PlayerId] = nearestShop.shop;
-                        nearestShop.shop.EnterShop(__instance);
-                        Logger.Info($"{__instance.GetRealName()} entered {nearestShop.shop.GetType().Name}", "BedWars");
+                        InShop[__instance.PlayerId] = nearestShop;
+                        nearestShop.EnterShop(__instance);
+                        Logger.Info($"{__instance.GetRealName()} entered {nearestShop.GetType().Name}", "BedWars");
                         if (__instance.AmOwner) Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId);
                     }
                 }
@@ -674,7 +702,7 @@ public static class BedWars
 
                 if (data.Health < MaxHealth && data.LastHeal != now)
                 {
-                    bool healPool = hasUpgrades && upgrades.Contains(Upgrade.HealPool) && Vector2.Distance(pos, data.Base.BedPosition) <= HealPoolRange;
+                    bool healPool = hasUpgrades && upgrades.Contains(Upgrade.HealPool) && FastVector2.DistanceWithinRange(pos, data.Base.BedPosition, HealPoolRange);
                     bool shouldRegen = data.LastDamage + HealWaitAfterDamage <= now;
 
                     if (healPool || shouldRegen)
@@ -695,12 +723,12 @@ public static class BedWars
                     foreach ((byte id, PlayerData playerData) in Data)
                     {
                         PlayerControl player = id.GetPlayer();
-                        if (player == null || !player.IsAlive() || playerData.Team == data.Team || Vector2.Distance(player.Pos(), data.Base.BedPosition) > TrapTriggerRange) continue;
+                        if (!player || !player.IsAlive() || playerData.Team == data.Team || !FastVector2.DistanceWithinRange(player.Pos(), data.Base.BedPosition, TrapTriggerRange)) continue;
                         enemy = player;
                         break;
                     }
 
-                    if (enemy != null)
+                    if (enemy)
                     {
                         Logger.Info($"{enemy.GetRealName()} triggered trap for {data.Team} team", "BedWars");
                         upgrades.Remove(Upgrade.Trap);
@@ -712,7 +740,7 @@ public static class BedWars
 
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby || enemy == null) return;
+                            if (GameStates.IsEnded || !GameStates.InGame || GameStates.IsLobby || !enemy) return;
                             RPC.PlaySoundRPC(enemy.PlayerId, Sounds.TaskComplete);
                             Trapped.Remove(enemy.PlayerId);
                             Main.AllPlayerSpeed[enemy.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
@@ -722,7 +750,7 @@ public static class BedWars
                         foreach ((byte id, PlayerData otherData) in Data)
                         {
                             PlayerControl player = id.GetPlayer();
-                            if (player == null || !player.IsAlive() || otherData.Team != data.Team) continue;
+                            if (!player || !player.IsAlive() || otherData.Team != data.Team) continue;
 
                             RPC.PlaySoundRPC(player.PlayerId, Sounds.SabotageSound);
                             player.Notify(string.Format(Translator.GetString("Bedwars.TrapTriggered"), enemy.PlayerId.ColoredPlayerName()));
@@ -774,15 +802,15 @@ public static class BedWars
             LastDamage = Utils.TimeStamp;
             Logger.Info($"{pc.GetRealName()}'s health (after damage): {Math.Round(Health, 2)}", "BedWars");
 
-            if (Health <= 0 && pc != null && pc.IsAlive())
+            if (Health <= 0 && pc && pc.IsAlive())
             {
-                if (killer != null) killer.KillFlash();
+                if (killer) killer.KillFlash();
                 if (Main.GM.Value && AmongUsClient.Instance.AmHost) PlayerControl.LocalPlayer.KillFlash();
                 ChatCommands.Spectators.ToValidPlayers().Do(x => x.KillFlash());
                 
                 if (!AllNetObjects.TryGetValue(Team, out NetObjectCollection netObjectCollection) || !netObjectCollection.Bed.IsBroken)
                 {
-                    if (killer != null && Data.TryGetValue(killer.PlayerId, out PlayerData killerData))
+                    if (killer && Data.TryGetValue(killer.PlayerId, out PlayerData killerData))
                         Inventory.Items.DoIf(x => ItemCategories[x.Key] != ItemCategory.Tool, x => killerData.Inventory.Adjust(x.Key, x.Value));
 
                     Inventory.Clear();
@@ -798,14 +826,14 @@ public static class BedWars
             }
         }
 
-        private IEnumerator ReviveCountdown(PlayerControl pc)
+        public IEnumerator ReviveCountdown(PlayerControl pc)
         {
             int time = ReviveTime;
             if (IsBuffedTeam(out var buffRatio)) time = (int)(time / buffRatio);
 
             while (time > 0)
             {
-                if (pc == null) yield break;
+                if (!pc) yield break;
 
                 pc.Notify(string.Format(Translator.GetString("Bedwars.ReviveCountdown"), time), overrideAll: true, sendOption: SendOption.None);
                 yield return new WaitForSecondsRealtime(1f);
@@ -1032,40 +1060,43 @@ public static class BedWars
         Red
     }
 
-    private static Color GetColor(this BedWarsTeam team)
+    extension(BedWarsTeam team)
     {
-        return team switch
+        private Color GetColor()
         {
-            BedWarsTeam.Blue => Color.cyan,
-            BedWarsTeam.Yellow => Color.yellow,
-            BedWarsTeam.Green => Color.green,
-            BedWarsTeam.Red => Color.red,
-            _ => Color.white
-        };
-    }
+            return team switch
+            {
+                BedWarsTeam.Blue => Color.cyan,
+                BedWarsTeam.Yellow => Color.yellow,
+                BedWarsTeam.Green => Color.green,
+                BedWarsTeam.Red => Color.red,
+                _ => Color.white
+            };
+        }
 
-    private static byte GetColorId(this BedWarsTeam team)
-    {
-        return team switch
+        private byte GetColorId()
         {
-            BedWarsTeam.Red => 0,
-            BedWarsTeam.Yellow => 5,
-            BedWarsTeam.Blue => 10,
-            BedWarsTeam.Green => 11,
-            _ => 7
-        };
-    }
+            return team switch
+            {
+                BedWarsTeam.Red => 0,
+                BedWarsTeam.Yellow => 5,
+                BedWarsTeam.Blue => 10,
+                BedWarsTeam.Green => 11,
+                _ => 7
+            };
+        }
 
-    private static string GetName(this BedWarsTeam team)
-    {
-        return team switch
+        private string GetName()
         {
-            BedWarsTeam.Blue => Translator.GetString("Bedwars.BlueTeam"),
-            BedWarsTeam.Yellow => Translator.GetString("Bedwars.YellowTeam"),
-            BedWarsTeam.Green => Translator.GetString("Bedwars.GreenTeam"),
-            BedWarsTeam.Red => Translator.GetString("Bedwars.RedTeam"),
-            _ => string.Empty
-        };
+            return team switch
+            {
+                BedWarsTeam.Blue => Translator.GetString("Bedwars.BlueTeam"),
+                BedWarsTeam.Yellow => Translator.GetString("Bedwars.YellowTeam"),
+                BedWarsTeam.Green => Translator.GetString("Bedwars.GreenTeam"),
+                BedWarsTeam.Red => Translator.GetString("Bedwars.RedTeam"),
+                _ => string.Empty
+            };
+        }
     }
 
     private abstract class Shop
@@ -1078,7 +1109,7 @@ public static class BedWars
 
         public virtual void EnterShop(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
             SelectionIndex.TryAdd(pc.PlayerId, 0);
         }
@@ -1098,7 +1129,7 @@ public static class BedWars
 
         public override void NextSelection(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
             if (!Category.TryGetValue(pc.PlayerId, out ItemCategory category))
             {
@@ -1115,7 +1146,7 @@ public static class BedWars
 
         public override void Purchase(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
             if (!Category.TryGetValue(pc.PlayerId, out ItemCategory category))
             {
@@ -1158,7 +1189,7 @@ public static class BedWars
 
         private void NextCategory(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
             CategoryIndex.TryAdd(pc.PlayerId, 0);
             CategoryIndex[pc.PlayerId]++;
@@ -1169,7 +1200,7 @@ public static class BedWars
 
         private void EnterCategory(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
             CategoryIndex.TryAdd(pc.PlayerId, 0);
             SelectionIndex.TryAdd(pc.PlayerId, 0);
@@ -1178,7 +1209,7 @@ public static class BedWars
 
         public override void EnterShop(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskUpdateSound);
             SelectionIndex.TryAdd(pc.PlayerId, 0);
             CategoryIndex.TryAdd(pc.PlayerId, 0);
@@ -1186,7 +1217,7 @@ public static class BedWars
 
         public override void ExitShop(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             CategoryIndex.Remove(pc.PlayerId);
             Category.Remove(pc.PlayerId);
         }
@@ -1232,7 +1263,7 @@ public static class BedWars
 
         public override void NextSelection(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
             SelectionIndex.TryAdd(pc.PlayerId, 0);
             SelectionIndex[pc.PlayerId]++;
@@ -1243,7 +1274,7 @@ public static class BedWars
 
         public override void Purchase(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             if (!SelectionIndex.TryGetValue(pc.PlayerId, out int index) || index < 0 || index >= Selections.Length) return;
 
             Upgrade selectedUpgrade = Selections[index];
@@ -1349,7 +1380,7 @@ public static class BedWars
                 }
             }
 
-            PlayerControl[] playersInRadius = Utils.GetPlayersInRadius(ShopAndItemGeneratorRange, NetObject.Position).ToArray();
+            PlayerControl[] playersInRadius = FastVector2.GetPlayersInRange(NetObject.Position, ShopAndItemGeneratorRange).ToArray();
 
             foreach (PlayerControl pc in playersInRadius)
             {
@@ -1570,10 +1601,10 @@ public static class BedWars
 
         public void UseSelectedItem(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive() || !Data.TryGetValue(pc.PlayerId, out PlayerData data)) return;
+            if (!pc || !pc.IsAlive() || !Data.TryGetValue(pc.PlayerId, out PlayerData data)) return;
 
             Vector2 pos = pc.Pos();
-            bool nextToBed = AllNetObjects.FindFirst(x => !x.Value.Bed.IsBroken && Vector2.Distance(x.Value.Bed.Position, pos) <= BedBreakAndProtectRange, out KeyValuePair<BedWarsTeam, NetObjectCollection> bed);
+            bool nextToBed = AllNetObjects.FindFirst(x => !x.Value.Bed.IsBroken && FastVector2.DistanceWithinRange(x.Value.Bed.Position, pos, BedBreakAndProtectRange), out KeyValuePair<BedWarsTeam, NetObjectCollection> bed);
 
             if (SelectedSlot < 0 || SelectedSlot >= Items.Count)
             {
@@ -1760,7 +1791,7 @@ public static class BedWars
 
         public void TryBreak(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive() || !Data.TryGetValue(pc.PlayerId, out PlayerData data)) return;
+            if (!pc || !pc.IsAlive() || !Data.TryGetValue(pc.PlayerId, out PlayerData data)) return;
 
             if (Layers.Count == 0)
             {
@@ -1806,7 +1837,7 @@ public static class BedWars
                         if (newStr != str) pc.Notify(newStr, 100f, true);
                     }
 
-                    if (!pc.IsAlive() || Vector2.Distance(pc.Pos(), Position) > BedBreakAndProtectRange)
+                    if (!pc.IsAlive() || !FastVector2.DistanceWithinRange(pc.Pos(), Position, BedBreakAndProtectRange))
                     {
                         Breaking.Remove(pc.PlayerId);
                         NameNotifyManager.Notifies.Remove(pc.PlayerId);
@@ -1832,7 +1863,7 @@ public static class BedWars
             foreach ((byte id, PlayerData data) in Data)
             {
                 PlayerControl pc = id.GetPlayer();
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
 
                 pc.Notify(data.Team == team ? Translator.GetString("Bedwars.BedStatus.Broken") : string.Format(Translator.GetString("Bedwars.BedStatus.EnemyBroken"), team.GetName()));
             }
@@ -1861,7 +1892,7 @@ public static class BedWars
         foreach ((byte id, PlayerData data) in Data)
         {
             PlayerControl pc = id.GetPlayer();
-            if (pc == null || !pc.IsAlive()) continue;
+            if (!pc || !pc.IsAlive()) continue;
 
             float distance = Vector2.Distance(pc.Pos(), position);
             if (distance <= TNTRange) data.Damage(pc, distance <= 1f ? TNTDamage : TNTDamage / distance);
@@ -1902,7 +1933,7 @@ public static class BedWars
                     foreach (byte id in bed.Breaking)
                     {
                         var pc = id.GetPlayer();
-                        if (pc == null) continue;
+                        if (!pc) continue;
                         
                         NameNotifyManager.Notifies.Remove(pc.PlayerId);
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

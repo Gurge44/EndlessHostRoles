@@ -72,7 +72,7 @@ internal class Nemesis : RoleBase
         if (NemesisCanKillNum.GetInt() < 1)
         {
             if (!isUI)
-                Utils.SendMessage(GetString("NemesisKillDisable"), pc.PlayerId, sendOption: SendOption.None);
+                Utils.SendMessage(GetString("NemesisKillDisable"), pc.PlayerId, importance: MessageImportance.Low);
             else
                 pc.ShowPopUp(GetString("NemesisKillDisable"));
 
@@ -81,16 +81,16 @@ internal class Nemesis : RoleBase
 
         if (pc.IsAlive())
         {
-            Utils.SendMessage(GetString("NemesisAliveKill"), pc.PlayerId, sendOption: SendOption.None);
+            Utils.SendMessage(GetString("NemesisAliveKill"), pc.PlayerId, importance: MessageImportance.Low);
             return true;
         }
 
         if (msg == "/rv")
         {
             string text = GetString("PlayerIdList");
-            text = Main.AllAlivePlayerControls.Aggregate(text, (current, npc) => current + "\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName());
+            text = Main.EnumerateAlivePlayerControls().Aggregate(text, (current, npc) => current + "\n" + npc.PlayerId + " → (" + npc.GetDisplayRoleName() + ") " + npc.GetRealName());
 
-            Utils.SendMessage(text, pc.PlayerId);
+            Utils.SendMessage(text, pc.PlayerId, importance: MessageImportance.High);
             return true;
         }
 
@@ -117,7 +117,7 @@ internal class Nemesis : RoleBase
         catch
         {
             if (!isUI)
-                Utils.SendMessage(GetString("NemesisKillDead"), pc.PlayerId, sendOption: SendOption.None);
+                Utils.SendMessage(GetString("NemesisKillDead"), pc.PlayerId, importance: MessageImportance.Low);
             else
                 pc.ShowPopUp(GetString("NemesisKillDead"));
 
@@ -127,7 +127,7 @@ internal class Nemesis : RoleBase
         if (target == null || !target.IsAlive())
         {
             if (!isUI)
-                Utils.SendMessage(GetString("NemesisKillDead"), pc.PlayerId, sendOption: SendOption.None);
+                Utils.SendMessage(GetString("NemesisKillDead"), pc.PlayerId, importance: MessageImportance.Low);
             else
                 pc.ShowPopUp(GetString("NemesisKillDead"));
 
@@ -168,7 +168,7 @@ internal class Nemesis : RoleBase
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 
-            LateTask.New(() => { Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Nemesis), GetString("NemesisRevengeTitle"))); }, 0.6f, "Nemesis Kill");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Nemesis), GetString("NemesisRevengeTitle")), importance: MessageImportance.High), 0.6f, "Nemesis Kill");
         }, 0.2f, "Nemesis Kill");
 
         return true;
@@ -204,7 +204,7 @@ internal class Nemesis : RoleBase
         foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (pc == null || !pc.IsAlive()) continue;
+            if (!pc || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);

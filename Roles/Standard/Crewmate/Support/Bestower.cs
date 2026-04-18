@@ -1,5 +1,4 @@
-﻿using System;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Modules;
 
 namespace EHR.Roles;

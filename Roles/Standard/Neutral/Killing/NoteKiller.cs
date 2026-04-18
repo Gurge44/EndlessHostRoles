@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using Hazel;
 
 namespace EHR.Roles;
@@ -40,7 +42,7 @@ public class NoteKiller : RoleBase
 
     public static Dictionary<byte, string> RealNames = [];
     private static Dictionary<byte, string> ShownClues = [];
-    private static long ShowClueEndTimeStamp;
+    private static CountdownTimer ShowClueTimer;
     public static int Kills;
     public static bool CanGuess;
 
@@ -70,14 +72,14 @@ public class NoteKiller : RoleBase
 
         RealNames = [];
         ShownClues = [];
-        ShowClueEndTimeStamp = 0;
+        ShowClueTimer = null;
         Kills = 0;
 
         LateTask.New(() =>
         {
             List<string> names = Names.ToList();
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.NoteKiller)) continue;
                 string name = names.RandomElement();
@@ -153,8 +155,17 @@ public class NoteKiller : RoleBase
             Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 1, data.ID, shownClue);
         }
 
-        ShowClueEndTimeStamp = Utils.TimeStamp + ClueShowDuration.GetInt();
-        Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 2, ShowClueEndTimeStamp);
+        ShowClueTimer = new CountdownTimer(ClueShowDuration.GetInt(), () =>
+        {
+            ShowClueTimer = null;
+            ShownClues.Clear();
+            Utils.NotifyRoles(SpecifySeer: pc);
+        }, onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None), onCanceled: () =>
+        {
+            ShowClueTimer = null;
+            ShownClues.Clear();
+        });
+        Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 2);
         Utils.NotifyRoles(SpecifySeer: pc);
     }
 
@@ -162,19 +173,6 @@ public class NoteKiller : RoleBase
     {
         OnPet(pc);
         return false;
-    }
-
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!GameStates.IsInTask || ExileController.Instance || pc == null || !pc.IsAlive() || ShowClueEndTimeStamp == 0 || ShownClues.Count == 0) return;
-
-        if (Utils.TimeStamp >= ShowClueEndTimeStamp)
-        {
-            ShowClueEndTimeStamp = 0;
-            ShownClues.Clear();
-            Utils.SendRPC(CustomRPC.SyncRoleData, NoteKillerID, 3);
-            Utils.NotifyRoles(SpecifySeer: pc);
-        }
     }
 
     public override void AfterMeetingTasks()
@@ -190,11 +188,15 @@ public class NoteKiller : RoleBase
                 ShownClues[reader.ReadByte()] = reader.ReadString();
                 break;
             case 2:
-                ShowClueEndTimeStamp = long.Parse(reader.ReadString());
-                break;
-            case 3:
-                ShowClueEndTimeStamp = 0;
-                ShownClues.Clear();
+                ShowClueTimer = new CountdownTimer(ClueShowDuration.GetInt(), () =>
+                {
+                    ShowClueTimer = null;
+                    ShownClues.Clear();
+                }, onCanceled: () =>
+                {
+                    ShowClueTimer = null;
+                    ShownClues.Clear();
+                });
                 break;
         }
     }
@@ -204,8 +206,8 @@ public class NoteKiller : RoleBase
         if (seer.PlayerId == target.PlayerId && CustomRoles.NoteKiller.RoleExist() && seer.PlayerId != NoteKillerID && !meeting && RealNames.TryGetValue(seer.PlayerId, out string ownName))
             return MeetingStates.FirstMeeting ? string.Format(Translator.GetString("NoteKiller.OthersSelfSuffix"), CustomRoles.NoteKiller.ToColoredString(), ownName) : string.Format(Translator.GetString("NoteKiller.OthersSelfSuffixShort"), ownName);
 
-        if (seer.PlayerId != NoteKillerID || meeting || ShowClueEndTimeStamp == 0 || ShownClues.Count == 0) return string.Empty;
+        if (seer.PlayerId != NoteKillerID || meeting || ShowClueTimer == null || ShownClues.Count == 0) return string.Empty;
         if (ShownClues.TryGetValue(target.PlayerId, out string clue)) return clue;
-        return seer.PlayerId == target.PlayerId ? $"\u25a9 ({ShowClueEndTimeStamp - Utils.TimeStamp}s)" : string.Empty;
+        return seer.PlayerId == target.PlayerId ? $"\u25a9 ({(int)Math.Ceiling(ShowClueTimer.Remaining.TotalSeconds)}s)" : string.Empty;
     }
 }
