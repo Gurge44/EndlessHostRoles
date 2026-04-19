@@ -78,23 +78,26 @@ public static class HandshakePatch
 
     public static void Postfix(ref Il2CppStructArray<byte> __result)
     {
-        var handshake = new MessageWriter(1000);
+        if (!Main.HasReactorPlugin)
+        {
+            var handshake = new MessageWriter(1000);
 
-        // Original data
-        handshake.Write(__result);
+            // Original data
+            handshake.Write(__result);
 
-        // Reactor Header
-        const byte version = (byte)ReactorProtocolVersion.Latest;
-        const ulong value = (MAGIC << 8) | version;
-        handshake.Write(value);
+            // Reactor Header
+            const byte version = (byte)ReactorProtocolVersion.Latest;
+            const ulong value = (MAGIC << 8) | version;
+            handshake.Write(value);
 
-        // ModdedHandshakeC2S
-        handshake.WritePacked(1);
-        handshake.Write(Main.PluginGuid);
-        handshake.Write(Main.PluginVersion);
-        handshake.Write((ushort)(ModFlags.RequireOnHost | ModFlags.DisableServerAuthority));
+            // ModdedHandshakeC2S
+            handshake.WritePacked(1);
+            handshake.Write(Main.PluginGuid);
+            handshake.Write(Main.PluginVersion);
+            handshake.Write((ushort)(ModFlags.RequireOnHost | ModFlags.DisableServerAuthority));
 
-        __result = handshake.ToByteArray(true);
-        handshake.Recycle();
+            __result = handshake.ToByteArray(true);
+            handshake.Recycle();
+        }
     }
 }
