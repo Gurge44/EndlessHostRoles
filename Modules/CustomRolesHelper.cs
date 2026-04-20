@@ -164,6 +164,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Centralizer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+                CustomRoles.Obstructer => CustomRoles.Impostor,
                 CustomRoles.Ambusher => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Fabricator => CustomRoles.Impostor,
@@ -761,6 +762,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Psychopath or
                 CustomRoles.Ambusher or
                 CustomRoles.Kidnapper or
+                CustomRoles.Obstructer or
                 CustomRoles.Exclusionary or
                 CustomRoles.Catalyst or
                 CustomRoles.Fabricator or
@@ -1295,6 +1297,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Gambler => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Generator => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Loner => RoleOptionType.Impostor_Miscellaneous,
+                CustomRoles.Obstructer => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Visionary => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Wildling => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Impostor => RoleOptionType.Impostor_Miscellaneous,
