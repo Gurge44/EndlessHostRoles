@@ -3792,7 +3792,11 @@ public static class Utils
                     {
                         if (pc.Is(CustomRoles.Bloodlust))
                         {
-                            pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
+                            CustomRpcSender sender = CustomRpcSender.Create("Bloodlust fix", SendOption.Reliable);
+                            bool hasValue = false;
+                            hasValue |= sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId);
+                            Main.EnumeratePlayerControls().DoIf(x => x.IsImpostor(), x => hasValue |= sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+                            sender.SendMessage(dispose: !hasValue);
                             LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
                         }
 
