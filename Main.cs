@@ -173,6 +173,8 @@ public class Main : BasePlugin
     private static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
     private Coroutines coroutines;
 
+    public static bool HasReactorPlugin;
+
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
 
@@ -303,6 +305,8 @@ public class Main : BasePlugin
         TryFixStuttering = Config.Bind("Client Options", "TryFixStuttering", true);
         ShowClientControlGUI = Config.Bind("Client Options", "ShowClientControlGUI", true);
         UIScaleFactor = Config.Bind("Client Options", "UIScaleFactor", 1f);
+
+        HasReactorPlugin = IL2CPPChainloader.Instance.Plugins.ContainsKey("gg.reactor.api");
 
         AddComponent<ClientControlGUI>();
         Log.LogInfo("ClientControlGUI registered");
@@ -683,6 +687,7 @@ public class Main : BasePlugin
                 { CustomRoles.Looter, "#F5D866" },
                 { CustomRoles.Tired, "#ff1919" },
                 { CustomRoles.Concealer, "#ff1919" },
+                { CustomRoles.Constricted, "#c561ec" },
                 { CustomRoles.Composter, "#8D6F64" },
                 { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },

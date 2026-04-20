@@ -270,6 +270,7 @@ public enum CustomRoles
     Spy,
     SuperStar,
     Swapper,
+    Tar,
     TaskManager,
     Telekinetic,
     Tether,
@@ -529,6 +530,7 @@ public enum CustomRoles
     Commited,
     Compelled,
     Composter,
+    Constricted,
     Concealer,
     Contagious,
     Damocles,
@@ -609,6 +611,7 @@ public enum CustomRoles
     Undead,
     Underdog,
     Unlucky,
+    Urgent,
     Venom,
     Warden, // Ghost role
     Watcher,

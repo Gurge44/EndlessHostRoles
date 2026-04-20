@@ -3486,8 +3486,7 @@ public static class Utils
 
         return true;
     }
-
-/*
+    
     public static void SendGameData()
     {
         int messages = 0;
@@ -3520,8 +3519,9 @@ public static class Utils
         writer.EndMessage();
         AmongUsClient.Instance.SendOrDisconnect(writer);
         writer.Recycle();
+
+        AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
     }
-*/
 
     public static void SendGameDataTo(int targetClientId)
     {
@@ -4508,7 +4508,21 @@ public static class Utils
             }
         }
 
-        aapc.Do(x => x.SetChatVisible(true));
+        CombineSendTimeLowering(() => aapc.Do(x => x.SetChatVisible(true)));
+    }
+
+    /// <summary>
+    /// Wraps code to run while <see cref="ExtendedPlayerControl.DontLowerSendTimer"/> is set to true, then lowers the sending timer once.
+    /// </summary>
+    public static void CombineSendTimeLowering([Annotations.InstantHandle] Action action)
+    {
+        ExtendedPlayerControl.DontLowerSendTimer = true;
+
+        try { action(); }
+        catch (Exception e) { ThrowException(e); }
+
+        ExtendedPlayerControl.DontLowerSendTimer = false;
+        AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
     }
 
     public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase

@@ -110,7 +110,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildGameOptions();
+            IGameOptions opt = BuildSendableGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {
@@ -131,7 +131,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildGameOptions();
+            IGameOptions opt = BuildSendableGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {
@@ -352,6 +352,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                             case CustomRoles.Reach:
                             {
                                 opt.SetInt(Int32OptionNames.KillDistance, 2);
+                                break;
+                            }
+                            case CustomRoles.Constricted:
+                            {
+                                opt.SetInt(Int32OptionNames.KillDistance, 0);
                                 break;
                             }
                             case CustomRoles.Madmate:
