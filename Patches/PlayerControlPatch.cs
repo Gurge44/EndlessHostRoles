@@ -1753,6 +1753,7 @@ internal static class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
                         if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Entombed)) Entombed.OnFixedUpdate(player);
                     }
                 }
                 
@@ -2051,7 +2052,6 @@ internal static class FixedUpdatePatch
                 additionalSuffixes.Add(Haunter.GetSuffix(seer));
                 if (seer.Is(CustomRoles.Asthmatic)) additionalSuffixes.Add(Asthmatic.GetSuffixText(lpId));
                 if (seer.Is(CustomRoles.Sonar)) additionalSuffixes.Add(Sonar.GetSuffix(seer, GameStates.IsMeeting));
-                if (seer.Is(CustomRoles.Deadlined)) additionalSuffixes.Add(Deadlined.GetSuffix(seer));
                 if (seer.Is(CustomRoles.Allergic)) additionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
 
                 if (Main.PlayerStates[seer.PlayerId].Role is CovenBase { HasNecronomicon: true })

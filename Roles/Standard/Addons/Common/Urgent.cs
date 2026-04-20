@@ -6,6 +6,6 @@ public class Urgent : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(658075, CustomRoles.Urgent, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(658090, CustomRoles.Urgent, canSetNum: true, teamSpawnOptions: true);
     }
 }

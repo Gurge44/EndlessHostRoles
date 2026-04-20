@@ -543,6 +543,7 @@ public enum CustomRoles
     DoubleShot,
     Egoist,
     Energetic,
+    Entombed,
     Entranced,
     EvilSpirit,
     Examiner,

@@ -288,9 +288,10 @@ internal static class HudManagerPatch
                             CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                             CustomRoles.Spurt => Spurt.GetSuffix(player, true),
                             CustomRoles.Dynamo => Dynamo.GetSuffix(player, true),
-                            CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
+                            CustomRoles.Deadlined => Deadlined.GetSuffix(player),
                             CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
                             CustomRoles.Blessed => Blessed.GetSuffix(player),
+                            CustomRoles.Entombed => Entombed.GetSelfSuffix(player),
                             _ => string.Empty
                         }).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
