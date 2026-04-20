@@ -162,6 +162,7 @@ public enum CustomRPC
     Blessed,
     Necronomicon,
     Stained,
+    Entombed,
 
     // Game Modes
     RoomRushDataSync,

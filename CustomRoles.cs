@@ -63,6 +63,7 @@ public enum CustomRoles
     Forger,
     Framer,
     Freezer,
+    Frightener,
     Gambler,
     Gangster,
     Generator,

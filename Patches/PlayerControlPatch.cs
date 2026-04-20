@@ -1088,6 +1088,8 @@ internal static class ReportDeadBodyPatch
                 if (!Wyrd.CheckPlayerAction(__instance, Wyrd.Action.Button)) return false; // Player dies, no notify needed
             }
 
+            if (!Frightener.OnAnyoneReportDeadBody(__instance, !target)) return false; // Player dies, no notify needed
+
             if (target)
             {
                 if (Coroner.UnreportablePlayers.Contains(target.PlayerId)
