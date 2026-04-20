@@ -627,9 +627,8 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Miner:
                 {
-                    if (!Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Mine");
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Mine");
                     else newPetButton = CustomButton.Get("Mine");
-
                     break;
                 }
                 case CustomRoles.Analyst:
@@ -748,7 +747,7 @@ public static class HudSpritePatch
                 else if (player.Is(CustomRoles.Shade))
                     newAbilityButton = CustomButton.Get("Astral");
                 else return;
-            }
+            } // if u can optimize the code, thank you very much :33
 
             SetButtonColors();
 
