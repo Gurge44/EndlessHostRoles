@@ -31,7 +31,7 @@ public static class HudSpritePatch
             if (!player) return;
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
-            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive()) return;
+            if (!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame || IntroCutsceneDestroyPatch.PreventKill) return;
 
             if (DefaultIcons.Length == 0) return;
@@ -46,10 +46,12 @@ public static class HudSpritePatch
 
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
             bool shapeshifting = player.IsShifted();
+            
+            if (!player.IsAlive()) goto GhostRoles;
 
             switch (player.GetCustomRole())
             {
-                case CustomRoles.SnowdownPlayer:// when Snowdown.Data.TryGetValue(player.PlayerId, out Snowdown.PlayerData snowdownData):
+                case CustomRoles.SnowdownPlayer:
                 {   
                     if (Snowdown.Data.TryGetValue(player.PlayerId, out Snowdown.PlayerData snowdownData) && snowdownData.InShop) newAbilityButton = CustomButton.Get("PetToSwap");
                     else newAbilityButton = CustomButton.Get("Snowdown");
@@ -717,9 +719,32 @@ public static class HudSpritePatch
             if (usesPetInsteadOfKill)
                 newPetButton = newKillButton;
 
-            // shows default pet button if the ability can't be used yet due to cooldowns
-            if (player.HasAbilityCD())
+            // shows default pet button if the ability can't be used yet due to cooldowns or if they dont have any uses left
+            if (player.HasAbilityCD() || player.GetAbilityUseLimit() < 1)
                 newPetButton = DefaultIcons[4];
+
+            // for Bloodlust, due to it uses impostor vent instead of engineer vent, show it on the vent button instead of the ability button, and only if the ability button is not the default button
+            if (Main.PlayerStates[player.PlayerId].SubRoles.Contains(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && !player.Is(CustomRoles.Scanner) && !player.Is(CustomRoles.Transporter))
+                newVentButton = newAbilityButton;
+
+            GhostRoles:
+            if (!player.IsAlive())
+            {
+                newSabotageButton = DefaultIcons[3];
+                if (player.Is(CustomRoles.Bloodmoon))
+                    newAbilityButton = CustomButton.Get("Bloodmoon");
+                else if (player.Is(CustomRoles.Facilitator)) // works
+                    newAbilityButton = CustomButton.Get("Facilitator");
+                else if (player.Is(CustomRoles.Minion))
+                    newAbilityButton = CustomButton.Get("Minion");
+                else if (player.Is(CustomRoles.Warden))
+                    newAbilityButton = CustomButton.Get("Warden");
+                else if (player.Is(CustomRoles.Shade))
+                    newAbilityButton = CustomButton.Get("Astral");
+                else return;
+            } // if you can optimize the code, thank u very much
+
+            SetButtonColors();
             
             SetButtonColors();
 
