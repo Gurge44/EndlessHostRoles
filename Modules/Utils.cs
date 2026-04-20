@@ -817,6 +817,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
+            case CustomRoles.Blockade:
             case CustomRoles.Quarry:
             case CustomRoles.Spider:
             case CustomRoles.SoulCollector:
@@ -3676,6 +3677,7 @@ public static class Utils
         {
             CustomRoles.Farmer => 2,
             CustomRoles.Thanos => 5,
+            CustomRoles.Blockade => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.PortalMaker => PortalMaker.AbilityCooldown.GetInt(),
             CustomRoles.Telecommunication => Telecommunication.VentCooldown.GetInt(),
