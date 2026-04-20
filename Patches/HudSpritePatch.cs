@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Metadata.Ecma335;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Patches;
@@ -46,7 +47,7 @@ public static class HudSpritePatch
 
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
             bool shapeshifting = player.IsShifted();
-            
+
             if (!player.IsAlive()) goto GhostRoles;
 
             switch (player.GetCustomRole())
@@ -126,7 +127,8 @@ public static class HudSpritePatch
                 case CustomRoles.Commander:
                 {
                     newAbilityButton = CustomButton.Get("Commander");
-                    newPetButton = CustomButton.Get("PetToSwap");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("PetToSwap");
+                    else newVentButton = CustomButton.Get("PetToSwap");
                     break;
                 }
                 case CustomRoles.Cleaner:
@@ -478,6 +480,7 @@ public static class HudSpritePatch
                 case CustomRoles.Revolutionist:
                 {
                     newKillButton = CustomButton.Get("Tag");
+                    newVentButton = CustomButton.Get("Tag");
                     break;
                 }
                 case CustomRoles.DonutDelivery:
@@ -509,9 +512,10 @@ public static class HudSpritePatch
                 {
                     newKillButton = CustomButton.Get("Douse");
 
-                    if (player.IsDouseDone() || (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt()) && HudManager.Instance.KillButton.currentTarget && player.IsDousedPlayer(HudManager.Instance.KillButton.currentTarget))
+                    if (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt() && HudManager.Instance.KillButton.currentTarget && player.IsDousedPlayer(HudManager.Instance.KillButton.currentTarget))
                         newKillButton = CustomButton.Get("Ignite");
-
+                    else if (player.IsDouseDone() && Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Ignite");
+                    else if (player.IsDouseDone()) newVentButton = CustomButton.Get("Ignite");
                     break;
                 }
                 case CustomRoles.Pyromaniac:
@@ -667,7 +671,9 @@ public static class HudSpritePatch
                 case CustomRoles.Swooper:
                 case CustomRoles.Wraith:
                 {
-                    newAbilityButton = CustomButton.Get("invisible");
+                    if (Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Swoop");
+                    else if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("invisible");
+                    else newVentButton = CustomButton.Get("invisible");
                     break;
                 }
                 case CustomRoles.Visionary:
@@ -719,7 +725,7 @@ public static class HudSpritePatch
             if (usesPetInsteadOfKill)
                 newPetButton = newKillButton;
 
-            // shows default pet button if the ability can't be used yet due to cooldowns or if they dont have any uses left
+            // shows default pet button if the ability can't be used yet due to cooldowns or if they no longer have uses left
             if (player.HasAbilityCD() || player.GetAbilityUseLimit() < 1)
                 newPetButton = DefaultIcons[4];
 
@@ -742,10 +748,8 @@ public static class HudSpritePatch
                 else if (player.Is(CustomRoles.Shade))
                     newAbilityButton = CustomButton.Get("Astral");
                 else return;
-            } // if you can optimize the code, thank u very much
+            }
 
-            SetButtonColors();
-            
             SetButtonColors();
 
             __instance.KillButton.graphic.sprite = newKillButton;
