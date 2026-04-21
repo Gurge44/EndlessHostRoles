@@ -2057,12 +2057,12 @@ internal static class FixedUpdatePatch
 
             if (self)
             {
-                additionalSuffixes.Add(Bloodmoon.GetSuffix(seer));
-                additionalSuffixes.Add(Haunter.GetSuffix(seer));
-                if (seer.Is(CustomRoles.Asthmatic)) additionalSuffixes.Add(Asthmatic.GetSuffixText(lpId));
-                if (seer.Is(CustomRoles.Sonar)) additionalSuffixes.Add(Sonar.GetSuffix(seer, GameStates.IsMeeting));
-                if (seer.Is(CustomRoles.Deadlined)) additionalSuffixes.Add(Deadlined.GetSuffix(seer));
-                if (seer.Is(CustomRoles.Allergic)) additionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
+                AdditionalSuffixes.Add(Bloodmoon.GetSuffix(seer));
+                AdditionalSuffixes.Add(Haunter.GetSuffix(seer));
+                if (seer.Is(CustomRoles.Asthmatic)) AdditionalSuffixes.Add(Asthmatic.GetSuffixText(lpId));
+                if (seer.Is(CustomRoles.Sonar)) AdditionalSuffixes.Add(Sonar.GetSuffix(seer, GameStates.IsMeeting));
+                if (seer.Is(CustomRoles.Deadlined)) AdditionalSuffixes.Add(Deadlined.GetSuffix(seer));
+                if (seer.Is(CustomRoles.Allergic)) AdditionalSuffixes.Add(Allergic.GetSelfSuffix(seer));
 
                 if (localPlayerState.Role is CovenBase { HasNecronomicon: true })
                     Mark.Append(" <").Append(Main.CovenColor).Append(">♤</color>");
