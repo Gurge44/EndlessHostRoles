@@ -27,10 +27,7 @@
   "Server": "<#00ffa5>Server:</color> <b>{0}</b>",
   "VersionMismatch": "{0} has a different version of the mod installed",
   "ModMismatch": "{0} has a different mod installed that isn't compatible with EHR <#ffff00>⚠</color>",
-  "PP": "Have you read and agree to the Privacy Policy available at the bottom of the README in the repository?\\nYou must accept it to continue.",
-  "Kick": "Kick",
-  "Ban": "Ban",
-  "TempBan": "Ban For This Session Only",
+  "PrivacyPolicy": "Have you read and agree to the Privacy Policy available at the bottom of the README in the repository?\\nYou must accept it to continue.",
   "Yes": "Yes",
   "No": "No",
   "None": "None",
@@ -222,22 +219,6 @@
   "Prefix.Workhorse": "Workhorse",
   "Prefix.Youtuber": "YouTuber",
   /* ==============================
-    Host Suffixes           
-  ============================== */
-  "SuffixMode": "Suffix",
-  "SuffixMode.AutoHost": "Auto-Host",
-  "SuffixMode.DoNotKillMe": "Don't kill me",
-  "SuffixMode.NoAndroidPlz": "No phones",
-  "SuffixMode.None": "None",
-  "SuffixMode.OriginalName": "Original Name",
-  "SuffixMode.Recording": "Recording",
-  "SuffixMode.RoomHost": "Room Host",
-  "SuffixMode.Streaming": "Streaming",
-  "SuffixMode.Version": "Version",
-  "SuffixModeText.AutoHost": "Auto-hosting",
-  "SuffixModeText.DoNotKillMe": "Don't kill me",
-  "SuffixModeText.NoAndroidPlz": "No phones please",
-  /* ==============================
     TITLES           
   ============================== */
   "AddonListTitle": "<b><u>Your Add-ons:</u></b>",
@@ -245,7 +226,6 @@
   "AnagramTitle": "<#888888>➡ ANAGRAM ⬅</color>",
   "BaitAliveTitle": "★[ Message about Bait ]★",
   "CleanserTitle": "CLEANSER",
-  "CompletedAchievementsTitle": "<#FAD101>COMPLETED ACHIEVEMENTS</color>",
   "DoomsayerGuessCountTitle": "[ ★ Doomsayer ★ ]",
   "EraserEraseMsgTitle": "★[ Eraser ]★",
   "EveryoneReadyTitle": "<#00ff00>Everyone is ready!</color>",
@@ -262,9 +242,6 @@
   "MediumTitle": "[★ Voice of the Underworld ★]",
   "MeetingManagerMessageTitle": "★ Meeting Management ★",
   "MenuTitle.AFKDetection": "★ AFK Detection ★",
-  "MenuTitle.AGMR.RandomGroup": "Random Group {index}",
-  "MenuTitle.AutoFactionMinMaxSettings": "Auto Team Sizes",
-  "MenuTitle.AutoGMRotation": "Automatic Game Mode Rotation",
   "MenuTitle.CTA": "★ Custom Team Assignment ★",
   "MenuTitle.CrewAdvancedGameEndChecking": "Advanced Game End Checking",
   "MenuTitle.Disable": "★ Disable ★",
@@ -3729,7 +3706,6 @@
   "GuesserMode": "Guesser Mode",
   "GuesserNumRestrictions": "Restrict the Number of Guessers on Each Team",
   "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
-  "GuessersKeepTheGameGoing": "Crewmate Guessers Keep The Game Going",
   "Haste": "Haste",
   "HasteInfo": "Your kill cooldown progresses while in vents",
   "HasteInfoLong": "(Add-ons):\\nWith the Haste add-on, your kill cooldown continues to go down at all times.",
@@ -4167,7 +4143,6 @@
   Gamemodes  
   ============================== */
   "Mode": "Mode",
-  "GameMode": "Game Mode",
   "GameModeListTitle": "Game Modes",
   "DoingTasksIsPointlessInThisGameMode": "Look, I see that you're a very diligent crewmate, but....\\nDoing tasks is completely pointless in this game mode",
   "NToCheckGameModeSettings": "Type <b>/n</b> to view the settings for this game mode",
@@ -4425,6 +4400,7 @@
   "SeekerVision": "Seeker Vision",
   "HiderSpeed": "Hider Speed",
   "HiderVision": "Hider Vision",
+  "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
   // Hide And Seek Roles
   "Agent": "Agent",
   "AgentInfo": "You're an Impostor among Hiders",
@@ -8414,23 +8390,10 @@
   "AFKTooMany": "AFK detection was disabled for this round since there are too many AFK players",
   "AFKWarning": "<#ffff00><size=90%>Please move to avoid being marked as AFK</color> <#ffffff>({0})</size></color>",
   "AAWarning": "<#ffff00>You must move away from this device or you die!</color>",
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
   "Admin": "Admin",
   "AdminTag": "<#ff0000>Admin</color>",
   "AdminUnmuted": "Admin {0} has unmuted {1}.",
-  "ApplyAdminList": "Apply Admin List",
-  "ApplyBanList": "Apply BanList",
-  "ApplyModeratorList": "Apply Moderator List",
-  "ApplyVIPList": "Apply VIP List",
   "AprilFoolsMode": "April Fools Mode",
-  "AutoKickStart": "Kick players that say start",
-  "AutoKickStartAsBan": "Block a player after they're kicked",
-  "AutoKickStartTimes": "Number of warnings before kick",
-  "AutoKickStopWords": "Kick players who write banned words",
-  "AutoKickStopWordsAsBan": "Block a player after they're kicked",
-  "AutoKickStopWordsTimes": "Number of warnings for banned words",
   /* ==============================
     Lobby Control        
   ============================== */
@@ -8441,10 +8404,6 @@
   "PlayerAlreadyAdmin": "This player is already an admin, nothing was changed.",
   "PlayerAlreadyMod": "This player is already a moderator, nothing was changed.",
   "PlayerAlreadyVIP": "This player is already a VIP, nothing was changed.",
-  "PlayerAutoStart": "Minimum Player Threshold to auto-start",
-  "PlayerCanSetColor": "Players can use the /color command",
-  "PlayerCanSetName": "Players can use the /rename command",
-  "PlayerCanTPInAndOut": "Players can use the /tpin & /tpout command",
   "PlayerExemptedFromAFK": "{0} was exempted from AFK detection for 1 game",
   "PlayerExiled": "{0} was ejected...",
   "PlayerIdList": "List of player IDs: ",
@@ -8466,6 +8425,8 @@
     Achievements           
     ============================== */
   "AchievementCompletedTitle": "<#FAD101>ACHIEVEMENT UNLOCKED</color>",
+  "CompletedAchievementsTitle": "<#FAD101>COMPLETED ACHIEVEMENTS</color>",
+  "IncompleteAchievementsTitle": "<#ff0000>ACHIEVEMENTS TO BE UNLOCKED</color>",
   "Achievement.ALightInTheShadows": "A Light In The Shadows",
   "Achievement.ALightInTheShadows.Description": "Walk near the Beacon during the lights sabotage",
   "Achievement.APerfectTimeToRewindIt": "A Perfect Time To Rewind It",
@@ -8718,6 +8679,146 @@
     Vanilla Settings          
   ============================== */
   "TabGroup.VanillaSettings": "Vanilla Settings",
+  "KillCooldown": "Kill Cooldown",
+  /* ==============================
+    System Settings          
+  ============================== */
+  "TabGroup.SystemSettings": "System Settings",
+  "ModLanguage": "Mod Language",
+  "UseGameLanguage": "Use Game Language",
+  "Hungarian": "Hungarian",
+  "Indonesian": "Indonesian",
+  "Persian": "Persian",
+  "Polish": "Polish",
+  "KickLowLevelPlayer": "Kick players whose level is lower than",
+  "KickBecauseLowLevel": "<b>{0}</b> was kicked because their level was too low",
+  "KickMobilePlayer": "Kick mobile players",
+  "KickPlayerFriendCodeNotExist": "Kick players who are not logged in",
+  "ApplyDenyNameList": "Apply DenyName List",
+  "ApplyBanList": "Apply BanList",
+  "ApplyModeratorList": "Apply Moderator List",
+  "ApplyVIPList": "Apply VIP List",
+  "ApplyAdminList": "Apply Admin List",
+  "AutoKickStart": "Kick players that say start",
+  "AutoKickStartTimes": "Number of warnings before kick",
+  "AutoKickStartAsBan": "Block a player after they're kicked",
+  "AutoKickStopWords": "Kick players who write banned words",
+  "AutoKickStopWordsTimes": "Number of warnings for banned words",
+  "AutoKickStopWordsAsBan": "Block a player after they're kicked",
+  "MinWaitAutoStart": "Minutes to wait before auto-starting",
+  "MaxWaitAutoStart": "Force start when Lobby Timer goes below (in minutes)",
+  "PlayerAutoStart": "Minimum Player Threshold to auto-start",
+  "AutoStartTimer": "Initial Countdown for auto-starting",
+  "AutoPlayAgain": "Auto Re-Enter Lobby after Game End",
+  "AutoPlayAgainCountdown": "Delay before Auto Re-Entering Lobby",
+  "AutoGMPollCommandAfterJoin": "Auto Execute /gmpoll After Joining The Lobby",
+  "AutoGMPollCommandCooldown": "Delay Before Auto Executing /gmpoll (After Joining The Lobby)",
+  "AutoMPollCommandAfterJoin": "Auto Execute /mpoll After Joining The Lobby",
+  "AutoMPollCommandCooldown": "Delay Before Auto Executing /mpoll (After Joining The Lobby)",
+  "AutoDraftStartCommandAfterJoin": "Auto Execute /draftstart After Joining The Lobby",
+  "AutoDraftStartCommandCooldown": "Delay Before Auto Executing /draftstart (After Joining The Lobby)",
+  "AutoReadyCheckCommandAfterJoin": "Auto Execute /readycheck After Joining The Lobby",
+  "AutoReadyCheckCommandCooldown": "Delay Before Auto Executing /readycheck (After Joining The Lobby)",
+  "KickNotJoinedPlayersRegularly": "Kick players who haven't joined the game every 25s in lobby",
+  "EnterKeyToStartGame": "Begin the starting countdown by pressing the Enter key",
+  "LowLoadMode": "Fix Lag",
+  "DeepLowLoad": "Prioritize Performance",
+  "DontUpdateDeadPlayers": "Don't Update Dead Players to Improve Performance",
+  "DumpLogAfterGameEnd": "Dump Log After Each Game End (Recommended)",
+  "EndWhenPlayerBug": "Force Game End on Critical Errors to Prevent Black Screen",
+  "RemovePetsAtDeadPlayers": "Remove pets from dead players",
+  "CheatResponses": "When a cheating player is found",
+  "OnlyCancel": "Cancel Action Only",
+  "TempBan": "Ban For This Session Only",
+  "Ban": "Ban",
+  "Kick": "Kick",
+  "NoticeMe": "Notify me",
+  "NoticeEveryone": "Notify everyone",
+  "EnableMovementChecking": "Enable EAC Checks for Invalid Movement (against speed hacks) (may cause false positives)",
+  "EnableEHRRateLimit": "Enable Custom Rate Limit (to prevent hackers from crashing your game)",
+  "KickOnInvalidRPC": "Kick Players on Invalid RPC (likely caused by other mods or hacks)",
+  "AutoDisplayKillLog": "Display Kill-log",
+  "AutoDisplayLastRoles": "Display Last Roles",
+  "AutoDisplayLastAddOns": "Display Last Add-ons",
+  "AutoDisplayLastResult": "Auto Display Last Result",
+  "SuffixMode": "Suffix",
+  "SuffixMode.AutoHost": "Auto-Host",
+  "SuffixMode.DoNotKillMe": "Don't kill me",
+  "SuffixMode.NoAndroidPlz": "No phones",
+  "SuffixMode.None": "None",
+  "SuffixMode.OriginalName": "Original Name",
+  "SuffixMode.Recording": "Recording",
+  "SuffixMode.RoomHost": "Room Host",
+  "SuffixMode.Streaming": "Streaming",
+  "SuffixMode.Version": "Version",
+  "SuffixModeText.AutoHost": "Auto-hosting",
+  "SuffixModeText.DoNotKillMe": "Don't kill me",
+  "SuffixModeText.NoAndroidPlz": "No phones please",
+  "HideGameSettings": "Hide Game Settings",
+  "DIYGameSettings": "Enable only custom /n messages",
+  "PlayerCanSetColor": "Players can use the /color command",
+  "PlayerCanSetName": "Players can use the /rename command",
+  "PlayerCanTPInAndOut": "Players can use the /tpin & /tpout command",
+  "FormatNameMode": "Player Name Mode",
+  "FormatNameModes.Color": "Color",
+  "FormatNameModes.None": "Disable",
+  "FormatNameModes.Snacks": "Random",
+  "DisableEmojiName": "Disable Emoji in names",
+  "ChangeNameToRoleInfo": "Show Role Info to Unmodded Clients Round 1",
+  "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
+  "SendRoleDescriptionFirstMeeting": "Show Role Descriptions to Unmodded Clients on First Meeting",
+  "NoGameEnd": "No Game End",
+  "AllowConsole": "Console",
+  "ShowAntiBlackoutWarning": "Show Anti-Blackout Warning When the Ejection Screen is Overridden",
+  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
+  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
+  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
+  "AllCrewRolesHaveVanillaColor": "All <#8cffff>Crewmate</color> roles have <#8cffff>the vanilla Crewmate color</color> <#ffff00>(REQUIRES RESTART)</color>",
+  "MessageRpcSizeLimit": "Message RPC Size Limit (Higher limit = increased risk of disconnects but fewer message splits - if you never disconnect randomly, up to 15000 can be safe)",
+  "KickSlowJoiningPlayers": "Kick Players Who Join Slowly To Prevent Disconnects (if they take more than 5 seconds to send their own data, they will be kicked automatically)",
+  "EnableAutoMessage": "Enable Auto-Message (sends the template with the 'Notification' tag on a given interval in lobby)",
+  "AutoMessageSendInterval": "The Auto-Message Is Sent Every",
+  "RoleAssigningAlgorithm": "Role Assigning Algorithm",
+  "RoleAssigningAlgorithm.Default": "Default",
+  "RoleAssigningAlgorithm.HashRandom": "HashRandom",
+  "RoleAssigningAlgorithm.MersenneTwister": "MersenneTwister",
+  "RoleAssigningAlgorithm.NetRandom": ".NET System.Random",
+  "RoleAssigningAlgorithm.Xorshift": "Xorshift",
+  "KPDCamouflageMode": "Camouflage Appearance",
+  "CamouflageMode.Default": "Default",
+  "CamouflageMode.Gurge44": "<color=#ffe600>Gurge44</color>",
+  "CamouflageMode.Host": "<color=#FFFF00>Host</color>",
+  "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
+  "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
+  "MenuTitle.AutoFactionMinMaxSettings": "Auto Team Sizes",
+  "EnableAutoFactionMinMaxSettings": "Enable Automatic Team Size Adjustment Based on Player Count",
+  "AutoFactionMinMaxSettings.PlayerCap": "Minimum Player Threshold for These Settings to Apply (0 = unused)",
+  "AutoFactionMinMaxSettings.Applied": "[Auto Team Sizes] {0} players (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
+  "FactionLimits.Impostor.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Impostor Roles",
+  "FactionLimits.Impostor.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Impostor Roles",
+  "FactionLimits.Coven.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Coven Roles",
+  "FactionLimits.Coven.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Coven Roles",
+  "FactionLimits.Neutral.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Neutral Roles",
+  "FactionLimits.Neutral.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Neutral Roles",
+  "MinNNKs": "<#00ffa5>Minimum</color> amount of <#ffff00>Non-Killing</color> <#ffab1b>Neutral Roles</color> <#888888>(Benign, Evil, Pariah)</color>",
+  "MaxNNKs": "<#00a5ff>Maximum</color> amount of <#ffff00>Non-Killing</color> <#ffab1b>Neutral Roles</color> <#888888>(Benign, Evil, Pariah)</color>",
+  "MenuTitle.GMPoll": "Game Mode Poll",
+  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
+  "MPoll.Allow": "Show {m} in /mpoll choices",
+  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
+  "GuessersKeepTheGameGoing": "Crewmate Guessers Keep The Game Going",
+  "MenuTitle.AutoGMRotation": "Automatic Game Mode Rotation",
+  "EnableAutoGMRotation": "Automatically Rotate Game Modes",
+  "AutoGMRotationSlot": "Game Mode for Game {index} (Slot {index})",
+  "AGMR.Unused": "Unused/Skipped Slot",
+  "AGMR.Explicit": "Specified Explicitly",
+  "AGMR.Random": "Randomly Chosen From Group",
+  "AGMR.Poll": "Player-Voted (/gmpoll)",
+  "GameMode": "Game Mode",
+  "AGMR.Slot.RandomGroupId": "Number/ID of the random group to use for choosing the game mode for this slot/game",
+  "AGMR.Slot.Count": "How many times should we repeat this?",
+  "MenuTitle.AGMR.RandomGroup": "Random Group {index}",
+  "AGMR.RandomGroup.GMChance": "Chance of selecting {gm}",
   /* ==============================
   Meeting Settings           
   ============================== */
@@ -8751,22 +8852,7 @@
   ============================== */
   "ArrowDelayMax": "Maximum Arrow show-up delay",
   "ArrowDelayMin": "Minimum Arrow show-up delay",
-
-  /* ==============================
-  General Settings           
-  ============================== */
-  "AutoFactionMinMaxSettings.Applied": "[Auto Team Sizes] {0} players (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
-  "AutoFactionMinMaxSettings.PlayerCap": "Minimum Player Threshold for These Settings to Apply (0 = unused)",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "AutoPlayAgainCountdown": "Delay before Auto Re-Entering Lobby",
-  "AutoReadyCheckCommandAfterJoin": "Auto Execute /readycheck After Joining The Lobby",
-  "AutoReadyCheckCommandCooldown": "Delay Before Auto Executing /readycheck (After Joining The Lobby)",
-  "AutoStartTimer": "Initial Countdown for auto-starting",
   "BKProtectDuration": "Protection Duration",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -8834,18 +8920,8 @@
   ============================== */
   "CamerasAndAdmin": "Cameras & Admin",
   "CamerasDisabledNotify": "<color=#ffff00>Cameras are globally disabled by the host</color>",
-
-  /* ==============================
-    Camouflage           
-  ============================== */
   "CamouflageCooldown": "Camouflage Cooldown",
   "CamouflageDuration": "Camouflage Duration",
-  "CamouflageMode.Default": "Default",
-  "CamouflageMode.Gurge44": "<color=#ffe600>Gurge44</color>",
-  "CamouflageMode.Host": "<color=#FFFF00>Host</color>",
-  "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
-  "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -8969,12 +9045,6 @@
   ============================== */
   "ChargeInterval": "Charge Percentage Gained Each Second When Kill Cooldown Is Up",
   "ChargeLossInterval": "Charge Percentage Lost Each Second While Killing",
-
-  /* ==============================
-    EAC           
-  ============================== */
-  "CheatResponses": "When a cheating player is found",
-
   /* ==============================
     Combos           
   ============================== */
@@ -9354,17 +9424,8 @@
   /* ==============================
     Polls and Draft
   ============================== */
-  "AGMR.Poll": "Player-Voted (/gmpoll)",
-  "AGMR.Slot.Count": "How many times should we repeat this?",
-  "AutoDraftStartCommandAfterJoin": "Auto Execute /draftstart After Joining The Lobby",
-  "AutoDraftStartCommandCooldown": "Delay Before Auto Executing /draftstart (After Joining The Lobby)",
-  "AutoGMPollCommandAfterJoin": "Auto Execute /gmpoll After Joining The Lobby",
-  "AutoGMPollCommandCooldown": "Delay Before Auto Executing /gmpoll (After Joining The Lobby)",
   "AutoGMRotationStatusText.CooldownTimer": "Jumping to the next game mode on the list in <b>{0}</b> seconds",
   "AutoGMRotationStatusText.GMPoll": "Player Vote (/gmpoll)",
-  "AutoMPollCommandAfterJoin": "Auto Execute /mpoll After Joining The Lobby",
-  "AutoMPollCommandCooldown": "Delay Before Auto Executing /mpoll (After Joining The Lobby)",
-  "AutoMessageSendInterval": "The Auto-Message Is Sent Every",
   "DraftAffectedByRoleSpawnChances": "Take Role Spawn Chances Into Account When Picking Draft Choices",
   "DraftChosen": "You have chosen the <b>{0}</b> role for the next game.\\n<size=70%>You can still change your choice by typing /draft [number] again.</size>",
   "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
@@ -9373,11 +9434,8 @@
   "DraftStart": "Drafting has started! You now have a chance to pick a role from the list below if you'd like to get one of them for the next game. The roles you get to choose from are:\\n\\n{0}\\n\\nChat commands to use:\\n- Pick role: <b>/draft [number]</b>\\n- View description of role: <b>/dd [number]</b>\\nReplace [number] with the number of the role you want to pick. Example: <b>/draft 4</b>\\n<size=70%>If you don't pick a role, you get a random one like you normally would.</size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>Drafting</color> <#00a5ff>⬅</color>",
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
-  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
   "GameModePoll.Question": "Which game mode should we play next?",
-  "MPoll.Allow": "Show {m} in /mpoll choices",
   "MapPoll.Question": "Which map should we play next?",
-  "MenuTitle.GMPoll": "Game Mode Poll",
   "MenuTitle.MPoll": "Map Poll",
   "Poll.AlreadyVoted": "You already cast your vote, so it won't be counted.",
   "Poll.Begin": "You may vote using /pv A/B/C/D",
@@ -9503,24 +9561,16 @@
   ============================== */
   "DGResetMode": "Skin Reset Mode",
   "DGResetTimer": "If Resetting Skin by Timer, Reset Skin After",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "DIYGameSettings": "Enable only custom /n messages",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "DeactivationAfterMeeting": "After Meeting",
-
   /* ==============================
     Sabotage Settings           
   ============================== */
   "DeadCrewCantSabotage": "<color=#8cffff>Crewmates</color> can't sabotage after they've died",
   "DeadImpCantSabotage": "<color=#ff1919>Impostors</color> can't sabotage after they've died",
   "DeadNeutralCantSabotage": "<color=#ffab1b>Neutrals</color> can't sabotage after they've died",
-
   /* ==============================
     Death Reasons           
   ============================== */
@@ -9659,7 +9709,6 @@
   "DisableDevices": "Disable Devices",
   "DisableDivertPower": "Disable Divert Power Task",
   "DisableDressMannequin": "Disable Dress Mannequin Task",
-  "DisableEmojiName": "Disable Emoji in names",
   "DisableEmptyChute": "Disable Empty Chute Task",
   "DisableEmptyGarbage": "Disable Empty Garbage Task",
   "DisableEnterIdCode": "Disable Enter ID Code Task",
@@ -9852,7 +9901,6 @@
   "InvalidArgs": "Invalid Args",
   "InvalidArguments": "Invalid Arguments",
   "InvalidUndeadTarget": "Target cannot be recruited",
-  "KickOnInvalidRPC": "Kick Players on Invalid RPC (likely caused by other mods or hacks)",
   "NotAssigned": "-",
   "NotAssignedInfo": "Error, report to host!!",
   "RpcAntiBlackOutEndGame": "Because of <b>{0}</b>, an unknown error occurred, game will end to prevent black screen.",
@@ -9876,18 +9924,13 @@
     General Settings           
   ============================== */
   "EnableAFKDetector": "Enable AFK Detector (Also Used To Detect And Fix Black Screens)",
-  "EnableAutoFactionMinMaxSettings": "Enable Automatic Team Size Adjustment Based on Player Count",
-  "EnableAutoGMRotation": "Automatically Rotate Game Modes",
-  "EnableAutoMessage": "Enable Auto-Message (sends the template with the 'Notification' tag on a given interval in lobby)",
   "EnableCustomSabotages": "Enable Custom Sabotages",
   "EnableDarkTheme": "Dark Theme for Chat UI",
   "EnableDebugMode": "Enable Debug Mode",
-  "EnableEHRRateLimit": "Enable Custom Rate Limit (to prevent hackers from crashing your game)",
   "EnableExtraAbility": "Enable Extra Ability",
   "EnableGameTimeLimit": "Enable Game Time Limit (Expired = No One Wins)",
   "EnableGrabOxygenMaskCustomSabotage": "Enable Grab Oxygen Mask  (call by sabotaging comms - to sabotage comms normally, click on the button twice)",
   "EnableKillerLeftCommand": "Enable use of /gs (formerly /kcount) command",
-  "EnableMovementChecking": "Enable EAC Checks for Invalid Movement (against speed hacks) (may cause false positives)",
   "EnableSpurtCharge": "Display The Charge",
   "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game.",
 
@@ -9923,37 +9966,19 @@
   "ExtraKillCooldownOnAirship": "Extra Kill Cooldown on <color=#ed0007>Airship</color>",
   "ExtraKillCooldownOnFungle": "Extra Kill Cooldown on <color=#ffa646>Fungle</color>",
   "ExtraKillCooldownOnPolus": "Extra Kill Cooldown on <color=#a167c0>Polus</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
   "ExtraVotesPT": "<#00a5ff>(<#00ffff>+<#00ffa5>{0}</color> votes</color>)</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "FactionLimits.Coven.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Coven Roles",
-  "FactionLimits.Coven.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Coven Roles",
-  "FactionLimits.Impostor.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Impostor Roles",
-  "FactionLimits.Impostor.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Impostor Roles",
-  "FactionLimits.Neutral.Max": "<#00a5ff>Maximum</color> <#ffffff>amount of</color> Neutral Roles",
-  "FactionLimits.Neutral.Min": "<#00ffa5>Minimum</color> <#ffffff>amount of</color> Neutral Roles",
-
   /* ==============================
     Task Settings           
   ============================== */
   "FakeTask": "Fake Tasks:",
-
   /* ==============================
     AFK Detector              
   ============================== */
   "FixBlackScreenWaitForDead": "Everyone is alive, and the black screen fix requires a ghost, so it will wait until someone dies.",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "FixFirstKillCooldown": "Reset First Kill Cooldown",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10093,22 +10118,14 @@
     Meeting Settings         
   ============================== */
   "HideDualVotes": "Hide duplicated votes",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "HideGameSettings": "Hide Game Settings",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "HnSUnloadWarning": "<#ffff00><b>WARNING:</b></color>\\nEHR doesn't support vanilla Hide And Seek and will unload if you enable it.\\nYou can use EHR's Custom Hide And Seek game mode with unique roles instead.",
-
   /* ==============================
     Teams / Alignments           
   ============================== */
   "IfSelectedTeamIsDead": "If the selected team is dead, then the winning team is",
-
   /* ==============================
     General Settings           
   ============================== */
@@ -10117,80 +10134,38 @@
   "ImpCanBeLoyal": "<color=#ff1919>Impostors</color> can become <color=#B71556>Loyal</color>",
   "ImpCanBeRole": "<color=#ff1919>Impostors</color> can become {role}",
   "ImpCanFindMarshall": "Reveal to <#ff1919>Impostors</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "ImpCanGuessImp": "<color=#ff1919>Impostors</color> Can Guess <color=#ff1919>Impostor</color> Roles",
-
   /* ==============================
     General Settings           
   ============================== */
   "ImpCanKillMadmate": "<color=#ff1919>Impostors</color> can kill <color=#ff1919>Madmates</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "ImpostorsCanGuess": "<color=#ff1919>Impostors</color> can guess",
-
   /* ==============================
     Teams / Alignments           
   ============================== */
   "InVentVisionForTeam": "Vision While In Vent For {team}",
-
   "IncompatibleMod": "Incompatible Mod",
   "IncompatibleNeutralMode": "If neutral is incompatible, turn into",
-
-  /* ==============================
-    Achievements           
-  ============================== */
-  "IncompleteAchievementsTitle": "<#ff0000>ACHIEVEMENTS TO BE UNLOCKED</color>",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "IncreasedSpeedDuration": "Increased Speed Duration",
   "IncreasedVisionDuration": "Increased Vision Duration",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "KCD": "<color=#ff1919>Kill Cooldown:</color> <color=#ffffff><b>{0}</b>s</color>",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KPDCamouflageMode": "Camouflage Appearance",
-  "KickAndriodPlayer": "<b>{0}</b> was kicked due to playing on mobile.",
-  "KickAndroidPlayer": "Kick mobile players",
-  "KickBecauseDiffrentVersionOrMod": "<b>{0}</b> was kicked because they had a different version of the mod",
-  "KickBecauseLowLevel": "<b>{0}</b> was kicked because their level was too low",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
   "KickCommandDisabled": "The kick command is currently disabled.",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KickLowLevelPlayer": "Kick players whose level is lower than",
-  "KickNintendoPlayer": "<b>{0}</b> was kicked due to playing on Nintendo Switch.",
-  "KickNotJoinedPlayersRegularly": "Kick players who haven't joined the game every 25s in lobby",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KickPlayStationPlayer": "<b>{0}</b> was kicked due to playing on PlayStation.",
-  "KickPlayerFriendCodeNotExist": "Kick players who are not logged in",
-  "KickSlowJoiningPlayers": "Kick Players Who Join Slowly To Prevent Disconnects (if they take more than 5 seconds to send their own data, they will be kicked automatically)",
-  "KickXboxPlayer": "<b>{0}</b> was kicked due to playing on Xbox.",
-
   /* ==============================
   Cooldowns and Timers           
   ============================== */
   "KillBaitNotify": "<color=#ffff00>You'll self-report in <color=#ffab1b>{0}</color>s</color>",
-  "KillCooldown": "Kill Cooldown",
   "KillCooldownAfterCleaning": "Kill Cooldown On Clean",
   "KillCooldownAfterStoneGazing": "Kill Cooldown On Stone Gaze",
   "KillCooldownNormally": "Kill Cooldown Without Sabotage",
@@ -10286,13 +10261,6 @@
   ============================== */
   "LobbyCloseTimer": "Lobby Closing Timer: {0}",
   "LobbyTimer": "Lobby closes in {0}m {1}s",
-  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "LowLoadMode": "Fix Lag",
-
   /* ==============================
     Task Settings           
   ============================== */
@@ -10362,18 +10330,7 @@
   "MaxInVentTime": "Max In-Vent Time",
   "MaxInspectorCheckLimit": "Max inspections per game",
   "MaxMadmateRoles": "<#00a5ff>Maximum</color> amount of <#ff1919>Madmate</color> Roles",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MaxNNKs": "<#00a5ff>Maximum</color> amount of <#ffff00>Non-Killing</color> <#ffab1b>Neutral Roles</color> <#888888>(Benign, Evil, Pariah)</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MaxWaitAutoStart": "Force start when Lobby Timer goes below (in minutes)",
   "Maximum": "Max",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
@@ -10404,7 +10361,6 @@
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>The lobby code has been sent to the EHR website. This will help others find EHR lobbies.</color></size>\\n<size=70%>You can disable this feature in the settings (System Settings tab).</size>",
   "Message.LobbyShareFailed": "EHR-Chan does not seem to be online (failed to share lobby)",
   "Message.LobbyShared": "The lobby has successfully been shared!",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10441,7 +10397,6 @@
   "Message.YTPlanNotice": "Note: The [YouTuber Plan] is enabled in this lobby, which means the Host can specify their role in the next game to make it easier to get content. In case the Host abuses this feature, please exit the game or report it.\\nCurrent Creator Credentials:",
   "Message.YTPlanSelectFailed": "You cannot be assigned as <b>{0}</b>.\\nIt may be because you don't have this role enabled, or this role does not support being assigned.",
   "Message.YTPlanSelected": "In the next game, your role will be <b>{0}</b>",
-  "MessageRpcSizeLimit": "Message RPC Size Limit (Higher limit = increased risk of disconnects but fewer message splits - if you never disconnect randomly, up to 15000 can be safe)",
   "MessageTooLong": "Failed to send chat message. The size of the RPC would've exceeded the limit specified in System Settings.",
 
   /* ==============================
@@ -10449,51 +10404,33 @@
   ============================== */
   "MinMadmateRoles": "<#00ffa5>Minimum</color> amount of <#ff1919>Madmate</color> Roles",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>Modded Min/Max Impostors Automatically Set To </color><#ffffff>{0}</color></b>\\n<size=80%>Because you only changed the vanilla setting, which gets overridden by the modded ones.</size>",
-  "MinNNKs": "<#00ffa5>Minimum</color> amount of <#ffff00>Non-Killing</color> <#ffab1b>Neutral Roles</color> <#888888>(Benign, Evil, Pariah)</color>",
   "MinPlayersForAirship": "Minimum Players for <color=#ed0007>Airship</color>",
   "MinPlayersForFungle": "Minimum Players for <color=#ffa646>The Fungle</color>",
   "MinPlayersForGameStateCommand": "Minimum alive players to use this command",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
   "MinTasksToActivateAbility": "Minimum Number of Tasks Completed to Activate Ability",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MinWaitAutoStart": "Minutes to wait before auto-starting",
-  "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
-
   /* ==============================
     General Settings           
   ============================== */
   "MiraO2TimeLimit": "<color=#e84b56>MIRA HQ</color> O2 Time Limit",
-
   /* ==============================
     Sabotage Settings           
   ============================== */
   "MiraReactorTimeLimit": "<color=#e84b56>MIRA HQ</color> Reactor Time Limit",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "ModBrokenMessage": "The MOD file is damaged.\\nPlease reinstall.",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
-  "ModLanguage": "Mod Language",
   "ModdedClient": "Modded Client",
   "ModeratorMuted": "Moderator {0} has muted {1} for <#00ffa5>{2}</color> seconds.",
   "ModeratorTag": "<#8000ff>Moderator</color>",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "Modifier": "\nModifier: ",
   "Modifiers": "\nModifiers: ",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10605,11 +10542,6 @@
     Cooldowns and Timers           
   ============================== */
   "OddKillCooldown": "Odd-Numbered kill cooldown",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "OnlyCancel": "Cancel Action Only",
   "OnlyShowPart": "Shown only part",
 
   /* ==============================
@@ -10753,14 +10685,10 @@
   ============================== */
   "SeeEjectedRolesInMeeting": "See ejected roles in meetings",
   "SelfVote": "Self Vote",
-  "SendRoleDescriptionFirstMeeting": "Show Role Descriptions to Unmodded Clients on First Meeting",
-  "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
-
   /* ==============================
     General Settings           
   ============================== */
   "SettingsForRoleText": "Settings for",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10789,17 +10717,10 @@
   "ShortTeamName.Crewmate": "Crew",
   "ShortTeamName.Impostor": "Imp",
   "ShortTeamName.Neutral": "Neut",
-
-  /* ==============================
-    Notifications and Messages           
-  ============================== */
-  "ShowAntiBlackoutWarning": "Show Anti-Blackout Warning When the Ejection Screen is Overridden",
-
   /* ==============================
     General Settings           
   ============================== */
   "ShowArrows": "Has Arrows pointing toward bodies",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10842,33 +10763,23 @@
   "Dleks": "<#66a186>Dleks Eht</color>",
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
-
   /* ==============================
     General Settings           
   ============================== */
   "SkeldO2TimeLimit": "<color=#66a186>The Skeld</color> O2 Time Limit",
-
   /* ==============================
     Sabotage Settings           
   ============================== */
   "SkeldReactorTimeLimit": "<color=#66a186>The Skeld</color> Reactor Time Limit",
   "SpawnAdditionalRenegadeMinAlivePlayers": "Minimum Number of Alive Players to Spawn",
-
   /* ==============================
     Sabotage Settings           
   ============================== */
   "SpectateDisabled": "<#ff0000>X</color> The /spectate command is disabled in this lobby.",
-
   /* ==============================
     Maps           
   ============================== */
   "SpeedForMap": "Player Speed on {map}",
-
-  /* ==============================
-    Achievements           
-  ============================== */
-  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
-
   /* ==============================
     Submerged           
   ============================== */
@@ -10903,7 +10814,6 @@
   ============================== */
   "TabGroup.GameSettings": "Mod Settings",
   "TabGroup.PresetSettings": "Preset Settings",
-  "TabGroup.SystemSettings": "System Settings",
   "TabGroup.TaskSettings": "Game Modifiers",
   "TargetCannotBeTeleported": "Target cannot be teleported",
   /* ==============================
@@ -11097,11 +11007,6 @@
   "Format.Seconds": "{0}s",
   "Format.Times": "{0}",
   "Format.Votes": "{0}",
-  "FormatNameMode": "Player Name Mode",
-  "FormatNameModes.Color": "Color",
-  "FormatNameModes.None": "Disable",
-  "FormatNameModes.Snacks": "Random",
-
   /* ==============================
     Remaining Text           
   ============================== */
@@ -11140,17 +11045,11 @@
   "ROT.Neutral_Killing": "★ Killing Roles",
   "ROT.Neutral_Pariah": "★ Pariah Roles",
   "ROT.Vanilla": "★ Vanilla Roles",
-  "AllCrewRolesHaveVanillaColor": "All <#8cffff>Crewmate</color> roles have <#8cffff>the vanilla Crewmate color</color> <#ffff00>(REQUIRES RESTART)</color>",
   "ColoredOff": "<color=#ff4c6f><b>╳</b></color>",
   "ColoredOn": "<color=#00fefe><b>✓</b></color>",
   "IllegalColor": "Please enter the correct color",
   "AADelay": "Time to Leave Device",
   "AADone": "The process has finished",
-  "AGMR.Explicit": "Specified Explicitly",
-  "AGMR.Random": "Randomly Chosen From Group",
-  "AGMR.RandomGroup.GMChance": "Chance of selecting {gm}",
-  "AGMR.Slot.RandomGroupId": "Number/ID of the random group to use for choosing the game mode for this slot/game",
-  "AGMR.Unused": "Unused/Skipped Slot",
   "AbilityCD": "Ability Cooldown",
   "AbilityUseGainWithEachKill": "<color=#00ffff>Ability <color=#7FFFD2>Use Gains</color> With Each Kill</color>",
   "ActiveRolesList": "Active Roles List",
@@ -11164,7 +11063,6 @@
   "AllClosed": "Close All",
   "AllOpen": "Open All",
   "AlliesKnowCrewpostor": "Known to <color=#ff1919>Impostors</color>",
-  "AllowConsole": "Console",
   "AmOblivious": "You are <color=#424242>Oblivious</color>, meaning you cannot report bodies",
   "Anagram": "The scrambled word is <b>{0}</b>! Guess the original word! (Hint: It starts with the letter <b>{1}</b>!)",
   "AnalyzeCD": "Analyze Cooldown",
@@ -11178,17 +11076,9 @@
   "AnalyzerSeeVentCount": "Result Shows Vent Count",
   "AnnounceTransformation": "Announce Transformation (from <#e5f6b4>Plaguebearer</color> to <color=#343136>Pestilence</color>)",
   "AppIDAdded": "Since there was no steam_appid.txt file, a new one was created to prevent errors. \\nPlease restart the game to apply changes.",
-  "ApplyDenyNameList": "Apply DenyName List",
   "AssignOnlyToCrewmate": "Assign only to <color=#8cffff>Crewmates</color>",
-  "AutoDisplayKillLog": "Display Kill-log",
-  "AutoDisplayLastAddOns": "Display Last Add-ons",
-  "AutoDisplayLastResult": "Auto Display Last Result",
-  "AutoDisplayLastRoles": "Display Last Roles",
-  "ChangeNameToRoleInfo": "Show Role Info to Unmodded Clients Round 1",
-  "AutoGMRotationSlot": "Game Mode for Game {index} (Slot {index})",
   "AutoGMRotationStatusText": "<u>AUTOMATIC GAME MODE ROTATION IS ENABLED!</u>",
   "AutoGMRotationStatusText.NextGM": "Next",
-  "AutoPlayAgain": "Auto Re-Enter Lobby after Game End",
   "AutoWarnStopWords": "Warning to those who write banned words",
   "AvailableRoles": "Available Impostor-Teamed Role List to Choose From",
   "AwkwardPotion": "Awkward Potion",
@@ -11224,7 +11114,6 @@
   "CovenKillEachOther": "As a Coven member, you cannot (and shouldn't) kill other Coven members",
   "CovenKillEntranced": "Coven members cannot kill Entranced players",
   "CovenKnowSuperStarDead": "<color=#7b3fbb>Coven</color> know when the <color=#f6f657>Super Star</color> dies",
-  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
   "CrewKillingRed": "<color=#8cffff>Crewmate</color> Killings can be red",
   "DGRM.AfterTime": "Timer",
   "DGRM.None": "None",
@@ -11232,17 +11121,14 @@
   "DeactivationImmediately": "Immediately",
   "DeactivationIsVisibleOFF": "<color=#ff4c6f>OFF</color>",
   "DecreasedSpeed": "Decreased Speed",
-  "DeepLowLoad": "Prioritize Performance",
   "Default": "No vote",
   "DefaultRevertShapeshiftText": "Revert",
   "DefaultShapeshiftText": "Shift",
   "Delayed": "Delayed",
   "DeleteTagSuccess": "<#00ffa5>✓</color> Successfully deleted {0}'s tag.",
   "DevouredName": "Devoured",
-  "DontUpdateDeadPlayers": "Don't Update Dead Players to Improve Performance",
   "DoorLog": "Door Log",
   "DoorLogAndBinoculars": "Door Log & Binoculars",
-  "DumpLogAfterGameEnd": "Dump Log After Each Game End (Recommended)",
   "E2Kill": "Kill Target",
   "ECMO.Coven": "<#7b3fbb>Coven</color>",
   "ECMO.Nothing": "Nothing",
@@ -11251,8 +11137,6 @@
   "EatenByDevourer": "Your skin was eaten by the Devourer",
   "EatenByPelican": "You're swallowed, waiting for the Pelican to die or a meeting",
   "Ego-": "Ego-",
-  "EndWhenPlayerBug": "Force Game End on Critical Errors to Prevent Black Screen",
-  "EnterKeyToStartGame": "Begin the starting countdown by pressing the Enter key",
   "EnterVentToWin": "Enter a Vent to Ignite!",
   "EraseMethod": "Erase Method",
   "EraserEraseNeutralNotice": "Your target is Neutral and can't be erased!",
@@ -11289,7 +11173,6 @@
   "HideGameCodes": "Hide Game Code",
   "HideResults": "Hide Results",
   "HolidayGreeting": "Happy Holidays!",
-  "Hungarian": "Hungarian",
   "IgnoreAfterAnyoneDied": "Ignore After First Death",
   "IgnoreConditions": "Ignore Conditions",
   "IgnoreCrewmates": "Ignore <color=#8cffff>Crewmates</color>",
@@ -11306,7 +11189,6 @@
   "IncorrectMarks": "\\n<color=#ffff00>Your 2 marks are too close to each other, they won't work</color>\\nYour marks were discarded.",
   "IncreasedSpeed": "Increased Speed",
   "IncreasedVision": "Increased Vision",
-  "Indonesian": "Indonesian",
   "InfectDelay": "Infect Delay",
   "InfectRadius": "Infect Radius",
   "Infected": "Infected",
@@ -11355,12 +11237,9 @@
   "NeutralsKnowEachOther": "<color=#ffab1b>Neutrals</color> know each other",
   "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
   "NewYearGreeting": "Happy New Year!",
-  "NoGameEnd": "No Game End",
   "NoInfoExists": "No Info Exists",
   "NoPetActionMsgCrew": "You imagine yourself as the impostor in a parallel universe.",
   "NoVenting": "Block Venting",
-  "NoticeEveryone": "Notify everyone",
-  "NoticeMe": "Notify me",
   "NukeRadius": "Nuke radius (12x is very large)",
   "NullCD": "Ability Cooldown",
   "NumOfRolesToKill": "Amount of Roles to Choose From",
@@ -11373,13 +11252,10 @@
   "OtherRoles.ImpostorRoles": "★ Impostor Roles",
   "OtherRoles.NeutralRoles": "★ Neutral Roles",
   "Outside": "Outside",
-  "Persian": "Persian",
   "PetToAssign": "Pet to Assign to Everyone",
   "PetToWin": "Pet to Ignite!",
   "PingText": "Ping",
   "PleaseStopBeingDumb": "<size=90%><#dd00ff>The shield-animation does <#ff0000>NOT</color> mean someone tried to kill you!</color>\\n<#ffff00>Shield-animations are required to reset cooldows!</color></size>",
-  "Polish": "Polish",
-  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
   "PotionInStore": "Potion in store",
   "PressTabToNextPage": "Press <color=#ff1919>Tab</color> or <color=#ff1919>Number</color> for Next Page...",
   "PrivateChat": "Enable Private Chat for <color=#ff9ace>Lovers</color>",
@@ -11400,7 +11276,6 @@
   "RecruitedByDeathknight": "You've been recruited to the Undead faction!",
   "RecruitedToDeathknight": "The Necromancer recruited you to be their Deathknight!",
   "RejoinRequiredDueToVanillaSwitch": "You've decided to switch to vanilla mode, so it was required to disconnect you from the current game, or it would've caused issues. Please rejoin the game.",
-  "RemovePetsAtDeadPlayers": "Remove pets from dead players",
   "ReportBaitAtAllCost": "Report <#00f7ff>Bait</color> at All Cost",
   "ReportButtonText": "Report",
   "RequiresPetIndicator": "  <#ffab1b>PET</color>",
@@ -11496,7 +11371,6 @@
   "Untouched": "Global Setting Decides",
   "UploadPreset": "Upload current preset to database",
   "UploadPresetHeader": "Upload & Publish",
-  "UseGameLanguage": "Use Game Language",
   "UseLegacyVersion": "Use Legacy Version",
   "UsePets": "Use Pet button instead of Vent/Shapeshift",
   "UsePhantomBasis": "Use Vanish Button (Phantom basis) as Ability Trigger",
@@ -11565,12 +11439,6 @@
   "InfectiousKillButtonText": "Infect",
   "NtrInfo": "Everyone sees you as their Lover",
   "ReadyClientsInfo": "\\nReady clients: {0} (Timeout in {1}s)",
-  "RoleAssigningAlgorithm": "Role Assigning Algorithm",
-  "RoleAssigningAlgorithm.Default": "Default",
-  "RoleAssigningAlgorithm.HashRandom": "HashRandom",
-  "RoleAssigningAlgorithm.MersenneTwister": "MersenneTwister",
-  "RoleAssigningAlgorithm.NetRandom": ".NET System.Random",
-  "RoleAssigningAlgorithm.Xorshift": "Xorshift",
   "RoleBlockCooldown": "Role Block Cooldown",
   "RoleBlockDuration": "Role Block Duration",
   "RoleBlockNotify": "You are role blocked, you can't {0}",

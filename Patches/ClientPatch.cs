@@ -87,9 +87,9 @@ internal static class RunLoginPatch
     {
         if (DebugModeManager.AmDebugger) canOnline = true;
 
-        if (!Main.AckdPP.Value)
+        if (!Main.AckdPrivacyPolicy.Value)
         {
-            ModUpdater.ShowPopupWithTwoButtons(GetString("PP"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPP.Value = true, Application.Quit);
+            ModUpdater.ShowPopupWithTwoButtons(GetString("PP"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, Application.Quit);
             return;
         }
 
