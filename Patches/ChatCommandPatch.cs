@@ -236,6 +236,7 @@ internal static class ChatCommands
             new("NeutralInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, NeutralInfoCommand, true, false),
             new("PlayerInfo", "[id]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, PlayerInfoCommand, true, false, [GetString("CommandArgs.PlayerInfo.Id")]),
             new("TimeLimit", "", Command.UsageLevels.Everyone, Command.UsageTimes.InGame, TimeLimitCommand, true, false),
+            new("Exo", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ExoCommand, true, true),
             
             new("ConfirmAuth", "{uuid}", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -385,6 +386,9 @@ internal static class ChatCommands
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp)
+            LateTask.New(() => PlayerControl.LocalPlayer.Suicide(), 0.1f);
+
         CheckAnagramGuess(PlayerControl.LocalPlayer.PlayerId, text);
 
         if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
@@ -521,6 +525,27 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ExoCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+        
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.MainRole != CustomRoles.Exorcist || player.GetAbilityUseLimit() < 1) return;
+
+        int duration = Exorcist.AbilityDuration.GetInt();
+        Exorcist.AbilityEndTS = Utils.TimeStamp + duration;
+        player.RpcRemoveAbilityUse();
+
+        Utils.SendMessage(string.Format(GetString("Exorcist.AbilityUsedMsg"), duration), title: CustomRoles.Exorcist.ToColoredString());
+        
+        LateTask.New(() =>
+        {
+            if (!GameStates.IsMeeting) return;
+            Utils.SendMessage(GetString("Exorcist.AbilityEnded"), title: CustomRoles.Exorcist.ToColoredString());
+        }, duration);
+        
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+    
     private static void TimeLimitCommand(PlayerControl player, string text, string[] args)
     {
         Utils.SendMessage("\n", player.PlayerId, Options.EnableGameTimeLimit.GetBool() ? $"{Options.GameTimeLimit.GetInt() - Main.GameTimer.Elapsed.TotalSeconds:N0}s {GetString("RemainingText.Suffix")}" : "<size=4>∞</size>");
@@ -3286,6 +3311,9 @@ internal static class ChatCommands
             LastSentCommand[player.PlayerId] = now;
             return;
         }
+
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now)
+            player.Suicide(realKiller: Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));
 
         if (text.StartsWith("\n")) text = text[1..];
 

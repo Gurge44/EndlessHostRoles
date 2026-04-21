@@ -57,6 +57,7 @@ public enum CustomRoles
     EvilGuesser,
     EvilTracker,
     Exclusionary,
+    Exorcist,
     Fabricator,
     Fakeshifter,
     Fireworker,
