@@ -31,4 +31,10 @@ public class Exorcist : RoleBase
         On = true;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
+
+    public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
+    {
+        const string command = "/exo";
+        ChatCommands.ExoCommand(shapeshifter, command, command.Split(' '));
+    }
 }

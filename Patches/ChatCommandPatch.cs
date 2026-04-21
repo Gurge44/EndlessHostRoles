@@ -525,7 +525,7 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
-    private static void ExoCommand(PlayerControl player, string text, string[] args)
+    public static void ExoCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
         
