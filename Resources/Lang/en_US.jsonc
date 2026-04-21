@@ -118,6 +118,7 @@
     Role Prefixes    
   ============================== */
   "Prefix.Aide": "Aide",
+  "Prefix.Absorber": "Absorber",
   "Prefix.Allergic": "Allergic",
   "Prefix.Anchor": "Anchor",
   "Prefix.AntiTP": "Anti-TP",
@@ -142,6 +143,7 @@
   "Prefix.Compelled": "Compelled",
   "Prefix.Composter": "Composter",
   "Prefix.Concealer": "Concealer",
+  "Prefix.Constricted": "Constricted",
   "Prefix.Damocles": "Damocles",
   "Prefix.Deadlined": "Deadlined",
   "Prefix.DeadlyQuota": "Deadly Quota",

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Metadata.Ecma335;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Patches;
@@ -31,7 +32,7 @@ public static class HudSpritePatch
             if (!player) return;
 
             if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
-            if ((!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) || !player.IsAlive()) return;
+            if (!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame || IntroCutsceneDestroyPatch.PreventKill) return;
 
             if (DefaultIcons.Length == 0) return;
@@ -47,9 +48,11 @@ public static class HudSpritePatch
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
             bool shapeshifting = player.IsShifted();
 
+            if (!player.IsAlive()) goto GhostRoles;
+
             switch (player.GetCustomRole())
             {
-                case CustomRoles.SnowdownPlayer:// when Snowdown.Data.TryGetValue(player.PlayerId, out Snowdown.PlayerData snowdownData):
+                case CustomRoles.SnowdownPlayer:
                 {   
                     if (Snowdown.Data.TryGetValue(player.PlayerId, out Snowdown.PlayerData snowdownData) && snowdownData.InShop) newAbilityButton = CustomButton.Get("PetToSwap");
                     else newAbilityButton = CustomButton.Get("Snowdown");
@@ -124,7 +127,8 @@ public static class HudSpritePatch
                 case CustomRoles.Commander:
                 {
                     newAbilityButton = CustomButton.Get("Commander");
-                    newPetButton = CustomButton.Get("PetToSwap");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("PetToSwap");
+                    else newVentButton = CustomButton.Get("PetToSwap");
                     break;
                 }
                 case CustomRoles.Cleaner:
@@ -476,6 +480,7 @@ public static class HudSpritePatch
                 case CustomRoles.Revolutionist:
                 {
                     newKillButton = CustomButton.Get("Tag");
+                    newVentButton = CustomButton.Get("Tag");
                     break;
                 }
                 case CustomRoles.DonutDelivery:
@@ -507,9 +512,10 @@ public static class HudSpritePatch
                 {
                     newKillButton = CustomButton.Get("Douse");
 
-                    if (player.IsDouseDone() || (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt()) && HudManager.Instance.KillButton.currentTarget && player.IsDousedPlayer(HudManager.Instance.KillButton.currentTarget))
+                    if (Arsonist.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Arsonist.ArsonistMinPlayersToIgnite.GetInt() && HudManager.Instance.KillButton.currentTarget && player.IsDousedPlayer(HudManager.Instance.KillButton.currentTarget))
                         newKillButton = CustomButton.Get("Ignite");
-
+                    else if (player.IsDouseDone() && Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Ignite");
+                    else if (player.IsDouseDone()) newVentButton = CustomButton.Get("Ignite");
                     break;
                 }
                 case CustomRoles.Pyromaniac:
@@ -621,9 +627,8 @@ public static class HudSpritePatch
                 }
                 case CustomRoles.Miner:
                 {
-                    if (!Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Mine");
-                    else newPetButton = CustomButton.Get("Mine");
-
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = CustomButton.Get("Mine");
+                    else newAbilityButton = CustomButton.Get("Mine");
                     break;
                 }
                 case CustomRoles.Analyst:
@@ -665,7 +670,9 @@ public static class HudSpritePatch
                 case CustomRoles.Swooper:
                 case CustomRoles.Wraith:
                 {
-                    newAbilityButton = CustomButton.Get("invisible");
+                    if (Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Swoop");
+                    else if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("invisible");
+                    else newVentButton = CustomButton.Get("invisible");
                     break;
                 }
                 case CustomRoles.Visionary:
@@ -717,10 +724,31 @@ public static class HudSpritePatch
             if (usesPetInsteadOfKill)
                 newPetButton = newKillButton;
 
-            // shows default pet button if the ability can't be used yet due to cooldowns
-            if (player.HasAbilityCD())
+            // shows default pet button if the ability can't be used yet due to cooldowns or if they no longer have uses left
+            if (player.HasAbilityCD() || player.GetAbilityUseLimit() < 1)
                 newPetButton = DefaultIcons[4];
-            
+
+            // for Bloodlust, due to it uses impostor vent instead of engineer vent, show it on the vent button instead of the ability button, and only if the ability button is not the default button
+            if (Main.PlayerStates[player.PlayerId].SubRoles.Contains(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && !player.Is(CustomRoles.Scanner) && !player.Is(CustomRoles.Transporter))
+                newVentButton = newAbilityButton;
+
+            GhostRoles:
+            if (!player.IsAlive())
+            {
+                newSabotageButton = DefaultIcons[3];
+                if (player.Is(CustomRoles.Bloodmoon))
+                    newAbilityButton = CustomButton.Get("Bloodmoon");
+                else if (player.Is(CustomRoles.Facilitator)) // works
+                    newAbilityButton = CustomButton.Get("Facilitator");
+                else if (player.Is(CustomRoles.Minion))
+                    newAbilityButton = CustomButton.Get("Minion");
+                else if (player.Is(CustomRoles.Warden))
+                    newAbilityButton = CustomButton.Get("Warden");
+                else if (player.Is(CustomRoles.Shade))
+                    newAbilityButton = CustomButton.Get("Astral");
+                else return;
+            } // if u can optimize the code, thank you very much :33
+
             SetButtonColors();
 
             __instance.KillButton.graphic.sprite = newKillButton;
