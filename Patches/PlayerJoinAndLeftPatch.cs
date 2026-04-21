@@ -509,7 +509,7 @@ internal static class OnPlayerJoinedPatch
         if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform is Platforms.Android or Platforms.IPhone && Options.KickAndroidPlayer.GetBool())
         {
             AmongUsClient.Instance.KickPlayer(client.Id, false);
-            string msg = string.Format(GetString("KickAndriodPlayer"), client.PlayerName);
+            string msg = string.Format(GetString("KickMobilePlayer"), client.PlayerName);
             Logger.SendInGame(msg, Color.yellow);
             Logger.Info(msg, "Android Kick");
         }
