@@ -48,7 +48,7 @@ internal class Insight : RoleBase
     {
         LateTask.New(() =>
         {
-            RolesKnownThisRound.Do(x => Utils.SendMessage("\n", InsightId, string.Format(Translator.GetString("InsightNotify"), x.ToColoredString())));
+            RolesKnownThisRound.ForEach(x => Utils.SendMessage("\n", InsightId, string.Format(Translator.GetString("InsightNotify"), x.ToColoredString())));
             RolesKnownThisRound = [];
         }, 10f, log: false);
     }
