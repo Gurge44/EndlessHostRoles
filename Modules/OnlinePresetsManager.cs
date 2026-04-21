@@ -235,6 +235,12 @@ public static class OnlinePresetsManager
     static void OpenPublishPage(string draftId)
     {
         string url = $"https://app.gurge44.eu/publish?preset={draftId}";
+        
+        if (OperatingSystem.IsAndroid()) 
+        {
+            Constants.OpenURL(url);
+            return;
+        }
     
         try
         {

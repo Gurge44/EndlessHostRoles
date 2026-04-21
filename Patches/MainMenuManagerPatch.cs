@@ -136,7 +136,7 @@ public static class MainMenuManagerPatch
                 new(-2.3f, -1.3f, 1f),
                 new(153, 153, 153, byte.MaxValue),
                 new(209, 209, 209, byte.MaxValue),
-                () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
+                () => Constants.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
                 Translator.GetString("GitHub")); //"GitHub"
         }
 
@@ -150,7 +150,7 @@ public static class MainMenuManagerPatch
                 new(-0.5f, -1.3f, 1f),
                 new(88, 101, 242, byte.MaxValue),
                 new(148, 161, 255, byte.MaxValue),
-                () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
+                () => Constants.OpenURL("https://discord.com/invite/m3ayxfumC8"),
                 Translator.GetString("Discord")); //"Discord"
         }
 
@@ -164,7 +164,7 @@ public static class MainMenuManagerPatch
                 new(1.3f, -1.3f, 1f),
                 new(251, 81, 44, byte.MaxValue),
                 new(211, 77, 48, byte.MaxValue),
-                () => Application.OpenURL("https://app.gurge44.eu"),
+                () => Constants.OpenURL("https://app.gurge44.eu"),
                 Translator.GetString("Website")); //"Website"
         }
 
