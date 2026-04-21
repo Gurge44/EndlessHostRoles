@@ -34,6 +34,7 @@ public static class MessageReaderUpdateSystemPatch
             if (EAC.CheckInvalidSabotage(systemType, player, amount))
             {
                 Logger.Info("EAC patched Sabotage RPC", "MessageReaderUpdateSystemPatch");
+                reader.Recycle();
                 return false;
             }
 

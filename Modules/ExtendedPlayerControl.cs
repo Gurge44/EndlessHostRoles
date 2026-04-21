@@ -2242,23 +2242,28 @@ internal static class ExtendedPlayerControl
         {
             try
             {
-                if (Main.HasJustStarted) throw new("HasJustStarted");
+                if (Main.HasJustStarted) return player.GetEstimatedRoleTypes();
                 return player.GetRoleMap().RoleType;
             }
             catch
             {
-                return player.GetCustomSubRoles() switch
-                {
-                    { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-                    { } x when x.Contains(CustomRoles.Nimble) && !player.HasDesyncRole() => RoleTypes.Engineer,
-                    { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
-                    { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
-                    { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
-                    { } x when x.Contains(CustomRoles.Examiner) => RoleTypes.Detective,
-                    { } x when x.Contains(CustomRoles.Venom) => RoleTypes.Viper,
-                    _ => player.GetCustomRole().GetRoleTypes()
-                };
+                return player.GetEstimatedRoleTypes();
             }
+        }
+
+        public RoleTypes GetEstimatedRoleTypes()
+        {
+            return player.GetCustomSubRoles() switch
+            {
+                { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
+                { } x when x.Contains(CustomRoles.Nimble) && !player.HasDesyncRole() => RoleTypes.Engineer,
+                { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
+                { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
+                { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
+                { } x when x.Contains(CustomRoles.Examiner) => RoleTypes.Detective,
+                { } x when x.Contains(CustomRoles.Venom) => RoleTypes.Viper,
+                _ => player.GetCustomRole().GetRoleTypes()
+            };
         }
 
         public bool Is(CustomRoles role)
