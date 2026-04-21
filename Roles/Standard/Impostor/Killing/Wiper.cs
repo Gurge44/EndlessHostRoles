@@ -71,7 +71,7 @@ public class Wiper : RoleBase
 
     private static bool IsInvalidRoom(PlainShipRoom room)
     {
-        if (room == null) return true;
+        if (!room) return true;
 
         switch (Main.CurrentMap)
         {

@@ -165,6 +165,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Centralizer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+                CustomRoles.Frightener => CustomRoles.Shapeshifter,
+                CustomRoles.Obstructer => CustomRoles.Impostor,
                 CustomRoles.Ambusher => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Stasis => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Fabricator => CustomRoles.Impostor,
@@ -529,6 +531,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Duality => RoleTypes.Impostor,
                 CustomRoles.Berserker => RoleTypes.Impostor,
                 CustomRoles.SerialKiller => RoleTypes.Impostor,
+                CustomRoles.Blockade => RoleTypes.Shapeshifter,
                 CustomRoles.Quarry => RoleTypes.Shapeshifter,
                 CustomRoles.SoulCollector => RoleTypes.Impostor,
                 CustomRoles.Spider => UsePets ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
@@ -668,6 +671,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Parasite or
                 CustomRoles.Berserker or
                 CustomRoles.SerialKiller or
+                CustomRoles.Blockade or
                 CustomRoles.Quarry or
                 CustomRoles.Accumulator or
                 CustomRoles.Spider or
@@ -762,6 +766,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Psychopath or
                 CustomRoles.Ambusher or
                 CustomRoles.Kidnapper or
+                CustomRoles.Frightener or
+                CustomRoles.Obstructer or
                 CustomRoles.Exclusionary or
                 CustomRoles.Catalyst or
                 CustomRoles.Fabricator or
@@ -1293,9 +1299,11 @@ internal static class CustomRolesHelper
                 CustomRoles.Consigliere => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.CursedWolf => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.EvilTracker => RoleOptionType.Impostor_Miscellaneous,
+                CustomRoles.Frightener => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Gambler => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Generator => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Loner => RoleOptionType.Impostor_Miscellaneous,
+                CustomRoles.Obstructer => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Visionary => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Wildling => RoleOptionType.Impostor_Miscellaneous,
                 CustomRoles.Impostor => RoleOptionType.Impostor_Miscellaneous,
@@ -2020,6 +2028,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     SerialKiller,
+    Blockade,
     Quarry,
     Accumulator,
     Spider,

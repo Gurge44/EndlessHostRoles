@@ -1316,6 +1316,7 @@ internal static class IntroCutsceneDestroyPatch
             {
                 case CustomGameMode.Standard:
                     Blessed.AfterMeetingTasks();
+                    Entombed.AfterMeeting();
                     break;
                 case CustomGameMode.KingOfTheZones:
                     Main.Instance.StartCoroutine(KingOfTheZones.GameStart());

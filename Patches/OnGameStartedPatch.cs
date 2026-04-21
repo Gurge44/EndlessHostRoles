@@ -257,6 +257,7 @@ internal static class ChangeRoleSettings
             Onbound.NumBlocked = [];
             Blessed.ShieldActive = [];
             Talkative.NumMessagesThisMeeting = [];
+            Entombed.BlockedRoom = [];
 
             try
             {
