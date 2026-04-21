@@ -52,7 +52,7 @@ public static class HudSpritePatch
                 if (!GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
                 if (!GhostRolesWithSprites.Contains(ghostRole.Role)) return;
                 
-                newAbilityButton = CustomButton.Get(ghostRole.Role == CustomRoles.Shade ? "Astral" : ghostRole.Role.ToString());
+                newAbilityButton = CustomButton.Get(ghostRole.Role.ToString()); // wait holdon shade do have its own button
                 goto Skip;
             }
 
