@@ -347,7 +347,7 @@ internal static class HudManagerPatch
                     if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton?.SetEnabled();
 
-                    __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
+                    __instance.SabotageButton?.ToggleVisible(player.GetEstimatedRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
 
                     float abilityUseLimit = player.GetAbilityUseLimit();
 
@@ -682,7 +682,7 @@ internal static class SetHudActivePatch
 
         __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
         __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
-        __instance.SabotageButton?.ToggleVisible(player.GetRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
+        __instance.SabotageButton?.ToggleVisible(player.GetEstimatedRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper);
 
         if (Options.UseMeetingShapeshift.GetBool() && PlayerControl.LocalPlayer.UsesMeetingShapeshift() && GameStates.IsMeeting)
         {
@@ -812,10 +812,8 @@ internal static class MapBehaviourShowPatch
         }
         else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
         {
-            if (player.Is(CustomRoleTypes.Impostor) || player.CanUseSabotage() || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.WeaponMaster) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Renegade) || (player.Is(CustomRoles.Jackal) && Jackal.CanSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanSabotage.GetBool()))
-                opts.Mode = MapOptions.Modes.Sabotage;
-            else
-                opts.Mode = MapOptions.Modes.Normal;
+            bool impBasis = player.GetEstimatedRoleTypes() is RoleTypes.ImpostorGhost or RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper;
+            opts.Mode = impBasis ? MapOptions.Modes.Sabotage : MapOptions.Modes.Normal;
         }
 
         if (Main.GodMode.Value) opts.ShowLivePlayerPosition = true;
@@ -973,9 +971,10 @@ internal static class TaskPanelBehaviourPatch
     // Role info tab panel code from https://github.com/All-Of-Us-Mods/MiraAPI and https://github.com/AU-Avengers/TOU-Mira
 
     public static PassiveButton RolePanelButton;
-    public static TaskPanelBehaviour TaskPanel;
-    public static TextMeshPro TabText;
-    public static TextMeshPro TabPanelName;
+    private static TaskPanelBehaviour TaskPanel;
+    private static TextMeshPro TabText;
+    private static TextMeshPro TabPanelName;
+    
     internal static TaskPanelBehaviour CreateRoleTab(CustomRoles role)
     {
         TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
