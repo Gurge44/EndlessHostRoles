@@ -1,7 +1,8 @@
 using System;
-using System.Reflection.Metadata.Ecma335;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
+using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles;
 using UnityEngine;
@@ -23,6 +24,7 @@ public static class HudSpritePatch
     public static bool ForceUpdate;
     public static Sprite[] DefaultIcons = [];
     private static long LastErrorTime;
+    private static readonly List<CustomRoles> GhostRolesWithSprites = [CustomRoles.Bloodmoon, CustomRoles.Facilitator, CustomRoles.Minion, CustomRoles.Warden, CustomRoles.Shade];
 
     public static void Postfix(HudManager __instance)
     {
@@ -45,10 +47,17 @@ public static class HudSpritePatch
             Sprite newReportButton = DefaultIcons[5];
             Sprite newSecondaryAbilityButton = DefaultIcons[6];
 
+            if (!player.IsAlive())
+            {
+                if (!GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
+                if (!GhostRolesWithSprites.Contains(ghostRole.Role)) return;
+                
+                newAbilityButton = CustomButton.Get(ghostRole.Role == CustomRoles.Shade ? "Astral" : ghostRole.Role.ToString());
+                goto Skip;
+            }
+
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
             bool shapeshifting = player.IsShifted();
-
-            if (!player.IsAlive()) goto GhostRoles;
 
             switch (player.GetCustomRole())
             {
@@ -725,29 +734,14 @@ public static class HudSpritePatch
                 newPetButton = newKillButton;
 
             // shows default pet button if the ability can't be used yet due to cooldowns or if they no longer have uses left
-            if (player.HasAbilityCD() || player.GetAbilityUseLimit() < 1)
+            if (player.HasAbilityCD() || player.GetAbilityUseLimit() < 1) // conditions with float.NaN always evaluate to false, which is good in this case
                 newPetButton = DefaultIcons[4];
 
-            // for Bloodlust, due to it uses impostor vent instead of engineer vent, show it on the vent button instead of the ability button, and only if the ability button is not the default button
+            // for Bloodlust, due to it using the impostor vent button instead of the engineer vent button, show it on the vent button instead of the ability button, and only if the ability button is not the default button
             if (Main.PlayerStates[player.PlayerId].SubRoles.Contains(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && !player.Is(CustomRoles.Scanner) && !player.Is(CustomRoles.Transporter))
                 newVentButton = newAbilityButton;
 
-            GhostRoles:
-            if (!player.IsAlive())
-            {
-                newSabotageButton = DefaultIcons[3];
-                if (player.Is(CustomRoles.Bloodmoon))
-                    newAbilityButton = CustomButton.Get("Bloodmoon");
-                else if (player.Is(CustomRoles.Facilitator)) // works
-                    newAbilityButton = CustomButton.Get("Facilitator");
-                else if (player.Is(CustomRoles.Minion))
-                    newAbilityButton = CustomButton.Get("Minion");
-                else if (player.Is(CustomRoles.Warden))
-                    newAbilityButton = CustomButton.Get("Warden");
-                else if (player.Is(CustomRoles.Shade))
-                    newAbilityButton = CustomButton.Get("Astral");
-                else return;
-            } // if u can optimize the code, thank you very much :33
+            Skip:
 
             SetButtonColors();
 
