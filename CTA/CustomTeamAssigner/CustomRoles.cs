@@ -66,7 +66,6 @@ public enum CustomRoles
     Freezer,
     Frightener,
     Chainbinder,
-    Solarist,
     Jackpot,
     Gambler,
     Gangster,
