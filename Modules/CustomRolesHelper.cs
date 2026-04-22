@@ -165,6 +165,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
                 CustomRoles.Frightener => CustomRoles.Shapeshifter,
+                CustomRoles.Jackpot => CustomRoles.Shapeshifter,
+                CustomRoles.Chainbinder => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Exorcist => CustomRoles.Impostor,
                 CustomRoles.Obstructer => CustomRoles.Impostor,
                 CustomRoles.Ambusher => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -523,6 +525,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Glitch => RoleTypes.Shapeshifter,
                 CustomRoles.Jailor => UsePets && Jailor.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
                 CustomRoles.Juggernaut => RoleTypes.Impostor,
+                CustomRoles.Jackpot => RoleTypes.Shapeshifter,
                 CustomRoles.Jinx => RoleTypes.Impostor,
                 CustomRoles.Stalker => RoleTypes.Impostor,
                 CustomRoles.Provocateur => RoleTypes.Impostor,
@@ -643,6 +646,7 @@ internal static class CustomRolesHelper
         {
             return (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Arsonist.ArsonistKeepsGameGoing == null || Arsonist.ArsonistKeepsGameGoing.GetBool() || (Arsonist.ArsonistCanIgniteAnytime != null && Arsonist.ArsonistCanIgniteAnytime.GetBool()))) || role is
                 CustomRoles.Jackal or
+                CustomRoles.Jackpot or
                 CustomRoles.Glitch or
                 CustomRoles.Sidekick or
                 CustomRoles.HexMaster or
@@ -1128,6 +1132,7 @@ internal static class CustomRolesHelper
                              or CustomRoles.Thanos
                              or CustomRoles.Tiger
                              or CustomRoles.Bargainer
+                             or CustomRoles.Jackpot
                              or CustomRoles.Chemist
                              or CustomRoles.Simon
                              or CustomRoles.Sharpshooter
@@ -1175,6 +1180,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Jester => RoleOptionType.Neutral_Evil,
                 CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
                 CustomRoles.God => RoleOptionType.Neutral_Evil,
+                CustomRoles.Jackpot => RoleOptionType.Neutral_Killing,
                 CustomRoles.Executioner => RoleOptionType.Neutral_Evil,
                 CustomRoles.Doomsayer => RoleOptionType.Neutral_Evil,
                 CustomRoles.Vector => RoleOptionType.Neutral_Evil,
@@ -1255,6 +1261,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Godfather => RoleOptionType.Impostor_Support,
                 CustomRoles.Hypnotist => RoleOptionType.Impostor_Support,
                 CustomRoles.Librarian => RoleOptionType.Impostor_Support,
+                CustomRoles.Chainbinder => RoleOptionType.Impostor_Support,
                 CustomRoles.Nullifier => RoleOptionType.Impostor_Support,
                 CustomRoles.Occultist => RoleOptionType.Impostor_Support,
                 CustomRoles.Perplexer => RoleOptionType.Impostor_Support,
