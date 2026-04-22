@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Roles;
 
-using static EHR.Translator;
+using static Translator;
 
 public class Jackpot : RoleBase
 {
@@ -135,8 +134,6 @@ public class Jackpot : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || killer.PlayerId != JackpotId || !target) return;
-
         Money += MoneyPerKill.GetInt();
         killer.Notify(string.Format(GetString("Jackpot.KillReward"), MoneyPerKill.GetInt(), Money));
     }
@@ -148,8 +145,6 @@ public class Jackpot : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc == null || pc.PlayerId != JackpotId) return;
-
         if (!GameStates.IsInTask || !pc.IsAlive())
         {
             if (DomainActive || IsNearMissActive || IsJackpotActive)
@@ -198,8 +193,6 @@ public class Jackpot : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        if (playerId != JackpotId) return string.Empty;
-
         string text = IsJackpotActive
             ? string.Format(GetString("Jackpot.Progress.Jackpot"), Money, Mathf.CeilToInt(JackpotTimer))
             : DomainActive
@@ -211,7 +204,7 @@ public class Jackpot : RoleBase
 
     private void StartDomain(PlayerControl player)
     {
-        if (player == null || player.PlayerId != JackpotId || !player.IsAlive()) return;
+        if (!player || player.PlayerId != JackpotId || !player.IsAlive()) return;
 
         if (DomainActive || IsJackpotActive)
         {
@@ -222,14 +215,14 @@ public class Jackpot : RoleBase
 
         DomainActive = true;
         SpinTimer = SpinInterval.GetFloat();
-        player.Notify($"{GetString("Jackpot.GameRulesTransmitted")}\n<size=80%>{string.Format(GetString("Jackpot.DomainStarted"), SpinInterval.GetFloat())}</size>", 6f);
+        player.Notify($"{GetString("Jackpot.GameRulesTransmitted")}\n<size=80%>{string.Format(GetString("Jackpot.DomainStarted"), SpinInterval.GetFloat())}</size>");
         RefreshTemporaryBuffs(player, refreshCooldown: false);
     }
 
     // Domain phase: rolls keep happening until the player jackpots, dies, or a meeting interrupts the sequence.
     private void ResolveSpin(PlayerControl player)
     {
-        if (player == null || !player.IsAlive()) return;
+        if (!player || !player.IsAlive()) return;
 
         int roll = IRandom.Instance.Next(100);
 
@@ -287,7 +280,7 @@ public class Jackpot : RoleBase
 
         Main.AllPlayerSpeed[JackpotId] = speed;
 
-        if (player == null || !player.IsAlive()) return;
+        if (!player || !player.IsAlive()) return;
 
         if (refreshCooldown) player.ResetKillCooldown();
         else player.MarkDirtySettings();
@@ -308,7 +301,7 @@ public class Jackpot : RoleBase
 
         RefreshTemporaryBuffs(player, refreshCooldown);
 
-        if (notifyEnd && wasJackpotActive && player != null && player.IsAlive())
+        if (notifyEnd && wasJackpotActive && player && player.IsAlive())
             player.Notify(GetString("Jackpot.JackpotEnded"));
     }
 }

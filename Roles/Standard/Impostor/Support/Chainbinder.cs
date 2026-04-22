@@ -3,11 +3,10 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Roles;
 
-using static EHR.Translator;
+using static Translator;
 
 public class Chainbinder : RoleBase
 {
@@ -105,7 +104,7 @@ public class Chainbinder : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (pc == null || pc.PlayerId != ChainbinderId || !HasLink) return;
+        if (!HasLink) return;
 
         if (!pc.IsAlive() || !GameStates.IsInTask)
         {
@@ -161,9 +160,7 @@ public class Chainbinder : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || seer.PlayerId != ChainbinderId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
-        if (!HasLink) return string.Empty;
-
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != ChainbinderId || (seer.IsModdedClient() && !hud) || meeting || !HasLink) return string.Empty;
         return string.Format(GetString("Chainbinder.PairSuffix"), FirstTarget.ColoredPlayerName(), SecondTarget.ColoredPlayerName());
     }
 
@@ -177,7 +174,7 @@ public class Chainbinder : RoleBase
 
     private void TryChainPlayers(PlayerControl binder, PlayerControl requestedTarget = null)
     {
-        if (binder == null || binder.PlayerId != ChainbinderId || !binder.IsAlive()) return;
+        if (!binder || binder.PlayerId != ChainbinderId || !binder.IsAlive()) return;
 
         if (!TryGetTargets(binder, requestedTarget, out PlayerControl first, out PlayerControl second))
         {
@@ -204,11 +201,11 @@ public class Chainbinder : RoleBase
         first = null;
         second = null;
 
-        List<PlayerControl> validTargets = Main.AllAlivePlayerControls
+        List<PlayerControl> validTargets = Main.EnumerateAlivePlayerControls()
             .Where(x => IsValidTarget(binder, x))
             .ToList();
 
-        if (requestedTarget != null)
+        if (requestedTarget)
         {
             if (!IsValidTarget(binder, requestedTarget)) return false;
 
@@ -220,7 +217,7 @@ public class Chainbinder : RoleBase
                 .OrderBy(x => Vector2.Distance(x.Pos(), firstPosition))
                 .FirstOrDefault();
 
-            return second != null;
+            return second;
         }
 
         PlayerControl[] closestTargets = validTargets
@@ -237,7 +234,7 @@ public class Chainbinder : RoleBase
 
     private bool IsValidTarget(PlayerControl binder, PlayerControl target)
     {
-        if (binder == null || target == null || target.PlayerId == binder.PlayerId || !target.IsAlive()) return false;
+        if (!binder || !target || target.PlayerId == binder.PlayerId || !target.IsAlive()) return false;
         if (Pelican.IsEaten(target.PlayerId) || target.onLadder || target.inMovingPlat || target.inVent) return false;
         if (!FastVector2.DistanceWithinRange(binder.Pos(), target.Pos(), BindRange.GetFloat())) return false;
         if (!CanBindImpostors.GetBool() && target.GetCustomRole().IsImpostor()) return false;
@@ -248,7 +245,7 @@ public class Chainbinder : RoleBase
     {
         foreach (byte playerId in PlayerIdList)
         {
-            if (playerId == ChainbinderId || !Main.PlayerStates.TryGetValue(playerId, out PlayerState state) || state.Role is not Chainbinder cb || !cb.HasLink) continue;
+            if (playerId == ChainbinderId || !Main.PlayerStates.TryGetValue(playerId, out PlayerState state) || state.Role is not Chainbinder { HasLink: true } cb) continue;
             if (cb.FirstTarget == targetId || cb.SecondTarget == targetId) return true;
         }
 
@@ -257,7 +254,7 @@ public class Chainbinder : RoleBase
 
     private static bool AreLinkedPlayersValid(PlayerControl first, PlayerControl second)
     {
-        return first != null && second != null && first.IsAlive() && second.IsAlive() && !Pelican.IsEaten(first.PlayerId) && !Pelican.IsEaten(second.PlayerId);
+        return first && second && first.IsAlive() && second.IsAlive() && !Pelican.IsEaten(first.PlayerId) && !Pelican.IsEaten(second.PlayerId);
     }
 
     private void ClearLink(bool notifyBinder = false, bool sync = true, bool refresh = true)
@@ -269,10 +266,10 @@ public class Chainbinder : RoleBase
         if (!hadLink) return;
 
         PlayerControl binder = Utils.GetPlayerById(ChainbinderId);
-        if (notifyBinder && binder != null && binder.IsAlive())
+        if (notifyBinder && binder && binder.IsAlive())
             binder.Notify(GetString("Chainbinder.PairEnded"));
 
-        if (refresh && binder != null)
+        if (refresh && binder)
             Utils.NotifyRoles(SpecifySeer: binder, SpecifyTarget: binder);
     }
 
@@ -286,7 +283,6 @@ public class Chainbinder : RoleBase
 
     private void SyncState()
     {
-        if (!Utils.DoRPC) return;
         Utils.SendRPC(CustomRPC.SyncRoleData, ChainbinderId, FirstTarget, SecondTarget);
     }
 }
