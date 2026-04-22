@@ -1092,6 +1092,7 @@ internal static class CustomRolesHelper
                              or CustomRoles.Wizard
                              or CustomRoles.AntiAdminer
                              or CustomRoles.Stasis
+                             or CustomRoles.Chainbinder
                              or CustomRoles.Occultist
                              or CustomRoles.Overheat
                              or CustomRoles.Warlock
@@ -1132,7 +1133,6 @@ internal static class CustomRolesHelper
                              or CustomRoles.Thanos
                              or CustomRoles.Tiger
                              or CustomRoles.Bargainer
-                             or CustomRoles.Jackpot
                              or CustomRoles.Chemist
                              or CustomRoles.Simon
                              or CustomRoles.Sharpshooter
