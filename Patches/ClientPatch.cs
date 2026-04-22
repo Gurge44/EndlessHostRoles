@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static EHR.Translator;
 
 namespace EHR;
