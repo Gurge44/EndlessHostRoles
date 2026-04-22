@@ -313,7 +313,7 @@ public static class ModUpdater
             passiveButton.OnClick = new();
 
             if (buttonIsExit)
-                passiveButton.OnClick.AddListener((Action)Application.Quit);
+                passiveButton.OnClick.AddListener((Action)SplashLogoAnimatorPatch.SceneChanger.ExitGame);
             else
                 passiveButton.OnClick.AddListener((Action)(() => InfoPopup.Close()));
         }

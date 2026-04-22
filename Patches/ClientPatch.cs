@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static EHR.Translator;
 
 namespace EHR;
@@ -71,8 +72,11 @@ internal static class MMOnlineManagerStartPatch
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
 internal static class SplashLogoAnimatorPatch
 {
+    public static SceneChanger SceneChanger;
+    
     public static void Prefix(SplashManager __instance)
     {
+        SceneChanger = __instance.sceneChanger;
         __instance.sceneChanger.AllowFinishLoadingScene();
         __instance.startedSceneLoad = true;
     }
@@ -89,7 +93,7 @@ internal static class RunLoginPatch
 
         if (!Main.AckdPrivacyPolicy.Value)
         {
-            ModUpdater.ShowPopupWithTwoButtons(GetString("PP"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, Application.Quit);
+            ModUpdater.ShowPopupWithTwoButtons(GetString("PP"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
             return;
         }
 
