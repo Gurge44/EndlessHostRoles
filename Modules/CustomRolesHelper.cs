@@ -165,7 +165,6 @@ internal static class CustomRolesHelper
                 CustomRoles.Venerer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
                 CustomRoles.Frightener => CustomRoles.Shapeshifter,
-                CustomRoles.Jackpot => CustomRoles.Shapeshifter,
                 CustomRoles.Chainbinder => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Exorcist => CustomRoles.Impostor,
                 CustomRoles.Obstructer => CustomRoles.Impostor,
@@ -742,6 +741,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Viper or
                 CustomRoles.ViperEHR or
                 CustomRoles.LovingImpostor or
+                CustomRoles.Chainbinder or
                 CustomRoles.Godfather or
                 CustomRoles.Consigliere or
                 CustomRoles.Wildling or
@@ -1180,7 +1180,6 @@ internal static class CustomRolesHelper
                 CustomRoles.Jester => RoleOptionType.Neutral_Evil,
                 CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
                 CustomRoles.God => RoleOptionType.Neutral_Evil,
-                CustomRoles.Jackpot => RoleOptionType.Neutral_Killing,
                 CustomRoles.Executioner => RoleOptionType.Neutral_Evil,
                 CustomRoles.Doomsayer => RoleOptionType.Neutral_Evil,
                 CustomRoles.Vector => RoleOptionType.Neutral_Evil,
@@ -1246,6 +1245,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Capitalist => RoleOptionType.Impostor_Support,
                 CustomRoles.Catalyst => RoleOptionType.Impostor_Support,
                 CustomRoles.Centralizer => RoleOptionType.Impostor_Support,
+                CustomRoles.Chainbinder => RoleOptionType.Impostor_Support,
                 CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
                 CustomRoles.ClockBlocker => RoleOptionType.Impostor_Support,
                 CustomRoles.Commander => RoleOptionType.Impostor_Support,
@@ -1261,7 +1261,6 @@ internal static class CustomRolesHelper
                 CustomRoles.Godfather => RoleOptionType.Impostor_Support,
                 CustomRoles.Hypnotist => RoleOptionType.Impostor_Support,
                 CustomRoles.Librarian => RoleOptionType.Impostor_Support,
-                CustomRoles.Chainbinder => RoleOptionType.Impostor_Support,
                 CustomRoles.Nullifier => RoleOptionType.Impostor_Support,
                 CustomRoles.Occultist => RoleOptionType.Impostor_Support,
                 CustomRoles.Perplexer => RoleOptionType.Impostor_Support,
