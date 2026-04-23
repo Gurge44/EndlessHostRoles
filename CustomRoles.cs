@@ -547,6 +547,7 @@ public enum CustomRoles
     Disco,
     Diseased,
     Disregarded,
+    Dizzy,
     Dynamo,
     DoubleShot,
     Egoist,
