@@ -4710,13 +4710,12 @@ public static class Utils
         if (start == -1) return str;
 
         int length = str.Length;
-        char[] buffer = null;
+        char[] buffer = new char[length];
         int idx = 0;
         bool insideTag = false;
 
         if (start > 0)
         {
-            buffer = new char[length];
             str.CopyTo(0, buffer, 0, start);
             idx = start;
         }
@@ -4735,7 +4734,6 @@ public static class Utils
             }
             if (!insideTag)
             {
-                buffer ??= new char[length];
                 buffer[idx++] = c;
             }
         }
