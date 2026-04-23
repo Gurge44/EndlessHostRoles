@@ -4143,7 +4143,7 @@ public static class Utils
             if (!open) return;
 
             if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
-                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString(isDesktop ? "Message.DumpfileSaved" : "Message.DumpfileSavedNoDesktop"), "EHR" + filename.Split("EHR")[1]));
 
             if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
         }
