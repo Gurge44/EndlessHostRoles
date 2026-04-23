@@ -24,7 +24,7 @@ public static class HudSpritePatch
     public static bool ForceUpdate;
     public static Sprite[] DefaultIcons = [];
     private static long LastErrorTime;
-    private static readonly List<CustomRoles> GhostRolesWithSprites = [CustomRoles.Bloodmoon, CustomRoles.Facilitator, CustomRoles.Minion, CustomRoles.Warden, CustomRoles.Shade];
+    private static readonly List<CustomRoles> GhostRolesWithSprites = [CustomRoles.Bloodmoon, CustomRoles.Facilitator, CustomRoles.Minion, CustomRoles.MeetingAngel, CustomRoles.Warden, CustomRoles.Shade];
 
     public static void Postfix(HudManager __instance)
     {
