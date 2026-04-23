@@ -626,6 +626,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Wyrd => RoleTypes.Shapeshifter,
                 CustomRoles.MoonDancer => RoleTypes.Phantom,
                 CustomRoles.Empress => RoleTypes.Phantom,
+                CustomRoles.Shadow => RoleTypes.Phantom,
 
                 _ => RoleTypes.GuardianAngel
             };
@@ -1545,6 +1546,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Wyrd or
                 CustomRoles.Empress or
                 CustomRoles.Summoner or
+                CustomRoles.Shadow or
                 CustomRoles.MoonDancer;
         }
 

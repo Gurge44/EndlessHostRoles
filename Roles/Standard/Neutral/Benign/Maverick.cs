@@ -67,7 +67,7 @@ public class Maverick : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override bool CanUseSabotage(PlayerControl pc)

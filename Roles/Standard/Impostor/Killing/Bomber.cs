@@ -77,7 +77,7 @@ internal class Bomber : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return base.CanUseKillButton(pc) && !IsNuker && BomberCanKill.GetBool();
+        return !IsNuker && BomberCanKill.GetBool();
     }
 
     public override void SetKillCooldown(byte id)

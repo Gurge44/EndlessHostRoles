@@ -131,7 +131,7 @@ public class Follower : RoleBase
         BetTimes--;
         PlayerControl betPlayer = Utils.GetPlayerById(BetPlayer);
 
-        if (betPlayer != null)
+        if (betPlayer)
         {
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: betPlayer, ForceLoop: true);
             Utils.NotifyRoles(SpecifySeer: betPlayer, SpecifyTarget: killer, ForceLoop: true);
@@ -172,9 +172,7 @@ public class Follower : RoleBase
     public override string GetProgressText(byte playerId, bool comms)
     {
         PlayerControl player = Utils.GetPlayerById(playerId);
-        if (Main.PlayerStates[playerId].Role is not Follower tc) return string.Empty;
-
-        return player == null ? string.Empty : Utils.ColorString(tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray, $"({tc.BetTimes})");
+        return !player ? string.Empty : Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray, $"({BetTimes})");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

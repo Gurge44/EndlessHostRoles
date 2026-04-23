@@ -435,6 +435,7 @@ public enum CustomRoles
     Poache,
     PotionMaster,
     Reaper,
+    Shadow,
     Siren,
     SpellCaster,
     Summoner,

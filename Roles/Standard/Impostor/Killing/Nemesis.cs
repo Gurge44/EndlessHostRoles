@@ -49,7 +49,7 @@ internal class Nemesis : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

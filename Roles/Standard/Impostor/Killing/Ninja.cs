@@ -117,13 +117,13 @@ internal class Ninja : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        if (pc == null || !pc.IsAlive()) return false;
+        if (!pc || !pc.IsAlive()) return false;
         return CanKillAfterAssassinate || (!pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false });
     }
 
     public override void AfterMeetingTasks()
     {
-        if (MarkedPlayer != byte.MaxValue && MarkedPlayer.GetPlayer() == null)
+        if (MarkedPlayer != byte.MaxValue && !MarkedPlayer.GetPlayer())
         {
             MarkedPlayer = byte.MaxValue;
             SendRPC(NinjaId);
@@ -185,14 +185,14 @@ internal class Ninja : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
         if (!IsUndertaker)
         {
             float time = InvisibilityTimeAfterAssassinateOpt.GetFloat();
             PlayerControl target = Utils.GetPlayerById(MarkedPlayer);
 
-            if (time >= 1f && target != null && target.IsAlive() && !Pelican.IsEaten(target.PlayerId) && !target.inVent && pc.RpcCheckAndMurder(target, check: true))
+            if (time >= 1f && target && target.IsAlive() && !Pelican.IsEaten(target.PlayerId) && !target.inVent && pc.RpcCheckAndMurder(target, check: true))
             {
                 pc.RpcMakeInvisible(phantom: true);
 
@@ -239,7 +239,7 @@ internal class Ninja : RoleBase
             PlayerControl target = Utils.GetPlayerById(MarkedPlayer);
             bool tpSuccess = IsUndertaker ? target.TP(pc) : pc.TP(target);
 
-            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && tpSuccess && pc.RpcCheckAndMurder(target))
+            if (!(!target || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && tpSuccess && pc.RpcCheckAndMurder(target))
             {
                 MarkedPlayer = byte.MaxValue;
                 SendRPC(pc.PlayerId);
