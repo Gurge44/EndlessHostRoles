@@ -3679,6 +3679,7 @@ public static class Utils
             CustomRoles.Thanos => 5,
             CustomRoles.Blockade => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
+            CustomRoles.Operative => Operative.AbilityCooldown.GetInt(),
             CustomRoles.PortalMaker => PortalMaker.AbilityCooldown.GetInt(),
             CustomRoles.Telecommunication => Telecommunication.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),

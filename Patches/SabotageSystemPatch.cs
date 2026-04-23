@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
@@ -405,7 +404,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
     {
-        if (__instance is { Timer: > 0f }) return false;
+        if (__instance.Timer > 0f) return false;
         
         if (Options.DisableSabotage.GetBool())
         {
@@ -450,7 +449,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         if (Pelican.IsEaten(player.PlayerId)) return false;
 
-        if (__instance != null && systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
+        if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
             batteryState.Player.RpcRemoveAbilityUse();
             player.Notify(string.Format(Translator.GetString("BatteryNotify"), CustomRoles.Battery.ToColoredString()), 10f);
@@ -465,7 +464,7 @@ public static class SabotageSystemTypeRepairDamagePatch
         {
             var room = player.GetPlainShipRoom();
             
-            if (room != null && Doorjammer.JammedRooms.Contains(room.RoomId))
+            if (room && Doorjammer.JammedRooms.Contains(room.RoomId))
             {
                 player.Notify(Translator.GetString("DoorjammerBlockSabo"));
                 return false;

@@ -116,12 +116,12 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return target != null && killer != null;
+        return target && killer;
     }
 
     public virtual bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        return target != null && killer != null;
+        return target && killer;
     }
 
     public virtual void OnMurder(PlayerControl killer, PlayerControl target) { }

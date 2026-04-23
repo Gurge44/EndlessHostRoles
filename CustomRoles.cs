@@ -243,6 +243,7 @@ public enum CustomRoles
     Nightmare,
     Negotiator,
     Observer,
+    Operative,
     Oracle,
     Oxyman,
     Pacifist,
