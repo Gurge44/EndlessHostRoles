@@ -56,7 +56,9 @@ public class Operative : RoleBase
     static void UseAbility()
     {
         SabotageSystemType sabotageSystemType = ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
-        sabotageSystemType.Timer = 30f;
+        sabotageSystemType.Timer = SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled
+            ? SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec
+            : 30f;
         sabotageSystemType.IsDirty = true;
     }
 }
