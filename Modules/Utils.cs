@@ -4130,7 +4130,8 @@ public static class Utils
             if (finish) CustomLogger.Instance.Finish();
 
             var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            bool isDesktop = Main.LogDirectoryMode?.Value ?? true;
+            var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : (isDesktop ? Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) : Main.DataPath);
             var f = Path.Combine(basePath, "EHR_Logs", t);
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 

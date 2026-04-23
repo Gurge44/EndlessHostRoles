@@ -36,6 +36,7 @@ public enum CustomRoles
     Cantankerous,
     Catalyst,
     Centralizer,
+    Chainbinder,
     Changeling,
     Chronomancer,
     Cleaner,
@@ -65,8 +66,6 @@ public enum CustomRoles
     Framer,
     Freezer,
     Frightener,
-    Chainbinder,
-    Jackpot,
     Gambler,
     Gangster,
     Generator,
@@ -342,6 +341,7 @@ public enum CustomRoles
     Innocent,
     Investor,
     Jackal,
+    Jackpot,
     Jester,
     Jinx,
     Juggernaut,
@@ -579,6 +579,7 @@ public enum CustomRoles
     Madmate,
     Magnet,
     Mare,
+    MeetingAngel, // Ghost role
     Messenger,
     Mimic,
     Minion, // Ghost role
