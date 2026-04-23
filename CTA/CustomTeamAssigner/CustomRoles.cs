@@ -579,6 +579,7 @@ public enum CustomRoles
     Madmate,
     Magnet,
     Mare,
+    MeetingAngel, // Ghost role
     Messenger,
     Mimic,
     Minion, // Ghost role
