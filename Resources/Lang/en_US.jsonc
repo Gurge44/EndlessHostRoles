@@ -9252,7 +9252,7 @@
   "CommandDescription.Draft": "Choose a role in the draft",
   "CommandDescription.DraftDescription": "View the description of one of the roles you got in the draft.",
   "CommandDescription.DraftStart": "Start drafting, where players may choose their roles for the next game",
-  "CommandDescription.Dump": "Dumps the log file to the desktop",
+  "CommandDescription.Dump": "Dumps the log file to the desktop (or among us directory)",
   "CommandDescription.Effect": "Apply a Randomizer effect to yourself",
   "CommandDescription.EightBall": "Ask the magic 8-ball a question.",
   "CommandDescription.EnableAllRoles": "Enables all roles and add-ons",
