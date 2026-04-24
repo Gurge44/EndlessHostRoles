@@ -267,7 +267,7 @@ public static class Options
     public static OptionItem DisableTaskWin;
 
     public static OptionItem KillFlashDuration;
-    public static OptionItem EnableKillerLeftCommand;
+    public static OptionItem EnableGameStateCommand;
 
     public static OptionItem SeeEjectedRolesInMeeting;
     public static OptionItem EveryoneSeesDeathReasons;
@@ -789,7 +789,7 @@ public static class Options
     public static OptionItem AutoKickStopWords;
     public static OptionItem AutoKickStopWordsAsBan;
     public static OptionItem AutoKickStopWordsTimes;
-    public static OptionItem KickAndroidPlayer;
+    public static OptionItem KickMobilePlayer;
     public static OptionItem ApplyDenyNameList;
     public static OptionItem KickPlayerFriendCodeNotExist;
     public static OptionItem KickLowLevelPlayer;
@@ -1619,7 +1619,7 @@ public static class Options
             .SetValueFormat(OptionFormat.Level)
             .SetHeader(true);
 
-        KickAndroidPlayer = new BooleanOptionItem(19301, "KickAndroidPlayer", false, TabGroup.SystemSettings);
+        KickMobilePlayer = new BooleanOptionItem(19301, "KickMobilePlayer", false, TabGroup.SystemSettings);
         KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
@@ -2891,7 +2891,7 @@ public static class Options
             .SetParent(AllAliveMeeting)
             .SetValueFormat(OptionFormat.Seconds);
 
-        EnableKillerLeftCommand = new BooleanOptionItem(44428, "EnableKillerLeftCommand", true, TabGroup.GameSettings)
+        EnableGameStateCommand = new BooleanOptionItem(44428, "EnableGameStateCommand", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
@@ -2901,14 +2901,14 @@ public static class Options
         {
             GameStateSettings[s] = new BooleanOptionItem(44429 + i, $"GameStateCommand.Show{s}", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
-                .SetParent(EnableKillerLeftCommand)
+                .SetParent(EnableGameStateCommand)
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
             i++;
         }
 
         MinPlayersForGameStateCommand = new IntegerOptionItem(44442, "MinPlayersForGameStateCommand", new(1, 15, 1), 1, TabGroup.GameSettings)
-            .SetParent(EnableKillerLeftCommand)
+            .SetParent(EnableGameStateCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Players)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
