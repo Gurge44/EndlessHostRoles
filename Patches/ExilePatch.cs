@@ -142,7 +142,7 @@ internal static class ExileControllerWrapUpPatch
 
         if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded) return;
 
-        bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
+        bool showRemainingKillers = Options.EnableGameStateCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool ejectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
         Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
 

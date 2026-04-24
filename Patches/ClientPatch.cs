@@ -92,7 +92,7 @@ internal static class RunLoginPatch
 
         if (!Main.AckdPrivacyPolicy.Value)
         {
-            ModUpdater.ShowPopupWithTwoButtons(GetString("PP"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
+            ModUpdater.ShowPopupWithTwoButtons(GetString("PrivacyPolicy"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
             return;
         }
 
