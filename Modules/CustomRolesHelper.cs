@@ -32,7 +32,6 @@ internal static class CustomRolesHelper
         CustomRoles.NoteKiller,
         CustomRoles.Weatherman,
         CustomRoles.Amogus,
-        CustomRoles.Wiper,
         CustomRoles.PortalMaker,
         CustomRoles.Gardener,
         CustomRoles.Farmer,
@@ -153,7 +152,7 @@ internal static class CustomRolesHelper
                 CustomRoles.DoubleAgent => CustomRoles.Crewmate,
                 CustomRoles.Inhibitor => CustomRoles.Impostor,
                 CustomRoles.Occultist => CustomRoles.Impostor,
-                CustomRoles.Wiper => CustomRoles.Impostor,
+                CustomRoles.Wiper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.Forger => CustomRoles.Impostor,
                 CustomRoles.ClockBlocker => CustomRoles.Impostor,
                 CustomRoles.Psychopath => CustomRoles.Impostor,
@@ -1112,6 +1111,7 @@ internal static class CustomRolesHelper
                              or CustomRoles.Hypnotist
                              or CustomRoles.Librarian
                              or CustomRoles.Miner
+                             or CustomRoles.Wiper
                              or CustomRoles.RiftMaker
                              or CustomRoles.Ninja
                              or CustomRoles.QuickShooter
