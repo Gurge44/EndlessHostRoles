@@ -32,7 +32,6 @@ internal static class CustomRolesHelper
         CustomRoles.NoteKiller,
         CustomRoles.Weatherman,
         CustomRoles.Amogus,
-        CustomRoles.Wiper,
         CustomRoles.PortalMaker,
         CustomRoles.Gardener,
         CustomRoles.Farmer,
