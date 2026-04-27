@@ -30,7 +30,7 @@ internal class Vector : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vector])
             .SetValueFormat(OptionFormat.Seconds);
 
-        MapWinCounts = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new IntegerOptionItem(18312 + (int)x, $"Vector.NumVentsToWinOn.{x}", new(0, 900, 5), 80, TabGroup.NeutralRoles)
+        MapWinCounts = Main.MapNamesValues.ToDictionary(x => x, x => new IntegerOptionItem(18312 + (int)x, $"Vector.NumVentsToWinOn.{x}", new(0, 900, 5), 80, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vector])
             .SetValueFormat(OptionFormat.Times));
     }
@@ -53,9 +53,15 @@ internal class Vector : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(Color.white, $"<color=#777777>-</color> {VectorVentCount.GetValueOrDefault(playerId, 0)}/{VectorVentNumWin}");
+        int count = VectorVentCount.GetValueOrDefault(playerId, 0);
+        resultText.Append(Utils.ColorPrefix(Color.white))
+            .Append("<color=#777777>-</color> ")
+            .Append(count)
+            .Append('/')
+            .Append(VectorVentNumWin)
+            .Append("</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EHR.Modules;
+﻿using EHR.Modules;
 using EHR.Patches;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -14,6 +15,7 @@ public class Collector : RoleBase
     public static Dictionary<byte, byte> CollectorVoteFor = [];
     public static Dictionary<byte, int> CollectVote = [];
 
+    private static Color32 ShadeColor;
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -30,6 +32,7 @@ public class Collector : RoleBase
         PlayerIdList = [];
         CollectorVoteFor = [];
         CollectVote = [];
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Collector).ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -61,13 +64,22 @@ public class Collector : RoleBase
         CollectVote[PlayerId] = Num;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (!CollectVote.TryGetValue(playerId, out int VoteAmount)) return string.Empty;
+        if (!CollectVote.TryGetValue(playerId, out int VoteAmount)) return;
 
         int CollectNum = CollectorCollectAmount.GetInt();
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Collector).ShadeColor(0.25f), $"({VoteAmount}/{CollectNum})");
+        Color32 color = ShadeColor;
+
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append('(')
+            .Append(VoteAmount)
+            .Append('/')
+            .Append(CollectNum)
+            .Append(")</color>");
     }
+
+
 
     public static bool CollectorWin(bool check = true)
     {
@@ -106,7 +118,7 @@ public class Collector : RoleBase
 
     public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance) //得到集票者收集到的票
     {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             if (pva == null) continue;
 

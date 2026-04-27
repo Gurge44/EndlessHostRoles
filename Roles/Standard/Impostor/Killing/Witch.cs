@@ -35,6 +35,7 @@ public class Witch : RoleBase
     private byte WitchId;
     private bool SpellMode;
 
+    private readonly StringBuilder Suffix = new();
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -263,7 +264,7 @@ public class Witch : RoleBase
 
             var spelledIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 foreach (byte witchId in PlayerIdList)
                 {
@@ -308,27 +309,27 @@ public class Witch : RoleBase
     {
         if (seer.PlayerId != WitchId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var str = new StringBuilder();
+        Suffix.Clear();
 
         if (hud)
-            str.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
+            Suffix.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
         else
-            str.Append($"{GetString("Mode")}: ");
+            Suffix.Append($"{GetString("Mode")}: ");
 
         switch (NowSwitchTrigger)
         {
             case SwitchTrigger.DoubleTrigger:
-                str.Append(GetString("WitchModeDouble"));
+                Suffix.Append(GetString("WitchModeDouble"));
                 break;
             case SwitchTrigger.Vanish:
-                str.Append(GetString("WitchModeVanish"));
+                Suffix.Append(GetString("WitchModeVanish"));
                 break;
             default:
-                str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+                Suffix.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
                 break;
         }
 
-        return str.ToString();
+        return Suffix.ToString();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

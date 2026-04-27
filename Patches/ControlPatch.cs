@@ -19,8 +19,34 @@ internal static class ControllerManagerUpdatePatch
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
     private static int ResolutionIndex;
 
+    // Cache KeyCode[] because the code checks the key array every frame
+    private static readonly KeyCode[] ReEnableGameplayKey = [KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X];
+    private static readonly KeyCode[] ResolutionManagerKey = [KeyCode.LeftAlt, KeyCode.Return];
+    private static readonly KeyCode[] ChangeReslutionsKey = [KeyCode.F11, KeyCode.LeftAlt];
+    private static readonly KeyCode[] LoadLangsKey = [KeyCode.F5, KeyCode.T];
+    private static readonly KeyCode[] ExportCustomTranslationKey = [KeyCode.F5, KeyCode.X];
+    private static readonly KeyCode[] DumpLogKey = [KeyCode.F1, KeyCode.LeftControl];
+    private static readonly KeyCode[] CopyCurrentSettingsKey = [KeyCode.LeftAlt, KeyCode.C];
+    private static readonly KeyCode[] ChatSetVisibleKey = [KeyCode.Return, KeyCode.C, KeyCode.LeftShift];
+    private static readonly KeyCode[] SetWinnerDrawKey = [KeyCode.Return, KeyCode.L, KeyCode.LeftShift];
+    private static readonly KeyCode[] SetChatVisibleForAllKey = [KeyCode.Return, KeyCode.C, KeyCode.LeftShift, KeyCode.LeftControl];
+    private static readonly KeyCode[] StartAndStopMeetingHudKey = [KeyCode.Return, KeyCode.M, KeyCode.LeftShift];
+    private static readonly KeyCode[] ShowActiveSettingsHelpKey = [KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl];
+    private static readonly KeyCode[] ShowActiveSettingsKey = [KeyCode.N, KeyCode.LeftControl];
+    private static readonly KeyCode[] ResetAllOptionsKey = [KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift];
+    private static readonly KeyCode[] HostKillSelfKey = [KeyCode.Return, KeyCode.E, KeyCode.LeftShift];
+    private static readonly KeyCode[] IsAlsoInGameKey = [KeyCode.F2, KeyCode.LeftControl];
+    private static readonly KeyCode[] KillFlashKey = [KeyCode.Return, KeyCode.F, KeyCode.LeftShift];
+    private static readonly KeyCode[] ShowIntroKey = [KeyCode.Return, KeyCode.G, KeyCode.LeftShift];
+    private static readonly KeyCode[] RpcClearVoteKey = [KeyCode.Return, KeyCode.V, KeyCode.LeftShift];
+    private static readonly KeyCode[] RpcUpdateSystemKey = [KeyCode.Return, KeyCode.D, KeyCode.LeftShift];
+    private static readonly KeyCode[] SetKillTimerKey = [KeyCode.Return, KeyCode.K, KeyCode.LeftShift];
+    private static readonly KeyCode[] RpcCompleteTaskKey = [KeyCode.Return, KeyCode.T, KeyCode.LeftShift];
+    private static readonly KeyCode[] OpenClientControlGUILeftKey = [KeyCode.LeftControl, KeyCode.BackQuote];
+    private static readonly KeyCode[] OpenClientControlGUIRightKey = [KeyCode.RightControl, KeyCode.BackQuote];
+
     private static bool IsResetting;
-    
+
     public static bool Prepare()
     {
         return !OperatingSystem.IsAndroid(); // Disable on Android to prevent input issues
@@ -30,17 +56,24 @@ internal static class ControllerManagerUpdatePatch
     {
         try
         {
-            if (ClientControlGUI.Instance)
+            var clientControlGUI = ClientControlGUI.Instance;
+            bool hudManagerExists = HudManager.InstanceExists;
+            bool chatIsOpen = hudManagerExists && HudManager.Instance.Chat.IsOpenOrOpening;
+            bool isLobby = GameStates.IsLobby;
+            bool inGame = GameStates.IsInGame;
+            bool isMeeting = GameStates.IsMeeting;
+
+            if (clientControlGUI)
             {
                 if (Input.GetKeyDown(KeyCode.Delete) ||
-                    KeysDown(KeyCode.LeftControl, KeyCode.BackQuote) ||
-                    KeysDown(KeyCode.RightControl, KeyCode.BackQuote))
-                    ClientControlGUI.Instance.IsOpen = !ClientControlGUI.Instance.IsOpen;
-                
-                if (ClientControlGUI.Instance.IsOpen) return;
+                    KeysDown(OpenClientControlGUILeftKey) ||
+                    KeysDown(OpenClientControlGUIRightKey))
+                    clientControlGUI.IsOpen = !clientControlGUI.IsOpen;
+
+                if (clientControlGUI.IsOpen) return;
             }
 
-            if (HudManager.InstanceExists)
+            if (hudManagerExists)
             {
                 if (PlayerControl.LocalPlayer)
                 {
@@ -50,8 +83,8 @@ internal static class ControllerManagerUpdatePatch
 
                     PlayerControl.LocalPlayer.Collider.offset = shouldNoclip ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
                 }
-            
-                if (GameStates.IsLobby && (!HudManager.Instance.Chat || !HudManager.Instance.Chat.IsOpenOrOpening))
+
+                if (isLobby && (!HudManager.Instance.Chat || !chatIsOpen))
                 {
                     /*if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
@@ -61,17 +94,17 @@ internal static class ControllerManagerUpdatePatch
                             OptionShower.CurrentPage = i;
                     }*/
 
-                    if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
+                    if (Input.GetKeyDown(KeyCode.Return) && GameSettingMenu.Instance && GameSettingMenu.Instance.isActiveAndEnabled)
                         GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
                 }
             }
 
-            if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
+            if (KeysDown(ReEnableGameplayKey))
                 ExileController.Instance?.ReEnableGameplay();
 
-            if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
+            if (KeysDown(ResolutionManagerKey)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
 
-            if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting))
+            if (inGame && (GameStates.IsCanMove || isMeeting))
             {
                 // PS4/PS5: Touchpad
                 if (Input.GetKeyDown(KeyCode.JoystickButton13))
@@ -88,8 +121,8 @@ internal static class ControllerManagerUpdatePatch
             }
             else
                 InGameRoleInfoMenu.Hide();
-            
-            if (KeysDown(KeyCode.F11, KeyCode.LeftAlt))
+
+            if (KeysDown(ChangeReslutionsKey))
             {
                 ResolutionIndex++;
                 if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
@@ -98,226 +131,236 @@ internal static class ControllerManagerUpdatePatch
                 SetResolutionManager.Postfix();
             }
 
-            if (KeysDown(KeyCode.F5, KeyCode.T))
+            if (KeysDown(LoadLangsKey))
             {
                 Logger.Info("Reloading Custom Translation File", "KeyCommand");
                 LoadLangs();
                 Logger.SendInGame("Reloaded Custom Translation File");
             }
 
-            if (KeysDown(KeyCode.F5, KeyCode.X))
+            if (KeysDown(ExportCustomTranslationKey))
             {
                 Logger.Info("Exported Custom Translation File", "KeyCommand");
                 ExportCustomTranslation();
                 Logger.SendInGame("Exported Custom Translation File");
             }
 
-            if (KeysDown(KeyCode.F1, KeyCode.LeftControl))
+            if (KeysDown(DumpLogKey))
             {
                 Logger.Info("Log dumped", "KeyCommand");
                 Utils.DumpLog();
             }
 
-            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
+            if (KeysDown(CopyCurrentSettingsKey) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
                 Utils.CopyCurrentSettings();
 
             if (!AmongUsClient.Instance.AmHost) return;
-
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
+            
+            if (KeysDown(ChatSetVisibleKey))
                 HudManager.Instance.Chat.SetVisible(true);
 
-            if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
+            if (inGame)
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                GameEndChecker.CheckCustomEndCriteria();
-            }
-
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift, KeyCode.LeftControl) && GameStates.IsInGame)
-                Utils.SetChatVisibleForAll();
-
-            if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
-            {
-                if (GameStates.IsMeeting)
+                if (KeysDown(SetWinnerDrawKey))
                 {
-                    MeetingHudRpcClosePatch.AllowClose = true;
-                    MeetingHud.Instance.RpcClose();
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                    GameEndChecker.CheckCustomEndCriteria();
                 }
-                else
-                    PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
-            }
 
-            if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown && !HudManager.Instance.Chat.IsOpenOrOpening)
+                if (KeysDown(SetChatVisibleForAllKey))
+                    Utils.SetChatVisibleForAll();
+
+                if (KeysDown(StartAndStopMeetingHudKey))
+                {
+                    if (isMeeting)
+                    {
+                        MeetingHudRpcClosePatch.AllowClose = true;
+                        MeetingHud.Instance.RpcClose();
+                    }
+                    else
+                        PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
+                }
+
+                if (KeysDown(HostKillSelfKey) && PlayerControl.LocalPlayer.IsAlive())
+                {
+                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
+                    PlayerControl.LocalPlayer.RpcExileV2();
+                    PlayerControl.LocalPlayer.Data.IsDead = true;
+                    Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                    Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, GameStates.IsMeeting);
+                    Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
+                }
+            }
+            else if (isLobby)
             {
-                Logger.Info("Countdown timer set to 0", "KeyCommand");
-                GameStartManager.Instance.countDownTimer = 0;
+                if (GameStates.IsCountDown && !chatIsOpen)
+                {
+                    if (Input.GetKeyDown(KeyCode.C))
+                    {
+                        GameStartManager.Instance.ResetStartState();
+                        Logger.SendInGame(GetString("CancelStartCountDown"));
+                    }
+
+                    if (Input.GetKeyDown(KeyCode.LeftShift))
+                    {
+                        Logger.Info("Countdown timer set to 0", "KeyCommand");
+                        GameStartManager.Instance.countDownTimer = 0;
+                    }
+                }
+
+                if (Input.GetKeyDown(KeyCode.Return) && GameStartManager.InstanceExists && Options.EnterKeyToStartGame.GetBool() && GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting && !chatIsOpen && !OnGameJoinedPatch.JoiningGame && GameSettingMenu.Instance == null)
+                {
+                    Logger.Info("ENTER pressed: Starting game by host", "KeyCommand");
+                    GameStartManager.Instance.BeginGame();
+                }
+
+                if (hudManagerExists && KeysDown(ResetAllOptionsKey) && !IsResetting)
+                {
+                    Prompt.Show(GetString("Promt.ResetAllOptions"), ResetAllOptions, () => { });
+
+                    static void ResetAllOptions()
+                    {
+                        IsResetting = true;
+                        Main.Instance.StartCoroutine(Reset());
+                        return;
+
+                        static IEnumerator Reset()
+                        {
+                            yield return new WaitForSecondsRealtime(0.1f);
+
+                            string format = GetString("ResettingOptions");
+                            HudManager hudManager = HudManager.Instance;
+                            hudManager.ShowPopUp(string.Format(format, 0, OptionItem.AllOptions.Count));
+                            hudManager.Dialogue.BackButton.gameObject.SetActive(false);
+
+                            for (var index = 0; index < OptionItem.AllOptions.Count; index++)
+                            {
+                                OptionItem option = OptionItem.AllOptions[index];
+                                if (option.Id > 0) option.SetValue(option.DefaultValue, false, false);
+
+                                if (index % 100 == 0)
+                                {
+                                    hudManager.Dialogue.target.text = string.Format(format, index, OptionItem.AllOptions.Count);
+                                    yield return null;
+                                }
+                            }
+
+                            hudManager.Dialogue.BackButton.gameObject.SetActive(true);
+                            hudManager.Dialogue.Hide();
+
+                            OptionItem.SyncAllOptions();
+                            OptionSaver.Save();
+
+                            IsResetting = false;
+                        }
+                    }
+                }
             }
 
-            if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                GameStartManager.Instance.ResetStartState();
-                Logger.SendInGame(GetString("CancelStartCountDown"));
-            }
-
-            if (Input.GetKeyDown(KeyCode.Return) && GameStates.IsLobby && GameStartManager.InstanceExists && Options.EnterKeyToStartGame.GetBool() && GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting && !HudManager.Instance.Chat.IsOpenOrOpening && !OnGameJoinedPatch.JoiningGame && !GameSettingMenu.Instance)
-            {
-                Logger.Info("ENTER pressed: Starting game by host", "KeyCommand");
-                GameStartManager.Instance.BeginGame();
-            }
-
-            if (KeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
+            if (KeysDown(ShowActiveSettingsHelpKey))
             {
                 Main.IsChatCommand = true;
                 Utils.ShowActiveSettingsHelp();
             }
 
-            if (KeysDown(KeyCode.N, KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
+            if (KeysDown(ShowActiveSettingsKey) && !Input.GetKey(KeyCode.LeftShift))
             {
                 Main.IsChatCommand = true;
                 Utils.ShowActiveSettings();
             }
 
-            if (GameStates.IsLobby && HudManager.InstanceExists && KeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
-            {
-                Prompt.Show(GetString("Promt.ResetAllOptions"), ResetAllOptions, () => { });
-
-                void ResetAllOptions()
-                {
-                    IsResetting = true;
-                    Main.Instance.StartCoroutine(Reset());
-                    return;
-
-                    IEnumerator Reset()
-                    {
-                        yield return new WaitForSecondsRealtime(0.1f);
-
-                        string format = GetString("ResettingOptions");
-                        HudManager hudManager = HudManager.Instance;
-                        hudManager.ShowPopUp(string.Format(format, 0, OptionItem.AllOptions.Count));
-                        hudManager.Dialogue.BackButton.gameObject.SetActive(false);
-
-                        for (var index = 0; index < OptionItem.AllOptions.Count; index++)
-                        {
-                            OptionItem option = OptionItem.AllOptions[index];
-                            if (option.Id > 0) option.SetValue(option.DefaultValue, false, false);
-
-                            if (index % 100 == 0)
-                            {
-                                hudManager.Dialogue.target.text = string.Format(format, index, OptionItem.AllOptions.Count);
-                                yield return null;
-                            }
-                        }
-
-                        hudManager.Dialogue.BackButton.gameObject.SetActive(true);
-                        hudManager.Dialogue.Hide();
-
-                        OptionItem.SyncAllOptions();
-                        OptionSaver.Save();
-                        
-                        IsResetting = false;
-                    }
-                }
-            }
-
-            if (KeysDown(KeyCode.Return, KeyCode.E, KeyCode.LeftShift) && GameStates.IsInGame && PlayerControl.LocalPlayer.IsAlive())
-            {
-                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].deathReason = PlayerState.DeathReason.etc;
-                PlayerControl.LocalPlayer.RpcExileV2();
-                PlayerControl.LocalPlayer.Data.IsDead = true;
-                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
-                Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, GameStates.IsMeeting);
-                Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
-            }
-
 #if DEBUG        
             if (!Options.NoGameEnd.GetBool()) return;
-
-            if (KeysDown(KeyCode.F2, KeyCode.LeftControl))
+    
+            if (KeysDown(IsAlsoInGameKey))
             {
                 Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
                 Logger.SendInGame($"In-game output log: {Logger.IsAlsoInGame}");
             }
 
-            if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
+            if (KeysDown(KillFlashKey))
             {
                 Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
                 if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
             }
 
-            if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame && HudManager.InstanceExists)
+            if (inGame)
             {
-                HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-                HudManager.Instance.StartCoroutine(HudManager.Instance.CoShowIntro());
-            }
-
-            if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
-                MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
-
-            if (KeysDown(KeyCode.Return, KeyCode.D, KeyCode.LeftShift) && GameStates.IsInGame)
-            {
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 79);
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 80);
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
-            }
-
-            if (KeysDown(KeyCode.Return, KeyCode.K, KeyCode.LeftShift) && GameStates.IsInGame)
-            {
-                PlayerControl.LocalPlayer.SetKillTimer(0f);
-                PlayerControl.LocalPlayer.SetKillCooldown(0f);
-            }
-
-            if (KeysDown(KeyCode.Return, KeyCode.T, KeyCode.LeftShift) && GameStates.IsInGame)
-                foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
-                    PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
-
-            if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                RPC.SyncCustomSettingsRPC();
-                Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
-            }
-
-            if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting && HudManager.InstanceExists && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                Main.VisibleTasksCount = !Main.VisibleTasksCount;
-                HudManager.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
-            }
-
-            if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
-                Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
-            }
-
-            if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-                    if (!pc.AmOwner)
-                        pc.MyPhysics.RpcEnterVent(2);
-            }
-
-            if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
-
-                foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+                if (hudManagerExists && KeysDown(ShowIntroKey))
                 {
-                    if (!pc.AmOwner)
+                    HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
+                    HudManager.Instance.StartCoroutine(HudManager.Instance.CoShowIntro());
+                }
+
+                if (KeysDown(RpcUpdateSystemKey))
+                {
+                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 79);
+                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 80);
+                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
+                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
+                }
+
+                if (KeysDown(SetKillTimerKey))
+                {
+                    PlayerControl.LocalPlayer.SetKillTimer(0f);
+                    PlayerControl.LocalPlayer.SetKillCooldown(0f);
+                }
+
+                if (KeysDown(RpcCompleteTaskKey))
+                    foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
+                        PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
+            }
+
+            if (isMeeting)
+            {
+                if (KeysDown(RpcClearVoteKey))
+                    MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
+            }
+            else if (!isMeeting && !chatIsOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.Y))
+                {
+                    RPC.SyncCustomSettingsRPC();
+                    Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
+                }
+                if (hudManagerExists && Input.GetKeyDown(KeyCode.Equals))
+                {
+                    Main.VisibleTasksCount = !Main.VisibleTasksCount;
+                    HudManager.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
+                }
+                if (Input.GetKeyDown(KeyCode.I))
+                {
+                    Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
+                    Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
+                }
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+                        if (!pc.AmOwner)
+                            pc.MyPhysics.RpcEnterVent(2);
+                }
+                if (Input.GetKeyDown(KeyCode.V))
+                {
+                    Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
+
+                    foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                     {
-                        pc.TP(pos);
-                        pos.x += 0.5f;
+                        if (!pc.AmOwner)
+                        {
+                            pc.TP(pos);
+                            pos.x += 0.5f;
+                        }
                     }
                 }
+                if (Input.GetKeyDown(KeyCode.B))
+                {
+                    foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
+                        if (!pc.AmOwner)
+                            pc.MyPhysics.RpcExitVent(2);
+                }
+                if (Input.GetKeyDown(KeyCode.N))
+                    VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
             }
-
-            if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-            {
-                foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-                    if (!pc.AmOwner)
-                        pc.MyPhysics.RpcExitVent(2);
-            }
-
-            if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening)
-                VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
 
             // How brilliantly Innersloth named the joystick buttons, lmao
             //if (Input.GetKeyDown(KeyCode.JoystickButton1))
@@ -363,21 +406,40 @@ internal static class ControllerManagerUpdatePatch
         catch { }
     }
 
-    private static bool KeysDown(params KeyCode[] keys)
+    private static bool KeysDown(KeyCode[] keys)
     {
-        if (keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey))
+        bool anyDown = false;
+        bool allHeld = true;
+        KeyCode downKey = KeyCode.None;
+
+        for (int i = 0; i < keys.Length; i++)
         {
-            Logger.Info($"Shortcut Key: {keys.Where(Input.GetKeyDown).First()} in [{string.Join(",", keys)}]", "GetKeysDown");
+            var key = keys[i];
+            if (Input.GetKeyDown(key))
+            {
+                anyDown = true;
+                downKey = key;
+            }
+            if (!Input.GetKey(key))
+                allHeld = false;
+        }
+        if (anyDown && allHeld)
+        {
+            Logger.Info($"Shortcut Key: {downKey}", "GetKeysDown");
             return true;
         }
-
         return false;
     }
 
 /*
     private static bool OrGetKeysDown(params KeyCode[] keys)
     {
-        return keys.Any(Input.GetKeyDown);
+        for (int i = 0; i < keys.Length; i++)
+        {
+            if (Input.GetKeyDown(keys[i]))
+                return true;
+        }
+        return false;
     }
 */
 }
@@ -466,6 +528,10 @@ public static class InGameRoleInfoMenu
         AddonsInfo.transform.localScale = new(0.7f, 0.7f, 0.7f);
     }
 
+    private static readonly StringBuilder Sb = new();
+    private static readonly StringBuilder TitleSb = new();
+    private static readonly StringBuilder Settings = new();
+    private static readonly StringBuilder Addons = new();
     public static void SetRoleInfoRef(PlayerControl player)
     {
         if (!player) return;
@@ -473,46 +539,46 @@ public static class InGameRoleInfoMenu
         if (!Fill || !Menu) Init();
 
         CustomRoles role = player.GetCustomRole();
-        StringBuilder sb = new();
-        StringBuilder titleSb = new();
-        StringBuilder settings = new();
-        StringBuilder addons = new();
-        settings.Append("<size=75%>");
-        titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
-        sb.Append("<size=90%>");
-        sb.Append(player.GetRoleInfo(true).TrimStart());
-        if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
+        Sb.Clear();
+        TitleSb.Clear();
+        Settings.Clear();
+        Addons.Clear();
+        Settings.Append("<size=75%>");
+        TitleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+        Sb.Append("<size=90%>");
+        Sb.Append(player.GetRoleInfo(true).TrimStart());
+        if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, Settings, f1: true, disableColor: false);
 
-        settings.Append("</size>");
-        if (settings.Length > 0) addons.Append($"{settings}\n\n");
+        Settings.Append("</size>");
+        if (Settings.Length > 0) Addons.AppendLine(Settings.ToString());
 
-        if (role.PetActivatedAbility()) sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
+        if (role.PetActivatedAbility()) Sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
 
         string searchStr = GetString(role.ToString());
-        sb.Replace(searchStr, role.ToColoredString());
-        sb.Replace(searchStr.ToLower(), role.ToColoredString());
-        sb.Append("</size>");
+        Sb.Replace(searchStr, role.ToColoredString());
+        Sb.Replace(searchStr.ToLower(), role.ToColoredString());
+        Sb.Append("</size>");
         List<CustomRoles> subRoles = Main.PlayerStates[player.PlayerId].SubRoles;
-        if (subRoles.Count > 0) addons.Append(GetString("AddonListTitle"));
+        if (subRoles.Count > 0) Addons.Append(GetString("AddonListTitle"));
 
-        addons.Append("<size=75%>");
+        Addons.Append("<size=75%>");
 
         subRoles.ForEach(subRole =>
         {
-            addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
+            Addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong").FixRoleName(subRole)}");
             string searchSubStr = GetString(subRole.ToString());
-            addons.Replace(searchSubStr, subRole.ToColoredString());
-            addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
+            Addons.Replace(searchSubStr, subRole.ToColoredString());
+            Addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
         });
 
-        addons.Append("</size>");
-        if (role.UsesPetInsteadOfKill()) sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
-        if (player.UsesMeetingShapeshift()) sb.Append($"\n\n<size=85%>{GetString("UsesMeetingShapeshiftNotice")}</size>");
+        Addons.Append("</size>");
+        if (role.UsesPetInsteadOfKill()) Sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
+        if (player.UsesMeetingShapeshift()) Sb.Append($"\n\n<size=85%>{GetString("UsesMeetingShapeshiftNotice")}</size>");
 
-        sb.Insert(0, $"{titleSb}\n");
+        Sb.Insert(0, $"{TitleSb}\n");
 
-        MainInfoTMP.text = sb.ToString();
-        AddonsInfoTMP.text = addons.ToString();
+        MainInfoTMP.text = Sb.ToString();
+        AddonsInfoTMP.text = Addons.ToString();
     }
 
     public static void Show()

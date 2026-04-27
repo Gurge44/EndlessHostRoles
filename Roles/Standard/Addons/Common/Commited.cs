@@ -42,7 +42,7 @@ public class Commited : IAddon
         if (!PermanentReduction.GetBool())
             ReduceKCD = [];
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         foreach (PlayerControl pc in aapc)
         {
@@ -53,7 +53,7 @@ public class Commited : IAddon
 
     public static void OnVotingResultsShown(List<MeetingHud.VoterState> vs)
     {
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (Target.TryGetValue(pc.PlayerId, out byte target) && vs.FindFirst(x => x.VoterId == pc.PlayerId, out MeetingHud.VoterState s) && vs.FindFirst(x => x.VoterId == target, out MeetingHud.VoterState ts) && !(IgnoreSkips.GetBool() && s.SkippedVote) && s.VotedForId == ts.VotedForId)
             {
@@ -68,6 +68,6 @@ public class Commited : IAddon
     public static string GetMark(PlayerControl seer, PlayerControl target)
     {
         if (!seer.Is(CustomRoles.Commited) || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Commited), "⌆");
+        return CustomRoles.Commited.ColoredTextByRole("⌆");
     }
 }

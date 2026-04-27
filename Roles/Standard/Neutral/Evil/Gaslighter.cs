@@ -29,6 +29,7 @@ public class Gaslighter : RoleBase
 
     private byte GaslighterId;
     private HashSet<byte> ShieldedPlayers;
+    private static readonly StringBuilder Suffix = new();
 
     public override bool IsEnable => On;
 
@@ -113,7 +114,7 @@ public class Gaslighter : RoleBase
 
             List<byte> curseDeathList = [];
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 foreach (Gaslighter instance in Instances)
                 {
@@ -204,7 +205,7 @@ public class Gaslighter : RoleBase
                 target.RpcSetCustomRole(CustomRoles.Knighted);
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), Translator.GetString("KnightedByMonarch")));
+                target.Notify(CustomRoles.Monarch.ColoredTextByRole(Translator.GetString("KnightedByMonarch")));
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 killer.RpcRemoveAbilityUse();
                 killer.SetKillCooldown();
@@ -240,25 +241,24 @@ public class Gaslighter : RoleBase
         return On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return CurrentRound is Round.Knight or Round.Shield
-            ? base.GetProgressText(playerId, comms)
-            : Utils.GetTaskCount(playerId, comms);
+        if (CurrentRound is Round.Knight or Round.Shield) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
     {
         bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
         if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId))
-            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+            Suffix.Append(CustomRoles.Medic.ColoredTextByRole(" ●"));
 
         if (IsCursed(target) && (meeting || seerIsGaslighter))
-            sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
+            Suffix.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     public bool AddAsAdditionalWinner()

@@ -86,10 +86,10 @@ static class CoShowIntroPatch
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
-            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>()).SetInitialSabotageCooldown();
+            ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>().SetInitialSabotageCooldown();
 
             if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType systemType) && systemType.TryCast<IDoorSystem>() != null)
-                (systemType.CastFast<IDoorSystem>()).SetInitialSabotageCooldown();
+                systemType.CastFast<IDoorSystem>().SetInitialSabotageCooldown();
 
             yield return ShipStatus.Instance.PrespawnStep();
             PlayerControl.LocalPlayer.AdjustLighting();
@@ -477,7 +477,7 @@ internal static class BeginCrewmatePatch
         {
             teamToDisplay = new();
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (pc.Is(Team.Coven))
                     teamToDisplay.Add(pc);
@@ -500,7 +500,7 @@ internal static class BeginCrewmatePatch
             {
                 teamToDisplay = new();
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
@@ -512,7 +512,7 @@ internal static class BeginCrewmatePatch
         {
             teamToDisplay = new();
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (FreeForAll.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && team == ffaTeam)
                     teamToDisplay.Add(pc);
@@ -862,7 +862,7 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                 __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
@@ -1047,7 +1047,7 @@ internal static class BeginImpostorPatch
 
         if (PlayerControl.LocalPlayer.IsImpostor() && Options.ImpKnowWhosMadmate.GetBool())
         {
-            foreach (var pc in Main.EnumeratePlayerControls())
+            foreach (var pc in Main.CachedAllPlayerControls())
             {
                 if (pc.IsMadmate() && !pc.AmOwner)
                     yourTeam.Add(pc);
@@ -1061,7 +1061,7 @@ internal static class BeginImpostorPatch
 
             if (Options.MadmateKnowWhosImp.GetBool())
             {
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.IsImpostor() && !pc.AmOwner)
                         yourTeam.Add(pc);
@@ -1070,7 +1070,7 @@ internal static class BeginImpostorPatch
 
             if (Options.MadmateKnowWhosMadmate.GetBool())
             {
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.IsMadmate() && !pc.AmOwner)
                         yourTeam.Add(pc);
@@ -1131,8 +1131,8 @@ internal static class IntroCutsceneDestroyPatch
         PreventKill = true;
         LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
 
-        var apc = Main.AllPlayerControls;
-        
+        var apc = Main.AllPlayerControlsToList;
+
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
         apc.Do(x => x.roleAssigned = false);
@@ -1141,7 +1141,7 @@ internal static class IntroCutsceneDestroyPatch
         {
             LateTask.New(() => apc.DoIf(x => x && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
             
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControlsToList;
 
             Utils.NumSnapToCallsThisRound = aapc.Count;
             

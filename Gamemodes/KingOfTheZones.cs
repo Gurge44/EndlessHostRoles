@@ -1,11 +1,12 @@
-﻿using System;
+﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
 using UnityEngine;
+using static EHR.Roles.Adventurer;
 using static EHR.Translator;
 
 namespace EHR.Gamemodes;
@@ -29,8 +30,10 @@ public static class KingOfTheZones
     private static OptionItem SpawnProtectionTime;
 
     private static readonly string[] PreferNumTeamsOptions = ["KOTZ.PNTO.Less", "KOTZ.PNTO.More"];
+    private static readonly KOTZTeam[] AllKOTZTeam = Enum.GetValues<KOTZTeam>();
+    private static readonly StringBuilder Suffix = new();
 
-    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     private static readonly Dictionary<MapNames, List<List<SystemTypes>>> DefaultZones = new()
     {
@@ -251,7 +254,7 @@ public static class KingOfTheZones
 
         Zones = DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
 
-        Points = Enum.GetValues<KOTZTeam>().ToDictionary(x => x, _ => 0);
+        Points = AllKOTZTeam.ToDictionary(x => x, _ => 0);
         PlayerPoints = Main.PlayerStates.Keys.ToDictionary(x => x, _ => 0);
         ZoneDomination = Zones.ToDictionary(x => x, _ => KOTZTeam.None);
         ZoneMoveSchedules = [];
@@ -272,10 +275,10 @@ public static class KingOfTheZones
 
         yield return new WaitForSecondsRealtime(3f);
 
-        var aapc = Main.AllAlivePlayerControls;
-        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > aapc.Count / 2;
-        NameNotifyManager.Reset();
+        var aapc = Main.AllAlivePlayerControlsToList;
         int numPlayers = aapc.Count;
+        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > numPlayers / 2;
+        NameNotifyManager.Reset();
 
         if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0)
         {
@@ -295,13 +298,13 @@ public static class KingOfTheZones
 
         int teams = NumTeams.GetInt();
         int zones = NumZones.GetInt();
-        
+
         FixedUpdatePatch.NumTeamsCache = teams + 1;
 
         PlayerTeams = aapc
             .Select(x => x.PlayerId)
             .Partition(teams)
-            .Zip(Enum.GetValues<KOTZTeam>()[1..], (players, team) => players.ToDictionary(x => x, _ => team))
+            .Zip(AllKOTZTeam[1..], (players, team) => players.ToDictionary(x => x, _ => team))
             .SelectMany(x => x)
             .ToDictionary(x => x.Key, x => x.Value);
 
@@ -347,7 +350,7 @@ public static class KingOfTheZones
 
             yield return null;
         }
-        
+
         var sender = CustomRpcSender.Create("KOTZ.GameStart.TeamAssignmentNotifies", SendOption.Reliable);
 
         foreach ((byte id, KOTZTeam team) in PlayerTeams)
@@ -356,7 +359,7 @@ public static class KingOfTheZones
             {
                 PlayerControl player = id.GetPlayer();
                 if (!player) continue;
-            
+
                 byte colorId = team.GetColorId();
                 player.SetColor(colorId);
 
@@ -369,7 +372,7 @@ public static class KingOfTheZones
 
             yield return null;
         }
-        
+
         sender.SendMessage();
 
         yield return new WaitForSecondsRealtime(showTutorial ? 8f : 2f);
@@ -474,7 +477,7 @@ public static class KingOfTheZones
 
         GameGoing = true;
 
-        End:
+    End:
 
         yield return Utils.NotifyEveryoneAsync(false);
         yield break;
@@ -549,23 +552,23 @@ public static class KingOfTheZones
     {
         if (!Main.IntroDestroyed || !GameGoing) return string.Empty;
 
-        StringBuilder sb = new();
+        Suffix.Clear().Append("<#ffffff>");
         long now = Utils.TimeStamp;
         bool justStarted = GameStartTS + 15 > now;
 
         if (RespawnTimes.TryGetValue(seer.PlayerId, out long respawnTS))
-            sb.AppendLine(string.Format(GetString("KOTZ.Suffix.RespawnTime"), respawnTS - now));
+            Suffix.AppendFormat(GetString("KOTZ.Suffix.RespawnTime"), respawnTS - now).AppendLine();
         else if (SpawnProtectionTimes.TryGetValue(seer.PlayerId, out long protectionEndTS))
-            sb.AppendLine(string.Format(GetString("KOTZ.Suffix.SpawnProtectionTime"), protectionEndTS - now));
+            Suffix.AppendFormat(GetString("KOTZ.Suffix.SpawnProtectionTime"), protectionEndTS - now).AppendLine();
 
         PlainShipRoom room = seer.GetPlainShipRoom();
         SystemTypes zone = !room ? SystemTypes.Hallway : room.RoomId;
 
-        if (justStarted) sb.Append(GetString(Zones.Count == 1 ? "KOTZ.SuffixHelp.Zones.Single" : "KOTZ.SuffixHelp.Zones.Plural"));
-        sb.AppendLine(string.Join(" | ", Zones.Select(x => Utils.ColorString(ZoneDomination[x].GetColor(), (zone == x ? "<u>" : string.Empty) + GetString($"{x}") + (zone == x ? "</u>" : string.Empty) + (ZoneMoveSchedules.TryGetValue(x, out long moveTS) ? $"<size=80%> {(ZoneDowntimeExpire.TryGetValue(x, out long downtimeEndTS) ? Utils.ColorString(Color.gray, $"{downtimeEndTS - now}") : $"<#ffff44>{moveTS - now}</color>")}</size>" : string.Empty)))));
+        if (justStarted) Suffix.Append(GetString(Zones.Count == 1 ? "KOTZ.SuffixHelp.Zones.Single" : "KOTZ.SuffixHelp.Zones.Plural"));
+        Suffix.AppendLine(string.Join(" | ", Zones.Select(x => Utils.ColorString(ZoneDomination[x].GetColor(), (zone == x ? "<u>" : string.Empty) + GetString($"{x}") + (zone == x ? "</u>" : string.Empty) + (ZoneMoveSchedules.TryGetValue(x, out long moveTS) ? $"<size=80%> {(ZoneDowntimeExpire.TryGetValue(x, out long downtimeEndTS) ? Utils.ColorString(Color.gray, $"{downtimeEndTS - now}") : $"<#ffff44>{moveTS - now}</color>")}</size>" : string.Empty)))));
 
-        if (justStarted) sb.Append(GetString("KOTZ.SuffixHelp.Points"));
-        sb.AppendLine(string.Join(" | ", Points.IntersectBy(PlayerTeams.Values, x => x.Key).Select(x => Utils.ColorString(x.Key.GetColor(), $"{x.Value}"))));
+        if (justStarted) Suffix.Append(GetString("KOTZ.SuffixHelp.Points"));
+        Suffix.AppendLine(string.Join(" | ", Points.IntersectBy(PlayerTeams.Values, x => x.Key).Select(x => Utils.ColorString(x.Key.GetColor(), $"{x.Value}"))));
 
         int highestPoints = Points.Values.Max();
         bool tie = Points.Values.Count(x => x == highestPoints) > 1;
@@ -574,21 +577,21 @@ public static class KingOfTheZones
         if (tie && end)
         {
             string tieTeams = string.Join(' ', Points.Where(x => x.Value == highestPoints).Select(x => Utils.ColorString(x.Key.GetColor(), "\u25a0")));
-            sb.AppendLine($"<size=80%>{string.Format(GetString("KOTZ.Suffix.Tie"), tieTeams)}</size>");
+            Suffix.Append("<size=80%>").AppendFormat(GetString("KOTZ.Suffix.Tie"), tieTeams).AppendLine("</size>");
         }
         else
         {
             if (GameEndsByTimeLimit.GetBool())
             {
-                if (justStarted) sb.Append(GetString("KOTZ.SuffixHelp.GameEndTimer"));
-                sb.AppendLine($"<size=80%>{TimeLeft / 60:N0}:{TimeLeft % 60:00}</size>");
+                if (justStarted) Suffix.Append(GetString("KOTZ.SuffixHelp.GameEndTimer"));
+                Suffix.AppendLine($"<size=80%>{TimeLeft / 60:N0}:{TimeLeft % 60:00}</size>");
             }
 
             if (GameEndsByPoints.GetBool())
-                sb.AppendLine($"<size=80%>{string.Format(GetString("KOTZ.Suffix.PointsToWin"), PointsToWin.GetInt())}</size>");
+                Suffix.Append("<size=80%>").AppendFormat(GetString("KOTZ.Suffix.PointsToWin"), PointsToWin.GetInt()).AppendLine("</size>");
         }
 
-        return sb.Insert(0, "<#ffffff>").Append("</color>").ToString().Trim();
+        return Suffix.Append("</color>").ToString().Trim();
     }
 
     public static string GetStatistics(byte id)
@@ -612,37 +615,37 @@ public static class KingOfTheZones
         switch (aapc.Length)
         {
             case 0:
-            {
-                ResetSkins();
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
-                reason = GameOverReason.CrewmateDisconnect;
-                return true;
-            }
-            case 1:
-            {
-                ResetSkins();
-                KOTZTeam winner = PlayerTeams[aapc[0].PlayerId];
-                Color color = winner.GetColor();
-                CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == winner).Select(x => x.Key).ToHashSet();
-                WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
-                SendRPC();
-                return true;
-            }
-            default:
-            {
-                if (Options.IntegrateNaturalDisasters.GetBool() && Enum.GetValues<KOTZTeam>().FindFirst(x => aapc.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
                 {
                     ResetSkins();
-                    Color color = team.GetColor();
-                    CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == team).Select(x => x.Key).ToHashSet();
-                    WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{team}")));
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                    CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
+                    reason = GameOverReason.CrewmateDisconnect;
+                    return true;
+                }
+            case 1:
+                {
+                    ResetSkins();
+                    KOTZTeam winner = PlayerTeams[aapc[0].PlayerId];
+                    Color color = winner.GetColor();
+                    CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == winner).Select(x => x.Key).ToHashSet();
+                    WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{winner}")));
                     SendRPC();
                     return true;
                 }
-                
-                return WinnerData.Team != "No one wins";
-            }
+            default:
+                {
+                    if (Options.IntegrateNaturalDisasters.GetBool() && AllKOTZTeam.FindFirst(x => aapc.All(p => PlayerTeams[p.PlayerId] == x), out KOTZTeam team))
+                    {
+                        ResetSkins();
+                        Color color = team.GetColor();
+                        CustomWinnerHolder.WinnerIds = PlayerTeams.Where(x => x.Value == team).Select(x => x.Key).ToHashSet();
+                        WinnerData = (color, Utils.ColorString(color, GetString($"KOTZ.EndScreen.Winner.{team}")));
+                        SendRPC();
+                        return true;
+                    }
+
+                    return WinnerData.Team != "No one wins";
+                }
         }
 
         void ResetSkins() => Utils.CombineSendTimeLowering(() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit)));
@@ -841,7 +844,7 @@ public static class KingOfTheZones
                 try
                 {
                     Dictionary<SystemTypes, (int[] TeamCounts, List<(byte Id, int Team)> Players)> zoneInfo = new(Zones.Count);
-                    
+
                     foreach (SystemTypes zone in Zones)
                         zoneInfo[zone] = (new int[NumTeamsCache], []);
 

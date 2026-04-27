@@ -61,7 +61,7 @@ public class Ventriloquist : RoleBase
 
     public static void CreateVentriloquistButton(MeetingHud __instance)
     {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (!pc || !pc.IsAlive()) continue;

@@ -71,9 +71,9 @@ internal class Circumvent : IAddon
         Limits.SetAllValues(Limit.GetInt());
     }
 
-    public static string GetProgressText(byte playerId)
+    public static void GetProgressText(byte playerId, StringBuilder resultText)
     {
-        if (!Limits.TryGetValue(playerId, out int limit)) return string.Empty;
+        if (!Limits.TryGetValue(playerId, out int limit)) return;
 
         int mode = VentPreventionMode.GetValue();
 
@@ -92,7 +92,7 @@ internal class Circumvent : IAddon
             _ => "#000000"
         };
 
-        return $" <color={color}>({limit})</color>";
+        resultText.Append(" <color=").Append(color).Append(">(").Append(limit).Append(")</color>");
     }
 
     public static bool CanUseImpostorVentButton(PlayerControl pc)

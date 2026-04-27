@@ -72,4 +72,25 @@ public static class Il2CppCastHelper
             Cast = lambda.Compile();
         }
     }
+
+    public static bool TryCastFast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase
+    {
+        if (obj is T t)
+        {
+            casted = t;
+            return true;
+        }
+
+        if (obj == null)
+        {
+            casted = null;
+            return false;
+        }
+
+        casted = OperatingSystem.IsAndroid()
+            ? obj.Cast<T>()
+            : obj.Pointer.CastFast<T>();
+
+        return casted != null;
+    }
 }

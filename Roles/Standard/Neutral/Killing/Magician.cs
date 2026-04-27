@@ -36,6 +36,7 @@ public class Magician : RoleBase
     public static Dictionary<byte, long> BlindPpl = [];
     public static Dictionary<Vector2, long> Bombs = [];
     private static List<Vector2> PortalMarks = [];
+    private readonly StringBuilder Notify = new();
     private static bool IsSniping;
     private static Vector3 SnipeBasePosition;
     private static bool IsSpeedup;
@@ -319,8 +320,7 @@ public class Magician : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask) return;
-        if (Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive()) return;
+        if (!GameStates.IsInTask || !pc.IsAliveWithConditions()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
@@ -369,11 +369,11 @@ public class Magician : RoleBase
                 pc.Notify(GetString("MagicianBombExploded"));
             }
 
-            var sb = new StringBuilder();
+            Notify.Clear();
             long[] list = [.. Bombs.Values];
-            foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (now - x) + 1));
+            foreach (long x in list) Notify.AppendFormat(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (now - x) + 1);
 
-            pc.Notify(sb.ToString());
+            pc.Notify(Notify.ToString());
         }
     }
 
@@ -412,7 +412,7 @@ public class Magician : RoleBase
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl target in Main.CachedAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 

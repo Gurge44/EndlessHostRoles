@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace EHR;
@@ -445,7 +446,7 @@ internal static class CustomRolesHelper
 
             CustomRoles vnRole = role.GetVNRole(true);
 
-            if (vnRole.ToString().EndsWith("EHR")) return vnRole;
+            if (vnRole.IsVanillaEHR()) return vnRole;
 
             return vnRole switch
             {
@@ -1146,8 +1147,8 @@ internal static class CustomRolesHelper
                              or CustomRoles.Magistrate
             };
         }
-        
-                public RoleOptionType GetNeutralRoleCategory()
+
+        public RoleOptionType GetNeutralRoleCategory()
         {
             return role switch
             {
@@ -1654,6 +1655,21 @@ internal static class CustomRolesHelper
                 CustomRoles.Phantom or
                 CustomRoles.Shapeshifter;
         }
+        public bool IsVanillaEHR()
+        {
+            return role is
+                CustomRoles.CrewmateEHR or
+                CustomRoles.EngineerEHR or
+                CustomRoles.NoisemakerEHR or
+                CustomRoles.TrackerEHR or
+                CustomRoles.ScientistEHR or
+                CustomRoles.GuardianAngelEHR or
+                CustomRoles.ImpostorEHR or
+                CustomRoles.DetectiveEHR or
+                CustomRoles.ViperEHR or
+                CustomRoles.PhantomEHR or
+                CustomRoles.ShapeshifterEHR;
+        }
 
         public CustomRoleTypes GetCustomRoleTypes()
         {
@@ -1668,7 +1684,14 @@ internal static class CustomRolesHelper
 
         public bool RoleExist(bool countDead = false)
         {
-            return Main.EnumeratePlayerControls().Any(x => x.Is(role) && (countDead || x.IsAlive()));
+            var players = Main.CachedAllPlayerControls();
+            for (int i = 0; i < players.Count; i++)
+            {
+                var player = players[i];
+                if (player.Is(role) && (countDead || player.IsAlive()))
+                    return true;
+            }
+            return false;
         }
 
         public int GetCount()
@@ -1763,9 +1786,15 @@ internal static class CustomRolesHelper
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToColoredString(this CustomRoles role)
     {
-        return Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
+        return role.ColoredTextByRole(Translator.GetString(role.ToString()));
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string ColoredTextByRole(this CustomRoles role, string str)
+    {
+        return Utils.ColorString(Utils.GetRoleColor(role), str);
     }
 
     extension(RoleOptionType type)

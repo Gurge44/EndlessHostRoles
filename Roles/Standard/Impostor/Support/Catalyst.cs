@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Rewired.Utils.Platforms.Windows;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EHR.Roles;
@@ -39,7 +40,7 @@ public class Catalyst : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.Is(Team.Impostor))
             {

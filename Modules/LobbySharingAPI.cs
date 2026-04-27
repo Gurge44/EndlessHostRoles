@@ -34,7 +34,7 @@ public static class LobbySharingAPI
         string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
         string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
-        const string version = $"EHR v{Main.PluginDisplayVersion}";
+        const string version = $"{Main.ModName} v{Main.PluginVersion}";
         Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode));
     }
 
@@ -54,7 +54,7 @@ public static class LobbySharingAPI
         };
 
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("User-Agent", $"{Main.ModName} v{Main.PluginVersion} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
+        request.SetRequestHeader("User-Agent", $"{version} - {Regex.Replace(hostName, @"[^\x20-\x7E]", "")}");
         request.SetRequestHeader("Authorization", "Bearer " + EOSManager.Instance.UserIDToken);
         yield return request.SendWebRequest();
 
@@ -157,12 +157,12 @@ internal static class ExitGamePatch
     public static void Prefix(InnerNetClient __instance, DisconnectReasons reason)
     {
         if (__instance is not AmongUsClient) return;
-        
+
         Logger.Msg($"Exiting game - reason: {reason}", "ExitGamePatch.Prefix");
 
         GameStates.InGame = false;
         Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
-        
+
         if (SetUpRoleTextPatch.IsInIntro)
         {
             SetUpRoleTextPatch.IsInIntro = false;
@@ -173,7 +173,7 @@ internal static class ExitGamePatch
     public static void Postfix(InnerNetClient __instance)
     {
         if (__instance is not AmongUsClient) return;
-        
+
         LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Closed);
 
         GameEndChecker.LoadingEndScreen = false;

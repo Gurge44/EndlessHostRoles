@@ -60,7 +60,7 @@ public class Medium : RoleBase
         ContactPlayer = [];
         if (target == null || !target.Object) return;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!pc.Is(CustomRoles.Medium) || pc.PlayerId == target.PlayerId || pc.GetAbilityUseLimit() < 1) continue;
 
@@ -89,8 +89,8 @@ public class Medium : RoleBase
             return true;
         }
 
-        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), contact, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")), importance: MessageImportance.High);
-        Utils.SendMessage(GetString("MediumDone"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")));
+        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), contact, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")), importance: MessageImportance.High);
+        Utils.SendMessage(GetString("MediumDone"), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
 
         ContactPlayer.Remove(pc.PlayerId);
 

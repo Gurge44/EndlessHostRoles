@@ -102,7 +102,7 @@ public static class Speedrun
         if (!pc.IsAlive()) return string.Empty;
 
         int time = Timers[pc.PlayerId];
-        int alive = Main.AllAlivePlayerControls.Count;
+        int alive = Main.AllAlivePlayerControlsCount;
         int apc = PlayerControl.AllPlayerControls.Count;
         int killers = CanKill.Count;
 
@@ -118,7 +118,7 @@ public static class Speedrun
 
     public static bool CheckForGameEnd(out GameOverReason reason)
     {
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         switch (aapc.Count)
         {
@@ -189,7 +189,7 @@ public static class Speedrun
                 return !player || !player.IsAlive();
             });
 
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
 
             switch (Arrow, aapc.Count == 2)
             {

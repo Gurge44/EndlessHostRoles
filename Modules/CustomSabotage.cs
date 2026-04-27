@@ -85,17 +85,22 @@ public abstract class CustomSabotage
 
     public static void UpdateAll()
     {
-        foreach (CustomSabotage sabotage in Instances.ToArray())
+        int sabotageCount = Instances.Count;
+        for (int sabotageId = 0; sabotageId < sabotageCount; sabotageId++)
         {
-            try { sabotage.Update(); }
+            try 
+            {
+                CustomSabotage sabotage = Instances[sabotageId];
+                sabotage.Update(); 
+            }
             catch (Exception e) { Utils.ThrowException(e); }
         }
 
-        if (Instances.Count > 0)
+        if (sabotageCount > 0)
         {
             SabotageSystemType sabotageSystemType = ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
-            sabotageSystemType.Timer = SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled
-                ? SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec
+            sabotageSystemType.Timer = SabotageSystemTypeUpdateSystemPatch.IsCooldownModificationEnabled
+                ? SabotageSystemTypeUpdateSystemPatch.ModifiedCooldownSec
                 : 30f;
             sabotageSystemType.IsDirty = true;
         }
@@ -146,7 +151,7 @@ public class GrabOxygenMaskSabotage : CustomSabotage
 
     protected override void Update()
     {
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         byte[] playersInRoom = aapc.Where(x => x.IsInRoom(TargetRoom)).Select(x => x.PlayerId).ToArray();
         playersInRoom.Except(HasMask).ToValidPlayers().NotifyPlayers(Translator.GetString("CustomSabotage.GrabOxygenMask.Done"));
         playersInRoom.Except(HasMask).Do(x => LocateArrow.Remove(x, RoomPosition));

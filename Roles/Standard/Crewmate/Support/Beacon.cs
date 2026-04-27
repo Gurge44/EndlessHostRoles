@@ -58,32 +58,41 @@ internal class Beacon : RoleBase
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
         long now = Utils.TimeStamp;
-        if (LastChange.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
+        byte playerId = pc.PlayerId;
+        if (LastChange.TryGetValue(playerId, out long ts) && ts == now) return;
 
         Vector2 pos = pc.Pos();
         float radius = Radius.GetFloat();
-
-        switch (affectedPlayer: AffectedPlayers.Contains(pc.PlayerId), beaconNearby: Utils.IsActive(SystemTypes.Electrical) && Beacons.Any(x => FastVector2.DistanceWithinRange(x.Pos(), pos, radius)))
+        bool affectedPlayer = AffectedPlayers.Contains(playerId);
+        
+        bool beaconNearby = false;
+        if (Utils.IsActive(SystemTypes.Electrical))
         {
-            case (affectedPlayer: true, beaconNearby: false):
+            for (int pcIndex = 0; pcIndex < Beacons.Count; pcIndex++)
+                if (FastVector2.DistanceWithinRange(Beacons[pcIndex].Pos(), pos, radius))
+                {
+                    beaconNearby = true;
+                    break;
+                }
+        }
+        // It would be more logical to use "switch (affectedPlayer, beaconNearby)"
+        // But it creates a ValueTuple<bool,bool> inside itself in FixedUpdate
+        if (affectedPlayer != beaconNearby)
+        {
+            if (beaconNearby)
             {
-                AffectedPlayers.Remove(pc.PlayerId);
+                AffectedPlayers.Add(playerId);
                 pc.MarkDirtySettings();
-
-                LastChange[pc.PlayerId] = now;
-                break;
-            }
-            case (affectedPlayer: false, beaconNearby: true):
-            {
-                AffectedPlayers.Add(pc.PlayerId);
-                pc.MarkDirtySettings();
-
-                LastChange[pc.PlayerId] = now;
+                LastChange[playerId] = now;
 
                 if (pc.AmOwner)
                     Achievements.Type.ALightInTheShadows.CompleteAfterGameEnd();
-
-                break;
+            }
+            else
+            {
+                AffectedPlayers.Remove(playerId);
+                pc.MarkDirtySettings();
+                LastChange[playerId] = now;
             }
         }
     }

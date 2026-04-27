@@ -116,7 +116,7 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            Main.EnumerateAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
+            Main.CachedAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
             DoomTimer = DoomTime.GetInt();
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedDuringDoom.GetFloat();
             pc.MarkDirtySettings();
@@ -132,8 +132,15 @@ public class Tremor : RoleBase
 
             Count = 0;
 
-            FastVector2.GetPlayersInRange(pc.Pos(), 2.5f, x => x.PlayerId != pc.PlayerId)
-                .Do(pc.Kill);
+            var aliveTargets = Main.CachedAlivePlayerControls();
+            for (int index = 0; index < aliveTargets.Count; index++)
+            {
+                PlayerControl target = aliveTargets[index];
+                if (pc.PlayerId == target.PlayerId) continue;
+                if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), 2.5f)) continue;
+
+                pc.Kill(target);
+            }
 
             if (LastUpdate == now) return;
             LastUpdate = now;

@@ -27,6 +27,8 @@ public class Druid : RoleBase
     private Dictionary<Vector2, int> TriggerIds = [];
     private Dictionary<Vector2, string> Triggers = [];
 
+    private readonly StringBuilder Suffix = new();
+    private readonly StringBuilder HudText = new();
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -184,26 +186,25 @@ public class Druid : RoleBase
 
         if (seer.IsModdedClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId || Triggers.Count == 0) return string.Empty;
 
-        var sb = new StringBuilder();
-        sb.Append("\n<size=1.7>");
+        Suffix.Clear().Append("\n<size=1.7>");
 
-        sb.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
-        sb.Append(string.Join(", ", Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+        Suffix.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active")
+            .Append(string.Join(", ", Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")))
+            .Append("</size>");
 
-        sb.Append("</size>");
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     private string GetHUDText(PlayerControl pc)
     {
         if (!pc || Triggers.Count == 0) return string.Empty;
 
-        var sb = new StringBuilder();
+        HudText.Clear();
 
-        sb.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
-        sb.Append(string.Join('\n', Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+        HudText.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
+        HudText.Append(string.Join('\n', Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
-        return sb.ToString();
+        return HudText.ToString();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

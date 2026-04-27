@@ -56,7 +56,7 @@ public class TimeManager : RoleBase
     {
         var sec = 0;
 
-        foreach (byte playerId in PlayerIdList.ToArray())
+        foreach (byte playerId in PlayerIdList)
         {
             if (Utils.GetPlayerById(playerId).Is(CustomRoles.Madmate))
                 sec -= AdditionalTime(playerId);

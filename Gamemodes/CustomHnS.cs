@@ -174,7 +174,7 @@ internal static class CustomHnS
             }
         }
 
-        Dictionary<Team, PlayerControl[]> playerTeams = Enum.GetValues<Team>()[1..4]
+        Dictionary<Team, PlayerControl[]> playerTeams =Main.TeamValues[1..4]
             .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
             .Shuffle()
             .Zip(allPlayers)
@@ -298,15 +298,15 @@ internal static class CustomHnS
 
         if (PlayersSeeRoles.GetBool())
         {
-            color = Main.RoleColors[targetRole.Role];
-            if (targetRole.Role == CustomRoles.Agent) color = Main.RoleColors[CustomRoles.Hider];
+            color = Utils.GetRoleColorCode(targetRole.Role);
+            if (targetRole.Role == CustomRoles.Agent) color = Utils.GetRoleColorCode(CustomRoles.Hider);
 
             return true;
         }
 
         if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
         {
-            color = Main.RoleColors[CustomRoles.Seeker];
+            color = Utils.GetRoleColorCode(CustomRoles.Seeker);
             return true;
         }
 
@@ -380,7 +380,7 @@ internal static class CustomHnS
             Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
         }
 
-        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
+        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Utils.GetRoleColorCode(CustomRoles.Hider)}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
 
         int minutes = TimeLeft / 60;
         int seconds = TimeLeft % 60;
@@ -468,7 +468,7 @@ internal static class CustomHnS
     {
         reason = GameOverReason.ImpostorsByKill;
 
-        var alivePlayers = Main.AllAlivePlayerControls;
+        var alivePlayers = Main.CachedAlivePlayerControls();
 
         // If there are 0 players alive, the game is over and only foxes win
         if (alivePlayers.Count == 0)
@@ -554,7 +554,7 @@ internal static class CustomHnS
             {
                 var validIds = new HashSet<byte>();
                 
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                     validIds.Add(pc.PlayerId);
 
                 var toRemove = new List<byte>();
@@ -577,7 +577,7 @@ internal static class CustomHnS
             {
                 Positions = new Dictionary<byte, Vector2>(PlayerRoles.Count);
 
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                     Positions[pc.PlayerId] = pc.Pos();
 
                 ImpostorPositions = [];

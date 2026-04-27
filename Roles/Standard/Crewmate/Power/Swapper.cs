@@ -218,7 +218,7 @@ public class Swapper : RoleBase
                     state.VotedForId = SwapTargets.Item1;
             }
 
-            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Swapper), GetString("SwapTitle")), importance: MessageImportance.High);
+            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: CustomRoles.Swapper.ColoredTextByRole(GetString("SwapTitle")), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }

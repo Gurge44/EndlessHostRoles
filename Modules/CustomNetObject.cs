@@ -369,8 +369,11 @@ namespace EHR
 
         public static void FixedUpdate()
         {
-            foreach (CustomNetObject cno in AllObjects.ToArray())
+            for (int objectId = 0; objectId < AllObjects.Count; objectId++)
+            {
+                CustomNetObject cno = AllObjects[objectId];
                 cno?.OnFixedUpdate();
+            }
         }
 
         public static CustomNetObject Get(int id)

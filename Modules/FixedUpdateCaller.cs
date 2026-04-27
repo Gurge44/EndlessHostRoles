@@ -12,56 +12,64 @@ public static class FixedUpdateCaller
 {
     private static int NonLowLoadPlayerIndex;
 
+    private static long Now;
     private static long LastFileLoadTS;
     private static long LastAutoMessageSendTS;
+
+    private static AmongUsClient AmongUsClient;
+    private static LobbyBehaviour LobbyBehaviour;
+    private static HudManager HudManager;
+
+    private static Predicate<PlayerControl> Predicate;
 
     // ReSharper disable once UnusedMember.Global
     public static void Postfix()
     {
         try
         {
-            var amongUsClient = AmongUsClient.Instance;
-            var lobbyBehaviour = LobbyBehaviour.Instance;
+            AmongUsClient = AmongUsClient.Instance;
+            LobbyBehaviour = LobbyBehaviour.Instance;
 
-            if (lobbyBehaviour)
+            if (LobbyBehaviour)
             {
                 LobbyFixedUpdatePatch.Postfix();
-                LobbyBehaviourUpdatePatch.Postfix(lobbyBehaviour);
+                LobbyBehaviourUpdatePatch.Postfix(LobbyBehaviour);
 
-                long now = Utils.TimeStamp;
+                Now = Utils.TimeStamp;
 
-                if (now - LastFileLoadTS > 10)
+                if (Now - LastFileLoadTS > 10)
                 {
-                    LastFileLoadTS = now;
+                    LastFileLoadTS = Now;
                     Options.LoadUserData();
                 }
 
-                if (Options.EnableAutoMessage.GetBool() && now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
+                if (Options.EnableAutoMessage.GetBool() && Now - LastAutoMessageSendTS > Options.AutoMessageSendInterval.GetInt())
                 {
-                    LastAutoMessageSendTS = now;
+                    LastAutoMessageSendTS = Now;
                     TemplateManager.SendTemplate("Notification", noErr: true, importance: MessageImportance.Low);
                 }
             }
 
             if (HudManager.InstanceExists)
             {
-                HudManager hudManager = HudManager.Instance;
+                HudManager = HudManager.Instance;
 
-                HudManagerPatch.Postfix(hudManager);
+                HudManagerPatch.Postfix(HudManager);
                 Zoom.Postfix();
-                HudSpritePatch.Postfix(hudManager);
+                HudSpritePatch.Postfix(HudManager);
             }
 
             if (!PlayerControl.LocalPlayer) return;
 
-            if (amongUsClient.IsGameStarted)
+            if (AmongUsClient.IsGameStarted)
                 Utils.CountAlivePlayers();
 
             try
             {
                 if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
                 {
-                    Predicate<PlayerControl> predicate = amongUsClient.AmHost
+
+                    Predicate = AmongUsClient.AmHost
                         ? Options.CurrentGameMode switch
                         {
                             CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
@@ -71,9 +79,9 @@ public static class FixedUpdateCaller
                         }
                         : ExtendedPlayerControl.IsValidTargetForKillButton;
 
-                    PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, GameManager.Instance.LogicOptions.GetKillDistance(), out PlayerControl closestPlayer, predicate) ? closestPlayer : null;
+                    PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, GameManager.Instance.LogicOptions.GetKillDistance(), out PlayerControl closestPlayer, Predicate) ? closestPlayer : null;
 
-                    KillButton killButton = HudManager.Instance.KillButton;
+                    KillButton killButton = HudManager.KillButton;
 
                     if (killButton.currentTarget && killButton.currentTarget != closest)
                         killButton.currentTarget.ToggleHighlight(false, RoleTeamTypes.Impostor);
@@ -93,7 +101,7 @@ public static class FixedUpdateCaller
 
             try
             {
-                if (amongUsClient.AmHost && GameStates.InGame && !GameStates.IsEnded)
+                if (AmongUsClient.AmHost && GameStates.InGame && !GameStates.IsEnded)
                     FixedUpdatePatch.LoversSuicide();
             }
             catch (Exception e) { Utils.ThrowException(e); }
@@ -104,28 +112,28 @@ public static class FixedUpdateCaller
             {
                 NonLowLoadPlayerIndex++;
 
-                int count = PlayerControl.AllPlayerControls.Count;
+                var players = Main.CachedAllPlayerControls();
+                int playerCount = players.Count;
 
-                if (NonLowLoadPlayerIndex >= count)
-                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - count));
+                if (NonLowLoadPlayerIndex >= playerCount)
+                    NonLowLoadPlayerIndex = Math.Min(0, -(30 - playerCount));
 
                 CustomGameMode currentGameMode = Options.CurrentGameMode;
                 //bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
-                for (var index = 0; index < count; index++)
+                for (byte playerIndex = 0; playerIndex < players.Count; playerIndex++)
                 {
                     try
                     {
-                        PlayerControl pc = PlayerControl.AllPlayerControls[index];
-
+                        PlayerControl pc = players[playerIndex];
                         if (!pc || pc.PlayerId >= 254) continue;
 
-                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != index);
+                        FixedUpdatePatch.Postfix(pc, NonLowLoadPlayerIndex != playerIndex);
 
                         if (lobby) continue;
 
-                        // if (vanilla && NonLowLoadPlayerIndex == index)
-                        //     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: Hazel.SendOption.None);
+                        //if (vanilla && NonLowLoadPlayerIndex == playerIndex)
+                        //    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, SendOption: SendOption.None);
 
                         switch (currentGameMode)
                         {
@@ -196,14 +204,18 @@ public static class FixedUpdateCaller
 
                 try
                 {
-                    if (amongUsClient.AmHost && Main.GameTimer.IsRunning && Options.EnableGameTimeLimit.GetBool() && Main.GameTimer.Elapsed.TotalSeconds > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
+                    if (AmongUsClient.AmHost && Main.GameTimer.IsRunning && Options.EnableGameTimeLimit.GetBool() && Main.GameTimer.Elapsed.TotalSeconds > Options.GameTimeLimit.GetInt() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.NaturalDisasters)
                     {
                         Main.GameTimer.Reset();
                         Main.GameEndDueToTimer = true;
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                        
+
                         if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
-                            CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumerateAlivePlayerControls().Select(x => x.PlayerId));
+                        {
+                            var alivePlayers = Main.CachedAlivePlayerControls();
+                            for (int i = 0; i < alivePlayers.Count; i++)
+                                CustomWinnerHolder.WinnerIds.Add(alivePlayers[i].PlayerId);
+                        }
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

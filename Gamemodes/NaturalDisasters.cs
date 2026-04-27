@@ -200,8 +200,8 @@ public static class NaturalDisasters
         LateTask.New(() => pc.Notify(message, 20f), 1f, $"{pc.GetRealName()} died with the reason {deathReason}, survived for {SurvivalTime(pc.PlayerId)} seconds");
         Utils.SendRPC(CustomRPC.NaturalDisastersSync, pc.PlayerId, SurvivalTimes[pc.PlayerId]);
 
-        var aapc = Main.AllAlivePlayerControls;
-        string remaining = string.Format(Translator.GetString("ND_RemainingPlayers"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.NDPlayer), aapc.Count.ToString()));
+        var aapc = Main.CachedAllPlayerControls();
+        string remaining = string.Format(Translator.GetString("ND_RemainingPlayers"), CustomRoles.NDPlayer.ColoredTextByRole(aapc.Count.ToString()));
         string msgOthers = string.Format(Translator.GetString($"ND_DRLaughMessageOthers-{IRandom.Instance.Next(4)}.{deathReason}"), pc.PlayerId.ColoredPlayerName());
         aapc.NotifyPlayers($"<#ff0000>[╳]</color> {Utils.ColorString(color, msgOthers)} {remaining}", 10f);
     }
@@ -341,7 +341,7 @@ public static class NaturalDisasters
                         .RandomElement();
                 }
 
-                var aapc = Main.AllAlivePlayerControls;
+                var aapc = Main.AllAlivePlayerControlsToList;
                 bool bc = disaster.Name == "BuildingCollapse";
                 bool spawnOnPlayer = aapc.Count > 0 && DisasterSpawnMode.GetValue() switch
                 {
@@ -384,7 +384,7 @@ public static class NaturalDisasters
                 if (float.IsNaN(naturalDisaster.SpawnTimer))
                 {
                     Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
-                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), Utils.CalculatePingDelay(), log: false);
+                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), Utils.CalculatePingDelay(), "Activator.CreateInstance", log: false);
                     PreparingDisasters.Remove(naturalDisaster);
                 }
             }
@@ -504,7 +504,7 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                float speed = (FastVector2.DistanceWithinRange(pc.Pos(), Position, Range)) switch
+                float speed = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range) switch
                 {
                     true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
                     false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),

@@ -71,13 +71,13 @@ internal class NiceEraser : RoleBase
 
         if (target.PlayerId == player.PlayerId)
         {
-            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")), importance: MessageImportance.Low);
+            Utils.SendMessage(GetString("EraserEraseSelf"), player.PlayerId, CustomRoles.NiceEraser.ColoredTextByRole(GetString("EraserEraseMsgTitle")), importance: MessageImportance.Low);
             return false;
         }
 
         if (target.GetCustomRole().IsNeutral())
         {
-            Utils.SendMessage(string.Format(GetString("EraserEraseNeutralNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")));
+            Utils.SendMessage(string.Format(GetString("EraserEraseNeutralNotice"), target.GetRealName()), player.PlayerId, CustomRoles.NiceEraser.ColoredTextByRole(GetString("EraserEraseMsgTitle")));
             return false;
         }
 
@@ -86,7 +86,7 @@ internal class NiceEraser : RoleBase
         if (!PlayerToErase.Contains(target.PlayerId))
             PlayerToErase.Add(target.PlayerId);
 
-        Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")));
+        Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, CustomRoles.NiceEraser.ColoredTextByRole(GetString("EraserEraseMsgTitle")));
 
         if (GameStates.IsInTask)
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);

@@ -491,7 +491,7 @@ public static class CustomRpcSenderExtensions
             // Check Observer
             if (!forObserver && !MeetingStates.FirstMeeting)
             {
-                foreach (PlayerControl x in Main.EnumeratePlayerControls())
+                foreach (PlayerControl x in Main.CachedAllPlayerControls())
                 {
                     if (x.Is(CustomRoles.Observer) && killer.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true))
                         returnValue = true;
@@ -573,7 +573,7 @@ public static class CustomRpcSenderExtensions
                     returnValue = true;
                 }
 
-                foreach (PlayerControl x in Main.EnumeratePlayerControls())
+                foreach (PlayerControl x in Main.CachedAllPlayerControls())
                 {
                     if (x.Is(CustomRoles.Observer) && target.PlayerId != x.PlayerId && sender.RpcGuardAndKill(x, target, true, true))
                         returnValue = true;
@@ -625,7 +625,7 @@ public static class CustomRpcSenderExtensions
             return true;
         }
 
-        public void RpcDesyncRepairSystem(PlayerControl target, SystemTypes systemType, int amount)
+        public void RpcDesyncUpdateSystem(PlayerControl target, SystemTypes systemType, int amount)
         {
             sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
             sender.Write((byte)systemType);
@@ -660,7 +660,7 @@ public static class CustomRpcSenderExtensions
         public bool TP(PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
         {
             if (!AmongUsClient.Instance.AmHost) return false;
-        
+
             CustomNetworkTransform nt = pc.NetTransform;
 
             if (!noCheckState)
@@ -680,7 +680,7 @@ public static class CustomRpcSenderExtensions
                 }
             }
 
-        
+
             nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
             nt.SetDirtyBit(uint.MaxValue);
 
@@ -789,7 +789,7 @@ public static class CustomRpcSenderExtensions
             sender.Write(Main.AllPlayerKillCooldown[player.PlayerId]);
             sender.Write(Main.AllPlayerSpeed[player.PlayerId]);
             sender.EndRpc();
-        
+
             return true;
         }
     }

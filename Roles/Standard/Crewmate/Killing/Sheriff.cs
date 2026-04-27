@@ -179,9 +179,10 @@ public class Sheriff : RoleBase
         };
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return ShowShotLimit.GetBool() ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+        if (ShowShotLimit.GetBool()) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)

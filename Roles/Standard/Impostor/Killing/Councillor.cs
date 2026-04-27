@@ -165,9 +165,9 @@ public class Councillor : RoleBase
                     if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                            Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else
-                            pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
+                            pc.ShowPopUp(CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
 
                         return true;
                     }
@@ -209,9 +209,9 @@ public class Councillor : RoleBase
                         LateTask.New(() =>
                         {
                             if (!MakeEvilJudgeClear.GetBool())
-                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")), importance: MessageImportance.High);
+                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, CustomRoles.Judge.ColoredTextByRole(GetString("TrialKillTitle")), importance: MessageImportance.High);
                             else
-                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Councillor), GetString("MurderKillTitle")), importance: MessageImportance.High);
+                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, CustomRoles.Councillor.ColoredTextByRole(GetString("MurderKillTitle")), importance: MessageImportance.High);
                         }, 0.6f, "Guess Msg");
                         
                     }, 0.2f, "Murder Kill");
@@ -292,7 +292,7 @@ public class Councillor : RoleBase
 
     public static void CreateCouncillorButton(MeetingHud __instance)
     {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (!pc || !pc.IsAlive()) continue;
