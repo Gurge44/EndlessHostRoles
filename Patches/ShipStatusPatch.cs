@@ -29,18 +29,6 @@ public static class ShipStatusSystem
         (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast
     ];
 
-    // No longer needed
-    //public static readonly Dictionary<SystemTypes, bool> SabotageIsActive = new()
-    //{
-    //    { SystemTypes.Electrical, false },
-    //    { SystemTypes.Reactor, false },
-    //    { SystemTypes.Laboratory, false },
-    //    { SystemTypes.LifeSupp, false },
-    //    { SystemTypes.Comms, false },
-    //    { SystemTypes.HeliSabotage, false },
-    //    { SystemTypes.MushroomMixupSabotage, false }
-    //};
-
     public static VentilationSystem VentilationSystem;
     public static ICriticalSabotage ICriticalSabotage;
     public static ReactorSystemType ReactorSystemType;
