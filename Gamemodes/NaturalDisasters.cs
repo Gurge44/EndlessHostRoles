@@ -70,7 +70,7 @@ public static class NaturalDisasters
         Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
         const CustomGameMode gameMode = CustomGameMode.NaturalDisasters;
 
-        DisasterFrequency = new FloatOptionItem(id++, "ND_DisasterFrequency", new(0.1f, 20f, 0.1f), 2f, TabGroup.GameSettings)
+        DisasterFrequency = new FloatOptionItem(id++, "ND_DisasterFrequency", new(0f, 20f, 0.1f), 2f, TabGroup.GameSettings)
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color)
@@ -319,7 +319,7 @@ public static class NaturalDisasters
             if (LastDisasterTimer.Elapsed.TotalSeconds >= DisasterFrequency.GetFloat())
             {
                 LastDisasterTimer.Restart();
-                List<Type> disasters = AllDisasters.ToList();
+                List<Type> disasters = AllDisasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).ToList();
                 
                 if (ActiveDisasters.Exists(x => x is Thunderstorm))
                     disasters.RemoveAll(x => x.Name == "Thunderstorm");
@@ -327,7 +327,7 @@ public static class NaturalDisasters
                 if ((Main.LIMap ? ShipStatus.Instance.AllRooms.Count : RandomSpawn.SpawnMap.GetSpawnMap().Positions.Count - (Main.CurrentMap == MapNames.Polus ? 3 : 1)) <= BuildingCollapse.CollapsedRooms.Count)
                     disasters.RemoveAll(x => x.Name == "BuildingCollapse");
 
-                Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+                Type disaster = disasters.RandomElement();
 
                 if (disaster.Name == "Thunderstorm")
                 {
