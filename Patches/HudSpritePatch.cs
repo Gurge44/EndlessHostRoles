@@ -640,6 +640,12 @@ public static class HudSpritePatch
                     else newAbilityButton = CustomButton.Get("Mine");
                     break;
                 }
+                case CustomRoles.Wiper:
+                {
+                    if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool()) newPetButton = DefaultIcons[0];
+                    else newAbilityButton = DefaultIcons[0];
+                    break;
+                }
                 case CustomRoles.Analyst:
                 case CustomRoles.Witness:
                 {

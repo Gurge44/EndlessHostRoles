@@ -24,6 +24,16 @@ public class ClientControlGUI : MonoBehaviour
     public bool IsOpen;
 
     /// <summary>
+    /// The screen rect of the open panel or if the panel is closed
+    /// </summary>
+    public static Rect PanelRect => Instance != null && Instance.IsOpen ? Instance._windowRect : Rect.zero;
+
+    /// <summary>
+    /// The screen rect of the toggle button
+    /// </summary>
+    public static Rect ToggleRect { get; private set; }
+
+    /// <summary>
     /// Current scroll position inside the panel
     /// </summary>
     private Vector2 _scroll;
@@ -308,6 +318,7 @@ public class ClientControlGUI : MonoBehaviour
             y = Screen.height - size - 10f * Scale;
         }
 
+        ToggleRect = new Rect(x, y, size, size);
         // 90% transparent when in game and panel is closed, full opacity otherwise
         bool fadeOut = !IsOpen && (GameStates.IsInGame || GameSettingMenu.Instance);
         Color prev = GUI.color;

@@ -2552,7 +2552,7 @@ internal static class ChatCommands
 
     private static void KCountCommand(PlayerControl player, string text, string[] args)
     {
-        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Count < Options.MinPlayersForGameStateCommand.GetInt())
+        if (GameStates.IsLobby || !Options.EnableGameStateCommand.GetBool() || Main.AllAlivePlayerControls.Count < Options.MinPlayersForGameStateCommand.GetInt())
         {
             Utils.SendMessage(GetString("Message.CommandUnavailable"), player.PlayerId, importance: MessageImportance.Low);
             return;

@@ -506,7 +506,7 @@ internal static class OnPlayerJoinedPatch
             Logger.Info($"TempBanned a player {client.PlayerName} without a friend code", "Temp Ban");
         }
 
-        if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform is Platforms.Android or Platforms.IPhone && Options.KickAndroidPlayer.GetBool())
+        if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform is Platforms.Android or Platforms.IPhone && Options.KickMobilePlayer.GetBool())
         {
             AmongUsClient.Instance.KickPlayer(client.Id, false);
             string msg = string.Format(GetString("KickMobilePlayer"), client.PlayerName);
