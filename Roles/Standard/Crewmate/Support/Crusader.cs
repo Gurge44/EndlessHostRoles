@@ -53,8 +53,7 @@ public class Crusader : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return !Main.PlayerStates[pc.PlayerId].IsDead
-               && pc.GetAbilityUseLimit() >= 1;
+        return pc.GetAbilityUseLimit() >= 1;
     }
 
     public override void SetKillCooldown(byte id)

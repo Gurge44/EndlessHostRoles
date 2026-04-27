@@ -181,7 +181,7 @@ internal static class CheckForEndVotingPatch
 
                 bool canVote = !(CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
-                if (ps.VotedFor.GetPlayer() != null && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
+                if (ps.VotedFor.GetPlayer() && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
@@ -245,8 +245,9 @@ internal static class CheckForEndVotingPatch
 
             Blackmailer.ManipulateVotingResult(votingData, States);
             Swapper.ManipulateVotingResult(votingData, States);
+            MeetingAngel.NegateVotes(votingData, States);
             Assumer.OnVotingEnd(votingData);
-            
+
             var exileId = byte.MaxValue;
             var max = 0;
             voteLog.Info("===Decision to expel player processing begins===");

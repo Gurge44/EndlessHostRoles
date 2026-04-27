@@ -313,13 +313,13 @@ public static class ModUpdater
             passiveButton.OnClick = new();
 
             if (buttonIsExit)
-                passiveButton.OnClick.AddListener((Action)Application.Quit);
+                passiveButton.OnClick.AddListener((Action)SplashLogoAnimatorPatch.SceneChanger.ExitGame);
             else
                 passiveButton.OnClick.AddListener((Action)(() => InfoPopup.Close()));
         }
     }
 
-    private static void ShowPopupWithTwoButtons(string message, string firstButtonText, string secondButtonText = "", Action onClickOnFirstButton = null, Action onClickOnSecondButton = null)
+    public static void ShowPopupWithTwoButtons(string message, string firstButtonText, string secondButtonText = "", Action onClickOnFirstButton = null, Action onClickOnSecondButton = null)
     {
         if (InfoPopupV2)
         {

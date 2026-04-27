@@ -258,7 +258,7 @@ public class Romantic : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     private static void ChangeRole()

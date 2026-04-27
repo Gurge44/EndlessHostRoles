@@ -126,6 +126,20 @@ internal static class CheckMurderPatch
                 Logger.Info("CheckMurder while intro is not destroyed, kill canceled", "CheckMurder");
                 return false;
             }
+            
+            if (killer.Is(CustomRoles.Dizzy))
+            {
+                Vector2 pos = killer.Pos();
+                float range = GameManager.Instance.LogicOptions.GetKillDistance();
+                PlayerControl[] allInRange = FastVector2.GetPlayersInRange(pos, range, x => x.PlayerId != killer.PlayerId).ToArray();
+
+                if (allInRange.Length > 1)
+                {
+                    PlayerControl tempTarget = target;
+                    target = allInRange.RandomElement();
+                    Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Dizzy");
+                }
+            }
 
             if (target.Is(CustomRoles.Detour) && target.GetAbilityUseLimit() >= 1f)
             {

@@ -50,7 +50,7 @@ internal class Inhibitor : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return base.CanUseKillButton(pc) && !Utils.IsAnySabotageActive();
+        return !Utils.IsAnySabotageActive();
     }
 
     public override void SetKillCooldown(byte id)

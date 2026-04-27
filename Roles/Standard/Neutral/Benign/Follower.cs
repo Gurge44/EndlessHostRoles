@@ -131,7 +131,7 @@ public class Follower : RoleBase
         BetTimes--;
         PlayerControl betPlayer = Utils.GetPlayerById(BetPlayer);
 
-        if (betPlayer != null)
+        if (betPlayer)
         {
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: betPlayer, ForceLoop: true);
             Utils.NotifyRoles(SpecifySeer: betPlayer, SpecifyTarget: killer, ForceLoop: true);
@@ -172,7 +172,7 @@ public class Follower : RoleBase
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         if (Main.PlayerStates[playerId].Role is not Follower tc) return;
-        
+
         PlayerControl player = Utils.GetPlayerById(playerId);
         if (player == null) return;
 

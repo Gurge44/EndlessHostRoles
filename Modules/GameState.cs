@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -73,6 +73,7 @@ public class PlayerState(byte playerId)
         Misguess,
         LossOfBlood,
         Frightened,
+        Bankrupt,
 
         // Natural Disasters
         Meteor,

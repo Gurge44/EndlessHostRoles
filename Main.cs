@@ -248,6 +248,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
+    public static ConfigEntry<bool> AckdPrivacyPolicy { get; set; }
 
     public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
     public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
@@ -430,6 +431,7 @@ public class Main : BasePlugin
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
+        AckdPrivacyPolicy = Config.Bind("Other", "AckdPrivacyPolicy", false);
 
         HasArgumentException = false;
 
@@ -504,6 +506,7 @@ public class Main : BasePlugin
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Operative, "#47f5d2" },
                 { CustomRoles.Tar, "#8C796B" },
                 { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },
@@ -612,6 +615,7 @@ public class Main : BasePlugin
                 { CustomRoles.Opportunist, "#4dff4d" },
                 { CustomRoles.Vector, "#ff6201" },
                 { CustomRoles.Jackal, "#00b4eb" },
+                { CustomRoles.Jackpot, "#00fd50" },
                 { CustomRoles.Sidekick, "#00b4eb" },
                 { CustomRoles.Innocent, "#8f815e" },
                 { CustomRoles.Pelican, "#34c84b" },
@@ -732,6 +736,7 @@ public class Main : BasePlugin
                 { CustomRoles.GA, "#8cffff" },
                 { CustomRoles.Facilitator, CovenColor },
                 { CustomRoles.Shade, "#060270" },
+                { CustomRoles.MeetingAngel, "#a7e8b5" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons
@@ -748,6 +753,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Dizzy, "#de97a7" },
                 { CustomRoles.Entombed, "#8c71de" },
                 { CustomRoles.Urgent, "#D49255" },
                 { CustomRoles.Talkative, "#6ADEDE" },
@@ -1151,6 +1157,7 @@ public enum CustomWinner
     Revolutionist = CustomRoles.Revolutionist,
     Technician = CustomRoles.Technician,
     Jackal = CustomRoles.Jackal,
+    Jackpot = CustomRoles.Jackpot,
     God = CustomRoles.God,
     Vector = CustomRoles.Vector,
     Innocent = CustomRoles.Innocent,

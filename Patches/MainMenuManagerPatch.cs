@@ -62,11 +62,11 @@ public static class MainMenuManagerPatch
     [HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
-        if (Template == null) Template = __instance.quitButton;
+        if (!Template) Template = __instance.quitButton;
 
-        if (Template == null) return;
+        if (!Template) return;
 
-        if (UpdateButton == null)
+        if (!UpdateButton)
         {
             UpdateButton = CreateButton(
                 "updateButton",
@@ -88,9 +88,9 @@ public static class MainMenuManagerPatch
     [HarmonyPostfix]
     public static void MainMenuManager_LateUpdate(MainMenuManager __instance)
     {
-        if (GameObject.Find("MainUI") == null) ShowingPanel = false;
+        if (!GameObject.Find("MainUI")) ShowingPanel = false;
 
-        if (TitleLogoPatch.RightPanel != null)
+        if (TitleLogoPatch.RightPanel)
         {
             Vector3 pos1 = TitleLogoPatch.RightPanel.transform.localPosition;
             Vector3 lerp1 = Vector3.Lerp(pos1, TitleLogoPatch.RightPanelOp + new Vector3(ShowingPanel ? 0f : 10f, 0f, 0f), Time.deltaTime * (ShowingPanel ? 3f : 2f));
@@ -105,7 +105,7 @@ public static class MainMenuManagerPatch
         if (ShowedBak || !IsOnline) return;
 
         GameObject bak = GameObject.Find("BackgroundTexture");
-        if (bak == null || !bak.active) return;
+        if (!bak || !bak.active) return;
 
         Vector3 pos2 = bak.transform.position;
         Vector3 lerp2 = Vector3.Lerp(pos2, new(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
@@ -129,42 +129,42 @@ public static class MainMenuManagerPatch
         MgLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
 
         // GitHub Button
-        if (GitHubButton == null)
+        if (!GitHubButton)
         {
             GitHubButton = CreateButton(
                 "GitHubButton",
                 new(-2.3f, -1.3f, 1f),
                 new(153, 153, 153, byte.MaxValue),
                 new(209, 209, 209, byte.MaxValue),
-                () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
+                () => Constants.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
                 Translator.GetString("GitHub")); //"GitHub"
         }
 
         GitHubButton.gameObject.SetActive(true);
 
         // Discord Button
-        if (DiscordButton == null)
+        if (!DiscordButton)
         {
             DiscordButton = CreateButton(
                 "DiscordButton",
                 new(-0.5f, -1.3f, 1f),
                 new(88, 101, 242, byte.MaxValue),
                 new(148, 161, 255, byte.MaxValue),
-                () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
+                () => Constants.OpenURL("https://discord.com/invite/m3ayxfumC8"),
                 Translator.GetString("Discord")); //"Discord"
         }
 
         DiscordButton.gameObject.SetActive(true);
 
         // Website Button
-        if (WebsiteButton == null)
+        if (!WebsiteButton)
         {
             WebsiteButton = CreateButton(
                 "WebsiteButton",
                 new(1.3f, -1.3f, 1f),
                 new(251, 81, 44, byte.MaxValue),
                 new(211, 77, 48, byte.MaxValue),
-                () => Application.OpenURL("https://app.gurge44.eu"),
+                () => Constants.OpenURL("https://app.gurge44.eu"),
                 Translator.GetString("Website")); //"Website"
         }
 

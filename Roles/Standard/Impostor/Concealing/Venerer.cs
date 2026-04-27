@@ -98,7 +98,7 @@ public class Venerer : RoleBase
                 Utils.NotifyRoles(SpecifyTarget: pc);
                 LateTask.New(() =>
                 {
-                    if (!ChangedSkin || pc == null || !pc.IsAlive() || Camouflage.IsCamouflage) return;
+                    if (!ChangedSkin || !pc || !pc.IsAlive() || Camouflage.IsCamouflage) return;
                     Utils.RpcChangeSkin(pc, outfit);
                     ChangedSkin = false;
                     Utils.NotifyRoles(SpecifyTarget: pc);
@@ -110,7 +110,7 @@ public class Venerer : RoleBase
                 pc.MarkDirtySettings();
                 LateTask.New(() =>
                 {
-                    if (pc == null || !pc.IsAlive()) return;
+                    if (!pc || !pc.IsAlive()) return;
                     Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) pc.MarkDirtySettings();
                 }, AbilityDuration.GetInt(), log: false);
@@ -137,14 +137,14 @@ public class Venerer : RoleBase
                         frozenPlayers.Except(nearbyPlayers).Do(x =>
                         {
                             PlayerControl p = Utils.GetPlayerById(x);
-                            if (p == null || !p.IsAlive()) return;
+                            if (!p || !p.IsAlive()) return;
                             Main.AllPlayerSpeed[p.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                             p.MarkDirtySettings();
                         });
                         nearbyPlayers.Except(frozenPlayers).Do(x =>
                         {
                             PlayerControl p = Utils.GetPlayerById(x);
-                            if (p == null || !p.IsAlive()) return;
+                            if (!p || !p.IsAlive()) return;
                             Main.AllPlayerSpeed[p.PlayerId] = DecreasedSpeed.GetFloat();
                             p.MarkDirtySettings();
                         });
@@ -157,7 +157,7 @@ public class Venerer : RoleBase
                     frozenPlayers.Do(x =>
                     {
                         PlayerControl p = Utils.GetPlayerById(x);
-                        if (p == null || !p.IsAlive()) return;
+                        if (!p || !p.IsAlive()) return;
                         Main.AllPlayerSpeed[p.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                         if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks) p.MarkDirtySettings();
                     });
@@ -171,7 +171,7 @@ public class Venerer : RoleBase
         {
             ChangedSkin = false;
             PlayerControl pc = VenererId.GetPlayer();
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
             Utils.RpcChangeSkin(pc, Camouflage.PlayerSkins[VenererId]);
         }
     }

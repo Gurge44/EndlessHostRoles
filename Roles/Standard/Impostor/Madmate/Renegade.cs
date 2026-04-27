@@ -31,6 +31,6 @@ internal class Renegade : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 }

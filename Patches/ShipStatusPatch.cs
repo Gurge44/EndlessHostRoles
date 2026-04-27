@@ -54,7 +54,7 @@ public static class ShipStatusSystem
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
 {
-    public static bool Prefix([HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+    public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
         try
         {
@@ -70,10 +70,11 @@ public static class MessageReaderUpdateSystemPatch
             if (EAC.CheckInvalidSabotage(systemType, player, amount))
             {
                 Logger.Info("EAC patched Sabotage RPC", "MessageReaderUpdateSystemPatch");
+                reader.Recycle();
                 return false;
             }
 
-            return UpdateSystemPatch.Prefix(systemType, player, amount);
+            return UpdateSystemPatch.Prefix(__instance, systemType, player, amount);
         }
         catch { }
 
@@ -95,7 +96,7 @@ public static class MessageReaderUpdateSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
 internal static class UpdateSystemPatch
 {
-    public static bool Prefix( /*ShipStatus __instance,*/
+    public static bool Prefix(ShipStatus __instance,
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
@@ -190,7 +191,7 @@ internal static class UpdateSystemPatch
                 break;
             }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
-                return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(null, player, systemType);
+                return SabotageSystemTypeUpdateSystemPatch.CheckSabotage(__instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>(), player, systemType);
             case SystemTypes.Security when amount == 1:
             {
                 bool camerasDisabled = Main.CurrentMap switch
@@ -267,14 +268,14 @@ internal static class UpdateSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
 internal static class CloseDoorsPatch
 {
-    public static bool Prefix([HarmonyArgument(0)] SystemTypes room)
+    public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes room)
     {
         bool allow = !Options.DisableSabotage.GetBool() && !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown;
 
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
-        if (Main.CurrentMap != MapNames.Polus && SabotageSystemTypeUpdateSystemPatch.Instance != null && SabotageSystemTypeUpdateSystemPatch.Instance.AnyActive) allow = false;
+        if (Main.CurrentMap != MapNames.Polus && __instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>().AnyActive) allow = false;
 
         Logger.Info($"({room}) => {(allow ? "Allowed" : "Blocked")}", "DoorClose");
         return allow;

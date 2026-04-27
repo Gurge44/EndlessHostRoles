@@ -65,7 +65,7 @@ public class Jailor : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     private static void SendRPC(byte jailerId, byte targetId)

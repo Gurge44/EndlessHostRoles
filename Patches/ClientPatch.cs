@@ -71,8 +71,11 @@ internal static class MMOnlineManagerStartPatch
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
 internal static class SplashLogoAnimatorPatch
 {
+    public static SceneChanger SceneChanger;
+    
     public static void Prefix(SplashManager __instance)
     {
+        SceneChanger = __instance.sceneChanger;
         __instance.sceneChanger.AllowFinishLoadingScene();
         __instance.startedSceneLoad = true;
     }
@@ -86,6 +89,12 @@ internal static class RunLoginPatch
     public static void Prefix(ref bool canOnline)
     {
         if (DebugModeManager.AmDebugger) canOnline = true;
+
+        if (!Main.AckdPrivacyPolicy.Value)
+        {
+            ModUpdater.ShowPopupWithTwoButtons(GetString("PrivacyPolicy"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
+            return;
+        }
 
         try { ModUpdater.ShowAvailableUpdate(); }
         catch (Exception error) { Logger.Error(error.ToString(), "ModUpdater.ShowAvailableUpdate"); }
