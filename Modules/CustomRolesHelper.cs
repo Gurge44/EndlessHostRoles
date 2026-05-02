@@ -40,6 +40,7 @@ internal static class CustomRolesHelper
         CustomRoles.Carrier,
         CustomRoles.Empress,
         CustomRoles.Tar,
+        CustomRoles.Survivor,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -216,6 +217,7 @@ internal static class CustomRolesHelper
                 CustomRoles.LazyGuy => CustomRoles.Crewmate,
                 CustomRoles.Twister => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.SuperStar => CustomRoles.Crewmate,
+                CustomRoles.Survivor => CustomRoles.Crewmate,
                 CustomRoles.Anonymous => CustomRoles.Shapeshifter,
                 CustomRoles.Visionary => CustomRoles.Shapeshifter,
                 CustomRoles.Ninja => CustomRoles.Phantom,
@@ -1024,6 +1026,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Mayor or
                 CustomRoles.Insight or
                 CustomRoles.Decryptor or
+                CustomRoles.Survivor or
                 CustomRoles.Transporter;
         }
 
@@ -1481,6 +1484,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Oxyman => RoleOptionType.Crewmate_Power,
                 CustomRoles.President => RoleOptionType.Crewmate_Power,
                 CustomRoles.Speedrunner => RoleOptionType.Crewmate_Power,
+                CustomRoles.Survivor => RoleOptionType.Crewmate_Power,
                 CustomRoles.Telekinetic => RoleOptionType.Crewmate_Power,
                 CustomRoles.Ankylosaurus => RoleOptionType.Crewmate_Chaos,
                 CustomRoles.Car => RoleOptionType.Crewmate_Chaos,
@@ -1927,10 +1931,10 @@ internal static class CustomRolesHelper
             CustomRoles.Busy when !pc.GetTaskState().HasTasks => false,
             CustomRoles.Truant when pc.Is(CustomRoles.SoulHunter) => false,
             CustomRoles.Nimble when !pc.IsCrewmate() => false,
-            CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || (pc.Is(CustomRoles.TimeMaster) && !TimeMaster.TimeMasterCanUseVitals.GetBool()) => false,
-            CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
-            CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
-            CustomRoles.Examiner when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
+            CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) || (pc.Is(CustomRoles.TimeMaster) && !TimeMaster.TimeMasterCanUseVitals.GetBool()) => false,
+            CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) => false,
+            CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) => false,
+            CustomRoles.Examiner when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() || pc.Is(CustomRoles.Survivor) => false,
             CustomRoles.Venom when !pc.IsImpostor() => false,
             CustomRoles.Disregarded when pc.Is(CustomRoles.Bait) => false,
             CustomRoles.Oblivious when pc.Is(CustomRoles.Coroner) => false,
