@@ -274,6 +274,7 @@ public enum CustomRoles
     SpeedBooster,
     Spy,
     SuperStar,
+    Survivor,
     Swapper,
     Tar,
     TaskManager,
