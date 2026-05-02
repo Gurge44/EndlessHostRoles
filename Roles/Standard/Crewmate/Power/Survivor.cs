@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
@@ -66,6 +67,13 @@ public class Survivor : RoleBase
         SurvivorId = playerId;
     }
 
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        AURoleOptions.PhantomCooldown = ShieldCooldown.GetFloat();
+        AURoleOptions.EngineerCooldown = ShieldCooldown.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = 1f;
+    }
+
     public void ReceiveRPC(MessageReader reader)
     {
         Killing = reader.ReadBoolean();
@@ -91,9 +99,17 @@ public class Survivor : RoleBase
         ShieldTimer = null;
     }
 
-    public override void SetButtonTexts(HudManager hud, byte id) { hud.PetButton?.OverrideText(GetString("AbilityButtonText.GuardianAngel")); }
+    public override void SetButtonTexts(HudManager hud, byte id) { hud.AbilityButton?.OverrideText(GetString("AbilityButtonText.GuardianAngel")); }
 
-    public override void OnPet(PlayerControl pc)
+    public override bool OnVanish(PlayerControl pc) 
+    {   
+        ShieldSelf(pc);
+        return false;
+    }
+
+    public override void OnEnterVent(PlayerControl pc, Vent vent) { if (!Killing) ShieldSelf(pc); }
+
+    private void ShieldSelf(PlayerControl pc)
     {
         ShieldTimer?.Dispose();
         if (Main.EnumerateAlivePlayerControls().Count() <= SecondAbility.GetInt())
@@ -155,7 +171,7 @@ public class Survivor : RoleBase
     {
         if (Main.EnumerateAlivePlayerControls().Count() > LastAbility.GetInt() && Killing) return;
         Killing = true;
-        pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
+        pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
         LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KillCooldown.GetFloat(), Killing);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
