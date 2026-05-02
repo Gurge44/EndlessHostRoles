@@ -40,7 +40,6 @@ internal static class CustomRolesHelper
         CustomRoles.Carrier,
         CustomRoles.Empress,
         CustomRoles.Tar,
-        CustomRoles.Survivor,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -217,7 +216,7 @@ internal static class CustomRolesHelper
                 CustomRoles.LazyGuy => CustomRoles.Crewmate,
                 CustomRoles.Twister => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
                 CustomRoles.SuperStar => CustomRoles.Crewmate,
-                CustomRoles.Survivor => CustomRoles.Crewmate,
+                CustomRoles.Survivor => CustomRoles.Engineer,
                 CustomRoles.Anonymous => CustomRoles.Shapeshifter,
                 CustomRoles.Visionary => CustomRoles.Shapeshifter,
                 CustomRoles.Ninja => CustomRoles.Phantom,
