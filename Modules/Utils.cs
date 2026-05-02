@@ -3701,7 +3701,6 @@ public static class Utils
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.Pacifist => Options.PacifistCooldown.GetInt(),
             CustomRoles.Alchemist => Alchemist.VentCooldown.GetInt(),
-            CustomRoles.Survivor => Survivor.ShieldCooldown.GetInt(),
             CustomRoles.Hacker => playerId.IsPlayerModdedClient() ? -1 : Hacker.AbilityCD.GetInt(),
             CustomRoles.CameraMan => CameraMan.VentCooldown.GetInt(),
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
