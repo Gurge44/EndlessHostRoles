@@ -1422,7 +1422,7 @@
   "SuperStarDead": "Shock! Super Star <b>{0}</b> has unfortunately been mercilessly killed in the recent period of time!",
   "Survivor": "Survivor",
   "SurvivorInfo": "With each fallen crew, I get stronger",
-  "SurvivorInfoLong": "(Crewmates):\\nThe Survivor will get abilities with each set amount of players left in the game.\\n\\n- 1st Ability: See the number of alive players left in real time.\\n- 2nd Ability: Pet to give yourself a temporary shield.\\n- 3rd Ability: An additional set amount of votes.\\n- Last Ability: Finish tasks to gain a Kill button.\\n\\nNote: All abilities are stackable, separated, and can shuffle their order if wanted, as well as disable them by set the required amount of players needed to 0 or 1.",
+  "SurvivorInfoLong": "(Crewmates):\\nThe Survivor will get abilities with each set amount of players left in the game.\\n\\n- 1st Ability: See the number of alive players left in real time.\\n- 2nd Ability: Vent/Vanish to give yourself a temporary shield.\\n- 3rd Ability: An additional set amount of votes.\\n- Last Ability: Finish tasks to gain a Kill button.\\n\\nNote: All abilities are stackable, separated, and can shuffle their order if wanted, as well as disable them by set the required amount of players needed to 0 or 1.",
   "SurvivorFirstAbility": "Number of players left to get 1st Ability",
   "SurvivorSecondAbility": "Number of players left to get 2nd Ability",
   "SurvivorThirdAbility": "Number of players left to get 3rd Ability",
