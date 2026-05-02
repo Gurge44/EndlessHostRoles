@@ -572,6 +572,11 @@ public static class HudSpritePatch
                     newKillButton = CustomButton.Get("Shield");
                     break;
                 }
+                case CustomRoles.Survivor:
+                {
+                    newPetButton = CustomButton.Get("Shield");
+                    break;
+                }
                 case CustomRoles.Gangster when Gangster.CanRecruit(player.PlayerId):
                 case CustomRoles.Jackal when player.GetAbilityUseLimit() > 0:
                 {
