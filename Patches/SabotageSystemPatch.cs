@@ -21,7 +21,7 @@ public static class ReactorSystemTypePatch
         if (Main.CurrentMap is MapNames.Airship) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || !SetDurationForReactorSabotage)
+        if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForReactorSabotage)
         {
             if (!SetDurationForReactorSabotage && !__instance.IsActive)
                 SetDurationForReactorSabotage = true;
@@ -93,7 +93,7 @@ public static class LifeSuppSystemTypePatch
         if (Main.CurrentMap is MapNames.Polus or MapNames.Airship or MapNames.Fungle) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || !SetDurationForO2Sabotage)
+        if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForO2Sabotage)
         {
             if (!SetDurationForO2Sabotage && !__instance.IsActive)
                 SetDurationForO2Sabotage = true;
@@ -155,7 +155,7 @@ public static class MushroomMixupSabotageSystemPatch
         if (Main.CurrentMap is not MapNames.Fungle) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || !SetDurationMushroomMixupSabotage)
+        if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationMushroomMixupSabotage)
         {
             if (!SetDurationMushroomMixupSabotage && !__instance.IsActive)
                 SetDurationMushroomMixupSabotage = true;

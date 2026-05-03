@@ -237,6 +237,7 @@ internal static class ChatCommands
             new("PlayerInfo", "[id]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, PlayerInfoCommand, true, false, [GetString("CommandArgs.PlayerInfo.Id")]),
             new("TimeLimit", "", Command.UsageLevels.Everyone, Command.UsageTimes.InGame, TimeLimitCommand, true, false),
             new("Exo", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ExoCommand, true, true),
+            new("Reroll", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RerollCommand, true, true),
             
             new("ConfirmAuth", "{uuid}", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -543,6 +544,12 @@ internal static class ChatCommands
             Utils.SendMessage(GetString("Exorcist.AbilityEnded"), title: CustomRoles.Exorcist.ToColoredString());
         }, duration);
         
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    private static void RerollCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!Reroll.TryQueueCommandTrigger(player)) return;
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
     
@@ -2214,9 +2221,6 @@ internal static class ChatCommands
         if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote is true or null) return;
 
         if (voteId > PlayerControl.AllPlayerControls.Count) return;
-
-        PlayerControl votedPlayer = voteId.GetPlayer();
-        if (!player.UsesMeetingShapeshift() && Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) && votedPlayer != null && state.Role.OnVote(player, votedPlayer)) return;
 
         MeetingHud.Instance.CastVote(player.PlayerId, voteId);
     }
