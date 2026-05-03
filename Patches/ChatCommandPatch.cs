@@ -211,6 +211,8 @@ internal static class ChatCommands
             new("GameModeList", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new("GameModePoll", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
             new("MapPoll", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, MapPollCommand, true, false),
+            new("PresetPoll", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, PresetPollCommand, true, false),
+            new("ChangePreset", "{preset}", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, ChangePresetCommand, true, false, [GetString("CommandArgs.ChangePreset.Preset")]),
             new("EightBall", "[question]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new("AddTag", "{id} {color} {tag}", Command.UsageLevels.Host, Command.UsageTimes.Always, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new("DeleteTag", "{id}", Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
@@ -1023,6 +1025,27 @@ internal static class ChatCommands
         PollCommand(player, msg, msg.Split(' '));
     }
 
+    public static void PresetPollCommand(PlayerControl player, string text, string[] args)
+    {
+        var presetConfigs = new[] { Main.Preset1, Main.Preset2, Main.Preset3, Main.Preset4, Main.Preset5, Main.Preset6, Main.Preset7, Main.Preset8, Main.Preset9, Main.Preset10, Main.Preset11, Main.Preset12, Main.Preset13, Main.Preset14, Main.Preset15, Main.Preset16, Main.Preset17, Main.Preset18, Main.Preset19, Main.Preset20 };
+
+        string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) =>
+            (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value)
+            .Replace(' ', '_')));
+
+        var msg = $"/poll {GetString("PresetPoll.Question").TrimEnd('?')}? {presetNames}";
+        PollCommand(player, msg, msg.Split(' '));
+    }
+
+    private static void ChangePresetCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !int.TryParse(args[1], out int presetNum) || presetNum is < 1 or > 20) return;
+        if (Options.Preset == null) return;
+
+        Options.Preset.SetValue(presetNum - 1);
+        Utils.SendMessage(string.Format(GetString("ChangePreset.Changed"), presetNum, Options.Preset.GetString()));
+    }
+
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
     {
         string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..^1]
@@ -1721,6 +1744,7 @@ internal static class ChatCommands
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
+        bool pPoll = msg.Contains(GetString("PresetPoll.Question"));
         
         if (gmPoll && GMPollGameModes.Count > 6) msg += "<size=70%>";
 
@@ -1751,7 +1775,7 @@ internal static class ChatCommands
 
             var resendTimer = 0f;
 
-            while ((notEveryoneVoted || gmPoll || mPoll) && PollTimer > 0f)
+            while ((notEveryoneVoted || gmPoll || mPoll || pPoll) && PollTimer > 0f)
             {
                 if (!GameStates.IsLobby) yield break;
 
@@ -1792,6 +1816,11 @@ internal static class ChatCommands
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
                 if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
+                if (pPoll)
+                {
+                    if (Options.Preset == null) return;
+                    Options.Preset.SetValue(winnerIndex);
+                }
             }
         }
 
