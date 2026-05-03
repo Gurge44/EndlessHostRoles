@@ -251,7 +251,6 @@ public static class Options
     public static OptionItem DisableWhisperCommand;
     public static OptionItem DisableSpectateCommand;
     public static OptionItem Disable8ballCommand;
-    public static OptionItem EightballCommandIndexes;
     public static OptionItem DisableVoteStartCommand;
     public static OptionItem DisableVentingOn1v1;
     public static OptionItem DisableSabotagingOn1v1;
@@ -718,6 +717,12 @@ public static class Options
     public static OptionItem AdditionalEmergencyCooldownTime;
 
     public static OptionItem DisablePlayerVotedMessage;
+
+    // Game Commands
+    public static OptionItem AnagramLanguage;
+    public static OptionItem AnagramWordLength;
+    public static OptionItem AnagramDifficulty;
+    public static OptionItem EightballCommandIndexes;
 
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
@@ -2979,6 +2984,39 @@ public static class Options
         LoadingPercentage = 96;
 
 
+        new TextOptionItem(100027, "MenuTitle.GameCommands", TabGroup.GameSettings)
+            .SetHeader(true)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        AnagramLanguage = new StringOptionItem(23821, "AnagramLanguage", [
+            "AnagramLang.Auto",
+            "AnagramLang.English",
+            "AnagramLang.Spanish",
+            "AnagramLang.Italian",
+            "AnagramLang.German",
+            "AnagramLang.French",
+            "AnagramLang.Chinese",
+            "AnagramLang.BrazilianPortuguese",
+            "AnagramLang.Romanian"
+        ], 0, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        AnagramWordLength = new IntegerOptionItem(23822, "AnagramWordLength", new(2, 15, 1), 5, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        AnagramDifficulty = new StringOptionItem(23823, "AnagramDifficulty", [
+            "AnagramDiff.Easy",
+            "AnagramDiff.MediumEasy",
+            "AnagramDiff.Medium",
+            "AnagramDiff.MediumHard",
+            "AnagramDiff.Hard"
+        ], 0, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+
         new TextOptionItem(100028, "MenuTitle.Other", TabGroup.GameSettings)
             .SetHeader(true)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
@@ -2989,9 +3027,6 @@ public static class Options
 
         LadderDeathChance = new StringOptionItem(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings)
             .SetParent(LadderDeath);
-
-        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
-            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         LoadingPercentage = 97;
 
@@ -3097,7 +3132,7 @@ public static class Options
 
         #region CTA
 
-        new TextOptionItem(100027, "MenuTitle.CTA", TabGroup.GameSettings)
+        new TextOptionItem(100030, "MenuTitle.CTA", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
@@ -3240,7 +3275,7 @@ public static class Options
 
         for (var index = 1; index <= MaxAutoGMRotationRandomGroups; index++)
         {
-            new TextOptionItem(100030 + index, "MenuTitle.AGMR.RandomGroup", TabGroup.SystemSettings)
+            new TextOptionItem(100031 + index, "MenuTitle.AGMR.RandomGroup", TabGroup.SystemSettings)
                 .SetHeader(true)
                 .SetParent(EnableAutoGMRotation)
                 .AddReplacement(("{index}", index.ToString()));

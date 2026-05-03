@@ -1140,7 +1140,11 @@ internal static class ChatCommands
 
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
-        Main.Instance.StartCoroutine(Main.GetRandomWord(CreateAnagram));
+        string langParam = GetLangParam();
+        int wordLength = Options.AnagramWordLength.GetInt();
+        int difficulty = Options.AnagramDifficulty.GetValue() + 1;
+
+        Main.Instance.StartCoroutine(Main.GetRandomWord(CreateAnagram, langParam, wordLength, difficulty));
         return;
 
         void CreateAnagram(string word)
@@ -1149,6 +1153,38 @@ internal static class ChatCommands
             CurrentAnagram = word;
             byte sendTo = GameStates.InGame && !player.IsAlive() ? player.PlayerId : byte.MaxValue;
             Utils.SendMessage(string.Format(GetString("Anagram"), scrambled, word[0]), sendTo, GetString("AnagramTitle"));
+        }
+
+        static string GetLangParam()
+        {
+            int langIndex = Options.AnagramLanguage.GetValue();
+
+            if (langIndex == 0)
+            {
+                return GetUserTrueLang() switch
+                {
+                    SupportedLangs.Spanish => "es",
+                    SupportedLangs.Italian => "it",
+                    SupportedLangs.German => "de",
+                    SupportedLangs.French => "fr",
+                    SupportedLangs.SChinese => "zh",
+                    SupportedLangs.TChinese => "zh",
+                    SupportedLangs.Brazilian => "pt-br",
+                    SupportedLangs.Portuguese => "pt-br",
+                    _ => ""
+                };
+            }
+
+            return langIndex switch
+            {
+                2 => "es",
+                3 => "it",
+                4 => "de",
+                5 => "fr",
+                6 => "zh",
+                7 => "pt-br",
+                _ => ""
+            };
         }
     }
 
