@@ -1040,11 +1040,10 @@ internal static class ChatCommands
     private static void ChangePresetCommand(PlayerControl player, string text, string[] args)
     {
         if (args.Length < 2 || !int.TryParse(args[1], out int presetNum) || presetNum is < 1 or > 20) return;
-        if (OptionItem.AllOptions.FirstOrDefault(x => x is PresetOptionItem) is PresetOptionItem presetOption)
-        {
-            presetOption.SetValue(presetNum - 1);
-            Utils.SendMessage(string.Format(GetString("ChangePreset.Changed"), presetNum, presetOption.GetString()));
-        }
+        if (Options.Preset == null) return;
+
+        Options.Preset.SetValue(presetNum - 1);
+        Utils.SendMessage(string.Format(GetString("ChangePreset.Changed"), presetNum, Options.Preset.GetString()));
     }
 
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
@@ -1819,8 +1818,8 @@ internal static class ChatCommands
                 if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
                 if (pPoll)
                 {
-                    if (OptionItem.AllOptions.FirstOrDefault(x => x is PresetOptionItem) is PresetOptionItem presetOption)
-                        presetOption.SetValue(winnerIndex);
+                    if (Options.Preset == null) return;
+                    Options.Preset.SetValue(winnerIndex);
                 }
             }
         }
