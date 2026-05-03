@@ -9709,7 +9709,7 @@
   "CommandForms.Choose": "choose,pick",
   "CommandForms.Colour": "colour,color,cor",
   "CommandForms.Combo": "combo",
-  "CommandForms.Compare": "compare, cmp",
+  "CommandForms.Compare": "compare,cmp",
   "CommandForms.ConfirmAuth": "confirmauth",
   "CommandForms.CopyPreset": "copypreset,presetcopy,cpp",
   "CommandForms.CosID": "cosid",
