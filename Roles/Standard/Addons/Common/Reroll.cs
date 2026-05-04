@@ -1,8 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using AmongUs.Data;
-using AmongUs.GameOptions;
-using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -64,7 +60,7 @@ public class Reroll : IAddon
 
     public static bool TryQueueCommandTrigger(PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost || player == null) return false;
+        if (!AmongUsClient.Instance.AmHost || !player) return false;
 
         if (!player.Is(CustomRoles.Reroll) || !player.IsAlive() || Silencer.ForSilencer.Contains(player.PlayerId))
         {
@@ -96,30 +92,29 @@ public class Reroll : IAddon
 
     public static void ResolveAfterMeeting(NetworkedPlayerInfo lastExiled)
     {
-        foreach ((byte playerId, PendingReroll pending) in Pending.ToArray())
+        foreach ((byte playerId, PendingReroll pending) in Pending)
         {
             PlayerControl player = Utils.GetPlayerById(playerId);
+            if (!player) continue;
+
             bool changed = false;
-
-            if (!player)
-            {
-                Pending.Remove(playerId);
-                continue;
-            }
-
-            bool wasExiled = lastExiled != null && lastExiled.PlayerId == playerId;
+            bool wasExiled = lastExiled && lastExiled.PlayerId == playerId;
 
             if (!wasExiled && player.IsAlive())
                 changed = TryResolveAliveRole(player, pending.TeamAtTrigger);
 
-            if (changed && ConsumeOnSuccess.GetBool())
-                Main.PlayerStates[playerId].RemoveSubRole(CustomRoles.Reroll);
-
-            if (!changed)
-                player.Notify(Translator.GetString("Reroll.Failed"));
-
-            Pending.Remove(playerId);
+            switch (changed)
+            {
+                case true when ConsumeOnSuccess.GetBool():
+                    Main.PlayerStates[playerId].RemoveSubRole(CustomRoles.Reroll);
+                    break;
+                case false:
+                    player.Notify(Translator.GetString("Reroll.Failed"));
+                    break;
+            }
         }
+        
+        Pending.Clear();
     }
 
     private static bool TryResolveAliveRole(PlayerControl player, Team teamAtTrigger)
@@ -183,7 +178,7 @@ public class Reroll : IAddon
             if (index == -1) continue;
 
             state.SubRoles.RemoveAt(index);
-            bool isCompatible = CustomRolesHelper.IsAddonCompatibleWithCurrentState(subRole, player);
+            bool isCompatible = CustomRolesHelper.CheckAddonConflict(subRole, player, true);
             state.SubRoles.Insert(index, subRole);
 
             if (!isCompatible)

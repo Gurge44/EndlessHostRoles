@@ -3783,6 +3783,8 @@ public static class Utils
 
             CopyCat.ResetRoles();
             Imitator.SetRoles();
+            
+            Reroll.ResolveAfterMeeting(ExileControllerWrapUpPatch.LastExiled);
         }
         catch (Exception e) { ThrowException(e); }
 

@@ -41,7 +41,7 @@ public static class SubmergedCompatibility
 
                 if (_submarineStatus is null || _submarineStatus.WasCollected || !_submarineStatus || _submarineStatus == null)
                 {
-                    if (ShipStatus.Instance is null || ShipStatus.Instance == null || !ShipStatus.Instance || ShipStatus.Instance.WasCollected)
+                    if (ShipStatus.Instance is null || !ShipStatus.Instance || !ShipStatus.Instance || ShipStatus.Instance.WasCollected)
                         return _submarineStatus = null;
 
                     if (ShipStatus.Instance.Type == SUBMERGED_MAP_TYPE)

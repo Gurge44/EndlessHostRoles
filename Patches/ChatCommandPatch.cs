@@ -551,7 +551,10 @@ internal static class ChatCommands
 
     private static void RerollCommand(PlayerControl player, string text, string[] args)
     {
+        if (Starspawn.IsDayBreak) return;
+        
         if (!Reroll.TryQueueCommandTrigger(player)) return;
+        
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
     
