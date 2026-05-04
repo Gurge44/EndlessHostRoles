@@ -8,13 +8,18 @@ namespace EHR.Patches;
 [HarmonyPatch]
 internal static class CustomServersPatch
 {
+    public static bool Prepare()
+    {
+        return !OperatingSystem.IsAndroid();
+    }
+    
     private static bool IsCurrentServerOfficial()
     {
-        const string Domain = "among.us";
+        const string domain = "among.us";
 
         return ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
-               regionInfo.PingServer.EndsWith(Domain, StringComparison.Ordinal) &&
-               regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(Domain, StringComparison.Ordinal));
+               regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
+               regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal));
     }
 
     [HarmonyPatch(typeof(AuthManager._CoConnect_d__4), "MoveNext")]
