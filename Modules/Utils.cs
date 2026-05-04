@@ -4065,7 +4065,7 @@ public static class Utils
             Logger.Exception(ex, "AfterPlayerDeathTasks");
         }
 
-        if (!target || (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive()) || Options.CurrentGameMode != CustomGameMode.Standard) return;
+        if (!target || (Main.DiedThisRound.Contains(target.PlayerId) && IsRevivingRoleAlive() && !GameStates.IsMeeting) || Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         if (targetRealKiller)
             target.Notify($"<#ffffff>{string.Format(GetString("DeathCommand"), targetRealKiller.PlayerId.ColoredPlayerName(), (targetRealKiller.Is(CustomRoles.Bloodlust) ? $"{CustomRoles.Bloodlust.ToColoredString()} " : string.Empty) + targetRealKiller.GetCustomRole().ToColoredString())}</color>", 10f);

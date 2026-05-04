@@ -80,7 +80,7 @@ public class Centralizer : RoleBase
         if (MarkedPosition.HasValue)
         {
             if (pc.GetAbilityUseLimit() < 1) return;
-            Main.EnumerateAlivePlayerControls().Shuffle().Take(NumPlayersTeleported.GetInt()).MassTP(MarkedPosition.Value);
+            Main.EnumerateAlivePlayerControls().TakeRandom(NumPlayersTeleported.GetInt()).MassTP(MarkedPosition.Value);
             MarkedPosition = null;
             pc.RpcRemoveAbilityUse();
         }

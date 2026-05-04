@@ -509,9 +509,9 @@ public static class ButtonCooldownPatch
 
         if (__instance.isCoolingDown)
         {
-            __instance.cooldownTimerText.text = timer < 10f
+            __instance.cooldownTimerText.text = timer <= 9.9f
                 ? timer.ToString("0.0", NumberFormatInfo.CurrentInfo)
-                : ((int)timer).ToString();
+                : timer >= 11 ? ((int)timer).ToString() : "10";
         }
     }
 }
@@ -1021,23 +1021,17 @@ internal static class TaskPanelBehaviourPatch
         panel.openPosition   = Vector3.Lerp(panel.openPosition,   targetOpen,   t);
 
         PlayerControl player = PlayerControl.LocalPlayer;
-        
         string roleInfo = player.GetRoleInfo();
-        
         var roleWithInfoBuilder = new StringBuilder();
-        roleWithInfoBuilder.Append("<b>");
-        roleWithInfoBuilder.Append(role.ToColoredString());
-        roleWithInfoBuilder.Append(":</b>\r\n");
-        roleWithInfoBuilder.Append(roleInfo);
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             string[] splitted = roleInfo.Split(' ');
 
-            roleWithInfoBuilder.Clear();
             roleWithInfoBuilder.Append("<b>");
             roleWithInfoBuilder.Append(GetString(Options.CurrentGameMode.ToString()));
             roleWithInfoBuilder.Append(":</b>\r\n");
+            
             if (splitted.Length <= 3)
             {
                 roleWithInfoBuilder.Append(roleInfo);
@@ -1053,13 +1047,19 @@ internal static class TaskPanelBehaviourPatch
         {
             string[] split = roleInfo.Split(' ');
             int half = split.Length / 2;
-            roleWithInfoBuilder.Clear();
             roleWithInfoBuilder.Append("<b>");
             roleWithInfoBuilder.Append(role.ToColoredString());
             roleWithInfoBuilder.Append(":</b>\r\n");
             roleWithInfoBuilder.Append(string.Join(' ', split[..half]));
             roleWithInfoBuilder.Append("\r\n");
             roleWithInfoBuilder.Append(string.Join(' ', split[half..]));
+        }
+        else
+        {
+            roleWithInfoBuilder.Append("<b>");
+            roleWithInfoBuilder.Append(role.ToColoredString());
+            roleWithInfoBuilder.Append(":</b>\r\n");
+            roleWithInfoBuilder.Append(roleInfo);
         }
 
         StringBuilder finalTextBuilder = new StringBuilder(Utils.ColorString(player.GetRoleColor(), roleWithInfoBuilder.ToString()));

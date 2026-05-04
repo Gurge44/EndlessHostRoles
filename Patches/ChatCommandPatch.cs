@@ -1453,7 +1453,7 @@ internal static class ChatCommands
             {
                 var suitableRoles = hnsRoles.FindAll(x => x.Interface.Team == team);
                 if (suitableRoles.Count == 0) continue;
-                allPlayerIds.Shuffle().Where(x => !DraftRoles.ContainsKey(x)).Take(num).Do(x => DraftRoles[x] = [suitableRoles.RandomElement().Role]);
+                allPlayerIds.Where(x => !DraftRoles.ContainsKey(x)).TakeRandom(num).Do(x => DraftRoles[x] = [suitableRoles.RandomElement().Role]);
             }
             
             var hiderRoles = hnsRoles.FindAll(x => x.Interface.Team == Team.Crewmate);
@@ -1488,10 +1488,10 @@ internal static class ChatCommands
             return;
         }
 
-        IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
-        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt(), Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt()));
-        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt() - Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt(), Options.MaxNNKs.GetInt()));
-        IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
+        IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).TakeRandom(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
+        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).TakeRandom(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt(), Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt()));
+        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).TakeRandom(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt() - Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt(), Options.MaxNNKs.GetInt()));
+        IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).TakeRandom(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());
         allRoles.RemoveAll(x => x.IsNK());
@@ -3428,6 +3428,7 @@ internal static class ChatCommands
         if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
             Utils.CheckServerCommand(ref text, out bool spamRequired);
+            if (!spamRequired) canceled = true;
             string[] args = text.Split(' ');
             
             foreach (Command command in Command.AllCommands)
@@ -3445,7 +3446,7 @@ internal static class ChatCommands
 
                 if (command.AlwaysHidden && spamRequired) Utils.SendMessage("\n", player.PlayerId, GetString("NoSpamAnymoreUseCmd"));
                 command.Action(player, text, args);
-                if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
+                if (command.IsCanceled) canceled |= command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;
             }
         }

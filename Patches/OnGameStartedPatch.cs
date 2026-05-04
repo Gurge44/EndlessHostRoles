@@ -799,7 +799,7 @@ internal static class StartGameHostPatch
                                 roleList.ExceptWith(otherList);
                         }
 
-                        BasisChangingAddons[addon] = roleList.Shuffle().Take(addon.GetCount()).ToList();
+                        BasisChangingAddons[addon] = roleList.TakeRandomToList(addon.GetCount());
                     }
                 }
             }
@@ -1571,7 +1571,7 @@ internal static class StartGameHostPatch
             foreach ((byte id, RoleTypes roleTypes) in OverriddenTeamRevealScreen)
             {
                 PlayerControl pc = id.GetPlayer();
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
 
                 int targetClientId = pc.OwnerId;
                 if (targetClientId == -1) continue;
