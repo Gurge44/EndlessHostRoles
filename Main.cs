@@ -999,27 +999,34 @@ public class Main : BasePlugin
         coroutines.StopAllCoroutines();
     }
 
-    public static IEnumerator GetRandomWord(Action<string> onComplete)
+    public static IEnumerator GetRandomWord(Action<string> onComplete, string langParam = "", int length = 0, int difficulty = 0)
     {
-        var api = "https://random-word.ryanrk.com/api/en/word/random";
-        UnityWebRequest request = UnityWebRequest.Get(api);
-        yield return request.SendWebRequest();
+        var api = new StringBuilder("https://random-word-api.herokuapp.com/word");
+        bool hasQuery = false;
 
-        if (request.result != UnityWebRequest.Result.Success)
+        void Append(string key, string value)
         {
-            api = "https://random-word-api.herokuapp.com/word";
-            request = UnityWebRequest.Get(api);
-            yield return request.SendWebRequest();
+            api.Append(hasQuery ? '&' : '?');
+            api.Append(key).Append('=').Append(value);
+            hasQuery = true;
         }
 
-        if (request.result != UnityWebRequest.Result.Success)
-            yield break;
+        if (!string.IsNullOrEmpty(langParam)) Append("lang", langParam);
+        if (length > 0) Append("length", length.ToString());
+        if (difficulty > 0) Append("diff", difficulty.ToString());
+
+        UnityWebRequest request = UnityWebRequest.Get(api.ToString());
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success) 
+        yield break;
 
         string response = request.downloadHandler.text;
         int firstQuote = response.IndexOf("\"", StringComparison.Ordinal);
         int lastQuote = response.LastIndexOf("\"", StringComparison.Ordinal);
-        string word = response.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+        if (firstQuote < 0 || lastQuote <= firstQuote) yield break;
 
+        string word = response.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
         onComplete?.Invoke(word);
     }
 }
