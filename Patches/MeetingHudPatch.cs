@@ -1436,7 +1436,7 @@ internal static class MeetingHudCastVotePatch
 
         Logger.Info($"{pcSrc.GetNameWithRole()} => {(skip ? "Skip" : pcTarget.GetNameWithRole())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
-        return skip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
+        return skip || !voteCanceled; // skips and invalid votes are never canceled
     }
 
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)

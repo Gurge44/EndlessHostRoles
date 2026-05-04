@@ -712,6 +712,7 @@ public class Main : BasePlugin
                 { CustomRoles.Introvert, "#6293e3" },
                 { CustomRoles.Deadlined, "#ffa500" },
                 { CustomRoles.Rookie, "#bf671f" },
+                { CustomRoles.Reroll, "#6BCBFF" },
                 { CustomRoles.Trainee, "#4287f5" },
                 { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },

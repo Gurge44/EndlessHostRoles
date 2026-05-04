@@ -196,6 +196,7 @@ internal static class ExileControllerWrapUpPatch
 
         Main.AfterMeetingDeathPlayers.Clear();
 
+        Reroll.ResolveAfterMeeting(LastExiled);
         Utils.AfterMeetingTasks();
         Utils.MarkEveryoneDirtySettings();
         Utils.CheckAndSetVentInteractions();
