@@ -8,11 +8,6 @@ namespace EHR.Patches;
 [HarmonyPatch]
 internal static class CustomServersPatch
 {
-    public static bool Prepare()
-    {
-        return !OperatingSystem.IsAndroid();
-    }
-    
     private static bool IsCurrentServerOfficial()
     {
         const string domain = "among.us";
@@ -24,30 +19,44 @@ internal static class CustomServersPatch
 
     [HarmonyPatch(typeof(AuthManager._CoConnect_d__4), "MoveNext")]
     [HarmonyPatch(typeof(AuthManager._CoWaitForNonce_d__6), "MoveNext")]
-    [HarmonyPrefix]
-    public static bool DisableAuthServer(ref bool __result)
+    static class DisableAuthServerPatch
     {
-        if (IsCurrentServerOfficial())
+        public static bool Prepare()
         {
-            return true;
+            return !OperatingSystem.IsAndroid();
         }
+        
+        public static bool Prefix(ref bool __result)
+        {
+            if (IsCurrentServerOfficial())
+            {
+                return true;
+            }
 
-        __result = false;
-        return false;
+            __result = false;
+            return false;
+        }
     }
 
     [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__49), "MoveNext")]
-    [HarmonyPrefix]
-    public static void EnableUdpMatchmaking(AmongUsClient._CoJoinOnlinePublicGame_d__49 __instance)
+    static class EnableUdpMatchmakingPatch
     {
-        // Skip to state 1 which just calls CoJoinOnlineGameDirect
-        if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
+        public static bool Prepare()
         {
-            __instance.__1__state = 1;
-            __instance.__8__1 = new AmongUsClient.__c__DisplayClass49_0
+            return !OperatingSystem.IsAndroid();
+        }
+
+        public static void Prefix(AmongUsClient._CoJoinOnlinePublicGame_d__49 __instance)
+        {
+            // Skip to state 1 which just calls CoJoinOnlineGameDirect
+            if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
             {
-                matchmakerToken = string.Empty,
-            };
+                __instance.__1__state = 1;
+                __instance.__8__1 = new AmongUsClient.__c__DisplayClass49_0
+                {
+                    matchmakerToken = string.Empty,
+                };
+            }
         }
     }
 }
