@@ -181,16 +181,11 @@ internal static class AuthTimeoutPatch
     // From Reactor.gg
     // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
     [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoConnect))]
-    [HarmonyPrefix]
-    public static bool CoConnect_Prefix()
-    {
-        return GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
-    }
     [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoWaitForNonce))]
     [HarmonyPrefix]
     public static bool CoWaitforNonce_Prefix()
     {
-        return GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
+        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
     }
 
     // If you don't patch this, you still need to wait for 5 s.
