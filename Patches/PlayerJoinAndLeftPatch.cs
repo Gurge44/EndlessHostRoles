@@ -319,13 +319,10 @@ internal static class OnGameJoinedPatch
                         {
                             File.SetAttributes(file, FileAttributes.Normal); // remove read-only to avoid exceptions
                             File.Delete(file);
-                            filesDeleted++;
                         }
-                        else
-                        {
-                            // keep dry-run count behavior (so the user sees how many would be affected)
-                            filesDeleted++;
-                        }
+
+                        // keep dry-run count behavior (so the user sees how many would be affected)
+                        filesDeleted++;
                     }
                 }
                 catch (Exception exFile)

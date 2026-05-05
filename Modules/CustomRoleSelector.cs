@@ -105,7 +105,6 @@ internal static class CustomRoleSelector
             {
                 case CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
-                case CustomRoles.RoomRusher when Main.LIMap:
                 case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !loversData.Spawning:
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():

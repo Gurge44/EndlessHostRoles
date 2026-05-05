@@ -269,6 +269,7 @@ internal static class HudManagerPatch
 
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
+                        //CustomGameMode.RoomRush => RRTimeTester.HUDText,
                         CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
                         CustomGameMode.FFA => FreeForAll.GetHudText(),
                         CustomGameMode.StopAndGo => StopAndGo.GetHudText(),

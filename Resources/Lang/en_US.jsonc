@@ -8146,7 +8146,7 @@
   "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut": "Don't Kill Players Outside the Room When the Time Runs Out",
   "RR_DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom": "Don't Lower Time Limit When the First Two Players Enter the Correct Room",
   "RR_FirstPoints": "1st place: {0} with {1} points",
-  "RR_GlobalTimeMultiplier": "Global Time Multiplier (for adjusting the difficulty)",
+  "RR_GlobalTimeAddition": "Global Time Addition (to raw necessary time)",
   "RR_Points": "Points: {0}/{1}",
   "RR_PointsToWin": "Points to Win - Multiplied by how many players are in the game",
   "RR_ReadyQM": "Ready?\\nStarting in <#ffff44>{0}</color>",
