@@ -255,6 +255,8 @@ internal static class OnGameJoinedPatch
     /// </summary>
     private static (int Files, int Folders) CleanOldItems(bool dryRun = true, int days = 7)
     {
+        if (OperatingSystem.IsAndroid()) return (0, 0); // not supported on starlight until we find a working solution for android
+        
         string path;
 
         try
