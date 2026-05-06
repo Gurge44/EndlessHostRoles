@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +6,6 @@ using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using UnityEngine;
-using static EHR.GameStates;
 
 namespace EHR.Modules;
 
@@ -79,7 +77,7 @@ public abstract class GameOptionsSender
 
     private static void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex, int targetClientId)
     {
-        try
+        DataFlagRateLimiter.Enqueue(() =>
         {
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
@@ -104,8 +102,7 @@ public abstract class GameOptionsSender
 
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
-        }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray"); }
+        });
     }
 
     public abstract IGameOptions BuildGameOptions();

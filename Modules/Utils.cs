@@ -3488,42 +3488,6 @@ public static class Utils
 
         return true;
     }
-    
-    public static void SendGameData()
-    {
-        int messages = 0;
-        int packingLimit = AmongUsClient.Instance.GetMaxMessagePackingLimit();
-        
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-        writer.StartMessage(5);
-        writer.Write(AmongUsClient.Instance.GameId);
-
-        foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
-        {
-            if (writer.Length > 500 || messages >= packingLimit)
-            {
-                messages = 0;
-                writer.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Clear(SendOption.Reliable);
-                writer.StartMessage(5);
-                writer.Write(AmongUsClient.Instance.GameId);
-            }
-
-            writer.StartMessage(1);
-            writer.WritePacked(playerinfo.NetId);
-            playerinfo.Serialize(writer, false);
-            writer.EndMessage();
-            
-            messages++;
-        }
-
-        writer.EndMessage();
-        AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
-
-        AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
-    }
 
     public static void SendGameDataTo(int targetClientId)
     {
@@ -3538,27 +3502,40 @@ public static class Utils
         foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
         {
             if (writer.Length > 500 || messages >= packingLimit)
-            {
-                messages = 0;
-                writer.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Clear(SendOption.Reliable);
-                writer.StartMessage(6);
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.WritePacked(targetClientId);
-            }
+                FlushWriter();
 
             writer.StartMessage(1);
             writer.WritePacked(playerinfo.NetId);
             playerinfo.Serialize(writer, false);
             writer.EndMessage();
-            
+
             messages++;
         }
 
-        writer.EndMessage();
-        AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
+        FlushWriter();
+        return;
+
+        void FlushWriter()
+        {
+            writer.EndMessage();
+
+            // IMPORTANT: capture this specific writer instance
+            var capturedWriter = writer;
+
+            DataFlagRateLimiter.Enqueue(() =>
+            {
+                AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                capturedWriter.Recycle();
+            }, calls: messages);
+
+            // Create a NEW writer (do NOT reuse the old one)
+            writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(6);
+            writer.Write(AmongUsClient.Instance.GameId);
+            writer.WritePacked(targetClientId);
+
+            messages = 0;
+        }
     }
 
     public static string GetGameStateData(bool clairvoyant = false)
@@ -4519,21 +4496,7 @@ public static class Utils
             }
         }
 
-        CombineSendTimeLowering(() => aapc.Do(x => x.SetChatVisible(true)));
-    }
-
-    /// <summary>
-    /// Wraps code to run while <see cref="ExtendedPlayerControl.DontLowerSendTimer"/> is set to true, then lowers the sending timer once.
-    /// </summary>
-    public static void CombineSendTimeLowering([Annotations.InstantHandle] Action action)
-    {
-        ExtendedPlayerControl.DontLowerSendTimer = true;
-
-        try { action(); }
-        catch (Exception e) { ThrowException(e); }
-
-        ExtendedPlayerControl.DontLowerSendTimer = false;
-        AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
+        aapc.Do(x => x.SetChatVisible(true));
     }
 
     public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase
@@ -4720,64 +4683,68 @@ public static class Utils
     public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent, SendOption sendOption = SendOption.Reliable)
     {
         if (!deadBodyParent || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost) return;
-        CreateDeadBody(position, colorId, deadBodyParent);
-        PlayerControl playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
-        playerControl.PlayerId = deadBodyParent.PlayerId;
-        playerControl.isNew = false;
-        playerControl.notRealPlayer = true;
-        playerControl.NetTransform.SnapTo(position);
-        AmongUsClient.Instance.NetIdCnt += 1U;
-        var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption, true, false);
-        MessageWriter writer = sender.stream;
-        sender.StartMessage();
-        writer.StartMessage(4);
-        SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
-        item.SerializeValues(writer);
-        writer.EndMessage();
-
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        
+        DataFlagRateLimiter.Enqueue(() =>
         {
-            for (uint i = 1; i <= 3; ++i)
+            CreateDeadBody(position, colorId, deadBodyParent);
+            PlayerControl playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
+            playerControl.PlayerId = deadBodyParent.PlayerId;
+            playerControl.isNew = false;
+            playerControl.notRealPlayer = true;
+            playerControl.NetTransform.SnapTo(position);
+            AmongUsClient.Instance.NetIdCnt += 1U;
+            var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption, true, false);
+            MessageWriter writer = sender.stream;
+            sender.StartMessage();
+            writer.StartMessage(4);
+            SpawnGameDataMessage item = AmongUsClient.Instance.CreateSpawnMessage(playerControl, -2, SpawnFlags.None);
+            item.SerializeValues(writer);
+            writer.EndMessage();
+
+            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
             {
-                writer.StartMessage(4);
-                writer.WritePacked(2U);
-                writer.WritePacked(-2);
-                writer.Write((byte)SpawnFlags.None);
-                writer.WritePacked(1);
-                writer.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
-                writer.StartMessage(1);
-                writer.EndMessage();
-                writer.EndMessage();
+                for (uint i = 1; i <= 3; ++i)
+                {
+                    writer.StartMessage(4);
+                    writer.WritePacked(2U);
+                    writer.WritePacked(-2);
+                    writer.Write((byte)SpawnFlags.None);
+                    writer.WritePacked(1);
+                    writer.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
+                    writer.StartMessage(1);
+                    writer.EndMessage();
+                    writer.EndMessage();
+                }
             }
-        }
 
-        if (PlayerControl.AllPlayerControls.Contains(playerControl))
-            PlayerControl.AllPlayerControls.Remove(playerControl);
+            if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                PlayerControl.AllPlayerControls.Remove(playerControl);
 
-        int baseColorId = playerControl.Data.DefaultOutfit.ColorId;
-        sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
-            .Write(playerControl.Data.NetId)
-            .Write(colorId)
-            .EndRpc();
-        sender.StartRpc(playerControl.NetId, RpcCalls.MurderPlayer)
-            .WriteNetObject(playerControl)
-            .Write((int)MurderResultFlags.Succeeded)
-            .EndRpc();
-        sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
-            .Write(playerControl.Data.NetId)
-            .Write(baseColorId)
-            .EndRpc();
-        writer.StartMessage(1);
-        writer.WritePacked(playerControl.Data.NetId);
-        playerControl.Data.Serialize(writer, false);
-        writer.EndMessage();
-        writer.StartMessage(5);
-        writer.WritePacked(playerControl.NetId);
-        writer.EndMessage();
-        AmongUsClient.Instance.RemoveNetObject(playerControl);
-        Object.Destroy(playerControl.gameObject);
-        sender.EndMessage();
-        sender.SendMessage();
+            int baseColorId = playerControl.Data.DefaultOutfit.ColorId;
+            sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
+                .Write(playerControl.Data.NetId)
+                .Write(colorId)
+                .EndRpc();
+            sender.StartRpc(playerControl.NetId, RpcCalls.MurderPlayer)
+                .WriteNetObject(playerControl)
+                .Write((int)MurderResultFlags.Succeeded)
+                .EndRpc();
+            sender.StartRpc(playerControl.NetId, RpcCalls.SetColor)
+                .Write(playerControl.Data.NetId)
+                .Write(baseColorId)
+                .EndRpc();
+            writer.StartMessage(1);
+            writer.WritePacked(playerControl.Data.NetId);
+            playerControl.Data.Serialize(writer, false);
+            writer.EndMessage();
+            writer.StartMessage(5);
+            writer.WritePacked(playerControl.NetId);
+            writer.EndMessage();
+            AmongUsClient.Instance.RemoveNetObject(playerControl);
+            Object.Destroy(playerControl.gameObject);
+            sender.EndMessage();
+            sender.SendMessage();
+        }, calls: 4);
     }
     
     public static MethodBase GetStateMachineMoveNext<T>(string methodName)
