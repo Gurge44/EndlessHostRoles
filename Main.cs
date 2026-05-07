@@ -401,6 +401,7 @@ public class Main : BasePlugin
                 { CustomRoles.Sheriff, "#ffb347" },
                 { CustomRoles.CopyCat, "#ffb2ab" },
                 { CustomRoles.SuperStar, "#f6f657" },
+                { CustomRoles.Survivor, "#989d12" },
                 { CustomRoles.Ventguard, "#ffa5ff" },
                 { CustomRoles.Demolitionist, "#5e2801" },
                 { CustomRoles.Express, "#00ffff" },

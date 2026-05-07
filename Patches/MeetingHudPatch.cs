@@ -676,6 +676,9 @@ internal static class ExtendedMeetingHud
                     case Mayor mayor:
                         voteNum += Mayor.MayorAdditionalVote.GetInt() + mayor.TaskVotes;
                         break;
+                    case Survivor survivor when Main.EnumerateAlivePlayerControls().Count() <= Survivor.ThirdAbility.GetInt():
+                        voteNum += Survivor.AdditionalVote.GetInt();
+                        break;
                 }
 
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) voteNum = 0;

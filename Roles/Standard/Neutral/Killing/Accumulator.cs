@@ -80,7 +80,7 @@ public class Accumulator : RoleBase
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         KCD -= KillCooldownDecrementWithEachTask.GetFloat();
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KCD, Killing);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KCD, !Killing);
         
         if (completedTaskCount + 1 >= totalTaskCount)
             OnPet(pc);
@@ -92,7 +92,7 @@ public class Accumulator : RoleBase
         Killing = true;
         pc.RpcChangeRoleBasis(CustomRoles.SerialKiller);
         LateTask.New(() => pc.SetKillCooldown(KCD), 0.2f);
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KCD, Killing);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KCD, !Killing);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
