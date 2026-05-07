@@ -600,6 +600,7 @@ public enum CustomRoles
     Rascal,
     Reach,
     Rookie,
+    Reroll,
     Trainee,
     Schizophrenic,
     Seer,

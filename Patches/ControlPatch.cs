@@ -456,14 +456,25 @@ public static class InGameRoleInfoMenu
         MainInfo.DestroyTranslator();
         MainInfo.transform.localPosition = new(-2.3f, 0.8f, 4f);
         MainInfo.GetComponent<RectTransform>().sizeDelta = new(4.5f, 10f);
+        
         MainInfoTMP.alignment = TextAlignmentOptions.Left;
-        MainInfoTMP.fontSize = MainInfoTMP.fontSizeMax = MainInfoTMP.fontSizeMin = 1.75f;
+        MainInfoTMP.enableAutoSizing = true;
+        MainInfoTMP.fontSizeMax = 1.75f;
+        MainInfoTMP.fontSizeMin = 0.75f;
+        MainInfoTMP.enableWordWrapping = true;
+        MainInfoTMP.overflowMode = TextOverflowModes.Overflow;
 
         AddonsInfo = Object.Instantiate(MainInfo, MainInfo.transform.parent);
         AddonsInfo.name = "Addons Info";
         AddonsInfo.DestroyTranslator();
         AddonsInfo.transform.SetLocalX(2.3f);
         AddonsInfo.transform.localScale = new(0.7f, 0.7f, 0.7f);
+        
+        AddonsInfoTMP.enableAutoSizing = true;
+        AddonsInfoTMP.fontSizeMax = 1.75f;
+        AddonsInfoTMP.fontSizeMin = 0.6f;
+        AddonsInfoTMP.enableWordWrapping = true;
+        AddonsInfoTMP.overflowMode = TextOverflowModes.Overflow;
     }
 
     public static void SetRoleInfoRef(PlayerControl player)
@@ -477,25 +488,19 @@ public static class InGameRoleInfoMenu
         StringBuilder titleSb = new();
         StringBuilder settings = new();
         StringBuilder addons = new();
-        settings.Append("<size=75%>");
         titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
-        sb.Append("<size=90%>");
         sb.Append(player.GetRoleInfo(true).TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
 
-        settings.Append("</size>");
         if (settings.Length > 0) addons.Append($"{settings}\n\n");
 
-        if (role.PetActivatedAbility()) sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
+        if (role.PetActivatedAbility()) sb.Append($"{GetString("SupportsPetMessage")}");
 
         string searchStr = GetString(role.ToString());
         sb.Replace(searchStr, role.ToColoredString());
         sb.Replace(searchStr.ToLower(), role.ToColoredString());
-        sb.Append("</size>");
         List<CustomRoles> subRoles = Main.PlayerStates[player.PlayerId].SubRoles;
         if (subRoles.Count > 0) addons.Append(GetString("AddonListTitle"));
-
-        addons.Append("<size=75%>");
 
         subRoles.ForEach(subRole =>
         {
@@ -505,9 +510,8 @@ public static class InGameRoleInfoMenu
             addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
         });
 
-        addons.Append("</size>");
-        if (role.UsesPetInsteadOfKill()) sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
-        if (player.UsesMeetingShapeshift()) sb.Append($"\n\n<size=85%>{GetString("UsesMeetingShapeshiftNotice")}</size>");
+        if (role.UsesPetInsteadOfKill()) sb.Append($"\n\n{GetString("UsesPetInsteadOfKillNotice")}");
+        if (player.UsesMeetingShapeshift()) sb.Append($"\n\n{GetString("UsesMeetingShapeshiftNotice")}");
 
         sb.Insert(0, $"{titleSb}\n");
 

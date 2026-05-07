@@ -32,7 +32,7 @@ public class Tank : RoleBase
     public override void Init()
     {
         On = false;
-        if (ShipStatus.Instance == null) return;
+        if (!ShipStatus.Instance) return;
 
         AllVents = ShipStatus.Instance.AllVents.Select(x => x.Id).ToHashSet();
     }

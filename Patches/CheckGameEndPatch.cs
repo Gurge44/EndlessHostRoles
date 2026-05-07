@@ -372,6 +372,8 @@ internal static class GameEndChecker
 
     private static void StartEndGame(GameOverReason reason)
     {
+        DataFlagRateLimiter.DropQueue();
+        
         try { LobbySharingAPI.NotifyLobbyStatusChanged(LobbyStatus.Ended); }
         catch (Exception e) { ThrowException(e); }
 

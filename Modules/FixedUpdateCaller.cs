@@ -52,6 +52,9 @@ public static class FixedUpdateCaller
                 HudSpritePatch.Postfix(hudManager);
             }
 
+            try { DataFlagRateLimiter.OnFixedUpdate(); }
+            catch (Exception e) { Utils.ThrowException(e); }
+
             if (!PlayerControl.LocalPlayer) return;
 
             if (amongUsClient.IsGameStarted)

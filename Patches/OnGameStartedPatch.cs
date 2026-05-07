@@ -289,7 +289,6 @@ internal static class ChangeRoleSettings
             {
                 (OptionItem MinSetting, OptionItem MaxSetting) impLimits = Options.FactionMinMaxSettings[Team.Impostor];
                 int optImpNum = IRandom.Instance.Next(impLimits.MinSetting.GetInt(), impLimits.MaxSetting.GetInt() + 1);
-                if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) optImpNum = Math.Clamp(optImpNum, 1, 3);
                 GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = optImpNum;
                 GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, optImpNum);
             }
@@ -398,6 +397,7 @@ internal static class ChangeRoleSettings
                 DoubleShot.Init();
                 Circumvent.Init();
                 Commited.Init();
+                Reroll.Init();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }
 
@@ -799,7 +799,7 @@ internal static class StartGameHostPatch
                                 roleList.ExceptWith(otherList);
                         }
 
-                        BasisChangingAddons[addon] = roleList.Shuffle().Take(addon.GetCount()).ToList();
+                        BasisChangingAddons[addon] = roleList.TakeRandomToList(addon.GetCount());
                     }
                 }
             }
@@ -1143,9 +1143,11 @@ internal static class StartGameHostPatch
                     yield return null;
 
             pc.Data.Disconnected = true;
+
+            var qa = pc.Data.SendGameData();
+            yield return qa.Wait();
+            if (qa.Dropped) yield break;
         }
-        
-        Utils.SendGameData();
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
@@ -1165,9 +1167,11 @@ internal static class StartGameHostPatch
 
             bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
             pc.Data.Disconnected = disconnected;
+
+            var qa = pc.Data.SendGameData();
+            yield return qa.Wait();
+            if (qa.Dropped) yield break;
         }
-        
-        Utils.SendGameData();
     }
 
     private static bool IsBasisChangingPlayer(byte id, CustomRoles role)
@@ -1571,7 +1575,7 @@ internal static class StartGameHostPatch
             foreach ((byte id, RoleTypes roleTypes) in OverriddenTeamRevealScreen)
             {
                 PlayerControl pc = id.GetPlayer();
-                if (pc == null || !pc.IsAlive()) continue;
+                if (!pc || !pc.IsAlive()) continue;
 
                 int targetClientId = pc.OwnerId;
                 if (targetClientId == -1) continue;

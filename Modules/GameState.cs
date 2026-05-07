@@ -171,6 +171,8 @@ public class PlayerState(byte playerId)
 
             if (!role.Is(Team.Impostor) && !(role == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                 SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
+            
+            if (role == CustomRoles.GM) return;
 
             if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade)
                 SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);

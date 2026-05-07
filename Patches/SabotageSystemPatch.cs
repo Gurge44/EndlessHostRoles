@@ -21,7 +21,7 @@ public static class ReactorSystemTypePatch
         if (Main.CurrentMap is MapNames.Airship) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || !SetDurationForReactorSabotage)
+        if (!__instance.IsActive || !ShipStatus.Instance || !SetDurationForReactorSabotage)
         {
             if (!SetDurationForReactorSabotage && !__instance.IsActive)
                 SetDurationForReactorSabotage = true;
@@ -65,7 +65,7 @@ public static class HeliSabotageSystemPatch
         if (Main.CurrentMap is not MapNames.Airship) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForReactorSabotage)
+        if (!__instance.IsActive || !ShipStatus.Instance || !SetDurationForReactorSabotage)
         {
             if (!SetDurationForReactorSabotage && !__instance.IsActive)
                 SetDurationForReactorSabotage = true;
@@ -93,7 +93,7 @@ public static class LifeSuppSystemTypePatch
         if (Main.CurrentMap is MapNames.Polus or MapNames.Airship or MapNames.Fungle) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || !SetDurationForO2Sabotage)
+        if (!__instance.IsActive || !ShipStatus.Instance || !SetDurationForO2Sabotage)
         {
             if (!SetDurationForO2Sabotage && !__instance.IsActive)
                 SetDurationForO2Sabotage = true;
@@ -155,7 +155,7 @@ public static class MushroomMixupSabotageSystemPatch
         if (Main.CurrentMap is not MapNames.Fungle) return;
 
         // When the sabotage ends
-        if (!__instance.IsActive || !SetDurationMushroomMixupSabotage)
+        if (!__instance.IsActive || !ShipStatus.Instance || !SetDurationMushroomMixupSabotage)
         {
             if (!SetDurationMushroomMixupSabotage && !__instance.IsActive)
                 SetDurationMushroomMixupSabotage = true;
@@ -449,7 +449,7 @@ public static class SabotageSystemTypeRepairDamagePatch
 
         if (Pelican.IsEaten(player.PlayerId)) return false;
 
-        if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player != null && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
+        if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
             batteryState.Player.RpcRemoveAbilityUse();
             player.Notify(string.Format(Translator.GetString("BatteryNotify"), CustomRoles.Battery.ToColoredString()), 10f);

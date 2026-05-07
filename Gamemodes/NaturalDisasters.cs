@@ -316,7 +316,12 @@ public static class NaturalDisasters
             
             LastDisasterTimer.Start(); // Checks IsRunning internally
 
-            if (LastDisasterTimer.Elapsed.TotalSeconds >= DisasterFrequency.GetFloat())
+            float frequency = DisasterFrequency.GetFloat();
+            
+            if (frequency < 2f && GameStates.CurrentServerType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla)
+                frequency = 2f; // Due to rate limits on InnerSloth's servers
+
+            if (LastDisasterTimer.Elapsed.TotalSeconds >= frequency)
             {
                 LastDisasterTimer.Restart();
                 List<Type> disasters = AllDisasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).ToList();
