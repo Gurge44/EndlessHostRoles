@@ -1020,7 +1020,7 @@ public class Main : BasePlugin
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success) 
-        yield break;
+            yield break;
 
         string response = request.downloadHandler.text;
         int firstQuote = response.IndexOf("\"", StringComparison.Ordinal);
