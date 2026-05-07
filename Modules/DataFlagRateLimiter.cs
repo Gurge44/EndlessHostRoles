@@ -7,11 +7,19 @@ namespace EHR.Modules;
 
 public static class DataFlagRateLimiter
 {
-    private class QueuedAction
+    public class QueuedAction
     {
         public Action Action;
+        public Action Cleanup;
         public int Cost;
-        public bool IsDone;
+        public bool Done;
+        public bool Dropped;
+        
+        public System.Collections.IEnumerator Wait()
+        {
+            while (!Done)
+                yield return null;
+        }
     }
 
     // =========================
@@ -38,48 +46,21 @@ public static class DataFlagRateLimiter
     // PUBLIC API
     // =========================
 
-    public static void Enqueue(Action action, SendOption channel = SendOption.Reliable, int calls = 1)
+    public static QueuedAction Enqueue(Action action, SendOption channel = SendOption.Reliable, int calls = 1, Action cleanup = null)
     {
         var qa = new QueuedAction
         {
             Action = action,
+            Cleanup = cleanup,
             Cost = calls,
-            IsDone = false
+            Done = false
         };
 
         // Not needed on modded regions
         if (GameStates.CurrentServerType is not (GameStates.ServerType.Local or GameStates.ServerType.Vanilla))
         {
             Execute(qa);
-            return;
-        }
-
-        switch (channel)
-        {
-            case SendOption.Reliable:
-                EnqueueInternal(ReliableQueue, ref ReliableSent, ReliableTimer, ReliableRateLimitPerSecond, qa);
-                break;
-
-            case SendOption.None: // Unreliable
-                EnqueueInternal(UnreliableQueue, ref UnreliableSent, UnreliableTimer, UnreliableRateLimitPerSecond, qa);
-                break;
-        }
-    }
-
-    public static System.Collections.IEnumerator EnqueueAndWait(Action action, SendOption channel = SendOption.Reliable, int calls = 1)
-    {
-        var qa = new QueuedAction
-        {
-            Action = action,
-            Cost = calls,
-            IsDone = false
-        };
-
-        // Not needed on modded regions
-        if (GameStates.CurrentServerType is not (GameStates.ServerType.Local or GameStates.ServerType.Vanilla))
-        {
-            Execute(qa);
-            yield break;
+            return qa;
         }
 
         switch (channel)
@@ -93,9 +74,7 @@ public static class DataFlagRateLimiter
                 break;
         }
 
-        // Wait until executed
-        while (!qa.IsDone)
-            yield return null;
+        return qa;
     }
 
     // Called once per frame
@@ -173,7 +152,40 @@ public static class DataFlagRateLimiter
         }
         finally
         {
-            qa.IsDone = true;
+            qa.Dropped = false;
+            qa.Done = true;
+        }
+    }
+
+    public static void DropQueue()
+    {
+        ClearQueue(ReliableQueue);
+        ClearQueue(UnreliableQueue);
+
+        ReliableSent = 0;
+        UnreliableSent = 0;
+
+        ReliableTimer.Restart();
+        UnreliableTimer.Restart();
+    }
+
+    private static void ClearQueue(Queue<QueuedAction> queue)
+    {
+        while (queue.Count > 0)
+        {
+            var qa = queue.Dequeue();
+
+            try
+            {
+                qa.Cleanup?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+
+            qa.Dropped = true;
+            qa.Done = true;
         }
     }
 }

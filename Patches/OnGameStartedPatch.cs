@@ -1143,7 +1143,10 @@ internal static class StartGameHostPatch
                     yield return null;
 
             pc.Data.Disconnected = true;
-            yield return pc.Data.EnqueueSendGameData();
+
+            var qa = pc.Data.SendGameData();
+            yield return qa.Wait();
+            if (qa.Dropped) yield break;
         }
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
@@ -1164,7 +1167,10 @@ internal static class StartGameHostPatch
 
             bool disconnected = Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.IsDead && state.deathReason == PlayerState.DeathReason.Disconnected;
             pc.Data.Disconnected = disconnected;
-            yield return pc.Data.EnqueueSendGameData();
+
+            var qa = pc.Data.SendGameData();
+            yield return qa.Wait();
+            if (qa.Dropped) yield break;
         }
     }
 

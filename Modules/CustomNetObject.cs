@@ -210,7 +210,7 @@ namespace EHR
                         yield break;
                 }
 
-                yield return DataFlagRateLimiter.EnqueueAndWait(() =>
+                var qa = DataFlagRateLimiter.Enqueue(() =>
                 {
                     playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
                     playerControl.PlayerId = 254;
@@ -250,6 +250,9 @@ namespace EHR
                     msg.Recycle();
                 }, calls: 3);
 
+                yield return qa.Wait();
+                if (qa.Dropped) yield break;
+
                 if (PlayerControl.AllPlayerControls.Contains(playerControl))
                     PlayerControl.AllPlayerControls.Remove(playerControl);
 
@@ -269,7 +272,7 @@ namespace EHR
                 {
                     if (pc.AmOwner) continue;
 
-                    yield return DataFlagRateLimiter.EnqueueAndWait(() =>
+                    qa = DataFlagRateLimiter.Enqueue(() =>
                     {
                         var sender = CustomRpcSender.Create("CustomNetObject.CreateNetObject (2)", SendOption.Reliable, log: false);
                         MessageWriter writer = sender.stream;
@@ -296,6 +299,9 @@ namespace EHR
                         sender.EndMessage();
                         sender.SendMessage();
                     }, calls: 2);
+
+                    yield return qa.Wait();
+                    if (qa.Dropped) yield break;
                 }
             
                 playerControl.CachedPlayerData = PlayerControl.LocalPlayer.Data;
@@ -304,7 +310,7 @@ namespace EHR
                 
                 if (this is not ShapeshiftMenuElement)
                 {
-                    yield return DataFlagRateLimiter.EnqueueAndWait(() =>
+                    yield return DataFlagRateLimiter.Enqueue(() =>
                     {
                         string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                         int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
@@ -359,7 +365,7 @@ namespace EHR
 
                         sender.EndMessage();
                         sender.SendMessage();
-                    }, calls: 2);
+                    }, calls: 2).Wait();
                 }
             }
         }

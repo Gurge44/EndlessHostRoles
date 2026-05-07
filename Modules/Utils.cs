@@ -1899,7 +1899,10 @@ public static class Utils
                     Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
 
                     sender.Data.IsDead = false;
-                    sender.Data.SendGameData();
+                    
+                    var qa = sender.Data.SendGameData();
+                    yield return qa.Wait();
+                    if (qa.Dropped) yield break;
                     
                     while (TempReviveHostRevertStopwatch.ElapsedMilliseconds < 1000)
                         yield return null;
@@ -1915,7 +1918,7 @@ public static class Utils
                     }
 
                     sender.Data.IsDead = true;
-                    sender.Data.SendGameData();
+                    yield return sender.Data.SendGameData().Wait();
                     
                     TempReviveHostRunning = false;
                 }
@@ -2344,7 +2347,7 @@ public static class Utils
                 if (c is >= '0' and <= '9')
                 {
                     count++;
-                    if (count >= 5) return true;
+                    if (count > 5) return true;
                 }
             }
 
@@ -3526,7 +3529,7 @@ public static class Utils
             {
                 AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
                 capturedWriter.Recycle();
-            }, calls: messages);
+            }, calls: messages, cleanup: capturedWriter.Recycle);
 
             // Create a NEW writer (do NOT reuse the old one)
             writer = MessageWriter.Get(SendOption.Reliable);

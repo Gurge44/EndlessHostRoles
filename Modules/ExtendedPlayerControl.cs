@@ -2441,26 +2441,9 @@ internal static class ExtendedPlayerControl
             return (!player || !player.Object) ? CustomRoles.Crewmate : player.Object.GetCustomRole();
         }
 
-        public void SendGameData()
+        public DataFlagRateLimiter.QueuedAction SendGameData()
         {
-            DataFlagRateLimiter.Enqueue(() =>
-            {
-                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-                writer.StartMessage(5);
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.StartMessage(1);
-                writer.WritePacked(player.NetId);
-                player.Serialize(writer, false);
-                writer.EndMessage();
-                writer.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(writer);
-                writer.Recycle();
-            });
-        }
-
-        public IEnumerator EnqueueSendGameData()
-        {
-            yield return DataFlagRateLimiter.EnqueueAndWait(() =>
+            return DataFlagRateLimiter.Enqueue(() =>
             {
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(5);
