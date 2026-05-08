@@ -110,7 +110,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildSendableGameOptions();
+            IGameOptions opt = BuildGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {
@@ -131,7 +131,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (player.AmOwner)
         {
-            IGameOptions opt = BuildSendableGameOptions();
+            IGameOptions opt = BuildGameOptions();
 
             if (GameManager.Instance?.LogicComponents != null)
             {

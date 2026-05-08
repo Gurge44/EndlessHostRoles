@@ -15,9 +15,8 @@ public class RoomRusher : RoleBase
 
     private static readonly StringBuilder Suffix = new();
     private static HashSet<SystemTypes> AllRooms = [];
-    private static RandomSpawn.SpawnMap Map;
 
-    private static OptionItem GlobalTimeMultiplier;
+    private static OptionItem GlobalTimeAddition;
     private static OptionItem MaxVents;
     private static OptionItem RoomNameDisplay;
     private static OptionItem Arrow;
@@ -40,7 +39,7 @@ public class RoomRusher : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(645100)
-            .AutoSetupOption(ref GlobalTimeMultiplier, 1f, new FloatValueRule(0.05f, 2f, 0.05f), OptionFormat.Multiplier, overrideName: "RR_GlobalTimeMultiplier")
+            .AutoSetupOption(ref GlobalTimeAddition, 4, new IntegerValueRule(0, 15, 1), OptionFormat.Seconds, overrideName: "RR_GlobalTimeAddition")
             .AutoSetupOption(ref MaxVents, 1, new IntegerValueRule(0, 30, 1))
             .AutoSetupOption(ref RoomNameDisplay, true, overrideName: "RR_DisplayRoomName")
             .AutoSetupOption(ref Arrow, false, overrideName: "RR_DisplayArrowToRoom")
@@ -68,11 +67,7 @@ public class RoomRusher : RoleBase
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
             AllRooms.Remove(SystemTypes.Outside);
-            AllRooms.Remove(SystemTypes.Ventilation);
-            AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
             if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
-
-            Map = RandomSpawn.SpawnMap.GetSpawnMap();
 
             StartNewRound(true);
         }, Main.CurrentMap == MapNames.Airship ? 22f : 14f);
@@ -106,13 +101,11 @@ public class RoomRusher : RoleBase
         if (!initial && !dontCount) CompletedNum++;
         PlayerControl rrpc = RoomRusherId.GetPlayer();
         RoomGoal = AllRooms.Without(previous).RandomElement();
-        Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
-        Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? rrpc.Pos() : previous.GetRoomClass().transform.position);
-        float distance = initial || afterMeeting ? 50 : Vector2.Distance(goalPos, previousPos);
+        Vector2 goalPos = RoomGoal.GetRoomClass().transform.position;
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-        var time = (int)Math.Ceiling(distance / speed);
-        Dictionary<(SystemTypes, SystemTypes), int> multipliers = RoomRush.Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
-        time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
+        var rawTimes = RoomRush.RawTimeNeeded.GetValueOrDefault(map, []);
+        var time = initial ? rawTimes.Values.Max() : rawTimes.GetValueOrDefault((previous, RoomGoal), rawTimes.GetValueOrDefault((RoomGoal, previous), 25));
+        time = (int)Math.Round(time / (speed / 1.25f));
 
         bool involvesDecontamination = map switch
         {
@@ -123,38 +116,23 @@ public class RoomRusher : RoleBase
         };
 
         if (involvesDecontamination)
-        {
-            int decontaminationTime = Options.ChangeDecontaminationTime.GetBool()
-                ? map == MapNames.Polus
-                    ? Options.DecontaminationTimeOnPolus.GetInt() + Options.DecontaminationDoorOpenTimeOnPolus.GetInt()
-                    : Options.DecontaminationTimeOnMiraHQ.GetInt() + Options.DecontaminationDoorOpenTimeOnMiraHQ.GetInt()
-                : 6;
-
-            if (SubmergedCompatibility.IsSubmerged()) decontaminationTime = 3;
-            time += decontaminationTime + 3;
-        }
+            time += 2;
 
         switch (map)
         {
-            case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
-                time += (int)(8 / speed);
-                break;
-            case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens and not SystemTypes.Office) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical and not SystemTypes.Specimens):
-                time -= (int)(5 * speed);
-                break;
-            case MapNames.Airship when previous == SystemTypes.GapRoom:
-                time *= RoomGoal switch
+            case MapNames.Airship:
+                time += previous switch
                 {
-                    SystemTypes.MeetingRoom => 6,
-                    SystemTypes.Brig or SystemTypes.VaultRoom or SystemTypes.Records or SystemTypes.Showers or SystemTypes.Lounge => 3,
-                    SystemTypes.Engine or SystemTypes.CargoBay or SystemTypes.Medical => 2,
-                    _ => 1
+                    SystemTypes.Engine => 3,
+                    SystemTypes.MainHall => 2,
+                    _ => 0
                 };
                 break;
         }
 
-        var maxTime = (int)Math.Ceiling(32 / speed);
-        TimeLeft = Math.Clamp((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 6, maxTime);
+        time += GlobalTimeAddition.GetInt();
+        if (time < 6) time = 6;
+        
         Logger.Info($"Goal = from: {Translator.GetString(previous.ToString())} ({previous}), to: {Translator.GetString(RoomGoal.ToString())} ({RoomGoal}) - Time: {TimeLeft}  ({map})", "Room Rusher");
         LocateArrow.RemoveAllTarget(RoomRusherId);
         LocateArrow.Add(RoomRusherId, goalPos);

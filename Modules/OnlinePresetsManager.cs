@@ -112,6 +112,8 @@ public static class OnlinePresetsManager
             row.MinusBtn.OnClick = new();
             row.MinusBtn.OnClick.AddListener((UnityAction)(() =>
             {
+                ModGameOptionsMenu.Reloading = true;
+                LateTask.New(() => ModGameOptionsMenu.Reloading = false, 0.01f);
                 GameSettingMenu.Instance.Close();
                 
                 Prompt.Show(Translator.GetString("Promt.ApplyPreset"), () =>
@@ -150,7 +152,6 @@ public static class OnlinePresetsManager
                         ModGameOptionsMenu.TabIndex = index;
                     }, 0.4f);
                 });
-                
             }));
             TextMeshPro minusText = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
             minusText.DestroyTranslator();

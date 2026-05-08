@@ -211,6 +211,8 @@ internal static class ChatCommands
             new("GameModeList", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, GameModeListCommand, true, false),
             new("GameModePoll", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, GameModePollCommand, true, false),
             new("MapPoll", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, MapPollCommand, true, false),
+            new("PresetPoll", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, PresetPollCommand, true, false),
+            new("ChangePreset", "{preset}", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, ChangePresetCommand, true, false, [GetString("CommandArgs.ChangePreset.Preset")]),
             new("EightBall", "[question]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, EightBallCommand, false, false, [GetString("CommandArgs.EightBall.Question")]),
             new("AddTag", "{id} {color} {tag}", Command.UsageLevels.Host, Command.UsageTimes.Always, AddTagCommand, true, false, [GetString("CommandArgs.AddTag.Id"), GetString("CommandArgs.AddTag.Color"), GetString("CommandArgs.AddTag.Tag")]),
             new("DeleteTag", "{id}", Command.UsageLevels.Host, Command.UsageTimes.InLobby, DeleteTagCommand, true, false, [GetString("CommandArgs.DeleteTag.Id")]),
@@ -237,6 +239,7 @@ internal static class ChatCommands
             new("PlayerInfo", "[id]", Command.UsageLevels.Everyone, Command.UsageTimes.Always, PlayerInfoCommand, true, false, [GetString("CommandArgs.PlayerInfo.Id")]),
             new("TimeLimit", "", Command.UsageLevels.Everyone, Command.UsageTimes.InGame, TimeLimitCommand, true, false),
             new("Exo", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ExoCommand, true, true),
+            new("Reroll", "", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, RerollCommand, true, true),
             
             new("ConfirmAuth", "{uuid}", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ConfirmAuthCommand, true, false, [GetString("CommandArgs.ConfirmAuth.UUID")]),
 
@@ -542,6 +545,15 @@ internal static class ChatCommands
             if (!GameStates.IsMeeting) return;
             Utils.SendMessage(GetString("Exorcist.AbilityEnded"), title: CustomRoles.Exorcist.ToColoredString());
         }, duration);
+        
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    private static void RerollCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+        
+        if (!Reroll.TryQueueCommandTrigger(player)) return;
         
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -1023,6 +1035,27 @@ internal static class ChatCommands
         PollCommand(player, msg, msg.Split(' '));
     }
 
+    public static void PresetPollCommand(PlayerControl player, string text, string[] args)
+    {
+        var presetConfigs = new[] { Main.Preset1, Main.Preset2, Main.Preset3, Main.Preset4, Main.Preset5, Main.Preset6, Main.Preset7, Main.Preset8, Main.Preset9, Main.Preset10, Main.Preset11, Main.Preset12, Main.Preset13, Main.Preset14, Main.Preset15, Main.Preset16, Main.Preset17, Main.Preset18, Main.Preset19, Main.Preset20 };
+
+        string presetNames = string.Join(' ', presetConfigs.Select((cfg, i) =>
+            (cfg.Value == (string)cfg.DefaultValue ? GetString($"Preset_{i + 1}") : cfg.Value)
+            .Replace(' ', '_')));
+
+        var msg = $"/poll {GetString("PresetPoll.Question").TrimEnd('?')}? {presetNames}";
+        PollCommand(player, msg, msg.Split(' '));
+    }
+
+    private static void ChangePresetCommand(PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !int.TryParse(args[1], out int presetNum) || presetNum is < 1 or > 20) return;
+        if (Options.Preset == null) return;
+
+        Options.Preset.SetValue(presetNum - 1);
+        Utils.SendMessage(string.Format(GetString("ChangePreset.Changed"), presetNum, Options.Preset.GetString()));
+    }
+
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
     {
         string info = string.Join("\n\n", Main.CustomGameModeValues[1..^1]
@@ -1140,7 +1173,11 @@ internal static class ChatCommands
 
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
-        Main.Instance.StartCoroutine(Main.GetRandomWord(CreateAnagram));
+        string langParam = GetLangParam();
+        int wordLength = Options.AnagramWordLength.GetInt();
+        int difficulty = Options.AnagramDifficulty.GetValue() + 1;
+
+        Main.Instance.StartCoroutine(Main.GetRandomWord(CreateAnagram, langParam, wordLength, difficulty));
         return;
 
         void CreateAnagram(string word)
@@ -1149,6 +1186,38 @@ internal static class ChatCommands
             CurrentAnagram = word;
             byte sendTo = GameStates.InGame && !player.IsAlive() ? player.PlayerId : byte.MaxValue;
             Utils.SendMessage(string.Format(GetString("Anagram"), scrambled, word[0]), sendTo, GetString("AnagramTitle"));
+        }
+
+        static string GetLangParam()
+        {
+            int langIndex = Options.AnagramLanguage.GetValue();
+
+            if (langIndex == 0)
+            {
+                return GetUserTrueLang() switch
+                {
+                    SupportedLangs.Spanish => "es",
+                    SupportedLangs.Italian => "it",
+                    SupportedLangs.German => "de",
+                    SupportedLangs.French => "fr",
+                    SupportedLangs.SChinese => "zh",
+                    SupportedLangs.TChinese => "zh",
+                    SupportedLangs.Brazilian => "pt-br",
+                    SupportedLangs.Portuguese => "pt-br",
+                    _ => ""
+                };
+            }
+
+            return langIndex switch
+            {
+                2 => "es",
+                3 => "it",
+                4 => "de",
+                5 => "fr",
+                6 => "zh",
+                7 => "pt-br",
+                _ => ""
+            };
         }
     }
 
@@ -1394,7 +1463,7 @@ internal static class ChatCommands
             {
                 var suitableRoles = hnsRoles.FindAll(x => x.Interface.Team == team);
                 if (suitableRoles.Count == 0) continue;
-                allPlayerIds.Shuffle().Where(x => !DraftRoles.ContainsKey(x)).Take(num).Do(x => DraftRoles[x] = [suitableRoles.RandomElement().Role]);
+                allPlayerIds.Where(x => !DraftRoles.ContainsKey(x)).TakeRandom(num).Do(x => DraftRoles[x] = [suitableRoles.RandomElement().Role]);
             }
             
             var hiderRoles = hnsRoles.FindAll(x => x.Interface.Team == Team.Crewmate);
@@ -1429,10 +1498,10 @@ internal static class ChatCommands
             return;
         }
 
-        IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
-        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt(), Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt()));
-        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt() - Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt(), Options.MaxNNKs.GetInt()));
-        IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).Shuffle().Take(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
+        IEnumerable<CustomRoles> impRoles = allRoles.Where(x => x.IsImpostor()).TakeRandom(Options.FactionMinMaxSettings[Team.Impostor].MaxSetting.GetInt());
+        IEnumerable<CustomRoles> nkRoles = allRoles.Where(x => x.IsNK()).TakeRandom(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt(), Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt()));
+        IEnumerable<CustomRoles> nnkRoles = allRoles.Where(x => x.IsNonNK()).TakeRandom(Math.Min(Options.FactionMinMaxSettings[Team.Neutral].MaxSetting.GetInt() - Options.RoleSubCategoryLimits[RoleOptionType.Neutral_Killing][2].GetInt(), Options.MaxNNKs.GetInt()));
+        IEnumerable<CustomRoles> covenRoles = allRoles.Where(x => x.IsCoven()).TakeRandom(Options.FactionMinMaxSettings[Team.Coven].MaxSetting.GetInt());
 
         allRoles.RemoveAll(x => x.IsImpostor());
         allRoles.RemoveAll(x => x.IsNK());
@@ -1721,6 +1790,7 @@ internal static class ChatCommands
         string msg = string.Join(" ", args[1..splitIndex]) + "\n";
         bool gmPoll = msg.Contains(GetString("GameModePoll.Question"));
         bool mPoll = msg.Contains(GetString("MapPoll.Question"));
+        bool pPoll = msg.Contains(GetString("PresetPoll.Question"));
         
         if (gmPoll && GMPollGameModes.Count > 6) msg += "<size=70%>";
 
@@ -1751,7 +1821,7 @@ internal static class ChatCommands
 
             var resendTimer = 0f;
 
-            while ((notEveryoneVoted || gmPoll || mPoll) && PollTimer > 0f)
+            while ((notEveryoneVoted || gmPoll || mPoll || pPoll) && PollTimer > 0f)
             {
                 if (!GameStates.IsLobby) yield break;
 
@@ -1792,6 +1862,11 @@ internal static class ChatCommands
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
                 if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
+                if (pPoll)
+                {
+                    if (Options.Preset == null) return;
+                    Options.Preset.SetValue(winnerIndex);
+                }
             }
         }
 
@@ -3363,6 +3438,7 @@ internal static class ChatCommands
         if (text.StartsWith('/') && !player.IsModdedClient() && (!GameStates.IsMeeting || MeetingHud.Instance.state is not MeetingHud.VoteStates.Results and not MeetingHud.VoteStates.Proceeding))
         {
             Utils.CheckServerCommand(ref text, out bool spamRequired);
+            if (!spamRequired) canceled = true;
             string[] args = text.Split(' ');
             
             foreach (Command command in Command.AllCommands)
@@ -3380,7 +3456,7 @@ internal static class ChatCommands
 
                 if (command.AlwaysHidden && spamRequired) Utils.SendMessage("\n", player.PlayerId, GetString("NoSpamAnymoreUseCmd"));
                 command.Action(player, text, args);
-                if (command.IsCanceled) canceled = command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
+                if (command.IsCanceled) canceled |= command.AlwaysHidden || !Options.HostSeesCommandsEnteredByOthers.GetBool();
                 break;
             }
         }

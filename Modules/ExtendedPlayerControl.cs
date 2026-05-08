@@ -24,7 +24,6 @@ internal static class ExtendedPlayerControl
     public static readonly HashSet<byte> CancelBlackScreenFix = [];
     private static readonly List<Vent> ResultBuffer = [];
     public static readonly HashSet<byte> TempExiled = [];
-    public static bool DontLowerSendTimer;
 
     extension(PlayerControl player)
     {
@@ -221,46 +220,46 @@ internal static class ExtendedPlayerControl
                 return;
             }
 
-            bool dead = player.Data.IsDead;
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(6);
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.WritePacked(player.OwnerId);
-            writer.StartMessage(4);
-            writer.WritePacked(HudManager.Instance.MeetingPrefab.SpawnId);
-            writer.WritePacked(-2);
-            writer.Write((byte)SpawnFlags.None);
-            writer.WritePacked(1);
-            uint netIdCnt = AmongUsClient.Instance.NetIdCnt;
-            AmongUsClient.Instance.NetIdCnt = netIdCnt + 1U;
-            writer.WritePacked(netIdCnt);
-            writer.StartMessage(1);
-            writer.WritePacked(0);
-            writer.EndMessage();
-            writer.EndMessage();
-            player.Data.IsDead = visible;
-            writer.StartMessage(1);
-            writer.WritePacked(player.Data.NetId);
-            player.Data.Serialize(writer, true);
-            writer.EndMessage();
-            writer.StartMessage(2);
-            writer.WritePacked(netIdCnt);
-            writer.Write((byte)RpcCalls.CloseMeeting);
-            writer.EndMessage();
-            player.Data.IsDead = dead;
-            writer.StartMessage(1);
-            writer.WritePacked(player.Data.NetId);
-            player.Data.Serialize(writer, true);
-            writer.EndMessage();
-            writer.StartMessage(5);
-            writer.WritePacked(netIdCnt);
-            writer.EndMessage();
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            if (DontLowerSendTimer) return;
-            AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
+            DataFlagRateLimiter.Enqueue(() =>
+            {
+                bool dead = player.Data.IsDead;
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(player.OwnerId);
+                writer.StartMessage(4);
+                writer.WritePacked(HudManager.Instance.MeetingPrefab.SpawnId);
+                writer.WritePacked(-2);
+                writer.Write((byte)SpawnFlags.None);
+                writer.WritePacked(1);
+                uint netIdCnt = AmongUsClient.Instance.NetIdCnt;
+                AmongUsClient.Instance.NetIdCnt = netIdCnt + 1U;
+                writer.WritePacked(netIdCnt);
+                writer.StartMessage(1);
+                writer.WritePacked(0);
+                writer.EndMessage();
+                writer.EndMessage();
+                player.Data.IsDead = visible;
+                writer.StartMessage(1);
+                writer.WritePacked(player.Data.NetId);
+                player.Data.Serialize(writer, true);
+                writer.EndMessage();
+                writer.StartMessage(2);
+                writer.WritePacked(netIdCnt);
+                writer.Write((byte)RpcCalls.CloseMeeting);
+                writer.EndMessage();
+                player.Data.IsDead = dead;
+                writer.StartMessage(1);
+                writer.WritePacked(player.Data.NetId);
+                player.Data.Serialize(writer, true);
+                writer.EndMessage();
+                writer.StartMessage(5);
+                writer.WritePacked(netIdCnt);
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+            }, calls: 3);
         }
 
         public ClientData GetClient()
@@ -2137,7 +2136,7 @@ internal static class ExtendedPlayerControl
 
         public string GetRoleInfo(bool infoLong = false)
         {
-            CustomRoles role = player.GetCustomRole();
+            CustomRoles role = player.AmOwner && Main.GM.Value ? CustomRoles.GM : player.GetCustomRole();
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
             string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);
@@ -2459,21 +2458,21 @@ internal static class ExtendedPlayerControl
             return (!player || !player.Object) ? CustomRoles.Crewmate : player.Object.GetCustomRole();
         }
 
-        public void SendGameData()
+        public DataFlagRateLimiter.QueuedAction SendGameData()
         {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.StartMessage(1);
-            writer.WritePacked(player.NetId);
-            player.Serialize(writer, false);
-            writer.EndMessage();
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            if (DontLowerSendTimer) return;
-            AmongUsClient.Instance.timer -= AmongUsClient.Instance.MinSendInterval;
+            return DataFlagRateLimiter.Enqueue(() =>
+            {
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                writer.StartMessage(5);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.StartMessage(1);
+                writer.WritePacked(player.NetId);
+                player.Serialize(writer, false);
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+            });
         }
     }
 

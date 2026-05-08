@@ -71,11 +71,11 @@ public class Locator : RoleBase, IHideAndSeekRole
         void OnElapsed()
         {
             PlayerControl pc = Utils.GetPlayerById(playerId);
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
-            PlayerControl target = CustomHnS.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
+            PlayerControl target = CustomHnS.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x && x.IsAlive()).RandomElement();
 
-            if (target != null)
+            if (target)
             {
                 TargetId = target.PlayerId;
                 TargetArrow.Add(pc.PlayerId, target.PlayerId);

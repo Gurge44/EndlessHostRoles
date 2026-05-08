@@ -642,15 +642,25 @@ public static class CustomRpcSenderExtensions
             if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
 
             long expireTS = Utils.TimeStamp + (long)time;
+            bool alreadyContainsKey = false;
 
             if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
                 NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
             else
+            {
+                alreadyContainsKey = notifies.ContainsKey(text);
                 notifies[text] = expireTS;
+            }
 
             bool returnValue = pc.IsNonHostModdedClient();
-
             if (returnValue) NameNotifyManager.SendRPC(sender, pc.PlayerId, text, expireTS, overrideAll);
+
+            if (alreadyContainsKey)
+            {
+                if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+                return returnValue;
+            }
+
             if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
             if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
 

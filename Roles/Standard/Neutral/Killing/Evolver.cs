@@ -118,7 +118,7 @@ public class Evolver : RoleBase
     {
         if (!EvolverPC.IsAlive()) return;
 
-        Upgrades = Enum.GetValues<Upgrade>().Except(GetBannedUpgradeList()).Shuffle().GetRange(0, 3);
+        Upgrades = Enum.GetValues<Upgrade>().Except(GetBannedUpgradeList()).TakeRandomToList(3);
         SelectedUpgradeIndex = 0;
         ChooseTimer = 15;
 
@@ -131,15 +131,10 @@ public class Evolver : RoleBase
     {
         var banned = new List<Upgrade>();
         if (Stats.KillCooldown <= Limits.MinKillCooldown) banned.Add(Upgrade.DecreaseKillCooldown);
-
         if (Stats.ImpostorVision) banned.Add(Upgrade.GainImpostorVision);
-
         if (Stats.Vision >= Limits.MaxVision) banned.Add(Upgrade.IncreaseVision);
-
         if (Stats.Speed >= Limits.MaxSpeed) banned.Add(Upgrade.IncreaseSpeed);
-
         if (Stats.KillDistance >= Limits.MaxKillDistance) banned.Add(Upgrade.IncreaseKillDistance);
-
         banned.Add(Stats.CanVent ? Upgrade.GainVent : Upgrade.IncreaseVentUseLimit);
         banned.Add(Stats.CanSabotage ? Upgrade.GainSabotage : Upgrade.IncreaseSabotageUseLimit);
         return banned;
@@ -166,33 +161,33 @@ public class Evolver : RoleBase
         switch (Upgrades[SelectedUpgradeIndex])
         {
             case Upgrade.DecreaseKillCooldown:
-                Stats.KillCooldown -= 2.5f;
+                Stats.KillCooldown -= 5f;
                 break;
             case Upgrade.GainImpostorVision:
                 Stats.ImpostorVision = true;
                 break;
             case Upgrade.IncreaseVision:
-                Stats.Vision += 0.4f;
+                Stats.Vision += 0.6f;
                 break;
             case Upgrade.IncreaseSpeed:
-                Stats.Speed += 0.25f;
+                Stats.Speed += 0.5f;
                 break;
             case Upgrade.IncreaseKillDistance:
                 Stats.KillDistance++;
                 break;
             case Upgrade.GainVent:
                 Stats.CanVent = true;
-                Stats.VentUseLimit = 1;
+                Stats.VentUseLimit = 3;
                 break;
             case Upgrade.IncreaseVentUseLimit:
-                Stats.VentUseLimit += 3;
+                Stats.VentUseLimit += 10;
                 break;
             case Upgrade.GainSabotage:
                 Stats.CanSabotage = true;
-                Stats.SabotageUseLimit = 1;
+                Stats.SabotageUseLimit = 2;
                 break;
             case Upgrade.IncreaseSabotageUseLimit:
-                Stats.SabotageUseLimit += 2;
+                Stats.SabotageUseLimit += 5;
                 break;
             case Upgrade.GainShield:
                 Stats.Shielded = true;

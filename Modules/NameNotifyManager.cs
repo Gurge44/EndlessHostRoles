@@ -31,18 +31,24 @@ public static class NameNotifyManager
 
         long expireTS = Utils.TimeStamp + (long)time;
         byte pcId = pc.PlayerId;
+        bool alreadyContainsKey = false;
 
         if (overrideAll || !Notifies.TryGetValue(pcId, out Dictionary<string, long> notifies))
-        {
-            Notifies[pcId] = new Dictionary<string, long>(1)
-            {
-                [text] = expireTS
-            };
-        }
+            Notifies[pc.PlayerId] = new() { { text, expireTS } };
         else
+        {
+            alreadyContainsKey = notifies.ContainsKey(text);
             notifies[text] = expireTS;
+        }
 
         if (pc.IsNonHostModdedClient()) SendRPC(pcId, text, expireTS, overrideAll, sendOption);
+
+        if (alreadyContainsKey)
+        {
+            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+            return;
+        }
+
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: sendOption);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }

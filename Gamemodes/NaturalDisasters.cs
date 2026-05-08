@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -69,7 +70,7 @@ public static class NaturalDisasters
         Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
         const CustomGameMode gameMode = CustomGameMode.NaturalDisasters;
 
-        DisasterFrequency = new IntegerOptionItem(id++, "ND_DisasterFrequency", new(1, 20, 1), 2, TabGroup.GameSettings)
+        DisasterFrequency = new FloatOptionItem(id++, "ND_DisasterFrequency", new(0f, 20f, 0.1f), 2f, TabGroup.GameSettings)
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color)
@@ -238,13 +239,17 @@ public static class NaturalDisasters
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class FixedUpdatePatch
     {
-        private static long LastDisaster = Utils.TimeStamp;
+        public static readonly Stopwatch LastDisasterTimer = new();
+        private static readonly Stopwatch FailSafeTimer = new();
         private static long LastSync = Utils.TimeStamp;
         public static int WaitTime;
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted || IntroCutsceneDestroyPatch.IntroDestroyTS + WaitTime > Utils.TimeStamp /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || (Options.CurrentGameMode != CustomGameMode.NaturalDisasters && !Options.IntegrateNaturalDisasters.GetBool()) || !Main.IntroDestroyed || Main.HasJustStarted /* || __instance.PlayerId >= 254 || !__instance.IsHost()*/) return;
+            
+            long now = Utils.TimeStamp;
+            if (IntroCutsceneDestroyPatch.IntroDestroyTS + WaitTime > now) return;
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
             {
@@ -259,12 +264,17 @@ public static class NaturalDisasters
                     _ => (0, false)
                 };
 
-                if (shouldWait || IntroCutsceneDestroyPatch.IntroDestroyTS + minimumWaitTime > Utils.TimeStamp) return;
+                if (shouldWait || IntroCutsceneDestroyPatch.IntroDestroyTS + minimumWaitTime > now) return;
             }
             
             UpdatePreparingDisasters();
 
-            ActiveDisasters.ToArray().Do(x => x.Update());
+            for (var index = 0; index < ActiveDisasters.Count; index++)
+            {
+                if (ActiveDisasters[index].Update())
+                    index--;
+            }
+
             Sinkhole.OnFixedUpdate();
             BuildingCollapse.OnFixedUpdate();
 
@@ -281,7 +291,7 @@ public static class NaturalDisasters
                             AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "SandStorm" or "Tsunami");
                             break;
                         }
-                        case 1 or 2 when ActiveDisasters.Count == 0 || IRandom.Instance.Next(2) == 0:
+                        case 1 or 2 when Sinkhole.Sinkholes.Count > 0:
                         {
                             Sinkhole.RemoveRandomSinkhole();
                             break;
@@ -289,7 +299,7 @@ public static class NaturalDisasters
                         case 1:
                         {
                             Disaster remove = PreferRemovingThunderstorm.GetBool() && ActiveDisasters.FindFirst(x => x is Thunderstorm, out Disaster thunderstorm) ? thunderstorm : ActiveDisasters.RandomElement();
-                            if (remove != null) remove.Duration = 0;
+                            remove?.Duration = 0;
                             remove?.RemoveIfExpired();
                             break;
                         }
@@ -303,14 +313,18 @@ public static class NaturalDisasters
                     }
                 }
             }
+            
+            LastDisasterTimer.Start(); // Checks IsRunning internally
 
-            long now = Utils.TimeStamp;
-            int frequency = DisasterFrequency.GetInt();
+            float frequency = DisasterFrequency.GetFloat();
+            
+            if (frequency < 2f && GameStates.CurrentServerType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla)
+                frequency = 2f; // Due to rate limits on InnerSloth's servers
 
-            if (now - LastDisaster >= frequency)
+            if (LastDisasterTimer.Elapsed.TotalSeconds >= frequency)
             {
-                LastDisaster = now;
-                List<Type> disasters = AllDisasters.ToList();
+                LastDisasterTimer.Restart();
+                List<Type> disasters = AllDisasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).ToList();
                 
                 if (ActiveDisasters.Exists(x => x is Thunderstorm))
                     disasters.RemoveAll(x => x.Name == "Thunderstorm");
@@ -318,7 +332,7 @@ public static class NaturalDisasters
                 if ((Main.LIMap ? ShipStatus.Instance.AllRooms.Count : RandomSpawn.SpawnMap.GetSpawnMap().Positions.Count - (Main.CurrentMap == MapNames.Polus ? 3 : 1)) <= BuildingCollapse.CollapsedRooms.Count)
                     disasters.RemoveAll(x => x.Name == "BuildingCollapse");
 
-                Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+                Type disaster = disasters.RandomElement();
 
                 if (disaster.Name == "Thunderstorm")
                 {
@@ -354,10 +368,22 @@ public static class NaturalDisasters
                     ? roomKvp.Value
                     :  spawnOnPlayer
                         ? aapc.RandomElement().Pos()
-                        : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
+                        : RandomInRoomPosition();
 
                 SystemTypes? room = bc ? roomKvp.Key : null;
                 AddPreparingDisaster(position, disaster.Name, room);
+
+                static Vector2 RandomInRoomPosition()
+                {
+                    FailSafeTimer.Start();
+                    Vector2 vector2;
+
+                    do vector2 = new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
+                    while (FailSafeTimer.ElapsedMilliseconds < 3 && !vector2.GetPlainShipRoom());
+
+                    FailSafeTimer.Reset();
+                    return vector2;
+                }
             }
 
             if (now - LastSync >= 15)
@@ -377,15 +403,17 @@ public static class NaturalDisasters
 
         public static void UpdatePreparingDisasters()
         {
-            foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
+            for (var index = 0; index < PreparingDisasters.Count; index++)
             {
+                NaturalDisaster naturalDisaster = PreparingDisasters[index];
                 naturalDisaster.Update();
 
                 if (float.IsNaN(naturalDisaster.SpawnTimer))
                 {
                     Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
-                    LateTask.New(() => Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster), Utils.CalculatePingDelay(), "Activator.CreateInstance", log: false);
-                    PreparingDisasters.Remove(naturalDisaster);
+                    Activator.CreateInstance(type, naturalDisaster.Position, naturalDisaster);
+                    PreparingDisasters.RemoveAt(index);
+                    index--;
                 }
             }
         }
@@ -450,7 +478,7 @@ public static class NaturalDisasters
             return false;
         }
 
-        public abstract void Update();
+        public abstract bool Update();
 
         public virtual void ApplyOwnGameOptions(IGameOptions opt, byte id) { }
 
@@ -498,9 +526,9 @@ public static class NaturalDisasters
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 
-        public override void Update()
+        public override bool Update()
         {
-            if (RemoveIfExpired()) return;
+            if (RemoveIfExpired()) return true;
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
@@ -517,6 +545,8 @@ public static class NaturalDisasters
                     pc.MarkDirtySettings();
                 }
             }
+
+            return false;
         }
 
         public override bool RemoveIfExpired()
@@ -551,9 +581,9 @@ public static class NaturalDisasters
 
         public override int Duration { get; set; } = 5;
 
-        public override void Update()
+        public override bool Update()
         {
-            RemoveIfExpired();
+            return RemoveIfExpired();
         }
     }
 
@@ -593,9 +623,9 @@ public static class NaturalDisasters
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public override void Update()
+        public override bool Update()
         {
-            if (RemoveIfExpired()) return;
+            if (RemoveIfExpired()) return true;
 
             Timer += Time.deltaTime;
 
@@ -603,7 +633,7 @@ public static class NaturalDisasters
             {
                 Timer = 0f;
                 if (Phase <= Phases) Phase++;
-                if (Phase > Phases) return;
+                if (Phase > Phases) return false;
 
                 string newSprite = Phase switch
                 {
@@ -618,6 +648,7 @@ public static class NaturalDisasters
 
             float range = Range - ((Phases - Math.Min(4, Phase)) * 0.4f);
             KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
+            return false;
         }
     }
 
@@ -628,12 +659,13 @@ public static class NaturalDisasters
         private static OptionItem MovingSpeed;
         private static OptionItem AngleChangeFrequency;
 
-        private float Angle = RandomAngle();
+        private float Angle;
         private long LastAngleChange = Utils.TimeStamp;
 
         public Tornado(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
         {
             NetObject = naturalDisaster;
+            Angle = RandomAngle();
             Update();
         }
 
@@ -667,9 +699,9 @@ public static class NaturalDisasters
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public override void Update()
+        public override bool Update()
         {
-            if (RemoveIfExpired()) return;
+            if (RemoveIfExpired()) return true;
 
             const float eyeRange = Range / 4f;
             const float dragRange = Range * 1.5f;
@@ -712,16 +744,19 @@ public static class NaturalDisasters
             {
                 Angle = RandomAngle();
                 LastAngleChange = now;
-                return;
+                return false;
             }
 
             Position = newPos;
             NetObject.TP(Position);
+            return false;
         }
 
-        private static float RandomAngle()
+        private float RandomAngle()
         {
-            return Random.Range(0, 2 * Mathf.PI);
+            if (!FastVector2.TryGetClosest(Position, Main.EnumerateAlivePlayerControls().Select(x => x.Pos()), out Vector2 closest)) return Random.Range(0, 2 * Mathf.PI);
+            Vector2 direction = (closest - Position).normalized;
+            return Mathf.Atan2(direction.y, direction.x);
         }
     }
 
@@ -765,9 +800,9 @@ public static class NaturalDisasters
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public override void Update()
+        public override bool Update()
         {
-            if (RemoveIfExpired()) return;
+            if (RemoveIfExpired()) return true;
 
             long now = Utils.TimeStamp;
 
@@ -788,6 +823,8 @@ public static class NaturalDisasters
                     }
                 }
             }
+
+            return false;
         }
 
         public override bool RemoveIfExpired()
@@ -838,9 +875,9 @@ public static class NaturalDisasters
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 
-        public override void Update()
+        public override bool Update()
         {
-            if (RemoveIfExpired()) return;
+            if (RemoveIfExpired()) return true;
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
@@ -849,6 +886,8 @@ public static class NaturalDisasters
                 if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
                     pc.MarkDirtySettings();
             }
+
+            return false;
         }
 
         public override bool RemoveIfExpired()
@@ -897,8 +936,79 @@ public static class NaturalDisasters
             NetObject = naturalDisaster;
             Update();
 
-            Direction = Enum.GetValues<MovingDirection>().RandomElement();
+            Direction = GetBestDirection();
             naturalDisaster.RpcChangeSprite(Sprites[Direction]);
+            return;
+
+            MovingDirection GetBestDirection()
+            {
+                int leftToRight = 0;
+                int rightToLeft = 0;
+                int topToBottom = 0;
+                int bottomToTop = 0;
+
+                const float rangeSq = Range * Range;
+
+                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                {
+                    Vector2 diff = pc.Pos() - Position;
+
+                    if (diff.y * diff.y <= rangeSq)
+                    {
+                        switch (diff.x)
+                        {
+                            case > 0:
+                                leftToRight++;
+                                break;
+                            case < 0:
+                                rightToLeft++;
+                                break;
+                        }
+                    }
+
+                    if (diff.x * diff.x <= rangeSq)
+                    {
+                        switch (diff.y)
+                        {
+                            case < 0:
+                                topToBottom++;
+                                break;
+                            case > 0:
+                                bottomToTop++;
+                                break;
+                        }
+                    }
+                }
+
+                int max = 0;
+                MovingDirection best = MovingDirection.LeftToRight;
+
+                if (leftToRight > max)
+                {
+                    max = leftToRight;
+                    best = MovingDirection.LeftToRight;
+                }
+
+                if (rightToLeft > max)
+                {
+                    max = rightToLeft;
+                    best = MovingDirection.RightToLeft;
+                }
+
+                if (topToBottom > max)
+                {
+                    max = topToBottom;
+                    best = MovingDirection.TopToBottom;
+                }
+
+                if (bottomToTop > max)
+                {
+                    max = bottomToTop;
+                    best = MovingDirection.BottomToTop;
+                }
+                
+                return max == 0 ? Enum.GetValues<MovingDirection>().RandomElement() : best;
+            }
         }
 
         public override int Duration { get; set; } = int.MaxValue;
@@ -917,9 +1027,9 @@ public static class NaturalDisasters
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 
-        public override void Update()
+        public override bool Update()
         {
-            if (RemoveIfExpired()) return;
+            if (RemoveIfExpired()) return true;
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
@@ -960,12 +1070,12 @@ public static class NaturalDisasters
             if (newPos.x < MapBounds.X.Left || newPos.x > MapBounds.X.Right || newPos.y < MapBounds.Y.Bottom || newPos.y > MapBounds.Y.Top)
             {
                 Duration = 0;
-                RemoveIfExpired();
-                return;
+                return RemoveIfExpired();
             }
 
             Position = newPos;
             NetObject.TP(Position);
+            return false;
         }
 
         private enum MovingDirection
@@ -993,9 +1103,9 @@ public static class NaturalDisasters
 
         public override int Duration { get; set; } = int.MaxValue;
 
-        public override void Update()
+        public override bool Update()
         {
-            ActiveDisasters.Remove(this);
+            return ActiveDisasters.Remove(this);
         }
 
         public static void OnFixedUpdate()
@@ -1050,10 +1160,10 @@ public static class NaturalDisasters
             Utils.NotifyRoles();
         }
 
-        public override void Update()
+        public override bool Update()
         {
             Duration = 0;
-            RemoveIfExpired();
+            return RemoveIfExpired();
         }
 
         public static void OnFixedUpdate()

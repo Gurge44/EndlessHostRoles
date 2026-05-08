@@ -45,7 +45,7 @@ internal class Sentry : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShowInfoDuration = new IntegerOptionItem(++id, "Sentry.ShowInfoDuration", new(1, 60, 1), 5, TabGroup.CrewmateRoles)
+        ShowInfoDuration = new IntegerOptionItem(++id, "Sentry.ShowInfoDuration", new(1, 60, 1), 10, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -249,7 +249,7 @@ internal class Sentry : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         if (seer.PlayerId == SentryPC.PlayerId && MonitoredRoom)
             return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{MonitoredRoom.RoomId}"));

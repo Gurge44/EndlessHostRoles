@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Roles;
@@ -149,12 +148,12 @@ internal class EvilEraser : RoleBase
         PlayerToErase.ForEach(id =>
         {
             PlayerControl pc = Utils.GetPlayerById(id);
-            if (pc == null || !pc.IsAlive() || pc.Is(CustomRoles.Bloodlust)) return;
+            if (!pc || !pc.IsAlive() || pc.Is(CustomRoles.Bloodlust)) return;
 
             CustomRoles erasedRole = pc.IsImpostor() ? CustomRoles.ImpostorEHR : pc.IsCrewmate() ? CustomRoles.CrewmateEHR : pc.Is(Team.Coven) ? CustomRoles.CovenMember : CustomRoles.Amnesiac;
             pc.RpcSetCustomRole(erasedRole);
             pc.RpcChangeRoleBasis(erasedRole);
-            pc.Notify(GetString("LostRoleByEraser"));
+            pc.Notify(GetString("LostRoleByEvilEraser"));
             Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
             ErasedPlayers.Add(id);
         });

@@ -1503,7 +1503,7 @@ internal static class RPC
 
     public static void ForceEndGame(CustomWinner win)
     {
-        if (ShipStatus.Instance == null) return;
+        if (!ShipStatus.Instance) return;
 
         try { CustomWinnerHolder.ResetAndSetWinner(win); }
         catch { }

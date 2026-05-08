@@ -175,6 +175,9 @@ internal static class EndGamePatch
                 case CustomGameMode.Mingle:
                     Main.EnumeratePlayerControls().Do(x => Mingle.HasPlayedFCs.Add(x.FriendCode));
                     break;
+                case CustomGameMode.NaturalDisasters:
+                    NaturalDisasters.FixedUpdatePatch.LastDisasterTimer.Reset();
+                    goto default;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
                         playedFCs.UnionWith(Main.EnumeratePlayerControls().Select(x => x.FriendCode));

@@ -11,7 +11,6 @@ using System.Globalization;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
 using static EHR.Translator;
 
 namespace EHR.Patches;
@@ -324,6 +323,7 @@ internal static class HudManagerPatch
 
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
+                        //CustomGameMode.RoomRush => RRTimeTester.HUDText,
                         CustomGameMode.SoloPVP => SoloPVP.GetHudText(),
                         CustomGameMode.FFA => FreeForAll.GetHudText(),
                         CustomGameMode.StopAndGo => StopAndGo.GetHudText(),
@@ -586,9 +586,9 @@ public static class ButtonCooldownPatch
 
         if (__instance.isCoolingDown)
         {
-            __instance.cooldownTimerText.text = timer < 10f
+            __instance.cooldownTimerText.text = timer <= 9.9f
                 ? timer.ToString("0.0", NumberFormatInfo.CurrentInfo)
-                : ((int)timer).ToString();
+                : timer >= 11 ? ((int)timer).ToString() : "10";
         }
     }
 }
@@ -1135,12 +1135,7 @@ internal static class TaskPanelBehaviourPatch
 
         Dictionary<byte, PlayerState> playerStates = Main.PlayerStates;
         List<PlayerControl> AllPlayers = Main.CachedAllPlayerControls();
-
         RoleWithInfoBuilder.Clear();
-        RoleWithInfoBuilder.Append("<b>")
-            .Append(role.ToColoredString())
-            .Append(":</b>\r\n")
-            .Append(roleInfo);
 
         int wordCount = 0;
         int thirdSpaceIndex = -1;
@@ -1154,7 +1149,7 @@ internal static class TaskPanelBehaviourPatch
         }
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
-            RoleWithInfoBuilder.Clear().Append("<b>")
+            RoleWithInfoBuilder.Append("<b>")
                 .Append(GetString(Options.CurrentGameMode.ToString()))
                 .Append(":</b>\r\n");
 
@@ -1188,13 +1183,20 @@ internal static class TaskPanelBehaviourPatch
             }
             if (splitIndex != -1)
             {
-                RoleWithInfoBuilder.Clear().Append("<b>")
+                RoleWithInfoBuilder.Append("<b>")
                     .Append(role.ToColoredString())
                     .Append(":</b>\r\n")
                     .Append(roleInfo, 0, splitIndex)
                     .Append("\r\n")
                     .Append(roleInfo, splitIndex + 1, roleInfo.Length - splitIndex - 1);
             }
+        }
+        else
+        {
+            RoleWithInfoBuilder.Append("<b>")
+                .Append(role.ToColoredString())
+                .Append(":</b>\r\n")
+                .Append(roleInfo);
         }
 
         FinalTextBuilder.Clear().Append(Utils.ColorString(player.GetRoleColor(), RoleWithInfoBuilder.ToString()));
