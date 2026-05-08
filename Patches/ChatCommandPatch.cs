@@ -567,7 +567,7 @@ internal static class ChatCommands
     {
         if (args.Length < 2)
         {
-            Utils.SendMessage("<size=80%>" + string.Join('\n', Main.AllPlayerControls.Select(x =>
+            Utils.SendMessage("<size=80%>" + string.Join('\n', Main.CachedAllPlayerControls().Select(x =>
             {
                 ClientData client = x.GetClient();
                 string name = Main.AllPlayerNames.GetValueOrDefault(x.PlayerId, string.Empty);
@@ -632,7 +632,7 @@ internal static class ChatCommands
         
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Fabricator fab) return;
         
-        if (args.Length < 2 || !Enum.GetValues<PlayerState.DeathReason>().FindFirst(x => GetString($"DeathReason.{x}").Replace(" ", string.Empty).Equals(args[1].Replace(" ", string.Empty), StringComparison.OrdinalIgnoreCase), out PlayerState.DeathReason newDeathReason))
+        if (args.Length < 2 || !PlayerState.AllDeathReason.FindFirst(x => GetString($"DeathReason.{x}").Replace(" ", string.Empty).Equals(args[1].Replace(" ", string.Empty), StringComparison.OrdinalIgnoreCase), out PlayerState.DeathReason newDeathReason))
         {
             Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("Fabricator.InvalidDeathReason"), args.Length >= 2 ? args[1] : ""));
             return;
@@ -782,7 +782,7 @@ internal static class ChatCommands
                 Medic.IsDead(killer);
                 killer.RpcGuesserMurderPlayer();
                 Utils.AfterPlayerDeathTasks(killer, true);
-                Utils.SendMessage("\n", title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Retributionist), string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())), importance: MessageImportance.High);
+                Utils.SendMessage("\n", title: CustomRoles.Retributionist.ColoredTextByRole(string.Format(GetString("Retributionist.SuccessOthers"), targetId.ColoredPlayerName(), CustomRoles.Retributionist.ToColoredString())), importance: MessageImportance.High);
                 Utils.SendMessage("\n", player.PlayerId, GetString("Retributionist.Success"));
             }
         }
@@ -1021,7 +1021,7 @@ internal static class ChatCommands
 
     public static void GameModePollCommand(PlayerControl player, string text, string[] args)
     {
-        GMPollGameModes = Enum.GetValues<CustomGameMode>()[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
+        GMPollGameModes = Main.CustomGameModeValues[..^1].Where(x => Options.GMPollGameModesSettings[x].GetBool()).ToList();
         string gmNames = string.Join(' ', GMPollGameModes.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("GameModePoll.Question").TrimEnd('?')}? {gmNames}";
         PollCommand(player, msg, msg.Split(' '));
@@ -1029,7 +1029,7 @@ internal static class ChatCommands
     
     public static void MapPollCommand(PlayerControl player, string text, string[] args)
     {
-        MPollMaps = Enum.GetValues<MapNames>().Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
+        MPollMaps = Main.MapNamesValues.Where(x => Options.MPollMapsSettings[x].GetBool()).ToList();
         string mNames = string.Join(' ', MPollMaps.Select(x => GetString(x.ToString()).Replace(' ', '_')));
         var msg = $"/poll {GetString("MapPoll.Question").TrimEnd('?')}? {mNames}";
         PollCommand(player, msg, msg.Split(' '));
@@ -1058,8 +1058,8 @@ internal static class ChatCommands
 
     private static void GameModeListCommand(PlayerControl player, string text, string[] args)
     {
-        string info = string.Join("\n\n", Enum.GetValues<CustomGameMode>()[1..^1]
-            .Select(x => (GameMode: x, Color: Main.RoleColors.GetValueOrDefault(CustomRoleSelector.GameModeRoles.TryGetValue(x, out CustomRoles role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
+        string info = string.Join("\n\n", Main.CustomGameModeValues[1..^1]
+            .Select(x => (GameMode: x, Color: Utils.GetRoleColorCode(CustomRoleSelector.GameModeRoles.TryGetValue(x, out CustomRoles role) ? role : x == CustomGameMode.HideAndSeek ? CustomRoles.Hider : CustomRoles.Witness, "#000000")))
             .Select(x => $"<{x.Color}><u><b>{GetString($"{x.GameMode}")}</b></u></color><size=75%>\n{GetString($"ModeDescribe.{x.GameMode}").Split("\n\n")[0]}</size>"));
 
         Utils.SendMessage(info, player.PlayerId, GetString("GameModeListTitle"));
@@ -1076,7 +1076,7 @@ internal static class ChatCommands
         bool amJailed = player.PlayerId == jailor.JailorTarget;
         if (!amJailor && !amJailed) return;
 
-        string title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailTalkTitle"));
+        string title = CustomRoles.Jailor.ColoredTextByRole(GetString("JailTalkTitle"));
 
         string message = string.Join(' ', args[1..]);
 
@@ -1090,12 +1090,12 @@ internal static class ChatCommands
     {
         StringBuilder sb = new("<size=70%>");
 
-        Dictionary<Team, RoleOptionType[]> rot = Enum.GetValues<RoleOptionType>()
+        Dictionary<Team, RoleOptionType[]> rot = Main.RoleOptionTypeValues
             .Without(RoleOptionType.Coven_Miscellaneous)
             .GroupBy(x => x.ToString().Split('_')[0])
             .ToDictionary(x => Enum.Parse<Team>(x.Key), x => x.ToArray());
 
-        foreach (Team team in Enum.GetValues<Team>()[1..])
+        foreach (Team team in Main.TeamValues[1..])
         {
             sb.Append("<u>");
             sb.Append(Utils.ColorString(team.GetColor(), GetString(team.ToString()).ToUpper()));
@@ -1289,13 +1289,13 @@ internal static class ChatCommands
         foreach (string id in ids)
         {
             if (!byte.TryParse(id, out byte targetId)) continue;
-            
+
             PlayerState state = Main.PlayerStates[targetId];
             if (state.IsDead || state.SubRoles.Contains(CustomRoles.Shy)) continue;
 
             string fromName = player.PlayerId.ColoredPlayerName();
             string toName = targetId.ColoredPlayerName();
-        
+
             string msg = args[2..].Join(delimiter: " ");
             string title = string.Format(GetString("WhisperTitle"), fromName, player.PlayerId);
 
@@ -1307,7 +1307,7 @@ internal static class ChatCommands
                 if (IRandom.Instance.Next(100) >= Listener.WhisperHearChance.GetInt()) continue;
                 string message = IRandom.Instance.Next(100) < Listener.FullMessageHearChance.GetInt() ? string.Format(GetString("Listener.FullMessage"), coloredRole, fromName, toName, msg) : string.Format(GetString("Listener.FromTo"), coloredRole, fromName, toName);
                 Utils.SendMessage("\n", listener.PlayerId, message);
-                
+
                 if (listener.AmOwner && ++Listener.LocalPlayerHeardMessagesThisMeeting >= 3)
                     Achievements.Type.Eavesdropper.Complete();
             }
@@ -1594,8 +1594,8 @@ internal static class ChatCommands
 
         void AddSettings(StringOptionItem stringOptionItem)
         {
-            settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[role]}>{roleName}</color>:</u>");
-            Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
+            settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Utils.GetRoleColorCode(role)}>{roleName}</color>:</u>");
+            Utils.ShowChildrenSettings(stringOptionItem, settings, disableColor: false);
             settings.Append("</size>");
         }
     }
@@ -2395,7 +2395,7 @@ internal static class ChatCommands
             sb.Append(player.GetRoleInfo(true).TrimStart());
             
             if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt))
-                Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+                Utils.ShowChildrenSettings(opt, settings, disableColor: false);
 
             settings.Append("</size>");
             
@@ -2627,7 +2627,7 @@ internal static class ChatCommands
 
     private static void KCountCommand(PlayerControl player, string text, string[] args)
     {
-        if (GameStates.IsLobby || !Options.EnableGameStateCommand.GetBool() || Main.AllAlivePlayerControls.Count < Options.MinPlayersForGameStateCommand.GetInt())
+        if (GameStates.IsLobby || !Options.EnableGameStateCommand.GetBool() || Main.AllAlivePlayerControlsCount < Options.MinPlayersForGameStateCommand.GetInt())
         {
             Utils.SendMessage(GetString("Message.CommandUnavailable"), player.PlayerId, importance: MessageImportance.Low);
             return;
@@ -3342,13 +3342,13 @@ internal static class ChatCommands
                 void AddSettings(StringOptionItem stringOptionItem)
                 {
                     settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} {rl.ToColoredString()}:</u>");
-                    Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
+                    Utils.ShowChildrenSettings(stringOptionItem, settings, disableColor: false);
                     settings.Append("</size>");
                 }
             }
         }
 
-        foreach (CustomGameMode gameMode in Enum.GetValues<CustomGameMode>())
+        foreach (CustomGameMode gameMode in Main.CustomGameModeValues)
         {
             string gmString = GetString(gameMode.ToString());
             string match = gmString.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty);

@@ -118,7 +118,7 @@ public class YinYanger : RoleBase
         PlayerControl pc1 = GetPlayerById(YinYangedPlayers[0]);
         PlayerControl pc2 = GetPlayerById(YinYangedPlayers[1]);
 
-        if (pc1 == null || pc2 == null || yyPc == null || !pc1.IsAlive() || !pc2.IsAlive() || !yyPc.IsAlive()) return;
+        if (!pc1.IsAlive() || !pc2.IsAlive() || !yyPc.IsAlive()) return;
 
         if (FastVector2.DistanceWithinRange(pc1.Pos(), pc2.Pos(), 2f))
         {

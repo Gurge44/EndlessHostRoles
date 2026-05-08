@@ -26,6 +26,8 @@ public class Werewolf : RoleBase
     private int KillsInLastRampage;
     private byte WWId;
 
+    private readonly StringBuilder Suffix = new();
+
     private float UsedCooldown => KillsInLastRampage == 0 ? RampageCDAfterNoKillRampage.GetFloat() : RampageCD.GetFloat();
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -227,22 +229,22 @@ public class Werewolf : RoleBase
     {
         if (!hud || meeting || seer.PlayerId != WWId) return string.Empty;
 
-        var str = new StringBuilder();
+        Suffix.Clear();
 
         if (IsRampaging)
         {
             int remainTime = (int)Math.Ceiling(RampageTimer.Remaining.TotalSeconds);
-            str.Append(string.Format(GetString("WWRampageCountdown"), remainTime));
+            Suffix.AppendFormat(GetString("WWRampageCountdown"), remainTime);
         }
         else if (CooldownTimer != null)
         {
             int cooldown = (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds);
-            str.Append(string.Format(GetString("WWCD"), cooldown));
+            Suffix.AppendFormat(GetString("WWCD"), cooldown);
         }
         else
-            str.Append(GetString(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "WWCanRampageVanish" : "WWCanRampage"));
+            Suffix.Append(GetString(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "WWCanRampageVanish" : "WWCanRampage"));
 
-        return str.ToString();
+        return Suffix.ToString();
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

@@ -75,14 +75,19 @@ public class Maverick : RoleBase
         return pc.Is(CustomRoles.Mischievous);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (Main.PlayerStates[playerId].Role is not Maverick mr) return string.Empty;
+        if (Main.PlayerStates[playerId].Role is not Maverick mr) return;
 
         int kills = mr.NumOfKills;
         int min = MinKillsToWin.GetInt();
         Color color = kills >= min ? Color.green : Color.red;
-        return Utils.ColorString(color, $"{kills}/{min}");
+
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append(kills)
+            .Append('/')
+            .Append(min)
+            .Append("</color>");
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)

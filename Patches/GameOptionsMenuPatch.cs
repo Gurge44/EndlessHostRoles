@@ -825,7 +825,7 @@ public static class StringOptionPatch
             item.OptionBehaviour = __instance;
             string name1 = name;
 
-            if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out CustomRoles role))
+            if (Main.CustomRoleValues.FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out CustomRoles role))
             {
                 if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
 
@@ -880,7 +880,7 @@ public static class StringOptionPatch
                 OptionItem item = OptionItem.AllOptions[index];
                 string name = item.GetName();
 
-                if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out CustomRoles value))
+                if (Main.CustomRoleValues.FindFirst(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out CustomRoles value))
                 {
                     string roleName = value.IsVanilla() ? value + "EHR" : value.ToString();
                     string str = Translator.GetString($"{roleName}InfoLong").FixRoleName(value);
@@ -972,7 +972,7 @@ public static class StringOptionPatch
 
             string name1 = name;
 
-            if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out CustomRoles role))
+            if (Main.CustomRoleValues.FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out CustomRoles role))
             {
                 if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
 
@@ -1161,7 +1161,7 @@ public static class GameSettingMenuPatch
         catch (Exception e) { Utils.ThrowException(e); }
 
         ModSettingsButtons.Clear();
-        TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
+        TabGroup[] tabGroups = Main.TabGroupValues;
 
         tabGroups = Options.CurrentGameMode switch
         {
@@ -1327,7 +1327,7 @@ public static class GameSettingMenuPatch
 
         Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        var gms = Enum.GetValues<CustomGameMode>()[..^1].ToList();
+        var gms = Main.CustomGameModeValues[..^1].ToList();
         gms.Remove(CustomGameMode.TheMindGame);
         
         if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6)
@@ -1502,7 +1502,7 @@ public static class GameSettingMenuPatch
 
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
-            TabGroup[] tabGroups = Enum.GetValues<TabGroup>();
+            TabGroup[] tabGroups = Main.TabGroupValues;
 
             foreach (TabGroup tab in tabGroups)
             {

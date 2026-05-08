@@ -110,7 +110,7 @@ public class Stasis : RoleBase
 
         int time = AbilityDuration.GetInt();
 
-        foreach (PlayerControl player in Main.EnumeratePlayerControls())
+        foreach (PlayerControl player in Main.CachedAllPlayerControls())
         {
             if (!player.IsAlive() || player.PlayerId == pc.PlayerId || (player.Is(Team.Impostor) && !AffectsOtherImpostors.GetBool()))
             {

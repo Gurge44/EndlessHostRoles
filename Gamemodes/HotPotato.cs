@@ -74,7 +74,7 @@ internal static class HotPotato
     {
         HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 8, 1);
         SurvivalTimes = [];
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls()) SurvivalTimes[pc.PlayerId] = 0;
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls()) SurvivalTimes[pc.PlayerId] = 0;
 
         DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
     }
@@ -101,7 +101,7 @@ internal static class HotPotato
         string holding = HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty;
         string arrows = TargetArrow.GetAllArrows(id);
         arrows = arrows.Length > 0 ? $"\n{arrows}" : string.Empty;
-        return $"{holding}<{Main.RoleColors[CustomRoles.Potato]}>{Translator.GetString("HotPotato_TimeLeftSuffix")}</color>{(hud ? "<b>" : string.Empty)}{HotPotatoState.TimeLeft}{(hud ? "</b>" : string.Empty)}s{arrows}";
+        return $"{holding}<{Utils.GetRoleColorCode(CustomRoles.Potato)}>{Translator.GetString("HotPotato_TimeLeftSuffix")}</color>{(hud ? "<b>" : string.Empty)}{HotPotatoState.TimeLeft}{(hud ? "</b>" : string.Empty)}s{arrows}";
     }
 
     public static void ReceiveRPC(MessageReader reader)
@@ -183,9 +183,10 @@ internal static class HotPotato
 
         public static void PassHotPotato(PlayerControl target = null, bool resetTime = true)
         {
-            var aapc = Main.AllAlivePlayerControls;
-
-            if (!Main.IntroDestroyed || aapc.Count < 2) return;
+            var aapc = Main.CachedAlivePlayerControls();
+            var aapcCount = aapc.Count;
+            
+            if (!Main.IntroDestroyed || aapcCount < 2) return;
 
             if (resetTime)
             {
@@ -208,7 +209,7 @@ internal static class HotPotato
                     LateTask.New(() => target.SetKillCooldownNonSync(1f), 0.2f, log: false);
                 }
 
-                if (aapc.Count < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapc.Count > 1)
+                if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapcCount > 1)
                 {
                     Vector2 pos = target.Pos();
                     TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);

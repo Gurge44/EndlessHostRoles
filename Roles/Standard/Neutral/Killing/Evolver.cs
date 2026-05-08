@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -270,21 +271,26 @@ public class Evolver : RoleBase
         return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), string.Join(", ", Upgrades.ConvertAll(x => Translator.GetString($"EvolverUpgrade.{x}"))));
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var sb = new StringBuilder();
-
-        if (Stats.CanVent) sb.Append(string.Format(Translator.GetString("EvolverProgress.Vent"), Stats.VentUseLimit));
-
-        if (Stats.CanSabotage) sb.Append(string.Format(Translator.GetString("EvolverProgress.Sabotage"), Stats.SabotageUseLimit));
-
-        if (sb.Length > 0)
+        bool hasAny = false;
+        if (Stats.CanVent)
         {
-            sb.Insert(0, "<#ffffff>");
-            sb.Append("</color>");
+            resultText.AppendFormat(Translator.GetString("EvolverProgress.Vent"), Stats.VentUseLimit);
+            hasAny = true;
+        }
+        if (Stats.CanSabotage)
+        {
+            resultText.AppendFormat(Translator.GetString("EvolverProgress.Sabotage"), Stats.SabotageUseLimit);
+            hasAny = true;
         }
 
-        return sb.ToString();
+        if (hasAny)
+        {
+            string prefix = Utils.ColorPrefix(Color.white);
+            resultText.Insert(0, prefix);
+            resultText.Append("</color>");
+        }
     }
 
     private enum Upgrade

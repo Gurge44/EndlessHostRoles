@@ -60,7 +60,7 @@ public static class AFKDetector
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!EnableDetector.GetBool() || !GameStates.IsInTask || ExileController.Instance || Main.AllAlivePlayerControls.Count < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
+        if (!EnableDetector.GetBool() || !GameStates.IsInTask || ExileController.Instance || Main.AllAlivePlayerControlsCount < MinPlayersToActivate.GetInt() || !PlayerData.TryGetValue(pc.PlayerId, out Data data)) return;
 
         if (!FastVector2.DistanceWithinRange(pc.Pos(), data.LastPosition, 0.1f) && !TempIgnoredPlayers.Contains(pc.PlayerId))
         {
@@ -77,7 +77,7 @@ public static class AFKDetector
             NumAFK++;
             data.Counted = true;
 
-            if (Main.AllAlivePlayerControls.Count / 2 <= NumAFK)
+            if (Main.AllAlivePlayerControlsCount / 2 <= NumAFK)
             {
                 Logger.SendInGame(Translator.GetString("AFKTooMany"));
                 PlayerData.Clear();

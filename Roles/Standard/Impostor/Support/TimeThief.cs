@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -12,6 +13,7 @@ public class TimeThief : RoleBase
     public static OptionItem LowerLimitVotingTime;
     public static OptionItem ReturnStolenTimeUponDeath;
 
+    private static Color32 ShadeColor;
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -37,6 +39,7 @@ public class TimeThief : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
+        ShadeColor = Palette.ImpostorRed.ShadeColor(0.5f);
     }
 
     public override void Add(byte playerId)
@@ -69,8 +72,13 @@ public class TimeThief : RoleBase
         return sec;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return StolenTime(playerId) > 0 ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"{-StolenTime(playerId)}s") : string.Empty;
+        int stolen = StolenTime(playerId);
+        if (stolen <= 0) return;
+
+        resultText.Append(Utils.ColorPrefix(ShadeColor))
+            .Append(-stolen)
+            .Append("s</color>");
     }
 }

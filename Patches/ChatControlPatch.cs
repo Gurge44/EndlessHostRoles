@@ -223,31 +223,32 @@ public static class ChatManager
         if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
     }
 
+    private static readonly StringBuilder TitleText = new();
     public static void SendPreviousMessagesToAll()
     {
         if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return;
 
         Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         if (aapc.Count == 0) return;
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
             ClearChat();
 
-            StringBuilder sb = new();
+            TitleText.Clear();
             ChatHistory.ForEach(x =>
             {
                 string[] split = x.Split(':');
                 byte id = byte.Parse(split[0].Trim());
                 string msg = string.Join(':', split[1..]).Trim();
-                sb.Append(id.ColoredPlayerName());
-                sb.Append(':');
-                sb.Append(' ');
-                sb.AppendLine(msg);
+                TitleText.Append(id.ColoredPlayerName())
+                    .Append(':')
+                    .Append(' ')
+                    .AppendLine(msg);
             });
-            LateTask.New(() => Utils.SendMessage("\n", title: sb.ToString().Trim()), 0.2f);
+            LateTask.New(() => Utils.SendMessage("\n", title: TitleText.ToString().Trim()), 0.2f);
             
             return;
         }
@@ -301,7 +302,7 @@ public static class ChatManager
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (!player) return;
-        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControls.Count) SendEmptyMessage(null);
+        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 

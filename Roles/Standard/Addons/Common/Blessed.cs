@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
@@ -31,7 +32,7 @@ public class Blessed : IAddon
 
     public static void AfterMeetingTasks()
     {
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.AllAlivePlayerControlsToList;
         if (aapc.Count < MinLivingPlayersToActivateShield.GetInt()) return;
         
         foreach (PlayerControl pc in aapc)

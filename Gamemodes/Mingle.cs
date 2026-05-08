@@ -15,6 +15,7 @@ public static class Mingle
     public static DateTime GameStartDateTime;
     public static Dictionary<SystemTypes, int> RequiredPlayerCount = [];
     public static HashSet<SystemTypes> AllRooms = [];
+    private static readonly StringBuilder Suffix = new();
     public static long TimeEndTS;
     public static long LastUpdateTS;
     public static int Time;
@@ -111,7 +112,7 @@ public static class Mingle
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !GameGoing || TimeEndTS > Utils.TimeStamp) return false;
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         switch (aapc.Count)
         {
@@ -142,7 +143,7 @@ public static class Mingle
 
     private static string GetRoomsInfo(PlayerControl pc, bool hud)
     {
-        StringBuilder sb = new("<#ffffff><size=90%>");
+        Suffix.Clear().Append("<#ffffff><size=90%>");
         PlainShipRoom plainShipRoom = pc.GetPlainShipRoom();
 
         foreach ((SystemTypes room, int required) in RequiredPlayerCount)
@@ -150,64 +151,64 @@ public static class Mingle
             int count = GetNumPlayersInRoom(room);
 
             if (plainShipRoom && plainShipRoom.RoomId == room)
-                sb.Append(hud ? "➡ " : "<u>");
+                Suffix.Append(hud ? "➡ " : "<u>");
             
             if (DisplayCurrentPlayerCountInEachRoom)
             {
                 string color = count > required ? "FF4647" : count == required ? "91FF65" : "FFDE59";
-                sb.Append($"<#{color}>");
+                Suffix.Append($"<#{color}>");
             }
 
-            sb.Append(Translator.GetString(room.ToString()));
-            sb.Append(':');
-            sb.Append(' ');
+            Suffix.Append(Translator.GetString(room))
+                .Append(':')
+                .Append(' ');
             
             if (DisplayCurrentPlayerCountInEachRoom)
             {
-                sb.Append(count);
-                sb.Append(" / ");
+                Suffix.Append(count);
+                Suffix.Append(" / ");
             }
-            
-            sb.Append(required);
+
+            Suffix.Append(required);
             
             if (DisplayCurrentPlayerCountInEachRoom)
             {
-                sb.Append(' ');
-                sb.Append(count > required ? "＋ <#ff0000>╳</color>" : count == required ? "＝ <#00ff00>✓</color>" : "－ <#ff0000>╳</color>");
-                sb.Append("</color>");
+                Suffix.Append(' ');
+                Suffix.Append(count > required ? "＋ <#ff0000>╳</color>" : count == required ? "＝ <#00ff00>✓</color>" : "－ <#ff0000>╳</color>");
+                Suffix.Append("</color>");
             }
 
             if (plainShipRoom && plainShipRoom.RoomId == room && !hud)
-                sb.Append("</u>");
+                Suffix.Append("</u>");
 
-            sb.Append('\n');
+            Suffix.Append('\n');
         }
-        
-        sb.Append("</size>");
+
+        Suffix.Append("</size>");
 
         long timeLeft = TimeEndTS - Utils.TimeStamp;
 
         if (timeLeft >= 0)
         {
-            sb.Append('\n');
-            if (hud) sb.Append("<b><size=200%>");
-            sb.Append(timeLeft);
-            if (hud) sb.Append("</size></b>");
+            Suffix.Append('\n');
+            if (hud) Suffix.Append("<b><size=200%>");
+            Suffix.Append(timeLeft);
+            if (hud) Suffix.Append("</size></b>");
         }
         
         if (!plainShipRoom || !RequiredPlayerCount.ContainsKey(plainShipRoom.RoomId))
         {
-            sb.Append('\n');
-            sb.Append("<#ffff00><size=70%>");
-            sb.Append('⚠');
-            sb.Append(' ');
-            sb.Append(Translator.GetString("Mingle.NotInRequiredRoom"));
-            sb.Append(' ');
-            sb.Append('⚠');
-            sb.Append("</size></color>");
+            Suffix.Append('\n')
+                .Append("<#ffff00><size=70%>")
+                .Append('⚠')
+                .Append(' ')
+                .Append(Translator.GetString("Mingle.NotInRequiredRoom"))
+                .Append(' ')
+                .Append('⚠')
+                .Append("</size></color>");
         }
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     public static IEnumerator GameStart()
@@ -276,7 +277,7 @@ public static class Mingle
         if (GameStates.IsEnded) return;
 
         RequiredPlayerCount = [];
-        int playerCount = Main.AllAlivePlayerControls.Count;
+        int playerCount = Main.AllAlivePlayerControlsCount;
         bool last2 = playerCount <= 2;
 
         while (playerCount > 0)
@@ -300,7 +301,7 @@ public static class Mingle
 
         try
         {
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
             Dictionary<PlayerControl, SystemTypes> playerRooms = aapc.Select(x => (pc: x, room: x.GetPlainShipRoom())).ToDictionary(x => x.pc, x => !x.room ? SystemTypes.Outside : x.room.RoomId);
             Dictionary<SystemTypes, int> playerCount = [];
             HashSet<PlayerControl> toKill = [];
@@ -319,7 +320,7 @@ public static class Mingle
                 if (count == 0 || required == count) continue;
                 playerRooms.DoIf(x => x.Value == room, x => toKill.Add(x.Key));
             }
-        
+
             switch (toKill.Count)
             {
                 case 0:
@@ -341,7 +342,7 @@ public static class Mingle
             DontEndGame = false;
         }
     }
-    
+
     private static int GetNumPlayersInRoom(SystemTypes room) => Main.EnumerateAlivePlayerControls().Where(x => !x.inMovingPlat).Count(x => x.IsInRoom(room));
 
     public static void HandleDisconnect()

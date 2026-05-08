@@ -87,7 +87,7 @@ public class Anonymous : RoleBase
 
         var targetId = byte.MaxValue;
 
-        foreach (byte db in DeadBodyList.ToArray())
+        foreach (byte db in DeadBodyList)
         {
             PlayerControl dp = Utils.GetPlayerById(db);
             if (dp == null || dp.GetRealKiller() == null) continue;

@@ -81,7 +81,7 @@ public class HeadHunter : RoleBase
         MessageWriter writer = Utils.CreateRPC(CustomRPC.SyncHeadHunter);
         writer.Write(HeadHunterId);
         writer.Write(Targets.Count);
-        foreach (byte target in Targets.ToArray()) writer.Write(target);
+        foreach (byte target in Targets) writer.Write(target);
 
         Utils.EndRPC(writer);
     }

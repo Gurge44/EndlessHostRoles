@@ -127,7 +127,7 @@ public class Mafioso : RoleBase
 
         if (PreviouslyUsedVents.Count > 0)
         {
-            foreach (int vent in PreviouslyUsedVents.ToArray())
+            foreach (int vent in PreviouslyUsedVents)
                 writer.Write(vent);
         }
 
@@ -249,9 +249,10 @@ public class Mafioso : RoleBase
         SendRPCSyncPistolCD();
     }
 
-    public override string GetProgressText(byte id, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return id.IsPlayerModdedClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
+        if (playerId.IsPlayerModdedClient()) return;
+        resultText.AppendFormat(GetString("MafiosoProgressText"), Tier, XP);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

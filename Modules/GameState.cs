@@ -11,6 +11,7 @@ namespace EHR;
 
 public class PlayerState(byte playerId)
 {
+    public static readonly DeathReason[] AllDeathReason = Enum.GetValues<DeathReason>();
     public enum DeathReason
     {
         Kill,
@@ -150,7 +151,7 @@ public class PlayerState(byte playerId)
                 if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
             }
 
-            if (role.IsVanilla() || role.ToString().Contains("EHR"))
+            if (role.IsVanilla() || role.IsVanillaEHR())
                 Main.AbilityUseLimit.Remove(PlayerId);
         }
 
@@ -352,17 +353,31 @@ public class PlayerState(byte playerId)
     public void SetDead()
     {
         IsDead = true;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
 
         if (AmongUsClient.Instance.AmHost)
         {
             if (Enchanter.EnchantedPlayers.Contains(PlayerId))
-                deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
+                deathReason = AllDeathReason[..^8].RandomElement();
 
-            RPC.SendDeathReason(PlayerId, deathReason);
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
 
             if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted)
                 MeetingHud.Instance.CheckForEndVoting();
+        }
+    }
+    public void SetAlive()
+    {
+        IsDead = false;
+        deathReason = DeathReason.etc;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
         }
     }
 
@@ -383,7 +398,19 @@ public class PlayerState(byte playerId)
 
     public int GetKillCount()
     {
-        return Main.PlayerStates.Values.Count(state => state.PlayerId != PlayerId && state.GetRealKiller() == PlayerId);
+        int count = 0;
+        var states = Main.PlayerStates.Values;
+        byte myId = PlayerId;
+
+        foreach (var state in states)
+        {
+            if (state.PlayerId == myId) continue;
+
+            if (state.GetRealKiller() == myId) 
+                count++;
+        }
+
+        return count;
     }
 }
 
@@ -481,7 +508,7 @@ public class TaskState
                 Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);

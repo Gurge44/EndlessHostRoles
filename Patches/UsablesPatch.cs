@@ -42,10 +42,18 @@ internal static class EmergencyMinigamePatch
             __instance.Close();
     }
 }
-
+[HarmonyPatch(typeof(Vent), nameof(Vent.Start))]
+internal static class VentStartPatch
+{
+    public static void Postfix(Vent __instance)
+    {
+        CanUseVentPatch.IUsable = __instance.TryCast<IUsable>();
+    }
+}
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
 internal static class CanUseVentPatch
 {
+    public static IUsable IUsable;
     public static bool Prefix(Vent __instance,
         [HarmonyArgument(0)] NetworkedPlayerInfo pc,
         [HarmonyArgument(1)] ref bool canUse,
@@ -53,12 +61,13 @@ internal static class CanUseVentPatch
         ref float __result)
     {
         PlayerControl playerControl = pc.Object;
+        var usableVent = IUsable;
 
         // First half, Mod-specific processing
 
         // Determine if vent is available based on custom role
         // always true for engineer-based roles
-        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(__instance.CastFast<IUsable>()));
+        couldUse = playerControl.CanUseImpostorVentButton() || (pc.Role.Role == RoleTypes.Engineer && pc.Role.CanUse(usableVent));
 
         if (SubmergedCompatibility.IsSubmerged()) // From TheOtherRoles
         {
@@ -103,7 +112,6 @@ internal static class CanUseVentPatch
         // Mod's own processing up to this point
         // Replace vanilla processing from here
 
-        var usableVent = __instance.CastFast<IUsable>();
         // Distance between vent and player
         var actualDistance = float.MaxValue;
 
@@ -117,9 +125,9 @@ internal static class CanUseVentPatch
             (playerControl.CanMove || playerControl.inVent);
 
         // Check vent cleaning
-        if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out ISystemType systemType))
+        if (ShipStatus.Instance.Systems.ContainsKey(SystemTypes.Ventilation))
         {
-            var ventilationSystem = systemType.CastFast<VentilationSystem>();
+            var ventilationSystem = ShipStatusSystem.VentilationSystem;
             // If someone is cleaning a vent, you can't get into that vent
             if (ventilationSystem != null && ventilationSystem.IsVentCurrentlyBeingCleaned(__instance.Id)) couldUse = false;
         }

@@ -359,7 +359,7 @@ internal static class StopAndGo
         RoundTimer = Stopwatch.StartNew();
         FixedUpdatePatch.DoChecks = true;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             int startingGreenTime = StartingGreenTime(pc);
             Vector2 pos = pc.Pos();

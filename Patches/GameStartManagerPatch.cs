@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -8,6 +5,10 @@ using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
 using InnerNet;
+using Rewired.Utils.Platforms.Windows;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -19,6 +20,7 @@ public static class GameStartManagerPatch
 {
     public static long TimerStartTS;
     private static TextMeshPro WarningText;
+    public static bool UpdateSpriteStartButton;
     public static float Timer => Math.Max(0, 597f - (Utils.TimeStamp - TimerStartTS));
 
     [HarmonyPatch(typeof(TimerTextTMP), nameof(TimerTextTMP.UpdateText))]
@@ -45,6 +47,7 @@ public static class GameStartManagerPatch
             {
                 if (!__instance) return;
 
+                UpdateSpriteStartButton = true;
                 GameCountdown = Object.Instantiate(__instance.PlayerCounter, __instance.HostInfoPanel.transform);
                 GameCountdown.text = string.Empty;
 
@@ -204,6 +207,8 @@ public static class GameStartManagerPatch
                 Utils.SendMessage(msg, importance: MessageImportance.Low);
             }
 
+            UpdateSpriteStartButton = true;
+
             if (Options.RandomMapsMode.GetBool())
             {
                 Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
@@ -248,7 +253,7 @@ public static class GameStartManagerPatch
             {
                 if (!(GameManager.Instance.LogicOptions.MapId == 6 && SubmergedCompatibility.Loaded))
                 {
-                    if (GameManager.Instance.LogicOptions.MapId >= Enum.GetValues<MapNames>().Length)
+                    if (GameManager.Instance.LogicOptions.MapId >= Main.MapNamesValues.Length)
                         ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
 
                     Utils.ThrowException(e);
@@ -295,11 +300,13 @@ public static class GameStartManagerPatch
                 if (instance.startState == GameStartManager.StartingStates.Countdown)
                 {
                     instance.StartButton.ChangeButtonText(GetString("Cancel"));
-
-                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.8f, 0f, 0f, 1f);
-                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.red;
-                    instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.8f, 0.4f, 0.4f, 1f);
-                    instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
+                    if (UpdateSpriteStartButton)
+                    {
+                        instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.8f, 0f, 0f, 1f);
+                        instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.red;
+                        instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.8f, 0.4f, 0.4f, 1f);
+                        instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
+                    }
                     int num = Mathf.CeilToInt(instance.countDownTimer);
                     instance.countDownTimer -= Time.deltaTime;
                     int num2 = Mathf.CeilToInt(instance.countDownTimer);
@@ -314,13 +321,17 @@ public static class GameStartManagerPatch
                 else
                 {
                     instance.StartButton.ChangeButtonText(TranslationController.Instance.GetString(StringNames.StartLabel));
-                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f, 1f);
-                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
-                    instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.3f, 0.3f, 0.3f, 0.5f);
-                    instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
+                    if (UpdateSpriteStartButton)
+                    {
+                        instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f, 1f);
+                        instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
+                        instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.3f, 0.3f, 0.3f, 0.5f);
+                        instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
+                    }
                     instance.GameStartTextParent.SetActive(false);
                     instance.GameStartText.text = string.Empty;
                 }
+                UpdateSpriteStartButton = false;
             }
 
             if (!HudManager.InstanceExists) return;
@@ -531,7 +542,9 @@ public static class GameStartRandomMap
             Utils.SendMessage(msg, importance: MessageImportance.Low);
             return false;
         }
-        
+
+        GameStartManagerPatch.UpdateSpriteStartButton = true;
+
         if (Options.RandomMapsMode.GetBool())
         {
             Main.NormalOptions.MapId = SelectRandomMap();
@@ -582,7 +595,7 @@ public static class GameStartRandomMap
             5 => Options.FungleChance.GetInt(),
             _ => 0
         });
-        
+
         int playerCount = PlayerControl.AllPlayerControls.Count;
         if (playerCount < Options.MinPlayersForAirship.GetInt()) chance.Remove(4);
         if (playerCount < Options.MinPlayersForFungle.GetInt()) chance.Remove(5);
@@ -598,6 +611,7 @@ internal static class ResetStartStatePatch
     public static void Prefix(GameStartManager __instance)
     {
         SoundManager.Instance.StopSound(__instance.gameStartSound);
+        GameStartManagerPatch.UpdateSpriteStartButton = true;
 
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {

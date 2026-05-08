@@ -191,15 +191,15 @@ public class Jackpot : RoleBase
         StopSequence(jackpot, resetChance: true, notifyEnd: false, refreshCooldown: true);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        string text = IsJackpotActive
-            ? string.Format(GetString("Jackpot.Progress.Jackpot"), Money, Mathf.CeilToInt(JackpotTimer))
-            : DomainActive
-                ? string.Format(GetString(IsNearMissActive ? "Jackpot.Progress.Near" : "Jackpot.Progress.Spin"), Money, CurrentJackpotChanceValue)
-                : string.Format(GetString("Jackpot.Progress.Ready"), Money, CurrentJackpotChanceValue);
+        resultText.Append(' ').Append(Utils.ColorPrefix(Utils.GetRoleColor(CustomRoles.Jackpot)));
 
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackpot), $" {text}");
+        if (IsJackpotActive) resultText.AppendFormat(GetString("Jackpot.Progress.Jackpot"), Money, Mathf.CeilToInt(JackpotTimer));
+        else if (DomainActive) resultText.AppendFormat(GetString(IsNearMissActive ? "Jackpot.Progress.Near" : "Jackpot.Progress.Spin"), Money, CurrentJackpotChanceValue);
+        else resultText.AppendFormat(GetString("Jackpot.Progress.Ready"), Money, CurrentJackpotChanceValue);
+
+        resultText.Append("</color>");
     }
 
     private void StartDomain(PlayerControl player)

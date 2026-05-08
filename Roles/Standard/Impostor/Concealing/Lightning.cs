@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using EHR.Modules;
+﻿using EHR.Modules;
 using EHR.Patches;
 using Hazel;
+using Rewired.Utils.Classes.Data;
+using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 
@@ -10,14 +11,15 @@ namespace EHR.Roles;
 public class Lightning : RoleBase
 {
     private const int Id = 16700;
-    public static List<byte> PlayerIdList = [];
+    public static readonly List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem ConvertTime;
     private static OptionItem KillerConvertGhost;
 
-    private static List<byte> GhostPlayer = [];
-    private static Dictionary<byte, PlayerControl> RealKiller = [];
+    private static readonly List<byte> DeList = [];
+    private static readonly List<byte> GhostPlayer = [];
+    private static readonly Dictionary<byte, PlayerControl> RealKiller = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
@@ -39,9 +41,9 @@ public class Lightning : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        GhostPlayer = [];
-        RealKiller = [];
+        PlayerIdList.Clear();
+        GhostPlayer.Clear();
+        RealKiller.Clear();
     }
 
     public override void Add(byte playerId)
@@ -71,7 +73,7 @@ public class Lightning : RoleBase
 
         if (GhostId == byte.MaxValue)
         {
-            GhostPlayer = [];
+            GhostPlayer.Clear();
             return;
         }
 
@@ -125,7 +127,7 @@ public class Lightning : RoleBase
     {
         LateTask.New(() =>
         {
-            if (GameStates.IsInGame && GameStates.IsInTask && !GameStates.IsMeeting && target.IsAlive() && !Pelican.IsEaten(target.PlayerId))
+            if (GameStates.IsInGame && GameStates.IsInTask && !GameStates.IsMeeting && target.IsAliveWithConditions())
             {
                 GhostPlayer.Add(target.PlayerId);
                 SendRPC(target.PlayerId);
@@ -153,35 +155,34 @@ public class Lightning : RoleBase
     {
         if (!GameStates.IsInTask) return;
 
-        List<byte> deList = [];
+        DeList.Clear();
 
-        foreach (byte ghost in GhostPlayer.ToArray())
+        foreach (byte ghost in GhostPlayer)
         {
             PlayerControl gs = Utils.GetPlayerById(ghost);
 
-            if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
+            if (!gs.IsAlive() || gs.Data.Disconnected)
             {
-                //deList.Add(gs.PlayerId); // This will always result in a null reference exception
+                //DeList.Add(gs.PlayerId); // This will always result in a null reference exception
                 continue;
             }
 
-            if (pc.PlayerId != gs.PlayerId && pc.IsAlive() && !pc.Is(CustomRoles.Lightning) && !IsGhost(pc) && !Pelican.IsEaten(pc.PlayerId))
+            if (pc.PlayerId != gs.PlayerId && pc.IsAliveWithConditions() && !pc.Is(CustomRoles.Lightning) && !IsGhost(pc))
             {
                 Vector3 pos = gs.Pos();
                 if (!FastVector2.DistanceWithinRange(pos, pc.Pos(), 0.3f)) continue;
 
-                deList.Add(gs.PlayerId);
+                DeList.Add(gs.PlayerId);
                 gs.Suicide(PlayerState.DeathReason.Quantization, RealKiller[gs.PlayerId]);
-
                 break;
             }
         }
 
-        if (deList.Count > 0)
+        if (DeList.Count > 0)
         {
-            GhostPlayer.RemoveAll(deList.Contains);
+            GhostPlayer.RemoveAll(DeList.Contains);
 
-            foreach (byte gs in deList.ToArray())
+            foreach (byte gs in DeList)
             {
                 SendRPC(gs);
                 Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(gs));
@@ -193,7 +194,7 @@ public class Lightning : RoleBase
     {
         if (!(IsEnable || CustomRoles.Lightning.IsEnable())) return;
 
-        foreach (byte ghost in GhostPlayer.ToArray())
+        foreach (byte ghost in GhostPlayer)
         {
             PlayerControl gs = Utils.GetPlayerById(ghost);
             if (gs == null) continue;
@@ -203,7 +204,7 @@ public class Lightning : RoleBase
             Utils.NotifyRoles(SpecifySeer: gs);
         }
 
-        GhostPlayer = [];
+        GhostPlayer.Clear();
         SendRPC(byte.MaxValue);
     }
 

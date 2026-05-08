@@ -20,6 +20,9 @@ public static class ShowHostMeetingPatch
     {
         try
         {
+            Main.ForceRebuildCachesPlayerControls();
+            GameEndChecker.ForceCheckEnd();
+
             if (GameStates.IsInGame && HostControl == null)
             {
                 PlayerControl host = AmongUsClient.Instance.GetHost().Character;
@@ -28,6 +31,9 @@ public static class ShowHostMeetingPatch
                 HostControl = host;
                 HostName = Main.AllPlayerNames.GetValueOrDefault(host.PlayerId, outfit.PlayerName);
                 HostColor = outfit.ColorId;
+
+                if (GameStates.IsMeeting)
+                    SetMasksEnabled_Postfix(MeetingHud.Instance);
             }
         }
         catch { }
@@ -44,9 +50,10 @@ public static class ShowHostMeetingPatch
         HostColor = host.CurrentOutfit.ColorId;
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Update))]
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.SetMasksEnabled))]
     [HarmonyPostfix]
-    public static void Update_Postfix(MeetingHud __instance)
+    public static void SetMasksEnabled_Postfix(MeetingHud __instance)
     {
         // Don't display it in local games, because it would be impossible to end meetings
         if (!GameStates.IsOnlineGame) return;

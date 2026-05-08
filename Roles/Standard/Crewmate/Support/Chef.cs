@@ -173,8 +173,13 @@ public class Chef : RoleBase
     {
         if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
-        if (ActiveEvents.TryGetValue(pc.PlayerId, out List<PlayerEvent> events)) events.ToArray().Do(x => x.Update());
-
+        if (ActiveEvents.TryGetValue(pc.PlayerId, out List<PlayerEvent> events))
+        {
+            foreach(var Event in events)
+            {
+                Event.Update();
+            }
+        }
         if (RottenFood.TryGetValue(pc.PlayerId, out long ts))
         {
             if (Utils.TimeStamp - ts > RottenTime.GetInt())

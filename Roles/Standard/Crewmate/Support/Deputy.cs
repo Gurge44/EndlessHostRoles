@@ -82,7 +82,7 @@ public class Deputy : RoleBase
         {
             killer.RpcRemoveAbilityUse();
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyHandcuffedPlayer")));
+            killer.Notify(CustomRoles.Deputy.ColoredTextByRole(GetString("DeputyHandcuffedPlayer")));
 
             LateTask.New(() =>
             {
@@ -91,7 +91,7 @@ public class Deputy : RoleBase
                     var sender = CustomRpcSender.Create("Deputy.OnCheckMurder", SendOption.Reliable);
                     var hasValue = false;
                     hasValue |= sender.SetKillCooldown(target, DeputyHandcuffCDForTarget.GetFloat());
-                    hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
+                    hasValue |= sender.Notify(target, CustomRoles.Deputy.ColoredTextByRole(GetString("HandcuffedByDeputy")));
 
                     if (target.IsModdedClient()) hasValue |= sender.RpcResetAbilityCooldown(target);
                     else hasValue |= sender.RpcGuardAndKill(target, target);
@@ -105,7 +105,7 @@ public class Deputy : RoleBase
             return false;
         }
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyInvalidTarget")));
+        killer.Notify(CustomRoles.Deputy.ColoredTextByRole(GetString("DeputyInvalidTarget")));
         return false;
     }
 }

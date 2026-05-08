@@ -73,6 +73,14 @@ public class Main : BasePlugin
     // Cache
     public static readonly Type[] AllTypes = Assembly.GetExecutingAssembly().GetTypes();
     public static readonly CustomRoles[] CustomRoleValues = Enum.GetValues<CustomRoles>();
+    public static readonly CustomGameMode[] CustomGameModeValues = Enum.GetValues<CustomGameMode>();
+    public static readonly CountTypes[] CountTypesValues = Enum.GetValues<CountTypes>();
+    public static readonly RoleOptionType[] RoleOptionTypeValues = Enum.GetValues<RoleOptionType>();
+    public static readonly Team[] TeamValues = Enum.GetValues<Team>();
+    public static readonly CustomRoleTypes[] CustomRoleTypesValues = Enum.GetValues<CustomRoleTypes>();
+    public static readonly TabGroup[] TabGroupValues = Enum.GetValues<TabGroup>();
+    public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
+    public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
 
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
@@ -84,7 +92,8 @@ public class Main : BasePlugin
     public static Dictionary<(byte, byte), string> LastNotifyNames = [];
     public static Dictionary<byte, Color32> PlayerColors = [];
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
-    public static Dictionary<CustomRoles, string> RoleColors;
+    public static Dictionary<CustomRoles, string> RoleHtmlColors = [];
+    public static readonly Dictionary<CustomRoles, Color> RoleColors = [];
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> AlwaysSpawnTogetherCombos = [];
@@ -241,9 +250,18 @@ public class Main : BasePlugin
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static ConfigEntry<bool> AckdPrivacyPolicy { get; set; }
 
-    public static IReadOnlyList<PlayerControl> AllPlayerControls => EnumeratePlayerControls().ToArray();
-    public static IReadOnlyList<PlayerControl> AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
+    public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
+    public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
+    public static List<PlayerControl> AllPlayerControlsToList => CachedAllPlayerControlsList.ToList();
+    public static List<PlayerControl> AllAlivePlayerControlsToList => CachedAlivePlayerControlsList.ToList();
 
+    public static int AllPlayerControlsCount => CachedAllPlayerControlsList.Count;
+    public static int AllAlivePlayerControlsCount => CachedAlivePlayerControlsList.Count;
+
+
+    // ################# - WARNING!!! - #####################
+    // Don't use Enumerate(Alive)PlayerControls if it updates every frame or every second
+    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions need use "for (...)" loop
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
         foreach (var pc in PlayerControl.AllPlayerControls)
@@ -252,14 +270,63 @@ public class Main : BasePlugin
             yield return pc;
         }
     }
-
     public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
-        return EnumeratePlayerControls()
-            .Where(pc => pc.IsAlive()
-                         && pc.Data
-                         && (!pc.Data.Disconnected || !IntroDestroyed)
-                         && !Pelican.IsEaten(pc.PlayerId));
+        foreach (var pc in PlayerControl.AllPlayerControls)
+        {
+            if (!pc.IsAliveWithConditions() || pc.PlayerId >= 254) continue;
+            yield return pc;
+        }
+    }
+
+    private static bool SetDirtyPlayer = true;
+    private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
+    private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
+    public static void SetDirtyRebuildPC()
+    {
+        SetDirtyPlayer = true;
+    }
+    public static void ForceRebuildCachesPlayerControls()
+    {
+        SetDirtyRebuildPC();
+        RebuildCaches();
+    }
+    private static void RebuildCaches()
+    {
+        if (!SetDirtyPlayer) return;
+        SetDirtyPlayer = false;
+
+        CachedAllPlayerControlsList.Clear();
+        CachedAlivePlayerControlsList.Clear();
+
+        var players = PlayerControl.AllPlayerControls;
+        int count = players.Count;
+
+        for (byte playerIndex = 0; playerIndex < count; playerIndex++)
+        {
+            PlayerControl pc = players[playerIndex];
+            if (!pc || pc.PlayerId >= 254) continue;
+
+            CachedAllPlayerControlsList.Add(pc);
+            if (pc.IsAliveWithConditions())
+                CachedAlivePlayerControlsList.Add(pc);
+        }
+        //Logger.Info("All Count: " + CachedAllPlayerControlsList.Count, "RebuildPlayerControl");
+        //Logger.Info("Alive Count: " + CachedAlivePlayerControlsList.Count, "RebuildPlayerControl");
+    }
+    // ################# - WARNING!!! - #####################
+    // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in Coroutines (Async) functions
+    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
+    // ######################################
+    public static List<PlayerControl> CachedAllPlayerControls()
+    {
+        RebuildCaches();
+        return CachedAllPlayerControlsList; 
+    }
+    public static List<PlayerControl> CachedAlivePlayerControls()
+    {
+        RebuildCaches();
+        return CachedAlivePlayerControlsList;
     }
 
     // ReSharper disable once InconsistentNaming
@@ -370,7 +437,7 @@ public class Main : BasePlugin
 
         try
         {
-            RoleColors = new()
+            RoleHtmlColors = new()
             {
                 // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
@@ -826,8 +893,10 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
-            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
+            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleHtmlColors.TryAdd(x, ImpostorColor));
+            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleHtmlColors.TryAdd(x, CovenColor));
+
+            InitRoleColors();
         }
         catch (ArgumentException ex)
         {
@@ -936,7 +1005,7 @@ public class Main : BasePlugin
 
     private static void HandleRoleColorFiles()
     {
-        string serialized = JsonSerializer.Serialize(RoleColors, new JsonSerializerOptions { WriteIndented = true });
+        string serialized = JsonSerializer.Serialize(RoleHtmlColors, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
 
         if (!Directory.Exists($"{DataPath}/EHR_DATA"))
@@ -955,13 +1024,22 @@ public class Main : BasePlugin
                 foreach ((string roleName, string hex) in JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [])
                 {
                     if (!Enum.TryParse(roleName, true, out CustomRoles role)) continue;
-                    RoleColors[role] = hex;
+                    RoleHtmlColors[role] = hex;
                 }
+                InitRoleColors();
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
     }
-
+    public static void InitRoleColors()
+    {
+        RoleColors.Clear();
+        foreach ((CustomRoles role, string hexColor) in RoleHtmlColors)
+        {
+            if (ColorUtility.TryParseHtmlString(hexColor, out Color color))
+                RoleColors[role] = color;
+        }
+    }
     public static void LoadRoleClasses()
     {
         AllRoleClasses = [];

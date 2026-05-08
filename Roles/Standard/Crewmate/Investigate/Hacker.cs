@@ -19,8 +19,6 @@ public class Hacker : RoleBase
     public static Dictionary<byte, float> UseLimit = [];
     public static Dictionary<byte, float> UseLimitSeconds = [];
 
-    private static Dictionary<byte, long> LastUpdate = [];
-
     public static OptionItem AbilityCD;
     public static OptionItem UseLimitOpt;
     public static OptionItem HackerAbilityUseGainWithEachTaskCompleted;
@@ -68,7 +66,6 @@ public class Hacker : RoleBase
         PlayerIdList = [];
         UseLimit = [];
         UseLimitSeconds = [];
-        LastUpdate = [];
     }
 
     public override void Add(byte playerId)
@@ -221,16 +218,16 @@ public class Hacker : RoleBase
         return !seer.Is(CustomRoles.Hacker) ? string.Empty : $"<color=#00ffa5>{GetString("HackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[seer.PlayerId]}</b>s";
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (playerId.IsPlayerModdedClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
+        if (playerId.IsPlayerModdedClient()) return;
+        if (!UseLimit.TryGetValue(playerId, out float limit)) return;
 
-        var sb = new StringBuilder();
-
-        sb.Append(GetTaskCount(playerId, comms));
-        sb.Append(ColorString(UseLimit[playerId] < 1 ? Color.red : Color.white, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));
-
-        return sb.ToString();
+        resultText.Append(GetTaskCount(playerId, comms))
+            .Append(" <color=#777777>-</color> ")
+            .Append(ColorPrefix(limit < 1 ? Color.red : Color.white))
+            .Append(Math.Round(limit, 1))
+            .Append("</color>");
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

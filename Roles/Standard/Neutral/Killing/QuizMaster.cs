@@ -243,17 +243,17 @@ internal class QuizMaster : RoleBase
 
         (IEnumerable<string> WrongAnswers, string CorrectAnswer) answers = index switch
         {
-            1 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
+            1 when abc => (Main.TeamValues.Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
             1 => (AllColors.Without(Data.LastReportedPlayer.ColorString).TakeRandom(2), Data.LastReportedPlayer.ColorString),
             2 when abc => (new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }.Without(Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
             2 => (GetTwoRandomNames(Data.LastPlayerPressedButtonName), Data.LastPlayerPressedButtonName),
             3 when abc => (["Town Of Us", "Town Of Host Enhanced"], "Endless Host Roles"),
             3 => (AllSabotages.Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
             4 when abc => (["tukasa0001", "0xDrMoe"], "Gurge44"),
-            4 => (CustomRoleSelector.RoleResult.Values.Without(Main.LastVotedPlayerInfo!.Object.GetCustomRole()).TakeRandom(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
-            5 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
+            4 => (CustomRoleSelector.RoleResult.Values.Without(Main.LastVotedPlayerInfo!.Object.GetCustomRole()).Shuffle().Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
+            5 when abc => (Main.TeamValues.Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
             5 => (GetTwoRandomNames(Data.LastReporterName), Data.LastReporterName),
-            6 when abc => (Enum.GetValues<CustomRoleTypes>().Where(x => x != randomRole.GetCustomRoleTypes()).TakeRandom(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),
+            6 when abc => (Main.CustomRoleTypesValues.Where(x => x != randomRole.GetCustomRoleTypes()).TakeRandom(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),
             6 => (GetTwoRandomNumbers(Data.NumPlayersVotedLastMeeting, 0, 15), Data.NumPlayersVotedLastMeeting.ToString()),
             7 => (GetTwoRandomNumbers(Data.NumMeetings, Math.Max(Data.NumMeetings - 3, 0), Data.NumMeetings + 3), Data.NumMeetings.ToString()),
             8 => (GetTwoRandomNames(Data.FirstReportedBodyPlayerName), Data.FirstReportedBodyPlayerName),
@@ -262,7 +262,7 @@ internal class QuizMaster : RoleBase
             11 => (GetTwoRandomNumbers(Data.NumPlayersDeadFirstRound, Math.Max(Data.NumPlayersDeadFirstRound - 3, 0), Data.NumPlayersDeadFirstRound + 3), Data.NumPlayersDeadFirstRound.ToString()),
             12 => (GetTwoRandomNumbers(Data.NumSabotages, Math.Max(Data.NumSabotages - 3, 0), Data.NumSabotages + 3), Data.NumSabotages.ToString()),
             13 => (GetTwoRandomNumbers(GameData.Instance.CompletedTasks, 0, GameData.Instance.TotalTasks), GameData.Instance.CompletedTasks.ToString()),
-            14 => (Enum.GetValues<RoleTypes>().Without(RoleTypes.CrewmateGhost).Without(RoleTypes.ImpostorGhost).Where(x => x != randomRole.GetRoleTypes()).TakeRandom(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
+            14 => (Main.RoleTypesValues.Without(RoleTypes.CrewmateGhost).Without(RoleTypes.ImpostorGhost).Where(x => x != randomRole.GetRoleTypes()).TakeRandom(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
 
             _ => ([], string.Empty)
         };

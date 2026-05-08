@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -85,7 +86,7 @@ public class Pelican : RoleBase
         if (playerId != byte.MaxValue)
         {
             writer.Write(EatenList[playerId].Count);
-            foreach (byte el in EatenList[playerId].ToArray()) writer.Write(el);
+            foreach (byte el in EatenList[playerId]) writer.Write(el);
         }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -105,18 +106,16 @@ public class Pelican : RoleBase
 
             EatenList[playerId] = list;
         }
+        Main.ForceRebuildCachesPlayerControls();
     }
 
-    public static bool IsEaten(PlayerControl pc, byte id)
-    {
-        return EatenList.TryGetValue(pc.PlayerId, out List<byte> list) && list.Contains(id);
-    }
+    public static bool IsEaten(PlayerControl pc, byte id) => EatenList.TryGetValue(pc.PlayerId, out List<byte> list) && list.Contains(id);
 
     public static bool IsEaten(byte id)
     {
-        foreach (KeyValuePair<byte, List<byte>> el in EatenList)
+        foreach (List<byte> el in EatenList.Values)
         {
-            if (el.Value.Contains(id))
+            if (el.Contains(id))
                 return true;
         }
 
@@ -128,7 +127,7 @@ public class Pelican : RoleBase
         if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting) return false;
 
         PlayerControl target = Utils.GetPlayerById(id);
-        return target != null && target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && !IsEaten(pc, id) && !IsEaten(id);
+        return target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !target.Is(CustomRoles.Pestilence) && !IsEaten(pc, id) && !IsEaten(id);
     }
 
     public static Vector2 GetBlackRoomPS()
@@ -146,15 +145,23 @@ public class Pelican : RoleBase
         };
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         PlayerControl player = Utils.GetPlayerById(playerId);
-        if (player == null) return "Invalid";
+        if (player == null)
+        {
+            resultText.Append("Invalid");
+            return;
+        }
 
-        var eatenNum = 0;
+        int eatenNum = 0;
         if (EatenList.TryGetValue(playerId, out List<byte> value)) eatenNum = value.Count;
 
-        return Utils.ColorString(eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican), $"({eatenNum})");
+        Color32 color = eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican);
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append('(')
+            .Append(eatenNum)
+            .Append(")</color>");
     }
 
     public static void EatPlayer(PlayerControl pc, PlayerControl target)
@@ -164,7 +171,7 @@ public class Pelican : RoleBase
         if (!EatenList.ContainsKey(pc.PlayerId)) EatenList.Add(pc.PlayerId, []);
 
         EatenList[pc.PlayerId].Add(target.PlayerId);
-
+        Main.ForceRebuildCachesPlayerControls();
         SyncEatenList( /*pc.PlayerId*/);
 
         OriginalSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId];
@@ -200,8 +207,7 @@ public class Pelican : RoleBase
             }
         }
 
-        EatenList.Clear();
-        SyncEatenList( /*byte.MaxValue*/);
+        ClearOrRemoveEatenList();
     }
 
     public static void OnPelicanDied(byte pc)
@@ -223,29 +229,20 @@ public class Pelican : RoleBase
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} died, {target.GetRealName()} is back in-game", "Pelican");
         }
 
-        EatenList.Remove(pc);
-        SyncEatenList( /*pc*/);
+        ClearOrRemoveEatenList(pc);
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask)
         {
-            if (EatenList.Count > 0)
-            {
-                EatenList.Clear();
-                SyncEatenList( /*byte.MaxValue*/);
-            }
-
+            if (EatenList.Count > 0) ClearOrRemoveEatenList();
             return;
         }
-
         if (!IsEnable) return;
+        if (--Count > 0) return;
 
-        Count--;
-        if (Count > 0) return;
         Count = 20;
-
         if (!EatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
 
         foreach (byte tar in list)
@@ -273,7 +270,13 @@ public class Pelican : RoleBase
 
         return false;
     }
-
+    private static void ClearOrRemoveEatenList(byte pelicanId = byte.MaxValue)
+    {
+        if (pelicanId != byte.MaxValue) EatenList.Remove(pelicanId);
+        else EatenList.Clear();
+        Main.ForceRebuildCachesPlayerControls();
+        SyncEatenList( /*byte.MaxValue*/);
+    }
     public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.KillButton?.OverrideText(Translator.GetString("PelicanButtonText"));

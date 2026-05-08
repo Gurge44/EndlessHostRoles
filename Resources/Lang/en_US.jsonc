@@ -24,7 +24,7 @@
   "SayTitle": "★[ Moderator message ]★",
   "announcementUpdate": "<size=3f>Update v{0}</size>\\n{1}",
   "announcementChangelog": "<size=3f>ChangeLogs v{0}</size>\\n{1}",
-  "Server": "<#00ffa5>Server:</color> <b>{0}</b>",
+  "Server": "<#00ffa5>Server:</color>: ",
   "VersionMismatch": "{0} has a different version of the mod installed",
   "ModMismatch": "{0} has a different mod installed that isn't compatible with EHR <#ffff00>⚠</color>",
   "PrivacyPolicy": "<size=200%>Have you read and agree to the Privacy Policy and Code Of Conduct available on the mod's official GitHub repository?</size>\\nYou must accept them to continue.",

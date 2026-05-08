@@ -62,12 +62,29 @@ public class Tank : RoleBase
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var progress = $"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tank), $"{EnteredVents.Count}")}/{AllVents.Count}";
-        if (IsWon) progress = $"<#00ff00>{progress}</color>";
+        base.GetProgressText(playerId, comms, resultText);
 
-        return base.GetProgressText(playerId, comms) + progress;
+        int entered = EnteredVents.Count;
+        int total = AllVents.Count;
+
+        if (IsWon)
+        {
+            resultText.Append("<#00ff00>")
+                .Append(entered)
+                .Append('/')
+                .Append(total)
+                .Append("</color>");
+        }
+        else
+        {
+            string prefix = Utils.ColorPrefix(Utils.GetRoleColor(CustomRoles.Tank));
+            resultText.Append(prefix)
+                .Append(entered)
+                .Append("</color>/")
+                .Append(total);
+        }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

@@ -21,7 +21,7 @@ public class Sonar : IAddon
 
     public static void OnFixedUpdate(PlayerControl seer)
     {
-        if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent) return;
+        if (!GameStates.IsInTask || seer.inVent) return;
         
         if (!FastVector2.TryGetClosestPlayerTo(seer, out PlayerControl closest)) return;
 

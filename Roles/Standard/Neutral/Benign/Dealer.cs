@@ -102,10 +102,17 @@ public class Dealer : RoleBase
         ScheduledAssigns = [];
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
+        base.GetProgressText(playerId, comms, resultText);
         var color = IsWon ? Color.green : Color.white;
-        return $"{base.GetProgressText(playerId, comms)} {Utils.ColorString(color, $"{AssignedNum}/{AssignNeedToWin.GetInt()}")}";
+        
+        resultText.Append(' ')
+            .Append(Utils.ColorPrefix(color))
+            .Append(AssignedNum)
+            .Append('/')
+            .Append(AssignNeedToWin.GetInt())
+            .Append("</color>");
     }
 
     public void ReceiveRPC(MessageReader reader)

@@ -110,7 +110,7 @@ internal static class SoloPVP
         }, 3f);
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1);
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
             PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
@@ -342,7 +342,7 @@ internal static class SoloPVP
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            if (Main.AllAlivePlayerControls.Count <= 1)
+            if (Main.AllAlivePlayerControlsCount <= 1)
             {
                 if (ExtendedPlayerControl.TempExiled.Count == 0)
                 {

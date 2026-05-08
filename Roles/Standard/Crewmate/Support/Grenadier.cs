@@ -66,14 +66,10 @@ internal class Grenadier : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var progressText = new StringBuilder();
-
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, GrenadierBlinding.Contains(playerId)));
-        progressText.Append(Utils.GetTaskCount(playerId, comms));
-
-        return progressText.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, GrenadierBlinding.Contains(playerId)))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

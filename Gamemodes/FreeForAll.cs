@@ -197,7 +197,7 @@ internal static class FreeForAll
                 return;
             }
 
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
 
             if (FFAShieldedList.TryGetValue(target.PlayerId, out long dur))
             {
@@ -355,14 +355,14 @@ internal static class FreeForAll
     public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)
     {
         if (GameStates.IsMeeting || target && seer.PlayerId != target.PlayerId) return string.Empty;
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         if (aapc.Count != 2) return string.Empty;
 
         PlayerControl otherPlayer = aapc.FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
         if (!otherPlayer) return string.Empty;
 
         string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
+        return CustomRoles.Killer.ColoredTextByRole(arrow);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -389,7 +389,7 @@ internal static class FreeForAll
             {
                 Logger.Info("Swap everyone with someone", "FFA");
 
-                var aapc = Main.AllAlivePlayerControls;
+                var aapc = Main.CachedAlivePlayerControls();
                 List<byte> changePositionPlayers = [];
 
                 foreach (PlayerControl pc in aapc)
@@ -423,7 +423,7 @@ internal static class FreeForAll
 
             if (Main.NormalOptions.MapId == 4) return;
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 var sync = false;
 

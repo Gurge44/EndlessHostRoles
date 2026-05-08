@@ -1,19 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using EHR.Modules;
+﻿using EHR.Modules;
 using Hazel;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR;
 
 public static class NameNotifyManager
 {
-    public static Dictionary<byte, Dictionary<string, long>> Notifies = [];
+    public static readonly Dictionary<byte, Dictionary<string, long>> Notifies = [];
+    private static readonly List<string> ToRemove = [];
+    private static readonly List<KeyValuePair<string, long>> NameList = [];
+    private static readonly Comparison<KeyValuePair<string, long>> CompareByValue = static (a, b) => a.Value.CompareTo(b.Value);
+    private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
 
     public static void Reset()
     {
-        Notifies = [];
+        Notifies.Clear();
     }
 
     public static void Notify(this PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, SendOption sendOption = SendOption.Reliable)
@@ -23,12 +27,13 @@ public static class NameNotifyManager
 
         text = text.Trim();
         if (!text.Contains("<color=") && !text.Contains("</color>") && !text.Contains("<#")) text = Utils.ColorString(Color.white, text);
-        if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
+        if (!text.Contains("<size=")) text = "<size=1.9>" + text + "</size>";
 
         long expireTS = Utils.TimeStamp + (long)time;
+        byte pcId = pc.PlayerId;
         bool alreadyContainsKey = false;
 
-        if (overrideAll || !Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
+        if (overrideAll || !Notifies.TryGetValue(pcId, out Dictionary<string, long> notifies))
             Notifies[pc.PlayerId] = new() { { text, expireTS } };
         else
         {
@@ -36,14 +41,14 @@ public static class NameNotifyManager
             notifies[text] = expireTS;
         }
 
-        if (pc.IsNonHostModdedClient()) SendRPC(pc.PlayerId, text, expireTS, overrideAll, sendOption);
+        if (pc.IsNonHostModdedClient()) SendRPC(pcId, text, expireTS, overrideAll, sendOption);
 
         if (alreadyContainsKey)
         {
             if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
             return;
         }
-        
+
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: sendOption);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
     }
@@ -60,29 +65,64 @@ public static class NameNotifyManager
         if (now == LastUpdate) return;
         LastUpdate = now;
 
-        List<byte> toNotify = [];
+        if (!AmongUsClient.Instance.AmHost || Notifies.Count == 0) return;
 
-        foreach ((byte id, Dictionary<string, long> notifies) in Notifies)
+        var notifyEnumerator = Notifies.GetEnumerator();
+        while (notifyEnumerator.MoveNext())
         {
-            List<string> toRemove = [];
+            var pair = notifyEnumerator.Current;
+            byte id = pair.Key;
+            var dict = pair.Value;
 
-            notifies.DoIf(x => x.Value <= now, x => toRemove.Add(x.Key));
+            bool removedAny = false;
+            ToRemove.Clear();
 
-            toRemove.ForEach(x => notifies.Remove(x));
-            if (toRemove.Count > 0) toNotify.Add(id);
+            var innerEnumerator = dict.GetEnumerator();
+            while (innerEnumerator.MoveNext())
+            {
+                var innerCurrent = innerEnumerator.Current;
+                if (innerCurrent.Value <= now)
+                    ToRemove.Add(innerCurrent.Key);
+            }
+
+            if (ToRemove.Count > 0)
+            {
+                for (int index = 0; index < ToRemove.Count; index++)
+                    dict.Remove(ToRemove[index]);
+
+                removedAny = true;
+            }
+
+            if (removedAny)
+            {
+                PlayerControl pc = Utils.GetPlayerById(id);
+                if (pc.IsAlive()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
         }
-
-        if (toNotify.Count == 0 || !AmongUsClient.Instance.AmHost) return;
-
-        toNotify.ToValidPlayers().ForEach(x => Utils.NotifyRoles(SpecifySeer: x, SpecifyTarget: x));
     }
 
     public static bool GetNameNotify(PlayerControl player, out string name)
     {
         name = string.Empty;
-        if (!Notifies.TryGetValue(player.PlayerId, out Dictionary<string, long> notifies)) return false;
+        if (!Notifies.TryGetValue(player.PlayerId, out var notifies) || notifies.Count == 0) return false;
 
-        name = string.Join('\n', notifies.OrderBy(x => x.Value).Select(x => x.Key));
+        NameList.Clear();
+        var enumerator = notifies.GetEnumerator();
+
+        while (enumerator.MoveNext())
+            NameList.Add(enumerator.Current);
+
+        if (NameList.Count >= 2) NameList.Sort(CompareByValue);
+
+        Sb.Clear();
+        for (int index = 0; index < NameList.Count; index++)
+        {
+            if (index > 0)
+                Sb.Append('\n');
+
+            Sb.Append(NameList[index].Key);
+        }
+        name = Sb.ToString();
         return true;
     }
 

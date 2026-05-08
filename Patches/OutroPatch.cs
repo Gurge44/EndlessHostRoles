@@ -146,7 +146,7 @@ internal static class EndGamePatch
                     if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) Main.GamesPlayed.AddRange(Main.EnumeratePlayerControls().ToDictionary(x => x.FriendCode, _ => 0), false);
                     Main.GamesPlayed.AdjustAllValues(x => ++x);
                     Main.GotShieldAnimationInfoThisGame.Clear();
-                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].IsDead = false;
+                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetAlive();
                     break;
                 case CustomGameMode.StopAndGo:
                     Main.EnumeratePlayerControls().Do(x => StopAndGo.HasPlayed.Add(x.FriendCode));
@@ -163,7 +163,7 @@ internal static class EndGamePatch
                 case CustomGameMode.Deathrace:
                     MapNames map = Main.CurrentMap;
                     
-                    foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                     {
                         if (!Deathrace.PlayedMaps.TryGetValue(pc.FriendCode, out var maps))
                             Deathrace.PlayedMaps[pc.FriendCode] = [map];
@@ -485,6 +485,8 @@ internal static class SetEverythingUpPatch
             Camera main = Camera.main;
             if (!main) yield break;
 
+            yield return null;
+
             // Clear unused assets
             Resources.UnloadUnusedAssets();
             yield return null;
@@ -785,7 +787,7 @@ internal static class SetEverythingUpPatch
 
                         CustomRoles role = Main.PlayerStates[id].MainRole;
 
-                        string color = Main.RoleColors[role];
+                        string color = Utils.GetRoleColorCode(role);
                         string rolename = Utils.GetRoleName(role);
 
                         poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";

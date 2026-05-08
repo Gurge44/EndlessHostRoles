@@ -39,35 +39,35 @@ public static class TemplateManager
 
     private static readonly Dictionary<string, Func<string>> Placeholders = new()
     {
-        ["RoomCode"]             = () => GameCode.IntToGameName(AmongUsClient.Instance.GameId),
-        ["AmongUsVersion"]       = () => Application.version,
-        ["InternalVersion"]      = () => Main.PluginVersion,
-        ["ModVersion"]           = () => Main.PluginDisplayVersion,
-        ["PlayerName"]           = () => DataManager.Player.Customization.Name,
-        ["HostName"]             = () => PlayerControl.LocalPlayer.GetRealName(),
-        ["Players"]              = () => string.Join(", ", Main.AllPlayerNames.Values),
-        ["AlivePlayers"]         = () => string.Join(", ", Main.EnumerateAlivePlayerControls().Select(x => x.GetRealName())),
-        ["DeadPlayers"]          = () => string.Join(", ", Main.EnumeratePlayerControls().Where(x => !x.IsAlive()).Select(x => x.GetRealName())),
-        ["PlayerCount"]          = () => (GameData.Instance ? GameData.Instance.PlayerCount : 0).ToString(),
-        ["AlivePlayerCount"]     = () => Main.EnumerateAlivePlayerControls().Count().ToString(),
-        ["DeadPlayerCount"]      = () => Main.EnumeratePlayerControls().Count(x => !x.IsAlive()).ToString(),
-        ["Map"]                  = () => Constants.MapNames[Main.NormalOptions.MapId],
-        ["KillCooldown"]         = () => Main.NormalOptions.KillCooldown.ToString(CultureInfo.CurrentCulture),
-        ["DiscussionTime"]       = () => Main.NormalOptions.DiscussionTime.ToString(),
-        ["VotingTime"]           = () => Main.NormalOptions.VotingTime.ToString(),
-        ["EmergencyCooldown"]    = () => Main.NormalOptions.EmergencyCooldown.ToString(),
-        ["MeetingCount"]         = () => MeetingStates.MeetingNum.ToString(),
+        ["RoomCode"] = () => GameCode.IntToGameName(AmongUsClient.Instance.GameId),
+        ["AmongUsVersion"] = () => Application.version,
+        ["InternalVersion"] = () => Main.PluginVersion,
+        ["ModVersion"] = () => Main.PluginDisplayVersion,
+        ["PlayerName"] = () => DataManager.Player.Customization.Name,
+        ["HostName"] = () => PlayerControl.LocalPlayer.GetRealName(),
+        ["Players"] = () => string.Join(", ", Main.AllPlayerNames.Values),
+        ["AlivePlayers"] = () => string.Join(", ", Main.EnumerateAlivePlayerControls().Select(x => x.GetRealName())),
+        ["DeadPlayers"] = () => string.Join(", ", Main.EnumeratePlayerControls().Where(x => !x.IsAlive()).Select(x => x.GetRealName())),
+        ["PlayerCount"] = () => (GameData.Instance ? GameData.Instance.PlayerCount : 0).ToString(),
+        ["AlivePlayerCount"] = () => Main.EnumerateAlivePlayerControls().Count().ToString(),
+        ["DeadPlayerCount"] = () => Main.EnumeratePlayerControls().Count(x => !x.IsAlive()).ToString(),
+        ["Map"] = () => Constants.MapNames[Main.NormalOptions.MapId],
+        ["KillCooldown"] = () => Main.NormalOptions.KillCooldown.ToString(CultureInfo.CurrentCulture),
+        ["DiscussionTime"] = () => Main.NormalOptions.DiscussionTime.ToString(),
+        ["VotingTime"] = () => Main.NormalOptions.VotingTime.ToString(),
+        ["EmergencyCooldown"] = () => Main.NormalOptions.EmergencyCooldown.ToString(),
+        ["MeetingCount"] = () => MeetingStates.MeetingNum.ToString(),
         ["NumEmergencyMeetings"] = () => Main.NormalOptions.NumEmergencyMeetings.ToString(),
-        ["PlayerSpeedMod"]       = () => Main.NormalOptions.PlayerSpeedMod.ToString(CultureInfo.CurrentCulture),
-        ["CrewLightMod"]         = () => Main.NormalOptions.CrewLightMod.ToString(CultureInfo.CurrentCulture),
-        ["ImpostorLightMod"]     = () => Main.NormalOptions.ImpostorLightMod.ToString(CultureInfo.CurrentCulture),
-        ["NumCommonTasks"]       = () => Main.NormalOptions.NumCommonTasks.ToString(),
-        ["NumLongTasks"]         = () => Main.NormalOptions.NumLongTasks.ToString(),
-        ["NumShortTasks"]        = () => Main.NormalOptions.NumShortTasks.ToString(),
-        ["GameDuration"]         = () => { if (!GameStates.IsInGame) return "00:00"; int e = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS); return $"{e / 60:00}:{e % 60:00}"; },
-        ["Date"]                 = () => DateTime.Now.ToShortDateString(),
-        ["Time"]                 = () => DateTime.Now.ToShortTimeString(),
-        ["Preset"]               = () => GetString($"Preset_{OptionItem.CurrentPreset + 1}"),
+        ["PlayerSpeedMod"] = () => Main.NormalOptions.PlayerSpeedMod.ToString(CultureInfo.CurrentCulture),
+        ["CrewLightMod"] = () => Main.NormalOptions.CrewLightMod.ToString(CultureInfo.CurrentCulture),
+        ["ImpostorLightMod"] = () => Main.NormalOptions.ImpostorLightMod.ToString(CultureInfo.CurrentCulture),
+        ["NumCommonTasks"] = () => Main.NormalOptions.NumCommonTasks.ToString(),
+        ["NumLongTasks"] = () => Main.NormalOptions.NumLongTasks.ToString(),
+        ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
+        ["GameDuration"] = () => { if (!GameStates.IsInGame) return "00:00"; int e = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS); return $"{e / 60:00}:{e % 60:00}"; },
+        ["Date"] = () => DateTime.Now.ToShortDateString(),
+        ["Time"] = () => DateTime.Now.ToShortTimeString(),
+        ["Preset"] = () => GetString($"Preset_{OptionItem.CurrentPreset + 1}"),
     };
 
     private class TemplateEntry
@@ -98,7 +98,7 @@ public static class TemplateManager
 
                 bool has = Main.CustomRoleValues.FindFirst(r => string.Equals(GetString(r.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoles role)
                     ? player.Is(role)
-                    : Enum.GetValues<CustomRoleTypes>().FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
+                    : Main.CustomRoleTypesValues.FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
 
                 return negate ? !has : has;
             });
@@ -111,11 +111,11 @@ public static class TemplateManager
             string fc = player.FriendCode;
             return AllowedRanks.Any(rank => rank.ToLower() switch
             {
-                "host"               => player.IsHost(),
-                "admin"              => ChatCommands.IsPlayerAdmin(fc),
+                "host" => player.IsHost(),
+                "admin" => ChatCommands.IsPlayerAdmin(fc),
                 "mod" or "moderator" => ChatCommands.IsPlayerModerator(fc),
-                "vip"                => ChatCommands.IsPlayerVIP(fc),
-                _                    => false
+                "vip" => ChatCommands.IsPlayerVIP(fc),
+                _ => false
             });
         }
 
@@ -128,17 +128,17 @@ public static class TemplateManager
             int count = GameData.Instance ? GameData.Instance.PlayerCount : 0;
             return PlayerCountOp switch
             {
-                ">"         => count > PlayerCountVal,
-                ">="        => count >= PlayerCountVal,
-                "<"         => count < PlayerCountVal,
-                "<="        => count <= PlayerCountVal,
+                ">" => count > PlayerCountVal,
+                ">=" => count >= PlayerCountVal,
+                "<" => count < PlayerCountVal,
+                "<=" => count <= PlayerCountVal,
                 "=" or "==" => count == PlayerCountVal,
-                "!="        => count != PlayerCountVal,
-                _           => true
+                "!=" => count != PlayerCountVal,
+                _ => true
             };
         }
-        
-        private bool MatchesPreset() =>  AllowedPresets == null || AllowedPresets.Contains(OptionItem.CurrentPreset + 1);    
+
+        private bool MatchesPreset() => AllowedPresets == null || AllowedPresets.Contains(OptionItem.CurrentPreset + 1);
     }
 
     public static void Init() => CreateIfNotExists();

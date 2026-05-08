@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static EHR.Options;
+using static EHR.Roles.Adventurer;
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -35,6 +36,8 @@ internal class Bargainer : RoleBase
     private static OptionItem AlignmentVisible;
     private static OptionItem AlignmentVisibleDuration;
 
+    private static readonly MoneyGainingAction[] AllMoneyGainingAction = Enum.GetValues<MoneyGainingAction>();
+    private static readonly Item[] AllItem = Enum.GetValues<Item>();
     private static Dictionary<MoneyGainingAction, int> Gains = [];
     private static Dictionary<Item, int> Costs = [];
 
@@ -106,7 +109,7 @@ internal class Bargainer : RoleBase
         StartingMoney = new IntegerOptionItem(++id, "Bargainer.StartingMoney", new(0, 100, 5), 0, tab)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
 
-        foreach (MoneyGainingAction action in Enum.GetValues<MoneyGainingAction>())
+        foreach (MoneyGainingAction action in AllMoneyGainingAction)
         {
             OptionItem boolOpt = new BooleanOptionItem(++id, $"Bargainer.{action}.Enabled", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
@@ -128,7 +131,7 @@ internal class Bargainer : RoleBase
                 };
         }
 
-        foreach (Item item in Enum.GetValues<Item>())
+        foreach (Item item in AllItem)
         {
             if (item == Item.None) continue;
 
