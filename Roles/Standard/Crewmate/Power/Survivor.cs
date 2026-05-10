@@ -43,15 +43,15 @@ public class Survivor : RoleBase
 
         LastAbility = new IntegerOptionItem(Id + 14, "SurvivorLastAbility", new(0, 70, 1), 4, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        ShieldCooldown = new FloatOptionItem(Id + 15, "SurvivorShieldCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
+        ShieldCooldown = new FloatOptionItem(Id + 15, "AidCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShieldDuration = new FloatOptionItem(Id + 16, "SurvivorShieldDuration", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
+        ShieldDuration = new FloatOptionItem(Id + 16, "AidDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AdditionalVote = new IntegerOptionItem(Id + 17, "SurvivorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
+        AdditionalVote = new IntegerOptionItem(Id + 17, "MayorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        KillCooldown = new FloatOptionItem(Id + 18, "SurvivorKillCooldown", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
+        KillCooldown = new FloatOptionItem(Id + 18, "KillCooldown", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -99,7 +99,10 @@ public class Survivor : RoleBase
         ShieldTimer = null;
     }
 
-    public override void SetButtonTexts(HudManager hud, byte id) { hud.AbilityButton?.OverrideText(GetString("AbilityButtonText.GuardianAngel")); }
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(GetString("AbilityButtonText.GuardianAngel"));
+    }
 
     public override bool OnVanish(PlayerControl pc) 
     {   
@@ -107,7 +110,11 @@ public class Survivor : RoleBase
         return false;
     }
 
-    public override void OnEnterVent(PlayerControl pc, Vent vent) { if (!Killing) ShieldSelf(pc); }
+    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    {
+        if (!Killing) 
+            ShieldSelf(pc);
+    }
 
     private void ShieldSelf(PlayerControl pc)
     {
@@ -135,9 +142,15 @@ public class Survivor : RoleBase
         return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(ShieldTimer.Remaining.TotalSeconds)) : Translator.GetString("SafeguardSuffix");
     }
 
-    public override bool CanUseVent(PlayerControl pc, int ventId) { return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId || pc.Is(CustomRoles.Nimble); }
+    public override bool CanUseVent(PlayerControl pc, int ventId)
+    { 
+        return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId || pc.Is(CustomRoles.Nimble);
+    }
 
-    public override bool CanUseImpostorVentButton(PlayerControl pc) { return pc.Is(CustomRoles.Nimble); }
+    public override bool CanUseImpostorVentButton(PlayerControl pc)
+    {
+        return pc.Is(CustomRoles.Nimble);
+    }
 
     // Third ability: Votes
     public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)
@@ -155,7 +168,7 @@ public class Survivor : RoleBase
     // Last ability: Kill
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KillCooldown.GetFloat(), Killing);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
         
         if (completedTaskCount + 1 >= totalTaskCount)
             ChangeBasisToKill(pc);
@@ -173,16 +186,20 @@ public class Survivor : RoleBase
         Killing = true;
         pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
         LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, KillCooldown.GetFloat(), Killing);
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         pc.MarkDirtySettings();
     }
 
     public override bool CanUseKillButton(PlayerControl pc) { return Killing; }
 
-    public override void SetKillCooldown(byte id) { Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat(); }
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) { return Main.EnumerateAlivePlayerControls().Count() <= LastAbility.GetInt(); }
-
-    public override bool CanUseSabotage(PlayerControl pc) { return false; }
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        return Main.EnumerateAlivePlayerControls().Count() <= LastAbility.GetInt();
+    }
 }
