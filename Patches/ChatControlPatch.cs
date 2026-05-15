@@ -205,6 +205,9 @@ public static class ChatManager
             {
                 AddChatHistory(player, originalMessage);
                 
+                if (AmongUsClient.Instance.AmHost)
+                    TemplateManager.SendTemplateForMessage(originalMessage, player.PlayerId);
+                    
                 if (GameStates.IsMeeting && player.Is(CustomRoles.Talkative))
                     Talkative.OnMessageSend(player);
                 
