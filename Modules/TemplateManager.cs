@@ -113,7 +113,7 @@ public static class TemplateManager
 
                 bool has = Main.CustomRoleValues.FindFirst(r => string.Equals(GetString(r.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoles role)
                     ? player.Is(role)
-                    : Enum.GetValues<CustomRoleTypes>().FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
+                    : Main.CustomRoleTypesValues.FindFirst(t => string.Equals(GetString(t.ToString()), name, StringComparison.OrdinalIgnoreCase), out CustomRoleTypes roleType) && player.Is(roleType);
 
                 return negate ? !has : has;
             });
@@ -126,11 +126,11 @@ public static class TemplateManager
             string fc = player.FriendCode;
             return AllowedRanks.Any(rank => rank.ToLower() switch
             {
-                "host"               => player.IsHost(),
-                "admin"              => ChatCommands.IsPlayerAdmin(fc),
+                "host" => player.IsHost(),
+                "admin" => ChatCommands.IsPlayerAdmin(fc),
                 "mod" or "moderator" => ChatCommands.IsPlayerModerator(fc),
-                "vip"                => ChatCommands.IsPlayerVIP(fc),
-                _                    => false
+                "vip" => ChatCommands.IsPlayerVIP(fc),
+                _ => false
             });
         }
 
@@ -143,16 +143,15 @@ public static class TemplateManager
             int count = GameData.Instance ? GameData.Instance.PlayerCount : 0;
             return PlayerCountOp switch
             {
-                ">"         => count > PlayerCountVal,
-                ">="        => count >= PlayerCountVal,
-                "<"         => count < PlayerCountVal,
-                "<="        => count <= PlayerCountVal,
+                ">" => count > PlayerCountVal,
+                ">=" => count >= PlayerCountVal,
+                "<" => count < PlayerCountVal,
+                "<=" => count <= PlayerCountVal,
                 "=" or "==" => count == PlayerCountVal,
-                "!="        => count != PlayerCountVal,
-                _           => true
+                "!=" => count != PlayerCountVal,
+                _ => true
             };
         }
-
         private bool MatchesPreset() => AllowedPresets == null || AllowedPresets.Contains(OptionItem.CurrentPreset + 1);
     }
 
