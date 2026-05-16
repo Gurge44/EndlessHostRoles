@@ -170,18 +170,14 @@ public class Survivor : RoleBase
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
         if (completedTaskCount + 1 >= totalTaskCount)
-            ChangeBasisToKill(pc);
-    }
-
-    private void ChangeBasisToKill(PlayerControl pc)
-    {
-        if (Killing) return;
-        Killing = true;
-        pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
-        LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        pc.MarkDirtySettings();
+        {
+            Killing = true;
+            pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
+            LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            pc.MarkDirtySettings();
+        }
     }
 
     public override bool CanUseKillButton(PlayerControl pc) { return Killing; }
