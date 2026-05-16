@@ -80,16 +80,17 @@ public class Survivor : RoleBase
     }
 
     // First ability: Players alive count
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var sb = new StringBuilder();
-        int CPA = Main.EnumerateAlivePlayerControls().Count();
+        int CPA = Main.AllAlivePlayerControlsCount;
 
-        sb.Append(GetTaskCount(playerId, comms));
+        resultText.Append(GetTaskCount(playerId, comms));
 
-        if (CPA < FirstAbility.GetInt()) sb.Append(ColorString(Color.yellow, $" {GetString("SurvivorCurrentAlive")} {CPA}"));
-
-        return sb.ToString();
+        if (CPA < FirstAbility.GetInt())
+            resultText.Append(' ').Append(ColorPrefix(Color.yellow))
+                .Append(GetString("SurvivorCurrentAlive"))
+                .Append(' ').Append(CPA)
+                .Append("</color>");
     }
 
     // Second ability: Shield
@@ -119,7 +120,7 @@ public class Survivor : RoleBase
     private void ShieldSelf(PlayerControl pc)
     {
         ShieldTimer?.Dispose();
-        if (Main.EnumerateAlivePlayerControls().Count() <= SecondAbility.GetInt())
+        if (Main.AllAlivePlayerControlsCount <= SecondAbility.GetInt())
         {
             bool shielded = ShieldTimer != null;
             ShieldTimer = new CountdownTimer(ShieldDuration.GetFloat(), () =>
@@ -182,7 +183,7 @@ public class Survivor : RoleBase
 
     private void ChangeBasisToKill(PlayerControl pc)
     {
-        if (Main.EnumerateAlivePlayerControls().Count() > LastAbility.GetInt() && Killing) return;
+        if (Main.AllAlivePlayerControlsCount > LastAbility.GetInt() && Killing) return;
         Killing = true;
         pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
         LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
@@ -200,6 +201,6 @@ public class Survivor : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return Main.EnumerateAlivePlayerControls().Count() <= LastAbility.GetInt();
+        return Main.AllAlivePlayerControlsCount <= LastAbility.GetInt();
     }
 }
