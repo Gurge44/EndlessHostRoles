@@ -175,15 +175,9 @@ public class Survivor : RoleBase
             ChangeBasisToKill(pc);
     }
 
-    public override void OnFixedUpdate(PlayerControl pc)
-    {
-        if (!IsThisRole(pc)) return;
-        if (pc.GetTaskState().IsTaskFinished && !Killing) ChangeBasisToKill(pc);
-    }
-
     private void ChangeBasisToKill(PlayerControl pc)
     {
-        if (Main.AllAlivePlayerControlsCount > LastAbility.GetInt() && Killing) return;
+        if (Killing && LastAbility.GetInt() <= 1) return;
         Killing = true;
         pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
         LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
