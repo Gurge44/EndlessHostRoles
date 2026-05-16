@@ -678,7 +678,7 @@ internal static class ExtendedMeetingHud
                     case Mayor mayor:
                         voteNum += Mayor.MayorAdditionalVote.GetInt() + mayor.TaskVotes;
                         break;
-                    case Survivor survivor when Main.EnumerateAlivePlayerControls().Count() <= Survivor.ThirdAbility.GetInt():
+                    case Survivor survivor when Main.AllAlivePlayerControlsCount <= Survivor.ThirdAbility.GetInt():
                         voteNum += Survivor.AdditionalVote.GetInt();
                         break;
                 }
