@@ -177,7 +177,7 @@ public class Survivor : RoleBase
 
     private void ChangeBasisToKill(PlayerControl pc)
     {
-        if (Killing && LastAbility.GetInt() <= 1) return;
+        if (Killing) return;
         Killing = true;
         pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
         LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
