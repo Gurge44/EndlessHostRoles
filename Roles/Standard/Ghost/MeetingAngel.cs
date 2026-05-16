@@ -70,7 +70,8 @@ public class MeetingAngel : IGhostRole
         foreach ((CustomRoles _, IGhostRole instance) in GhostRolesManager.AssignedGhostRoles.Values)
         {
             if (instance is not MeetingAngel { TargetId: < 252 } meetingAngel) continue;
-            
+            if (!votingData.ContainsKey(meetingAngel.TargetId)) continue;
+
             int negateNum = NumVotesNegated.GetInt();
             votingData[meetingAngel.TargetId] -= negateNum;
                 
