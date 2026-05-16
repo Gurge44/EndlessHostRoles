@@ -193,6 +193,7 @@ public static class NameColorManager
             CustomRoles.Wyrd when ((Wyrd)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Investor when ((Investor)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Stealth when ((Stealth)seerRoleClass).darkenedPlayers?.Any(x => x == target) ?? false => "000000",
+            CustomRoles.Snitch when Snitch.IsComplete.GetValueOrDefault(seer.PlayerId) && Snitch.IsSnitchTarget(target) => Utils.GetRoleColorCode(targetRole),
             _ => color
         };
 
