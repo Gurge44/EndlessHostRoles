@@ -30,7 +30,7 @@ internal class Vector : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vector])
             .SetValueFormat(OptionFormat.Seconds);
 
-        MapWinCounts = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new IntegerOptionItem(18312 + (int)x, $"Vector.NumVentsToWinOn.{x}", new(0, 900, 5), 80, TabGroup.NeutralRoles)
+        MapWinCounts = Main.MapNamesValues.ToDictionary(x => x, x => new IntegerOptionItem(18312 + (int)x, $"Vector.NumVentsToWinOn.{x}", new(0, 900, 5), 80, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vector])
             .SetValueFormat(OptionFormat.Times));
     }
@@ -53,9 +53,15 @@ internal class Vector : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(Color.white, $"<color=#777777>-</color> {VectorVentCount.GetValueOrDefault(playerId, 0)}/{VectorVentNumWin}");
+        int count = VectorVentCount.GetValueOrDefault(playerId, 0);
+        resultText.Append(Utils.ColorPrefix(Color.white))
+            .Append("<color=#777777>-</color> ")
+            .Append(count)
+            .Append('/')
+            .Append(VectorVentNumWin)
+            .Append("</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -63,13 +69,12 @@ internal class Vector : RoleBase
         hud.AbilityButton.buttonLabelText.text = Translator.GetString("VectorVentButtonText");
     }
 
-    public override void OnEnterVent(PlayerControl pc, Vent vent)
+    public override void OnEnterVent(PlayerControl pc, Vent vent) // called as non-host modded client too!
     {
         VectorVentCount.TryAdd(pc.PlayerId, 0);
         VectorVentCount[pc.PlayerId]++;
-        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, pc.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        pc.RPCPlayCustomSound("MarioJump");
+        if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (pc.AmOwner) CustomSoundsManager.Play("MarioJump");
 
         if (AmongUsClient.Instance.AmHost && VectorVentCount[pc.PlayerId] >= VectorVentNumWin)
         {
@@ -77,12 +82,5 @@ internal class Vector : RoleBase
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vector);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
-    }
-
-    public void ReceiveRPC(MessageReader reader)
-    {
-        byte id = reader.ReadByte();
-        VectorVentCount.TryAdd(id, 0);
-        VectorVentCount[id]++;
     }
 }

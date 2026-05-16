@@ -241,9 +241,10 @@ public class Stressed : IAddon
         LogTimer();
     }
 
-    public static string GetProgressText(byte playerId)
+    public static void GetProgressText(byte playerId, StringBuilder resultText)
     {
-        return Timers.TryGetValue(playerId, out int x) ? string.Format(GetString("DamoclesTimeLeft"), x) : string.Empty;
+        if (Timers.TryGetValue(playerId, out int x))
+            resultText.AppendFormat(GetString("DamoclesTimeLeft"), x);
     }
 
     private static void AdjustTime(int change)

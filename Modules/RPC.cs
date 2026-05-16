@@ -1310,7 +1310,7 @@ internal static class RPCHandlerPatch
                 {
                     if (reader.ReadBoolean())
                     {
-                        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                         {
                             if (player.AmOwner) continue;
                             player.SetPet("");
@@ -1322,7 +1322,7 @@ internal static class RPCHandlerPatch
                     }
                     else
                     {
-                        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                         {
                             if (player.AmOwner) continue;
                             if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
@@ -1481,11 +1481,12 @@ internal static class RPC
         }
     }
 
-    public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
+    public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason, bool isDead)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write((int)deathReason);
+        writer.Write(isDead);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -1495,7 +1496,9 @@ internal static class RPC
         var deathReason = (PlayerState.DeathReason)reader.ReadInt32();
         PlayerState state = Main.PlayerStates[playerId];
         state.deathReason = deathReason;
-        state.IsDead = true;
+        state.IsDead = reader.ReadBoolean();
+
+        Main.ForceRebuildCachesPlayerControls();
     }
 
     public static void ForceEndGame(CustomWinner win)

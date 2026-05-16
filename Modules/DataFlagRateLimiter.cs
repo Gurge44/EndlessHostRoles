@@ -65,6 +65,12 @@ public static class DataFlagRateLimiter
             return qa;
         }
 
+        if (GameStates.IsEnded && !GameStates.IsLobby)
+        {
+            Drop(qa);
+            return qa;
+        }
+
         switch (channel)
         {
             case SendOption.Reliable:
@@ -169,18 +175,22 @@ public static class DataFlagRateLimiter
         while (queue.Count > 0)
         {
             var qa = queue.Dequeue();
-
-            try
-            {
-                qa.Cleanup?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
-
-            qa.Dropped = true;
-            qa.Done = true;
+            Drop(qa);
         }
+    }
+
+    private static void Drop(QueuedAction qa)
+    {
+        try
+        {
+            qa.Cleanup?.Invoke();
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
+
+        qa.Dropped = true;
+        qa.Done = true;
     }
 }

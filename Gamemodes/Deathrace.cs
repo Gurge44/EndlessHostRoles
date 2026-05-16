@@ -11,13 +11,16 @@ namespace EHR.Gamemodes;
 
 public static class Deathrace
 {
+    private static readonly PowerUp[] AllPowerUp = Enum.GetValues<PowerUp>();
     public static readonly Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
     public static List<SystemTypes> Track = [];
     public static Dictionary<byte, PlayerData> Data = [];
     public static long LastPowerUpSpawn;
     public static List<DeathracePowerUp> SpawnedPowerUps = [];
     public static bool GameGoing;
-    
+
+    private static readonly StringBuilder Suffix = new();
+
     // Settings
     public static bool Clockwise;
     public static int LapsToWin;
@@ -293,15 +296,15 @@ public static class Deathrace
     {
         if (!GameGoing || seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || !Data.TryGetValue(seer.PlayerId, out var data)) return string.Empty;
 
-        StringBuilder sb = new("<#ffffff>");
-        
-        sb.AppendLine($"<#888888>{string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin)}</color>");
+        Suffix.Clear().Append("<#ffffff>");
+
+        Suffix.AppendLine($"<#888888>{string.Format(Translator.GetString("Deathrace.Lap"), data.Lap + 1, LapsToWin)}</color>");
 
         SystemTypes currentRoom = data.GetCurrentRoom();
         SystemTypes nextRoomType = data.GetNextRoom();
 
         if (seer.IsInRoom(currentRoom))
-            sb.Append($"<u>{Translator.GetString(currentRoom.ToString())}</u> ");
+            Suffix.Append($"<u>{Translator.GetString(currentRoom.ToString())}</u> ");
 
         bool coordinateCheck = CoordinateChecks.TryGetValue((int)nextRoomType, out var coordinates);
 
@@ -319,18 +322,18 @@ public static class Deathrace
 
         SystemTypes nextNextRoom = Track[nextNextIndex];
 
-        sb.Append($"» {nextRoom} » {Translator.GetString(nextNextRoom.ToString())} » ....");
-        
+        Suffix.Append($"» {nextRoom} » {Translator.GetString(nextNextRoom.ToString())} » ....");
+
         if (UsableVentIDs.TryGetValue(Main.CurrentMap, out var dict) && dict.ContainsKey(nextRoomType) && dict.ContainsKey(currentRoom))
-            sb.Append($"\n<#ffff44>{Translator.GetString("Deathrace.VentUse")}</color>");
+            Suffix.Append($"\n<#ffff44>{Translator.GetString("Deathrace.VentUse")}</color>");
 
         if (coordinateCheck)
-            sb.Append($"\n<#ffff44>{string.Format(Translator.GetString($"Deathrace.CoordinateCheckInfo.{(int)nextRoomType}"), Math.Round(Vector2.Distance(coordinates, seer.Pos()), 1))}</color>");
-        
+            Suffix.Append($"\n<#ffff44>{string.Format(Translator.GetString($"Deathrace.CoordinateCheckInfo.{(int)nextRoomType}"), Math.Round(Vector2.Distance(coordinates, seer.Pos()), 1))}</color>");
+
         if (data.PowerUps.Count > 0)
         {
             PowerUp powerUp = data.PowerUps[0];
-            
+
             char icon = powerUp switch
             {
                 PowerUp.Smoke => '♨',
@@ -340,7 +343,7 @@ public static class Deathrace
                 PowerUp.Ice => '☃',
                 _ => throw new ArgumentOutOfRangeException(nameof(powerUp), powerUp, "Unhandled power-up type")
             };
-            
+
             Color color = powerUp switch
             {
                 PowerUp.Smoke => new Color(0.5f, 0.5f, 0.5f),
@@ -350,14 +353,14 @@ public static class Deathrace
                 PowerUp.Ice => new Color(0f, 1f, 1f),
                 _ => throw new ArgumentOutOfRangeException(nameof(powerUp), powerUp, "Unhandled power-up type")
             };
-            
-            sb.Append(Utils.ColorString(color, $"\n{string.Format(Translator.GetString($"Deathrace.PowerUpInfo.{powerUp}"), icon)}"));
+
+            Suffix.Append(Utils.ColorString(color, $"\n{string.Format(Translator.GetString($"Deathrace.PowerUpInfo.{powerUp}"), icon)}"));
         }
 
         if (data.PowerUps.Count > 1)
-            sb.Append($"\n<#00a5ff><size=80%>{string.Format(Translator.GetString("Deathrace.PowerUpInfo.More"), data.PowerUps.Count - 1)}</size></color>");
-        
-        return sb.ToString();
+            Suffix.Append($"\n<#00a5ff><size=80%>{string.Format(Translator.GetString("Deathrace.PowerUpInfo.More"), data.PowerUps.Count - 1)}</size></color>");
+
+        return Suffix.ToString();
     }
 
     public static string GetStatistics(byte id)
@@ -370,7 +373,7 @@ public static class Deathrace
     {
         reason = GameOverReason.ImpostorsByKill;
         if (GameStates.IsEnded || !GameGoing) return false;
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         switch (aapc.Count)
         {
@@ -526,7 +529,7 @@ public static class Deathrace
 
             if (SpawnPowerUps && now - LastPowerUpSpawn >= PowerUpSpawnFrequency)
             {
-                PowerUp powerUp = Enum.GetValues<PowerUp>().RandomElement();
+                PowerUp powerUp = AllPowerUp.RandomElement();
                 Vector2[] availableSpawns = PowerUpSpawnPositions[Main.CurrentMap].Except(SpawnedPowerUps.ConvertAll(x => x.Position)).ToArray();
                 if (availableSpawns.Length > 0) SpawnedPowerUps.Add(new DeathracePowerUp(availableSpawns.RandomElement(), powerUp));
                 LastPowerUpSpawn = now;

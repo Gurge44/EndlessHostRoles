@@ -145,7 +145,7 @@ public class Follower : RoleBase
         killer.RPCPlayCustomSound("Bet");
 
         killer.Notify(GetString("FollowerBetPlayer"));
-        if (BetTargetKnowFollower.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), GetString("FollowerBetOnYou")));
+        if (BetTargetKnowFollower.GetBool()) target.Notify(CustomRoles.Follower.ColoredTextByRole(GetString("FollowerBetOnYou")));
 
         Logger.Info($"Target selected: {killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Follower");
         return false;
@@ -159,20 +159,28 @@ public class Follower : RoleBase
 
             if (Main.PlayerStates[target.PlayerId].Role is not Follower tc) return string.Empty;
 
-            return seer.PlayerId == tc.BetPlayer ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), "♦") : string.Empty;
+            return seer.PlayerId == tc.BetPlayer ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
         else
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Follower tc) return string.Empty;
 
-            return tc.BetPlayer == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), "♦") : string.Empty;
+            return tc.BetPlayer == target.PlayerId ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
+        if (Main.PlayerStates[playerId].Role is not Follower tc) return;
+
         PlayerControl player = Utils.GetPlayerById(playerId);
-        return !player ? string.Empty : Utils.ColorString(CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray, $"({BetTimes})");
+        if (player == null) return;
+
+        Color32 color = tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray;
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append('(')
+            .Append(tc.BetTimes)
+            .Append(")</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

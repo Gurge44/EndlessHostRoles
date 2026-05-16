@@ -268,9 +268,9 @@ internal static class ChangeRoleSettings
             
             SabotageMapPatch.TimerTexts = [];
             MapRoomDoorsUpdatePatch.DoorTimerTexts = [];
-            ReportDeadBodyPatch.CanReport = [];
+            ReportDeadBodyPatch.CanReport.Clear();
             ReportDeadBodyPatch.AlreadyReportedBodies = [];
-            
+
             GuessManager.Guessers = [];
             ChatCommands.VotedToStart = [];
 
@@ -335,14 +335,14 @@ internal static class ChangeRoleSettings
             
             RoleResult = [];
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
-                foreach (PlayerControl seer in Main.EnumeratePlayerControls())
+                foreach (PlayerControl seer in Main.CachedAllPlayerControls())
                 {
                     (byte, byte) pair = (pc.PlayerId, seer.PlayerId);
                     Main.LastNotifyNames[pair] = pc.name;
                 }
-                
+
                 int colorId = pc.Data.DefaultOutfit.ColorId;
                 if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
                 {
@@ -417,7 +417,7 @@ internal static class ChangeRoleSettings
                 CustomWinnerHolder.Reset();
                 AntiBlackout.Reset();
                 NameNotifyManager.Reset();
-                SabotageSystemTypeRepairDamagePatch.Initialize();
+                SabotageSystemTypeUpdateSystemPatch.Initialize();
                 DoorsReset.Initialize();
                 GhostRolesManager.Initialize();
                 RoleBlockManager.Reset();
@@ -663,7 +663,9 @@ internal static class StartGameHostPatch
     private static System.Collections.IEnumerator AssignRoles()
     {
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
-        
+
+        Main.ForceRebuildCachesPlayerControls();
+
         Options.AutoSetFactionMinMaxSettings();
 
         RpcSetRoleReplacer.Initialize();

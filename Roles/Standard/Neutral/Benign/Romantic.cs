@@ -168,7 +168,7 @@ public class Romantic : RoleBase
             RomanticPC.RPCPlayCustomSound("Bet");
 
             RomanticPC.Notify(Translator.GetString("RomanticBetPlayer"));
-            if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), Translator.GetString("RomanticBetOnYou")));
+            if (BetTargetKnowRomantic.GetBool()) target.Notify(CustomRoles.Romantic.ColoredTextByRole(Translator.GetString("RomanticBetOnYou")));
 
             if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted()) Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
 
@@ -222,12 +222,12 @@ public class Romantic : RoleBase
             if (!BetTargetKnowRomantic.GetBool()) return string.Empty;
 
             return target.Is(CustomRoles.Romantic) && RomanticId == target.PlayerId && PartnerId == seer.PlayerId
-                ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥")
+                ? CustomRoles.Romantic.ColoredTextByRole("♥")
                 : string.Empty;
         }
 
         return PartnerId == target.PlayerId
-            ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥")
+            ? CustomRoles.Romantic.ColoredTextByRole("♥")
             : string.Empty;
     }
 

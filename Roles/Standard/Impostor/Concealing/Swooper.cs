@@ -29,7 +29,8 @@ public class Swooper : RoleBase
     private float Duration;
     private bool CanVent;
     private bool VentNormallyOnCooldown;
-    
+    private readonly StringBuilder Suffix = new();
+
     private byte SwooperId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -269,25 +270,25 @@ public class Swooper : RoleBase
     {
         if (!hud || seer == null || seer.PlayerId != SwooperId || !GameStates.IsInTask || ExileController.Instance || !seer.IsAlive()) return string.Empty;
 
-        var str = new StringBuilder();
+        Suffix.Clear();
 
         if (IsInvis)
         {
             int remainTime = (int)InvisTimer.Remaining.TotalSeconds;
-            str.Append(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
+            Suffix.AppendFormat(GetString("SwooperInvisStateCountdown"), remainTime + 1);
         }
         else if (!(UsedRole != CustomRoles.Chameleon && UsePhantomBasis.GetBool() && (UsedRole != CustomRoles.Wraith || UsePhantomBasisForNKs.GetBool())))
         {
             if (CooldownTimer != null)
             {
                 int cooldown = (int)Math.Ceiling(CooldownTimer.Remaining.TotalSeconds);
-                str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
+                Suffix.AppendFormat(GetString("SwooperInvisCooldownRemain"), cooldown + 1);
             }
             else
-                str.Append(GetString("SwooperCanVent"));
+                Suffix.Append(GetString("SwooperCanVent"));
         }
 
-        return str.ToString();
+        return Suffix.ToString();
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

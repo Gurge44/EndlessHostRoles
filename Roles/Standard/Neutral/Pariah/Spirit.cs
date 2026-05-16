@@ -113,20 +113,24 @@ public class Spirit : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        byte[] tuple = [Targets.Item1, Targets.Item2];
-        if (tuple.All(x => x == byte.MaxValue)) return;
+        byte target1 = Targets.Item1;
+        byte target2 = Targets.Item2;
+        if (target1 == byte.MaxValue && target2 == byte.MaxValue) return;
 
-        List<PlayerControl> sewed = tuple.ToValidPlayers().ToList();
+        PlayerControl player1 = Utils.GetPlayerById(target1);
+        PlayerControl player2 = Utils.GetPlayerById(target2);
+        bool alive1 = player1.IsAlive();
+        bool alive2 = player2.IsAlive();
 
-        if (sewed.Count != 2 || sewed.Exists(x => !x.IsAlive()))
+        if (!(alive1 && alive2))
         {
             Targets = (byte.MaxValue, byte.MaxValue);
-            Utils.SendRPC(CustomRPC.SyncRoleData, SpiritID, Targets.Item1, Targets.Item2);
+            Utils.SendRPC(CustomRPC.SyncRoleData, SpiritID, byte.MaxValue, byte.MaxValue);
             pc.SetAbilityUseLimit(2);
             pc.RpcResetAbilityCooldown();
 
-            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out PlayerControl alive))
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
+            PlayerControl alive = alive1 ? player1 : player2;
+            if (alive != null) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
         }
     }
 

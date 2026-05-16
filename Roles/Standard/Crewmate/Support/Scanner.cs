@@ -72,7 +72,7 @@ public class Scanner : RoleBase
     {
         if (!AbilityActive) return;
 
-        foreach (PlayerControl apc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl apc in Main.CachedAlivePlayerControls())
         {
             if (apc.PlayerId == pc.PlayerId) continue;
             if (!Main.Invisible.Contains(apc.PlayerId)) continue;

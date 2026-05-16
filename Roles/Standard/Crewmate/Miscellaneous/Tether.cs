@@ -142,14 +142,10 @@ public class Tether : RoleBase
         SendRPCSyncTarget();
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var sb = new StringBuilder();
-
-        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Target != byte.MaxValue));
-        sb.Append(Utils.GetTaskCount(playerId, comms));
-
-        return sb.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Target != byte.MaxValue))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

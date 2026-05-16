@@ -152,21 +152,19 @@ public class Rogue : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask) return;
-
-        Count++;
-        if (Count < 30) return;
+        if (++Count < 30) return;
         Count = 0;
 
         if (DoCheck && Moving)
         {
+            var pcPos = pc.Pos();
             if (LastPos is null)
             {
-                LastPos = pc.Pos();
+                LastPos = pcPos;
                 return;
             }
-
-            Moving = !FastVector2.DistanceWithinRange(pc.Pos(), LastPos.Value, 0.1f);
-            LastPos = pc.Pos();
+            Moving = !FastVector2.DistanceWithinRange(pcPos, LastPos.Value, 0.1f);
+            LastPos = pcPos;
             if (!Moving) pc.Notify(Utils.ColorString(Color.red, "<size=4>x</size>"));
         }
 

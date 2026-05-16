@@ -90,8 +90,7 @@ public class Patroller : RoleBase
     {
         if (!pc.IsAlive() || !GameStates.IsInTask) return;
 
-        Count++;
-        if (Count < 20) return;
+        if (++Count < 20) return;
         Count = 0;
 
         PlainShipRoom room = pc.GetPlainShipRoom();

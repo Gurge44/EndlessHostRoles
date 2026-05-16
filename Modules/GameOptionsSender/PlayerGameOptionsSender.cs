@@ -269,6 +269,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             PackedWriter.EndMessage();
         }
         PackedWriter.EndMessage();
+        
+        Logger.Info($"PackedWriter message write complete - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "GameOptionsSender");
     }
 
     public static void RemoveSender(PlayerControl player)
@@ -586,7 +588,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
 
-            if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
+            if (Main.AllAlivePlayerControlsToList.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
             {
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());

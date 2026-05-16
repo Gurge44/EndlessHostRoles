@@ -104,20 +104,24 @@ public class Seamstress : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        byte[] tuple = [SewedPlayers.Item1, SewedPlayers.Item2];
-        if (tuple.All(x => x == byte.MaxValue)) return;
+        byte sewedPlayer1 = SewedPlayers.Item1;
+        byte sewedPlayer2 = SewedPlayers.Item2;
+        if (sewedPlayer1 == byte.MaxValue && sewedPlayer2 == byte.MaxValue) return;
 
-        List<PlayerControl> sewed = tuple.ToValidPlayers().ToList();
+        PlayerControl player1 = Utils.GetPlayerById(sewedPlayer1);
+        PlayerControl player2 = Utils.GetPlayerById(sewedPlayer2);
+        bool alive1 = player1.IsAlive();
+        bool alive2 = player2.IsAlive();
 
-        if (sewed.Count != 2 || sewed.Exists(x => !x.IsAlive()))
+        if (!(alive1 && alive2))
         {
             SewedPlayers = (byte.MaxValue, byte.MaxValue);
-            Utils.SendRPC(CustomRPC.SyncRoleData, SeamstressID, SewedPlayers.Item1, SewedPlayers.Item2);
+            Utils.SendRPC(CustomRPC.SyncRoleData, SeamstressID, byte.MaxValue, byte.MaxValue);
             pc.SyncSettings();
             pc.RpcResetAbilityCooldown();
 
-            if (sewed.Count > 0 && sewed.FindFirst(x => x.IsAlive(), out PlayerControl alive))
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
+            PlayerControl alive = alive1 ? player1 : player2;
+            if (alive != null) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: alive);
         }
     }
 }

@@ -75,7 +75,7 @@ internal static class ExileControllerWrapUpPatch
 
         Swapper.OnExileFinish();
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             if (pc.Is(CustomRoles.Warlock))
             {
@@ -159,7 +159,7 @@ internal static class ExileControllerWrapUpPatch
         LateTask.New(() =>
         {
             if (ChatCommands.HasMessageDuringEjectionScreen)
-                ChatManager.ClearChat(Main.AllAlivePlayerControls);
+                ChatManager.ClearChat(Main.CachedAlivePlayerControls());
         }, 3f, log: false);
     }
 

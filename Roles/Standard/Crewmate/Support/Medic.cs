@@ -160,9 +160,10 @@ public class Medic : RoleBase
         opt.SetVision(false);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return playerId.GetAbilityUseLimit() > 0 ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+        if (playerId.GetAbilityUseLimit() > 0) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -329,7 +330,7 @@ public class Medic : RoleBase
     {
         if (ProtectList.Count > 0)
         {
-            var shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
+            var shieldMark = CustomRoles.Medic.ColoredTextByRole(" ●");
 
             bool self = seer.PlayerId == target.PlayerId;
             bool seerIsMedic = seer.Is(CustomRoles.Medic);

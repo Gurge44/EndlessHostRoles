@@ -65,7 +65,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual bool CanUseSabotage(PlayerControl pc)
     {
         if (pc.Is(CustomRoles.Aide)) return false;
-        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Count == 2) return false;
+        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControlsCount == 2) return false;
         return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
     }
 
@@ -170,12 +170,10 @@ public abstract class RoleBase : IComparable<RoleBase>
         AfterMeetingTasks();
     }
 
-    public virtual string GetProgressText(byte playerId, bool comms)
+    public virtual void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        StringBuilder sb = new();
-        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
-        sb.Append(Utils.GetTaskCount(playerId, comms));
-        return sb.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public virtual void SetButtonTexts(HudManager hud, byte id) { }

@@ -12,6 +12,7 @@ internal class Warden : IGhostRole
     private static OptionItem CD;
 
     private readonly Dictionary<byte, (long StartTimeStamp, float OriginalSpeed)> SpeedList = [];
+    private readonly List<byte> ToRemove = [];
 
     public Team Team => Team.Crewmate;
     public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
@@ -56,11 +57,27 @@ internal class Warden : IGhostRole
 
     public void Update(PlayerControl pc)
     {
-        SpeedList.DoIf(x => x.Value.StartTimeStamp + ExtraSpeedDuration.GetInt() <= Utils.TimeStamp, x =>
+        if (SpeedList.Count == 0)
+            return;
+
+        long now = Utils.TimeStamp;
+        int duration = ExtraSpeedDuration.GetInt();
+
+        ToRemove.Clear();
+        foreach (var pair in SpeedList)
         {
-            Main.AllPlayerSpeed[x.Key] = x.Value.OriginalSpeed;
-            pc.MarkDirtySettings();
-            SpeedList.Remove(x.Key);
-        }, false);
+            if (pair.Value.StartTimeStamp + duration <= now)
+            {
+                Main.AllPlayerSpeed[pair.Key] = pair.Value.OriginalSpeed;
+                ToRemove.Add(pair.Key);
+            }
+        }
+        if (ToRemove.Count == 0) return;
+
+        pc.MarkDirtySettings();
+        for (int index = 0; index < ToRemove.Count; index++)
+        {
+            SpeedList.Remove(ToRemove[index]);
+        }
     }
 }

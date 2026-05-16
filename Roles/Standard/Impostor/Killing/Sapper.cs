@@ -123,17 +123,16 @@ public class Sapper : RoleBase
 
     private static bool PlaceBomb(PlayerControl pc)
     {
-        if (!pc || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
-        
+        if (!pc.IsAliveWithConditions()) return false;
+
         if (CanKill.GetBool())
         {
             if (pc.GetAbilityUseLimit() < 1) return false;
             pc.RpcRemoveAbilityUse();
-            
+
             if (CooldownsResetEachOther.GetBool())
                 pc.SetKillCooldown();
         }
-
         Vector2 pos = pc.Pos();
         CountdownTimer timer = null;
         timer = new CountdownTimer(Delay.GetInt(), () =>

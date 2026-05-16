@@ -117,7 +117,7 @@ internal class Necromancer : RoleBase
         {
             PartiallyRecruitedIds.Add(target.PlayerId);
 
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("NecromancerRecruitedPlayer")));
+            killer.Notify(CustomRoles.Necromancer.ColoredTextByRole(GetString("NecromancerRecruitedPlayer")));
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: Deathknight.DeathknightPC, SpecifyTarget: target);
@@ -129,7 +129,7 @@ internal class Necromancer : RoleBase
             return false;
         }
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("InvalidUndeadTarget")));
+        killer.Notify(CustomRoles.Necromancer.ColoredTextByRole(GetString("InvalidUndeadTarget")));
 
         return false;
     }
@@ -221,12 +221,12 @@ internal class Deathknight : RoleBase
             var sender = CustomRpcSender.Create("Deathknight.OnCheckMurder", SendOption.Reliable);
             var hasValue = false;
 
-            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("DeathknightRecruitedPlayer")));
+            hasValue |= sender.Notify(killer, CustomRoles.Necromancer.ColoredTextByRole(GetString("DeathknightRecruitedPlayer")));
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("RecruitedByDeathknight")));
+            hasValue |= sender.Notify(target, CustomRoles.Necromancer.ColoredTextByRole(GetString("RecruitedByDeathknight")));
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
@@ -242,7 +242,7 @@ internal class Deathknight : RoleBase
             return false;
         }
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("InvalidUndeadTarget")));
+        killer.Notify(CustomRoles.Necromancer.ColoredTextByRole(GetString("InvalidUndeadTarget")));
 
         return false;
     }

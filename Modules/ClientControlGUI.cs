@@ -634,7 +634,7 @@ public class ClientControlGUI : MonoBehaviour
                 Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
                     HudManager.Instance.Chat.SetVisible(true)
                 );
-                Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, () => Main.AllAlivePlayerControls.SetChatVisible(true));
+                Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, () => Main.AllAlivePlayerControlsToList.SetChatVisible(true));
 
                 if (noGameEnd)
                     Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>

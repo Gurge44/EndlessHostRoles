@@ -58,9 +58,11 @@ public class Damocles : IAddon
 
     public static void Update(PlayerControl pc)
     {
+        if (!pc || !GameStates.IsInTask) return;
+
         byte id = pc.PlayerId;
         long now = Utils.TimeStamp;
-        if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+        if (LastUpdate.TryGetValue(id, out long ts) && ts >= now) return;
 
         if (!pc.IsAlive())
         {
@@ -171,8 +173,8 @@ public class Damocles : IAddon
         Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
     }
 
-    public static string GetProgressText(byte id)
+    public static void GetProgressText(byte id, StringBuilder resultText)
     {
-        return string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
+        resultText.AppendFormat(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
     }
 }

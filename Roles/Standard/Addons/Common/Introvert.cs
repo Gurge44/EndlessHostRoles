@@ -45,7 +45,6 @@ public class Introvert : IAddon
                 Utils.SendRPC(CustomRPC.SyncIntrovert, 1, pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
-
             return;
         }
 

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using static EHR.Roles.Adventurer;
 
 namespace EHR.Roles;
 
@@ -27,6 +28,8 @@ public class Amogus : RoleBase
     private byte AmogusID;
     private Levels CurrentLevel;
     public int ExtraVotes;
+    private readonly StringBuilder Suffix = new();
+    private static readonly Levels[] AllLevels = Enum.GetValues<Levels>();
 
     public override bool IsEnable => On;
 
@@ -35,7 +38,7 @@ public class Amogus : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(649075)
-            .AutoSetupOption(ref StartingLevel, 0, Enum.GetValues<Levels>().Select(x => $"Amogus.Levels.{x}").ToArray())
+            .AutoSetupOption(ref StartingLevel, 0, AllLevels.Select(x => $"Amogus.Levels.{x}").ToArray())
             .AutoSetupOption(ref SugomaSpeed, 2f, new FloatValueRule(0.1f, 3f, 0.1f), OptionFormat.Multiplier)
             .AutoSetupOption(ref SuspiciousSusArrowsToBodies, false)
             .AutoSetupOption(ref UltimateSusVotesPerKill, 1, new IntegerValueRule(0, 10, 1), OptionFormat.Votes)
@@ -183,17 +186,18 @@ public class Amogus : RoleBase
     {
         if (seer.PlayerId != AmogusID || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var sb = new StringBuilder();
-        if (AmogusFormTimer != null) sb.Append($"\u25a9 ({(int)Math.Ceiling(AmogusFormTimer.Remaining.TotalSeconds)}s)\n");
-        if (!hud) sb.Append("<size=70%>");
-        sb.Append(string.Format(Translator.GetString("Amogus.Suffix"), Translator.GetString($"Amogus.Levels.{CurrentLevel}")));
-        if (!hud) sb.Append("</size>");
-        return sb.ToString();
+        Suffix.Clear();
+        if (AmogusFormTimer != null) Suffix.Append($"\u25a9 ({(int)Math.Ceiling(AmogusFormTimer.Remaining.TotalSeconds)}s)\n");
+        if (!hud) Suffix.Append("<size=70%>");
+        Suffix.AppendFormat(Translator.GetString("Amogus.Suffix"), Translator.GetString($"Amogus.Levels.{CurrentLevel}"));
+        if (!hud) Suffix.Append("</size>");
+        return Suffix.ToString();
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return $"{base.GetProgressText(playerId, comms)} {string.Format(Translator.GetString("ExtraVotesPT"), ExtraVotes)}";
+        base.GetProgressText(playerId, comms, resultText);
+        resultText.Append(' ').AppendFormat(Translator.GetString("ExtraVotesPT"), ExtraVotes);
     }
 
     private enum Levels

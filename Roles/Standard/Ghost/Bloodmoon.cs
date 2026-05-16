@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
+using static UnityEngine.GraphicsBuffer;
 
 namespace EHR.Roles;
 
@@ -82,7 +83,15 @@ internal class Bloodmoon : IGhostRole
             if (pc.RpcCheckAndMurder(player, true)) player.Suicide(PlayerState.DeathReason.LossOfBlood, pc);
         }
 
-        FastVector2.GetPlayersInRange(pc.Pos(), 4f, x => !x.Is(Team.Impostor)).Do(x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None));
+        var alivePlayers = Main.CachedAlivePlayerControls();
+        for (int index = 0; index < alivePlayers.Count; index++)
+        {
+            PlayerControl target = alivePlayers[index];
+            if (target.Is(Team.Impostor)) continue;
+            if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), 4f)) continue;
+
+            target.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None);
+        }
     }
 
     public static void OnMeetingStart()

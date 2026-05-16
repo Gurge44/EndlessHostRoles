@@ -102,7 +102,7 @@ public class PlagueBearer : RoleBase
     {
         int plagued = 0, all = 0;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.PlayerId == playerId) continue;
 

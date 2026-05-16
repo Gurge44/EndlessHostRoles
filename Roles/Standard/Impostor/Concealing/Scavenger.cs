@@ -68,7 +68,7 @@ internal class Scavenger : RoleBase
 
                 killer.SetKillCooldown();
                 RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scavenger), Translator.GetString("KilledByScavenger")));
+                target.Notify(CustomRoles.Scavenger.ColoredTextByRole(Translator.GetString("KilledByScavenger")));
             }
         }
 

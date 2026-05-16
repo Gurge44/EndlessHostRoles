@@ -32,6 +32,7 @@ public class Alchemist : RoleBase
     private byte PotionID = 10;
     public bool VisionPotionActive;
     private CountdownTimer InvisTimer;
+    private readonly StringBuilder Suffix = new();
 
     public override bool IsEnable => PlayerIdList.Count > 0;
     private bool IsInvis => InvisTimer != null;
@@ -185,7 +186,7 @@ public class Alchemist : RoleBase
             case 3: // TP to random player
                 LateTask.New(() =>
                 {
-                    player.TP(Main.EnumerateAlivePlayerControls().Without(player).Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList().RandomElement());
+                    player.TP(Main.EnumerateAlivePlayerControls().Without(player).Where(x => !x.inVent && !x.onLadder).ToList().RandomElement());
                     player.RPCPlayCustomSound("Teleport");
                 }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
                 break;
@@ -271,26 +272,26 @@ public class Alchemist : RoleBase
     {
         if (!hud || seer.PlayerId != target.PlayerId || !GameStates.IsInTask || seer.PlayerId != AlchemistId) return string.Empty;
 
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
         if (IsInvis)
         {
             int remainTime = (int)Math.Ceiling(InvisTimer.Remaining.TotalSeconds);
-            sb.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime));
+            Suffix.AppendFormat(GetString("ChameleonInvisStateCountdown"), remainTime);
         }
         else
         {
-            sb.Append($" <{HeaderColour}>{GetString("PotionInStore")}:</color> ");
+            Suffix.Append($" <{HeaderColour}>{GetString("PotionInStore")}:</color> ");
 
             if (PotionStyles.TryGetValue(PotionID, out PotionStyle style))
-                sb.Append($"<b><{style.Colour}>{GetString(style.NameKey)}</color></b>");
+                Suffix.Append($"<b><{style.Colour}>{GetString(style.NameKey)}</color></b>");
             else
-                sb.Append($"<#888888>{GetString("None")}</color>");
+                Suffix.Append($"<#888888>{GetString("None")}</color>");
 
-            if (FixNextSabo) sb.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
+            if (FixNextSabo) Suffix.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
         }
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     private readonly record struct PotionStyle(string Colour, string NameKey);
@@ -308,25 +309,36 @@ public class Alchemist : RoleBase
 
     private const string HeaderColour = "#00ffa5";
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (!GameStates.IsInTask || playerId.IsPlayerModdedClient()) return base.GetProgressText(playerId, comms);
+        if (!GameStates.IsInTask || playerId.IsPlayerModdedClient())
+        {
+            base.GetProgressText(playerId, comms, resultText);
+            return;
+        }
 
-        var sb = new StringBuilder(base.GetProgressText(playerId, comms));
+        base.GetProgressText(playerId, comms, resultText);
 
         if (PotionStyles.TryGetValue(PotionID, out PotionStyle style))
         {
-            sb.Append(
-                $" <{HeaderColour}>{GetString("Stored")}:</color>" +
-                $" <{style.Colour}>{GetString(style.NameKey)}</color>");
+            resultText.Append(" <")
+                .Append(HeaderColour)
+                .Append('>')
+                .Append(GetString("Stored"))
+                .Append(":</color> <")
+                .Append(style.Colour)
+                .Append('>')
+                .Append(GetString(style.NameKey))
+                .Append("</color>");
         }
 
-        if (FixNextSabo) sb.Append($" <#777777>({GetString("QuickFix")})</color>");
-
-        return sb.ToString();
+        if (FixNextSabo) 
+            resultText.Append(" <#777777>(")
+                .Append(GetString("QuickFix"))
+                .Append(")</color>");
     }
 
-    public static void RepairSystem(PlayerControl pc, SystemTypes systemType, byte amount)
+    public static void UpdateSystem(PlayerControl pc, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return;
 

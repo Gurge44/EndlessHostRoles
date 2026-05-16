@@ -188,7 +188,7 @@ public static class NaturalDisasters
             }
 
             string ts = ActiveDisasters.Exists(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
-            string rp = string.Format(Translator.GetString("ND_RemainingPlayers"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.NDPlayer), Main.AllAlivePlayerControls.Count.ToString()));
+            string rp = string.Format(Translator.GetString("ND_RemainingPlayers"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.NDPlayer), Main.AllAlivePlayerControlsCount.ToString()));
             SuffixText = $"<size=70%>{cb}{ts}\n{rp}</size>";
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -353,7 +353,7 @@ public static class NaturalDisasters
                     return;
                 }
 
-                var aapc = Main.AllAlivePlayerControls;
+                var aapc = Main.AllAlivePlayerControlsToList;
                 bool bc = disaster.Name == "BuildingCollapse";
                 bool spawnOnPlayer = !bc && aapc.Count > 0 && DisasterSpawnMode.GetValue() switch
                 {
@@ -528,7 +528,7 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                float speed = (FastVector2.DistanceWithinRange(pc.Pos(), Position, Range)) switch
+                float speed = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range) switch
                 {
                     true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
                     false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
