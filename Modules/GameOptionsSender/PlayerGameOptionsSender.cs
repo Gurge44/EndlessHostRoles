@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Roles;
 using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
 
@@ -22,8 +23,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
     protected override bool IsDirty { get; set; }
 
-    protected override int TargetClientId => player.OwnerId;
-
     public static void SetDirty(byte playerId)
     {
         for (var index = 0; index < AllSenders.Count; index++)
@@ -38,7 +37,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         }
     }
 
-    public static void SendImmediately(byte playerId)
+    public static void ForceSendImmediately(byte playerId)
     {
         for (var index = 0; index < AllSenders.Count; index++)
         {
@@ -52,6 +51,74 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 break; // Only one sender can have the same player id
             }
         }
+    }
+
+    public static void SendAllImmediately()
+    {
+        ForceWaitFrame = true;
+        
+        if (PackedWriterMessages > 0 && PackedWriter != null)
+        {
+            PackedWriter.EndMessage();
+            var capturedWriter = PackedWriter;
+            DataFlagRateLimiter.Enqueue(() =>
+            {
+                AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                capturedWriter.Recycle();
+            }, cleanup: capturedWriter.Recycle);
+        }
+
+        PackedWriter = MessageWriter.Get(SendOption.Reliable);
+        PackedWriter.StartMessage(26);
+        PackedWriter.WritePacked(AmongUsClient.Instance.GameId);
+        PackedWriterMessages = 0;
+        
+        for (var index = 0; index < AllSenders.Count; index++)
+        {
+            GameOptionsSender allSender = AllSenders[index];
+
+            if (allSender is PlayerGameOptionsSender { IsDirty: true } sender)
+            {
+                if (PackedWriter != null && (PackedWriter.Length > 500 || PackedWriterMessages >= AmongUsClient.Instance.GetMaxMessagePackingLimit()))
+                {
+                    PackedWriter.EndMessage();
+                    var capturedWriter = PackedWriter;
+                    DataFlagRateLimiter.Enqueue(() =>
+                    {
+                        AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                        capturedWriter.Recycle();
+                    }, cleanup: capturedWriter.Recycle);
+                    PackedWriterMessages = 0;
+                    PackedWriter = MessageWriter.Get(SendOption.Reliable);
+                    PackedWriter.StartMessage(26);
+                    PackedWriter.WritePacked(AmongUsClient.Instance.GameId);
+                }
+                
+                sender.SendGameOptions();
+                sender.IsDirty = false;
+            }
+        }
+        
+        if (PackedWriter != null)
+        {
+            if (PackedWriterMessages > 0)
+            {
+                PackedWriter.EndMessage();
+                var capturedWriter = PackedWriter;
+                DataFlagRateLimiter.Enqueue(() =>
+                {
+                    AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
+                    capturedWriter.Recycle();
+                }, cleanup: capturedWriter.Recycle);
+            }
+            else
+            {
+                PackedWriter.Recycle();
+            }
+        }
+
+        PackedWriter = null;
+        PackedWriterMessages = 0;
     }
 
     public static void SetDirtyToAll()
@@ -148,6 +215,62 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         }
         else
             yield return base.SendGameOptionsAsync();
+    }
+    
+    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    {
+        if (PackedWriter == null)
+        {
+            DataFlagRateLimiter.Enqueue(() =>
+            {
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+
+                writer.StartMessage(6);
+                {
+                    writer.Write(AmongUsClient.Instance.GameId);
+                    writer.WritePacked(player.OwnerId);
+
+                    writer.StartMessage(1);
+                    {
+                        writer.WritePacked(GameManager.Instance.NetId);
+                        writer.StartMessage(logicOptionsIndex);
+                        {
+                            writer.WriteBytesAndSize(optionArray);
+                        }
+                        writer.EndMessage();
+                    }
+                    writer.EndMessage();
+                }
+
+                writer.EndMessage();
+
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+            });
+            return;
+        }
+
+        PackedWriterMessages++;
+        
+        PackedWriter.StartMessage(6);
+        {
+            PackedWriter.Write(AmongUsClient.Instance.GameId);
+            PackedWriter.WritePacked(player.OwnerId);
+
+            PackedWriter.StartMessage(1);
+            {
+                PackedWriter.WritePacked(GameManager.Instance.NetId);
+                PackedWriter.StartMessage(logicOptionsIndex);
+                {
+                    PackedWriter.WriteBytesAndSize(optionArray);
+                }
+                PackedWriter.EndMessage();
+            }
+            PackedWriter.EndMessage();
+        }
+        PackedWriter.EndMessage();
+        
+        Logger.Info($"PackedWriter message write complete - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "GameOptionsSender");
     }
 
     public static void RemoveSender(PlayerControl player)
@@ -277,6 +400,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomGameMode.Standard:
                 {
                     President.OnAnyoneApplyGameOptions(opt);
+                    
+                    AURoleOptions.ViperDissolveTime = ImpostorVanillaRoles.ViperDissolveTime.GetFloat(); // can't be desynced
 
                     float playerSpeed = Main.AllPlayerSpeed.GetValueOrDefault(player.PlayerId);
                     bool frozen = Mathf.Approximately(playerSpeed, Main.MinSpeed);
@@ -284,9 +409,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             
                     foreach (CustomRoles subRole in state.SubRoles)
                     {
-                        if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
+                        if (subRole.IsGhostRole())
                         {
-                            AURoleOptions.GuardianAngelCooldown = GhostRolesManager.AssignedGhostRoles.First(x => x.Value.Role == subRole).Value.Instance.Cooldown;
+                            AURoleOptions.GuardianAngelCooldown = subRole == CustomRoles.EvilSpirit ? Spiritcaller.SpiritAbilityCooldown.GetFloat() : GhostRolesManager.AssignedGhostRoles.Values.First(x => x.Role == subRole).Instance.Cooldown;
                             continue;
                         }
 
@@ -400,11 +525,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                                 AURoleOptions.DetectiveSuspectLimit = Examiner.ExaminerSuspectLimit.GetFloat();
                                 break;
                             }
-                            case CustomRoles.Venom when roleTypes == RoleTypes.Viper:
-                            {
-                                AURoleOptions.ViperDissolveTime = Venom.VenomDissolveTime.GetFloat();
-                                break;
-                            }
                         }
                     }
 
@@ -449,9 +569,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 case CustomRoles.DetectiveEHR:
                     AURoleOptions.DetectiveSuspectLimit = CrewmateVanillaRoles.DetectiveSuspectLimit.GetFloat();
                     break;
-                case CustomRoles.ViperEHR:
-                    AURoleOptions.ViperDissolveTime  = ImpostorVanillaRoles.ViperDissolveTime.GetFloat();
-                    break;
             }
 
             // When impostor alert is off, and the player is a desync crewmate, set impostor alert as true
@@ -471,7 +588,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
 
-            if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
+            if (Main.AllAlivePlayerControlsToList.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
             {
                 opt.SetVision(false);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Options.BewilderVision.GetFloat());
@@ -574,9 +691,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                         break;
                     case RoleTypes.Tracker:
                         AURoleOptions.TrackerCooldown *= 0.75f;
-                        break;
-                    case RoleTypes.Viper:
-                        AURoleOptions.ViperDissolveTime *= 0.75f;
                         break;
                     case RoleTypes.Detective:
                         AURoleOptions.DetectiveSuspectLimit *= 1.25f;

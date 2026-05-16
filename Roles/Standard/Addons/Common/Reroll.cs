@@ -4,7 +4,7 @@ namespace EHR.Roles;
 
 public class Reroll : IAddon
 {
-    private const int Id = 658400;
+    private const int Id = 658900;
 
     public AddonTypes Type => AddonTypes.Mixed;
 

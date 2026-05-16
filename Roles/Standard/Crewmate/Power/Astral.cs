@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
@@ -103,7 +104,7 @@ public class Astral : RoleBase
         if (!pc.IsInsideMap())
         {
             Vector2 playerPosition = pc.Pos();
-            Vector2 closestSpawnPosition = FastVector2.TryGetClosest(playerPosition, RandomSpawn.SpawnMap.GetSpawnMap().Positions.Values, out Vector2 closest1) ? closest1 : new Vector2(50f, 50f);
+            Vector2 closestSpawnPosition = FastVector2.TryGetClosest(playerPosition, Main.LIMap ? ShipStatus.Instance.AllRooms.Select(x => new Vector2(x.transform.position.x, x.transform.position.y)) : RandomSpawn.SpawnMap.GetSpawnMap().Positions.Values, out Vector2 closest1) ? closest1 : new Vector2(50f, 50f);
             Vector3 closestVentPosition = pc.GetClosestVent()?.transform.position ?? closestSpawnPosition;
             pc.TP(Vector2.Distance(playerPosition, closestVentPosition) < Vector2.Distance(playerPosition, closestSpawnPosition) ? closestVentPosition : closestSpawnPosition);
         }

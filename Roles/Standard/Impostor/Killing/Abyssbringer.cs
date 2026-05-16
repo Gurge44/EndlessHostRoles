@@ -148,13 +148,11 @@ public class Abyssbringer : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (Count++ < 3) return;
-
         Count = 0;
 
         PlayerControl abyssbringer = AbyssbringerId.GetPlayer();
-        int count = BlackHoles.Count;
 
-        for (var i = 0; i < count; i++)
+        for (int i = BlackHoles.Count - 1; i >= 0; i--)
         {
             BlackHoleData blackHole = BlackHoles[i];
 
@@ -182,6 +180,7 @@ public class Abyssbringer : RoleBase
 
                 if (FastVector2.DistanceWithinRange(pos, blackHole.Position, BlackHoleRadius.GetFloat()) && !nearestPlayer.Is(CustomRoles.Pestilence))
                 {
+                    nearestPlayer.SetRealKiller(abyssbringer);
                     nearestPlayer.RpcExileV2();
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
                     blackHole.PlayersConsumed++;
@@ -190,7 +189,6 @@ public class Abyssbringer : RoleBase
 
                     PlayerState state = Main.PlayerStates[nearestPlayer.PlayerId];
                     state.deathReason = PlayerState.DeathReason.Consumed;
-                    state.RealKiller = (DateTime.Now, AbyssbringerId);
                     state.SetDead();
 
                     Utils.AfterPlayerDeathTasks(nearestPlayer);
@@ -204,8 +202,6 @@ public class Abyssbringer : RoleBase
             void RemoveBlackHole()
             {
                 BlackHoles.RemoveAt(i);
-                i--;
-                count--;
                 blackHole.NetObject.Despawn();
                 Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i);
                 Notify();

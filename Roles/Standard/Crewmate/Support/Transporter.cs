@@ -74,7 +74,7 @@ internal class Transporter : RoleBase
             if (firstTarget == null || !firstTarget.IsAlive())
             {
                 FirstSwapTarget.Remove(shapeshifter.PlayerId);
-                shapeshifter.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), Translator.GetString("ErrorTeleport")));
+                shapeshifter.Notify(CustomRoles.Impostor.ColoredTextByRole(Translator.GetString("ErrorTeleport")));
                 return false;
             }
 
@@ -85,8 +85,8 @@ internal class Transporter : RoleBase
             firstTarget.RPCPlayCustomSound("Teleport");
             target.RPCPlayCustomSound("Teleport");
 
-            firstTarget.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Transporter), string.Format(Translator.GetString("TeleportedByTransporter"), target.GetRealName())));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Transporter), string.Format(Translator.GetString("TeleportedByTransporter"), firstTarget.GetRealName())));
+            firstTarget.Notify(CustomRoles.Transporter.ColoredTextByRole(string.Format(Translator.GetString("TeleportedByTransporter"), target.GetRealName())));
+            target.Notify(CustomRoles.Transporter.ColoredTextByRole(string.Format(Translator.GetString("TeleportedByTransporter"), firstTarget.GetRealName())));
 
             FirstSwapTarget.Remove(shapeshifter.PlayerId);
             shapeshifter.RpcRemoveAbilityUse();

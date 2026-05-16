@@ -1079,7 +1079,7 @@ internal static class EAC
             }
             case 2:
             {
-                Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), PlayerControl.LocalPlayer.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC")));
+                Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), PlayerControl.LocalPlayer.PlayerId, CustomRoles.Impostor.ColoredTextByRole(GetString("MessageFromEAC")));
                 break;
             }
             case 3:
@@ -1088,7 +1088,7 @@ internal static class EAC
                     from player in Main.EnumeratePlayerControls()
                     where player.PlayerId != pc?.Data?.PlayerId
                     let message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text)
-                    let title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"))
+                    let title = CustomRoles.Impostor.ColoredTextByRole(GetString("MessageFromEAC"))
                     select new Message(message, player.PlayerId, title)
                 ).SendMultipleMessages(MessageImportance.Low);
                 break;

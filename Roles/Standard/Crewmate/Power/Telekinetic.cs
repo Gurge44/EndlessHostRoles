@@ -204,9 +204,13 @@ public class Telekinetic : RoleBase
         return string.Format(Translator.GetString("Telekinetic.Suffix"), Translator.GetString($"Telekinetic.Mode.{CurrentMode}"));
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return $"<#ffffff>{Timer}</color>{base.GetProgressText(playerId, comms)}";
+        resultText.Append("<#ffffff>")
+            .Append(Timer)
+            .Append("</color>");
+
+        base.GetProgressText(playerId, comms, resultText);
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

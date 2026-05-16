@@ -25,6 +25,8 @@ public class ErrorText : MonoBehaviour
 
     public void Update()
     {
+        if (AllErrors.Count == 0) return;
+        
         AllErrors.ForEach(err => err.IncreaseTimer());
         ErrorData[] ToRemove = AllErrors.Where(err => err.ErrorLevel <= 1 && 30f < err.Timer).ToArray();
 

@@ -41,179 +41,179 @@ internal static class EffectExtenstions
                 switch (effect)
                 {
                     case Effect.ShieldRandomPlayer:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        AddEffectForPlayer(pc, effect);
-                    }
+                        {
+                            PlayerControl pc = PickRandomPlayer();
+                            AddEffectForPlayer(pc, effect);
+                        }
 
                         break;
                     case Effect.ShieldAll:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            AddEffectForPlayer(pc, effect);
-                            NotifyAboutRNG(pc);
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                AddEffectForPlayer(pc, effect);
+                                NotifyAboutRNG(pc);
+                            }
                         }
-                    }
 
                         break;
                     case Effect.TPEveryoneToVents:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            pc.TPToRandomVent();
-                            NotifyAboutRNG(pc);
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                pc.TPToRandomVent();
+                                NotifyAboutRNG(pc);
+                            }
                         }
-                    }
 
                         break;
                     case Effect.PullEveryone:
                         Main.EnumerateAlivePlayerControls().MassTP(randomizer.Pos(), log: true);
                         break;
                     case Effect.Twist:
-                    {
-                        List<byte> changePositionPlayers = [];
-
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || pc.inMovingPlat || GameStates.IsMeeting) continue;
+                            List<byte> changePositionPlayers = [];
 
-                            PlayerControl[] filtered = Main.EnumerateAlivePlayerControls().Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
-                            if (filtered.Length == 0) break;
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                if (changePositionPlayers.Contains(pc.PlayerId) || pc.onLadder || pc.inVent || pc.inMovingPlat || GameStates.IsMeeting) continue;
 
-                            PlayerControl target = filtered.RandomElement();
+                                PlayerControl[] filtered = Main.EnumerateAlivePlayerControls().Where(a => !a.inVent && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                                if (filtered.Length == 0) break;
 
-                            changePositionPlayers.Add(target.PlayerId);
-                            changePositionPlayers.Add(pc.PlayerId);
+                                PlayerControl target = filtered.RandomElement();
 
-                            pc.RPCPlayCustomSound("Teleport");
+                                changePositionPlayers.Add(target.PlayerId);
+                                changePositionPlayers.Add(pc.PlayerId);
 
-                            Vector2 originPs = target.Pos();
-                            target.TP(pc.Pos());
-                            pc.TP(originPs);
+                                pc.RPCPlayCustomSound("Teleport");
 
-                            NotifyAboutRNG(target);
-                            NotifyAboutRNG(pc);
+                                Vector2 originPs = target.Pos();
+                                target.TP(pc.Pos());
+                                pc.TP(originPs);
+
+                                NotifyAboutRNG(target);
+                                NotifyAboutRNG(pc);
+                            }
                         }
-                    }
 
                         break;
                     case Effect.SuperSpeedForRandomPlayer:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        RevertSpeedChangesForPlayer(pc, false);
-                        AddEffectForPlayer(pc, effect);
-                        Main.AllPlayerSpeed[pc.PlayerId] = 5f;
-                        pc.MarkDirtySettings();
-                        NotifyAboutRNG(pc);
-                    }
-
-                        break;
-                    case Effect.SuperSpeedForAll:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
+                            PlayerControl pc = PickRandomPlayer();
                             RevertSpeedChangesForPlayer(pc, false);
                             AddEffectForPlayer(pc, effect);
                             Main.AllPlayerSpeed[pc.PlayerId] = 5f;
+                            pc.MarkDirtySettings();
                             NotifyAboutRNG(pc);
                         }
 
-                        Utils.MarkEveryoneDirtySettings();
-                    }
+                        break;
+                    case Effect.SuperSpeedForAll:
+                        {
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                RevertSpeedChangesForPlayer(pc, false);
+                                AddEffectForPlayer(pc, effect);
+                                Main.AllPlayerSpeed[pc.PlayerId] = 5f;
+                                NotifyAboutRNG(pc);
+                            }
+
+                            Utils.MarkEveryoneDirtySettings();
+                        }
 
                         break;
                     case Effect.FreezeRandomPlayer:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        RevertSpeedChangesForPlayer(pc, false);
-                        AddEffectForPlayer(pc, effect);
-                        Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
-                        pc.MarkDirtySettings();
-                        NotifyAboutRNG(pc);
+                        {
+                            PlayerControl pc = PickRandomPlayer();
+                            RevertSpeedChangesForPlayer(pc, false);
+                            AddEffectForPlayer(pc, effect);
+                            Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
+                            pc.MarkDirtySettings();
+                            NotifyAboutRNG(pc);
 
-                        if (pc.AmOwner)
-                            Achievements.Type.TooCold.CompleteAfterGameEnd();
-                    }
+                            if (pc.AmOwner)
+                                Achievements.Type.TooCold.CompleteAfterGameEnd();
+                        }
 
                         break;
                     case Effect.SuperVisionForRandomPlayer:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        RevertVisionChangesForPlayer(pc, false);
-                        AddEffectForPlayer(pc, effect);
-                        pc.MarkDirtySettings();
-                        NotifyAboutRNG(pc);
-                    }
+                        {
+                            PlayerControl pc = PickRandomPlayer();
+                            RevertVisionChangesForPlayer(pc, false);
+                            AddEffectForPlayer(pc, effect);
+                            pc.MarkDirtySettings();
+                            NotifyAboutRNG(pc);
+                        }
 
                         break;
                     case Effect.SuperVisionForAll:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            RevertVisionChangesForPlayer(pc, false);
-                            AddEffectForPlayer(pc, effect);
-                            NotifyAboutRNG(pc);
-                        }
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                RevertVisionChangesForPlayer(pc, false);
+                                AddEffectForPlayer(pc, effect);
+                                NotifyAboutRNG(pc);
+                            }
 
-                        Utils.MarkEveryoneDirtySettings();
-                    }
+                            Utils.MarkEveryoneDirtySettings();
+                        }
 
                         break;
                     case Effect.BlindnessForRandomPlayer:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        RevertVisionChangesForPlayer(pc, false);
-                        AddEffectForPlayer(pc, effect);
-                        pc.MarkDirtySettings();
-                        NotifyAboutRNG(pc);
-                    }
-
-                        break;
-                    case Effect.BlindnessForAll:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
+                            PlayerControl pc = PickRandomPlayer();
                             RevertVisionChangesForPlayer(pc, false);
                             AddEffectForPlayer(pc, effect);
+                            pc.MarkDirtySettings();
                             NotifyAboutRNG(pc);
                         }
 
-                        Utils.MarkEveryoneDirtySettings();
-                    }
+                        break;
+                    case Effect.BlindnessForAll:
+                        {
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                RevertVisionChangesForPlayer(pc, false);
+                                AddEffectForPlayer(pc, effect);
+                                NotifyAboutRNG(pc);
+                            }
+
+                            Utils.MarkEveryoneDirtySettings();
+                        }
 
                         break;
                     case Effect.AllKCDsReset:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            if (pc.HasKillButton() && pc.CanUseKillButton())
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                             {
-                                pc.SetKillCooldown();
-                                NotifyAboutRNG(pc);
+                                if (pc.HasKillButton() && pc.CanUseKillButton())
+                                {
+                                    pc.SetKillCooldown();
+                                    NotifyAboutRNG(pc);
+                                }
                             }
                         }
-                    }
 
                         break;
                     case Effect.AllKCDsTo0:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            if (pc.HasKillButton() && pc.CanUseKillButton())
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                             {
-                                pc.SetKillCooldown(0.1f);
-                                NotifyAboutRNG(pc);
+                                if (pc.HasKillButton() && pc.CanUseKillButton())
+                                {
+                                    pc.SetKillCooldown(0.1f);
+                                    NotifyAboutRNG(pc);
+                                }
                             }
                         }
-                    }
 
                         break;
                     case Effect.Meeting when TimeSinceLastMeeting.Elapsed.TotalSeconds > Math.Max(Main.NormalOptions.EmergencyCooldown, 30):
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        pc.CmdReportDeadBody(null);
-                    }
+                        {
+                            PlayerControl pc = PickRandomPlayer();
+                            pc.CmdReportDeadBody(null);
+                        }
 
                         break;
                     case Effect.Rift:
@@ -253,80 +253,80 @@ internal static class EffectExtenstions
                         Tornado.SpawnTornado(PickRandomPlayer());
                         break;
                     case Effect.RevertToBaseRole when TimeSinceLastMeeting.Elapsed.TotalSeconds > 40f: // To make this less frequent than the others
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        if (pc.PlayerId == randomizer.PlayerId) break;
-
-                        pc.RpcSetCustomRole(pc.GetCustomRole().GetErasedRole());
-                        pc.SyncSettings();
-                        NotifyAboutRNG(pc);
-                    }
-
-                        break;
-                    case Effect.InvertControls:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
-                            RevertSpeedChangesForPlayer(pc, false);
-                            AddEffectForPlayer(pc, effect);
-                            Main.AllPlayerSpeed[pc.PlayerId] = -AllPlayerDefaultSpeed[pc.PlayerId];
+                            PlayerControl pc = PickRandomPlayer();
+                            if (pc.PlayerId == randomizer.PlayerId) break;
+
+                            pc.RpcSetCustomRole(pc.GetCustomRole().GetErasedRole());
+                            pc.SyncSettings();
                             NotifyAboutRNG(pc);
                         }
 
-                        Utils.MarkEveryoneDirtySettings();
-                    }
+                        break;
+                    case Effect.InvertControls:
+                        {
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                RevertSpeedChangesForPlayer(pc, false);
+                                AddEffectForPlayer(pc, effect);
+                                Main.AllPlayerSpeed[pc.PlayerId] = -AllPlayerDefaultSpeed[pc.PlayerId];
+                                NotifyAboutRNG(pc);
+                            }
+
+                            Utils.MarkEveryoneDirtySettings();
+                        }
 
                         break;
                     case Effect.AddonAssign:
-                    {
-                        CustomRoles[] addons = Main.CustomRoleValues.Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
-                        PlayerControl pc = PickRandomPlayer();
-                        CustomRoles addon = addons.RandomElement();
-                        if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
+                        {
+                            CustomRoles[] addons = Main.CustomRoleValues.Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
+                            PlayerControl pc = PickRandomPlayer();
+                            CustomRoles addon = addons.RandomElement();
+                            if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
 
-                        Main.PlayerStates[pc.PlayerId].SetSubRole(addon);
-                        pc.MarkDirtySettings();
-                        NotifyAboutRNG(pc);
-                    }
+                            Main.PlayerStates[pc.PlayerId].SetSubRole(addon);
+                            pc.MarkDirtySettings();
+                            NotifyAboutRNG(pc);
+                        }
 
                         break;
                     case Effect.AddonRemove:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        List<CustomRoles> addons = Main.PlayerStates[pc.PlayerId].SubRoles;
-                        if (addons.Count == 0) break;
+                        {
+                            PlayerControl pc = PickRandomPlayer();
+                            List<CustomRoles> addons = Main.PlayerStates[pc.PlayerId].SubRoles;
+                            if (addons.Count == 0) break;
 
-                        CustomRoles addon = addons.RandomElement();
-                        Main.PlayerStates[pc.PlayerId].RemoveSubRole(addon);
-                        pc.MarkDirtySettings();
-                        NotifyAboutRNG(pc);
-                    }
+                            CustomRoles addon = addons.RandomElement();
+                            Main.PlayerStates[pc.PlayerId].RemoveSubRole(addon);
+                            pc.MarkDirtySettings();
+                            NotifyAboutRNG(pc);
+                        }
 
                         break;
                     case Effect.HandcuffRandomPlayer:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        AddEffectForPlayer(pc, effect);
-                        pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
-                        NotifyAboutRNG(pc);
-                    }
-
-                        break;
-                    case Effect.HandcuffAll:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                         {
+                            PlayerControl pc = PickRandomPlayer();
                             AddEffectForPlayer(pc, effect);
                             pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
                             NotifyAboutRNG(pc);
                         }
-                    }
+
+                        break;
+                    case Effect.HandcuffAll:
+                        {
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                            {
+                                AddEffectForPlayer(pc, effect);
+                                pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
+                                NotifyAboutRNG(pc);
+                            }
+                        }
 
                         break;
                     case Effect.DonutForAll:
-                    {
-                        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls()) DonutDelivery.RandomNotifyTarget(pc);
-                    }
+                        {
+                            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls()) DonutDelivery.RandomNotifyTarget(pc);
+                        }
 
                         break;
                     case Effect.AllDoorsOpen:
@@ -345,24 +345,24 @@ internal static class EffectExtenstions
 
                         break;
                     case Effect.Patrol:
-                    {
-                        PlayerControl pc = PickRandomPlayer();
-                        var state = new PatrollingState(pc.PlayerId, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), RandomFloat, pc);
-                        Sentinel.PatrolStates.Add(state);
-                        state.StartPatrolling();
-                    }
+                        {
+                            PlayerControl pc = PickRandomPlayer();
+                            var state = new PatrollingState(pc.PlayerId, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), RandomFloat, pc);
+                            Sentinel.PatrolStates.Add(state);
+                            state.StartPatrolling();
+                        }
 
                         break;
                     case Effect.GhostPlayer when TimeSinceLastMeeting.Elapsed.TotalSeconds > Options.AdjustedDefaultKillCooldown:
-                    {
-                        PlayerControl killer = PickRandomPlayer();
-                        PlayerControl[] allPc = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != killer.PlayerId).ToArray();
-                        if (allPc.Length == 0) break;
+                        {
+                            PlayerControl killer = PickRandomPlayer();
+                            PlayerControl[] allPc = Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != killer.PlayerId).ToArray();
+                            if (allPc.Length == 0) break;
 
-                        PlayerControl target = allPc.RandomElement();
-                        Lightning.CheckLightningMurder(killer, target, true);
-                        NotifyAboutRNG(target);
-                    }
+                            PlayerControl target = allPc.RandomElement();
+                            Lightning.CheckLightningMurder(killer, target, true);
+                            NotifyAboutRNG(target);
+                        }
 
                         break;
                     case Effect.Camouflage when TimeSinceLastMeeting.Elapsed.TotalSeconds > Camouflager.CamouflageCooldown.GetFloat():
@@ -373,33 +373,33 @@ internal static class EffectExtenstions
                         LateTask.New(camouflager.OnReportDeadBody, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), "Randomizer Revert Camo");
                         break;
                     case Effect.Deathpact:
-                    {
-                        var deathpact = new Deathpact();
-                        deathpact.Init();
-                        deathpact.Add(randomizer.PlayerId);
-                        deathpact.OnShapeshift(randomizer, PickRandomPlayer(), true);
-                    }
+                        {
+                            var deathpact = new Deathpact();
+                            deathpact.Init();
+                            deathpact.Add(randomizer.PlayerId);
+                            deathpact.OnShapeshift(randomizer, PickRandomPlayer(), true);
+                        }
 
                         break;
                     case Effect.DevourRandomPlayer:
-                    {
-                        var devourer = new Devourer();
-                        devourer.Init();
-                        devourer.Add(randomizer.PlayerId);
-                        devourer.OnShapeshift(randomizer, PickRandomPlayer(), true);
-                    }
+                        {
+                            var devourer = new Devourer();
+                            devourer.Init();
+                            devourer.Add(randomizer.PlayerId);
+                            devourer.OnShapeshift(randomizer, PickRandomPlayer(), true);
+                        }
 
                         break;
                     case Effect.Duel:
-                    {
-                        PlayerControl pc1 = PickRandomPlayer();
-                        PlayerControl[] allPc = Main.EnumerateAlivePlayerControls().Where(x => x.CanUseKillButton() && x.PlayerId != pc1.PlayerId).ToArray();
-                        if (allPc.Length == 0) break;
+                        {
+                            PlayerControl pc1 = PickRandomPlayer();
+                            PlayerControl[] allPc = Main.EnumerateAlivePlayerControls().Where(x => x.CanUseKillButton() && x.PlayerId != pc1.PlayerId).ToArray();
+                            if (allPc.Length == 0) break;
 
-                        PlayerControl pc2 = allPc.RandomElement();
-                        var duellist = new Duellist();
-                        duellist.OnShapeshift(pc1, pc2, true);
-                    }
+                            PlayerControl pc2 = allPc.RandomElement();
+                            var duellist = new Duellist();
+                            duellist.OnShapeshift(pc1, pc2, true);
+                        }
 
                         break;
                     default:
@@ -472,13 +472,14 @@ internal class Randomizer : RoleBase
 
     public static Stopwatch TimeSinceLastMeeting;
     private static Dictionary<byte, long> LastTP = [];
+    private static readonly List<Effect> ToRemoveEffects = [];
     private static long LastDeathEffect;
 
     public static bool Exists;
 
     private static int Id => 643490;
 
-    private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
+    private static string RNGString => CustomRoles.Randomizer.ColoredTextByRole(Translator.GetString("RNGHasSpoken"));
 
     public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
 
@@ -567,7 +568,7 @@ internal class Randomizer : RoleBase
                 Effect effect = PickRandomEffect();
                 effect.Apply(pc);
             }
-            
+
             _ = new CountdownTimer(EffectFrequency, OnElapsed, cancelOnMeeting: false);
         }
     }
@@ -579,7 +580,7 @@ internal class Randomizer : RoleBase
 
     public static PlayerControl PickRandomPlayer()
     {
-        var allPc = Main.AllAlivePlayerControls;
+        var allPc = Main.CachedAlivePlayerControls();
         if (allPc.Count == 0) return null;
 
         PlayerControl pc = allPc.RandomElement();
@@ -673,7 +674,7 @@ internal class Randomizer : RoleBase
         Bombs.Clear();
         Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList[0], 2);
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             RevertSpeedChangesForPlayer(pc, false);
             RevertVisionChangesForPlayer(pc, false);
@@ -743,24 +744,29 @@ internal class Randomizer : RoleBase
     {
         try
         {
-            if (!Exists || pc == null || !pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted) return;
+            if (!Exists || !pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted) return;
+            if (!CurrentEffects.TryGetValue(pc.PlayerId, out var effects) || effects.Count == 0) return;
 
-            if (CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects))
+            long now = Utils.TimeStamp;
+            ToRemoveEffects.Clear();
+
+            var enumerator = effects.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                long now = Utils.TimeStamp;
+                var pair = enumerator.Current;
+                var effect = pair.Key;
+                var (StartTimeStamp, Duration) = pair.Value;
 
-                foreach (KeyValuePair<Effect, (long StartTimeStamp, int Duration)> item in effects.ToArray())
+                if (StartTimeStamp + Duration < now)
                 {
-                    if (item.Value.StartTimeStamp + item.Value.Duration < now)
-                    {
-                        if (item.Key.IsVisionChangingEffect()) RevertVisionChangesForPlayer(pc, true);
-
-                        if (item.Key.IsSpeedChangingEffect()) RevertSpeedChangesForPlayer(pc, true);
-
-                        effects.Remove(item.Key);
-                    }
+                    ToRemoveEffects.Add(effect);
+                    if (effect.IsVisionChangingEffect()) RevertVisionChangesForPlayer(pc, true);
+                    if (effect.IsSpeedChangingEffect()) RevertSpeedChangesForPlayer(pc, true);
                 }
             }
+
+            for (int i = 0; i < ToRemoveEffects.Count; i++)
+                effects.Remove(ToRemoveEffects[i]);
         }
         catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }

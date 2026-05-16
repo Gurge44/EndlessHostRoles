@@ -1,5 +1,8 @@
 using System;
 using AmongUs.GameOptions;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using InnerNet;
 
 namespace EHR.Modules;
 
@@ -37,5 +40,34 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
     public override IGameOptions BuildGameOptions()
     {
         return BasedGameOptions;
+    }
+    
+    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    {
+        DataFlagRateLimiter.Enqueue(() =>
+        {
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+
+            writer.StartMessage(5);
+            {
+                writer.Write(AmongUsClient.Instance.GameId);
+
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(GameManager.Instance.NetId);
+                    writer.StartMessage(logicOptionsIndex);
+                    {
+                        writer.WriteBytesAndSize(optionArray);
+                    }
+                    writer.EndMessage();
+                }
+                writer.EndMessage();
+            }
+
+            writer.EndMessage();
+
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+        });
     }
 }

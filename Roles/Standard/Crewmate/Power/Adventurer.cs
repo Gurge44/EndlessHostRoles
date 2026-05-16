@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace EHR.Roles;
 
 internal class Adventurer : RoleBase
 {
+    private static readonly Weapon[] AllWeapon = Enum.GetValues<Weapon>();
+    private static readonly Resource[] AllResource = Enum.GetValues<Resource>();
     public enum Resource
     {
         TaskCompletion,
@@ -82,7 +84,14 @@ internal class Adventurer : RoleBase
 
     private static void HideObject(Resource resource)
     {
-        CustomNetObject.AllObjects.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
+        for (int objIndex = 0; objIndex < CustomNetObject.AllObjects.Count; objIndex++)
+        {
+            if (CustomNetObject.AllObjects[objIndex] is AdventurerItem item && item.Resource == resource)
+            {
+                item.Despawn();
+                break;
+            }
+        }
     }
 
     private static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon)
@@ -98,7 +107,7 @@ internal class Adventurer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        foreach (Weapon weapon in Enum.GetValues<Weapon>()) WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
+        foreach (Weapon weapon in AllWeapon) WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
     }
 
     public override void Add(byte playerId)
@@ -118,7 +127,7 @@ internal class Adventurer : RoleBase
         LastGroupingResourceTimeStamp = Utils.TimeStamp + 30;
         ResourceLocations = [];
 
-        foreach (Resource resource in Enum.GetValues<Resource>()) ResourceCounts[resource] = 0;
+        foreach (Resource resource in AllResource) ResourceCounts[resource] = 0;
     }
 
     public override void Init()
@@ -187,11 +196,11 @@ internal class Adventurer : RoleBase
 
                 switch (ActiveWeapons[0])
                 {
-                    case Weapon.Gun when target != null:
+                    case Weapon.Gun when target:
                         pc.RpcCheckAndMurder(target);
                         RemoveAndNotify();
                         break;
-                    case Weapon.Shield when target != null:
+                    case Weapon.Shield when target:
                         ShieldedPlayers.Add(target.PlayerId);
                         RemoveAndNotify();
                         break;
@@ -213,8 +222,7 @@ internal class Adventurer : RoleBase
                     case Weapon.Wrench:
                         if (Utils.IsActive(SystemTypes.Electrical))
                         {
-                            var switchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.CastFast<SwitchSystem>();
-
+                            var switchSystem = ShipStatusSystem.SwitchSystem;
                             if (switchSystem != null)
                             {
                                 switchSystem.ActualSwitches = 0;
@@ -279,7 +287,7 @@ internal class Adventurer : RoleBase
             return;
         }
 
-        if (LastRandomResourceTimeStamp + 20 <= now && pc.PlayerId != AdventurerPC.PlayerId && IRandom.Instance.Next(50) == 0)
+        if (LastRandomResourceTimeStamp + 20 <= now && pc.PlayerId != AdventurerPC.PlayerId && IRandom.Instance.Next(500) == 0)
         {
             if (ResourceLocations.TryGetValue(Resource.Random, out Vector2 location))
             {
@@ -295,20 +303,37 @@ internal class Adventurer : RoleBase
             Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
         }
 
-        if (LastGroupingResourceTimeStamp + 20 <= now && Main.EnumerateAlivePlayerControls().Count(x => x.PlayerId != pc.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pc.Pos(), 2f)) >= 2)
+        if (LastGroupingResourceTimeStamp + 20 <= now)
         {
-            if (ResourceLocations.TryGetValue(Resource.Grouping, out Vector2 location))
+            Vector2 pcPos = pc.Pos();
+            int nearbyCount = 0;
+
+            var alivePlayers = Main.CachedAlivePlayerControls();
+
+            for (int aliveIndex = 0; aliveIndex < alivePlayers.Count; aliveIndex++)
             {
-                LocateArrow.Remove(AdventurerPC.PlayerId, location);
-                HideObject(Resource.Grouping);
+                PlayerControl alive = alivePlayers[aliveIndex];
+                if (alive.PlayerId == pc.PlayerId) continue;
+                if (!FastVector2.DistanceWithinRange(alive.Pos(), pcPos, 2f)) continue;
+
+                nearbyCount++;
+                if (nearbyCount >= 2) break;
             }
 
-            Vector2 pos = pc.Pos();
-            LocateArrow.Add(AdventurerPC.PlayerId, pos);
-            ResourceLocations[Resource.Grouping] = pos;
-            _ = new AdventurerItem(pos, Resource.Grouping, [AdventurerPC.PlayerId]);
-            LastGroupingResourceTimeStamp = now;
-            Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
+            if (nearbyCount >= 2)
+            {
+                if (ResourceLocations.TryGetValue(Resource.Grouping, out Vector2 location))
+                {
+                    LocateArrow.Remove(AdventurerPC.PlayerId, location);
+                    HideObject(Resource.Grouping);
+                }
+
+                LocateArrow.Add(AdventurerPC.PlayerId, pcPos);
+                ResourceLocations[Resource.Grouping] = pcPos;
+                _ = new AdventurerItem(pcPos, Resource.Grouping, [AdventurerPC.PlayerId]);
+                LastGroupingResourceTimeStamp = now;
+                Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
+            }
         }
     }
 
@@ -420,7 +445,7 @@ internal class Adventurer : RoleBase
         if ((seer.IsModdedClient() && !hud) || seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
         IEnumerable<string> resources =
-            from resource in Enum.GetValues<Resource>()
+            from resource in AllResource
             let displayData = ResourceDisplayData[resource]
             select $"{Utils.ColorString(displayData.Color, $"{displayData.Icon}")}{ResourceCounts[resource]}";
 

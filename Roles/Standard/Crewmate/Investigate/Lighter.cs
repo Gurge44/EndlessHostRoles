@@ -75,15 +75,10 @@ internal class Lighter : RoleBase
                 opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionNormal.GetFloat());
         }
     }
-
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var progressText = new StringBuilder();
-
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null));
-        progressText.Append(Utils.GetTaskCount(playerId, comms));
-
-        return progressText.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

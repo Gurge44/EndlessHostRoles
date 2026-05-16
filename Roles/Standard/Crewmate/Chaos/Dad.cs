@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using Hazel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using static EHR.Roles.Adventurer;
 
 namespace EHR.Roles;
 
@@ -54,6 +55,8 @@ public class Dad : RoleBase
     private float StartingSpeed;
     private long SuperVisionTS;
     public HashSet<Ability> UsingAbilities;
+    private readonly StringBuilder Suffix = new();
+    private static readonly Ability[] AllAbility = Enum.GetValues<Ability>();
 
     public override bool IsEnable => On;
 
@@ -116,16 +119,14 @@ public class Dad : RoleBase
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Percent);
 
-        Ability[] abilities = Enum.GetValues<Ability>();
-
-        foreach (Ability ability in abilities)
+        foreach (Ability ability in AllAbility)
         {
             AbilityAlcoholDecreaseOptions[ability] = new IntegerOptionItem(++id, $"Dad.{ability}.AlcoholDecrease", new(0, 100, 1), 10, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
         }
 
-        foreach (Ability ability in abilities)
+        foreach (Ability ability in AllAbility)
         {
             AbilityAlcoholRequirement[ability] = new IntegerOptionItem(++id, $"Dad.{ability}.AlcoholRequirement", new(0, 100, 1), ability == Ability.BecomeGodOfAlcohol ? 40 : (int)ability * 5, tab)
                 .SetParent(parent)
@@ -227,7 +228,7 @@ public class Dad : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        SelectedAbility = (Ability)(((int)SelectedAbility + 1) % Enum.GetValues<Ability>().Length);
+        SelectedAbility = (Ability)(((int)SelectedAbility + 1) % AllAbility.Length);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
@@ -437,37 +438,36 @@ public class Dad : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
         if (FastVector2.DistanceWithinRange(seer.Pos(), Shop.transform.position, 2f))
         {
             float canBuyAmount = seer.GetAbilityUseLimit() / AlcoholCost.GetInt();
-            sb.Append(string.Format(Translator.GetString("Dad.ShopSuffix"), canBuyAmount));
+            Suffix.AppendFormat(Translator.GetString("Dad.ShopSuffix"), canBuyAmount);
         }
 
         if (Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
         {
-            if (sb.Length > 0) sb.Append('\n');
-            sb.Append(string.Format(Translator.GetString("Dad.LowAlcoholSuffix"), Alcohol));
+            if (Suffix.Length > 0) Suffix.Append('\n');
+            Suffix.AppendFormat(Translator.GetString("Dad.LowAlcoholSuffix"), Alcohol);
         }
 
         if (Arrows.Length > 0)
         {
-            if (sb.Length > 0) sb.Append('\n');
-
-            sb.Append(Arrows);
+            if (Suffix.Length > 0) Suffix.Append('\n');
+            Suffix.Append(Arrows);
         }
 
-        if (sb.Length > 0) sb.Append("\n\n<size=70%>");
+        if (Suffix.Length > 0) Suffix.Append("\n\n<size=70%>");
 
-        sb.Append(string.Format(Translator.GetString("Dad.ShopLocation"), Shop.name));
-        sb.Append('\n');
-        sb.Append(string.Format(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}")));
-        sb.Append('\n');
-        sb.Append(Translator.GetString($"Dad.{SelectedAbility}.Description"));
-        sb.Append("</size>");
+        Suffix.AppendFormat(Translator.GetString("Dad.ShopLocation"), Shop.name)
+            .Append('\n')
+            .AppendFormat(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}"))
+            .Append('\n')
+            .Append(Translator.GetString($"Dad.{SelectedAbility}.Description"))
+            .Append("</size>");
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

@@ -192,7 +192,7 @@ public class WeaponMaster : RoleBase
                 {
                     foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                     {
-                        if (Pelican.IsEaten(player.PlayerId) || player == killer || target == player || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.Contains(target.PlayerId)) continue;
+                        if (player == killer || target == player || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.Contains(target.PlayerId)) continue;
 
                         if (FastVector2.DistanceWithinRange(killer.Pos(), player.Pos(), Radius.GetFloat()))
                             player.Suicide(PlayerState.DeathReason.Kill, killer);
@@ -238,9 +238,9 @@ public class WeaponMaster : RoleBase
         if (Mode == 2) pc?.MyPhysics?.RpcExitVent(vent.Id);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return !playerId.IsPlayerModdedClient() ? GetHudAndProgressText(playerId) : string.Empty;
+        if (!playerId.IsPlayerModdedClient()) resultText.Append(GetHudAndProgressText(playerId));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

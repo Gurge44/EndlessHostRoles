@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 
@@ -108,9 +109,9 @@ public class SoulCollector : RoleBase
         {
             var sender = CustomRpcSender.Create("SoulCollector Post Exile", SendOption.Reliable);
             sender.StartMessage();
-            List<PlayerControl> toExile = ToExile.ToValidPlayers();
+            PlayerControl[] toExile = ToExile.ToValidPlayers().ToArray();
             ToExile = [];
-            toExile.ForEach(x =>
+            toExile.Do(x =>
             {
                 Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 sender.RpcExiled(x, autoStartRpc: false);

@@ -70,7 +70,7 @@ internal class Rabbit : RoleBase
 
         public string Suffix => !GameStates.IsInTask || !HasArrow
             ? string.Empty
-            : Utils.ColorString(Utils.GetRoleColor(CustomRoles.Rabbit), LocateArrow.GetArrows(Player));
+            : CustomRoles.Rabbit.ColoredTextByRole(LocateArrow.GetArrows(Player));
 
         public void OnTaskComplete()
         {

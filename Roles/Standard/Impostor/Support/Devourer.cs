@@ -83,15 +83,15 @@ public class Devourer : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
+        if (!shapeshifting || !pc.IsAliveWithConditions()) return false;
 
         if (!PlayerSkinsCosumed.Contains(target.PlayerId))
         {
             if (!Camouflage.IsCamouflage) SetSkin(target, ConsumedOutfit);
 
             PlayerSkinsCosumed.Add(target.PlayerId);
-            pc.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Devourer), GetString("DevourerEatenSkin")));
-            target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Devourer), GetString("EatenByDevourer")));
+            pc.Notify(CustomRoles.Devourer.ColoredTextByRole(GetString("DevourerEatenSkin")));
+            target.Notify(CustomRoles.Devourer.ColoredTextByRole(GetString("EatenByDevourer")));
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
 
@@ -107,18 +107,27 @@ public class Devourer : RoleBase
         return false;
     }
 
-    public static void OnDevourerDied(byte Devourer)
+    public static void OnDevourerDied(byte devourer)
     {
-        if (Main.PlayerStates[Devourer].Role is not Devourer { IsEnable: true } dv) return;
+        if (Main.PlayerStates[devourer].Role is not Devourer { IsEnable: true } dv) return;
 
-        foreach (byte player in dv.PlayerSkinsCosumed.ToArray())
+        var alivePlayers = Main.CachedAlivePlayerControls();
+        foreach (byte player in dv.PlayerSkinsCosumed)
         {
             Camouflage.PlayerSkins[player] = OriginalPlayerSkins[player];
 
             if (!Camouflage.IsCamouflage)
             {
-                PlayerControl pc = Main.EnumerateAlivePlayerControls().FirstOrDefault(a => a.PlayerId == player);
-                if (pc == null) continue;
+                PlayerControl pc = null;
+                for (int i = 0; i < alivePlayers.Count; i++)
+                {
+                    if (alivePlayers[i].PlayerId == player)
+                    {
+                        pc = alivePlayers[i];
+                        break;
+                    }
+                }
+                if (!pc) continue;
 
                 SetSkin(pc, OriginalPlayerSkins[player]);
             }

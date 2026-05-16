@@ -99,7 +99,7 @@ public class Shadow : CovenBase
         if (Camouflage.IsCamouflage) return false;
 
         OriginalOutfit = Camouflage.PlayerSkins[pc.PlayerId];
-        Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, pc.GetRealName()), 15, "", "", "", "", ""));
+        Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("​", 15, "", "", "", "", ""));
         Utils.NotifyRoles(SpecifyTarget: pc);
 
         SelfTimer = new CountdownTimer(SelfCamoDuration.GetFloat(), () =>
@@ -164,7 +164,7 @@ public class Shadow : CovenBase
 
             TargetId = target.PlayerId;
             OriginalTargetOutfit = Camouflage.PlayerSkins[target.PlayerId];
-            Utils.RpcChangeSkin(target, new NetworkedPlayerInfo.PlayerOutfit().Set(Main.AllPlayerNames.GetValueOrDefault(target.PlayerId, target.GetRealName()), 15, "", "", "", "", ""));
+            Utils.RpcChangeSkin(target, new NetworkedPlayerInfo.PlayerOutfit().Set("​", 15, "", "", "", "", ""));
             Utils.NotifyRoles(SpecifyTarget: target);
 
             OthersCamoTimer = new CountdownTimer(OthersCamoDuration.GetFloat(), () =>

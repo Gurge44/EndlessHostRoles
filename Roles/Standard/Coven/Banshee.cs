@@ -113,7 +113,7 @@ public class Banshee : CovenBase
 
     public override void OnReportDeadBody()
     {
-        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().DoIf(x => x.IsAlive(), x => x.SetChatVisible(false)), 4f, "Set Chat Hidden For Banshee Victims");
+        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().Where(x => x.IsAlive()).ToArray().SetChatVisible(false), 4f, "Set Chat Hidden For Banshee Victims");
 
         PlayerControl pc = BansheeId.GetPlayer();
         

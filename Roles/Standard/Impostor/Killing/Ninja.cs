@@ -174,7 +174,7 @@ internal class Ninja : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAliveWithConditions()) return false;
 
         if (!shapeshifting) return true;
 
@@ -185,14 +185,14 @@ internal class Ninja : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAliveWithConditions()) return false;
 
         if (!IsUndertaker)
         {
             float time = InvisibilityTimeAfterAssassinateOpt.GetFloat();
             PlayerControl target = Utils.GetPlayerById(MarkedPlayer);
 
-            if (time >= 1f && target && target.IsAlive() && !Pelican.IsEaten(target.PlayerId) && !target.inVent && pc.RpcCheckAndMurder(target, check: true))
+            if (time >= 1f && target != null && target.IsAlive() && !Pelican.IsEaten(target.PlayerId) && !target.inVent && pc.RpcCheckAndMurder(target, check: true))
             {
                 pc.RpcMakeInvisible(phantom: true);
 
@@ -239,7 +239,7 @@ internal class Ninja : RoleBase
             PlayerControl target = Utils.GetPlayerById(MarkedPlayer);
             bool tpSuccess = IsUndertaker ? target.TP(pc) : pc.TP(target);
 
-            if (!(!target || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && tpSuccess && pc.RpcCheckAndMurder(target))
+            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && tpSuccess && pc.RpcCheckAndMurder(target))
             {
                 MarkedPlayer = byte.MaxValue;
                 SendRPC(pc.PlayerId);

@@ -66,7 +66,7 @@ public class Swapper : RoleBase
         CNO = null;
     }
 
-    public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
+    public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || pc.GetCustomRole() != CustomRoles.Swapper) return false;
 
@@ -75,9 +75,9 @@ public class Swapper : RoleBase
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true))
             operate = 1;
-        else if (GuessManager.CheckCommand(ref msg, "sw|换票|换|swap|st", false, out spamRequired))
+        else if (GuessManager.CheckCommand(ref msg, "sw|换票|换|swap|st", false))
             operate = 2;
         else
             return false;
@@ -103,9 +103,6 @@ public class Swapper : RoleBase
                     pc.ShowPopUp(GetString("SwapperTrialMax"));
                     return true;
                 }
-
-                if (HideMsg.GetBool() && !isUI && spamRequired && sendCmdWarn)
-                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
 
                 if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
                 {
@@ -218,7 +215,7 @@ public class Swapper : RoleBase
                     state.VotedForId = SwapTargets.Item1;
             }
 
-            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Swapper), GetString("SwapTitle")), importance: MessageImportance.High);
+            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: CustomRoles.Swapper.ColoredTextByRole(GetString("SwapTitle")), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -230,7 +227,7 @@ public class Swapper : RoleBase
         if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
         else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
         
-        SwapMsg(shapeshifter, $"/sw {target.PlayerId}", sendCmdWarn: false);
+        SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
     }
 
     public override void OnReportDeadBody()

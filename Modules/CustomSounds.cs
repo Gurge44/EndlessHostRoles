@@ -18,7 +18,7 @@ public static class CustomSoundsManager
         {
             if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
 
-            if (!pc || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
+            if (!pc || pc.AmOwner)
             {
                 Play(sound, volume, pitch);
                 return;

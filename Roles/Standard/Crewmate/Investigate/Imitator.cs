@@ -78,7 +78,7 @@ public class Imitator : RoleBase
 
     private static void CreateImitatorButton(MeetingHud __instance)
     {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (!pc || pc.IsAlive()) continue;

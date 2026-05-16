@@ -22,6 +22,8 @@ public static class DataFlagRateLimiter
         }
     }
 
+    private static int LastPingMs;
+
     // =========================
     // RELIABLE
     // =========================
@@ -63,14 +65,20 @@ public static class DataFlagRateLimiter
             return qa;
         }
 
+        if (GameStates.IsEnded && !GameStates.IsLobby)
+        {
+            Drop(qa);
+            return qa;
+        }
+
         switch (channel)
         {
             case SendOption.Reliable:
-                EnqueueInternal(ReliableQueue, ref ReliableSent, ReliableTimer, ReliableRateLimitPerSecond, qa);
+                EnqueueInternal(ReliableQueue, ref ReliableSent, ReliableRateLimitPerSecond, qa);
                 break;
 
             case SendOption.None: // Unreliable
-                EnqueueInternal(UnreliableQueue, ref UnreliableSent, UnreliableTimer, UnreliableRateLimitPerSecond, qa);
+                EnqueueInternal(UnreliableQueue, ref UnreliableSent, UnreliableRateLimitPerSecond, qa);
                 break;
         }
 
@@ -91,17 +99,9 @@ public static class DataFlagRateLimiter
     private static void EnqueueInternal(
         Queue<QueuedAction> queue,
         ref int sent,
-        Stopwatch timer,
         int limit,
         QueuedAction qa)
     {
-        // Reset window every second
-        if (timer.ElapsedMilliseconds >= 1000)
-        {
-            timer.Restart();
-            sent = 0;
-        }
-
         // Try immediate execution if no backlog
         if (queue.Count == 0 && sent + qa.Cost <= limit)
         {
@@ -120,8 +120,9 @@ public static class DataFlagRateLimiter
         int limit)
     {
         // Reset window every second
-        if (timer.ElapsedMilliseconds >= 1000)
+        if (timer.ElapsedMilliseconds >= 1000 + Math.Max(0, LastPingMs - AmongUsClient.Instance.Ping))
         {
+            LastPingMs = AmongUsClient.Instance.Ping;
             timer.Restart();
             sent = 0;
         }
@@ -174,18 +175,22 @@ public static class DataFlagRateLimiter
         while (queue.Count > 0)
         {
             var qa = queue.Dequeue();
-
-            try
-            {
-                qa.Cleanup?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-            }
-
-            qa.Dropped = true;
-            qa.Done = true;
+            Drop(qa);
         }
+    }
+
+    private static void Drop(QueuedAction qa)
+    {
+        try
+        {
+            qa.Cleanup?.Invoke();
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
+
+        qa.Dropped = true;
+        qa.Done = true;
     }
 }

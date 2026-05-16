@@ -75,7 +75,7 @@ internal static class ExileControllerWrapUpPatch
 
         Swapper.OnExileFinish();
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             if (pc.Is(CustomRoles.Warlock))
             {
@@ -88,10 +88,10 @@ internal static class ExileControllerWrapUpPatch
             PetsHelper.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
+        if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap)
         {
             var map = RandomSpawn.SpawnMap.GetSpawnMap();
-            Main.EnumerateAlivePlayerControls().Do(player => map.RandomTeleport(player));
+            Main.EnumerateAlivePlayerControls().Do(map.RandomTeleport);
         }
 
         FallFromLadder.Reset();
@@ -159,7 +159,7 @@ internal static class ExileControllerWrapUpPatch
         LateTask.New(() =>
         {
             if (ChatCommands.HasMessageDuringEjectionScreen)
-                ChatManager.ClearChat(Main.AllAlivePlayerControls);
+                ChatManager.ClearChat(Main.CachedAlivePlayerControls());
         }, 3f, log: false);
     }
 

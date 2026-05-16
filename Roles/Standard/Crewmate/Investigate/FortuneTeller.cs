@@ -75,12 +75,13 @@ public class FortuneTeller : RoleBase
 
         LateTask.New(() =>
         {
-            var players = Main.AllPlayerControls;
+            var players = Main.CachedAllPlayerControls();
             int rolesNeeded = players.Count * (RolesPerCategory - 1);
 
             (List<CustomRoles> RoleList, PlayerControl Player)[] roleList = Main.CustomRoleValues
                 .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict and not CustomRoles.NotAssigned && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
-                .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
+                .Shuffle()
+                .OrderByDescending(x => x.IsEnable())
                 .Take(rolesNeeded)
                 .Chunk(RolesPerCategory - 1)
                 .Zip(players, (array, player) => (RoleList: array.ToList(), Player: player))
@@ -109,7 +110,7 @@ public class FortuneTeller : RoleBase
 
         if (player.GetAbilityUseLimit() < 1)
         {
-            Utils.SendMessage(GetString("FortuneTellerCheckReachLimit"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.FortuneTeller), GetString("FortuneTellerCheckMsgTitle")));
+            Utils.SendMessage(GetString("FortuneTellerCheckReachLimit"), player.PlayerId, CustomRoles.FortuneTeller.ColoredTextByRole(GetString("FortuneTellerCheckMsgTitle")));
             return false;
         }
 
@@ -117,7 +118,7 @@ public class FortuneTeller : RoleBase
 
         if (player.PlayerId == target.PlayerId)
         {
-            Utils.SendMessage(GetString("FortuneTellerCheckSelfMsg") + "\n\n" + string.Format(GetString("FortuneTellerCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.FortuneTeller), GetString("FortuneTellerCheckMsgTitle")), importance: MessageImportance.Low);
+            Utils.SendMessage(GetString("FortuneTellerCheckSelfMsg") + "\n\n" + string.Format(GetString("FortuneTellerCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, CustomRoles.FortuneTeller.ColoredTextByRole(GetString("FortuneTellerCheckMsgTitle")), importance: MessageImportance.Low);
             return false;
         }
 
@@ -131,7 +132,7 @@ public class FortuneTeller : RoleBase
             msg = string.Format(GetString("FortuneTellerCheckResult"), target.GetRealName(), roles);
         }
 
-        Utils.SendMessage(GetString("FortuneTellerCheck") + "\n" + msg + "\n\n" + string.Format(GetString("FortuneTellerCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.FortuneTeller), GetString("FortuneTellerCheckMsgTitle")), importance: MessageImportance.High);
+        Utils.SendMessage(GetString("FortuneTellerCheck") + "\n" + msg + "\n\n" + string.Format(GetString("FortuneTellerCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, CustomRoles.FortuneTeller.ColoredTextByRole(GetString("FortuneTellerCheckMsgTitle")), importance: MessageImportance.High);
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;

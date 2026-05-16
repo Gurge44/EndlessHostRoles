@@ -17,13 +17,20 @@ public class Sleep : IAddon
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
         Vector2 pos = pc.Pos();
+        byte pcId = pc.PlayerId;
+        var alivePlayers = Main.CachedAlivePlayerControls();
 
-        if (Main.EnumerateAlivePlayerControls().Any(x => x.Is(CustomRoles.Glow) && FastVector2.DistanceWithinRange(x.Pos(), pos, 1.5f)))
-        {
-            Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Sleep);
+        for (int index = 0; index < alivePlayers.Count; index++)
+        { 
+            PlayerControl target = alivePlayers[index];
+            if (!target.Is(CustomRoles.Glow) || !FastVector2.DistanceWithinRange(target.Pos(), pos, 1.5f)) continue;
+
+            Main.PlayerStates[pcId].RemoveSubRole(CustomRoles.Sleep);
             pc.MarkDirtySettings();
-            
+
             if (pc.AmOwner) Achievements.Type.AlarmClock.Complete();
+
+            return;
         }
     }
 }

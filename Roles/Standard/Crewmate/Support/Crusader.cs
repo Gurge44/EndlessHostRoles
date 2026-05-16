@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 
 namespace EHR.Roles;
@@ -92,7 +93,7 @@ public class Crusader : RoleBase
             return;
         }
 
-        keepGameGoing = ForCrusade.ToValidPlayers().Exists(x => x.IsAlive());
+        keepGameGoing = ForCrusade.ToValidPlayers().Any(x => x.IsAlive());
         countsAs = 1;
     }
 }

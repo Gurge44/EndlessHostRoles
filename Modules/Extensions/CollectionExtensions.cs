@@ -472,7 +472,27 @@ public static class CollectionExtensions
 
         sender.SendMessage(dispose: !hasValue);
     }
-    
+    public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    {
+        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        var hasValue = false;
+
+        for (int index = 0; index < players.Count; index++)
+        {
+            PlayerControl player = players[index];
+            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
+
+            if (sender.stream.Length > 500)
+            {
+                sender.SendMessage();
+                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+                hasValue = false;
+            }
+        }
+
+        sender.SendMessage(dispose: !hasValue);
+    }
+
     #region ToValidPlayers
 
     /// <summary>
@@ -483,16 +503,6 @@ public static class CollectionExtensions
     public static IEnumerable<PlayerControl> ToValidPlayers(this IEnumerable<byte> playerIds)
     {
         return playerIds.Select(Utils.GetPlayer).Where(x => x);
-    }
-
-    /// <summary>
-    ///     Converts a list of player IDs to a list of <see cref="PlayerControl" /> instances
-    /// </summary>
-    /// <param name="playerIds"></param>
-    /// <returns></returns>
-    public static List<PlayerControl> ToValidPlayers(this List<byte> playerIds)
-    {
-        return playerIds.ConvertAll(Utils.GetPlayer).FindAll(x => x);
     }
     
     #endregion

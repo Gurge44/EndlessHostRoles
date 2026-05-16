@@ -90,7 +90,7 @@ internal class Pacifist : RoleBase
                 x.SetKillCooldown();
                 if (Main.PlayerStates[x.PlayerId].Role is Mercenary m) m.OnReportDeadBody();
 
-                x.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Pacifist), Translator.GetString("PacifistSkillNotify")));
+                x.Notify(CustomRoles.Pacifist.ColoredTextByRole(Translator.GetString("PacifistSkillNotify")));
             });
 
         pc.RPCPlayCustomSound("Dove");

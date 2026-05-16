@@ -28,6 +28,7 @@ public class Wildling : RoleBase
     private float ShapeshiftCD;
     private float ShapeshiftDur;
 
+    private readonly StringBuilder Suffix = new();
     private CountdownTimer Timer;
     private byte WildlingId;
 
@@ -156,16 +157,16 @@ public class Wildling : RoleBase
     {
         if (seer.PlayerId != WildlingId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var str = new StringBuilder();
+        Suffix.Clear();
 
         if (Timer != null)
         {
             int remainTime = (int)Math.Ceiling(Timer.Remaining.TotalSeconds);
-            str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
+            Suffix.AppendFormat(Translator.GetString("BKSkillTimeRemain"), remainTime);
         }
         else
-            str.Append(Translator.GetString("BKSkillNotice"));
+            Suffix.Append(Translator.GetString("BKSkillNotice"));
 
-        return str.ToString();
+        return Suffix.ToString();
     }
 }

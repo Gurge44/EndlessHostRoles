@@ -29,7 +29,7 @@ internal class Demolitionist : RoleBase
         if (killer == null || target == null || killer.PlayerId == target.PlayerId || !killer.IsAlive() || !GameStates.IsInTask) return;
         
         string warningMark = Utils.ColorString(Color.yellow, "\u26a0");
-        killer.Notify($"{warningMark} {Utils.ColorString(Utils.GetRoleColor(CustomRoles.Demolitionist), Translator.GetString("OnDemolitionistDead"))} {warningMark}");
+        killer.Notify($"{warningMark} {CustomRoles.Demolitionist.ColoredTextByRole(Translator.GetString("OnDemolitionistDead"))} {warningMark}");
         killer.KillFlash();
 
         LateTask.New(() =>

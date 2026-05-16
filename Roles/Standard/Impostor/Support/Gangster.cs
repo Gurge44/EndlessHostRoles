@@ -110,7 +110,7 @@ public class Gangster : RoleBase
 
         if (killer.GetAbilityUseLimit() < 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Gangster), GetString("GangsterRecruitmentFailure")));
+        killer.Notify(CustomRoles.Gangster.ColoredTextByRole(GetString("GangsterRecruitmentFailure")));
         return true;
     }
 

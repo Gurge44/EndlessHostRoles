@@ -17,6 +17,9 @@ public class Farmer : RoleBase
     private Dictionary<Seed, CountdownTimer> ActiveSeeds;
     private byte FarmerId;
 
+    private static readonly StringBuilder Suffix = new();
+    private static readonly Seed[] AllSeed = Enum.GetValues<Seed>();
+
     private static OptionItem HarvestRange;
     private static OptionItem IncreasedVision;
     private static OptionItem IncreasedVisionDuration;
@@ -60,7 +63,7 @@ public class Farmer : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        Seeds.Add(Enum.GetValues<Seed>().RandomElement());
+        Seeds.Add(AllSeed.RandomElement());
     }
 
     public override void OnPet(PlayerControl pc)
@@ -184,10 +187,11 @@ public class Farmer : RoleBase
     {
         if (seer.PlayerId != FarmerId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        StringBuilder sb = new();
-        sb.AppendLine(Seeds.Count > 0 ? string.Format(Translator.GetString("Farmer.SelectedSeed"), Main.RoleColors[CustomRoles.Farmer], $"<#{GetHexColor(Seeds[0])}>{Translator.GetString($"Farmer.Seed.{Seeds[0]}")}</color>") : string.Format(Translator.GetString("Farmer.CompleteTaskToGetSeed"), Main.RoleColors[CustomRoles.Farmer]));
-        if (Seeds.Count > 1) sb.AppendLine(string.Format(Translator.GetString("Farmer.MoreSeeds"), Seeds.Count - 1));
-        sb.Append(LocateArrow.GetArrows(seer));
-        return sb.ToString().Trim();
+        Suffix.Clear();
+        if (Seeds.Count > 0) Suffix.AppendFormat(Translator.GetString("Farmer.SelectedSeed"), Utils.GetRoleColorCode(CustomRoles.Farmer), $"<#{GetHexColor(Seeds[0])}>{Translator.GetString($"Farmer.Seed.{Seeds[0]}")}</color>").AppendLine();
+        else Suffix.AppendFormat(Translator.GetString("Farmer.CompleteTaskToGetSeed"), Utils.GetRoleColorCode(CustomRoles.Farmer)).AppendLine();
+        if (Seeds.Count > 1) Suffix.AppendFormat(Translator.GetString("Farmer.MoreSeeds"), Seeds.Count - 1).AppendLine();
+        Suffix.Append(LocateArrow.GetArrows(seer));
+        return Suffix.ToString().Trim();
     }
 }

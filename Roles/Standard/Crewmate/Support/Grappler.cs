@@ -61,9 +61,10 @@ public class Grappler : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, GrapplerId, InUse);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + (InUse ? "<#00ff00>\u271a</color>" : string.Empty);
+        base.GetProgressText(playerId, comms, resultText);
+        if (InUse) resultText.Append("<#00ff00>\u271a</color>");
     }
 
     public void ReceiveRPC(MessageReader reader)

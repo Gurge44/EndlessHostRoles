@@ -380,9 +380,9 @@ public static class TextBoxPatch
 
     public static void OnMeetingStart()
     {
-        PlaceHolderText?.transform.SetAsLastSibling();
-        CommandInfoText?.transform.SetAsLastSibling();
-        AdditionalInfoText?.transform.SetAsLastSibling();
+        if (PlaceHolderText) PlaceHolderText.transform.SetAsLastSibling();
+        if (CommandInfoText) CommandInfoText.transform.SetAsLastSibling();
+        if (AdditionalInfoText) AdditionalInfoText.transform.SetAsLastSibling();
     }
 
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.Update))]

@@ -64,7 +64,7 @@ internal static class CustomRoleSelector
         }
 
         var rd = IRandom.Instance;
-        int playerCount = Main.AllAlivePlayerControls.Count;
+        int playerCount = Main.AllAlivePlayerControlsCount;
 
         int optImpNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors);
 
@@ -81,7 +81,7 @@ internal static class CustomRoleSelector
         Dictionary<RoleAssignType, List<RoleAssignInfo>> roles = [];
         Enum.GetValues<RoleAssignType>().Do(x => roles[x] = []);
 
-        foreach (byte id in Main.SetRoles.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetRoles.Remove(id);
+        foreach (byte id in Main.SetRoles.Keys.Where(id => !Utils.GetPlayerById(id)).ToArray()) Main.SetRoles.Remove(id);
 
         (bool Spawning, bool OneIsImp) loversData = (Lovers.LegacyLovers.GetBool(), rd.Next(100) < Lovers.LovingImpostorSpawnChance.GetInt());
         loversData.Spawning &= rd.Next(100) < Options.CustomAdtRoleSpawnRate[CustomRoles.Lovers].GetInt();
@@ -103,6 +103,9 @@ internal static class CustomRoleSelector
 
             switch (role)
             {
+                case CustomRoles.Bargainer when Main.LIMap:
+                case CustomRoles.AntiAdminer when Main.LIMap:
+                case CustomRoles.CameraMan when Main.LIMap:
                 case CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():
@@ -393,7 +396,7 @@ internal static class CustomRoleSelector
 
         void AssignRoleToEveryone(CustomRoles role)
         {
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
@@ -556,7 +559,7 @@ internal static class CustomRoleSelector
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-        foreach (byte id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
+        foreach (byte id in Main.SetAddOns.Keys.Where(id => !Utils.GetPlayerById(id)).ToArray()) Main.SetAddOns.Remove(id);
 
         AddonRolesList = [];
 

@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace EHR;
@@ -72,6 +72,7 @@ internal static class LocateArrow
     {
         ArrowInfo arrowInfo = new(seer, locate);
         List<ArrowInfo> removeList = new(LocateArrows.Keys.Where(k => k.Equals(arrowInfo)));
+        if (removeList.Count == 0) return;
         removeList.ForEach(a => LocateArrows.Remove(a));
 
         Utils.SendRPC(CustomRPC.Arrow, false, 2, seer, locate);
@@ -85,8 +86,8 @@ internal static class LocateArrow
     public static void RemoveAllTarget(byte seer)
     {
         List<ArrowInfo> removeList = new(LocateArrows.Keys.Where(k => k.From == seer));
+        if (removeList.Count == 0) return;
         removeList.ForEach(a => LocateArrows.Remove(a));
-
         Utils.SendRPC(CustomRPC.Arrow, false, 3, seer);
         Logger.Info($"Removed all locate arrows for: {seer} ({seer.GetPlayer()?.GetRealName()})", "LocateArrow");
     }
@@ -113,6 +114,7 @@ internal static class LocateArrow
         return LocateArrows.FirstOrDefault(a => a.Key.Equals(arrowInfo)).Value ?? string.Empty;
     }
 
+    private static readonly List<ArrowInfo> ArrowList = [];
     /// <summary>
     ///     Check target arrow every FixedUpdate
     ///     Issue NotifyRoles when there are updates
@@ -124,13 +126,20 @@ internal static class LocateArrow
 
         bool seerIsDead = !seer.IsAlive();
 
-        List<ArrowInfo> arrowList = new(LocateArrows.Keys.Where(a => a.From == seer.PlayerId));
-        if (arrowList.Count == 0) return;
+        ArrowList.Clear();
+        foreach (var arrowInfo in LocateArrows.Keys)
+        {
+            if (arrowInfo.From == seer.PlayerId)
+                ArrowList.Add(arrowInfo);
+        }
+        int arrowCount = ArrowList.Count;
+        if (arrowCount == 0) return;
 
         var update = false;
 
-        foreach (ArrowInfo arrowInfo in arrowList.ToArray())
+        for (int arrowId = 0; arrowId < arrowCount; arrowId++)
         {
+            ArrowInfo arrowInfo = ArrowList[arrowId];
             Vector3 loc = arrowInfo.To;
 
             if (seerIsDead)

@@ -61,6 +61,7 @@ internal class Capitalist : RoleBase
             taskState.CompletedTasksCount++;
             player.RpcResetTasks(false);
             player.SyncSettings();
+            Main.PlayerStates[player.PlayerId].TaskState.AllTasksCount = player.Data.Tasks.Count;
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             return false;
         }

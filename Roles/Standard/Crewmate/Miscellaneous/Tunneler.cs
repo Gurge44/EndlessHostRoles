@@ -24,14 +24,10 @@ internal class Tunneler : RoleBase
         TunnelerPositions = [];
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var ProgressText = new StringBuilder();
-
-        ProgressText.Append(base.GetProgressText(playerId, comms));
-        if (TunnelerPositions.ContainsKey(playerId)) ProgressText.Append('●');
-
-        return ProgressText.ToString();
+        base.GetProgressText(playerId, comms, resultText);
+        if (TunnelerPositions.ContainsKey(playerId)) resultText.Append('●');
     }
 
     public override void OnPet(PlayerControl pc)

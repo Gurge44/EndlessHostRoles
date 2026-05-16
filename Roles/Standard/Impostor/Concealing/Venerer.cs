@@ -93,7 +93,7 @@ public class Venerer : RoleBase
         {
             case 1:
                 var outfit = Camouflage.PlayerSkins[pc.PlayerId];
-                Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set(Main.AllPlayerNames.GetValueOrDefault(VenererId, pc.GetRealName()), 15, "", "", "", "", ""));
+                Utils.RpcChangeSkin(pc, new NetworkedPlayerInfo.PlayerOutfit().Set("​", 15, "", "", "", "", ""));
                 ChangedSkin = true;
                 Utils.NotifyRoles(SpecifyTarget: pc);
                 LateTask.New(() =>
@@ -181,8 +181,11 @@ public class Venerer : RoleBase
         Stage = reader.ReadPackedInt32();
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + $" ({Stage}/3)";
+        base.GetProgressText(playerId, comms, resultText);
+        resultText.Append(" (")
+            .Append(Stage)
+            .Append("/3)");
     }
 }

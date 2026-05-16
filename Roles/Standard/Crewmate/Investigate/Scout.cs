@@ -98,7 +98,7 @@ public class Scout : RoleBase
 
     public static string GetTargetMark(PlayerControl seer, PlayerControl target)
     {
-        return !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
+        return TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
@@ -124,7 +124,7 @@ public class Scout : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != TrackerId || target != null && seer.PlayerId != target.PlayerId || !TrackerTarget.ContainsKey(seer.PlayerId) || meeting || hud) return string.Empty;
+        if (seer.PlayerId != TrackerId || seer.PlayerId != target.PlayerId || !TrackerTarget.ContainsKey(seer.PlayerId) || meeting || hud) return string.Empty;
         return TrackerTarget[seer.PlayerId].Aggregate(string.Empty, (current, trackTarget) => current + Utils.ColorString(CanGetColoredArrow.GetBool() ? Main.PlayerColors[trackTarget] : Color.white, TargetArrow.GetArrows(seer, trackTarget))) + LocateArrow.GetArrows(seer);
     }
 
@@ -137,15 +137,13 @@ public class Scout : RoleBase
 
     public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
     {
-        if (seer == null || target == null) return string.Empty;
-
         Color roleColor = Utils.GetRoleColor(CustomRoles.Scout);
         string text = Utils.ColorString(roleColor, TargetArrow.GetArrows(seer, target.PlayerId));
         text += Utils.ColorString(roleColor, LocateArrow.GetArrows(seer));
 
         PlainShipRoom room = Main.PlayerStates[target.PlayerId].LastRoom;
 
-        if (room == null)
+        if (!room)
             text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
         else
             text += Utils.ColorString(roleColor, "@" + GetString(room.RoomId.ToString()));
@@ -155,7 +153,7 @@ public class Scout : RoleBase
 
     public static void OnPlayerDeath(PlayerControl player)
     {
-        if (player == null) return;
+        if (!player) return;
 
         foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
         {
@@ -178,7 +176,7 @@ public class Scout : RoleBase
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
 
-                if (pc == null || !pc.IsAlive())
+                if (!pc || !pc.IsAlive())
                 {
                     kvp.Value.Remove(id);
                     TargetArrow.Remove(kvp.Key, id);

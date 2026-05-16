@@ -148,7 +148,7 @@ public class Summoner : CovenBase
                 RPC.PlaySoundRPC(SummonedPlayerId, Sounds.SpawnSound);
                 GhostRolesManager.RemoveGhostRole(SummonedPlayerId);
                 ReportDeadBodyPatch.AlreadyReportedBodies.Remove(SummonedPlayerId);
-                state.IsDead = false;
+                state.SetAlive();
                 ExtendedPlayerControl.TempExiled.Remove(SummonedPlayerId);
                 summoned.RpcSetCustomRole(CustomRoles.SerialKiller);
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);
@@ -253,7 +253,7 @@ public class Summoner : CovenBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (meeting || SummonedPlayerId == byte.MaxValue || SummonedPlayerTimer == null) return string.Empty;
-        if (target.PlayerId == SummonedPlayerId && seer.PlayerId != target.PlayerId && PlayersSeeSummonedPlayerWarning.GetBool()) return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Summoner), Translator.GetString("Summoner.SummonedWarningSuffix"));
+        if (target.PlayerId == SummonedPlayerId && seer.PlayerId != target.PlayerId && PlayersSeeSummonedPlayerWarning.GetBool()) return CustomRoles.Summoner.ColoredTextByRole(Translator.GetString("Summoner.SummonedWarningSuffix"));
         if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
         if (seer.PlayerId == SummonerId) return string.Format(Translator.GetString("Summoner.SelfSuffix"), SummonedPlayerId.ColoredPlayerName(), (int)SummonedPlayerTimer.Remaining.TotalSeconds);
         return seer.PlayerId == SummonedPlayerId ? string.Format(Translator.GetString("Summoner.SummonedPlayerSuffix"), SummonerId.ColoredPlayerName(), CustomRoles.Summoner.ToColoredString(), (int)SummonedPlayerTimer.Remaining.TotalSeconds) : string.Empty;

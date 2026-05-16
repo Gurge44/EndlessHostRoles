@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace EHR.Patches;
@@ -25,7 +23,7 @@ public static class GameOptionsMapPickerPatch
     [HarmonyPrefix]
     public static void Postfix_Prefix(GameOptionsMapPicker __instance)
     {
-        if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == MapNames.Dleks))
+        if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
         {
             __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
             {
@@ -37,7 +35,7 @@ public static class GameOptionsMapPickerPatch
         }
         if (SubmergedCompatibility.Loaded)
         {
-            if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == (MapNames)6))
+            if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
             {
                 __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
                 {
