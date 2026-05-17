@@ -64,6 +64,7 @@ public class Survivor : RoleBase
     {
         On = true;
         ShieldTimer = null;
+        Killing = false;
         SurvivorId = playerId;
     }
 
@@ -86,7 +87,7 @@ public class Survivor : RoleBase
 
         resultText.Append(GetTaskCount(playerId, comms));
 
-        if (CPA < FirstAbility.GetInt())
+        if (CPA <= FirstAbility.GetInt())
             resultText.Append(' ').Append(ColorPrefix(Color.yellow))
                 .Append(GetString("SurvivorCurrentAlive"))
                 .Append(' ').Append(CPA)
@@ -144,7 +145,7 @@ public class Survivor : RoleBase
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
-    { 
+    {
         return !IsThisRole(pc) || pc.GetClosestVent()?.Id == ventId || pc.Is(CustomRoles.Nimble);
     }
 
@@ -172,7 +173,7 @@ public class Survivor : RoleBase
         if (completedTaskCount + 1 >= totalTaskCount)
         {
             Killing = true;
-            pc.RpcChangeRoleBasis(CustomRoles.PhantomEHR);
+            pc.RpcChangeRoleBasis(CustomRoles.Scanner);
             LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -189,6 +190,8 @@ public class Survivor : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return Main.AllAlivePlayerControlsCount <= LastAbility.GetInt();
+        if (Main.AllAlivePlayerControlsCount <= LastAbility.GetInt()) return true;
+        killer.Notify(Translator.GetString("SurvivorCantKillYet"));
+        return false;
     }
 }
