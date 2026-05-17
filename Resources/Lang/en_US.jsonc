@@ -1429,6 +1429,7 @@
   "SurvivorThirdAbility": "Number of players left to get 3rd Ability",
   "SurvivorLastAbility": "Number of players left to get Last Ability",
   "SurvivorCurrentAlive": "- Alive Players:",
+  "SurvivorCantKillYet": "The current number of players is greater than your killing requirement, which means you cannot kill yet.",
   "Swapper": "Swapper",
   "SwapperInfo": "Swap players' votes",
   "SwapperInfoLong": "(Crewmates):\\nAs the Swapper, you can use the command <b>/cmd sw <color=#0000ff>[ID]</color></b> twice to choose 2 players. Those votes received by those 2 players will be swapped.\\nYou can see everyone's <color=#0000ff>ID</color>s next to their name.\\n\\nFor example, if 3 players voted red, and 5 players voted yellow, and you swap red and yellows' IDs, then red will receive 5 votes, and yellow will receive 3 votes.\\n\\nDue to technical difficulties, the Host's original vote will seem unchanged, but it's only visual, their vote will still get swapped.",
