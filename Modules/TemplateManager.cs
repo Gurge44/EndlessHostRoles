@@ -18,7 +18,7 @@ public static class TemplateManager
     private static readonly string TemplateFilePath = $"{Main.DataPath}/EHR_DATA/template.txt";
 
     private static readonly Regex HeaderRegex = new(
-        @"^([a-zA-Z0-9_]+)(?:\[([^\]]*)\])?:\s*(.*)$",
+        @"^([a-zA-Z0-9_]+)(?:\[([^\]""]*(?:""[^""]*""[^\]""]*)*)\])?:\s*(.*)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex PropertyRegex = new(
@@ -36,6 +36,13 @@ public static class TemplateManager
     private const int MaxWeight = 10;
     private const int MinDelay = 1;
     private const int MaxDelay = 30;
+
+    private static readonly Dictionary<string, Regex> RegexCache = new(StringComparer.Ordinal);
+
+    private static Dictionary<string, List<TemplateEntry>> _cachedEntries;
+    private static HashSet<string> _cachedTags;
+    private static Dictionary<string, string> _cachedUserVars;
+    private static DateTime _cacheTimestamp = DateTime.MinValue;
 
     private static readonly Dictionary<string, Func<string>> Placeholders = new()
     {
@@ -84,8 +91,16 @@ public static class TemplateManager
         public HashSet<int> AllowedPresets { get; init; }
         public string PlayerCountOp { get; init; }
         public int PlayerCountVal { get; init; }
+        public string MessagePattern { get; init; }
 
         public bool MatchesContext() => MatchesMap() && MatchesMeeting() && MatchesPlayerCount() && MatchesPreset();
+
+        public bool MatchesMessage(string message)
+        {
+            if (MessagePattern == null) return true;
+            Regex rx = GetOrAddCachedRegex(MessagePattern);
+            return rx != null && rx.IsMatch(message);
+        }
 
         public bool MatchesRole(PlayerControl player)
         {
@@ -121,7 +136,7 @@ public static class TemplateManager
 
         private bool MatchesMap() => AllowedMaps == null || AllowedMaps.Contains(Main.CurrentMap);
         private bool MatchesMeeting() => AllowedMeetings == null || AllowedMeetings.Contains(MeetingStates.MeetingNum);
-        
+
         private bool MatchesPlayerCount()
         {
             if (PlayerCountOp == null) return true;
@@ -137,8 +152,25 @@ public static class TemplateManager
                 _ => true
             };
         }
-
         private bool MatchesPreset() => AllowedPresets == null || AllowedPresets.Contains(OptionItem.CurrentPreset + 1);
+    }
+
+    private static Regex GetOrAddCachedRegex(string pattern)
+    {
+        if (RegexCache.TryGetValue(pattern, out Regex cached)) return cached;
+
+        try
+        {
+            Regex rx = new(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
+            RegexCache[pattern] = rx;
+            return rx;
+        }
+        catch (ArgumentException ex)
+        {
+            Logger.Warn($"Invalid regex pattern '{pattern}': {ex.Message}", "TemplateManager");
+            RegexCache[pattern] = null;
+            return null;
+        }
     }
 
     public static void Init() => CreateIfNotExists();
@@ -237,6 +269,10 @@ public static class TemplateManager
         var props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (string.IsNullOrWhiteSpace(propString)) return props;
 
+        // Extract quoted regex value first to avoid commas inside it confusing the splitter
+        propString = ExtractQuotedProperty(propString, "regex", out string regexVal, out propString);
+        if (regexVal != null) props["regex"] = regexVal;
+
         foreach (string token in propString.Split(','))
         {
             Match m = PropertyRegex.Match(token);
@@ -244,6 +280,22 @@ public static class TemplateManager
         }
 
         return props;
+    }
+
+    // Pulls `key="..."` out of propString, returning the quoted value and the remaining string
+    private static string ExtractQuotedProperty(string input, string key, out string value, out string remaining)
+    {
+        Match m = Regex.Match(input, $@"(?:^|,)\s*{Regex.Escape(key)}\s*=\s*""((?:[^""\\]|\\.)*)""", RegexOptions.IgnoreCase);
+        if (m.Success)
+        {
+            value = Regex.Unescape(m.Groups[1].Value);
+            remaining = (input[..m.Index] + input[(m.Index + m.Length)..]).Trim(',').Trim();
+            return remaining;
+        }
+
+        value = null;
+        remaining = input;
+        return input;
     }
 
     private static TemplateEntry BuildEntry(string tag, string content, Dictionary<string, string> props)
@@ -263,6 +315,7 @@ public static class TemplateManager
         HashSet<int> allowedPresets = null;
         string playerCountOp = null;
         int playerCountVal = 0;
+        string messagePattern = null;
 
         if (props.TryGetValue("weight", out string wStr) && int.TryParse(wStr.TrimStart('='), out int w))
             weight = Math.Clamp(w, 1, MaxWeight);
@@ -310,6 +363,13 @@ public static class TemplateManager
                     allowedPresets.Add(preset);
         }
 
+        if (props.TryGetValue("regex", out string patternStr) && !string.IsNullOrWhiteSpace(patternStr))
+        {
+            messagePattern = patternStr;
+            // Get the cache now at parse time rather than at first match
+            GetOrAddCachedRegex(messagePattern);
+        }
+
         return new TemplateEntry
         {
             Tag = tag,
@@ -323,21 +383,147 @@ public static class TemplateManager
             AllowedRanks = allowedRanks,
             AllowedPresets = allowedPresets,
             PlayerCountOp = playerCountOp,
-            PlayerCountVal = playerCountVal
+            PlayerCountVal = playerCountVal,
+            MessagePattern = messagePattern
         };
     }
 
-    public static HashSet<string> GetAllTags() => ParseTemplateFile("").Tags;
+    public static HashSet<string> GetAllTags() => GetParsedFile().Tags;
 
-    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
+    // Called for every incoming chat message
+    // Finds all entries across all tags whose regex= property matches the raw message and sends them
+    public static void SendTemplateForMessage(string message, byte playerId, MessageImportance importance = MessageImportance.Medium)
     {
-        (List<TemplateEntry> allMatched, HashSet<string> tags, Dictionary<string, string> userVars) = ParseTemplateFile(str);
+        (Dictionary<string, List<TemplateEntry>> entries, _, Dictionary<string, string> userVars) = GetParsedFile();
 
         PlayerControl player = playerId == 0xff
             ? PlayerControl.LocalPlayer
             : Utils.GetPlayerById(playerId);
 
-        if (allMatched.Count == 0)
+        foreach (List<TemplateEntry> bucket in entries.Values)
+        {
+            List<TemplateEntry> eligible = bucket.FindAll(e =>
+                e.MessagePattern != null &&
+                e.MatchesContext() &&
+                e.MatchesMessage(message));
+
+            if (eligible.Count == 0) continue;
+
+            eligible = ApplyFilter(eligible, e => e.AllowedRoles != null, e => e.MatchesRole(player),
+                out _, out _);
+            eligible = ApplyFilter(eligible, e => e.AllowedRanks != null, e => e.MatchesRank(player),
+                out _, out _);
+
+            if (eligible.Count == 0) continue;
+
+            List<TemplateEntry> immediate = eligible.FindAll(e => e.Delay == 0);
+            List<TemplateEntry> delayed = eligible.FindAll(e => e.Delay > 0);
+
+            if (immediate.Count > 0)
+            {
+                bool hasWeights = immediate.Exists(e => e.Weight != 1);
+                if (hasWeights)
+                    Dispatch(ApplyPlaceholders(WeightedPick(immediate).Content, userVars), playerId, importance);
+                else
+                    foreach (TemplateEntry entry in immediate)
+                        Dispatch(ApplyPlaceholders(entry.Content, userVars), playerId, importance);
+            }
+
+            foreach (TemplateEntry entry in delayed)
+            {
+                string content = ApplyPlaceholders(entry.Content, userVars);
+                LateTask.New(() => Dispatch(content, playerId, importance), entry.Delay, log: false);
+            }
+        }
+    }
+
+    public static void InvalidateCache()
+    {
+        _cacheTimestamp = DateTime.MinValue;
+        _cachedEntries = null;
+        _cachedTags = null;
+        _cachedUserVars = null;
+    }
+
+    private static (Dictionary<string, List<TemplateEntry>> Entries, HashSet<string> Tags, Dictionary<string, string> UserVars) GetParsedFile()
+    {
+        CreateIfNotExists();
+
+        DateTime lastWrite = File.GetLastWriteTimeUtc(TemplateFilePath);
+        if (_cachedEntries != null && lastWrite == _cacheTimestamp)
+            return (_cachedEntries, _cachedTags, _cachedUserVars);
+
+        (_cachedEntries, _cachedTags, _cachedUserVars) = ParseTemplateFile();
+        _cacheTimestamp = lastWrite;
+        return (_cachedEntries, _cachedTags, _cachedUserVars);
+    }
+
+    private static (Dictionary<string, List<TemplateEntry>> Entries, HashSet<string> Tags, Dictionary<string, string> UserVars) ParseTemplateFile()
+    {
+        Dictionary<string, List<TemplateEntry>> entries = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> tags = [];
+        Dictionary<string, string> userVars = [];
+        string currentTag = null;
+        Dictionary<string, string> currentProps = null;
+        StringBuilder buffer = new();
+
+        using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
+        while (sr.ReadLine() is { } line)
+        {
+            if (line.TrimStart().StartsWith("#")) continue;
+
+            Match v = UserVariableRegex.Match(line);
+            if (v.Success)
+            {
+                userVars[v.Groups[1].Value] = v.Groups[2].Value.Trim();
+                continue;
+            }
+
+            Match m = HeaderRegex.Match(line);
+            if (m.Success)
+            {
+                Commit();
+                currentTag = m.Groups[1].Value;
+                currentProps = ParseProperties(m.Groups[2].Success ? m.Groups[2].Value : null);
+                buffer.Clear();
+                string inline = m.Groups[3].Value;
+                if (!string.IsNullOrEmpty(inline)) buffer.Append(inline);
+            }
+            else if (currentTag != null)
+            {
+                if (buffer.Length > 0) buffer.Append('\n');
+                buffer.Append(line);
+            }
+        }
+
+        Commit();
+        return (entries, tags, userVars);
+
+        void Commit()
+        {
+            if (currentTag == null) return;
+            TemplateEntry entry = BuildEntry(currentTag, buffer.ToString().TrimEnd(), currentProps);
+            if (!entry.Hidden) tags.Add(currentTag);
+            if (!entries.TryGetValue(currentTag, out List<TemplateEntry> list))
+            {
+                list = [];
+                entries[currentTag] = list;
+            }
+            list.Add(entry);
+        }
+    }
+
+    public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false, MessageImportance importance = MessageImportance.Medium)
+    {
+        (Dictionary<string, List<TemplateEntry>> entries, HashSet<string> tags, Dictionary<string, string> userVars) = GetParsedFile();
+
+        entries.TryGetValue(str, out List<TemplateEntry> allMatched);
+
+        PlayerControl player = playerId == 0xff
+            ? PlayerControl.LocalPlayer
+            : Utils.GetPlayerById(playerId);
+
+        if (allMatched is not { Count: > 0 })
         {
             if (noErr) return;
             string errMsg = string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, string.Join(", ", tags));
@@ -374,7 +560,7 @@ public static class TemplateManager
                         return Enum.TryParse(name, ignoreCase: true, out CustomRoles role)
                             ? GetString(role.ToString())
                             : name;
-                    }))),
+                        }))),
                 (_, true) => string.Format(GetString("Message.TemplateRankRequired"), string.Join('/', rankBlockSource.AllowedRanks)),
                 _ => string.Format(GetString(playerId == 0xff ? "Message.TemplateNotFoundHost" : "Message.TemplateNotFoundClient"), str, string.Join(", ", tags))
             };
