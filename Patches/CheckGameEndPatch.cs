@@ -366,7 +366,7 @@ internal static class GameEndChecker
                         }
                     }
                     
-                    toAdd.ForEach(x => WinnerIds.Add(x));
+                    toAdd?.ForEach(x => WinnerIds.Add(x));
 
                     foreach (CustomRoles role in WinnerRoles) WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.GetCustomRole() == role).Select(x => x.PlayerId));
                 }
