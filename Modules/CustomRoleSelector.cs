@@ -302,7 +302,7 @@ internal static class CustomRoleSelector
         if (Main.GM.Value)
         {
             Logger.Warn("Host: GM", "CustomRoleSelector");
-            allPlayers.RemoveAll(x => x.IsHost());
+            allPlayers.RemoveAll(x => x.AmOwner);
             RoleResult[PlayerControl.LocalPlayer.PlayerId] = CustomRoles.GM;
         }
 
@@ -398,7 +398,7 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
-                if ((Main.GM.Value && pc.IsHost()) || ChatCommands.Spectators.Contains(pc.PlayerId))
+                if ((Main.GM.Value && pc.AmOwner) || ChatCommands.Spectators.Contains(pc.PlayerId))
                 {
                     RoleResult[pc.PlayerId] = CustomRoles.GM;
                     continue;

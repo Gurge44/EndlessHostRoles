@@ -1,6 +1,4 @@
-﻿using AmongUs.GameOptions;
-
-namespace EHR.Roles;
+﻿namespace EHR.Roles;
 
 public class PhantomEHR : RoleBase
 {
@@ -28,7 +26,7 @@ public class PhantomEHR : RoleBase
             if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
             pc.RpcMakeVisible(phantom: true);
             pc.RpcResetAbilityCooldown();
-        }, Main.RealOptionsData.GetFloat(FloatOptionNames.PhantomDuration), "PhantomEHR Appear");
+        }, ImpostorVanillaRoles.PhantomDuration.GetFloat(), "PhantomEHR Appear");
         return false;
     }
 

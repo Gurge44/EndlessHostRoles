@@ -1129,7 +1129,7 @@ internal static class IntroCutsceneDestroyPatch
 
         Main.IntroDestroyed = true;
         PreventKill = true;
-        LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
+        LateTask.New(() => PreventKill = false, Options.StartingKillCooldown?.GetFloat() ?? 10f, "PreventKillReset");
 
         var apc = Main.AllPlayerControlsToList;
 
@@ -1164,7 +1164,7 @@ internal static class IntroCutsceneDestroyPatch
                     }
                     else
                     {
-                        int kcd = Options.StartingKillCooldown.GetInt();
+                        int kcd = Options.StartingKillCooldown?.GetInt() ?? 10;
                         LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd)), 2f, "FixKillCooldownTask");
                     }
                 }

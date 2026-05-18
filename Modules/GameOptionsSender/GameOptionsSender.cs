@@ -87,6 +87,9 @@ public abstract class GameOptionsSender
 
     protected static MessageWriter PackedWriter;
     protected static int PackedWriterMessages;
+    
+    // Currently, a LogicOptions serialize is 155-156 bytes. 11 bytes are needed for the packet headers.
+    // Safe to pack until the length is over 1000, as it's impossible to exceed 1200 with 156 bytes per message.
 
     public static IEnumerator SendDirtyGameOptionsContinuously()
     {
@@ -106,7 +109,7 @@ public abstract class GameOptionsSender
                 {
                     yield return WaitFrameIfNecessary();
 
-                    if (PackedWriter != null && (PackedWriter.Length > 500 || PackedWriterMessages >= AmongUsClient.Instance.GetMaxMessagePackingLimit()))
+                    if (PackedWriter != null && (PackedWriter.Length > 1000 || PackedWriterMessages >= AmongUsClient.Instance.GetMaxMessagePackingLimit()))
                     {
                         PackedWriter.EndMessage();
                         var qa = DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(PackedWriter));

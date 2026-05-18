@@ -184,7 +184,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
-                if (pc == player || pc.AmOwner) continue;
+                if (pc == player || pc.AmOwner || pc.OwnerId < 0) continue;
                 sender.StartMessage(pc.OwnerId);
                 sender.StartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
                     .WriteVector2(player.transform.position)
@@ -1531,7 +1531,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
 
                 sender.StartMessage(pc.OwnerId);
                 sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
@@ -1584,7 +1584,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
 
                 sender.StartMessage(pc.OwnerId);
                 sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
@@ -1621,7 +1621,7 @@ internal static class ExtendedPlayerControl
 
             foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
             {
-                if (pc.AmOwner || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
+                if (pc.AmOwner || pc.OwnerId < 0 || pc == player || (!phantom && pc.IsModdedClient()) || (phantom && pc.IsImpostor())) continue;
 
                 sender.StartMessage(pc.OwnerId);
                 sender.RpcExiled(player, autoStartRpc: false, exileForHost: false);

@@ -89,7 +89,7 @@ internal static class OnGameJoinedPatch
 
                 try
                 {
-                    ClientData client = PlayerControl.LocalPlayer?.GetClient();
+                    ClientData client = PlayerControl.LocalPlayer.GetClient();
 
                     if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, client.GetHashedPuid()) && GameStates.IsOnlineGame)
                     {
@@ -606,10 +606,12 @@ internal static class OnPlayerLeftPatch
 
                 PlayerState state = Main.PlayerStates[id];
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
-
                 if (!state.IsDead) state.SetDead();
 
                 Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting, true);
+
+                try { state.Role.Remove(id); }
+                catch (Exception e) { Utils.ThrowException(e); }
 
                 NameNotifyManager.Notifies.Remove(id);
                 data.Character.RpcSetName(data.Character.GetRealName(true));

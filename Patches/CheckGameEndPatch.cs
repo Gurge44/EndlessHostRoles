@@ -349,6 +349,8 @@ internal static class GameEndChecker
                     WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.GetCustomRole().IsNeutral()).Select(x => x.PlayerId));
                 else if (Options.NeutralRoleWinTogether.GetBool())
                 {
+                    List<byte> toAdd = null;
+                    
                     foreach (byte id in WinnerIds)
                     {
                         PlayerControl pc = GetPlayerById(id);
@@ -357,9 +359,14 @@ internal static class GameEndChecker
                         foreach (PlayerControl tar in Main.CachedAllPlayerControls())
                         {
                             if (!WinnerIds.Contains(tar.PlayerId) && tar.GetCustomRole() == pc.GetCustomRole())
-                                WinnerIds.Add(tar.PlayerId);
+                            {
+                                toAdd ??= [];
+                                toAdd.Add(tar.PlayerId);
+                            }
                         }
                     }
+                    
+                    toAdd.ForEach(x => WinnerIds.Add(x));
 
                     foreach (CustomRoles role in WinnerRoles) WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.GetCustomRole() == role).Select(x => x.PlayerId));
                 }
@@ -637,9 +644,15 @@ internal static class GameEndChecker
                 var role = pc.GetCustomRole();
                 var countType = pc.GetCountTypes();
 
-                if (role == CustomRoles.Sunnyboy) hasSunnyboy = true;
-                if (role == CustomRoles.Pawn) hasPawn = true;
-                if (countType == CountTypes.CustomTeam) hasCustomTeamCount = true;
+                switch (role)
+                {
+                    case CustomRoles.Sunnyboy:
+                        hasSunnyboy = true;
+                        break;
+                    case CustomRoles.Pawn:
+                        hasPawn = true;
+                        break;
+                }
 
                 switch (countType)
                 {
@@ -651,6 +664,9 @@ internal static class GameEndChecker
                         break;
                     case CountTypes.Coven:
                         coven++;
+                        break;
+                    case CountTypes.CustomTeam:
+                        hasCustomTeamCount = true;
                         break;
                 }
 

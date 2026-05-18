@@ -443,7 +443,7 @@ public static class BedWars
 
         // Assign players to teams
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         Dictionary<byte, BedWarsTeam> playerTeams = players
@@ -488,25 +488,28 @@ public static class BedWars
 
             if (!pc.AmOwner)
             {
-                sender.StartMessage(pc.OwnerId);
-
-                sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
-                    .WriteNetObject(pc)
-                    .Write(0)
-                    .EndRpc();
-
-                foreach ((byte otherId, BedWarsTeam otherTeam) in playerTeams)
+                if (pc.OwnerId >= 0)
                 {
-                    PlayerControl target = otherId.GetPlayer();
-                    if (!target || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
+                    sender.StartMessage(pc.OwnerId);
 
-                    sender.StartRpc(target.NetId, RpcCalls.SetRole)
-                        .Write((ushort)RoleTypes.Impostor)
-                        .Write(true)
+                    sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
+                        .WriteNetObject(pc)
+                        .Write(0)
                         .EndRpc();
-                }
 
-                sender.EndMessage();
+                    foreach ((byte otherId, BedWarsTeam otherTeam) in playerTeams)
+                    {
+                        PlayerControl target = otherId.GetPlayer();
+                        if (!target || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
+
+                        sender.StartRpc(target.NetId, RpcCalls.SetRole)
+                            .Write((ushort)RoleTypes.Impostor)
+                            .Write(true)
+                            .EndRpc();
+                    }
+
+                    sender.EndMessage();
+                }
             }
             else
             {
@@ -1676,9 +1679,11 @@ public static class BedWars
 
         public override string ToString()
         {
+            bool vanillaServer = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+            
             var i = 0;
             List<string> itemsDisplays = [];
-            string bottomText = Utils.EmptyMessage;
+            string bottomText = string.Empty;
 
             foreach ((Item item, int count) in Items)
             {
@@ -1689,9 +1694,9 @@ public static class BedWars
 
                 if (count > 1)
                 {
-                    sb.Append("<sub>");
+                    sb.Append(vanillaServer ? "X" : "<sub>");
                     sb.Append(count);
-                    sb.Append("</sub>");
+                    if (!vanillaServer) sb.Append("</sub>");
                 }
                 
                 itemsDisplays.Add(sb.ToString());
@@ -1700,22 +1705,23 @@ public static class BedWars
             }
 
             while (itemsDisplays.Count < InventorySlots)
-                itemsDisplays.Add(Utils.ColorString(Color.clear, "---"));
+                itemsDisplays.Add(Utils.ColorString(Color.clear, vanillaServer ? string.Empty : "---"));
 
             const string baseColor = "<#000000>";
             
             var finalSb = new StringBuilder();
             finalSb.Append(baseColor);
-            finalSb.AppendLine("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁");
-            finalSb.Append("</color>");
+            if (!vanillaServer) finalSb.AppendLine("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁");
             i = 0;
 
             foreach (string itemsDisplay in itemsDisplays)
             {
-                bool selected = i == SelectedSlot || i - 1 == SelectedSlot;
-                if (!selected) finalSb.Append(baseColor);
+                bool currentSelected = i == SelectedSlot;
+                bool previousSelected = i - 1 == SelectedSlot;
+                bool selected = currentSelected || previousSelected;
+                if (currentSelected) finalSb.Append("</color>");
                 finalSb.Append(selected ? '┃' : '│');
-                if (!selected) finalSb.Append("</color>");
+                if (previousSelected) finalSb.Append(baseColor);
                 finalSb.Append(' ');
                 finalSb.Append(itemsDisplay);
                 finalSb.Append(' ');
@@ -1723,15 +1729,20 @@ public static class BedWars
             }
 
             bool lastSelected = i - 1 == SelectedSlot;
-            if (!lastSelected) finalSb.Append(baseColor);
             finalSb.Append(lastSelected ? '┃' : '│');
-            if (!lastSelected) finalSb.Append("</color>");
-            finalSb.AppendLine(baseColor);
-            finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
-            finalSb.AppendLine("</color>");
 
-            finalSb.AppendLine();
-            finalSb.Append(Utils.ColorString(Color.white, bottomText));
+            if (!vanillaServer)
+            {
+                if (lastSelected) finalSb.Append(baseColor);
+                finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
+                finalSb.AppendLine();
+                finalSb.Append(Utils.ColorString(Color.white, bottomText));
+                finalSb.AppendLine("</color>");
+            }
+            else if (!lastSelected)
+            {
+                finalSb.AppendLine("</color>");
+            }
 
             return finalSb.ToString();
         }

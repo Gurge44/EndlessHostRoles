@@ -355,7 +355,7 @@ public static class CaptureTheFlag
 
         // Assign players to teams
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         int blueCount = players.Count / 2;
@@ -425,7 +425,7 @@ public static class CaptureTheFlag
                 try
                 {
                     var pc1 = id1.GetPlayer();
-                    if (!pc1 || pc1.AmOwner) continue;
+                    if (!pc1 || pc1.AmOwner || pc1.OwnerId < 0) continue;
 
                     sender.StartMessage(pc1.OwnerId);
 

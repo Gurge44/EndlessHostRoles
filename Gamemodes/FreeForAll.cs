@@ -327,7 +327,7 @@ internal static class FreeForAll
                         break;
                 }
 
-                if (killer.IsHost()) Main.AllPlayerKillCooldown[killer.PlayerId] += Utils.CalculatePingDelay();
+                if (killer.AmOwner) Main.AllPlayerKillCooldown[killer.PlayerId] += Utils.CalculatePingDelay();
 
                 if (sync || Math.Abs(nowKCD - Main.AllPlayerKillCooldown[killer.PlayerId]) > 0.1f)
                 {

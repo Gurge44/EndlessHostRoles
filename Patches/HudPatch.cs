@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -1027,11 +1028,16 @@ internal static class MapRoomDoorsUpdatePatch
     }
 }
 
-[HarmonyPatch(typeof(CrewmateGhostRole), nameof(CrewmateGhostRole.SpawnTaskHeader))]
-[HarmonyPatch(typeof(ImpostorGhostRole), nameof(ImpostorGhostRole.SpawnTaskHeader))]
-[HarmonyPatch(typeof(ImpostorRole), nameof(ImpostorRole.SpawnTaskHeader))]
+[HarmonyPatch]
 internal static class SpawnTaskHeaderPatch
 {
+    public static IEnumerable<MethodBase> TargetMethods()
+    {
+        yield return AccessTools.Method(typeof(CrewmateGhostRole), nameof(CrewmateGhostRole.SpawnTaskHeader));
+        yield return AccessTools.Method(typeof(ImpostorGhostRole), nameof(ImpostorGhostRole.SpawnTaskHeader));
+        yield return AccessTools.Method(typeof(ImpostorRole), nameof(ImpostorRole.SpawnTaskHeader));
+    }
+    
     public static bool Prefix()
     {
         return !GameStates.InGame;

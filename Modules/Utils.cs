@@ -2860,7 +2860,7 @@ public static class Utils
 
             var fontSize = Options.LargerRoleTextSize.GetBool() ? "2" : "1.7";
 
-            if (forMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch))
+            if (forMeeting && (seer.GetClient().PlatformData.Platform is Platforms.Playstation or Platforms.Switch))
                 fontSize = "70%";
 
             // Text containing progress, such as tasks

@@ -299,7 +299,7 @@ internal static class SoloPVP
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
         addRate *= SoloPVP_KillBonusMultiplier.GetFloat();
-        if (killer.IsHost()) addRate /= 2f;
+        if (killer.AmOwner) addRate /= 2f;
 
         var text = string.Empty;
         float addin;

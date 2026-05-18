@@ -2170,7 +2170,7 @@ internal static class ChatCommands
         {
             string kickedPlayerName = kickedPlayer.GetRealName();
             var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
-            if (GameStates.IsInGame) textToSend += string.Format(GetString("KickCommandKickedRole"), kickedPlayer.GetCustomRole().ToColoredString());
+            if (GameStates.IsInGame) textToSend += $"\n{string.Format(GetString("KickCommandKickedRole"), kickedPlayer.GetCustomRole().ToColoredString())}";
             if (args.Length >= 3) textToSend += $"\n{GetString("KickCommandKickedReason")} {string.Join(' ', args[2..])}";
 
             Utils.SendMessage(textToSend, importance: GameStates.IsInGame ? MessageImportance.Medium : MessageImportance.Low);

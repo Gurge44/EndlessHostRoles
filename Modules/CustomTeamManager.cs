@@ -77,7 +77,10 @@ internal static class CustomTeamManager
 
     public static void InitializeCustomTeamPlayers()
     {
+        WinnerTeam = null;
+        CustomTeamPlayerIds.Clear();
         UpdateEnabledTeams();
+        
         if (EnabledCustomTeams.Count == 0) return;
 
         var aapc = Main.CachedAlivePlayerControls();
@@ -162,7 +165,7 @@ internal static class CustomTeamManager
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (seer == null || EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
+        if (EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
         return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
     }
 
@@ -205,11 +208,8 @@ internal static class CustomTeamManager
             }
 
             AliveTeamPlayers.Clear();
-            foreach (var kvp in CustomTeamPlayerIds)
+            foreach ((CustomTeam teamKey, HashSet<byte> originalSet) in CustomTeamPlayerIds)
             {
-                CustomTeam teamKey = kvp.Key;
-                var originalSet = kvp.Value;
-
                 HashSet<byte> aliveSet = null;
                 foreach (var id in originalSet)
                 {
@@ -237,7 +237,7 @@ internal static class CustomTeamManager
                     PlayerControl player = aapc[i];
                     CustomTeam playerTeam = GetCustomTeam(player.PlayerId);
 
-                    if (playerTeam == null || playerTeam != onlyTeam)
+                    if (playerTeam == null || !Equals(playerTeam, onlyTeam))
                         return false;
                 }
 
@@ -311,9 +311,10 @@ internal static class CustomTeamManager
                 RoleRevealScreenBackgroundColor = parts[3];
 
                 TeamMembers = parts[4].Split(',').Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
+                
+                CustomTeams.Add(this);
             }
             catch (Exception e) { Utils.ThrowException(e); }
-            finally { CustomTeams.Add(this); }
         }
 
         public List<CustomRoles> TeamMembers { get; } = [];

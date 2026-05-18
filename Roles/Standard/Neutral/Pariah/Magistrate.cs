@@ -1,5 +1,6 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -36,10 +37,28 @@ public class Magistrate : RoleBase
         AbilityTrigger = Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? AbilityTriggers.Vanish : Options.UsePets.GetBool() ? AbilityTriggers.Pet : AbilityTriggers.Vent;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Main.Instance.StartCoroutine(Coroutine());
+        return;
+        
+        System.Collections.IEnumerator Coroutine()
+        {
+            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(1f);
+            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSeconds(2f);
+            if (GameStates.IsEnded || !GameStates.InGame) yield break;
+            AfterMeetingTasks();
+        }
+    }
+
     public override void AfterMeetingTasks()
     {
-        CallCourtNextMeeting = false;
-        Main.EnumeratePlayerControls().Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
+        if (CallCourtNextMeeting)
+        {
+            CallCourtNextMeeting = false;
+            Main.EnumeratePlayerControls().Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
+        }
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

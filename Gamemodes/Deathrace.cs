@@ -224,7 +224,7 @@ public static class Deathrace
         Logger.Info($"Track: {string.Join(" » ", Track)}", "Deathrace");
         
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().ToList();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
         
         Data = players.ToDictionary(x => x.PlayerId, x => new PlayerData

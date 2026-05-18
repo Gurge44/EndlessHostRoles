@@ -1028,6 +1028,9 @@ internal static class MeetingHudStartPatch
                 {
                     string name = pc.GetRealName(true);
 
+                    if (Magistrate.CallCourtNextMeeting)
+                        name = seer.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
+
                     foreach (PlayerControl seerPc in Main.EnumeratePlayerControls())
                     {
                         try { Main.LastNotifyNames[(pc.PlayerId, seerPc.PlayerId)] = name; }

@@ -248,7 +248,7 @@ public static class Mingle
         yield return new WaitForSecondsRealtime(Main.CurrentMap == MapNames.Airship ? 8f : 3f);
 
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().ToList();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
         
         bool showTutorial = players.ExceptBy(HasPlayedFCs, x => x.FriendCode).Count() > players.Count / 2;

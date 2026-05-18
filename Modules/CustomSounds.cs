@@ -107,7 +107,7 @@ public static class CustomSoundsManager
         var fileData = Il2CppSystem.IO.File.ReadAllBytes(path);
         WAV wav = new(fileData);
 
-        Logger.Info($"[WAV: LeftChannel={wav.LeftChannel}, RightChannel={wav.RightChannel}, ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
+        Logger.Info($"[WAV: ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
 
         AudioClip clip = AudioClip.Create(Path.GetFileNameWithoutExtension(path), wav.SampleCount, 1, wav.Frequency, false, false);
         clip.SetData(wav.LeftChannel, 0);
