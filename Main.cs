@@ -429,7 +429,6 @@ public class Main : BasePlugin
         Preset18 = Config.Bind("Preset Name Options", "Preset18", "Preset_18");
         Preset19 = Config.Bind("Preset Name Options", "Preset19", "Preset_19");
         Preset20 = Config.Bind("Preset Name Options", "Preset20", "Preset_20");
-        Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);

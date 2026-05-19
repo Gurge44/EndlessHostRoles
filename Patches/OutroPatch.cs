@@ -715,7 +715,11 @@ internal static class SetEverythingUpPatch
                     Main.ShowResult = setToActive;
                     ResultsToggleButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
                 },
-                GetString(showInitially ? "HideResults" : "ShowResults"));
+                GetString(showInitially ? "HideResults" : "ShowResults"))
+            {
+                Scale = new(1.5f, 0.5f),
+                FontSize = 2f
+            };
 
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
