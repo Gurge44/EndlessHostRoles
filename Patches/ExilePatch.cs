@@ -32,7 +32,7 @@ internal static class ExileControllerWrapUpPatch
                     Logger.Info("The exiled player is an impostor, but the Innocent cannot win due to the settings", "Exeiled Winner Check");
                 else
                 {
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
+                    CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Innocent);
 
                     Main.EnumeratePlayerControls()
                         .Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
@@ -216,15 +216,22 @@ internal static class ExileControllerWrapUpPatch
             finally { WrapUpFinalizer(); }
         }
     }
-
-    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
-    private static class AirshipExileControllerPatchAndroid
+    
+    [HarmonyPatch]
+    static class AirshipExileControllerPatch
     {
-        public static void Postfix(AirshipExileController __instance)
+        public static System.Reflection.MethodBase TargetMethod()
         {
-            if (Main.LIMap) return;
+            return Utils.GetStateMachineMoveNext<AirshipExileController>(nameof(AirshipExileController.WrapUpAndSpawn));
+        }
+    
+        public static void Postfix(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase __instance, ref bool __result)
+        {
+            var wrapper = new StateMachineWrapper<AirshipExileController>(__instance);
+        
+            if (wrapper.State != 1 || !__result || Main.LIMap) return;
 
-            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
+            try { WrapUpPostfix(wrapper.Instance.initData.networkedPlayer); }
             finally { WrapUpFinalizer(); }
         }
     }

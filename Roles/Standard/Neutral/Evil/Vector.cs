@@ -79,7 +79,7 @@ internal class Vector : RoleBase
         if (AmongUsClient.Instance.AmHost && VectorVentCount[pc.PlayerId] >= VectorVentNumWin)
         {
             pc.RPCPlayCustomSound("MarioCoin");
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vector);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Vector);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
     }

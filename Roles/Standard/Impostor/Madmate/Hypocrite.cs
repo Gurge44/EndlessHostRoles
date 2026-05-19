@@ -44,7 +44,7 @@ public class Hypocrite : RoleBase
         {
             Logger.Info($"Hypocrite ({pc.GetNameWithRole()}) finished all tasks", "Hypocrite");
             pc.RPCPlayCustomSound("Congrats");
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Impostor);
         }
         else if (NonImpGetsNotifyWhenLowTasks.GetBool() && completedTaskCount + 1 >= totalTaskCount - NotifyAtXTasksLeft.GetInt())
         {

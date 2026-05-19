@@ -154,7 +154,7 @@ public class Vulture : RoleBase
 
         if (TotalEaten >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Vulture);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
             return false;
         }

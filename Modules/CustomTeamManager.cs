@@ -186,7 +186,7 @@ internal static class CustomTeamManager
                 CustomTeam lastTeam = GetCustomTeam(lastPlayer.PlayerId);
                 
                 WinnerTeam = lastTeam;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
+                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.CustomTeam);
                 CustomWinnerHolder.WinnerIds = [lastPlayer.PlayerId];
                 return true;
             }
@@ -242,7 +242,7 @@ internal static class CustomTeamManager
                 }
 
                 WinnerTeam = onlyTeam;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
+                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.CustomTeam);
                 CustomWinnerHolder.WinnerIds = winners;
                 return true;
             }

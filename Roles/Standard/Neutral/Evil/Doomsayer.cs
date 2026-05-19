@@ -125,7 +125,7 @@ public class Doomsayer : RoleBase
 
         GuessingToWin[doomsayer.PlayerId] = DoomsayerAmountOfGuessesToWin.GetInt();
         GuessesCount = DoomsayerAmountOfGuessesToWin.GetInt();
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Doomsayer);
+        CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Doomsayer);
         CustomWinnerHolder.WinnerIds.Add(doomsayer.PlayerId);
     }
 

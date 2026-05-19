@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -42,9 +43,19 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
         return BasedGameOptions;
     }
     
+    protected override IEnumerator SendOptionsArrayAsync(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    {
+        yield return DataFlagRateLimiter.Enqueue(SendOptionsAction(optionArray, logicOptionsIndex)).Wait();
+    }
+
     protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
     {
-        DataFlagRateLimiter.Enqueue(() =>
+        DataFlagRateLimiter.Enqueue(SendOptionsAction(optionArray, logicOptionsIndex));
+    }
+
+    private static Action SendOptionsAction(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex)
+    {
+        return () =>
         {
             MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
@@ -68,6 +79,6 @@ public sealed class NormalGameOptionsSender : GameOptionsSender
 
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
-        });
+        };
     }
 }

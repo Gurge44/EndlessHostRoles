@@ -131,7 +131,7 @@ public class SpellCaster : CovenBase
     {
         if (IsWinConditionMet())
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Coven);
+            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Coven);
             CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
         }
     }

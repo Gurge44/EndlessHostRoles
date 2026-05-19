@@ -116,7 +116,7 @@ public class Gangster : RoleBase
 
     private static bool CanBeMadmate(PlayerControl pc)
     {
-        return pc != null && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
+        return pc && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
                && !(
                    (pc.Is(CustomRoles.Sheriff) && !SheriffCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Mayor) && !MayorCanBeMadmate.GetBool()) ||

@@ -1697,7 +1697,7 @@ public static class Utils
                 else if (pc.IsAlive()) pc.Suicide(PlayerState.DeathReason.Bombed, terrorist.Object);
             }
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Terrorist);
+            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Terrorist);
             CustomWinnerHolder.WinnerIds.Add(terrorist.PlayerId);
         }
     }
@@ -1924,6 +1924,7 @@ public static class Utils
             // ============================================================================
 
             int fullRpcSizeLimit = Options.MessageRpcSizeLimit.GetInt();
+            if (vanilla && fullRpcSizeLimit > 1200) fullRpcSizeLimit = 1200;
             string resetName = Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty);
 
             // --------------------------------------------------------------------------

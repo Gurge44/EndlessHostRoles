@@ -80,7 +80,7 @@ internal class Workaholic : RoleBase
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
+            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Workaholic);
             CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
         }
     }

@@ -89,7 +89,7 @@ public class Collector : RoleBase
         {
             if (check) return true;
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Collector);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Collector);
             foreach (PlayerControl winner in pc) CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
 
             return true;

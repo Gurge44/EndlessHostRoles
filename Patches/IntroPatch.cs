@@ -32,7 +32,7 @@ static class ShowRoleMoveNextPatch
     {
         var wrapper = new StateMachineWrapper<IntroCutscene>(__instance);
         
-        if (wrapper.GetField<int>("__1__state") != 1 || !__result) return;
+        if (wrapper.State != 1 || !__result) return;
 
         GameStates.InGame = true;
         SetUpRoleTextPatch.Postfix(wrapper.Instance);

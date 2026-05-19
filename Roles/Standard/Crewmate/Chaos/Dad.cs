@@ -342,7 +342,7 @@ public class Dad : RoleBase
             if (MilkTimer <= 0)
             {
                 pc.TPToRandomVent();
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Crewmate);
                 CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.Is(Team.Crewmate)).Select(x => x.PlayerId));
             }
         }

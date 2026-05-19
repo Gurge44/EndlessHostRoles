@@ -358,7 +358,7 @@ public class Infection : RoleBase
             player.Suicide(PlayerState.DeathReason.Curse, infectionSource);
         }
 
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Infection);
+        CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Infection);
         for (int index = 0; index < apc.Count; index++)
         {
             PlayerControl pc = apc[index];

@@ -13,32 +13,32 @@ public static class Mingle
     public static readonly HashSet<string> HasPlayedFCs = [];
 
     public static bool GameGoing;
-    public static DateTime GameStartDateTime;
-    public static Dictionary<SystemTypes, int> RequiredPlayerCount = [];
-    public static HashSet<SystemTypes> AllRooms = [];
+    private static DateTime GameStartDateTime;
+    private static Dictionary<SystemTypes, int> RequiredPlayerCount = [];
+    private static HashSet<SystemTypes> AllRooms = [];
     private static readonly StringBuilder Suffix = new();
-    public static long TimeEndTS;
-    public static long LastUpdateTS;
-    public static int Time;
-    public static bool DontEndGame;
+    private static long TimeEndTS;
+    private static long LastUpdateTS;
+    private static int Time;
+    private static bool CheckForGameEnd;
 
-    public static int TimeLimit;
-    public static int TimeDecreaseOnNoDeath;
-    public static int ExtraTimeOnAirship;
-    public static int ExtraTimeOnFungle;
-    public static bool DisplayCurrentPlayerCountInEachRoom;
-    public static int MinTime;
-    public static int MaxRequiredPlayersPerRoom;
-    public static int MaxWinningPlayers;
+    private static int TimeLimit;
+    private static int TimeDecreaseOnNoDeath;
+    private static int ExtraTimeOnAirship;
+    private static int ExtraTimeOnFungle;
+    private static bool DisplayCurrentPlayerCountInEachRoom;
+    private static int MinTime;
+    private static int MaxRequiredPlayersPerRoom;
+    private static int MaxWinningPlayers;
     
-    public static OptionItem TimeLimitOption;
-    public static OptionItem TimeDecreaseOnNoDeathOption;
-    public static OptionItem ExtraTimeOnAirshipOption;
-    public static OptionItem ExtraTimeOnFungleOption;
-    public static OptionItem DisplayCurrentPlayerCountInEachRoomOption;
-    public static OptionItem MinTimeOption;
-    public static OptionItem MaxRequiredPlayersPerRoomOption;
-    public static OptionItem MaxWinningPlayersOption;
+    private static OptionItem TimeLimitOption;
+    private static OptionItem TimeDecreaseOnNoDeathOption;
+    private static OptionItem ExtraTimeOnAirshipOption;
+    private static OptionItem ExtraTimeOnFungleOption;
+    private static OptionItem DisplayCurrentPlayerCountInEachRoomOption;
+    private static OptionItem MinTimeOption;
+    private static OptionItem MaxRequiredPlayersPerRoomOption;
+    private static OptionItem MaxWinningPlayersOption;
     public static OptionItem ChatDuringGameOption;
     
     public static void SetupCustomOption()
@@ -112,7 +112,8 @@ public static class Mingle
     public static bool CheckGameEnd(out GameOverReason reason)
     {
         reason = GameOverReason.ImpostorsByKill;
-        if (GameStates.IsEnded || !GameGoing || TimeEndTS > Utils.TimeStamp) return false;
+        if (GameStates.IsEnded || !GameGoing || !CheckForGameEnd) return false;
+        CheckForGameEnd = false;
         var aapc = Main.CachedAlivePlayerControls();
 
         switch (aapc.Count)
@@ -127,7 +128,7 @@ public static class Mingle
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                 Logger.Warn("No players alive. Force ending the game", "Mingle");
                 return true;
-            case var p when p <= MaxWinningPlayers && !DontEndGame:
+            case var p when p <= MaxWinningPlayers:
                 CustomWinnerHolder.WinnerIds = aapc.Select(x => x.PlayerId).ToHashSet();
                 Logger.Info($"Winners: {string.Join(", ", aapc.Select(x => x.GetRealName().RemoveHtmlTags()))}", "Mingle");
                 Main.DoBlockNameChange = true;
@@ -298,8 +299,6 @@ public static class Mingle
 
     private static void KillPlayers()
     {
-        DontEndGame = true;
-
         try
         {
             var aapc = Main.CachedAlivePlayerControls();
@@ -340,7 +339,7 @@ public static class Mingle
         }
         finally
         {
-            DontEndGame = false;
+            CheckForGameEnd = true;
         }
     }
 
@@ -348,6 +347,8 @@ public static class Mingle
 
     public static void HandleDisconnect()
     {
+        CheckForGameEnd = true;
+        
         SystemTypes decreaseRoom = AllRooms.First(x => RequiredPlayerCount.TryGetValue(x, out var required) && GetNumPlayersInRoom(x) < required);
         
         if (RequiredPlayerCount[decreaseRoom] <= 1) RequiredPlayerCount.Remove(decreaseRoom);
@@ -383,19 +384,33 @@ public static class Mingle
                 }
                 else
                 {
-                    Dictionary<SystemTypes, int> numPlayersInRoom = Main.EnumerateAlivePlayerControls().Select(x => (pc: x, room: x.GetPlainShipRoom())).GroupBy(x => !x.room ? SystemTypes.Outside : x.room.RoomId).ToDictionary(x => x.Key, x => x.Count());
+                    var aapc = Main.CachedAlivePlayerControls();
+                    var frames = 0;
 
-                    yield return null;
-                    
-                    if (RequiredPlayerCount.All(x => numPlayersInRoom.GetValueOrDefault(x.Key, 0) == x.Value))
+                    foreach ((SystemTypes room, int requiredCount) in RequiredPlayerCount)
                     {
-                        Main.EnumerateAlivePlayerControls().NotifyPlayers(Utils.ColorString(Color.green, "✓"), 3f);
-                        yield return null;
-                        Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
-                        StartNewRound();
-                        yield break;
+                        int count = 0;
+
+                        for (int index = 0; index < aapc.Count; index++)
+                            if (aapc[index].IsInRoom(room) && ++count > requiredCount)
+                                goto Skip;
+
+                        if (count != requiredCount)
+                            goto Skip;
+                        
+                        if (frames < 28)
+                        {
+                            yield return null;
+                            frames++;
+                        }
                     }
+                    
+                    Time = Math.Max(Time - TimeDecreaseOnNoDeath, MinTime);
+                    StartNewRound();
+                    yield break;
                 }
+                
+                Skip:
 
                 yield return null;
                 

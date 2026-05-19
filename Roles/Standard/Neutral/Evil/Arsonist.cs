@@ -191,13 +191,13 @@ internal class Arsonist : RoleBase
                     switch (apc)
                     {
                         case 1:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
+                            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Arsonist);
                             CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             break;
                         case 2:
                             if (Main.EnumerateAlivePlayerControls().Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
                             {
-                                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
+                                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Arsonist);
                                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             }
 

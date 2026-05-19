@@ -692,7 +692,7 @@ internal static class MurderPlayerPatch
         if (Main.FirstDied == string.Empty && target.Is(CustomRoles.Youtuber))
         {
             CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Youtuber);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Youtuber);
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
         }
 
