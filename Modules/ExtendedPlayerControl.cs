@@ -2605,6 +2605,7 @@ internal static class ExtendedPlayerControl
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable);
             writer.Write(playerId);
             writer.WritePacked((int)role);
+            writer.Write(false);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
