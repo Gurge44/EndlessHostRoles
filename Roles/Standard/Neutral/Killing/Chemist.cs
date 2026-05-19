@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -539,9 +540,7 @@ internal class Chemist : RoleBase
                     var processesEnumerator = processes.GetEnumerator();
                     while (processesEnumerator.MoveNext())
                     {
-                        var pair = processesEnumerator.Current;
-                        var processKey = pair.Key;
-                        var ingredients = pair.Value.Ingredients;
+                        (string processKey, (List<(int Count, Item Item)> ingredients, _)) = processesEnumerator.Current;
                         bool available = true;
 
                         for (int index = 0; index < ingredients.Count; index++)
@@ -620,17 +619,17 @@ internal class Chemist : RoleBase
     {
         if (SelectedProcess == string.Empty) return;
 
-        (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
+        (List<(int Count, Item Item)> ingredients, List<(int Count, Item Item)> results) = Processes[CurrentFactory][SelectedProcess];
 
-        if (!Ingredients.TrueForAll(x => ItemCounts[x.Item] >= x.Count)) return;
+        if (!ingredients.TrueForAll(x => ItemCounts[x.Item] >= x.Count)) return;
 
-        Ingredients.ForEach(x =>
+        ingredients.ForEach(x =>
         {
             ItemCounts[x.Item] -= x.Count;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)x.Item, -x.Count);
         });
 
-        Results.ForEach(x =>
+        results.ForEach(x =>
         {
             ItemCounts[x.Item] += x.Count;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)x.Item, x.Count);
@@ -638,7 +637,7 @@ internal class Chemist : RoleBase
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         
-        if (pc.AmOwner && Results.Exists(x => x.Item == Item.SulfuricAcid))
+        if (pc.AmOwner && results.Exists(x => x.Item == Item.SulfuricAcid))
             Achievements.Type.HeyRabek.Complete();
     }
 
@@ -694,12 +693,12 @@ internal class Chemist : RoleBase
 
             if (SelectedProcess == string.Empty) return Suffix.ToString().TrimEnd();
 
-            (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
+            (List<(int Count, Item Item)> ingredients, List<(int Count, Item Item)> results) = Processes[CurrentFactory][SelectedProcess];
 
             Func<(int Count, Item Item), string> selector = x => $"{x.Count} {Utils.ColorString(GetItemColor(x.Item), $"{GetChemicalForm(x.Item)}")}";
-            Suffix.Append(string.Join(", ", Ingredients.Select(selector)));
-            Suffix.Append(Ingredients.Count + Results.Count > 2 ? "\n\u2192  " : " → ");
-            Suffix.Append(string.Join(", ", Results.Select(selector)));
+            Suffix.Append(string.Join(", ", ingredients.Select(selector)));
+            Suffix.Append(" → ");
+            Suffix.Append(string.Join(", ", results.Select(selector)));
         }
 
         if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
@@ -770,6 +769,7 @@ internal class Chemist : RoleBase
         return sb.ToString();
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum AcidPlayersDieOptions
     {
         AfterMeeting,
