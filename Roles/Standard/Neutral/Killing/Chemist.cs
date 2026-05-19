@@ -115,7 +115,9 @@ internal class Chemist : RoleBase
     private Dictionary<Item, int> ItemCounts;
     private long LastUpdate;
     private string SelectedProcess;
-    private List<string> SortedAvailableProcesses;
+    private readonly List<string> SortedAvailableProcesses = [];
+    private readonly List<string> Available = [];
+    private readonly List<string> Unavailable = [];
 
     public override bool IsEnable => On;
 
@@ -215,7 +217,9 @@ internal class Chemist : RoleBase
         ItemCounts = [];
         CurrentFactory = Factory.None;
         SelectedProcess = string.Empty;
-        SortedAvailableProcesses = [];
+        SortedAvailableProcesses.Clear();
+        Available.Clear();
+        Unavailable.Clear();
 
         AcidPlayers = [];
         IsBlinding = false;
@@ -526,31 +530,44 @@ internal class Chemist : RoleBase
 
             if (CurrentFactory != beforeFactory)
             {
-                var processes = Processes[CurrentFactory];
-                string bestProcess = null;
+                Available.Clear();
+                Unavailable.Clear();
+                string firstAvailable = null;
 
-                foreach (var kv in processes)
+                if (Processes.TryGetValue(CurrentFactory, out var processes))
                 {
-                    bool canDo = true;
-                    var ingredients = kv.Value.Ingredients;
+                    var processesEnumerator = processes.GetEnumerator();
+                    while (processesEnumerator.MoveNext())
+                    {
+                        var pair = processesEnumerator.Current;
+                        var processKey = pair.Key;
+                        var ingredients = pair.Value.Ingredients;
+                        bool available = true;
 
-                    for (int i = 0; i < ingredients.Count; i++)
-                    {
-                        var ing = ingredients[i];
-                        if (ItemCounts[ing.Item] < ing.Count)
+                        for (int index = 0; index < ingredients.Count; index++)
                         {
-                            canDo = false;
-                            break;
+                            var ingredient = ingredients[index];
+                            if (!ItemCounts.TryGetValue(ingredient.Item, out int count) || count < ingredient.Count)
+                            {
+                                available = false;
+                                break;
+                            }
                         }
-                    }
-                    if (canDo)
-                    {
-                        bestProcess = kv.Key;
-                        break;
+
+                        if (available)
+                        {
+                            firstAvailable ??= processKey;
+                            Available.Add(processKey);
+                        }
+                        else Unavailable.Add(processKey);
                     }
                 }
 
-                SelectedProcess = bestProcess ?? string.Empty;
+                SortedAvailableProcesses.Clear();
+                if (Available.Count > 0) SortedAvailableProcesses.AddRange(Available);
+                if (Unavailable.Count > 0) SortedAvailableProcesses.AddRange(Unavailable);
+
+                SelectedProcess = firstAvailable ?? string.Empty;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, SelectedProcess);
             }
         }
