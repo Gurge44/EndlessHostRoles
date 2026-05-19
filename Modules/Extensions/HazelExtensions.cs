@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Hazel;
+﻿using Hazel;
 using UnityEngine;
 
 namespace EHR;

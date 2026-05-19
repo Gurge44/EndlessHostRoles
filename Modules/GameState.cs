@@ -400,13 +400,12 @@ public class PlayerState(byte playerId)
     {
         int count = 0;
         var states = Main.PlayerStates.Values;
-        byte myId = PlayerId;
 
         foreach (var state in states)
         {
-            if (state.PlayerId == myId) continue;
+            if (state.PlayerId == PlayerId) continue;
 
-            if (state.GetRealKiller() == myId) 
+            if (state.GetRealKiller() == PlayerId) 
                 count++;
         }
 

@@ -233,10 +233,21 @@ public class CustomLogger
         {
             if (message[i] != '<') continue;
             char c = message[i + 1];
-            if (c == 'b') hasB = true;
-            else if (c == 'u') hasU = true;
-            else if (c == 'i') hasI = true;
-            else if (c == 's') hasS = true;
+            switch (c)
+            {
+                case 'b':
+                    hasB = true;
+                    break;
+                case 'u':
+                    hasU = true;
+                    break;
+                case 'i':
+                    hasI = true;
+                    break;
+                case 's':
+                    hasS = true;
+                    break;
+            }
         }
         if (hasB) message.Append("</b>");
         if (hasU) message.Append("</u>");

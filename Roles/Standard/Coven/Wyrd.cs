@@ -184,7 +184,7 @@ public class Wyrd : CovenBase
     {
         base.GetProgressText(playerId, comms, resultText);
         
-        resultText.Append($" <#ffffff>")
+        resultText.Append(" <#ffffff>")
             .Append(MarkedPlayers.Count).Append('/').Append(MaxMarkedPlayersAtOnce.GetInt())
             .Append("</color>");
     }

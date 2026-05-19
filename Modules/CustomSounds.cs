@@ -1,9 +1,9 @@
-using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -88,18 +88,18 @@ public static class CustomSoundsManager
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static readonly Dictionary<string, AudioClip> audioCache = [];
+    private static readonly Dictionary<string, AudioClip> AudioCache = [];
 
     private static void StartPlay(string path, float volume = 1f, float pitch = 1f)
     {
-        if (!audioCache.TryGetValue(path, out var clip))
+        if (!AudioCache.TryGetValue(path, out var clip))
         {
             clip = LoadWAV(path);
-            audioCache[path] = clip;
+            AudioCache[path] = clip;
         }
 
         if (clip)
-            SoundManager.Instance.PlaySoundImmediate(clip, false, volume);
+            SoundManager.Instance.PlaySoundImmediate(clip, false, volume, pitch);
     }
 
     private static AudioClip LoadWAV(string path)
@@ -169,8 +169,7 @@ public static class CustomSoundsManager
 
             // Allocate memory (right will be null if only mono sound)
             LeftChannel = new Il2CppStructArray<float>(SampleCount);
-            if (ChannelCount == 2) RightChannel = new Il2CppStructArray<float>(SampleCount);
-            else RightChannel = null;
+            RightChannel = ChannelCount == 2 ? new Il2CppStructArray<float>(SampleCount) : null;
 
             int end = pos + dataSize;
             // Write to double array/s:
@@ -183,7 +182,7 @@ public static class CustomSoundsManager
 
                 if (ChannelCount == 2)
                 {
-                    RightChannel[i] = BytesToFloat(wav[pos], wav[pos + 1]);
+                    RightChannel?[i] = BytesToFloat(wav[pos], wav[pos + 1]);
                     pos += 2;
                 }
                 i++;
@@ -191,6 +190,7 @@ public static class CustomSoundsManager
         }
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
+/*
         public Il2CppStructArray<float> GetStereoData()
         {
             if (RightChannel == null) return LeftChannel;
@@ -205,5 +205,6 @@ public static class CustomSoundsManager
 
             return stereoData;
         }
+*/
     }
 }

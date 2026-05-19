@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Hazel;
@@ -15,7 +16,7 @@ public static class DataFlagRateLimiter
         public bool Done;
         public bool Dropped;
         
-        public System.Collections.IEnumerator Wait()
+        public IEnumerator Wait()
         {
             while (!Done)
                 yield return null;

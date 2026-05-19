@@ -104,7 +104,7 @@ public class Whisperer : RoleBase
                 break;
             }
         }
-        if (!found || soul == null) return;
+        if (!found) return;
 
         byte soulPlayerId = soul.Player.PlayerId;
 

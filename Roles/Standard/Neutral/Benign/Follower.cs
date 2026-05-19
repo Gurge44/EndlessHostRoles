@@ -155,16 +155,12 @@ public class Follower : RoleBase
     {
         if (!seer.Is(CustomRoles.Follower))
         {
-            if (!BetTargetKnowFollower.GetBool()) return string.Empty;
-
-            if (Main.PlayerStates[target.PlayerId].Role is not Follower tc) return string.Empty;
-
+            if (!BetTargetKnowFollower.GetBool() || Main.PlayerStates[target.PlayerId].Role is not Follower tc) return string.Empty;
             return seer.PlayerId == tc.BetPlayer ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
         else
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Follower tc) return string.Empty;
-
             return tc.BetPlayer == target.PlayerId ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
     }

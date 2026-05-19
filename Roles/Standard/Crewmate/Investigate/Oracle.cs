@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 

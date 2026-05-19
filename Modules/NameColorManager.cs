@@ -298,9 +298,7 @@ public static class NameColorManager
     private static void Remove(byte seerId, byte targetId)
     {
         PlayerState state = Main.PlayerStates[seerId];
-        if (!state.TargetColorData.ContainsKey(targetId)) return;
-
-        state.TargetColorData.Remove(targetId);
+        if (!state.TargetColorData.Remove(targetId)) return;
 
         SendRPC(seerId, targetId);
     }

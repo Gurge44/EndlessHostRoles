@@ -116,7 +116,7 @@ public class Exclusionary : RoleBase
         long ts = 0;
         for (int excludedindex = 0; excludedindex < ExcludedPlayers.Count; excludedindex++)
         {
-            var (ID, TS) = ExcludedPlayers[excludedindex];
+            (byte ID, long TS) = ExcludedPlayers[excludedindex];
 
             if (ID == playerId)
             {

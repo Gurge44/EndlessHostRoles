@@ -1,12 +1,11 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
-using static EHR.Roles.Adventurer;
 
 // ReSharper disable PossibleMultipleEnumeration
 

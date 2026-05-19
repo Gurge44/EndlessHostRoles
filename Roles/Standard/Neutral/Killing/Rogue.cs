@@ -308,7 +308,6 @@ public class Rogue : RoleBase
                 0 => reader.ReadString(),
                 1 => reader.ReadByte(),
                 2 => reader.ReadPackedInt32(),
-                3 => null,
                 _ => null
             };
 

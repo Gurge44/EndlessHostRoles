@@ -141,10 +141,7 @@ public class PotionMaster : CovenBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud) return string.Empty;
-        if (seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId) return string.Empty;
-        if (!ShieldedPlayers.TryGetValue(target.PlayerId, out CountdownTimer timer)) return string.Empty;
-
+        if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud || seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId || !ShieldedPlayers.TryGetValue(target.PlayerId, out CountdownTimer timer)) return string.Empty;
         return string.Format(Translator.GetString("PotionMaster.Suffix"), (int)Math.Ceiling(timer.Remaining.TotalSeconds), Main.CovenColor);
     }
 }

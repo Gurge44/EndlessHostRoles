@@ -1,11 +1,10 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using Hazel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static EHR.Roles.Adventurer;
 
 namespace EHR.Roles;
 

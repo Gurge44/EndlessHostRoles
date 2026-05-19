@@ -116,7 +116,7 @@ public class Medic : RoleBase
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
         writer.Write(1);
         writer.Write(ProtectList.Count);
-        ProtectList.ForEach(x => writer.Write(x));
+        ProtectList.ForEach(writer.Write);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 

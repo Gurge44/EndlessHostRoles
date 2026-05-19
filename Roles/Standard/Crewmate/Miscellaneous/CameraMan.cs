@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -118,7 +119,7 @@ public class CameraMan : RoleBase
         {
             Main.Instance.StartCoroutine(Coroutine());
 
-            System.Collections.IEnumerator Coroutine()
+            IEnumerator Coroutine()
             {
                 yield return new WaitForSecondsRealtime(2f);
                         

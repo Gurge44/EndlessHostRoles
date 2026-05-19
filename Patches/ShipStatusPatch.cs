@@ -1,3 +1,8 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx;
 using EHR.Gamemodes;
@@ -5,10 +10,6 @@ using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using UnityEngine;
 #if DEBUG
 using EHR.Patches;
@@ -136,7 +137,7 @@ internal static class UpdateSystemPatch
                 }
 
                 var switchSystem = ShipStatusSystem.SwitchSystem;
-                if (switchSystem != null && switchSystem is { IsActive: true })
+                if (switchSystem is { IsActive: true })
                 {
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
@@ -392,20 +393,20 @@ internal static class ShipStatusOnEnablePatch
                 switch (systemType)
                 {
                     case SystemTypes.Reactor:
-                        {
-                            switch (mapId)
+                    {
+                        switch (mapId)
                             {
                                 case 2: continue;
                                 case 4:
                                     ShipStatusSystem.HeliSabotageSystem = ISystemType.TryCast<HeliSabotageSystem>();
-                                    ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
                                     break;
                                 default:
                                     ShipStatusSystem.ReactorSystemType = ISystemType.TryCast<ReactorSystemType>();
-                                    ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
                                     break;
                             }
-                        }
+
+                        ShipStatusSystem.ICriticalSabotage = ISystemType.TryCast<ICriticalSabotage>();
+                    }
                         break;
                     case SystemTypes.Laboratory:
                         {
@@ -587,21 +588,21 @@ internal static class ShipStatusSerializePatch
         }
 
         var hudOverrideSystem = ShipStatusSystem.HudOverrideSystemType;
-        if (Options.CurrentGameMode == CustomGameMode.Standard && hudOverrideSystem != null && hudOverrideSystem is { IsDirty: true })
+        if (Options.CurrentGameMode == CustomGameMode.Standard && hudOverrideSystem is { IsDirty: true })
         {
             SerializeHudOverrideSystemV2(hudOverrideSystem);
             hudOverrideSystem.IsDirty = false;
         }
 
         var hqHudSystem = ShipStatusSystem.HqHudSystemType;
-        if (Options.CurrentGameMode == CustomGameMode.Standard && hqHudSystem != null && hqHudSystem is { IsDirty: true })
+        if (Options.CurrentGameMode == CustomGameMode.Standard && hqHudSystem is { IsDirty: true })
         {
             SerializeHqHudSystemV2(hqHudSystem);
             hqHudSystem.IsDirty = false;
         }
 
         var ventilationSystem = ShipStatusSystem.VentilationSystem;
-        if (cancel && ventilationSystem != null && ventilationSystem is { IsDirty: true })
+        if (cancel && ventilationSystem is { IsDirty: true })
         {
             Utils.SetAllVentInteractions();
             ventilationSystem.IsDirty = false;
@@ -768,7 +769,7 @@ internal static class ShipStatusFixedUpdatePatch
 
     private static Stopwatch Stopwatch;
 
-    public static System.Collections.IEnumerator Postfix()
+    public static IEnumerator Postfix()
     {
         Stopwatch = Stopwatch.StartNew();
         

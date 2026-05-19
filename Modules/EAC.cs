@@ -239,8 +239,8 @@ internal static class EAC
                     var target = sr.ReadNetObject<PlayerControl>();
                     var resultFlags = (MurderResultFlags)sr.ReadInt32();
 
-                    if (GameStates.IsInTask && !resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
-                        LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
+                    if (GameStates.IsInTask && !resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target && !target.Data.IsDead)
+                        LateTask.New(target.RpcRevive, 0.1f, log: false);
 
                     Report(pc, "Directly Murder Player");
                     HandleCheat(pc, "Directly Murder Player");

@@ -328,12 +328,7 @@ internal class AntiAdminer : RoleBase
             {
                 foreach (var kv in oldPlayersNearDevices)
                 {
-                    if (!PlayersNearDevices.TryGetValue(kv.Key, out var newSet))
-                    {
-                        notify = true;
-                        break;
-                    }
-                    if (!kv.Value.SetEquals(newSet))
+                    if (!PlayersNearDevices.TryGetValue(kv.Key, out var newSet) || !kv.Value.SetEquals(newSet))
                     {
                         notify = true;
                         break;

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 
 namespace EHR.Roles;
 

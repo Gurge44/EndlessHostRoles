@@ -3,6 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -112,7 +113,7 @@ public class Chainbinder : RoleBase
             return;
         }
 
-        RemainingDuration -= UnityEngine.Time.fixedDeltaTime;
+        RemainingDuration -= Time.fixedDeltaTime;
         if (RemainingDuration <= 0f)
         {
             ClearLink(notifyBinder: true);
@@ -130,7 +131,7 @@ public class Chainbinder : RoleBase
 
         if (first.onLadder || first.inMovingPlat || first.inVent || second.onLadder || second.inMovingPlat || second.inVent) return;
 
-        PullTimer -= UnityEngine.Time.fixedDeltaTime;
+        PullTimer -= Time.fixedDeltaTime;
         if (PullTimer > 0f) return;
 
         float currentDistance = Vector2.Distance(first.Pos(), second.Pos());

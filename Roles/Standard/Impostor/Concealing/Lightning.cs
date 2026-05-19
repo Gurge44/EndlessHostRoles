@@ -1,8 +1,7 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using EHR.Patches;
 using Hazel;
-using Rewired.Utils.Classes.Data;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 

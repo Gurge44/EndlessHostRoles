@@ -16,7 +16,7 @@ internal static class GeneratorStatic
             Action.Vent => 20,
             Action.Sabotage => 15,
 
-            _ => 15
+            _ => 0
         };
     }
 

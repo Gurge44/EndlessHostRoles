@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
 
@@ -42,7 +43,7 @@ public class Magistrate : RoleBase
         Main.Instance.StartCoroutine(Coroutine());
         return;
         
-        System.Collections.IEnumerator Coroutine()
+        IEnumerator Coroutine()
         {
             while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSecondsRealtime(5f);
             yield return new WaitForSecondsRealtime(1f);

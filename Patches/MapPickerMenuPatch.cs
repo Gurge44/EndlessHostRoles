@@ -1,6 +1,8 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
+using Il2CppSystem;
 using UnityEngine.SceneManagement;
+using Action = System.Action;
+using Exception = System.Exception;
 
 namespace EHR.Patches;
 
@@ -23,26 +25,26 @@ public static class GameOptionsMapPickerPatch
     [HarmonyPrefix]
     public static void Postfix_Prefix(GameOptionsMapPicker __instance)
     {
-        if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
+        if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
         {
             __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
             {
                 Name = MapNames.Dleks,
                 MapImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner.png", 100f),
                 MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Icon.png", 95f),
-                NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
+                NameImage = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f)
             });
         }
         if (SubmergedCompatibility.Loaded)
         {
-            if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
+            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
             {
                 __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
                 {
                     Name = (MapNames)6,
                     MapImage = Utils.LoadSprite("EHR.Resources.Images.SubmergedBanner.png", 100f),
                     //MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Icon.png", 100f),
-                    NameImage = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f),
+                    NameImage = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 100f)
                 });
             }
         }

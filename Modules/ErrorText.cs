@@ -28,11 +28,11 @@ public class ErrorText : MonoBehaviour
         if (AllErrors.Count == 0) return;
         
         AllErrors.ForEach(err => err.IncreaseTimer());
-        ErrorData[] ToRemove = AllErrors.Where(err => err.ErrorLevel <= 1 && 30f < err.Timer).ToArray();
+        ErrorData[] toRemove = AllErrors.Where(err => err.ErrorLevel <= 1 && 30f < err.Timer).ToArray();
 
-        if (ToRemove.Length > 0)
+        if (toRemove.Length > 0)
         {
-            AllErrors.RemoveAll(err => ToRemove.Contains(err));
+            AllErrors.RemoveAll(toRemove.Contains);
             UpdateText();
             if (HnSFlag) Destroy(gameObject);
         }

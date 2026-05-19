@@ -1,11 +1,12 @@
-using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
 
 namespace EHR.Patches;
 
@@ -220,12 +221,12 @@ internal static class ExileControllerWrapUpPatch
     [HarmonyPatch]
     static class AirshipExileControllerPatch
     {
-        public static System.Reflection.MethodBase TargetMethod()
+        public static MethodBase TargetMethod()
         {
             return Utils.GetStateMachineMoveNext<AirshipExileController>(nameof(AirshipExileController.WrapUpAndSpawn));
         }
     
-        public static void Postfix(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase __instance, ref bool __result)
+        public static void Postfix(Il2CppObjectBase __instance, ref bool __result)
         {
             var wrapper = new StateMachineWrapper<AirshipExileController>(__instance);
         

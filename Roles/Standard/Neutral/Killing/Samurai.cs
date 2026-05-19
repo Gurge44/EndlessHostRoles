@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Roles;

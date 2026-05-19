@@ -5,7 +5,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 

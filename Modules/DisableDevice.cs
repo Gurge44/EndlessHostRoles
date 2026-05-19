@@ -63,7 +63,7 @@ internal static class DisableDevice
             foreach (var ps in Main.PlayerStates.Values)
             {
                 var role = ps.Role;
-                if (role is Rogue rogue && rogue.DisableDevices)
+                if (role is Rogue { DisableDevices: true })
                 {
                     rogueForce = true;
                     break;
@@ -139,7 +139,6 @@ internal static class DisableDevice
             {
                 DesyncComms.Remove(pc.PlayerId);
                 hasValue = true;
-                activateSabComms = false;
             }
 
             if (!hasValue) return;

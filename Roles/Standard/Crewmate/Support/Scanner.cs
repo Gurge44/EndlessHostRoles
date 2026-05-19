@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
+using AmongUs.GameOptions;
 using EHR.Modules.Extensions;
 using UnityEngine;
 using static EHR.Translator;

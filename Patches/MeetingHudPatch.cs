@@ -655,22 +655,19 @@ internal static class ExtendedMeetingHud
                 if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Magistrate) && Magistrate.CallCourtNextMeeting) voteNum += Magistrate.ExtraVotes.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool()) voteNum = 0;
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) voteNum = 0;
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator)) voteNum += Options.VindicatorAdditionalVote.GetInt();
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Schizophrenic) && Options.DualVotes.GetBool()) voteNum += voteNum;
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Stealer)) voteNum += (int)(Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.VotesPerKill.GetFloat());
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) voteNum += (int)(Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
-
+                
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
                 {
+                    case Dad { IsEnable: true } dad when dad.UsingAbilities.Contains(Dad.Ability.GoForMilk):
+                    case Shifter when !Shifter.CanVote.GetBool():
+                    case Glitch when !Glitch.CanVote.GetBool():
+                        voteNum = 0;
+                        break;
                     case Adventurer { IsEnable: true } av when av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy):
                         voteNum++;
-                        break;
-                    case Dad { IsEnable: true } dad when dad.UsingAbilities.Contains(Dad.Ability.GoForMilk):
-                        voteNum = 0;
                         break;
                     case Amogus { IsEnable: true, ExtraVotes: > 0 } amogus:
                         voteNum += amogus.ExtraVotes;
@@ -678,8 +675,17 @@ internal static class ExtendedMeetingHud
                     case Mayor mayor:
                         voteNum += Mayor.MayorAdditionalVote.GetInt() + mayor.TaskVotes;
                         break;
-                    case Survivor survivor when Main.AllAlivePlayerControlsCount <= Survivor.ThirdAbility.GetInt():
+                    case Survivor when Main.AllAlivePlayerControlsCount <= Survivor.ThirdAbility.GetInt():
                         voteNum += Survivor.AdditionalVote.GetInt();
+                        break;
+                    case Pickpocket:
+                        voteNum += (int)(Main.EnumeratePlayerControls().Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
+                        break;
+                    case Vindicator:
+                        voteNum += Options.VindicatorAdditionalVote.GetInt();
+                        break;
+                    case Magistrate when Magistrate.CallCourtNextMeeting:
+                        voteNum += Magistrate.ExtraVotes.GetInt();
                         break;
                 }
 

@@ -1,7 +1,7 @@
-﻿using EHR.Modules;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
@@ -69,9 +69,7 @@ public static class NameNotifyManager
         var notifyEnumerator = Notifies.GetEnumerator();
         while (notifyEnumerator.MoveNext())
         {
-            var pair = notifyEnumerator.Current;
-            byte id = pair.Key;
-            var dict = pair.Value;
+            (byte id, Dictionary<string, long> dict) = notifyEnumerator.Current;
 
             List<string> toRemove = null;
             var innerEnumerator = dict.GetEnumerator();

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -77,7 +78,7 @@ public class Duellist : RoleBase
             duellist.RPCPlayCustomSound("Teleport");
             target.RPCPlayCustomSound("Teleport");
 
-            System.Collections.IEnumerator Coroutine()
+            IEnumerator Coroutine()
             {
                 while (GameStates.IsInTask && duellist.IsAlive() && target.IsAlive()) yield return null;
                 if (!GameStates.IsInTask) yield break;

@@ -244,11 +244,10 @@ public class Main : BasePlugin
     public static ConfigEntry<string> Preset20 { get; private set; }
 
     // Other Configs
-    public static ConfigEntry<string> WebhookUrl { get; private set; }
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
-    public static ConfigEntry<bool> AckdPrivacyPolicy { get; set; }
+    public static ConfigEntry<bool> AckdPrivacyPolicy { get; private set; }
 
     public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
     public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
@@ -430,7 +429,7 @@ public class Main : BasePlugin
         Preset18 = Config.Bind("Preset Name Options", "Preset18", "Preset_18");
         Preset19 = Config.Bind("Preset Name Options", "Preset19", "Preset_19");
         Preset20 = Config.Bind("Preset Name Options", "Preset20", "Preset_20");
-        WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
+        Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
@@ -1336,4 +1335,4 @@ public enum TieMode
     Random
 }
 
-public class Coroutines : MonoBehaviour { }
+public class Coroutines : MonoBehaviour;

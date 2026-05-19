@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -48,7 +49,7 @@ public class Obstructer : RoleBase
         return true;
     }
 
-    private System.Collections.IEnumerator Coroutine()
+    private IEnumerator Coroutine()
     {
         do
         {

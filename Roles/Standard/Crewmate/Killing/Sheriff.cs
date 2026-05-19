@@ -125,7 +125,7 @@ public class Sheriff : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanBeKilledBySheriff(target) || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
+        if (CanBeKilledBySheriff(target) || SidekickSheriffCanGoBerserk.GetBool() || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
         {
             SetKillCooldown(killer.PlayerId);
             return true;
@@ -169,6 +169,7 @@ public class Sheriff : RoleBase
         {
             CustomRoles.Trickster => false,
             CustomRoles.Pestilence => true,
+            CustomRoles.Sidekick => CanKillSidekicks.GetBool(),
             _ => player.GetCustomRoleTypes() switch
             {
                 CustomRoleTypes.Impostor => true,

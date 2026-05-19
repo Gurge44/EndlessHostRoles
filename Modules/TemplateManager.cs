@@ -18,7 +18,7 @@ public static class TemplateManager
     private static readonly string TemplateFilePath = $"{Main.DataPath}/EHR_DATA/template.txt";
 
     private static readonly Regex HeaderRegex = new(
-        @"^([a-zA-Z0-9_]+)(?:\[([^\]""]*(?:""[^""]*""[^\]""]*)*)\])?:\s*(.*)$",
+        """^([a-zA-Z0-9_]+)(?:\[([^\]"]*(?:"[^"]*"[^\]"]*)*)\])?:\s*(.*)$""",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex PropertyRegex = new(
@@ -74,7 +74,7 @@ public static class TemplateManager
         ["GameDuration"]         = () => { if (!GameStates.IsInGame) return "00:00"; int e = (int)(Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS); return $"{e / 60:00}:{e % 60:00}"; },
         ["Date"]                 = () => DateTime.Now.ToShortDateString(),
         ["Time"]                 = () => DateTime.Now.ToShortTimeString(),
-        ["Preset"]               = () => GetString($"Preset_{OptionItem.CurrentPreset + 1}"),
+        ["Preset"]               = () => GetString($"Preset_{OptionItem.CurrentPreset + 1}")
     };
 
     private class TemplateEntry
@@ -285,7 +285,9 @@ public static class TemplateManager
     // Pulls `key="..."` out of propString, returning the quoted value and the remaining string
     private static string ExtractQuotedProperty(string input, string key, out string value, out string remaining)
     {
-        Match m = Regex.Match(input, $@"(?:^|,)\s*{Regex.Escape(key)}\s*=\s*""((?:[^""\\]|\\.)*)""", RegexOptions.IgnoreCase);
+        Match m = Regex.Match(input, $"""
+                                      (?:^|,)\s*{Regex.Escape(key)}\s*=\s*"((?:[^"\\]|\\.)*)"
+                                      """, RegexOptions.IgnoreCase);
         if (m.Success)
         {
             value = Regex.Unescape(m.Groups[1].Value);

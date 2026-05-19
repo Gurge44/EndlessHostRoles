@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
@@ -35,6 +34,9 @@ internal static class ControllerManagerUpdatePatch
     private static readonly KeyCode[] ShowActiveSettingsKey = [KeyCode.N, KeyCode.LeftControl];
     private static readonly KeyCode[] ResetAllOptionsKey = [KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift];
     private static readonly KeyCode[] HostKillSelfKey = [KeyCode.Return, KeyCode.E, KeyCode.LeftShift];
+    private static readonly KeyCode[] OpenClientControlGUILeftKey = [KeyCode.LeftControl, KeyCode.BackQuote];
+    private static readonly KeyCode[] OpenClientControlGUIRightKey = [KeyCode.RightControl, KeyCode.BackQuote];
+#if DEBUG
     private static readonly KeyCode[] IsAlsoInGameKey = [KeyCode.F2, KeyCode.LeftControl];
     private static readonly KeyCode[] KillFlashKey = [KeyCode.Return, KeyCode.F, KeyCode.LeftShift];
     private static readonly KeyCode[] ShowIntroKey = [KeyCode.Return, KeyCode.G, KeyCode.LeftShift];
@@ -42,8 +44,7 @@ internal static class ControllerManagerUpdatePatch
     private static readonly KeyCode[] RpcUpdateSystemKey = [KeyCode.Return, KeyCode.D, KeyCode.LeftShift];
     private static readonly KeyCode[] SetKillTimerKey = [KeyCode.Return, KeyCode.K, KeyCode.LeftShift];
     private static readonly KeyCode[] RpcCompleteTaskKey = [KeyCode.Return, KeyCode.T, KeyCode.LeftShift];
-    private static readonly KeyCode[] OpenClientControlGUILeftKey = [KeyCode.LeftControl, KeyCode.BackQuote];
-    private static readonly KeyCode[] OpenClientControlGUIRightKey = [KeyCode.RightControl, KeyCode.BackQuote];
+#endif
 
     private static bool IsResetting;
 

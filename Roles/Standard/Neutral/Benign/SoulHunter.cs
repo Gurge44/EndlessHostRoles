@@ -255,10 +255,7 @@ internal class SoulHunter : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || Main.PlayerStates[seer.PlayerId].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
-
-        if (!sh.IsTargetBlocked) return string.Empty;
-
+        if (!hud || Main.PlayerStates[seer.PlayerId].Role is not SoulHunter { IsEnable: true, IsTargetBlocked: true } sh) return string.Empty;
         return sh.CurrentTarget.Frozen ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
     }
 

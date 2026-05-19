@@ -173,8 +173,7 @@ public class Enigma : RoleBase
 
             return ClueStage switch
             {
-                1 => GetString("EnigmaClueHat1"),
-                2 => GetString("EnigmaClueHat1"),
+                1 or 2 => GetString("EnigmaClueHat1"),
                 3 => showStageClue ? string.Format(GetString("EnigmaClueHat3"), killerOutfit.HatId) : GetString("EnigmaClueHat1"),
                 _ => null
             };
@@ -192,8 +191,7 @@ public class Enigma : RoleBase
 
             return ClueStage switch
             {
-                1 => GetString("EnigmaClueVisor1"),
-                2 => GetString("EnigmaClueVisor1"),
+                1 or 2 => GetString("EnigmaClueVisor1"),
                 3 => showStageClue ? string.Format(GetString("EnigmaClueVisor3"), killerOutfit.VisorId) : GetString("EnigmaClueVisor1"),
                 _ => null
             };
@@ -211,8 +209,7 @@ public class Enigma : RoleBase
 
             return ClueStage switch
             {
-                1 => GetString("EnigmaClueSkin1"),
-                2 => GetString("EnigmaClueSkin1"),
+                1 or 2 => GetString("EnigmaClueSkin1"),
                 3 => showStageClue ? string.Format(GetString("EnigmaClueSkin3"), killerOutfit.SkinId) : GetString("EnigmaClueSkin1"),
                 _ => null
             };
@@ -230,8 +227,7 @@ public class Enigma : RoleBase
 
             return ClueStage switch
             {
-                1 => GetString("EnigmaCluePet1"),
-                2 => GetString("EnigmaCluePet1"),
+                1 or 2 => GetString("EnigmaCluePet1"),
                 3 => showStageClue ? string.Format(GetString("EnigmaCluePet3"), killerOutfit.PetId) : GetString("EnigmaCluePet1"),
                 _ => null
             };
@@ -351,8 +347,7 @@ public class Enigma : RoleBase
 
             return ClueStage switch
             {
-                1 => GetStage1Clue(killerOutfit.ColorId),
-                2 => GetStage1Clue(killerOutfit.ColorId),
+                1 or 2 => GetStage1Clue(killerOutfit.ColorId),
                 3 => showStageClue ? string.Format(GetString("EnigmaClueColor3"), killer.Data.ColorName) : GetStage1Clue(killerOutfit.ColorId),
                 _ => GetStage1Clue(killerOutfit.ColorId)
             };

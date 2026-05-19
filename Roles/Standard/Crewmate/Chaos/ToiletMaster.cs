@@ -37,7 +37,7 @@ public class ToiletMaster : RoleBase
     private List<PlayerControl> ActivePoopDataList = [];
     private Dictionary<byte, long> PlayersUsingToilet = [];
 
-    private KeyValuePair<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> FoundedFirst = default;
+    private KeyValuePair<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> FoundFirst;
     private Dictionary<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> Toilets = [];
     private readonly List<Vector2> ToRemove = [];
 
@@ -197,22 +197,22 @@ public class ToiletMaster : RoleBase
         try
         {
             Vector2 pos = pc.Pos();
-            FoundedFirst = default;
+            FoundFirst = default;
             float toiletRadius = ToiletUseRadius.GetFloat();
             bool hasToilet = false;
             foreach (var kvp in Toilets)
             {
                 if (FastVector2.DistanceWithinRange(kvp.Key, pos, toiletRadius))
                 {
-                    FoundedFirst = kvp;
+                    FoundFirst = kvp;
                     hasToilet = true;
                     break;
                 }
             }
             if (!hasToilet) return;
             
-            var (NetObject, Uses, PlaceTimeStamp) = FoundedFirst.Value;
-            if (Uses >= AbilityUses.GetInt()) return;
+            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = FoundFirst.Value;
+            if (toilet.Uses >= AbilityUses.GetInt()) return;
 
             if (!PlayersUsingToilet.TryGetValue(playerId, out long ts))
             {
@@ -222,7 +222,8 @@ public class ToiletMaster : RoleBase
 
             if (ts + ToiletUseTime.GetInt() > now) return;
 
-            Uses++;
+            toilet.Uses++;
+            Toilets[FoundFirst.Key] = toilet;
 
             Poop poop = AllPoopValues.RandomElement();
             if (poop != Poop.Green) pc.Notify(Utils.ColorString(GetPoopColor(poop), string.Format(Translator.GetString("TM.GetPoopNotify"), poop)));
@@ -320,10 +321,10 @@ public class ToiletMaster : RoleBase
         ToRemove.Clear();
         foreach (var pair in Toilets)
         {
-            var (NetObject, Uses, PlaceTimeStamp) = pair.Value;
-            if (PlaceTimeStamp + duration <= now || Uses >= maxUses)
+            (Toilet netObject, int uses, long placeTimeStamp) = pair.Value;
+            if (placeTimeStamp + duration <= now || uses >= maxUses)
             {
-                NetObject.Despawn();
+                netObject.Despawn();
                 ToRemove.Add(pair.Key);
             }
         }

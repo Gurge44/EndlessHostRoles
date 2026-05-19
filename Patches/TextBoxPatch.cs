@@ -85,7 +85,7 @@ public static class TextBoxPatch
 
             __instance.outputText.text = str + compoText;
             __instance.outputText.ForceMeshUpdate(true, true);
-            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+            __instance.keyboard?.text = __instance.text;
             __instance.OnChange.Invoke();
 
             if (__instance.tempTxt.Length == __instance.characterLimit && __instance.SendOnFullChars)

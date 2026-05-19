@@ -99,11 +99,7 @@ internal class Arsonist : RoleBase
             .Append(doused.Item1)
             .Append('/');
 
-        if (!ArsonistCanIgniteAnytime.GetBool())
-            resultText.Append(doused.Item2);
-        else
-            resultText.Append(ArsonistMaxPlayersToIgnite.GetInt());
-
+        resultText.Append(!ArsonistCanIgniteAnytime.GetBool() ? doused.Item2 : ArsonistMaxPlayersToIgnite.GetInt());
         resultText.Append("</color>");
     }
 

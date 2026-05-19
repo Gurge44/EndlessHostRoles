@@ -1,12 +1,11 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
-using static EHR.Roles.Adventurer;
 using static EHR.Translator;
 
 namespace EHR.Gamemodes;
@@ -33,7 +32,7 @@ public static class KingOfTheZones
     private static readonly KOTZTeam[] AllKOTZTeam = Enum.GetValues<KOTZTeam>();
     private static readonly StringBuilder Suffix = new();
 
-    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     private static readonly Dictionary<MapNames, List<List<SystemTypes>>> DefaultZones = new()
     {

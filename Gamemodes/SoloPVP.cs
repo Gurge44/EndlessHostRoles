@@ -136,14 +136,14 @@ internal static class SoloPVP
         var x = (int)(PlayerHP[pc.PlayerId] / PlayerHPMax[pc.PlayerId] * 10 * 50);
         var r = 255;
         var g = 255;
-        var b = 0;
+        const int b = 0;
 
         if (x > 255)
             r -= x - 255;
         else
             g = x;
 
-        return new((byte)r, (byte)g, (byte)b, byte.MaxValue);
+        return new((byte)r, (byte)g, b, byte.MaxValue);
     }
 
     private static string GetStatsForVanilla(PlayerControl pc)

@@ -78,7 +78,7 @@ public static class BedWars
     private static readonly Item[] Selections = Enum.GetValues<Item>();
     private static readonly ItemCategory[] Categories = Enum.GetValues<ItemCategory>()[1..];
     private static readonly Upgrade[] AllUpgrade = Enum.GetValues<Upgrade>();
-    public static (Color Color, string Team) WinnerData = (Color.white, "No one wins");
+    public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
     {

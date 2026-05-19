@@ -1,3 +1,14 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
@@ -12,17 +23,6 @@ using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using static EHR.Translator;
 using Tree = EHR.Roles.Tree;
@@ -330,7 +330,7 @@ public static class Utils
 
         foreach (PlayerControl seer in Main.CachedAllPlayerControls())
         {
-            if (KillFlashCheck(killer, target, seer))
+            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer))
             {
                 seer.KillFlash();
                 continue;
@@ -356,15 +356,6 @@ public static class Utils
                 Demolitionist.OnDeath(killer, target);
                 break;
         }
-    }
-
-    private static bool KillFlashCheck(PlayerControl killer, PlayerControl target, PlayerControl seer)
-    {
-        if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer)) return true;
-
-        // if (!seer.IsAlive() || killer == seer || target == seer) return false;
-
-        return false;
     }
 
     public static void BlackOut(this IGameOptions opt, bool blackOut)
@@ -3137,7 +3128,7 @@ public static class Utils
                     var state = states[devourerList[index]];
                     var role = state.Role;
 
-                    if (role is Devourer dv && dv.IsEnable && dv.PlayerSkinsCosumed.Contains(seerId))
+                    if (role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seerId))
                     {
                         selfName = GetString("DevouredName");
                         break;
@@ -3477,7 +3468,7 @@ public static class Utils
                                     var state = states[devourerList[index]];
                                     var role = state.Role;
 
-                                    if (role is Devourer dv && dv.IsEnable && dv.PlayerSkinsCosumed.Contains(seerId))
+                                    if (role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seerId))
                                     {
                                         targetPlayerName = GetString("DevouredName");
                                         break;
@@ -3600,9 +3591,7 @@ public static class Utils
         var markList = Markseeker.PlayerIdList;
         for (int i = 0; i < markList.Count; i++)
         {
-            if (states[markList[i]].Role is Markseeker role &&
-                role.IsEnable &&
-                role.TargetRevealed &&
+            if (states[markList[i]].Role is Markseeker { IsEnable: true, TargetRevealed: true } role &&
                 role.MarkedId == targetId)
                 return true;
         }
@@ -3680,10 +3669,6 @@ public static class Utils
                 break;
 
             case CustomRoles.Jackal:
-                if (local.Is(CustomRoles.Jackal) || local.Is(CustomRoles.Sidekick))
-                    return true;
-                break;
-
             case CustomRoles.Sidekick:
                 if (local.Is(CustomRoles.Jackal) || local.Is(CustomRoles.Sidekick))
                     return true;
@@ -3746,9 +3731,7 @@ public static class Utils
         var markList = Markseeker.PlayerIdList;
         for (int i = 0; i < markList.Count; i++)
         {
-            if (states[markList[i]].Role is Markseeker role &&
-                role.IsEnable &&
-                role.TargetRevealed &&
+            if (states[markList[i]].Role is Markseeker { IsEnable: true, TargetRevealed: true } role &&
                 role.MarkedId == targetId)
                 return true;
         }

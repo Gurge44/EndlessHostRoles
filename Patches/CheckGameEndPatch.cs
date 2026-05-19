@@ -1,3 +1,7 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Gamemodes;
@@ -6,10 +10,6 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.CustomWinnerHolder;
 using static EHR.Translator;

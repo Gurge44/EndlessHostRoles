@@ -1,11 +1,12 @@
-using AmongUs.Data;
-using EHR.Modules;
-using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes;
-using InnerNet;
 using System;
 using System.Linq;
 using System.Reflection;
+using AmongUs.Data;
+using EHR.Modules;
+using HarmonyLib;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
+using InnerNet;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -35,7 +36,7 @@ internal static class MakePublicPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 static class StartRpcImmediatelyPatch
 {
-    public static void Postfix(uint targetNetId, byte callId, Hazel.SendOption option, int targetClientId = -1)
+    public static void Postfix(uint targetNetId, byte callId, SendOption option, int targetClientId = -1)
     {
         if (callId is 21 or 44 or 45 or 104) return;
         Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.CachedAllPlayerControls().FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");

@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -13,7 +10,6 @@ internal class Puppeteer : RoleBase
     public static Dictionary<byte, long> PuppeteerDelayList = [];
     private static Dictionary<byte, int> PuppeteerDelay = [];
     private static Dictionary<byte, int> PuppeteerMaxPuppets = [];
-    private static Dictionary<byte, float> TargetDistance = [];
 
     public static bool On;
 
@@ -163,7 +159,7 @@ internal class Puppeteer : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
     {
-        if (player == null || lowLoad) return;
+        if (lowLoad) return;
 
         byte playerId = player.PlayerId;
         long now = Utils.TimeStamp;

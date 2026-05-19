@@ -36,13 +36,11 @@ internal static class ChangeRoleSettings
 
         IEnumerator<object> CoStartGame()
         {
-            AmongUsClient amongUsClient = __instance;
-
             if (HudManager.Instance.GameMenu.IsOpen)
                 HudManager.Instance.GameMenu.Close();
 
             UnityTelemetry.Instance.Init();
-            amongUsClient.logger.Info("Received game start: " + amongUsClient.AmHost);
+            __instance.logger.Info("Received game start: " + __instance.AmHost);
             yield return null;
 
             while (!HudManager.InstanceExists)
@@ -65,7 +63,7 @@ internal static class ChangeRoleSettings
 
             if (GameStartManager.InstanceExists)
             {
-                amongUsClient.DisconnectHandlers.Remove(GameStartManager.Instance.CastFast<IDisconnectHandler>());
+                __instance.DisconnectHandlers.Remove(GameStartManager.Instance.CastFast<IDisconnectHandler>());
                 Object.Destroy(GameStartManager.Instance.gameObject);
             }
 
@@ -95,14 +93,14 @@ internal static class ChangeRoleSettings
             DataManager.Player.Ban.PreviousGameStartDate = DateTime.UtcNow;
             DataManager.Player.Save();
 
-            if (amongUsClient.AmHost)
-                yield return amongUsClient.CoStartGameHost();
+            if (__instance.AmHost)
+                yield return __instance.CoStartGameHost();
             else
             {
-                yield return amongUsClient.CoStartGameClient();
+                yield return __instance.CoStartGameClient();
 
-                if (amongUsClient.AmHost)
-                    yield return amongUsClient.CoStartGameHost();
+                if (__instance.AmHost)
+                    yield return __instance.CoStartGameHost();
             }
 
             for (var index = 0; index < GameData.Instance.PlayerCount; ++index)

@@ -1,12 +1,12 @@
-﻿using AmongUs.GameOptions;
-using EHR.Gamemodes;
-using EHR.Modules;
-using EHR.Roles;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using AmongUs.GameOptions;
+using EHR.Gamemodes;
+using EHR.Modules;
+using EHR.Roles;
 using UnityEngine;
 
 namespace EHR;
@@ -1754,8 +1754,13 @@ internal static class CustomRolesHelper
                             : CountTypes.Crew
             };
         }
-    }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string ToColoredString()
+        {
+            return role.ColoredTextByRole(Translator.GetString(role.ToString()));
+        }
+    }
 
     extension(Team team)
     {
@@ -1786,11 +1791,6 @@ internal static class CustomRolesHelper
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ToColoredString(this CustomRoles role)
-    {
-        return role.ColoredTextByRole(Translator.GetString(role.ToString()));
-    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ColoredTextByRole(this CustomRoles role, string str)
     {

@@ -1,15 +1,14 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -269,12 +268,12 @@ internal static class HudManagerPatch
                             break;
                     }
 
-                    if (ShouldHideAbilityButton(role, player))
+                    if (ShouldHideAbilityButton())
                     {
                         __instance.AbilityButton?.Hide();
                     }
 
-                    bool ShouldHideAbilityButton(CustomRoles role, PlayerControl player)
+                    bool ShouldHideAbilityButton()
                     {
                         if (!role.PetActivatedAbility() 
                             || Options.CurrentGameMode != CustomGameMode.Standard
@@ -341,12 +340,11 @@ internal static class HudManagerPatch
                     {
                         Sb.Clear();
                         Suffixes.Clear();
-                        string suffixText = string.Empty;
 
                         var subRoles = state.SubRoles;
                         for (int i = 0; i < subRoles.Count; i++)
                         {
-                            suffixText = subRoles[i] switch
+                            string suffixText = subRoles[i] switch
                             {
                                 CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                                 CustomRoles.Spurt => Spurt.GetSuffix(player, true),
@@ -924,7 +922,7 @@ internal static class SabotageMapPatch
 [HarmonyPatch(typeof(MapRoom), nameof(MapRoom.Start))]
 internal static class MapRoomDoorsStartPatch
 {
-    public static void Postfix(MapRoom __instance)
+    public static void Postfix()
     {
         ShipStatus shipStatusInstance = ShipStatus.Instance;
         if (!shipStatusInstance || SubmergedCompatibility.IsSubmerged()) return;
@@ -945,9 +943,9 @@ internal static class MapRoomDoorsUpdatePatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> DoorTimerTexts = [];
     private static readonly int Percent = Shader.PropertyToID("_Percent");
-    public static DoorsSystemType DoorsSystemType = null;
-    public static AutoDoorsSystemType AutoDoorsSystemType = null;
-    public static Dictionary<SystemTypes, AutoOpenDoor> AutoOpenDoors = [];
+    public static DoorsSystemType DoorsSystemType;
+    public static AutoDoorsSystemType AutoDoorsSystemType;
+    public static readonly Dictionary<SystemTypes, AutoOpenDoor> AutoOpenDoors = [];
 
     public static bool Prefix(MapRoom __instance)
     {
@@ -957,8 +955,8 @@ internal static class MapRoomDoorsUpdatePatch
         if (!doorSprite || !shipStatusInstance || SubmergedCompatibility.IsSubmerged()) return false;
 
         SystemTypes room = __instance.room;
-        float total = 0f;
-        float timer = 0f;
+        float total;
+        float timer;
 
         if (DoorsSystemType != null)
         {
@@ -1048,7 +1046,6 @@ internal static class SpawnTaskHeaderPatch
 internal static class TaskPanelBehaviourPatch
 {
     // Role info tab panel code from https://github.com/All-Of-Us-Mods/MiraAPI and https://github.com/AU-Avengers/TOU-Mira
-    private static readonly StringBuilder Sb = new();
     private static readonly StringBuilder InnerSb = new();
     private static readonly StringBuilder RoleWithInfoBuilder = new();
     private static readonly StringBuilder FinalTextBuilder = new();
@@ -1059,7 +1056,6 @@ internal static class TaskPanelBehaviourPatch
     private static readonly List<(PlayerControl pc, string points_string, int points_int)> TempPointsData = [];
 
     private static readonly List<byte> SortedPlayers = [];
-    private static readonly List<string> SummaryTextList = [];
     private static readonly Dictionary<byte, string> SummaryText = [];
 
     public static PassiveButton RolePanelButton;
@@ -1116,7 +1112,7 @@ internal static class TaskPanelBehaviourPatch
         string roleInfo = player.GetRoleInfo();
 
         Dictionary<byte, PlayerState> playerStates = Main.PlayerStates;
-        List<PlayerControl> AllPlayers = Main.CachedAllPlayerControls();
+        List<PlayerControl> allPlayers = Main.CachedAllPlayerControls();
         RoleWithInfoBuilder.Clear();
 
         int wordCount = 0;
@@ -1203,7 +1199,7 @@ internal static class TaskPanelBehaviourPatch
                             InnerSb.Clear().Append("\r\n\r\n")
                                    .Append(subRole.ToColoredString())
                                    .Append(":\r\n")
-                                   .Append(GetString(subRole.ToString() + "Info"));
+                                   .Append(GetString(subRole + "Info"));
 
                             FinalTextBuilder.Append(Utils.ColorString(Utils.GetRoleColor(subRole), InnerSb.ToString()));
                         }
@@ -1215,7 +1211,7 @@ internal static class TaskPanelBehaviourPatch
                             var chunk = 4;
                             for (int index = 0; index < countSubRoles; index++)
                             {
-                                if (GetString(subRoles[index].ToString()).IndexOf(' ') >= 0)
+                                if (GetString(subRoles[index].ToString()).Contains(' '))
                                 {
                                     chunk = 3;
                                     break;
@@ -1270,11 +1266,8 @@ internal static class TaskPanelBehaviourPatch
                         SortedPlayers.Add(key);
 
                     if (SortedPlayers.Count >= 2)
-                        SortedPlayers.Sort((a, b) =>
-                        {
-                            return SoloPVP.GetRankFromScore(a)
-                                .CompareTo(SoloPVP.GetRankFromScore(b));
-                        });
+                        SortedPlayers.Sort((a, b) => SoloPVP.GetRankFromScore(a)
+                            .CompareTo(SoloPVP.GetRankFromScore(b)));
 
                     for (int sPId = 0; sPId < SortedPlayers.Count; sPId++)
                     {
@@ -1298,11 +1291,8 @@ internal static class TaskPanelBehaviourPatch
                         SortedPlayers.Add(key);
 
                     if (SortedPlayers.Count >= 2)
-                        SortedPlayers.Sort((a, b) =>
-                        {
-                            return FreeForAll.GetRankFromScore(a)
-                                    .CompareTo(FreeForAll.GetRankFromScore(b));
-                        });
+                        SortedPlayers.Sort((a, b) => FreeForAll.GetRankFromScore(a)
+                            .CompareTo(FreeForAll.GetRankFromScore(b)));
 
                     for (int sPId = 0; sPId < SortedPlayers.Count; sPId++)
                     {
@@ -1397,9 +1387,9 @@ internal static class TaskPanelBehaviourPatch
             case CustomGameMode.NaturalDisasters:
                 {
                     TempPlayerData.Clear();
-                    for (int i = 0; i < AllPlayers.Count; i++)
+                    for (int i = 0; i < allPlayers.Count; i++)
                     {
-                        var pc = AllPlayers[i];
+                        var pc = allPlayers[i];
                         TempPlayerData.Add((pc, pc.IsAlive(), NaturalDisasters.SurvivalTime(pc.PlayerId)));
                     }
                     if (TempPlayerData.Count >= 2)
@@ -1415,7 +1405,7 @@ internal static class TaskPanelBehaviourPatch
 
                     for (int i = 0; i < TempPlayerData.Count; i++)
                     {
-                        var (pc, alive, time) = TempPlayerData[i];
+                        (PlayerControl pc, bool alive, int time) = TempPlayerData[i];
 
                         FinalTextBuilder.Append("\r\n")
                             .Append(pc.PlayerId.ColoredPlayerName())
@@ -1434,9 +1424,9 @@ internal static class TaskPanelBehaviourPatch
 
                     if (!RoomRush.PointsSystem)
                     {
-                        for (int i = 0; i < AllPlayers.Count; i++)
+                        for (int i = 0; i < allPlayers.Count; i++)
                         {
-                            var pc = AllPlayers[i];
+                            var pc = allPlayers[i];
                             TempPlayerData.Add((pc, pc.IsAlive(), RoomRush.GetSurvivalTime(pc.PlayerId)));
                         }
                         if (TempPlayerData.Count >= 2)
@@ -1450,7 +1440,7 @@ internal static class TaskPanelBehaviourPatch
 
                         for (int i = 0; i < TempPlayerData.Count; i++)
                         {
-                            var (pc, alive, time) = TempPlayerData[i];
+                            (PlayerControl pc, bool alive, int time) = TempPlayerData[i];
 
                             FinalTextBuilder.Append("\r\n")
                                 .Append(pc.PlayerId.ColoredPlayerName())
@@ -1461,9 +1451,9 @@ internal static class TaskPanelBehaviourPatch
                     }
                     else
                     {
-                        for (int i = 0; i < AllPlayers.Count; i++)
+                        for (int i = 0; i < allPlayers.Count; i++)
                         {
-                            var pc = AllPlayers[i];
+                            var pc = allPlayers[i];
 
                             string pointsStr = RoomRush.GetPoints(pc.PlayerId);
                             int pointsInt = ParsePointsFast(pointsStr);
@@ -1474,7 +1464,7 @@ internal static class TaskPanelBehaviourPatch
 
                         for (int i = 0; i < TempPointsData.Count; i++)
                         {
-                            var (pc, points_string, points_int) = TempPointsData[i];
+                            (PlayerControl pc, string points_string, _) = TempPointsData[i];
 
                             FinalTextBuilder.Append("\r\n")
                                 .Append(pc.PlayerId.ColoredPlayerName())

@@ -596,7 +596,7 @@ internal static class CustomRoleSelector
     private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount)
     {
         public CustomRoles Role => role;
-        public int SpawnChance { get; set; } = spawnChance;
+        public int SpawnChance { get; } = spawnChance;
 
         public int MaxCount => maxCount;
         public int AssignedCount { get; set; }

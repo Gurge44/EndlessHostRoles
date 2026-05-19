@@ -1,5 +1,4 @@
-﻿using EHR.Gamemodes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using EHR.Gamemodes;
 
 namespace EHR;
 
@@ -36,7 +36,7 @@ public static class Translator
         try
         {
             // Get the directory containing the JSON files (e.g., EHR.Resources.Lang)
-            var jsonDirectory = "EHR.Resources.Lang";
+            const string jsonDirectory = "EHR.Resources.Lang";
             // Get the assembly containing the resources
             var assembly = Assembly.GetExecutingAssembly();
             string[] jsonFileNames = GetJsonFileNames(assembly, jsonDirectory);
@@ -174,7 +174,7 @@ public static class Translator
 
         string str = GetString(s, langId);
 
-        if (replacementDic != null && replacementDic.Count > 0)
+        if (replacementDic is { Count: > 0 })
         {
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);

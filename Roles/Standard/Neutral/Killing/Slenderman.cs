@@ -96,7 +96,7 @@ public class Slenderman : RoleBase
                 MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.Write(SlendermanPC.PlayerId);
                 w.WritePacked(Blinded.Count);
-                Blinded.Do(x => w.Write(x));
+                Blinded.Do(w.Write);
                 Utils.EndRPC(w);
             }
         }

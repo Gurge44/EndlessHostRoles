@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -5,10 +8,6 @@ using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
 using InnerNet;
-using Rewired.Utils.Platforms.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;

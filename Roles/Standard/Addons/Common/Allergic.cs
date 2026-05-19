@@ -34,10 +34,12 @@ public class Allergic : IAddon
 
         LateTask.New(() =>
         {
-            var aapc = Main.EnumerateAlivePlayerControls();
+            var aapc = Main.AllAlivePlayerControlsToList;
 
-            foreach (PlayerControl pc in aapc)
+            for (var index = 0; index < aapc.Count; index++)
             {
+                PlayerControl pc = aapc[index];
+
                 if (pc.Is(CustomRoles.Allergic))
                 {
                     PlayerControl target = aapc.Without(pc).RandomElement();

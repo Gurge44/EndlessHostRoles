@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Roles;

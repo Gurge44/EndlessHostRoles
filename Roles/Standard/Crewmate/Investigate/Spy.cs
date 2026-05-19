@@ -19,8 +19,6 @@ public class Spy : RoleBase
     public static OptionItem SpyAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    private long LastUpdate;
-
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -52,7 +50,6 @@ public class Spy : RoleBase
 
     public override void Add(byte playerId)
     {
-        LastUpdate = TimeStamp;
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
     }
@@ -90,7 +87,7 @@ public class Spy : RoleBase
 
     public static bool OnKillAttempt(PlayerControl killer, PlayerControl target) // Special handling for Spy ---- remains as a static method
     {
-        if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return true;
+        if (!target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return true;
 
         target.RpcRemoveAbilityUse();
         SpyRedNameList.Add(killer.PlayerId);

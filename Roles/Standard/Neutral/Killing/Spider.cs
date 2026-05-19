@@ -135,11 +135,8 @@ public class Spider : RoleBase
         int trappedDuration = TrappedDuration.GetInt();
         long expireTime = Utils.TimeStamp + trappedDuration;
 
-        foreach (var kvp in Webs)
+        foreach ((Vector2 webPos, Dictionary<byte, long> trappedPlayers) in Webs)
         {
-            Vector2 webPos = kvp.Key;
-            var trappedPlayers = kvp.Value;
-
             if (!FastVector2.DistanceWithinRange(webPos, pos, range)) continue;
             if (!trappedPlayers.TryAdd(pc.PlayerId, expireTime)) continue;
 

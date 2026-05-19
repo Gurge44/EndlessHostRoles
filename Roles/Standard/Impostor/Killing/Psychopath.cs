@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
-using UnityEngine;
-
-namespace EHR.Roles;
+﻿namespace EHR.Roles;
 
 public class Psychopath : RoleBase
 {

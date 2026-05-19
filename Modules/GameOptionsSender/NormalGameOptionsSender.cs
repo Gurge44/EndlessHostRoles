@@ -3,7 +3,6 @@ using System.Collections;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using InnerNet;
 
 namespace EHR.Modules;
 

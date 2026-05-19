@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using InnerNet;
 using UnityEngine;
 
 namespace EHR.Gamemodes;
@@ -213,7 +212,7 @@ internal static class HotPotato
                     LateTask.New(() => target.SetKillCooldownNonSync(1f), 0.2f, log: false);
                 }
 
-                if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt() && aapcCount > 1)
+                if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt())
                 {
                     Vector2 pos = target.Pos();
                     TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);

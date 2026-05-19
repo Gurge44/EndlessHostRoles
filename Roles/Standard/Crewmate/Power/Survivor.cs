@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
@@ -127,9 +126,9 @@ public class Survivor : RoleBase
             ShieldTimer = new CountdownTimer(ShieldDuration.GetFloat(), () =>
             {
                 ShieldTimer = null;
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }, onCanceled: () => ShieldTimer = null);
-            if (!shielded) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (!shielded) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
     }
 
@@ -141,7 +140,7 @@ public class Survivor : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != SurvivorId || meeting || (seer.IsModdedClient() && !hud) || ShieldTimer == null) return string.Empty;
-        return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(ShieldTimer.Remaining.TotalSeconds)) : Translator.GetString("SafeguardSuffix");
+        return seer.IsHost() ? string.Format(GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(ShieldTimer.Remaining.TotalSeconds)) : GetString("SafeguardSuffix");
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)
@@ -175,8 +174,8 @@ public class Survivor : RoleBase
             Killing = true;
             pc.RpcChangeRoleBasis(CustomRoles.Scanner);
             LateTask.New(() => pc.SetKillCooldown(KillCooldown.GetFloat()), 0.2f);
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Killing);
+            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             pc.MarkDirtySettings();
         }
     }
@@ -191,7 +190,7 @@ public class Survivor : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (Main.AllAlivePlayerControlsCount <= LastAbility.GetInt()) return true;
-        killer.Notify(Translator.GetString("SurvivorCantKillYet"));
+        killer.Notify(GetString("SurvivorCantKillYet"));
         return false;
     }
 }

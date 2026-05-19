@@ -197,22 +197,18 @@ public class Bandit : RoleBase
 
         if (StealMode.GetValue() == 1) return;
 
-        foreach (KeyValuePair<byte, Dictionary<byte, CustomRoles>> kvp1 in Targets)
+        foreach ((byte banditId, Dictionary<byte, CustomRoles> innerDictionary) in Targets)
         {
-            byte banditId = kvp1.Key;
             PlayerControl banditpc = Utils.GetPlayerById(banditId);
             if (banditpc == null || !banditpc.IsAlive()) continue;
 
-            Dictionary<byte, CustomRoles> innerDictionary = kvp1.Value;
             Utils.NotifyRoles(SpecifySeer: banditpc);
 
-            foreach (KeyValuePair<byte, CustomRoles> kvp2 in innerDictionary)
+            foreach ((byte targetId, CustomRoles role) in innerDictionary)
             {
-                byte targetId = kvp2.Key;
                 PlayerControl target = Utils.GetPlayerById(banditId);
                 if (target == null) continue;
 
-                CustomRoles role = kvp2.Value;
                 Main.PlayerStates[targetId].RemoveSubRole(role);
                 Logger.Info($"Successfully removed {role} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
                 banditpc.RpcSetCustomRole(role);

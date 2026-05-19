@@ -16,9 +16,9 @@ internal class Fox : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
-        new TextOptionItem(69_211_300, $"TypeNeutral", TabGroup.NeutralRoles)
+        new TextOptionItem(69_211_300, "TypeNeutral", TabGroup.NeutralRoles)
             .SetHeader(true)
-            .SetGameMode(CustomGameMode.HideAndSeek); ;
+            .SetGameMode(CustomGameMode.HideAndSeek);
 
         Options.SetupRoleOptions(69_211_301, TabGroup.NeutralRoles, CustomRoles.Fox, CustomGameMode.HideAndSeek);
 

@@ -2510,13 +2510,10 @@ internal static class ExtendedPlayerControl
     {
         if (ShipStatus.Instance.FastRooms.TryGetValue(systemTypes, out var fastRoom))
             return fastRoom;
-        else
-        {
-            foreach (var room in ShipStatus.Instance.AllRooms)
-                if (room.RoomId == systemTypes)
-                    return room;
-        }
-        return default;
+        foreach (var room in ShipStatus.Instance.AllRooms)
+            if (room.RoomId == systemTypes)
+                return room;
+        return null;
     }
 
     public static void RpcExitVentDesync(this PlayerPhysics physics, int ventId, PlayerControl seer)

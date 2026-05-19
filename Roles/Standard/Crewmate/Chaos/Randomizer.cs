@@ -753,11 +753,9 @@ internal class Randomizer : RoleBase
             var enumerator = effects.GetEnumerator();
             while (enumerator.MoveNext())
             {
-                var pair = enumerator.Current;
-                var effect = pair.Key;
-                var (StartTimeStamp, Duration) = pair.Value;
+                (Effect effect, (long startTimeStamp, int duration)) = enumerator.Current;
 
-                if (StartTimeStamp + Duration < now)
+                if (startTimeStamp + duration < now)
                 {
                     ToRemoveEffects.Add(effect);
                     if (effect.IsVisionChangingEffect()) RevertVisionChangesForPlayer(pc, true);

@@ -7,9 +7,6 @@ namespace EHR;
 public class SimpleButton
 {
     private static PassiveButton BaseButton;
-    private readonly BoxCollider2D buttonCollider;
-    private float _fontSize;
-    private Vector2 _scale;
 
     /// <summary>Creates a new button</summary>
     /// <param name="parent">Parent object</param>
@@ -36,7 +33,7 @@ public class SimpleButton
         Label = Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
         NormalSprite = Button.inactiveSprites.GetComponent<SpriteRenderer>();
         HoverSprite = Button.activeSprites.GetComponent<SpriteRenderer>();
-        buttonCollider = Button.GetComponent<BoxCollider2D>();
+        Button.GetComponent<BoxCollider2D>();
 
         // Center the label
         Transform container = Label.transform.parent;
@@ -58,18 +55,6 @@ public class SimpleButton
     public TextMeshPro Label { get; }
     public SpriteRenderer NormalSprite { get; }
     public SpriteRenderer HoverSprite { get; }
-
-    public Vector2 Scale
-    {
-        get => _scale;
-        set => _scale = NormalSprite.size = HoverSprite.size = buttonCollider.size = value;
-    }
-
-    public float FontSize
-    {
-        get => _fontSize;
-        set => _fontSize = Label.fontSize = Label.fontSizeMin = Label.fontSizeMax = value;
-    }
 
     public static void SetBase(PassiveButton passiveButton)
     {

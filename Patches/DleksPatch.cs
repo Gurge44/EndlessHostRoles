@@ -1,7 +1,8 @@
-﻿using EHR.Patches;
+﻿using System.Linq;
+using EHR.Patches;
 using HarmonyLib;
-using System;
-using System.Linq;
+using Il2CppSystem;
+using Exception = System.Exception;
 
 namespace EHR;
 
@@ -14,22 +15,22 @@ internal static class AllMapIconsPatch
     [HarmonyPrefix]
     public static void GameStartManagerStart_Prefix(GameStartManager __instance)
     {
-        if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
+        if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
         {
             __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
             {
                 Name = MapNames.Dleks,
-                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
+                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f)
             });
         }
         if (SubmergedCompatibility.Loaded)
         {
-            if (__instance.AllMapIcons.TrueForAll((Il2CppSystem.Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
+            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
             {
                 __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
                 {
                     Name = (MapNames)6,
-                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f),
+                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f)
                 });
             }
         }

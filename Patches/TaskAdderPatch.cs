@@ -42,6 +42,7 @@ internal static class ShowFolderPatch
                 button.Text.text = Utils.GetRoleName(cRoleID);
                 __instance.AddFileAsChild(CustomRolesFolder, button, ref xCursor, ref yCursor, ref maxHeight);
 
+                // ReSharper disable once Unity.IncorrectMonoBehaviourInstantiation
                 var roleBehaviour = new RoleBehaviour
                 {
                     Role = (RoleTypes)cRoleID + 1000

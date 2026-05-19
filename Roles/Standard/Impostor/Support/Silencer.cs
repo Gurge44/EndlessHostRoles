@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -147,15 +145,12 @@ public class Silencer : RoleBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        switch (reader.ReadPackedInt32())
+        ForSilencer = reader.ReadPackedInt32() switch
         {
-            case 1:
-                ForSilencer = [reader.ReadByte()];
-                break;
-            case 2:
-                ForSilencer = [];
-                break;
-        }
+            1 => [reader.ReadByte()],
+            2 => [],
+            _ => ForSilencer
+        };
     }
 
     public override void AfterMeetingTasks()

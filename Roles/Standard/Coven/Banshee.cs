@@ -74,7 +74,7 @@ public class Banshee : CovenBase
                 w.Write(BansheeId);
                 w.WritePacked(1);
                 w.WritePacked(ScreechedPlayers.Count);
-                ScreechedPlayers.Do(x => w.Write(x));
+                ScreechedPlayers.Do(w.Write);
                 Utils.EndRPC(w);
             }
 
