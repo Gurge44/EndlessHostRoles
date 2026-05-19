@@ -216,6 +216,12 @@ public class PlayerState(byte playerId)
 
         if (replaceAll)
         {
+            if (SubRoles.Contains(CustomRoles.Flash) || SubRoles.Contains(CustomRoles.Dynamo) || SubRoles.Contains(CustomRoles.Spurt))
+            {
+                Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                PlayerGameOptionsSender.SetDirty(PlayerId);
+            }
+            
             SubRoles.Clear();
             Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
         }
