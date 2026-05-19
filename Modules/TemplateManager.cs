@@ -211,59 +211,6 @@ public static class TemplateManager
         return reader.ReadToEnd();
     }
 
-    private static (List<TemplateEntry> Matched, HashSet<string> Tags, Dictionary<string, string> UserVars) ParseTemplateFile(string filterTag)
-    {
-        CreateIfNotExists();
-
-        List<TemplateEntry> matched = [];
-        HashSet<string> tags = [];
-        Dictionary<string, string> userVars = [];
-        string currentTag = null;
-        Dictionary<string, string> currentProps = null;
-        StringBuilder buffer = new();
-
-        using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
-        while (sr.ReadLine() is { } line)
-        {
-            if (line.TrimStart().StartsWith("#")) continue; // For Comments in Template File
-
-            Match v = UserVariableRegex.Match(line);
-            if (v.Success)
-            {
-                userVars[v.Groups[1].Value] = v.Groups[2].Value.Trim();
-                continue;
-            }
-
-            Match m = HeaderRegex.Match(line);
-            if (m.Success)
-            {
-                Commit();
-                currentTag = m.Groups[1].Value;
-                currentProps = ParseProperties(m.Groups[2].Success ? m.Groups[2].Value : null);
-                buffer.Clear();
-                string inline = m.Groups[3].Value;
-                if (!string.IsNullOrEmpty(inline)) buffer.Append(inline);
-            }
-            else if (currentTag != null)
-            {
-                if (buffer.Length > 0) buffer.Append('\n');
-                buffer.Append(line);
-            }
-        }
-
-        Commit();
-        return (matched, tags, userVars);
-
-        void Commit()
-        {
-            if (currentTag == null) return;
-            TemplateEntry entry = BuildEntry(currentTag, buffer.ToString().TrimEnd(), currentProps);
-            if (!entry.Hidden) tags.Add(currentTag);
-            if (!string.IsNullOrEmpty(filterTag) && string.Equals(currentTag, filterTag, StringComparison.OrdinalIgnoreCase))
-                matched.Add(entry);
-        }
-    }
-
     private static Dictionary<string, string> ParseProperties(string propString)
     {
         var props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
