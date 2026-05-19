@@ -118,7 +118,7 @@ internal class Tornado : RoleBase
         long now = TimeStamp;
         Tornados.TryAdd(info, now);
         SendRPCAddTornado(true, info.Location, info.RoomName, now);
-        _ = new TornadoObject(info.Location, [pc.PlayerId]);
+        _ = new TornadoObject(info.Location, pc);
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)

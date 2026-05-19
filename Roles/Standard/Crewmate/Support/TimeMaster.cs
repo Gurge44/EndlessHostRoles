@@ -73,7 +73,6 @@ internal class TimeMaster : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        BackTrack = [];
         DesyncCommsActive = false;
         playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetFloat());
     }
@@ -83,6 +82,8 @@ internal class TimeMaster : RoleBase
         On = false;
         Rewinding = false;
         RevivedPlayers = [];
+        TargetPosition = [];
+        BackTrack = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -163,7 +164,7 @@ internal class TimeMaster : RoleBase
                 foreach ((byte playerId, Vector2 pos) in track)
                 {
                     PlayerControl player = playerId.GetPlayer();
-                    if (player == null || !player.IsAlive()) continue;
+                    if (!player || !player.IsAlive()) continue;
 
                     player.TP(pos);
                 }
@@ -182,6 +183,7 @@ internal class TimeMaster : RoleBase
                         ps.Player.RpcRevive();
                         ps.Player.TP(deadBody.TruePosition);
                         ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
+                        RevivedPlayers.Add(deadBody.ParentId);
                     }
 
                     if (TimeMasterRevivedKillerAlert.GetBool())
@@ -260,7 +262,6 @@ internal class TimeMaster : RoleBase
         {
             DesyncCommsActive = false;
             hasValue = true;
-            activateSabComms = false;
         }
 
         if (!hasValue) return;

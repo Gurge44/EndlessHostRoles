@@ -44,9 +44,9 @@ public class Magistrate : RoleBase
         
         System.Collections.IEnumerator Coroutine()
         {
-            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSeconds(5f);
-            yield return new WaitForSeconds(1f);
-            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSeconds(2f);
+            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSecondsRealtime(5f);
+            yield return new WaitForSecondsRealtime(1f);
+            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSecondsRealtime(2f);
             if (GameStates.IsEnded || !GameStates.InGame) yield break;
             AfterMeetingTasks();
         }

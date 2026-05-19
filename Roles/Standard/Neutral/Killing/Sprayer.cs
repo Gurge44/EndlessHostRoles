@@ -138,7 +138,7 @@ internal class Sprayer : RoleBase
         if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD()) return;
 
         Vector2 pos = SprayerPC.Pos();
-        Traps[pos] = new(pos, [SprayerId]);
+        Traps[pos] = new(pos, SprayerPC);
         SprayerPC.RpcRemoveAbilityUse();
 
         if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(CD.GetInt());

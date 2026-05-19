@@ -17,7 +17,6 @@ namespace EHR;
 internal static class EAC
 {
     public static int DeNum;
-    public static readonly HashSet<string> InvalidReports = [];
     public static readonly Dictionary<byte, Stopwatch> TimeSinceLastTaskCompletion = [];
 
     public static void WarnHost(int denum = 1)

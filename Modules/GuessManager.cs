@@ -1498,7 +1498,7 @@ public static class GuessManager
                             cno = ExistingCNOs[i - alivePlayerControlsLength];
                         else
                         {
-                            cno = new ShapeshiftMenuElement(guesserId);
+                            cno = new ShapeshiftMenuElement(guesser);
                             ExistingCNOs.Add(cno);
                         }
                     

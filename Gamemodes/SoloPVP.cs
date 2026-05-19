@@ -280,7 +280,7 @@ internal static class SoloPVP
             if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation())
             {
                 LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
-                yield return new WaitForSeconds(1.3f);
+                yield return new WaitForSecondsRealtime(1.3f);
             }
 
             while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation())

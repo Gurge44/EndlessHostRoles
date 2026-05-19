@@ -144,7 +144,7 @@ public class Druid : RoleBase
             (Vector2 location, string roomName) = pc.GetPositionInfo();
             Triggers.TryAdd(location, roomName);
             SendRPCAddTrigger(true, pc.PlayerId, location, roomName);
-            _ = new PlayerDetector(location, [pc.PlayerId], out int id);
+            _ = new PlayerDetector(location, pc, out int id);
             TriggerIds.TryAdd(location, id);
         }
         else
@@ -156,7 +156,7 @@ public class Druid : RoleBase
                 (Vector2 location, string roomName) = pc.GetPositionInfo();
                 Triggers.TryAdd(location, roomName);
                 SendRPCAddTrigger(true, id, location, roomName);
-                _ = new PlayerDetector(location, [pc.PlayerId], out int oid);
+                _ = new PlayerDetector(location, pc, out int oid);
                 TriggerIds.TryAdd(location, oid);
             }, onTick: () => pc.Notify(string.Format(GetString("DruidTimeLeft"), (int)Math.Ceiling(DelayTimer.Remaining.TotalSeconds)), 2f, overrideAll: true), onCanceled: () => DelayTimer = null);
         }
