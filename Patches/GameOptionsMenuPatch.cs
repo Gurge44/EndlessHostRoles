@@ -1613,7 +1613,8 @@ public static class GameSettingMenuPatch
             }
         }
 
-        __instance.StopAllCoroutines();
+        try { __instance.StopAllCoroutines(); }
+        catch { }
 
         Cleanup();
     }

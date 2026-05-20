@@ -403,12 +403,12 @@ internal static class ExtendedPlayerControl
             }, 1f, log: false);
         }
 
-        public void RpcSetRoleGlobal(RoleTypes roleTypes, bool setRoleMap = false)
+        public void RpcSetRoleGlobal(RoleTypes roleTypes, bool setRoleMap = false, bool setLocally = true)
         {
             try
             {
                 if (!AmongUsClient.Instance.AmHost) return;
-                if (AmongUsClient.Instance.AmClient) try { player.SetRole(roleTypes); } catch { }
+                if (setLocally && AmongUsClient.Instance.AmClient) try { player.SetRole(roleTypes); } catch { }
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable);
                 writer.Write((ushort)roleTypes);
                 writer.Write(true);

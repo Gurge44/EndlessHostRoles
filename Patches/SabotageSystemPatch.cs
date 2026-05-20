@@ -451,50 +451,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
 
     public static bool CheckSabotage(SabotageSystemType __instance, PlayerControl player, SystemTypes systemTypes)
     {
-        if (__instance.Timer > 0f) return false;
-        
-        if (Options.DisableSabotage.GetBool())
-        {
-            switch (systemTypes)
-            {
-                case SystemTypes.Hallway:
-                case SystemTypes.Storage:
-                case SystemTypes.Cafeteria:
-                case SystemTypes.UpperEngine:
-                case SystemTypes.Nav:
-                case SystemTypes.Admin:
-                    break;
-                case SystemTypes.Reactor when Options.DisableReactorOnSkeldAndMira.GetBool():
-                case SystemTypes.Electrical when Options.DisableLights.GetBool():
-                case SystemTypes.LifeSupp when Options.DisableO2.GetBool():
-                    return false;
-                default:
-                    if ((uint)systemTypes <= 21U)
-                    {
-                        switch (systemTypes)
-                        {
-                            case SystemTypes.Comms when Options.DisableComms.GetBool():
-                            case SystemTypes.Laboratory when Options.DisableReactorOnPolus.GetBool():
-                                return false;
-                        }
-                    }
-                    else
-                    {
-                        switch (systemTypes)
-                        {
-                            case SystemTypes.MushroomMixupSabotage when Options.DisableMushroomMixup.GetBool():
-                            case SystemTypes.HeliSabotage when Options.DisableReactorOnAirship.GetBool():
-                                return false;
-                        }
-                    }
-
-                    break;
-            }
-        }
-
-        if (Stasis.IsTimeFrozen) return false;
-
-        if (Pelican.IsEaten(player.PlayerId)) return false;
+        if (__instance.Timer > 0f || !CheckDisabledSabotage(systemTypes) || Stasis.IsTimeFrozen || Pelican.IsEaten(player.PlayerId)) return false;
 
         if (systemTypes == SystemTypes.Electrical && Main.PlayerStates.Values.FindFirst(x => !x.IsDead && x.MainRole == CustomRoles.Battery && x.Player && x.Player.GetAbilityUseLimit() >= 1f, out var batteryState))
         {
@@ -570,6 +527,50 @@ public static class SabotageSystemTypeUpdateSystemPatch
         }
 
         return allow;
+    }
+
+    public static bool CheckDisabledSabotage(SystemTypes systemTypes)
+    {
+        if (Options.DisableSabotage.GetBool())
+        {
+            switch (systemTypes)
+            {
+                case SystemTypes.Hallway:
+                case SystemTypes.Storage:
+                case SystemTypes.Cafeteria:
+                case SystemTypes.UpperEngine:
+                case SystemTypes.Nav:
+                case SystemTypes.Admin:
+                    break;
+                case SystemTypes.Reactor when Options.DisableReactorOnSkeldAndMira.GetBool():
+                case SystemTypes.Electrical when Options.DisableLights.GetBool():
+                case SystemTypes.LifeSupp when Options.DisableO2.GetBool():
+                    return false;
+                default:
+                    if ((uint)systemTypes <= 21U)
+                    {
+                        switch (systemTypes)
+                        {
+                            case SystemTypes.Comms when Options.DisableComms.GetBool():
+                            case SystemTypes.Laboratory when Options.DisableReactorOnPolus.GetBool():
+                                return false;
+                        }
+                    }
+                    else
+                    {
+                        switch (systemTypes)
+                        {
+                            case SystemTypes.MushroomMixupSabotage when Options.DisableMushroomMixup.GetBool():
+                            case SystemTypes.HeliSabotage when Options.DisableReactorOnAirship.GetBool():
+                                return false;
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        return true;
     }
 
     public static void Postfix(SabotageSystemType __instance)

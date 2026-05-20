@@ -141,7 +141,7 @@ public class Witch : RoleBase
         if (NowSwitchTrigger == SwitchTrigger.Vanish)
         {
             var killRange = GameManager.Instance.LogicOptions.GetKillDistance() + 1f;
-            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl target, x => !x.IsImpostor())) return false;
+            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl target, IsHM ? null : x => !x.IsImpostor())) return false;
             SetSpelled(pc, target);
         }
 
@@ -175,7 +175,7 @@ public class Witch : RoleBase
 
     private void SetSpelled(PlayerControl killer, PlayerControl target)
     {
-        if (!IsSpelled(target.PlayerId) && killer.GetAbilityUseLimit() > 0)
+        if (!IsSpelled(target.PlayerId) && (IsHM || killer.GetAbilityUseLimit() > 0))
         {
             SpelledPlayer.Add(target.PlayerId);
             SendRPC(true, killer.PlayerId, target.PlayerId);
@@ -281,7 +281,7 @@ public class Witch : RoleBase
                     else
                         Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
                     
-                    witchId.SetAbilityUseLimit(MaxSpellsPerRound.GetInt());
+                    if (!wc.IsHM) witchId.SetAbilityUseLimit(MaxSpellsPerRound.GetInt());
                 }
             }
 

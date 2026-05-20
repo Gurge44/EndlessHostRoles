@@ -1580,8 +1580,6 @@ public static class Options
         foreach (KeyValuePair<RoleOptionType, RoleBase[]> roleClasses in roleClassesDict)
         {
             MainLoadingText = $"Building Role Settings: {roleClasses.Key} Roles";
-            int allRoles = roleClasses.Value.Length;
-            var index = 0;
 
             TabGroup tab = roleClasses.Key.GetTabFromOptionType();
 
@@ -1594,9 +1592,21 @@ public static class Options
 
             foreach (RoleBase roleClass in roleClasses.Value)
             {
-                index++;
-                RoleLoadingText = $"{index}/{allRoles} ({roleClass.GetType().Name})";
-                Log();
+                if (roleClass is IHideAndSeekRole) continue;
+
+                RoleLoadingText = roleClass.GetType().Name;
+
+                try { roleClass.SetupCustomOption(); }
+                catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
+
+                yield return null;
+            }
+
+            foreach (RoleBase roleClass in roleClasses.Value)
+            {
+                if (roleClass is not IHideAndSeekRole) continue;
+                
+                RoleLoadingText = roleClass.GetType().Name;
 
                 try { roleClass.SetupCustomOption(); }
                 catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
@@ -2315,7 +2325,6 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
-            .SetParent(DisableSabotage)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)

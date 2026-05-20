@@ -1862,35 +1862,45 @@ public static class Utils
 
                 IEnumerator TempReviveHost()
                 {
-                    TempReviveHostRunning = true;
-                    TempReviveHostRevertStopwatch = Stopwatch.StartNew();
-                    TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
+                    try
+                    {
+                        TempReviveHostRunning = true;
+                        TempReviveHostRevertStopwatch = Stopwatch.StartNew();
+                        TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
                     
-                    Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
+                        Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
 
-                    sender.Data.IsDead = false;
+                        sender.RpcSetRoleGlobal(RoleTypes.Crewmate);
                     
-                    var qa = sender.Data.SendGameData();
-                    yield return qa.Wait();
-                    if (qa.Dropped) yield break;
+                        while (TempReviveHostRevertStopwatch.ElapsedMilliseconds < 1000)
+                            yield return null;
                     
-                    while (TempReviveHostRevertStopwatch.ElapsedMilliseconds < 1000)
-                        yield return null;
+                        Logger.Msg("Re-killing host after message sent.", "TempReviveHost");
                     
-                    Logger.Msg("Re-killing host after message sent.", "TempReviveHost");
+                        TempReviveHostTimeSinceRevivalStopwatch.Reset();
                     
-                    TempReviveHostTimeSinceRevivalStopwatch.Reset();
-                    
-                    if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby)
+                        if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby)
+                        {
+                            TempReviveHostRunning = false;
+                            yield break;
+                        }
+
+                        RoleTypes ghostRoleBasis = sender.GetGhostRoleBasis();
+
+                        if (ghostRoleBasis != RoleTypes.ImpostorGhost)
+                        {
+                            sender.RpcSetRoleGlobal(ghostRoleBasis);
+                        }
+                        else
+                        {
+                            sender.RpcSetRoleGlobal(RoleTypes.CrewmateGhost, setLocally: false);
+                            sender.SetRole(RoleTypes.ImpostorGhost);
+                        }
+                    }
+                    finally
                     {
                         TempReviveHostRunning = false;
-                        yield break;
                     }
-
-                    sender.Data.IsDead = true;
-                    yield return sender.Data.SendGameData().Wait();
-                    
-                    TempReviveHostRunning = false;
                 }
             }
             
@@ -5122,7 +5132,7 @@ public static class Utils
         // The value of AmongUsClient.Instance.Ping is in milliseconds (ms), so ÷1000 to convert to seconds
         float divice = Options.CurrentGameMode switch
         {
-            CustomGameMode.SoloPVP => 2000f,
+            CustomGameMode.SoloPVP => 1500f,
             CustomGameMode.BedWars => 1500f,
             CustomGameMode.CaptureTheFlag => 1500f,
             CustomGameMode.KingOfTheZones => 1500f,

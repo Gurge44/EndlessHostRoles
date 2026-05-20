@@ -94,7 +94,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 {
                     AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
                     capturedWriter.Recycle();
+                    Logger.Info("PackedWriter flush queue finished and sent", "SendAllImmediately");
                 }, cleanup: capturedWriter.Recycle);
+                Logger.Info($"PackedWriter flush queued - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendAllImmediately");
             }
             else
             {
@@ -209,14 +211,15 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             PackedWriter.EndMessage();
             var qa = DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(PackedWriter));
             yield return qa.Wait();
+            Logger.Info($"PackedWriter flush finished - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendOptionsArrayAsync");
             PackedWriterMessages = 0;
             
             if (qa.Dropped)
             {
-                Main.Instance.StopCoroutine(ActiveCoroutine);
-                ActiveCoroutine = null;
                 PackedWriter.Recycle();
                 PackedWriter = null;
+                Main.Instance.StopCoroutine(ActiveCoroutine);
+                ActiveCoroutine = null;
                 yield return null;
                 yield break;
             }
@@ -280,7 +283,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Recycle();
+                Logger.Info("Queue finished and sent for single write", "SendOptionsArray");
             });
+            Logger.Info("Enqueue complete for single write", "SendOptionsArray");
             return;
         }
         
@@ -292,7 +297,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             {
                 AmongUsClient.Instance.SendOrDisconnect(capturedWriter);
                 capturedWriter.Recycle();
+                Logger.Info("PackedWriter flush queue finished and sent", "SendOptionsArray");
             }, cleanup: capturedWriter.Recycle);
+            Logger.Info($"PackedWriter flush queued - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendOptionsArray");
             PackedWriterMessages = 0;
             PackedWriter = MessageWriter.Get(SendOption.Reliable);
             PackedWriter.StartMessage(26);

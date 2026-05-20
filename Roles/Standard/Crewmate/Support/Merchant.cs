@@ -154,17 +154,17 @@ internal class Merchant : RoleBase
         if (IsBribedKiller(killer, target))
         {
             NotifyBribery(killer, target);
-            return true;
+            return false;
         }
 
         if (GetCurrentAmountOfMoney(target.PlayerId) >= OptionMoneyRequiredToBribe.GetInt())
         {
             NotifyBribery(killer, target);
             BribedKiller[target.PlayerId].Add(killer.PlayerId);
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public static bool IsBribedKiller(PlayerControl killer, PlayerControl target)
