@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -94,6 +95,20 @@ internal static class ExileControllerWrapUpPatch
             var map = RandomSpawn.SpawnMap.GetSpawnMap();
             Main.EnumerateAlivePlayerControls().Do(map.RandomTeleport);
         }
+
+        try
+        {
+            foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+            {
+                PlayerControl pc = id.GetPlayer();
+                if (!pc || !pc.IsAlive()) continue;
+
+                pc.TP(pos);
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        Lazy.BeforeMeetingPositions = [];
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);

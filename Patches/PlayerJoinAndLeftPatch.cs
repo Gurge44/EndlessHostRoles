@@ -532,7 +532,7 @@ internal static class OnPlayerJoinedPatch
             if (GameStates.IsLobby && !OnGameJoinedPatch.JoiningGame)
                 LateTask.New(Options.AutoSetFactionMinMaxSettings, 2f, log: false);
             
-            LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 1.5f);
+            LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 2f);
         }
     }
 }

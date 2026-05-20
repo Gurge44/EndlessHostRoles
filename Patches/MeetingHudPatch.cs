@@ -363,7 +363,7 @@ internal static class CheckForEndVotingPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (exiledPlayer == null) return;
+        if (!exiledPlayer) return;
 
         byte exileId = exiledPlayer.PlayerId;
         if (exileId > 254) return;
@@ -536,17 +536,6 @@ internal static class CheckForEndVotingPatch
         name = name.Replace("color=", string.Empty) + "<size=0>";
         TempExiledPlayer = exiledPlayer;
         EjectionText = name;
-
-        LateTask.New(() =>
-        {
-            foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
-            {
-                PlayerControl pc = id.GetPlayer();
-                if (!pc || !pc.IsAlive()) continue;
-
-                pc.TP(pos);
-            }
-        }, 12f, "Teleport Lazy Players");
     }
 
     public static bool CheckRole(byte id, CustomRoles role)
