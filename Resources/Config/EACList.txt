@@ -114,7 +114,7 @@ meetcargo#3325 | 4a75bc627 |  | n word with alts |
 goatsulpha#1736 | c6a128de |  | slurs in game | 
 toiltonic#2161 | 7f3b7c7d3 | Mixedwok | Cheater | Crashing Lobbies
 gamecrew#6651 | 8746916f5 | MrGl1tchy | n word | 
-holeyslab#6743 | 6cf06af87 |  | n word | 
+tenbaronet#5789 | 7e3902fb0 |  | n word | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
