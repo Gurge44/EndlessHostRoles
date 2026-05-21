@@ -115,6 +115,7 @@ goatsulpha#1736 | c6a128de |  | slurs in game |
 toiltonic#2161 | 7f3b7c7d3 | Mixedwok | Cheater | Crashing Lobbies
 gamecrew#6651 | 8746916f5 | MrGl1tchy | n word | 
 livingace#5766 | 62365b7f3 |  | n word | 
+spacerise#0568 | 77d07e6cc | sary | Cheater | Crashing games
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
@@ -161,6 +162,7 @@ foxychart#7070 | 0f6978b9c | Glossyable | Racist | N word in Sarah's lobby
 silenttram#4839 | 42c719e56 | SUS | Racist | 
 richfamily#6529 | 0d89b13bc | Novelseam | Racist | 
 tubemarked#0995 | d5f2a5a16 | cudo | Racist | Slurs in a livestream
+remoteweek#6981 | 90ceb14d8 | IkerXD1437 | Racist | n word in Sarha's lobby
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 
