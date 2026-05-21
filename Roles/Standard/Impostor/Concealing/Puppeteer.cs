@@ -215,9 +215,9 @@ internal class Puppeteer : RoleBase
                 closestTarget = target;
             }
         }
-        if (closestTarget == null) return;
+        if (!closestTarget) return;
 
-        float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+        float killRange = player.GetKillDistance();
         if (minDistance > killRange || !player.CanMove || !closestTarget.CanMove) return;
         if (!player.RpcCheckAndMurder(closestTarget, true)) return;
 

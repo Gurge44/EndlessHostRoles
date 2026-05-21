@@ -233,13 +233,11 @@ internal static class ChangeRoleSettings
             Warlock.WarlockTimer = [];
             Arsonist.IsDoused = [];
             Revolutionist.IsDraw = [];
-            Investigator.IsRevealed = [];
             Arsonist.ArsonistTimer = [];
             Revolutionist.RevolutionistTimer = [];
             Revolutionist.RevolutionistStart = [];
             Revolutionist.RevolutionistLastTime = [];
             Revolutionist.RevolutionistCountdown = [];
-            Investigator.InvestigatorTimer = [];
             Warlock.CursedPlayers = [];
             Nemesis.NemesisRevenged = [];
             Warlock.IsCurseAndKill = [];
@@ -323,6 +321,7 @@ internal static class ChangeRoleSettings
 
             Arsonist.CurrentDousingTarget = byte.MaxValue;
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
+            Investigator.CurrentRevealTarget = byte.MaxValue;
             Main.PlayerColors = [];
 
             RPC.SyncAllPlayerNames();

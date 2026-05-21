@@ -130,7 +130,7 @@ internal static class CheckMurderPatch
             if (killer.Is(CustomRoles.Dizzy))
             {
                 Vector2 pos = killer.Pos();
-                float range = GameManager.Instance.LogicOptions.GetKillDistance();
+                float range = killer.GetKillDistance();
                 PlayerControl[] allInRange = FastVector2.GetPlayersInRange(pos, range, x => x.PlayerId != killer.PlayerId).ToArray();
 
                 if (allInRange.Length > 1)
@@ -2005,8 +2005,8 @@ internal static class FixedUpdatePatch
 
                     break;
                 case CustomRoles.Investigator:
-                    if (Revolutionist.CurrentDrawTarget != byte.MaxValue &&
-                        Revolutionist.CurrentDrawTarget == target.PlayerId)
+                    if (Investigator.CurrentRevealTarget != byte.MaxValue &&
+                        Investigator.CurrentRevealTarget == target.PlayerId)
                         Mark.Append(CustomRoles.Investigator.ColoredTextByRole("○"));
 
                     break;

@@ -1720,13 +1720,18 @@ internal static class ExtendedPlayerControl
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
-        public void RpcSetRevealtPlayer(PlayerControl target, bool isDoused)
+        public void RpcSetRevealedPlayer(PlayerControl target, bool revealed)
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRevealedPlayer, SendOption.Reliable);
             writer.Write(player.PlayerId);
             writer.Write(target.PlayerId);
-            writer.Write(isDoused);
+            writer.Write(revealed);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+
+        public float GetKillDistance()
+        {
+            return player.Is(CustomRoles.Reach) ? 2.5f : GameManager.Instance.LogicOptions.GetKillDistance();
         }
 
         public bool IsShifted()

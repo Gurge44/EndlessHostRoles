@@ -117,7 +117,6 @@ internal static class EndGamePatch
 
         Arsonist.IsDoused = [];
         Revolutionist.IsDraw = [];
-        Investigator.IsRevealed = [];
 
         Main.VisibleTasksCount = false;
 

@@ -111,9 +111,9 @@ internal class Samurai : RoleBase
         if (Target.Id == byte.MaxValue || !pc.IsAlive()) return;
 
         PlayerControl target = Utils.GetPlayerById(Target.Id);
-        if (target == null) return;
+        if (!target) return;
 
-        if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), GameManager.Instance.LogicOptions.GetKillDistance()))
+        if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), pc.GetKillDistance()))
         {
             Target = (byte.MaxValue, 0);
             pc.RpcCheckAndMurder(target);

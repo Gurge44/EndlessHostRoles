@@ -114,8 +114,7 @@ public class Mechanic : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        SystemTypes[] systemTypes = [SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.HeliSabotage, SystemTypes.Comms];
-        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !systemTypes.FindFirst(Utils.IsActive, out SystemTypes activeSystem) || PetLimit-- < 1) return;
+        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !ShipStatusSystem.AllSabotage.FindFirst(Utils.IsActive, out SystemTypes activeSystem) || PetLimit-- < 1) return;
 
         switch (activeSystem)
         {
@@ -125,6 +124,10 @@ public class Mechanic : RoleBase
                 switchSystem.ActualSwitches = switchSystem.ExpectedSwitches;
                 switchSystem.IsDirty = true;
                 break;
+            case SystemTypes.Comms when Main.NormalOptions.MapId is 1 or 5:
+                ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
+                goto case SystemTypes.Reactor;
+            case SystemTypes.Comms:
             case SystemTypes.Reactor:
             case SystemTypes.Laboratory:
             case SystemTypes.LifeSupp:
@@ -132,9 +135,6 @@ public class Mechanic : RoleBase
                 break;
             case SystemTypes.HeliSabotage:
                 ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
-                goto case SystemTypes.Reactor;
-            case SystemTypes.Comms:
-                if (Main.NormalOptions.MapId is 1 or 5) ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
                 goto case SystemTypes.Reactor;
         }
     }

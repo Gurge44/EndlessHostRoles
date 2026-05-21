@@ -16,17 +16,17 @@ public class Investigator : RoleBase
     private const string FontSize = "1.7";
     public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> InvestigatorTimer = [];
     public static Dictionary<(byte, byte), bool> IsRevealed = [];
+    public static byte CurrentRevealTarget = byte.MaxValue;
 
     private static OptionItem InvestigatorCooldown;
     private static OptionItem InvestigatorTime;
     private static OptionItem Vision;
     public static OptionItem UsePet;
 
-    public static readonly Dictionary<int, string> RandomRole = [];
+    public static Dictionary<int, string> RandomRole = [];
 
     public static bool On;
 
-    private static CustomRoles[] RandomRolesForTrickster => Main.CustomRoleValues.Where(x => x.IsCrewmate()).ToArray();
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -51,13 +51,17 @@ public class Investigator : RoleBase
     public override void Init()
     {
         On = false;
+        InvestigatorTimer = [];
+        IsRevealed = [];
+        RandomRole = [];
     }
 
     public override void Add(byte playerId)
     {
         On = true;
 
-        foreach (PlayerControl ar in Main.CachedAllPlayerControls()) IsRevealed[(playerId, ar.PlayerId)] = false;
+        foreach (PlayerControl ar in Main.CachedAllPlayerControls())
+            IsRevealed[(playerId, ar.PlayerId)] = false;
 
         RandomRole[playerId] = GetRandomCrewRoleString();
     }
@@ -101,17 +105,16 @@ public class Investigator : RoleBase
             if (!player.IsAliveWithConditions())
             {
                 InvestigatorTimer.Remove(player.PlayerId);
-                NotifyRoles(SpecifySeer: player);
                 RPC.ResetCurrentRevealTarget(player.PlayerId);
             }
             else
             {
-                PlayerControl arTarget = InvestigatorTimer[player.PlayerId].PLAYER;
-                float arTime = InvestigatorTimer[player.PlayerId].TIMER;
+                PlayerControl target = InvestigatorTimer[player.PlayerId].PLAYER;
+                float timer = InvestigatorTimer[player.PlayerId].TIMER;
 
-                if (!arTarget.IsAlive())
+                if (!target.IsAlive())
                     InvestigatorTimer.Remove(player.PlayerId);
-                else if (arTime >= InvestigatorTime.GetFloat())
+                else if (timer >= InvestigatorTime.GetFloat())
                 {
                     if (UsePets.GetBool() && UsePet.GetBool())
                         player.AddKCDAsAbilityCD();
@@ -119,33 +122,39 @@ public class Investigator : RoleBase
                         player.SetKillCooldown();
 
                     InvestigatorTimer.Remove(player.PlayerId);
-                    IsRevealed[(player.PlayerId, arTarget.PlayerId)] = true;
-                    player.RpcSetRevealtPlayer(arTarget, true);
-                    NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget);
+                    IsRevealed[(player.PlayerId, target.PlayerId)] = true;
+                    player.RpcSetRevealedPlayer(target, true);
+                    NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
                     RPC.ResetCurrentRevealTarget(player.PlayerId);
                 }
                 else
                 {
-                    float range = GameManager.Instance.LogicOptions.GetKillDistance();
+                    float range = player.GetKillDistance();
                     
-                    if (FastVector2.DistanceWithinRange(player.Pos(), arTarget.Pos(), range))
-                        InvestigatorTimer[player.PlayerId] = (arTarget, arTime + Time.fixedDeltaTime);
+                    if (FastVector2.DistanceWithinRange(player.Pos(), target.Pos(), range))
+                        InvestigatorTimer[player.PlayerId] = (target, timer + Time.fixedDeltaTime);
                     else
                     {
                         InvestigatorTimer.Remove(player.PlayerId);
-                        NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
+                        NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
                         RPC.ResetCurrentRevealTarget(player.PlayerId);
 
-                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
+                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Investigator");
                     }
                 }
             }
         }
     }
 
-    public static string GetRandomCrewRoleString()
+    public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
-        CustomRoles randomRole = RandomRolesForTrickster.RandomElement();
+        if (base.KnowRole(seer, target)) return true;
+        return IsRevealed.GetValueOrDefault((seer.PlayerId, target.PlayerId));
+    }
+
+    private static string GetRandomCrewRoleString()
+    {
+        CustomRoles randomRole = Main.CustomRoleValues.Where(x => x.IsCrewmate()).RandomElement();
         return $"<size={FontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
     }
 

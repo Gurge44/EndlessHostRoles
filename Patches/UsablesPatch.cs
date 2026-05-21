@@ -21,6 +21,7 @@ internal static class CanUsePatch
             CustomRoles.Wizard or CustomRoles.Carrier => HasTasksAsDynamicTaskingRole(),
             CustomRoles.Medic => (Options.UsePets.GetBool() && Medic.UsePet.GetBool()) || lp.GetAbilityUseLimit() < 1f,
             CustomRoles.Duality => !((Duality)Main.PlayerStates[lp.PlayerId].Role).KillingPhase,
+            CustomRoles.Accumulator => !((Accumulator)Main.PlayerStates[lp.PlayerId].Role).Killing,
             _ => true
         });
 

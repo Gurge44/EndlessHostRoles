@@ -178,7 +178,7 @@ public class Agitator : RoleBase
                 ResetBomb();
             else
             {
-                float killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+                float killRange = player.GetKillDistance();
                 if (!FastVector2.TryGetClosestPlayerInRangeTo(player, killRange, out PlayerControl target, x => x.PlayerId != LastBombedPlayer)) return;
                 PassBomb(player, target);
             }
