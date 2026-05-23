@@ -37,6 +37,7 @@ Alright, let's get into it:
 - Fixed lovers chat not clearing on meeting call if lovers died during the round
 - Fixed some neutral benigns being uncategorized
 - Fixed Venerer showing the player's name while camouflaged
+- Fixed Stalker
 
 ## Changes & Improvements
 - Improved compatibility with LevelImposter

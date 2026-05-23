@@ -73,24 +73,14 @@ public class Stalker : RoleBase
         dh.IsWinKill = IsKillerKill;
     }
 
-    private void DRpcSetKillCount(PlayerControl player, CustomRpcSender sender = null)
+    private void DRpcSetKillCount(PlayerControl player)
     {
         if (!IsEnable || !Utils.DoRPC || !AmongUsClient.Instance.AmHost) return;
 
-        if (sender == null)
-        {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetStalkerKillCount, SendOption.Reliable);
-            writer.Write(player.PlayerId);
-            writer.Write(IsWinKill);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
-        else
-        {
-            sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetStalkerKillCount);
-            sender.Write(player.PlayerId);
-            sender.Write(IsWinKill);
-            sender.EndRpc();
-        }
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetStalkerKillCount, SendOption.Reliable);
+        writer.Write(player.PlayerId);
+        writer.Write(IsWinKill);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public override void SetKillCooldown(byte id)
@@ -121,24 +111,20 @@ public class Stalker : RoleBase
 
         if (succeeded && SnatchesWin.GetBool()) IsWinKill = true;
 
-        var sender = CustomRpcSender.Create("Stalker.OnCheckMurder", SendOption.Reliable);
-        DRpcSetKillCount(killer, sender);
-        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, killer.OwnerId);
-        sender.Write((byte)SystemTypes.Electrical);
-        sender.WriteNetObject(killer);
-        sender.EndRpc();
+        DRpcSetKillCount(killer);
+        return true;
+    }
 
-        foreach (PlayerControl target in Main.EnumeratePlayerControls())
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        byte num = 4;
+
+        for (var index = 0; index < 5; ++index)
         {
-            if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
-
-            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, target.OwnerId);
-            sender.Write((byte)SystemTypes.Electrical);
-            sender.WriteNetObject(target);
-            sender.EndRpc();
+            if (BoolRange.Next())
+                num |= (byte)(1 << index);
         }
 
-        sender.SendMessage();
-        return true;
+        ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Electrical, (byte)(num | 128U));
     }
 }
