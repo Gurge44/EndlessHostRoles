@@ -342,7 +342,7 @@ public static class NaturalDisasters
                 else
                 {
                     PlainShipRoom collapsingRoom = nonCollapsedRooms.RandomElement();
-                    buildingCollapseInfo = (collapsingRoom.RoomId, Main.LIMap ? collapsingRoom.transform.position : RandomSpawn.SpawnMap.GetSpawnMap().Positions.TryGetValue(collapsingRoom.RoomId, out Vector2 spawnLocation) ? spawnLocation : collapsingRoom.transform.position);
+                    buildingCollapseInfo = (collapsingRoom.RoomId, Main.LIMap ? collapsingRoom.transform.position : RandomSpawn.SpawnMap.GetSpawnMap().Positions.GetValueOrDefault(collapsingRoom.RoomId, collapsingRoom.transform.position));
                 }
 
                 Type disaster = pool.SelectMany(x => Enumerable.Repeat(x.Value, DisasterSpawnChances[x.Key].GetInt() / 5)).RandomElement();

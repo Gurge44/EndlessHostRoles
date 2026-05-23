@@ -128,7 +128,7 @@ public class Abyssbringer : RoleBase
     {
         Vector2 pos = shapeshifter.Pos();
         PlainShipRoom room = shapeshifter.GetPlainShipRoom();
-        string roomName = room == null ? string.Empty : Translator.GetString($"{room.RoomId}");
+        string roomName = !room ? string.Empty : Translator.GetString($"{room.RoomId}");
         BlackHoles.Add(new(new(pos), Utils.TimeStamp, pos, roomName, 0));
         Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 1, pos, roomName);
         shapeshifter.SetKillCooldown(KillCooldown.GetInt());

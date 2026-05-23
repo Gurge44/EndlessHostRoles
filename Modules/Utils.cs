@@ -834,6 +834,7 @@ public static class Utils
             case CustomRoles.Pyromaniac:
             case CustomRoles.SerialKiller:
             case CustomRoles.Blockade:
+            case CustomRoles.Jackpot:
             case CustomRoles.Quarry:
             case CustomRoles.Spider:
             case CustomRoles.SoulCollector:

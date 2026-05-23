@@ -820,6 +820,7 @@ public static class KingOfTheZones
                                 {
                                     if (downtimeExpire > now) continue;
                                     toRemove = zone;
+                                    break;
                                 }
 
                                 if (toRemove.HasValue) ZoneDowntimeExpire.Remove(toRemove.Value);

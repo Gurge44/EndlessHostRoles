@@ -1731,7 +1731,7 @@ internal static class ExtendedPlayerControl
 
         public float GetKillDistance()
         {
-            return player.Is(CustomRoles.Reach) ? 2.5f : GameManager.Instance.LogicOptions.GetKillDistance();
+            return player.Is(CustomRoles.Reach) ? 2.5f : player.Is(CustomRoles.Constricted) ? 1f : GameManager.Instance.LogicOptions.GetKillDistance();
         }
 
         public bool IsShifted()

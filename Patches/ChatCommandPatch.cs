@@ -1862,11 +1862,7 @@ internal static class ChatCommands
                 int winnerIndex = (winners.Length == 1 ? winners[0].Key : winners.RandomElement().Key) - 65;
                 if (gmPoll) Options.GameMode.SetValue((int)GMPollGameModes[winnerIndex] - 1, doSave: true, doSync: true);
                 if (mPoll) Main.NormalOptions.MapId = (byte)winnerIndex;
-                if (pPoll)
-                {
-                    if (Options.Preset == null) return;
-                    Options.Preset.SetValue(winnerIndex);
-                }
+                if (pPoll) Options.Preset?.SetValue(winnerIndex);
             }
         }
 
