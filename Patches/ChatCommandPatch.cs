@@ -1174,7 +1174,8 @@ internal static class ChatCommands
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
         string langParam = GetLangParam();
-        int wordLength = Options.AnagramWordLength.GetInt();
+        int lengthIndex = Options.AnagramWordLength.GetValue();
+        int wordLength = lengthIndex == 0 ? 0 : lengthIndex + 1;
         int difficulty = Options.AnagramDifficulty.GetValue() + 1;
 
         Main.Instance.StartCoroutine(Main.GetRandomWord(CreateAnagram, langParam, wordLength, difficulty));

@@ -3013,7 +3013,11 @@ public static class Options
         ], 0, TabGroup.GameSettings)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
-        AnagramWordLength = new IntegerOptionItem(23822, "AnagramWordLength", new(2, 15, 1), 5, TabGroup.GameSettings)
+        AnagramWordLength = new StringOptionItem(23822, "AnagramWordLength", [
+                "?",
+                "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                "11", "12", "13", "14", "15"
+            ], 0, TabGroup.GameSettings, noTranslation: true)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramDifficulty = new StringOptionItem(23823, "AnagramDifficulty", [
