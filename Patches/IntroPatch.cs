@@ -1045,6 +1045,15 @@ internal static class BeginImpostorPatch
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
+        if (PlayerControl.LocalPlayer.IsImpostor() && role != CustomRoles.DoubleAgent && CustomRoleSelector.RoleResult.ContainsValue(CustomRoles.DoubleAgent))
+        {
+            foreach (var pc in Main.CachedAllPlayerControls())
+            {
+                if (pc.Is(CustomRoles.DoubleAgent) && !pc.AmOwner)
+                    yourTeam.Add(pc);
+            }
+        }
+
         if (PlayerControl.LocalPlayer.IsImpostor() && Options.ImpKnowWhosMadmate.GetBool())
         {
             foreach (var pc in Main.CachedAllPlayerControls())
