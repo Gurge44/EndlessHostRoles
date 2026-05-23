@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
 using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
@@ -463,6 +465,8 @@ internal static class DisconnectInternalPatch
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]
 internal static class OnPlayerJoinedPatch
 {
+    private static CountdownTimer RpcSetNameWaitTimer;
+    
     public static bool IsDisconnected(this ClientData client)
     {
         foreach (ClientData clientData in AmongUsClient.Instance.allClients)
@@ -531,8 +535,15 @@ internal static class OnPlayerJoinedPatch
 
             if (GameStates.IsLobby && !OnGameJoinedPatch.JoiningGame)
                 LateTask.New(Options.AutoSetFactionMinMaxSettings, 2f, log: false);
-            
-            LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 2f);
+
+            RpcSetNameWaitTimer?.Dispose();
+            RpcSetNameWaitTimer = new CountdownTimer(4f, () =>
+            {
+                RpcSetNameWaitTimer = null;
+                if (AmongUsClient.Instance.IsGameStarted) return;
+                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                PlayerControl.LocalPlayer.RpcSetName(name);
+            }, cancelOnMeeting: false, cancelOnGameEnd: false);
         }
     }
 }
@@ -545,9 +556,9 @@ internal static class OnPlayerLeftPatch
         try
         {
             Main.SetDirtyRebuildPC();
+
             if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character)
             {
-
                 byte id = data.Character.PlayerId;
                 
                 ExtendedPlayerControl.TempExiled.Remove(id);
