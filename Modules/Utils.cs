@@ -4280,6 +4280,9 @@ public static class Utils
                 case CustomRoles.Veteran when target.AmOwner && Veteran.VeteranInProtect.Contains(target.PlayerId):
                     Achievements.Type.BadEncounter.Complete();
                     break;
+                case CustomRoles.Crusader when Crusader.PlayerIdList.ToValidPlayers().All(x => !x.IsAlive()):
+                    Crusader.ForCrusade = [];
+                    break;
                 case CustomRoles.Catalyst when Catalyst.RemoveGivenAddonsAfterDeath.GetBool():
                     foreach ((byte id, List<CustomRoles> addons) in ((Catalyst)Main.PlayerStates[target.PlayerId].Role).GivenAddons)
                     {
