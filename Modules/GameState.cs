@@ -155,18 +155,18 @@ public class PlayerState(byte playerId)
                 Main.AbilityUseLimit.Remove(PlayerId);
         }
 
-        if (!AmongUsClient.Instance.AmHost) return;
-
         if (Main.IntroDestroyed && GameStates.InGame)
         {
-            Player.ResetKillCooldown();
-
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
                 HudSpritePatch.ForceUpdate = true;
             }
+
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            Player.ResetKillCooldown();
 
             if (Decryptor.On) Decryptor.Instances.ForEach(x => x.OnRoleChange(PlayerId));
 
@@ -190,6 +190,8 @@ public class PlayerState(byte playerId)
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
         }
+
+        if (!AmongUsClient.Instance.AmHost) return;
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 

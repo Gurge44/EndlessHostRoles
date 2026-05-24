@@ -410,7 +410,7 @@ internal static class SetUpRoleTextPatch
 
             foreach (OptionItem o in options)
             {
-                if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
+                if (!o.IsCurrentlyHidden(checkCollapsedSection: false) && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
                     sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
                 if (i++ > 20)
@@ -1420,7 +1420,7 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
             
-            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool()) return;
+            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool() || Options.ChatDuringGame.GetBool()) return;
             
             Main.LoversPlayers.SetChatVisible(true);
         }, 1f, log: false);

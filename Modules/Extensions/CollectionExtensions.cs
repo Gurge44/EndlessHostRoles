@@ -228,44 +228,11 @@ public static class CollectionExtensions
         }
 
         /// <summary>
-        /// Takes the specified number of random elements from the collection to a List, and yields its elements for enumeration.
-        /// </summary>
-        /// <param name="count">The number of random elements to pick.</param>
-        /// <returns>A new collection with the specified number of random elements from the original collection.</returns>
-        public IEnumerable<T> TakeRandom(int count)
-        {
-            if (collection == null || count <= 0)
-                yield break;
-
-            var reservoir = new List<T>(count);
-            int i = 0;
-
-            foreach (var item in collection)
-            {
-                if (i < count)
-                {
-                    reservoir.Add(item);
-                }
-                else
-                {
-                    int j = IRandom.Instance.Next(i + 1);
-                    if (j < count)
-                        reservoir[j] = item;
-                }
-                i++;
-            }
-
-            // yield instead of returning list to avoid extra allocation
-            foreach (var item in reservoir)
-                yield return item;
-        }
-
-        /// <summary>
         /// Takes the specified number of random elements from the collection, and adds them to a new List.
         /// </summary>
         /// <param name="count">The number of random elements to pick.</param>
         /// <returns>A new List with the specified number of random elements from the original collection.</returns>
-        public List<T> TakeRandomToList(int count)
+        public List<T> TakeRandom(int count)
         {
             if (collection == null || count <= 0)
                 return [];

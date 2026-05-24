@@ -64,7 +64,7 @@ public static class NameNotifyManager
         if (now == LastUpdate) return;
         LastUpdate = now;
 
-        if (!AmongUsClient.Instance.AmHost || Notifies.Count == 0) return;
+        if (Notifies.Count == 0) return;
 
         var notifyEnumerator = Notifies.GetEnumerator();
         while (notifyEnumerator.MoveNext())
@@ -88,6 +88,8 @@ public static class NameNotifyManager
             {
                 for (int index = 0; index < toRemove.Count; index++)
                     dict.Remove(toRemove[index]);
+                
+                if (!AmongUsClient.Instance.AmHost) continue;
 
                 PlayerControl pc = Utils.GetPlayerById(id);
                 if (pc.IsAlive()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

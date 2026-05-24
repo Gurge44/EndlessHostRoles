@@ -24,7 +24,6 @@ internal class TimeMaster : RoleBase
     public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
 
-    private static Dictionary<byte, Vector2> TargetPosition = [];
     private static Dictionary<long, Dictionary<byte, Vector2>> BackTrack = [];
     private static List<byte> RevivedPlayers = [];
     public static bool Rewinding;
@@ -82,7 +81,6 @@ internal class TimeMaster : RoleBase
         On = false;
         Rewinding = false;
         RevivedPlayers = [];
-        TargetPosition = [];
         BackTrack = [];
     }
 
@@ -133,20 +131,20 @@ internal class TimeMaster : RoleBase
 
     private static IEnumerator Rewind()
     {
+        const float delay = 0.3f;
+        long now = Utils.TimeStamp;
+        int length = TimeMasterRewindTimeLength.GetInt();
+
+        Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
+        Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
+        ReportDeadBodyPatch.CanReport.SetAllValues(false);
+
         try
         {
             Rewinding = true;
 
-            const float delay = 0.3f;
-            long now = Utils.TimeStamp;
-            int length = TimeMasterRewindTimeLength.GetInt();
-
-            Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
-            Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
-            ReportDeadBodyPatch.CanReport.SetAllValues(false);
-
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
-            
+
             foreach (PlayerControl player in Main.EnumeratePlayerControls())
             {
                 if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
@@ -199,11 +197,15 @@ internal class TimeMaster : RoleBase
                 }
             }
 
+            
+        }
+        finally
+        {
+            Rewinding = false;
             Main.AllPlayerSpeed = originalSpeeds;
             ReportDeadBodyPatch.CanReport.SetAllValues(true);
             Utils.MarkEveryoneDirtySettings();
         }
-        finally { Rewinding = false; }
     }
 
     public override void AfterMeetingTasks()
@@ -218,16 +220,15 @@ internal class TimeMaster : RoleBase
         long now = Utils.TimeStamp;
         if (!BackTrack.TryAdd(now, null)) return;
 
-        TargetPosition.Clear();
-        var alivePlayers = Main.CachedAlivePlayerControls();
+        Dictionary<byte, Vector2> targetPosition = [];
 
-        foreach (PlayerControl pc in alivePlayers)
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.inVent || pc.onLadder || pc.inMovingPlat) continue;
 
-            TargetPosition[pc.PlayerId] = pc.Pos();
+            targetPosition[pc.PlayerId] = pc.Pos();
         }
-        BackTrack[now] = TargetPosition;
+        BackTrack[now] = targetPosition;
 
         if (TimeMasterCanUseVitals.GetBool()) return;
 

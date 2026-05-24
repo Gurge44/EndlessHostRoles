@@ -13,7 +13,7 @@ using static Utils;
 
 public class Survivor : RoleBase
 {
-    private const int Id = 7680;
+    private const int Id = 659000;
     public static bool On;
 
     public static OptionItem FirstAbility;
@@ -34,23 +34,31 @@ public class Survivor : RoleBase
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Survivor);
 
-        FirstAbility = new IntegerOptionItem(Id + 11, "SurvivorFirstAbility", new(0, 70, 1), 10, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
+        FirstAbility = new IntegerOptionItem(Id + 11, "SurvivorFirstAbility", new(0, 70, 1), 10, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        SecondAbility = new IntegerOptionItem(Id + 12, "SurvivorSecondAbility", new(0, 70, 1), 8, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
+        SecondAbility = new IntegerOptionItem(Id + 12, "SurvivorSecondAbility", new(0, 70, 1), 8, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        ThirdAbility = new IntegerOptionItem(Id + 13, "SurvivorThirdAbility", new(0, 70, 1), 6, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
+        ThirdAbility = new IntegerOptionItem(Id + 13, "SurvivorThirdAbility", new(0, 70, 1), 6, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        LastAbility = new IntegerOptionItem(Id + 14, "SurvivorLastAbility", new(0, 70, 1), 4, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
+        LastAbility = new IntegerOptionItem(Id + 14, "SurvivorLastAbility", new(0, 70, 1), 4, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        ShieldCooldown = new FloatOptionItem(Id + 15, "AidCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
+        ShieldCooldown = new FloatOptionItem(Id + 15, "AidCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShieldDuration = new FloatOptionItem(Id + 16, "AidDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
+        ShieldDuration = new FloatOptionItem(Id + 16, "AidDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
             .SetValueFormat(OptionFormat.Seconds);
 
-        AdditionalVote = new IntegerOptionItem(Id + 17, "MayorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
+        AdditionalVote = new IntegerOptionItem(Id + 17, "MayorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor]);
 
-        KillCooldown = new FloatOptionItem(Id + 18, "KillCooldown", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
+        KillCooldown = new FloatOptionItem(Id + 18, "KillCooldown", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Survivor])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -180,7 +188,10 @@ public class Survivor : RoleBase
         }
     }
 
-    public override bool CanUseKillButton(PlayerControl pc) { return Killing; }
+    public override bool CanUseKillButton(PlayerControl pc)
+    {
+        return Killing;
+    }
 
     public override void SetKillCooldown(byte id)
     {

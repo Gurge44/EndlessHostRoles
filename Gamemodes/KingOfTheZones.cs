@@ -251,7 +251,7 @@ public static class KingOfTheZones
         AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
         if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
-        Zones = Main.LIMap ? ShipStatus.Instance.AllRooms.Select(x => x.RoomId).TakeRandomToList(NumZones.GetInt()) : DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
+        Zones = Main.LIMap ? ShipStatus.Instance.AllRooms.Select(x => x.RoomId).TakeRandom(NumZones.GetInt()) : DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];
 
         Points = AllKOTZTeam.ToDictionary(x => x, _ => 0);
         PlayerPoints = Main.PlayerStates.Keys.ToDictionary(x => x, _ => 0);
@@ -753,13 +753,14 @@ public static class KingOfTheZones
                             {
                                 if (Zones.Count > 0 && ZoneMoveSchedules.TryGetValue(Zones[0], out long moveTS) && moveTS <= now)
                                 {
-                                    IEnumerable<SystemTypes> newZones = AllRooms.Except(Zones).TakeRandom(Zones.Count);
+                                    List<SystemTypes> newZones = AllRooms.Except(Zones).TakeRandom(Zones.Count);
 
                                     Zones.Clear();
                                     ZoneDomination.Clear();
 
-                                    foreach (SystemTypes newZone in newZones)
+                                    for (var index = 0; index < newZones.Count; index++)
                                     {
+                                        SystemTypes newZone = newZones[index];
                                         Zones.Add(newZone);
                                         ZoneDomination[newZone] = KOTZTeam.None;
                                         ZoneMoveSchedules[newZone] = now + moveTime + downtime;

@@ -118,7 +118,7 @@ public class Evolver : RoleBase
     {
         if (!EvolverPC.IsAlive()) return;
 
-        Upgrades = Enum.GetValues<Upgrade>().Except(GetBannedUpgradeList()).TakeRandomToList(3);
+        Upgrades = Enum.GetValues<Upgrade>().Except(GetBannedUpgradeList()).TakeRandom(3);
         SelectedUpgradeIndex = 0;
         ChooseTimer = 15;
 

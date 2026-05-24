@@ -798,7 +798,7 @@ internal static class StartGameHostPatch
                                 roleList.ExceptWith(otherList);
                         }
 
-                        BasisChangingAddons[addon] = roleList.TakeRandomToList(addon.GetCount());
+                        BasisChangingAddons[addon] = roleList.TakeRandom(addon.GetCount());
                     }
                 }
             }

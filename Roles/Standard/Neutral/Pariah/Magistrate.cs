@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -58,6 +59,7 @@ public class Magistrate : RoleBase
         if (CallCourtNextMeeting)
         {
             CallCourtNextMeeting = false;
+            Utils.SendRPC(CustomRPC.SyncRoleData, MagistrateID, CallCourtNextMeeting);
             Main.EnumeratePlayerControls().Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
         }
     }
@@ -103,6 +105,12 @@ public class Magistrate : RoleBase
         pc.RPCPlayCustomSound("Line");
         pc.RpcRemoveAbilityUse();
         CallCourtNextMeeting = true;
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, CallCourtNextMeeting);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        CallCourtNextMeeting = reader.ReadBoolean();
     }
 
     private enum AbilityTriggers

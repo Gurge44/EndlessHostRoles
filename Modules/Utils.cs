@@ -1221,7 +1221,7 @@ public static class Utils
 
         void CheckAndAppendOptionString(OptionItem item)
         {
-            if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden())
+            if (item.GetBool() && item.Parent == null && !item.IsCurrentlyHidden(checkCollapsedSection: false))
                 sb.Append($"\n{item.GetName(true)}: {item.GetString()}");
         }
     }
@@ -1266,7 +1266,7 @@ public static class Utils
 
         foreach (OptionItem opt in OptionItem.AllOptions)
         {
-            if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsCurrentlyHidden())
+            if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsCurrentlyHidden(checkCollapsedSection: false))
             {
                 if (opt.Name is "KillFlashDuration" or "RoleAssigningAlgorithm")
                     sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
@@ -1314,7 +1314,7 @@ public static class Utils
 
         sb.Append($"━━━━━━━━━━━━【{GetString("Settings")}】━━━━━━━━━━━━");
 
-        foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsCurrentlyHidden()))
+        foreach (OptionItem opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsCurrentlyHidden(checkCollapsedSection: false)))
         {
             if (opt.Name == "KillFlashDuration")
                 sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
