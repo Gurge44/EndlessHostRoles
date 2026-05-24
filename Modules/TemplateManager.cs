@@ -205,7 +205,11 @@ public static class TemplateManager
     private static string GetResourcesTxt(string path)
     {
         Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-        if (stream == null) return string.Empty;
+        if (stream == null) 
+        {
+            Logger.Error($"Embedded Resource not found: {path}", "TemplateManager");
+            return string.Empty;
+        }
         stream.Position = 0;
         using StreamReader reader = new(stream, Encoding.UTF8);
         return reader.ReadToEnd();
@@ -237,7 +241,7 @@ public static class TemplateManager
                                       """, RegexOptions.IgnoreCase);
         if (m.Success)
         {
-            value = Regex.Unescape(m.Groups[1].Value);
+            value = m.Groups[1].Value;
             remaining = (input[..m.Index] + input[(m.Index + m.Length)..]).Trim(',').Trim();
             return remaining;
         }
@@ -392,6 +396,7 @@ public static class TemplateManager
         _cachedEntries = null;
         _cachedTags = null;
         _cachedUserVars = null;
+        RegexCache.Clear();
     }
 
     private static (Dictionary<string, List<TemplateEntry>> Entries, HashSet<string> Tags, Dictionary<string, string> UserVars) GetParsedFile()
