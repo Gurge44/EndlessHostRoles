@@ -396,6 +396,7 @@ public static class TemplateManager
         _cachedEntries = null;
         _cachedTags = null;
         _cachedUserVars = null;
+        RegexCache.Clear();
     }
 
     private static (Dictionary<string, List<TemplateEntry>> Entries, HashSet<string> Tags, Dictionary<string, string> UserVars) GetParsedFile()
