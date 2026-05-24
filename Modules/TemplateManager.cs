@@ -237,7 +237,7 @@ public static class TemplateManager
                                       """, RegexOptions.IgnoreCase);
         if (m.Success)
         {
-            value = Regex.Unescape(m.Groups[1].Value);
+            value = m.Groups[1].Value;
             remaining = (input[..m.Index] + input[(m.Index + m.Length)..]).Trim(',').Trim();
             return remaining;
         }
