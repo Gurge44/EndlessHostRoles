@@ -793,7 +793,8 @@ internal static class GameEndChecker
             RoleCounts.Clear();
             for (int aliveIndex = 0; aliveIndex < aapc.Count; aliveIndex++)
             {
-                var role = aapc[aliveIndex].GetCustomRole();
+                PlayerControl pc = aapc[aliveIndex];
+                var role = pc.Is(CustomRoles.Bloodlust) ? CustomRoles.Bloodlust : pc.GetCustomRole();
                 if ((!role.IsNK() && role is not CustomRoles.Bloodlust and not CustomRoles.Gaslighter) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
 
                 CountTypes countTypes = role.GetCountTypes();
