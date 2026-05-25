@@ -168,7 +168,7 @@ internal static class ChangeRoleSettings
                 RoleTypes.Viper
             }.Do(x => Main.NormalOptions.roleOptions.SetRoleRate(x, 0, 0));
 
-            if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded))
+            if (Main.NormalOptions.MapId > 5 && !(Main.NormalOptions.MapId == 6 && SubmergedCompatibility.Loaded) && !Main.LIMap)
             {
                 Logger.SendInGame(GetString("UnsupportedMap"), Color.red);
                 ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
