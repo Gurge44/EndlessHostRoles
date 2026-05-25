@@ -112,6 +112,7 @@ public static class GuessManager
                     if (pc.Is(CustomRoles.Guesser)) goto SkipCheck;
                     if (hasGuessingRole) goto SkipCheck;
                     if ((pc.Is(CustomRoles.Madmate) || pc.IsConverted()) && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
+                    if (pc.Is(CustomRoles.Arsonist) && Arsonist.ArsonistCanIgniteAnytime.GetBool() && Options.NeutralKillersCanGuess.GetBool()) goto SkipCheck;
 
                     ShowMessage("GuessNotAllowed");
                     return true;

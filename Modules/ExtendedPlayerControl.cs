@@ -2350,8 +2350,11 @@ internal static class ExtendedPlayerControl
 
         public bool IsConverted()
         {
-            foreach (CustomRoles subRole in player.GetCustomSubRoles())
-                if (subRole.IsConverted()) return true;
+            List<CustomRoles> subRoles = player.GetCustomSubRoles();
+
+            for (var index = 0; index < subRoles.Count; index++)
+                if (subRoles[index].IsConverted())
+                    return true;
 
             return false;
         }

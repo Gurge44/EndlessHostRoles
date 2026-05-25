@@ -35,7 +35,7 @@ public static class TemplateManager
 
     private const int MaxWeight = 10;
     private const int MinDelay = 1;
-    private const int MaxDelay = 30;
+    private const int MaxDelay = 300;
 
     private static readonly Dictionary<string, Regex> RegexCache = new(StringComparer.Ordinal);
 
