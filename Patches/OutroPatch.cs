@@ -475,7 +475,7 @@ internal static class SetEverythingUpPatch
 
         LastWinsText = winnerText.text /*.RemoveHtmlTags()*/;
 
-        // Cleam up memory for objects that are no longer referenced
+        // Clean up memory for objects that are no longer referenced
         GC.Collect();
         return;
 
@@ -503,10 +503,14 @@ internal static class SetEverythingUpPatch
 
             foreach (byte id in Main.WinnerList)
             {
-                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
+                try
+                {
+                    if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
 
-                sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                cloneRoles.Remove(id);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+                    cloneRoles.Remove(id);
+                }
+                catch { }
             }
 
             sb.Append("</b>\n");
@@ -782,9 +786,9 @@ internal static class SetEverythingUpPatch
                     for (var j = 0; j < Main.WinnerList.Count; j++)
                     {
                         byte id = Main.WinnerList[j];
-                        if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead")) continue;
+                        if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead") || !Main.PlayerStates.TryGetValue(id, out var state)) continue;
 
-                        CustomRoles role = Main.PlayerStates[id].MainRole;
+                        CustomRoles role = state.MainRole;
 
                         string color = Utils.GetRoleColorCode(role);
                         string rolename = Utils.GetRoleName(role);

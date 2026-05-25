@@ -1373,7 +1373,10 @@ internal static class IntroCutsceneDestroyPatch
         else
         {
             foreach (PlayerControl player in apc)
+            {
+                Main.PlayerStates.TryAdd(player.PlayerId, new(player.PlayerId));
                 Main.PlayerStates[player.PlayerId].InitTask(player);
+            }
 
             switch (Options.CurrentGameMode)
             {

@@ -1028,7 +1028,7 @@ internal static class ReportDeadBodyPatch
         if (Options.DisableReportWhenCC.GetBool() && Camouflage.IsCamouflage) return false;
         if (target && AlreadyReportedBodies.Contains(target.PlayerId)) return false;
 
-        if (!CanReport[__instance.PlayerId] || __instance.IsRoleBlocked())
+        if (AmongUsClient.Instance.AmHost && (!CanReport[__instance.PlayerId] || __instance.IsRoleBlocked()))
         {
             WaitReport[__instance.PlayerId].Add(target);
             Logger.Warn($"{__instance.GetNameWithRole().RemoveHtmlTags()}: Reporting is currently prohibited, so we will wait until it becomes possible.", "ReportDeadBody");

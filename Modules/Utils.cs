@@ -790,9 +790,9 @@ public static class Utils
         if (GameStates.IsLobby) return false;
         if (p.Tasks == null) return false;
         if (!p.Role) return false;
+        if (!Main.PlayerStates.TryGetValue(p.PlayerId, out var state)) return false;
 
         var hasTasks = true;
-        PlayerState state = Main.PlayerStates[p.PlayerId];
         if (p.Disconnected) return false;
         if (p.Role.IsImpostor) hasTasks = false;
 
@@ -3093,7 +3093,7 @@ public static class Utils
                     else if (Options.ChangeNameToRoleInfo.GetBool() && !seer.IsModdedClient() && Options.CurrentGameMode == CustomGameMode.Standard)
                     {
                         bool showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out (string Text, int Duration, bool Long) description) && IntroCutsceneDestroyPatch.IntroDestroyTS + description.Duration > now;
-                        string mHelp = !showLongInfo || description.Long ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                        string mHelp = (!showLongInfo && !Options.ShowLongInfo.GetBool()) || description.Long ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
                         string color = seerTeam.GetTextColor();
                         string teamStr = seerTeam == Team.Impostor && seer.IsMadmate() ? "Madmate" : seerTeam.ToString();
                         string info = (showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp;

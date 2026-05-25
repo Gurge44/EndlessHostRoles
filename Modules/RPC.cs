@@ -1586,6 +1586,8 @@ internal static class RPC
 
     public static void SetCustomRole(byte targetId, CustomRoles role, bool replaceAllAddons = false)
     {
+        Main.PlayerStates.TryAdd(targetId, new(targetId));
+        
         if (role < CustomRoles.NotAssigned)
             Main.PlayerStates[targetId].SetMainRole(role);
         else

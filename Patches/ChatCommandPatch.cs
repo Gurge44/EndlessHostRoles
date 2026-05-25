@@ -390,7 +390,13 @@ internal static class ChatCommands
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
         if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp)
-            LateTask.New(() => PlayerControl.LocalPlayer.Suicide(), 0.1f);
+        {
+            LateTask.New(() =>
+            {
+                PlayerControl.LocalPlayer.RpcGuesserMurderPlayer();
+                PlayerControl.LocalPlayer.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));
+            }, 0.1f);
+        }
 
         CheckAnagramGuess(PlayerControl.LocalPlayer.PlayerId, text);
 
@@ -3382,7 +3388,10 @@ internal static class ChatCommands
         }
 
         if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now)
-            player.Suicide(realKiller: Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));
+        {
+            player.RpcGuesserMurderPlayer();
+            player.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));
+        }
 
         if (text.StartsWith("\n")) text = text[1..];
 

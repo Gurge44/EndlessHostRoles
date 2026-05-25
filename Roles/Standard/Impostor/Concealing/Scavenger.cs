@@ -1,6 +1,6 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using EHR.Modules;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -50,10 +50,12 @@ internal class Scavenger : RoleBase
 
             IEnumerator CoRoutine()
             {
-                while (dur > 0)
+                float killRange = killer.GetKillDistance();
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                
+                while (stopwatch.Elapsed.TotalSeconds < dur)
                 {
-                    if (killer == null || target == null || !FastVector2.DistanceWithinRange(killer.Pos(), target.Pos(), 2f)) yield break;
-                    dur -= Time.fixedDeltaTime;
+                    if (!killer || !target || !FastVector2.DistanceWithinRange(killer.Pos(), target.Pos(), killRange)) yield break;
                     yield return null;
                 }
                 
