@@ -228,8 +228,8 @@ public class Pestilence : RoleBase
     {
         foreach (PlayerControl player in Main.CachedAllPlayerControls())
         {
-            PlayerState state = Main.PlayerState[player.PlayerId];
-            if (!player.IsAlive() && player.GetRealKiller() == pc.PlayerId && state.deathReason != PlayerState.DeathReason.Destroyed)
+            PlayerState state = Main.PlayerStates[player.PlayerId];
+            if (!player.IsAlive() && player.GetRealKiller() == pc && state.deathReason != PlayerState.DeathReason.Destroyed)
                 state.deathReason = PlayerState.DeathReason.Diseased;
         }
     }
