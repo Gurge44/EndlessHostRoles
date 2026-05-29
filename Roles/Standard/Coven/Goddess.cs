@@ -77,7 +77,13 @@ public class Goddess : CovenBase
 
         killer.SetRealKiller(target);
         target.Kill(killer);
+        Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
         return false;
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
     }
 
     public void ReceiveRPC(MessageReader reader)
