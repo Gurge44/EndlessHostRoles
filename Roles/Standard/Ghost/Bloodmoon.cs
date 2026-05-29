@@ -13,14 +13,14 @@ internal class Bloodmoon : IGhostRole
     private static OptionItem DieOnMeetingCall;
     private static OptionItem CDIncreasePerUse;
 
-    private static readonly Dictionary<byte, long> ScheduledDeaths = [];
+    private static readonly Dictionary<byte, (long TimeStamp, byte KillerId)> ScheduledDeaths = [];
 
     private long LastUpdate;
     private byte BloodmoonID;
     
     public Team Team => Team.Impostor | Team.Neutral;
     public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
-    public int Cooldown => CD.GetInt() + Main.PlayerStates.Values.Count(x => x.GetRealKiller() == BloodmoonID && x.deathReason == PlayerState.DeathReason.LossOfBlood) * CDIncreasePerUse.GetInt();
+    public int Cooldown => CD.GetInt() + (Main.PlayerStates.Values.Count(x => x.GetRealKiller() == BloodmoonID && x.deathReason == PlayerState.DeathReason.LossOfBlood) + ScheduledDeaths.Values.Count(v => v.KillerId == BloodmoonID)) * CDIncreasePerUse.GetInt();
 
     public void OnAssign(PlayerControl pc)
     {
@@ -32,8 +32,10 @@ internal class Bloodmoon : IGhostRole
 
     public void OnProtect(PlayerControl pc, PlayerControl target)
     {
-        if (target.Is(CustomRoles.Pestilence) || !pc.RpcCheckAndMurder(target, true)) return;
-        ScheduledDeaths.TryAdd(target.PlayerId, Utils.TimeStamp);
+        if (target.Is(CustomRoles.Pestilence) || (target.Is(Team.Impostor) && pc.Is(Team.Impostor)) || !pc.RpcCheckAndMurder(target, true)) return;
+        ScheduledDeaths.TryAdd(target.PlayerId, (Utils.TimeStamp, pc.PlayerId));
+        Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
+        pc.MarkDirtySettings();
     }
 
     public void SetupCustomOption()
@@ -68,12 +70,12 @@ internal class Bloodmoon : IGhostRole
         if (now == instance.LastUpdate) return;
         instance.LastUpdate = now;
 
-        foreach (KeyValuePair<byte, long> death in ScheduledDeaths)
+        foreach (KeyValuePair<byte, (long Value, byte KillerId)> death in ScheduledDeaths)
         {
             PlayerControl player = Utils.GetPlayerById(death.Key);
             if (!player || !player.IsAlive()) continue;
 
-            if (now - death.Value < Duration.GetInt())
+            if (now - death.Value.Value < Duration.GetInt())
             {
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 continue;
@@ -86,34 +88,35 @@ internal class Bloodmoon : IGhostRole
         for (int index = 0; index < alivePlayers.Count; index++)
         {
             PlayerControl target = alivePlayers[index];
-            if (target.Is(Team.Impostor)) continue;
+            if (target.Is(Team.Impostor) && pc.Is(Team.Impostor)) continue;
             if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), 4f)) continue;
 
             target.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None);
         }
     }
 
-    public static void OnMeetingStart(PlayerControl player)
+    public static void OnMeetingStart()
     {
         if (DieOnMeetingCall.GetBool())
         {
-            foreach (byte id in ScheduledDeaths.Keys)
+            foreach (var kvp in ScheduledDeaths)
             {
-                PlayerControl pc = Utils.GetPlayerById(id);
+                PlayerControl pc = Utils.GetPlayerById(kvp.Key);
                 if (!pc || !pc.IsAlive()) continue;
 
-                pc.Suicide(PlayerState.DeathReason.LossOfBlood, player);
+                pc.Suicide(PlayerState.DeathReason.LossOfBlood, Utils.GetPlayerById(kvp.Value.KillerId));
             }
         }
 
         ScheduledDeaths.Clear();
-    }
+    }  
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (!ScheduledDeaths.TryGetValue(seer.PlayerId, out long ts)) return string.Empty;
+        if (!ScheduledDeaths.TryGetValue(seer.PlayerId, out var deathInfo)) return string.Empty;
 
-        long timeLeft = Duration.GetInt() - (Utils.TimeStamp - ts) + 1;
+        long timeLeft = Duration.GetInt() - (Utils.TimeStamp - deathInfo.TimeStamp) + 1;
+
         (string TextColor, string TimeColor) colors = GetColors();
         return string.Format(Translator.GetString("Bloodmoon.Suffix"), timeLeft, colors.TextColor, colors.TimeColor);
 
@@ -124,4 +127,3 @@ internal class Bloodmoon : IGhostRole
                 _ => ("#ff0000", "#ffff00")
             };
     }
-}
