@@ -125,7 +125,7 @@ internal class Veteran : RoleBase
             {
                 killer.SetRealKiller(target);
                 target.Kill(killer);
-                Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Shot;
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Shot;
                 Logger.Info($"{target.GetRealName()} reverse killed: {killer.GetRealName()}", "Veteran Kill");
                 return false;
             }
