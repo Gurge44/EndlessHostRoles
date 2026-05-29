@@ -223,4 +223,14 @@ public class Pestilence : RoleBase
         LateTask.New(() => Utils.SendMessage(GetString("TransformationAnnouncementMessage"), title: $"{CustomRoles.PlagueBearer.ToColoredString()} => {CustomRoles.Pestilence.ToColoredString()}", importance: MessageImportance.High), 12f, "Pb to Pesti transform message");
         Announced = true;
     }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        foreach (PlayerControl player in Main.CachedAllPlayerControls())
+        {
+            state = Main.PlayerState[player.PlayerId];
+            if (!player.IsAlive() && player.GetRealKiller() == pc.PlayerId && state.deathReason != PlayerState.DeathReason.Destroyed)
+                state.deathReason = PlayerState.DeathReason.Destroyed;
+        }
+    }
 }
