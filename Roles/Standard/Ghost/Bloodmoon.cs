@@ -127,3 +127,4 @@ internal class Bloodmoon : IGhostRole
                 _ => ("#ff0000", "#ffff00")
             };
     }
+}
