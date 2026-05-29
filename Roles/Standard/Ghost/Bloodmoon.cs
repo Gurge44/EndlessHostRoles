@@ -93,7 +93,7 @@ internal class Bloodmoon : IGhostRole
         }
     }
 
-    public static void OnMeetingStart()
+    public static void OnMeetingStart(PlayerControl player)
     {
         if (DieOnMeetingCall.GetBool())
         {
@@ -102,7 +102,7 @@ internal class Bloodmoon : IGhostRole
                 PlayerControl pc = Utils.GetPlayerById(id);
                 if (!pc || !pc.IsAlive()) continue;
 
-                pc.Suicide(PlayerState.DeathReason.LossOfBlood);
+                pc.Suicide(PlayerState.DeathReason.LossOfBlood, player);
             }
         }
 
