@@ -1750,6 +1750,11 @@ internal static class FixedUpdatePatch
                     PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 
+                if (player.Is(CustomRoles.Pestilence))
+                    foreach (PlayerState ps in Main.PlayerStates.Values)
+                        if (ps.IsDead && ps.GetRealKiller() == player.PlayerId && ps.deathReason != PlayerState.DeathReason.Destroyed)
+                            ps.deathReason = PlayerState.DeathReason.Destroyed;
+
                 bool checkPos = inTask && !ExileController.Instance && !AntiBlackout.SkipTasks && alive && !Pelican.IsEaten(playerId) && Main.IntroDestroyed;
                 if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
 
