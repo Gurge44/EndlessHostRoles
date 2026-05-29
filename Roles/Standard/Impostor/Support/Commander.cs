@@ -119,7 +119,7 @@ internal class Commander : RoleBase
                     target.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
                 else
                 {
-                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                     {
                         if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
@@ -136,7 +136,7 @@ internal class Commander : RoleBase
 
                 break;
             case Mode.DontSabotage:
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
@@ -149,7 +149,7 @@ internal class Commander : RoleBase
                     target.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
                 else
                 {
-                    foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                     {
                         if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
@@ -175,7 +175,7 @@ internal class Commander : RoleBase
             return;
         }
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander)) continue;
 
@@ -224,7 +224,22 @@ internal class Commander : RoleBase
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        if (Main.EnumeratePlayerControls().Where(x => x.Is(Team.Impostor)).All(x => TargetArrow.GetArrows(x, CommanderId) == string.Empty))
+        var players = Main.CachedAllPlayerControls();
+        bool hasImpostor = false;
+        bool allEmpty = true;
+        for (int index = 0; index < players.Count; index++)
+        {
+            PlayerControl player = players[index];
+            if (!player.Is(Team.Impostor)) continue;
+
+            hasImpostor = true;
+            if (TargetArrow.GetArrows(player, CommanderId) != string.Empty)
+            {
+                allEmpty = false;
+                break;
+            }
+        }
+        if (hasImpostor && allEmpty)
         {
             IsWhistling = false;
             SendRPC();
@@ -262,7 +277,7 @@ internal class Commander : RoleBase
             if (arrowToCommander.Length > 0) return $"{Translator.GetString("Commander")} {arrowToCommander}";
         }
         else if (isTargetTarget)
-            return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sprayer), Translator.GetString("CommanderTarget"));
+            return CustomRoles.Sprayer.ColoredTextByRole(Translator.GetString("CommanderTarget"));
         else if (isTargetDontKill) return Utils.ColorString(ColorUtility.TryParseHtmlString("#0daeff", out Color color) ? color : Utils.GetRoleColor(CustomRoles.TaskManager), Translator.GetString("CommanderDontKill"));
 
         return string.Empty;

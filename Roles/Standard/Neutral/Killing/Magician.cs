@@ -36,6 +36,7 @@ public class Magician : RoleBase
     public static Dictionary<byte, long> BlindPpl = [];
     public static Dictionary<Vector2, long> Bombs = [];
     private static List<Vector2> PortalMarks = [];
+    private readonly StringBuilder Notify = new();
     private static bool IsSniping;
     private static Vector3 SnipeBasePosition;
     private static bool IsSpeedup;
@@ -319,8 +320,7 @@ public class Magician : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask) return;
-        if (Pelican.IsEaten(pc.PlayerId) || !pc.IsAlive()) return;
+        if (!GameStates.IsInTask || !pc.IsAliveWithConditions()) return;
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
@@ -349,31 +349,39 @@ public class Magician : RoleBase
 
         if (Bombs.Count > 0)
         {
-            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < now).ToArray())
+            List<Vector2> toRemove = null;
+
+            foreach (KeyValuePair<Vector2, long> bomb in Bombs)
             {
-                foreach (PlayerControl tg in FastVector2.GetPlayersInRange(bomb.Key, BombRadius.GetFloat()))
+                if (bomb.Value + BombDelay.GetInt() < now)
                 {
-                    if (tg.PlayerId == pc.PlayerId)
+                    foreach (PlayerControl tg in FastVector2.GetPlayersInRange(bomb.Key, BombRadius.GetFloat()))
                     {
-                        LateTask.New(() =>
+                        if (tg.PlayerId == pc.PlayerId)
                         {
-                            if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
-                        }, 0.5f, "Magician Bomb Suicide");
-                        continue;
+                            LateTask.New(() =>
+                            {
+                                if (!GameStates.IsEnded)
+                                    pc.Suicide(PlayerState.DeathReason.Bombed);
+                            }, 0.5f, "Magician Bomb Suicide");
+                            continue;
+                        }
+
+                        tg.Suicide(PlayerState.DeathReason.Bombed, pc);
                     }
 
-                    tg.Suicide(PlayerState.DeathReason.Bombed, pc);
+                    toRemove ??= [];
+                    toRemove.Add(bomb.Key);
+                    pc.Notify(GetString("MagicianBombExploded"));
                 }
-
-                Bombs.Remove(bomb.Key);
-                pc.Notify(GetString("MagicianBombExploded"));
             }
 
-            var sb = new StringBuilder();
-            long[] list = [.. Bombs.Values];
-            foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (now - x) + 1));
+            toRemove?.ForEach(x => Bombs.Remove(x));
 
-            pc.Notify(sb.ToString());
+            Notify.Clear();
+            foreach (long x in Bombs.Values) Notify.AppendFormat(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (now - x) + 1);
+
+            pc.Notify(Notify.ToString());
         }
     }
 
@@ -412,7 +420,7 @@ public class Magician : RoleBase
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl target in Main.CachedAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 

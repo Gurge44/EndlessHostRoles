@@ -117,13 +117,13 @@ internal class Ninja : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        if (pc == null || !pc.IsAlive()) return false;
+        if (!pc || !pc.IsAlive()) return false;
         return CanKillAfterAssassinate || (!pc.IsShifted() && (pc.Data.Role as PhantomRole) is null or { IsInvisible: false });
     }
 
     public override void AfterMeetingTasks()
     {
-        if (MarkedPlayer != byte.MaxValue && MarkedPlayer.GetPlayer() == null)
+        if (MarkedPlayer != byte.MaxValue && !MarkedPlayer.GetPlayer())
         {
             MarkedPlayer = byte.MaxValue;
             SendRPC(NinjaId);
@@ -174,7 +174,7 @@ internal class Ninja : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAliveWithConditions()) return false;
 
         if (!shapeshifting) return true;
 
@@ -185,7 +185,7 @@ internal class Ninja : RoleBase
 
     public override bool OnVanish(PlayerControl pc)
     {
-        if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAliveWithConditions()) return false;
 
         if (!IsUndertaker)
         {

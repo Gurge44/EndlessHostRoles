@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
@@ -60,10 +59,8 @@ internal class Tornado : RoleBase
             Map = RandomSpawn.SpawnMap.GetSpawnMap();
             CanUseMap = true;
         }
-        catch (ArgumentOutOfRangeException)
+        catch
         {
-            Logger.CurrentMethod();
-            Logger.Error("Unsupported Map", "Torando");
             CanUseMap = false;
         }
     }
@@ -120,7 +117,7 @@ internal class Tornado : RoleBase
         long now = TimeStamp;
         Tornados.TryAdd(info, now);
         SendRPCAddTornado(true, info.Location, info.RoomName, now);
-        _ = new TornadoObject(info.Location, [pc.PlayerId]);
+        _ = new TornadoObject(info.Location, pc);
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
@@ -136,7 +133,9 @@ internal class Tornado : RoleBase
             float tornadoRange = TornadoRange.GetFloat();
             int tornadoDuration = TornadoDuration.GetInt();
 
-            foreach (KeyValuePair<(Vector2 Location, string RoomName), long> tornado in Tornados.ToArray())
+            List<(Vector2 Location, string RoomName)> toRemove = null;
+
+            foreach (KeyValuePair<(Vector2 Location, string RoomName), long> tornado in Tornados)
             {
                 if (FastVector2.DistanceWithinRange(tornado.Key.Location, pc.Pos(), tornadoRange))
                 {
@@ -150,11 +149,14 @@ internal class Tornado : RoleBase
 
                 if (tornado.Value + tornadoDuration < now)
                 {
-                    Tornados.Remove(tornado.Key);
+                    toRemove ??= [];
+                    toRemove.Add(tornado.Key);
                     SendRPCAddTornado(false, tornado.Key.Location, tornado.Key.RoomName);
                     NotifyRoles(SpecifySeer: TornadoPC, SpecifyTarget: TornadoPC);
                 }
             }
+
+            toRemove?.ForEach(x => Tornados.Remove(x));
         }
         else
         {

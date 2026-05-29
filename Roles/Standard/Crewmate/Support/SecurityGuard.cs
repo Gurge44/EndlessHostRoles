@@ -56,23 +56,20 @@ internal class SecurityGuard : RoleBase
         AURoleOptions.EngineerCooldown = SecurityGuardSkillCooldown.GetFloat();
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var progressText = new StringBuilder();
-
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.Contains(playerId)));
-        progressText.Append(Utils.GetTaskCount(playerId, comms));
-
-        return progressText.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.Contains(playerId)))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
-    public override void SetButtonTexts(HudManager hud, byte id)
-    {
-        if (UsePets.GetBool())
-            hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-        else
-            hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-    }
+    // Revert this if needed, recommended to actually add a text called "SaboBlock" or something
+    //public override void SetButtonTexts(HudManager hud, byte id)
+    //{
+    //    if (UsePets.GetBool())
+    //        hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+    //    else
+    //        hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+    //}
 
     public override void OnPet(PlayerControl pc)
     {

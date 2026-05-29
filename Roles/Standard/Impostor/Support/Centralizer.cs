@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 
 namespace EHR.Roles;
 
@@ -9,6 +8,7 @@ public class Centralizer : RoleBase
 
     public override bool IsEnable => On;
 
+    private static OptionItem KillCooldown;
     private static OptionItem NumPlayersTeleported;
     public static OptionItem AbilityCooldown;
     private static OptionItem AbilityUseLimit;
@@ -19,6 +19,7 @@ public class Centralizer : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(655700)
+            .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref NumPlayersTeleported, 4, new IntegerValueRule(1, 15, 1), OptionFormat.Players)
             .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
             .AutoSetupOption(ref AbilityUseLimit, 1f, new FloatValueRule(0, 20, 0.1f), OptionFormat.Times)
@@ -49,7 +50,12 @@ public class Centralizer : RoleBase
             AURoleOptions.ShapeshifterDuration = 1f;
         }
     }
-    
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+    }
+
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting) return true;
@@ -73,7 +79,7 @@ public class Centralizer : RoleBase
         if (MarkedPosition.HasValue)
         {
             if (pc.GetAbilityUseLimit() < 1) return;
-            Main.EnumerateAlivePlayerControls().Shuffle().Take(NumPlayersTeleported.GetInt()).MassTP(MarkedPosition.Value);
+            Main.EnumerateAlivePlayerControls().TakeRandom(NumPlayersTeleported.GetInt()).MassTP(MarkedPosition.Value);
             MarkedPosition = null;
             pc.RpcRemoveAbilityUse();
         }

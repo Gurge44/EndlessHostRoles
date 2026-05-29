@@ -143,7 +143,16 @@ internal static class CustomHnS
 
         Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "HnsRoleAssigner");
 
-        foreach (KeyValuePair<byte, CustomRoles> item in Main.SetRoles.AddRange(ChatCommands.DraftResult, false))
+        Dictionary<byte, CustomRoles> preSetRoles = Main.SetRoles.AddRange(ChatCommands.DraftResult, false);
+
+        if (ChatCommands.DraftResult.Count > 0 && ChatCommands.DraftResult.Count + preSetRoles.Count >= allPlayers.Count && preSetRoles.All(x => x.Value is not (CustomRoles.Seeker or CustomRoles.Locator or CustomRoles.Dasher or CustomRoles.Venter or CustomRoles.Agent)))
+        {
+            byte removeKey = ChatCommands.DraftResult.Keys.RandomElement();
+            ChatCommands.DraftResult.Remove(removeKey);
+            preSetRoles.Remove(removeKey);
+        }
+
+        foreach (KeyValuePair<byte, CustomRoles> item in preSetRoles)
         {
             try
             {
@@ -165,7 +174,7 @@ internal static class CustomHnS
             }
         }
 
-        Dictionary<Team, PlayerControl[]> playerTeams = Enum.GetValues<Team>()[1..4]
+        Dictionary<Team, PlayerControl[]> playerTeams =Main.TeamValues[1..4]
             .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
             .Shuffle()
             .Zip(allPlayers)
@@ -228,7 +237,7 @@ internal static class CustomHnS
             .Where(x => x != null)
             .ToDictionary(x => x.GetType().Name, x => x);
 
-        PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
+        PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces.GetValueOrDefault(x.Value.ToString(), new Hider()), x.Value));
 
         if (Main.GM.Value)
         {
@@ -289,15 +298,15 @@ internal static class CustomHnS
 
         if (PlayersSeeRoles.GetBool())
         {
-            color = Main.RoleColors[targetRole.Role];
-            if (targetRole.Role == CustomRoles.Agent) color = Main.RoleColors[CustomRoles.Hider];
+            color = Utils.GetRoleColorCode(targetRole.Role);
+            if (targetRole.Role == CustomRoles.Agent) color = Utils.GetRoleColorCode(CustomRoles.Hider);
 
             return true;
         }
 
         if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
         {
-            color = Main.RoleColors[CustomRoles.Seeker];
+            color = Utils.GetRoleColorCode(CustomRoles.Seeker);
             return true;
         }
 
@@ -371,7 +380,7 @@ internal static class CustomHnS
             Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
         }
 
-        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
+        if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Utils.GetRoleColorCode(CustomRoles.Hider)}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
 
         int minutes = TimeLeft / 60;
         int seconds = TimeLeft % 60;
@@ -459,7 +468,7 @@ internal static class CustomHnS
     {
         reason = GameOverReason.ImpostorsByKill;
 
-        var alivePlayers = Main.AllAlivePlayerControls;
+        var alivePlayers = Main.CachedAlivePlayerControls();
 
         // If there are 0 players alive, the game is over and only foxes win
         if (alivePlayers.Count == 0)
@@ -543,23 +552,24 @@ internal static class CustomHnS
 
             try
             {
-                var validIds = new HashSet<byte>();
-                
-                foreach (var pc in Main.EnumeratePlayerControls())
-                    validIds.Add(pc.PlayerId);
-
-                var toRemove = new List<byte>();
+                List<byte> toRemove = null;
 
                 foreach (var id in PlayerRoles.Keys)
                 {
-                    if (!validIds.Contains(id))
+                    if (!id.GetPlayer())
+                    {
+                        toRemove ??= [];
                         toRemove.Add(id);
+                    }
                 }
 
-                foreach (var id in toRemove)
+                if (toRemove != null)
                 {
-                    PlayerRoles.Remove(id);
-                    Utils.SendRPC(CustomRPC.HNSSync, 2, id);
+                    foreach (var id in toRemove)
+                    {
+                        PlayerRoles.Remove(id);
+                        Utils.SendRPC(CustomRPC.HNSSync, 2, id);
+                    }
                 }
             }
             catch { }
@@ -568,7 +578,7 @@ internal static class CustomHnS
             {
                 Positions = new Dictionary<byte, Vector2>(PlayerRoles.Count);
 
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                     Positions[pc.PlayerId] = pc.Pos();
 
                 ImpostorPositions = [];

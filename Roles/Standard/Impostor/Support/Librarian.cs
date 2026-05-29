@@ -221,10 +221,7 @@ public class Librarian : RoleBase
 
     private static string GetSelfSuffixAndHudText(byte playerId)
     {
-        if (Main.PlayerStates[playerId].Role is not Librarian lr) return string.Empty;
-
-        if (!lr.IsEnable || !GameStates.IsInTask) return string.Empty;
-
+        if (Main.PlayerStates[playerId].Role is not Librarian lr || !lr.IsEnable || !GameStates.IsInTask) return string.Empty;
         return string.Format(GetString("LibrarianModeText"), lr.IsInSilencingMode.SILENCING ? GetString("LibrarianSilenceMode") : GetString("LibrarianNormalMode"));
     }
 }

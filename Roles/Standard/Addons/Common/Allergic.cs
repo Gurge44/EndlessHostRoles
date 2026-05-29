@@ -34,10 +34,12 @@ public class Allergic : IAddon
 
         LateTask.New(() =>
         {
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControlsToList;
 
-            foreach (PlayerControl pc in aapc)
+            for (var index = 0; index < aapc.Count; index++)
             {
+                PlayerControl pc = aapc[index];
+
                 if (pc.Is(CustomRoles.Allergic))
                 {
                     PlayerControl target = aapc.Without(pc).RandomElement();
@@ -62,7 +64,6 @@ public class Allergic : IAddon
                 Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
                 Utils.SendRPC(CustomRPC.SyncAllergic, 1, pc.PlayerId);
             }
-
             return;
         }
 

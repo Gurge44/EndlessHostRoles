@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -75,7 +73,7 @@ public class Oracle : RoleBase
 
         if (player.GetAbilityUseLimit() < 1)
         {
-            Utils.SendMessage(GetString("OracleCheckReachLimit"), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")));
+            Utils.SendMessage(GetString("OracleCheckReachLimit"), player.PlayerId, CustomRoles.Oracle.ColoredTextByRole(GetString("OracleCheckMsgTitle")));
             return false;
         }
 
@@ -83,18 +81,18 @@ public class Oracle : RoleBase
 
         if (player.PlayerId == target.PlayerId)
         {
-            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")), importance: MessageImportance.Low);
+            Utils.SendMessage(GetString("OracleCheckSelfMsg") + "\n\n" + string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit()), player.PlayerId, CustomRoles.Oracle.ColoredTextByRole(GetString("OracleCheckMsgTitle")), importance: MessageImportance.Low);
             return false;
         }
 
         Team team = target.GetTeam();
 
         if (IRandom.Instance.Next(100) < FailChance.GetInt())
-            team = Enum.GetValues<Team>()[1..].Without(team).RandomElement();
+            team = Main.TeamValues[1..].Without(team).RandomElement();
 
         string msg = string.Format(GetString($"OracleCheck.{GetString($"ShortTeamName.{team}", SupportedLangs.English)}"), target.GetRealName());
 
-        Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Oracle), GetString("OracleCheckMsgTitle")), importance: MessageImportance.High);
+        Utils.SendMessage($"{GetString("OracleCheck")}\n{msg}\n\n{string.Format(GetString("OracleCheckLimit"), player.GetAbilityUseLimit())}", player.PlayerId, CustomRoles.Oracle.ColoredTextByRole(GetString("OracleCheckMsgTitle")), importance: MessageImportance.High);
 
         Main.DontCancelVoteList.Add(player.PlayerId);
         return true;

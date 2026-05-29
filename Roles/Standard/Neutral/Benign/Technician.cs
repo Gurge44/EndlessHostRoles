@@ -114,7 +114,7 @@ public class Technician : RoleBase
             LocalPlayerFixedSabotageTypes.Add(actualSystemType);
     }
 
-    public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
+    public static void UpdateSystem(byte playerId, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[playerId].IsDead) return;
 
@@ -198,11 +198,16 @@ public class Technician : RoleBase
         technician.IncreasePoints(SystemTypes.Electrical);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var points = (int)Math.Round(playerId.GetAbilityUseLimit());
+        int points = (int)Math.Round(playerId.GetAbilityUseLimit());
         int needed = RequiredPoints.GetInt();
         Color color = points >= needed ? Color.green : Color.white;
-        return Utils.ColorString(color, $"{points}/{needed}");
+        
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append(points)
+            .Append('/')
+            .Append(needed)
+            .Append("</color>");
     }
 }

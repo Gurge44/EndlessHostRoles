@@ -117,7 +117,6 @@ internal static class EndGamePatch
 
         Arsonist.IsDoused = [];
         Revolutionist.IsDraw = [];
-        Investigator.IsRevealed = [];
 
         Main.VisibleTasksCount = false;
 
@@ -146,7 +145,7 @@ internal static class EndGamePatch
                     if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) Main.GamesPlayed.AddRange(Main.EnumeratePlayerControls().ToDictionary(x => x.FriendCode, _ => 0), false);
                     Main.GamesPlayed.AdjustAllValues(x => ++x);
                     Main.GotShieldAnimationInfoThisGame.Clear();
-                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].IsDead = false;
+                    if (Main.GM.Value) Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetAlive();
                     break;
                 case CustomGameMode.StopAndGo:
                     Main.EnumeratePlayerControls().Do(x => StopAndGo.HasPlayed.Add(x.FriendCode));
@@ -163,7 +162,7 @@ internal static class EndGamePatch
                 case CustomGameMode.Deathrace:
                     MapNames map = Main.CurrentMap;
                     
-                    foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                    foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                     {
                         if (!Deathrace.PlayedMaps.TryGetValue(pc.FriendCode, out var maps))
                             Deathrace.PlayedMaps[pc.FriendCode] = [map];
@@ -175,6 +174,9 @@ internal static class EndGamePatch
                 case CustomGameMode.Mingle:
                     Main.EnumeratePlayerControls().Do(x => Mingle.HasPlayedFCs.Add(x.FriendCode));
                     break;
+                case CustomGameMode.NaturalDisasters:
+                    NaturalDisasters.FixedUpdatePatch.LastDisasterTimer.Reset();
+                    goto default;
                 default:
                     if (Main.HasPlayedGM.TryGetValue(Options.CurrentGameMode, out HashSet<string> playedFCs))
                         playedFCs.UnionWith(Main.EnumeratePlayerControls().Select(x => x.FriendCode));
@@ -472,6 +474,9 @@ internal static class SetEverythingUpPatch
         EndOfText:
 
         LastWinsText = winnerText.text /*.RemoveHtmlTags()*/;
+
+        // Clean up memory for objects that are no longer referenced
+        GC.Collect();
         return;
 
         IEnumerator SetupPoolablePlayers()
@@ -479,6 +484,10 @@ internal static class SetEverythingUpPatch
             Camera main = Camera.main;
             if (!main) yield break;
 
+            yield return null;
+
+            // Clear unused assets
+            Resources.UnloadUnusedAssets();
             yield return null;
 
             Vector3 pos = main.ViewportToWorldPoint(new(0f, 1f, main.nearClipPlane));
@@ -494,10 +503,14 @@ internal static class SetEverythingUpPatch
 
             foreach (byte id in Main.WinnerList)
             {
-                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
+                try
+                {
+                    if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
 
-                sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                cloneRoles.Remove(id);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
+                    cloneRoles.Remove(id);
+                }
+                catch { }
             }
 
             sb.Append("</b>\n");
@@ -773,11 +786,11 @@ internal static class SetEverythingUpPatch
                     for (var j = 0; j < Main.WinnerList.Count; j++)
                     {
                         byte id = Main.WinnerList[j];
-                        if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead")) continue;
+                        if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags() || data.PlayerName == GetString("Dead") || !Main.PlayerStates.TryGetValue(id, out var state)) continue;
 
-                        CustomRoles role = Main.PlayerStates[id].MainRole;
+                        CustomRoles role = state.MainRole;
 
-                        string color = Main.RoleColors[role];
+                        string color = Utils.GetRoleColorCode(role);
                         string rolename = Utils.GetRoleName(role);
 
                         poolablePlayer.cosmetics.nameText.text += $"\n<color={color}>{rolename}</color>";

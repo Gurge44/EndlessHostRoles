@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -23,6 +24,7 @@ internal class Chemist : RoleBase
     private static OptionItem IronOreGainedPerVent;
 
     private static Dictionary<Item, OptionItem> FinalProductUsageAmounts = [];
+    private readonly StringBuilder Suffix = new();
 
     private static OptionItem AcidPlayersDie;
     private static OptionItem AcidPlayersDieAfterTime;
@@ -114,7 +116,9 @@ internal class Chemist : RoleBase
     private Dictionary<Item, int> ItemCounts;
     private long LastUpdate;
     private string SelectedProcess;
-    private List<string> SortedAvailableProcesses;
+    private readonly List<string> SortedAvailableProcesses = [];
+    private readonly List<string> Available = [];
+    private readonly List<string> Unavailable = [];
 
     public override bool IsEnable => On;
 
@@ -214,7 +218,9 @@ internal class Chemist : RoleBase
         ItemCounts = [];
         CurrentFactory = Factory.None;
         SelectedProcess = string.Empty;
-        SortedAvailableProcesses = [];
+        SortedAvailableProcesses.Clear();
+        Available.Clear();
+        Unavailable.Clear();
 
         AcidPlayers = [];
         IsBlinding = false;
@@ -370,25 +376,47 @@ internal class Chemist : RoleBase
     {
         if (!GameStates.IsInTask || !pc.IsAlive()) return;
 
+        byte pcId = pc.PlayerId;
         Vector2 pos = pc.Pos();
 
-        if (AcidPlayers.TryGetValue(pc.PlayerId, out (HashSet<byte> OtherAcidPlayers, long TimeStamp) acidPlayers))
+        if (AcidPlayers.TryGetValue(pcId, out var acidData))
         {
-            Main.EnumerateAlivePlayerControls()
-                .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
-                .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, 2.5f))
-                .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
+            var otherAcidPlayers = acidData.OtherAcidPlayers;
+
+            var alivePlayers = Main.CachedAlivePlayerControls();
+            byte chemistId = ChemistPC.PlayerId;
+
+            for (int index = 0; index < alivePlayers.Count; index++)
+            {
+                PlayerControl target = alivePlayers[index];
+                byte targetId = target.PlayerId;
+
+                if (targetId == pcId || targetId == chemistId) continue;
+                if (otherAcidPlayers.Contains(targetId) || !FastVector2.DistanceWithinRange(target.Pos(), pos, 2.5f)) continue;
+
+                otherAcidPlayers.Add(targetId);
+            }
         }
 
-        if (Grenades.TryGetValue(pc.PlayerId, out long ts) && ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
+        if (Grenades.TryGetValue(pcId, out long ts))
         {
-            Grenades.Remove(pc.PlayerId);
+            if (ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
+            {
+                Grenades.Remove(pcId);
 
-            float radius = GrenadeExplodeRadius.GetFloat();
+                byte chemistId = ChemistPC.PlayerId;
+                float radius = GrenadeExplodeRadius.GetFloat();
 
-            Main.EnumerateAlivePlayerControls()
-                .Where(x => x.PlayerId != ChemistPC.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && ChemistPC.RpcCheckAndMurder(x, true))
-                .Do(x => x.Suicide(realKiller: ChemistPC));
+                foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+                {
+                    byte targetId = target.PlayerId;
+
+                    if (targetId == chemistId || !FastVector2.DistanceWithinRange(target.Pos(), pos, radius)) continue;
+                    if (!ChemistPC.RpcCheckAndMurder(target, true)) continue;
+
+                    target.Suicide(realKiller: ChemistPC);
+                }
+            }
         }
     }
 
@@ -490,25 +518,55 @@ internal class Chemist : RoleBase
         Factory beforeFactory = CurrentFactory;
         PlainShipRoom room = pc.GetPlainShipRoom();
 
-        if (ItemCounts[Item.ThermalWater] < 50 && room != null && room.RoomId == HottestRoom[Main.CurrentMap])
+        if (room)
         {
-            ItemCounts[Item.ThermalWater]++;
-            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.ThermalWater, 1);
-        }
+            if (ItemCounts[Item.ThermalWater] < 50 && room.RoomId == HottestRoom[Main.CurrentMap])
+            {
+                ItemCounts[Item.ThermalWater]++;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)Item.ThermalWater, 1);
+            }
 
-        if (room != null)
-        {
             CurrentFactory = FactoryLocations.GetValueOrDefault(room.RoomId);
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 3, (int)CurrentFactory);
 
             if (CurrentFactory != beforeFactory)
             {
-                SortedAvailableProcesses = Processes[CurrentFactory]
-                    .OrderByDescending(x => x.Value.Ingredients.TrueForAll(y => ItemCounts[y.Item] >= y.Count))
-                    .Select(x => x.Key)
-                    .ToList();
+                Available.Clear();
+                Unavailable.Clear();
+                string firstAvailable = null;
 
-                SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
+                if (Processes.TryGetValue(CurrentFactory, out var processes))
+                {
+                    var processesEnumerator = processes.GetEnumerator();
+                    while (processesEnumerator.MoveNext())
+                    {
+                        (string processKey, (List<(int Count, Item Item)> ingredients, _)) = processesEnumerator.Current;
+                        bool available = true;
+
+                        for (int index = 0; index < ingredients.Count; index++)
+                        {
+                            var ingredient = ingredients[index];
+                            if (!ItemCounts.TryGetValue(ingredient.Item, out int count) || count < ingredient.Count)
+                            {
+                                available = false;
+                                break;
+                            }
+                        }
+
+                        if (available)
+                        {
+                            firstAvailable ??= processKey;
+                            Available.Add(processKey);
+                        }
+                        else Unavailable.Add(processKey);
+                    }
+                }
+
+                SortedAvailableProcesses.Clear();
+                if (Available.Count > 0) SortedAvailableProcesses.AddRange(Available);
+                if (Unavailable.Count > 0) SortedAvailableProcesses.AddRange(Unavailable);
+
+                SelectedProcess = firstAvailable ?? string.Empty;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, SelectedProcess);
             }
         }
@@ -561,17 +619,17 @@ internal class Chemist : RoleBase
     {
         if (SelectedProcess == string.Empty) return;
 
-        (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
+        (List<(int Count, Item Item)> ingredients, List<(int Count, Item Item)> results) = Processes[CurrentFactory][SelectedProcess];
 
-        if (!Ingredients.TrueForAll(x => ItemCounts[x.Item] >= x.Count)) return;
+        if (!ingredients.TrueForAll(x => ItemCounts[x.Item] >= x.Count)) return;
 
-        Ingredients.ForEach(x =>
+        ingredients.ForEach(x =>
         {
             ItemCounts[x.Item] -= x.Count;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)x.Item, -x.Count);
         });
 
-        Results.ForEach(x =>
+        results.ForEach(x =>
         {
             ItemCounts[x.Item] += x.Count;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, (int)x.Item, x.Count);
@@ -579,7 +637,7 @@ internal class Chemist : RoleBase
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         
-        if (pc.AmOwner && Results.Exists(x => x.Item == Item.SulfuricAcid))
+        if (pc.AmOwner && results.Exists(x => x.Item == Item.SulfuricAcid))
             Achievements.Type.HeyRabek.Complete();
     }
 
@@ -611,7 +669,7 @@ internal class Chemist : RoleBase
         bool self = seer.PlayerId == target.PlayerId;
         if (self && seer.IsModdedClient() && !hud) return string.Empty;
 
-        StringBuilder sb = new StringBuilder().Append("<size=80%>");
+        Suffix.Clear().Append("<size=80%>");
 
         if (self)
         {
@@ -625,22 +683,22 @@ internal class Chemist : RoleBase
             {
                 if (items.Count == 0) continue;
 
-                sb.Append($"{type.ToString()[0]}: ");
+                Suffix.Append($"{type.ToString()[0]}: ");
 
-                foreach ((Item item, int count) in items) sb.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out OptionItem opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
+                foreach ((Item item, int count) in items) Suffix.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out OptionItem opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
 
-                sb.Length -= 2;
-                sb.AppendLine();
+                Suffix.Length -= 2;
+                Suffix.AppendLine();
             }
 
-            if (SelectedProcess == string.Empty) return sb.ToString().TrimEnd();
+            if (SelectedProcess == string.Empty) return Suffix.ToString().TrimEnd();
 
-            (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
+            (List<(int Count, Item Item)> ingredients, List<(int Count, Item Item)> results) = Processes[CurrentFactory][SelectedProcess];
 
             Func<(int Count, Item Item), string> selector = x => $"{x.Count} {Utils.ColorString(GetItemColor(x.Item), $"{GetChemicalForm(x.Item)}")}";
-            sb.Append(string.Join(", ", Ingredients.Select(selector)));
-            sb.Append(Ingredients.Count + Results.Count > 2 ? "\n\u2192  " : " → ");
-            sb.Append(string.Join(", ", Results.Select(selector)));
+            Suffix.Append(string.Join(", ", ingredients.Select(selector)));
+            Suffix.Append(" → ");
+            Suffix.Append(string.Join(", ", results.Select(selector)));
         }
 
         if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
@@ -652,13 +710,13 @@ internal class Chemist : RoleBase
             {
                 if (kvp.Key == target.PlayerId || kvp.Value.OtherAcidPlayers.Contains(target.PlayerId))
                 {
-                    sb.Append(Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}"));
+                    Suffix.Append(Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}"));
                     break;
                 }
             }
         }
 
-        return sb.Append("</size>").ToString();
+        return Suffix.Append("</size>").ToString();
     }
 
     public static string GetProcessesInfo()
@@ -711,6 +769,7 @@ internal class Chemist : RoleBase
         return sb.ToString();
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum AcidPlayersDieOptions
     {
         AfterMeeting,

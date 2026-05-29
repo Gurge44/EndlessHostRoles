@@ -20,7 +20,7 @@ public abstract class CustomSabotage
     protected virtual void Fix()
     {
         Instances.Remove(this);
-        SabotageSystemTypeRepairDamagePatch.Instance.IsDirty = true;
+        ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>().IsDirty = true;
     }
 
     protected virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
@@ -85,17 +85,19 @@ public abstract class CustomSabotage
 
     public static void UpdateAll()
     {
-        foreach (CustomSabotage sabotage in Instances.ToArray())
+        for (int index = Instances.Count - 1; index >= 0; index--)
         {
-            try { sabotage.Update(); }
+            try { Instances[index].Update(); }
             catch (Exception e) { Utils.ThrowException(e); }
         }
 
         if (Instances.Count > 0)
         {
-            SabotageSystemTypeRepairDamagePatch.Instance.Timer = SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled
-                ? SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec
+            SabotageSystemType sabotageSystemType = ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>();
+            sabotageSystemType.Timer = SabotageSystemTypeUpdateSystemPatch.IsCooldownModificationEnabled
+                ? SabotageSystemTypeUpdateSystemPatch.ModifiedCooldownSec
                 : 30f;
+            sabotageSystemType.IsDirty = true;
         }
     }
 
@@ -132,19 +134,19 @@ public class GrabOxygenMaskSabotage : CustomSabotage
             MapNames.Airship => SystemTypes.Medical,
             MapNames.Fungle => SystemTypes.Kitchen,
             (MapNames)6 => (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Filtration,
-            _ => SystemTypes.Outside
+            _ => ShipStatus.Instance.AllRooms.RandomElement().RoomId
         };
 
         TimeLimit = Math.Min(60, GetDefaultSabotageTimeLimit(map));
         AdjustTimeLimitBasedOnPlayerSpeed(ref TimeLimit);
 
-        RoomPosition = RandomSpawn.SpawnMap.GetSpawnMap().Positions.GetValueOrDefault(TargetRoom, TargetRoom.GetRoomClass().transform.position);
+        RoomPosition = Main.LIMap ? TargetRoom.GetRoomClass().transform.position : RandomSpawn.SpawnMap.GetSpawnMap().Positions.GetValueOrDefault(TargetRoom, TargetRoom.GetRoomClass().transform.position);
         Main.EnumerateAlivePlayerControls().Do(x => LocateArrow.Add(x.PlayerId, RoomPosition));
     }
 
     protected override void Update()
     {
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         byte[] playersInRoom = aapc.Where(x => x.IsInRoom(TargetRoom)).Select(x => x.PlayerId).ToArray();
         playersInRoom.Except(HasMask).ToValidPlayers().NotifyPlayers(Translator.GetString("CustomSabotage.GrabOxygenMask.Done"));
         playersInRoom.Except(HasMask).Do(x => LocateArrow.Remove(x, RoomPosition));

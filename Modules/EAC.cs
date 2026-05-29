@@ -17,7 +17,6 @@ namespace EHR;
 internal static class EAC
 {
     public static int DeNum;
-    public static readonly HashSet<string> InvalidReports = [];
     public static readonly Dictionary<byte, Stopwatch> TimeSinceLastTaskCompletion = [];
 
     public static void WarnHost(int denum = 1)
@@ -240,8 +239,8 @@ internal static class EAC
                     var target = sr.ReadNetObject<PlayerControl>();
                     var resultFlags = (MurderResultFlags)sr.ReadInt32();
 
-                    if (GameStates.IsInTask && !resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target != null && !target.Data.IsDead)
-                        LateTask.New(() => target.RpcRevive(), 0.1f, log: false);
+                    if (GameStates.IsInTask && !resultFlags.HasFlag(MurderResultFlags.FailedError) && !resultFlags.HasFlag(MurderResultFlags.FailedProtected) && target && !target.Data.IsDead)
+                        LateTask.New(target.RpcRevive, 0.1f, log: false);
 
                     Report(pc, "Directly Murder Player");
                     HandleCheat(pc, "Directly Murder Player");
@@ -1079,7 +1078,7 @@ internal static class EAC
             }
             case 2:
             {
-                Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), PlayerControl.LocalPlayer.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC")));
+                Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), PlayerControl.LocalPlayer.PlayerId, CustomRoles.Impostor.ColoredTextByRole(GetString("MessageFromEAC")));
                 break;
             }
             case 3:
@@ -1088,7 +1087,7 @@ internal static class EAC
                     from player in Main.EnumeratePlayerControls()
                     where player.PlayerId != pc?.Data?.PlayerId
                     let message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text)
-                    let title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"))
+                    let title = CustomRoles.Impostor.ColoredTextByRole(GetString("MessageFromEAC"))
                     select new Message(message, player.PlayerId, title)
                 ).SendMultipleMessages(MessageImportance.Low);
                 break;

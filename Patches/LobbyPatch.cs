@@ -81,20 +81,22 @@ public static class HostInfoPanelSetUpPatch
 //[HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.Update))]
 internal static class LobbyBehaviourUpdatePatch
 {
+    private static Func<ISoundPlayer, bool> Lobbybgm;
+    private static ISoundPlayer MapThemeSound;
     public static void Postfix(LobbyBehaviour __instance)
     {
         // ReSharper disable once ConvertToLocalFunction
-        Func<ISoundPlayer, bool> lobbybgm = x => x.Name.Equals("MapTheme");
-        ISoundPlayer mapThemeSound = SoundManager.Instance.soundPlayers.Find(lobbybgm);
+        Lobbybgm = x => x.Name.Equals("MapTheme");
+        MapThemeSound = SoundManager.Instance.soundPlayers.Find(Lobbybgm);
 
         if (!Main.LobbyMusic.Value)
         {
-            if (mapThemeSound == null) return;
+            if (MapThemeSound == null) return;
             SoundManager.Instance.StopNamedSound("MapTheme");
         }
         else
         {
-            if (mapThemeSound != null) return;
+            if (MapThemeSound != null) return;
             SoundManager.Instance.CrossFadeSound("MapTheme", __instance.MapTheme, 0.5f);
         }
     }

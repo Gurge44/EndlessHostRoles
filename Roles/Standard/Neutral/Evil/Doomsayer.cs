@@ -2,7 +2,6 @@
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -29,7 +28,6 @@ public class Doomsayer : RoleBase
     public static OptionItem DoesNotSuicideWhenMisguessing;
     public static OptionItem MisguessRolePrevGuessRoleUntilNextMeeting;
     private static OptionItem ImpostorVision;
-    public static OptionItem DoomsayerTryHideMsg;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -72,10 +70,6 @@ public class Doomsayer : RoleBase
             .SetParent(DoesNotSuicideWhenMisguessing);
 
         ImpostorVision = new BooleanOptionItem(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
-
-        DoomsayerTryHideMsg = new BooleanOptionItem(Id + 21, "DoomsayerTryHideMsg", true, TabGroup.NeutralRoles)
-            .SetColor(Color.green)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
     }
 
@@ -130,7 +124,7 @@ public class Doomsayer : RoleBase
 
         GuessingToWin[doomsayer.PlayerId] = DoomsayerAmountOfGuessesToWin.GetInt();
         GuessesCount = DoomsayerAmountOfGuessesToWin.GetInt();
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Doomsayer);
+        CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Doomsayer);
         CustomWinnerHolder.WinnerIds.Add(doomsayer.PlayerId);
     }
 

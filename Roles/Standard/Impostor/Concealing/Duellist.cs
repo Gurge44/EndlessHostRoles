@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -69,17 +71,18 @@ public class Duellist : RoleBase
                 if (previousTarget) previousTarget.TPToRandomVent();
             }
 
+            Main.Instance.StartCoroutine(Coroutine());
+
             duellist.TP(pos);
             DuelPair[duellist.PlayerId] = target.PlayerId;
 
             duellist.RPCPlayCustomSound("Teleport");
             target.RPCPlayCustomSound("Teleport");
 
-            Main.Instance.StartCoroutine(Coroutine());
-
-            System.Collections.IEnumerator Coroutine()
+            IEnumerator Coroutine()
             {
                 while (GameStates.IsInTask && duellist.IsAlive() && target.IsAlive()) yield return null;
+                yield return new WaitForSecondsRealtime(1f);
                 if (!GameStates.IsInTask) yield break;
                 
                 DuelPair.Remove(duellist.PlayerId);

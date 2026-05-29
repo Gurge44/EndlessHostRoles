@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -63,7 +64,7 @@ internal static class ExternalRpcPetPatch
         PlayerControl pc = __instance.myPlayer;
         PlayerPhysics physics = __instance;
 
-        if (pc == null || !pc.IsAlive()) return;
+        if (!pc.IsAlive()) return;
 
         AFKDetector.SetNotAFK(pc.PlayerId);
 
@@ -100,7 +101,7 @@ internal static class ExternalRpcPetPatch
 
     private static void OnPetUse(PlayerControl pc)
     {
-        if (pc == null ||
+        if (!pc ||
             pc.inVent ||
             pc.inMovingPlat ||
             pc.onLadder ||
@@ -126,7 +127,7 @@ internal static class ExternalRpcPetPatch
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
         {
             PlayerControl killTarget = SelectKillButtonTarget(pc);
-            if (killTarget != null) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
+            if (killTarget) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
 
             return;
         }
@@ -193,6 +194,20 @@ internal static class ExternalRpcPetPatch
 
         if (target)
         {
+            if (pc.Is(CustomRoles.Dizzy))
+            {
+                Vector2 pos = pc.Pos();
+                float range = pc.GetKillDistance();
+                PlayerControl[] allInRange = FastVector2.GetPlayersInRange(pos, range, x => x.PlayerId != pc.PlayerId).ToArray();
+
+                if (allInRange.Length > 1)
+                {
+                    PlayerControl tempTarget = target;
+                    target = allInRange.RandomElement();
+                    Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Dizzy");
+                }
+            }
+            
             if (target.Is(CustomRoles.Detour) && target.GetAbilityUseLimit() >= 1f)
             {
                 target.RpcRemoveAbilityUse();

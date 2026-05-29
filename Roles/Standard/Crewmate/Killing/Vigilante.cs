@@ -15,6 +15,7 @@ public class Vigilante : RoleBase
     private static OptionItem KCD;
     public static OptionItem CanKillRound1;
     public static OptionItem UsePet;
+    private static Color32 ShadeColor;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -41,6 +42,7 @@ public class Vigilante : RoleBase
     {
         Killed = [];
         PlayerIdList = [];
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Vigilante).ShadeColor(0.25f);
     }
 
     public override void Remove(byte playerId)
@@ -63,9 +65,15 @@ public class Vigilante : RoleBase
         opt.SetVision(false);
     }
 
-    public override string GetProgressText(byte id, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(!IsKilled(id) ? Utils.GetRoleColor(CustomRoles.Vigilante).ShadeColor(0.25f) : Color.gray, !IsKilled(id) ? "(1)" : "(0)");
+        bool killed = IsKilled(playerId);
+        Color32 color = killed ? Color.gray : ShadeColor;
+        
+        resultText
+            .Append(Utils.ColorPrefix(color))
+            .Append(killed ? "(0)" : "(1)")
+            .Append("</color>");
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -110,7 +118,7 @@ public class Vigilante : RoleBase
             SendRPC(killer.PlayerId);
             Killed.Add(killer.PlayerId);
             SetKillCooldown(killer.PlayerId);
-            if (UsePet.GetBool()) return;
+            if (Options.UsePets.GetBool() && UsePet.GetBool()) return;
             killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
             killer.RpcResetTasks();
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);

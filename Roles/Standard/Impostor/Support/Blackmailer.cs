@@ -96,7 +96,7 @@ internal class Blackmailer : RoleBase
 
                             if (vs.SkippedVote)
                                 vote = 253;
-                            else if (vs.AmDead || vs.VotedForId.GetPlayer() == null)
+                            else if (vs.AmDead || !vs.VotedForId.GetPlayer())
                                 vote = 254;
                             else
                                 vote = vs.VotedForId;

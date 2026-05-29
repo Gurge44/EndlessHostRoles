@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using static EHR.Translator;
 
 namespace EHR.Roles;
@@ -78,15 +77,15 @@ internal class Benefactor : RoleBase
         }
         else
         {
-            foreach (byte benefactorId in TaskIndex.Keys.ToArray())
+            foreach ((byte benefactorId, List<int> taskIndexes) in TaskIndex)
             {
-                if (TaskIndex[benefactorId].Contains(task.Index))
+                if (taskIndexes.Contains(task.Index))
                 {
                     PlayerControl benefactorPC = Utils.GetPlayerById(benefactorId);
-                    if (benefactorPC == null) continue;
+                    if (!benefactorPC) continue;
 
                     player.Notify(GetString("BenefactorTargetGotShieldNotify"));
-                    TaskIndex[benefactorId].Remove(task.Index);
+                    taskIndexes.Remove(task.Index);
                     ShieldedPlayers.Add(playerId);
                     LateTask.New(() => ShieldedPlayers.Remove(playerId), ShieldDuration.GetInt());
                     Logger.Info($"{player.GetAllRoleName()} got a shield because the task was marked by {benefactorPC.GetNameWithRole()}", "Benefactor");

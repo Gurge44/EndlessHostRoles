@@ -18,7 +18,7 @@ public class Weatherman : RoleBase
     public override void SetupCustomOption()
     {
         StartSetup(645150)
-            .AutoSetupOption(ref AbilityCooldown, 30f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
+            .AutoSetupOption(ref AbilityCooldown, 10f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 180f, 0.5f), OptionFormat.Seconds)
             .AutoSetupOption(ref CanVent, true)
             .AutoSetupOption(ref ImpostorVision, true);
@@ -79,7 +79,7 @@ public class Weatherman : RoleBase
         {
             Type disaster = NaturalDisasters.GetAllDisasters().RandomElement();
             PlainShipRoom room = pc.GetPlainShipRoom();
-            NaturalDisasters.FixedUpdatePatch.AddPreparingDisaster(pc.Pos(), disaster.Name, room == null ? null : room.RoomId);
+            NaturalDisasters.FixedUpdatePatch.AddPreparingDisaster(pc.Pos(), disaster.Name, !room ? null : room.RoomId);
         }, 3f, "Weatherman.SpawnRandomDisaster");
     }
 

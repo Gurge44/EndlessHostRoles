@@ -125,7 +125,7 @@ public class Sheriff : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanBeKilledBySheriff(target) || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
+        if (CanBeKilledBySheriff(target) || (SidekickSheriffCanGoBerserk.GetBool() && killer.IsConverted()) || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
         {
             SetKillCooldown(killer.PlayerId);
             return true;
@@ -169,6 +169,7 @@ public class Sheriff : RoleBase
         {
             CustomRoles.Trickster => false,
             CustomRoles.Pestilence => true,
+            CustomRoles.Sidekick => CanKillSidekicks.GetBool(),
             _ => player.GetCustomRoleTypes() switch
             {
                 CustomRoleTypes.Impostor => true,
@@ -179,9 +180,10 @@ public class Sheriff : RoleBase
         };
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return ShowShotLimit.GetBool() ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+        if (ShowShotLimit.GetBool()) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override void ManipulateGameEndCheckCrew(PlayerState playerState, out bool keepGameGoing, out int countsAs)

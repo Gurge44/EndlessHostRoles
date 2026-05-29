@@ -14,8 +14,6 @@ public class Gaulois : RoleBase
     private static OptionItem UseLimitOpt;
     public static OptionItem UsePet;
 
-    public static List<byte> IncreasedSpeedPlayerList = [];
-
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -40,7 +38,6 @@ public class Gaulois : RoleBase
     public override void Init()
     {
         PlayerIdList = [];
-        IncreasedSpeedPlayerList = [];
     }
 
     public override void Add(byte playerId)
@@ -73,10 +70,9 @@ public class Gaulois : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
+        if (!IsEnable || killer.GetAbilityUseLimit() <= 0) return false;
 
         Main.AllPlayerSpeed[target.PlayerId] += AdditionalSpeed.GetFloat();
-        IncreasedSpeedPlayerList.Add(target.PlayerId);
 
         killer.RpcRemoveAbilityUse();
         killer.SetKillCooldown();

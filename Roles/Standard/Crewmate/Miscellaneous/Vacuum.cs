@@ -48,14 +48,12 @@ public class Vacuum : RoleBase
         Instances.Add(this);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        StringBuilder sb = new();
-        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null));
-        sb.Append(Utils.GetTaskCount(playerId, comms));
-        return sb.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
-    
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePets.GetBool()) return;

@@ -120,7 +120,6 @@ public enum CustomRPC
     SetCleanserCleanLimit,
     SetJailorTarget,
     SetDoppelgangerStealLimit,
-    SetJailorExeLimit,
     SetSwapperVotes,
     Judge,
     Guess,
@@ -137,6 +136,7 @@ public enum CustomRPC
     SyncChangeling,
     SyncSentry,
     SyncBargainer,
+    SyncOverheat,
     SetDoomsayerProgress = 209,
 
     /*
@@ -149,7 +149,6 @@ public enum CustomRPC
      */
 
     SetTrackerTarget = 215,
-    SyncOverheat,
     SyncIntrovert,
     SyncAllergic,
     SyncAsthmatic,
@@ -163,6 +162,7 @@ public enum CustomRPC
     Blessed,
     Necronomicon,
     Stained,
+    Entombed,
 
     // Game Modes
     RoomRushDataSync,
@@ -319,7 +319,7 @@ internal static class RPCHandlerPatch
                         break;
                     case RpcCalls.SendChat:
                         string text = subReader.ReadString();
-                        Logger.Info($"({__instance.FriendCode}){__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
+                        Logger.Info($"({__instance.FriendCode}|{__instance.GetClient()?.GetHashedPuid()}) {__instance.GetNameWithRole().RemoveHtmlTags()}: {text}", "ReceiveChat");
                         ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
 
                         if (canceled)
@@ -588,7 +588,7 @@ internal static class RPCHandlerPatch
                     var cno = reader.ReadNetObject<PlayerControl>();
                     bool active = reader.ReadBoolean();
 
-                    if (cno != null)
+                    if (cno)
                     {
                         cno.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
                         cno.Collider.enabled = false;
@@ -917,15 +917,29 @@ internal static class RPCHandlerPatch
                 {
                     byte arsonistId = reader.ReadByte();
                     byte dousingTargetId = reader.ReadByte();
-                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId) Arsonist.CurrentDousingTarget = dousingTargetId;
+                    
+                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
+                        Arsonist.CurrentDousingTarget = dousingTargetId;
 
                     break;
                 }
                 case CustomRPC.SetCurrentDrawTarget:
                 {
-                    byte arsonistId1 = reader.ReadByte();
+                    byte revolutionistId = reader.ReadByte();
                     byte doTargetId = reader.ReadByte();
-                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId1) Revolutionist.CurrentDrawTarget = doTargetId;
+                    
+                    if (PlayerControl.LocalPlayer.PlayerId == revolutionistId)
+                        Revolutionist.CurrentDrawTarget = doTargetId;
+
+                    break;
+                }
+                case CustomRPC.SetCurrentRevealTarget:
+                {
+                    byte investigatorId = reader.ReadByte();
+                    byte doTargetId = reader.ReadByte();
+                    
+                    if (PlayerControl.LocalPlayer.PlayerId == investigatorId)
+                        Investigator.CurrentRevealTarget = doTargetId;
 
                     break;
                 }
@@ -1158,11 +1172,6 @@ internal static class RPCHandlerPatch
                     Cleanser.ReceiveRPC(reader);
                     break;
                 }
-                case CustomRPC.SetJailorExeLimit:
-                {
-                    Jailor.ReceiveRPC(reader, false);
-                    break;
-                }
                 case CustomRPC.SetJailorTarget:
                 {
                     Jailor.ReceiveRPC(reader);
@@ -1315,7 +1324,7 @@ internal static class RPCHandlerPatch
                 {
                     if (reader.ReadBoolean())
                     {
-                        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                         {
                             if (player.AmOwner) continue;
                             player.SetPet("");
@@ -1327,7 +1336,7 @@ internal static class RPCHandlerPatch
                     }
                     else
                     {
-                        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
                         {
                             if (player.AmOwner) continue;
                             if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
@@ -1486,11 +1495,12 @@ internal static class RPC
         }
     }
 
-    public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
+    public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason, bool isDead)
     {
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write((int)deathReason);
+        writer.Write(isDead);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -1500,12 +1510,14 @@ internal static class RPC
         var deathReason = (PlayerState.DeathReason)reader.ReadInt32();
         PlayerState state = Main.PlayerStates[playerId];
         state.deathReason = deathReason;
-        state.IsDead = true;
+        state.IsDead = reader.ReadBoolean();
+
+        Main.ForceRebuildCachesPlayerControls();
     }
 
     public static void ForceEndGame(CustomWinner win)
     {
-        if (ShipStatus.Instance == null) return;
+        if (!ShipStatus.Instance) return;
 
         try { CustomWinnerHolder.ResetAndSetWinner(win); }
         catch { }
@@ -1574,6 +1586,8 @@ internal static class RPC
 
     public static void SetCustomRole(byte targetId, CustomRoles role, bool replaceAllAddons = false)
     {
+        Main.PlayerStates.TryAdd(targetId, new(targetId));
+        
         if (role < CustomRoles.NotAssigned)
             Main.PlayerStates[targetId].SetMainRole(role);
         else
@@ -1619,27 +1633,27 @@ internal static class RPC
         }
     }
 
-    public static void SetCurrentDrawTarget(byte arsonistId, byte targetId)
+    public static void SetCurrentDrawTarget(byte revolutionistId, byte targetId)
     {
-        if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
+        if (PlayerControl.LocalPlayer.PlayerId == revolutionistId)
             Revolutionist.CurrentDrawTarget = targetId;
         else
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDrawTarget, SendOption.Reliable);
-            writer.Write(arsonistId);
+            writer.Write(revolutionistId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
 
-    public static void SetCurrentRevealTarget(byte arsonistId, byte targetId)
+    public static void SetCurrentRevealTarget(byte investigatorId, byte targetId)
     {
-        if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-            Revolutionist.CurrentDrawTarget = targetId;
+        if (PlayerControl.LocalPlayer.PlayerId == investigatorId)
+            Investigator.CurrentRevealTarget = targetId;
         else
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentRevealTarget, SendOption.Reliable);
-            writer.Write(arsonistId);
+            writer.Write(investigatorId);
             writer.Write(targetId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -1650,14 +1664,14 @@ internal static class RPC
         SetCurrentDousingTarget(arsonistId, 255);
     }
 
-    public static void ResetCurrentDrawTarget(byte arsonistId)
+    public static void ResetCurrentDrawTarget(byte revolutionistId)
     {
-        SetCurrentDrawTarget(arsonistId, 255);
+        SetCurrentDrawTarget(revolutionistId, 255);
     }
 
-    public static void ResetCurrentRevealTarget(byte arsonistId)
+    public static void ResetCurrentRevealTarget(byte investigatorId)
     {
-        SetCurrentRevealTarget(arsonistId, 255);
+        SetCurrentRevealTarget(investigatorId, 255);
     }
 
     public static void SetRealKiller(byte targetId, byte killerId)

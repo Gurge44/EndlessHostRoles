@@ -49,7 +49,7 @@ internal class Nemesis : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -168,7 +168,7 @@ internal class Nemesis : RoleBase
                 Main.PlayerStates[target.PlayerId].SetDead();
             }
 
-            LateTask.New(() => Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Nemesis), GetString("NemesisRevengeTitle")), importance: MessageImportance.High), 0.6f, "Nemesis Kill");
+            LateTask.New(() => Utils.SendMessage(string.Format(GetString("NemesisKillSucceed"), name), 255, CustomRoles.Nemesis.ColoredTextByRole(GetString("NemesisRevengeTitle")), importance: MessageImportance.High), 0.6f, "Nemesis Kill");
         }, 0.2f, "Nemesis Kill");
 
         return true;
@@ -201,10 +201,10 @@ internal class Nemesis : RoleBase
 
     public static void CreateJudgeButton(MeetingHud __instance)
     {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-            if (pc == null || !pc.IsAlive()) continue;
+            if (!pc || !pc.IsAlive()) continue;
 
             GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
             GameObject targetBox = Object.Instantiate(template, pva.transform);

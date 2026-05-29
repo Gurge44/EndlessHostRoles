@@ -51,7 +51,7 @@ public class Dealer : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void SetKillCooldown(byte id)
@@ -61,6 +61,8 @@ public class Dealer : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
+        killer.SetKillCooldown(AbilityCooldown.GetFloat());
+        
         var randomAddon = Options.GroupedAddons.Values.Flatten().Where(x => !x.IsNotAssignableMidGame() && x.GetMode() != 0).RandomElement();
 
         switch (AddonAppears.GetValue())
@@ -84,7 +86,6 @@ public class Dealer : RoleBase
 
         AssignedNum++;
         Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, AssignedNum);
-        killer.SetKillCooldown(AbilityCooldown.GetFloat());
         return false;
     }
 
@@ -93,7 +94,7 @@ public class Dealer : RoleBase
         foreach ((byte id, List<CustomRoles> list) in ScheduledAssigns)
         {
             var pc = id.GetPlayer();
-            if (pc == null) continue;
+            if (!pc) continue;
 
             list.ForEach(x => pc.RpcSetCustomRole(x));
         }
@@ -101,10 +102,17 @@ public class Dealer : RoleBase
         ScheduledAssigns = [];
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
+        base.GetProgressText(playerId, comms, resultText);
         var color = IsWon ? Color.green : Color.white;
-        return $"{base.GetProgressText(playerId, comms)} {Utils.ColorString(color, $"{AssignedNum}/{AssignNeedToWin.GetInt()}")}";
+        
+        resultText.Append(' ')
+            .Append(Utils.ColorPrefix(color))
+            .Append(AssignedNum)
+            .Append('/')
+            .Append(AssignNeedToWin.GetInt())
+            .Append("</color>");
     }
 
     public void ReceiveRPC(MessageReader reader)

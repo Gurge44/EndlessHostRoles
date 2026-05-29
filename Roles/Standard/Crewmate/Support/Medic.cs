@@ -116,7 +116,7 @@ public class Medic : RoleBase
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
         writer.Write(1);
         writer.Write(ProtectList.Count);
-        ProtectList.ForEach(x => writer.Write(x));
+        ProtectList.ForEach(writer.Write);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -160,14 +160,14 @@ public class Medic : RoleBase
         opt.SetVision(false);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return playerId.GetAbilityUseLimit() > 0 ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+        if (playerId.GetAbilityUseLimit() > 0) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
         if (ProtectList.Contains(target.PlayerId)) return false;
 
         killer.RpcRemoveAbilityUse();
@@ -201,7 +201,7 @@ public class Medic : RoleBase
             else Achievements.Type.ImUnstoppable.Complete();
         }
 
-        if (killer.GetAbilityUseLimit() < 1f)
+        if (killer.GetAbilityUseLimit() < 1f && (!Options.UsePets.GetBool() || !UsePet.GetBool()))
         {
             killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
             killer.RpcResetTasks();
@@ -220,7 +220,6 @@ public class Medic : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
         if (!ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown(ResetCooldown.GetFloat());
@@ -331,7 +330,7 @@ public class Medic : RoleBase
     {
         if (ProtectList.Count > 0)
         {
-            var shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
+            var shieldMark = CustomRoles.Medic.ColoredTextByRole(" ●");
 
             bool self = seer.PlayerId == target.PlayerId;
             bool seerIsMedic = seer.Is(CustomRoles.Medic);

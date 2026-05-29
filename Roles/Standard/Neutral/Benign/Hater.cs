@@ -148,12 +148,29 @@ public class Hater : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive()) return;
+        if (IsWon || !ChangeRoleWhenCantWin.GetBool()) return;
 
-        if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.EnumerateAlivePlayerControls().All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
+        var players = Main.CachedAlivePlayerControls();
+        var lovers = Main.LoversPlayers;
+
+        foreach (var p in players)
         {
-            CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
-            pc.RpcSetCustomRole(role);
+            byte pcid = p.PlayerId;
+            for (int i = 0; i < lovers.Count; i++)
+            {
+                if (lovers[i].PlayerId == pcid) return;
+            }
+            if (p.GetCustomRole().IsRecruitingRole()) return;
+
+            var subRoles = p.GetCustomSubRoles();
+            for (int i = 0; i < subRoles.Count; i++)
+            {
+                if (subRoles[i].IsConverted()) return;
+            }
         }
+
+        CustomRoles newRole = ChangeRoles[ChangeRole.GetValue()];
+        pc.RpcSetCustomRole(newRole);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

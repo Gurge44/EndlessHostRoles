@@ -22,12 +22,12 @@ public static class OnlinePresetsManager
         float y = 2.0f;
 
         {
-            CategoryHeaderMasked header = Object.Instantiate(
+            CategoryHeaderMasked header = ModGameOptionsMenu.Track(Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 Vector3.zero,
                 Quaternion.identity,
                 menu.settingsContainer
-            );
+            ));
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
@@ -37,7 +37,7 @@ public static class OnlinePresetsManager
 
             y -= 0.8f;
 
-            StringOption upload = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
+            StringOption upload = ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
             upload.name = nameof(OnlinePresetsManager) + ";" + Translator.GetString("UploadPreset");
             upload.transform.localPosition = new Vector3(0.952f, y, -2f);
             upload.SetClickMask(menu.ButtonClickMask);
@@ -62,12 +62,12 @@ public static class OnlinePresetsManager
         }
 
         {
-            CategoryHeaderMasked header = Object.Instantiate(
+            CategoryHeaderMasked header = ModGameOptionsMenu.Track(Object.Instantiate(
                 menu.categoryHeaderOrigin,
                 Vector3.zero,
                 Quaternion.identity,
                 menu.settingsContainer
-            );
+            ));
 
             header.SetHeader(StringNames.RolesCategory, 20);
             header.Title.DestroyTranslator();
@@ -82,8 +82,8 @@ public static class OnlinePresetsManager
 
         foreach (PresetMeta preset in CachedPresets)
         {
-            StringOption row = Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer);
-            row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, preset.downloads)}";
+            StringOption row = ModGameOptionsMenu.Track(Object.Instantiate(menu.stringOptionOrigin, Vector3.zero, Quaternion.identity, menu.settingsContainer));
+            row.name = $"{nameof(OnlinePresetsManager)};{string.Format(Translator.GetString("OnlinePresetInfo"), preset.name, preset.author, (Utils.TimeStamp - (long)preset.created_at) / 86400, preset.downloads)}";
             row.transform.localPosition = new Vector3(0.952f, y, -2f);
             row.SetClickMask(menu.ButtonClickMask);
             row.SetUpFromData(ScriptableObject.CreateInstance<StringGameSetting>(), 20);
@@ -98,7 +98,6 @@ public static class OnlinePresetsManager
             TextMeshPro plusText = row.PlusBtn.GetComponentInChildren<TextMeshPro>();
             plusText.DestroyTranslator();
             plusText.text = "ⓘ";
-            row.PlusBtn.transform.localPosition += new Vector3(1.8f, 0f, 0f);
             row.PlusBtn.OnClick = new();
             row.PlusBtn.OnClick.AddListener((UnityAction)(() =>
             {
@@ -113,6 +112,8 @@ public static class OnlinePresetsManager
             row.MinusBtn.OnClick = new();
             row.MinusBtn.OnClick.AddListener((UnityAction)(() =>
             {
+                ModGameOptionsMenu.Reloading = true;
+                LateTask.New(() => ModGameOptionsMenu.Reloading = false, 0.01f);
                 GameSettingMenu.Instance.Close();
                 
                 Prompt.Show(Translator.GetString("Promt.ApplyPreset"), () =>
@@ -151,7 +152,6 @@ public static class OnlinePresetsManager
                         ModGameOptionsMenu.TabIndex = index;
                     }, 0.4f);
                 });
-                
             }));
             TextMeshPro minusText = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
             minusText.DestroyTranslator();
@@ -190,7 +190,7 @@ public static class OnlinePresetsManager
 
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        UnityWebRequest request = new UnityWebRequest("https://gurge44.pythonanywhere.com/presets/draft", "POST")
+        UnityWebRequest request = new UnityWebRequest("https://app.gurge44.eu/presets/draft", "POST")
         {
             uploadHandler = new UploadHandlerRaw(bodyRaw),
             downloadHandler = new DownloadHandlerBuffer()
@@ -235,7 +235,13 @@ public static class OnlinePresetsManager
     
     static void OpenPublishPage(string draftId)
     {
-        string url = $"https://gurge44.pythonanywhere.com/publish?preset={draftId}";
+        string url = $"https://app.gurge44.eu/publish?preset={draftId}";
+        
+        if (OperatingSystem.IsAndroid()) 
+        {
+            Constants.OpenURL(url);
+            return;
+        }
     
         try
         {
@@ -249,7 +255,7 @@ public static class OnlinePresetsManager
 
     private static IEnumerator DownloadPreset(string presetId, Action<Dictionary<int,int>> onSuccess)
     {
-        UnityWebRequest request = UnityWebRequest.Get($"https://gurge44.pythonanywhere.com/presets/{presetId}");
+        UnityWebRequest request = UnityWebRequest.Get($"https://app.gurge44.eu/presets/{presetId}");
 
         request.timeout = 5;
 
@@ -290,7 +296,7 @@ public static class OnlinePresetsManager
     
     public static IEnumerator FetchPresetList(Action<List<PresetMeta>> onSuccess)
     {
-        UnityWebRequest request = UnityWebRequest.Get("https://gurge44.pythonanywhere.com/presets/list");
+        UnityWebRequest request = UnityWebRequest.Get("https://app.gurge44.eu/presets/list");
 
         yield return request.SendWebRequest();
 

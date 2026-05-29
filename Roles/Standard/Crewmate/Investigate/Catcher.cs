@@ -127,18 +127,23 @@ public class Catcher : RoleBase
 
         Vector2 pos = pc.Pos();
         float range = CatchRange.GetFloat();
-        if (Traps.Keys.Any(x => FastVector2.DistanceWithinRange(x, pos, range))) CaughtRoles[pc.PlayerId] = pc.GetCustomRole();
+        foreach (var trapPos in Traps.Keys)
+        {
+            if (FastVector2.DistanceWithinRange(trapPos, pos, range))
+            {
+                CaughtRoles[pc.PlayerId] = pc.GetCustomRole();
+                break;
+            }
+        }
     }
 
     public override void OnReportDeadBody()
     {
         if (Traps.Count == 0) return;
-
-        Traps.Values.Do(x => x.Despawn());
         Traps = [];
 
         PlayerControl catcher = CatcherId.GetPlayer();
-        if (catcher == null || !catcher.IsAlive()) return;
+        if (!catcher || !catcher.IsAlive()) return;
 
         LateTask.New(() =>
         {

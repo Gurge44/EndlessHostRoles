@@ -68,7 +68,7 @@ internal static class SoloPVP
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
 
-        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
+        SoloPVP_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "SoloPVP_ResurrectionWaitingTime", new(0, 1000, 1), 15, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloPVP)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
@@ -110,7 +110,7 @@ internal static class SoloPVP
         }, 3f);
         Utils.SendRPC(CustomRPC.SoloPVPSync, 1);
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             PlayerHPMax.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
             PlayerHP.TryAdd(pc.PlayerId, SoloPVP_HPMax.GetFloat());
@@ -136,14 +136,14 @@ internal static class SoloPVP
         var x = (int)(PlayerHP[pc.PlayerId] / PlayerHPMax[pc.PlayerId] * 10 * 50);
         var r = 255;
         var g = 255;
-        var b = 0;
+        const int b = 0;
 
         if (x > 255)
             r -= x - 255;
         else
             g = x;
 
-        return new((byte)r, (byte)g, (byte)b, byte.MaxValue);
+        return new((byte)r, (byte)g, b, byte.MaxValue);
     }
 
     private static string GetStatsForVanilla(PlayerControl pc)
@@ -235,9 +235,6 @@ internal static class SoloPVP
 
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
     }
 
     private static void OnPlayerBack(PlayerControl pc)
@@ -247,16 +244,48 @@ internal static class SoloPVP
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
         pc.ReviveFromTemporaryExile();
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.SpawnSound);
-        SpawnMap.GetSpawnMap().RandomTeleport(pc);
-        Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);
+
+        if (Main.LIMap) pc.TPToRandomVent();
+        else SpawnMap.GetSpawnMap().RandomTeleport(pc);
     }
 
     private static IEnumerator OnPlayerDead(PlayerControl target)
     {
-        BackCountdown.TryAdd(target.PlayerId, SoloPVP_ResurrectionWaitingTime.GetInt());
-        if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
-        while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) yield return null;
-        if (BackCountdown.ContainsKey(target.PlayerId)) target.ExileTemporarily();
+        int waitingTime = SoloPVP_ResurrectionWaitingTime.GetInt();
+
+        if (waitingTime <= 2)
+        {
+            PlayerHP[target.PlayerId] = PlayerHPMax[target.PlayerId];
+            LastHurt[target.PlayerId] = Utils.TimeStamp;
+            RPC.PlaySoundRPC(target.PlayerId, Sounds.SpawnSound);
+            
+            yield return TryFixVentStuck();
+
+            if (Main.LIMap) target.TPToRandomVent();
+            else SpawnMap.GetSpawnMap().RandomTeleport(target);
+            yield break;
+        }
+        
+        BackCountdown.TryAdd(target.PlayerId, waitingTime);
+
+        yield return TryFixVentStuck();
+
+        if (BackCountdown.ContainsKey(target.PlayerId))
+            target.ExileTemporarily();
+        
+        yield break;
+
+        IEnumerator TryFixVentStuck()
+        {
+            if (target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+            {
+                LateTask.New(() => target.MyPhysics.RpcExitVent(target.GetClosestVent().Id), 0.6f, log: false);
+                yield return new WaitForSecondsRealtime(1.3f);
+            }
+
+            while (target.inVent || target.inMovingPlat || target.onLadder || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || target.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+                yield return null;
+        }
     }
 
     private static void OnPlayerKill(PlayerControl killer)
@@ -270,7 +299,7 @@ internal static class SoloPVP
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankFromScore(killer.PlayerId)) / 100f;
         addRate *= SoloPVP_KillBonusMultiplier.GetFloat();
-        if (killer.IsHost()) addRate /= 2f;
+        if (killer.AmOwner) addRate /= 2f;
 
         var text = string.Empty;
         float addin;
@@ -335,7 +364,7 @@ internal static class SoloPVP
             if (LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            if (Main.AllAlivePlayerControls.Count <= 1)
+            if (Main.AllAlivePlayerControlsCount <= 1)
             {
                 if (ExtendedPlayerControl.TempExiled.Count == 0)
                 {
@@ -351,8 +380,10 @@ internal static class SoloPVP
                 // resume the timer
                 RoundTimer.Start();
             }
+            
+            if (!RoundTimer.IsRunning) return;
 
-            Utils.NotifyRoles(SendOption: SendOption.None);
+            Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync(sendOption: SendOption.None));
         }
     }
 

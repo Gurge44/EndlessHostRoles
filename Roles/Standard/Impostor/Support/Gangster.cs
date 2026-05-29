@@ -110,13 +110,13 @@ public class Gangster : RoleBase
 
         if (killer.GetAbilityUseLimit() < 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Gangster), GetString("GangsterRecruitmentFailure")));
+        killer.Notify(CustomRoles.Gangster.ColoredTextByRole(GetString("GangsterRecruitmentFailure")));
         return true;
     }
 
     private static bool CanBeMadmate(PlayerControl pc)
     {
-        return pc != null && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
+        return pc && pc.IsCrewmate() && !pc.Is(CustomRoles.Madmate)
                && !(
                    (pc.Is(CustomRoles.Sheriff) && !SheriffCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Mayor) && !MayorCanBeMadmate.GetBool()) ||

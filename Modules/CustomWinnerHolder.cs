@@ -88,15 +88,15 @@ public static class CustomWinnerHolder
         WinnerTeam = (CustomWinner)reader.ReadPackedInt32();
 
         AdditionalWinnerTeams = [];
-        int AdditionalWinnerTeamsCount = reader.ReadPackedInt32();
-        for (var i = 0; i < AdditionalWinnerTeamsCount; i++) AdditionalWinnerTeams.Add((AdditionalWinners)reader.ReadPackedInt32());
+        int additionalWinnerTeamsCount = reader.ReadPackedInt32();
+        for (var i = 0; i < additionalWinnerTeamsCount; i++) AdditionalWinnerTeams.Add((AdditionalWinners)reader.ReadPackedInt32());
 
         WinnerRoles = [];
-        int WinnerRolesCount = reader.ReadPackedInt32();
-        for (var i = 0; i < WinnerRolesCount; i++) WinnerRoles.Add((CustomRoles)reader.ReadPackedInt32());
+        int winnerRolesCount = reader.ReadPackedInt32();
+        for (var i = 0; i < winnerRolesCount; i++) WinnerRoles.Add((CustomRoles)reader.ReadPackedInt32());
 
         WinnerIds = [];
-        int WinnerIdsCount = reader.ReadPackedInt32();
-        for (var i = 0; i < WinnerIdsCount; i++) WinnerIds.Add(reader.ReadByte());
+        int winnerIdsCount = reader.ReadPackedInt32();
+        for (var i = 0; i < winnerIdsCount; i++) WinnerIds.Add(reader.ReadByte());
     }
 }

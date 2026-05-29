@@ -111,7 +111,7 @@ public class Oxyman : RoleBase
         if (nowLevel != previousLevel) ApplyLevelEffect(pc, nowLevel);
     }
 
-    private void ApplyLevelEffect(PlayerControl pc, Level nowLevel)
+    private static void ApplyLevelEffect(PlayerControl pc, Level nowLevel)
     {
         switch (nowLevel)
         {

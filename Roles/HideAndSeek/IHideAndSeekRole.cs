@@ -1,6 +1,4 @@
-﻿using EHR.Modules.Extensions;
-
-namespace EHR.Roles;
+﻿namespace EHR.Roles;
 
 internal interface IHideAndSeekRole
 {

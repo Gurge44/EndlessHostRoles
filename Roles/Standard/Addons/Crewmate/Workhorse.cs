@@ -99,8 +99,9 @@ public class Workhorse : IAddon
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            pc.RpcResetTasks();
+            pc.RpcResetTasks(false);
             pc.SyncSettings();
+            Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = pc.Data.Tasks.Count;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

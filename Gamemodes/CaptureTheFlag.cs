@@ -22,6 +22,7 @@ public static class CaptureTheFlag
     private static OptionItem WhenFlagCarrierGetsTagged;
     private static OptionItem SpeedReductionForFlagCarrier;
     private static OptionItem TagCooldown;
+    private static OptionItem SpawnProtectionTime;
     private static OptionItem GameEndCriteria;
     private static OptionItem RoundsToPlay;
     private static OptionItem PointsToWin;
@@ -55,6 +56,7 @@ public static class CaptureTheFlag
     private static Dictionary<byte, CTFPlayerData> PlayerData = [];
     private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
     private static Dictionary<byte, long> TemporarilyOutPlayers = [];
+    private static Dictionary<byte, long> SpawnProtectionTimes = [];
     private static bool ValidTag;
     private static long GameStartTS;
     private static int RoundsPlayed => TeamData.Values.Sum(x => x.RoundsWon);
@@ -72,25 +74,25 @@ public static class CaptureTheFlag
 
     private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
-        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(nameof(SystemTypes.Launchpad))),
-        MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
-        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(nameof(SystemTypes.Electrical))),
-        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(nameof(SystemTypes.Cockpit))),
-        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Kitchen))),
-        (MapNames)6 => (new(-13.31f, -34.56f), Translator.GetString(nameof(SystemTypes.Engine))),
+        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(SystemTypes.Nav)),
+        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(SystemTypes.Launchpad)),
+        MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(SystemTypes.Nav)),
+        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(SystemTypes.Electrical)),
+        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(SystemTypes.Cockpit)),
+        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(SystemTypes.Kitchen)),
+        (MapNames)6 => (new(-13.31f, -34.56f), Translator.GetString(SystemTypes.Engine)),
         _ => (Vector2.zero, string.Empty)
     };
 
     private static (Vector2 Position, string RoomName) YellowFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(nameof(SystemTypes.Reactor))),
-        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(nameof(SystemTypes.Greenhouse))),
-        MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(nameof(SystemTypes.Reactor))),
-        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Laboratory))),
-        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(nameof(SystemTypes.CargoBay))),
-        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(nameof(SystemTypes.Comms))),
-        (MapNames)6 => (new(12.98f, -25.68f), Translator.GetString(nameof(SystemTypes.Comms))),
+        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor)),
+        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(SystemTypes.Greenhouse)),
+        MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor)),
+        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(SystemTypes.Laboratory)),
+        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(SystemTypes.CargoBay)),
+        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(SystemTypes.Comms)),
+        (MapNames)6 => (new(12.98f, -25.68f), Translator.GetString(SystemTypes.Comms)),
         _ => (Vector2.zero, string.Empty)
     };
 
@@ -172,6 +174,11 @@ public static class CaptureTheFlag
             .SetGameMode(CustomGameMode.CaptureTheFlag)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(color);
+
+        SpawnProtectionTime = new IntegerOptionItem(id + 13, "CTF_SpawnProtectionTime", new(0, 30, 1), 5, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.CaptureTheFlag)
+            .SetValueFormat(OptionFormat.Seconds)
+            .SetColor(color);
     }
 
     public static bool KnowTargetRoleColor(PlayerControl target, ref string color)
@@ -238,6 +245,11 @@ public static class CaptureTheFlag
         if (TemporarilyOutPlayers.TryGetValue(id, out long backTS))
         {
             sb.Append(string.Format(Translator.GetString("CTF_BackIn"), backTS - Utils.TimeStamp));
+            sb.Append('\n');
+        }
+        else if (SpawnProtectionTimes.TryGetValue(id, out long protectionEndTS))
+        {
+            sb.Append(string.Format(Translator.GetString("CTF_Suffix.SpawnProtectionTime"), protectionEndTS - Utils.TimeStamp));
             sb.Append('\n');
         }
 
@@ -326,6 +338,7 @@ public static class CaptureTheFlag
         PlayerData = Main.PlayerStates.Keys.ToDictionary(x => x, _ => new CTFPlayerData());
         DefaultOutfits = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
         TemporarilyOutPlayers = [];
+        SpawnProtectionTimes = [];
         ValidTag = false;
         SendRPC();
     }
@@ -342,7 +355,7 @@ public static class CaptureTheFlag
 
         // Assign players to teams
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         int blueCount = players.Count / 2;
@@ -402,6 +415,9 @@ public static class CaptureTheFlag
             yield return WaitFrameIfNecessary();
         }
         
+        var sender = CustomRpcSender.Create("CTF Set Teams");
+        sender.StartPackedMessage();
+        
         foreach (CTFTeamData data in TeamData.Values)
         {
             foreach (byte id1 in data.Players)
@@ -409,9 +425,8 @@ public static class CaptureTheFlag
                 try
                 {
                     var pc1 = id1.GetPlayer();
-                    if (!pc1 || pc1.AmOwner) continue;
+                    if (!pc1 || pc1.AmOwner || pc1.OwnerId < 0) continue;
 
-                    var sender = CustomRpcSender.Create("CTF Set Teams");
                     sender.StartMessage(pc1.OwnerId);
 
                     foreach (byte id2 in data.Players)
@@ -430,14 +445,16 @@ public static class CaptureTheFlag
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }
-                            
-                    sender.SendMessage();
+
+                    sender.EndMessage();
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
                 
                 yield return WaitFrameIfNecessary();
             }
         }
+        
+        sender.SendMessage(dispose: PlayerControl.AllPlayerControls.Count <= 1);
 
         ValidTag = true;
         GameStartTS = Utils.TimeStamp;
@@ -472,7 +489,7 @@ public static class CaptureTheFlag
 
     public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out CTFTeam killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
+        if (!ValidTag || TemporarilyOutPlayers.ContainsKey(killer.PlayerId) || SpawnProtectionTimes.ContainsKey(target.PlayerId) || !PlayerTeams.TryGetValue(target.PlayerId, out CTFTeam targetTeam) || !PlayerTeams.TryGetValue(killer.PlayerId, out CTFTeam killerTeam) || killerTeam == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
         new[] { killer, target }.Do(x => x.SetKillCooldownNonSync(KCD));
 
@@ -488,6 +505,7 @@ public static class CaptureTheFlag
                 target.TP(targetTeam.GetFlagBase().Position);
                 Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 target.MarkDirtySettings();
+                SpawnProtectionTimes[target.PlayerId] = Utils.TimeStamp + SpawnProtectionTime.GetInt();
                 break;
             case 1:
                 target.Suicide(PlayerState.DeathReason.Kill);
@@ -530,7 +548,7 @@ public static class CaptureTheFlag
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam);
+        return pc.IsValidTargetForKillButton() && (!PlayerTeams.TryGetValue(pc.PlayerId, out CTFTeam team) || !PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out CTFTeam lpTeam) || team != lpTeam);
     }
 
     private static void SendRPC()
@@ -571,43 +589,46 @@ public static class CaptureTheFlag
         }
     }
 
-    private static Color GetTeamColor(this CTFTeam team)
+    extension(CTFTeam team)
     {
-        return team switch
+        private Color GetTeamColor()
         {
-            CTFTeam.Blue => Color.blue,
-            CTFTeam.Yellow => Color.yellow,
-            _ => Color.white
-        };
-    }
+            return team switch
+            {
+                CTFTeam.Blue => Color.blue,
+                CTFTeam.Yellow => Color.yellow,
+                _ => Color.white
+            };
+        }
 
-    private static string GetTeamName(this CTFTeam team)
-    {
-        return team switch
+        private string GetTeamName()
         {
-            CTFTeam.Blue => Translator.GetString("CTF_BlueTeamWins"),
-            CTFTeam.Yellow => Translator.GetString("CTF_YellowTeamWins"),
-            _ => string.Empty
-        };
-    }
+            return team switch
+            {
+                CTFTeam.Blue => Translator.GetString("CTF_BlueTeamWins"),
+                CTFTeam.Yellow => Translator.GetString("CTF_YellowTeamWins"),
+                _ => string.Empty
+            };
+        }
 
-    private static CTFTeam GetOppositeTeam(this CTFTeam team)
-    {
-        return team switch
+        private CTFTeam GetOppositeTeam()
         {
-            CTFTeam.Blue => CTFTeam.Yellow,
-            _ => CTFTeam.Blue
-        };
-    }
+            return team switch
+            {
+                CTFTeam.Blue => CTFTeam.Yellow,
+                _ => CTFTeam.Blue
+            };
+        }
 
-    private static (Vector2 Position, string RoomName) GetFlagBase(this CTFTeam team)
-    {
-        return team switch
+        private (Vector2 Position, string RoomName) GetFlagBase()
         {
-            CTFTeam.Blue => BlueFlagBase,
-            CTFTeam.Yellow => YellowFlagBase,
-            _ => (Vector2.zero, string.Empty)
-        };
+            return team switch
+            {
+                CTFTeam.Blue => BlueFlagBase,
+                CTFTeam.Yellow => YellowFlagBase,
+                _ => (Vector2.zero, string.Empty)
+            };
+        }
     }
 
     private enum CTFTeam
@@ -811,9 +832,19 @@ public static class CaptureTheFlag
                     __instance.ReviveFromTemporaryExile();
                     __instance.TP(team.GetFlagBase().Position);
                     RPC.PlaySoundRPC(__instance.PlayerId, Sounds.SpawnSound);
+                    SpawnProtectionTimes[__instance.PlayerId] = Utils.TimeStamp + SpawnProtectionTime.GetInt();
                 }
                 
                 if (!notified) Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
+            }
+
+            if (SpawnProtectionTimes.TryGetValue(__instance.PlayerId, out long protectionEndTS))
+            {
+                if (now >= protectionEndTS)
+                    SpawnProtectionTimes.Remove(__instance.PlayerId);
+                
+                if (!notified)
+                    Utils.NotifyRoles(SpecifySeer: __instance, SpecifyTarget: __instance, SendOption: SendOption.None);
             }
         }
     }

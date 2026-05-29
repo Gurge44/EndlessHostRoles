@@ -101,9 +101,9 @@ public class Deathpact : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
+        if (!shapeshifting || !pc.IsAliveWithConditions()) return false;
 
-        if (!target.IsAlive() || Pelican.IsEaten(target.PlayerId))
+        if (!target.IsAliveWithConditions())
         {
             pc.Notify(GetString("DeathpactCouldNotAddTarget"));
             return false;
@@ -190,7 +190,7 @@ public class Deathpact : RoleBase
 
         foreach (PlayerControl player in dp.PlayersInDeathpact)
         {
-            float range = GameManager.Instance.LogicOptions.GetKillDistance();
+            float range = player.GetKillDistance();
             cancelDeathpact = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Select(otherPlayerInPact => Vector2.Distance(player.Pos(), otherPlayerInPact.Pos())).Aggregate(cancelDeathpact, (current, dis) => current && dis <= range);
         }
 

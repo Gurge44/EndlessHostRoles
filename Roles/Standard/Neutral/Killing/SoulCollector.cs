@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 
@@ -85,18 +86,8 @@ public class SoulCollector : RoleBase
             sender.SendMessage();
         }
 
-        if (target.AmOwner)
-        {
-            Logger.Info("Host Exiled", "SoulCollector");
-            target.Exiled();
-        }
-        else
-        {
-            
-            var sender = CustomRpcSender.Create("SoulCollector Kill: Target", SendOption.Reliable);
-            sender.RpcSetRole(target, target.GetGhostRoleBasis(), target.OwnerId);
-            sender.SendMessage();
-        }
+        Logger.Info("Desync Kill Target", "SoulCollector");
+        target.RpcSetRoleDesync(target.GetGhostRoleBasis(), target.OwnerId);
 
         target.MarkDirtySettings();
         return false;
@@ -106,19 +97,12 @@ public class SoulCollector : RoleBase
     {
         if (ToExile.Count > 0)
         {
-            var sender = CustomRpcSender.Create("SoulCollector Post Exile", SendOption.Reliable);
-            sender.StartMessage();
-            List<PlayerControl> toExile = ToExile.ToValidPlayers();
-            ToExile = [];
-            toExile.ForEach(x =>
+            ToExile.ToValidPlayers().Do(x =>
             {
                 Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                sender.StartRpc(x.NetId, RpcCalls.SetRole)
-                    .Write((ushort)x.GetGhostRoleBasis())
-                    .Write(true)
-                    .EndRpc();
+                x.RpcSetRoleGlobal(x.GetGhostRoleBasis());
             });
-            sender.SendMessage();
+            ToExile = [];
         }
     }
 }

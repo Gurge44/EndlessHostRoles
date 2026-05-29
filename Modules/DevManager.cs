@@ -32,7 +32,7 @@ public static class DevManager
             yield break;
         }
 
-        UnityWebRequest request = UnityWebRequest.Get("https://gurge44.pythonanywhere.com/get_all_tags");
+        UnityWebRequest request = UnityWebRequest.Get("https://app.gurge44.eu/get_all_tags");
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)

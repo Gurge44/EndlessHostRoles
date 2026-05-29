@@ -1,5 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using System.Linq;
 
 namespace EHR.Roles;
 
@@ -47,8 +46,8 @@ public class Fakeshifter : RoleBase
         if (MarkedId == byte.MaxValue && target.IsAlive())
         {
             MarkedId = target.PlayerId;
-            PlayerControl randomPlayer = Main.EnumerateAlivePlayerControls().Without(target).RandomElement();
-            foreach (var pc in Main.AllAlivePlayerControls)
+            PlayerControl randomPlayer = Main.CachedAlivePlayerControls().Without(target).RandomElement();
+            foreach (var pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.PlayerId == target.PlayerId) continue;
                 target.RpcShapeshiftDesync(randomPlayer, pc, false);
@@ -56,7 +55,7 @@ public class Fakeshifter : RoleBase
             shapeshifter.RpcRemoveAbilityUse();
             LateTask.New(() =>
             {
-                if (target != null && target.IsAlive())
+                if (target.IsAlive())
                 {
                     target.RpcShapeshift(target, true);
                     MarkedId = byte.MaxValue;

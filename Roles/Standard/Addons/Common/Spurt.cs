@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -15,7 +15,6 @@ internal class Spurt : IAddon
     public static bool LocalPlayerAvoidsZeroAndOneHundredPrecent;
 
     private static readonly Dictionary<byte, Vector2> LastPos = [];
-    public static readonly Dictionary<byte, float> StartingSpeed = [];
     private static readonly Dictionary<byte, int> LastNum = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
     public AddonTypes Type => AddonTypes.Helpful;
@@ -43,14 +42,13 @@ internal class Spurt : IAddon
 
     public static void Add()
     {
-        foreach ((PlayerControl pc, float speed) in Main.EnumerateAlivePlayerControls().Zip(Main.AllPlayerSpeed.Values))
+        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
         {
             if (pc.Is(CustomRoles.Spurt))
             {
                 LastPos[pc.PlayerId] = pc.Pos();
                 LastNum[pc.PlayerId] = 0;
                 LastUpdate[pc.PlayerId] = Utils.TimeStamp;
-                StartingSpeed[pc.PlayerId] = speed;
             }
         }
 
@@ -59,7 +57,7 @@ internal class Spurt : IAddon
 
     public static void DeathTask(PlayerControl player)
     {
-        Main.AllPlayerSpeed[player.PlayerId] = StartingSpeed[player.PlayerId];
+        Main.AllPlayerSpeed[player.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         player.MarkDirtySettings();
     }
 

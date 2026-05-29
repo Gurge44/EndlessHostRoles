@@ -1,6 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using Hazel;
-using InnerNet;
 using static EHR.Translator;
 
 namespace EHR.Roles;

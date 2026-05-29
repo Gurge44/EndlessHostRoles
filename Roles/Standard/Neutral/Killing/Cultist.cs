@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -112,12 +111,12 @@ public class Cultist : RoleBase
             var sender = CustomRpcSender.Create("Cultist.OnCheckMurder", SendOption.Reliable);
             var hasValue = false;
 
-            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cultist), GetString("CultistCharmedPlayer")));
+            hasValue |= sender.Notify(killer, CustomRoles.Cultist.ColoredTextByRole(GetString("CultistCharmedPlayer")));
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cultist), GetString("CharmedByCultist")));
+            hasValue |= sender.Notify(target, CustomRoles.Cultist.ColoredTextByRole(GetString("CharmedByCultist")));
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
@@ -133,7 +132,7 @@ public class Cultist : RoleBase
             return false;
         }
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cultist), GetString("CultistInvalidTarget")));
+        killer.Notify(CustomRoles.Cultist.ColoredTextByRole(GetString("CultistInvalidTarget")));
 
         return false;
     }

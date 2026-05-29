@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using InnerNet;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -14,17 +12,16 @@ public abstract class GameOptionsSender
 {
     protected abstract bool IsDirty { get; set; }
 
-    protected virtual int TargetClientId => -1;
-
     private Il2CppStructArray<byte> BuildOptionArray()
     {
         IGameOptions opt = BuildGameOptions();
+        var currentGameMode = AprilFoolsMode.IsAprilFoolsModeToggledOn ? opt.AprilFoolsOnMode : opt.GameMode;
 
         // option => byte[]
         MessageWriter writer = MessageWriter.Get();
         writer.Write(opt.Version);
         writer.StartMessage(0);
-        writer.Write((byte)opt.GameMode);
+        writer.Write((byte)currentGameMode);
 
         if (opt.TryCast(out NormalGameOptionsV10 normalOpt))
             NormalGameOptionsV10.Serialize(writer, normalOpt);
@@ -59,7 +56,7 @@ public abstract class GameOptionsSender
         for (byte i = 0; i < count; i++)
         {
             Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[i];
-            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, TargetClientId);
+            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i);
         }
     }
 
@@ -70,41 +67,13 @@ public abstract class GameOptionsSender
         for (byte i = 0; i < count; i++)
         {
             Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[i];
-            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, TargetClientId);
+            if (logicComponent.TryCast<LogicOptions>(out _)) yield return SendOptionsArrayAsync(optionArray, i);
             yield return WaitFrameIfNecessary();
         }
     }
 
-    private static void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex, int targetClientId)
-    {
-        try
-        {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
-            writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
-            {
-                writer.Write(AmongUsClient.Instance.GameId);
-                if (targetClientId != -1) writer.WritePacked(targetClientId);
-
-                writer.StartMessage(1);
-                {
-                    writer.WritePacked(GameManager.Instance.NetId);
-                    writer.StartMessage(logicOptionsIndex);
-                    {
-                        writer.WriteBytesAndSize(optionArray);
-                    }
-                    writer.EndMessage();
-                }
-                writer.EndMessage();
-            }
-
-            writer.EndMessage();
-
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-        }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray"); }
-    }
+    protected abstract void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex);
+    protected abstract IEnumerator SendOptionsArrayAsync(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex);
 
     public abstract IGameOptions BuildGameOptions();
 
@@ -117,12 +86,26 @@ public abstract class GameOptionsSender
 
     public static readonly List<GameOptionsSender> AllSenders = [new NormalGameOptionsSender()];
 
+    protected static MessageWriter PackedWriter;
+    protected static int PackedWriterMessages;
+    
+    // Currently, a LogicOptions serialize is 155-156 bytes. 11 bytes are needed for the packet headers.
+    // Safe to pack until the length is over 1000, as it's impossible to exceed 1200 with 156 bytes per message.
+
     public static IEnumerator SendDirtyGameOptionsContinuously()
     {
         try
         {
             while (GameStates.InGame || GameStates.IsLobby)
             {
+                if (GameStates.InGame)
+                {
+                    PackedWriterMessages = 0;
+                    PackedWriter = MessageWriter.Get(SendOption.Reliable);
+                    PackedWriter.StartMessage(26);
+                    PackedWriter.WritePacked(AmongUsClient.Instance.GameId);
+                }
+                
                 for (var index = 0; index < AllSenders.Count; index++)
                 {
                     yield return WaitFrameIfNecessary();
@@ -143,6 +126,19 @@ public abstract class GameOptionsSender
                     sender.IsDirty = false;
                 }
 
+                yield return WaitFrameIfNecessary();
+
+                if (PackedWriterMessages > 0 && PackedWriter != null)
+                {
+                    PackedWriter.EndMessage();
+                    yield return DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(PackedWriter)).Wait();
+                    Logger.Info($"PackedWriter flush finished - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendDirtyGameOptionsContinuously");
+                }
+
+                PackedWriter?.Recycle();
+                PackedWriter = null;
+                PackedWriterMessages = 0;
+
                 ForceWaitFrame = true;
                 yield return WaitFrameIfNecessary();
             }
@@ -150,6 +146,9 @@ public abstract class GameOptionsSender
         finally
         {
             ActiveCoroutine = null;
+            PackedWriter?.Recycle();
+            PackedWriter = null;
+            PackedWriterMessages = 0;
         }
     }
 
@@ -166,7 +165,7 @@ public abstract class GameOptionsSender
 
     public static Coroutine ActiveCoroutine;
     private static readonly Stopwatch Stopwatch = new();
-    private const int FrameBudget = 4; // in milliseconds
+    private const int FrameBudget = 3; // in milliseconds
     protected static bool ForceWaitFrame;
 
     #endregion

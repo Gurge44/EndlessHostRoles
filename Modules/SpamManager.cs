@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Hazel;
 using static EHR.Translator;
 
 namespace EHR;
@@ -137,7 +136,7 @@ public static class SpamManager
                 Utils.SendMessage(msg, importance: MessageImportance.Low);
             else
             {
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                     if (pc.IsAlive() == player.IsAlive())
                         Utils.SendMessage(msg, pc.PlayerId, importance: MessageImportance.Low);
             }

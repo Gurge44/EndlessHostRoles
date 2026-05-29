@@ -50,6 +50,21 @@ public class Wiper : RoleBase
     {
         if (Options.UsePhantomBasis.GetBool())
             AURoleOptions.PhantomCooldown = AbilityCooldown.GetInt();
+        else
+        {
+            if (Options.UsePets.GetBool()) return;
+
+            AURoleOptions.ShapeshifterCooldown = AbilityCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (Options.UsePets.GetBool() && !Options.UsePhantomBasis.GetBool())
+            hud.PetButton?.OverrideText(Translator.GetString("KillButtonText"));
+        else
+            hud.AbilityButton?.OverrideText(Translator.GetString("KillButtonText"));
     }
 
     public override void OnPet(PlayerControl pc)
@@ -71,7 +86,7 @@ public class Wiper : RoleBase
 
     private static bool IsInvalidRoom(PlainShipRoom room)
     {
-        if (room == null) return true;
+        if (!room) return true;
 
         switch (Main.CurrentMap)
         {

@@ -84,7 +84,7 @@ internal class Sprayer : RoleBase
         SprayerId = playerId;
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls()) TrappedCount[pc.PlayerId] = 0;
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls()) TrappedCount[pc.PlayerId] = 0;
     }
 
     public override void SetKillCooldown(byte id)
@@ -138,7 +138,7 @@ internal class Sprayer : RoleBase
         if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD()) return;
 
         Vector2 pos = SprayerPC.Pos();
-        Traps[pos] = new(pos, [SprayerId]);
+        Traps[pos] = new(pos, SprayerPC);
         SprayerPC.RpcRemoveAbilityUse();
 
         if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(CD.GetInt());
@@ -191,7 +191,6 @@ internal class Sprayer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        Traps.Values.Do(x => x.Despawn());
         Traps.Clear();
     }
 

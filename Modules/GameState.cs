@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -11,6 +11,7 @@ namespace EHR;
 
 public class PlayerState(byte playerId)
 {
+    public static readonly DeathReason[] AllDeathReason = Enum.GetValues<DeathReason>();
     public enum DeathReason
     {
         Kill,
@@ -71,6 +72,8 @@ public class PlayerState(byte playerId)
         Patrolled,
         Misguess,
         LossOfBlood,
+        Frightened,
+        Bankrupt,
 
         // Natural Disasters
         Meteor,
@@ -148,16 +151,12 @@ public class PlayerState(byte playerId)
                 if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
             }
 
-            if (role.IsVanilla() || role.ToString().Contains("EHR"))
+            if (role.IsVanilla() || role.IsVanillaEHR())
                 Main.AbilityUseLimit.Remove(PlayerId);
         }
 
-        if (!AmongUsClient.Instance.AmHost) return;
-
         if (Main.IntroDestroyed && GameStates.InGame)
         {
-            Player.ResetKillCooldown();
-
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
@@ -165,15 +164,21 @@ public class PlayerState(byte playerId)
                 HudSpritePatch.ForceUpdate = true;
             }
 
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            Player.ResetKillCooldown();
+
             if (Decryptor.On) Decryptor.Instances.ForEach(x => x.OnRoleChange(PlayerId));
 
             if (!role.Is(Team.Impostor) && !(role == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                 SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
+            
+            if (role == CustomRoles.GM) return;
 
             if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade)
                 SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
 
-            if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
+            if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || !x.SidekickId.GetPlayer(), out Jackal jackal))
                 jackal.SidekickId = PlayerId;
 
             if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && !AntiBlackout.SkipTasks)
@@ -185,6 +190,8 @@ public class PlayerState(byte playerId)
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
         }
+
+        if (!AmongUsClient.Instance.AmHost) return;
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
@@ -204,10 +211,19 @@ public class PlayerState(byte playerId)
             case CustomRoles.BananaMan when Main.IntroDestroyed && !SubRoles.Contains(CustomRoles.BananaMan):
                 LateTask.New(() => Utils.RpcChangeSkin(Player, new()), 0.2f, log: false);
                 break;
+            case CustomRoles.Urgent when !SubRoles.Contains(CustomRoles.Urgent):
+                Main.NumEmergencyMeetingsUsed[PlayerId]--;
+                break;
         }
 
         if (replaceAll)
         {
+            if (SubRoles.Contains(CustomRoles.Flash) || SubRoles.Contains(CustomRoles.Dynamo) || SubRoles.Contains(CustomRoles.Spurt))
+            {
+                Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                PlayerGameOptionsSender.SetDirty(PlayerId);
+            }
+            
             SubRoles.Clear();
             Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
         }
@@ -345,14 +361,31 @@ public class PlayerState(byte playerId)
     public void SetDead()
     {
         IsDead = true;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
 
         if (AmongUsClient.Instance.AmHost)
         {
             if (Enchanter.EnchantedPlayers.Contains(PlayerId))
-                deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
+                deathReason = AllDeathReason[..^8].RandomElement();
 
-            RPC.SendDeathReason(PlayerId, deathReason);
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
+
+            if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted)
+                MeetingHud.Instance.CheckForEndVoting();
+        }
+    }
+    public void SetAlive()
+    {
+        IsDead = false;
+        deathReason = DeathReason.etc;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
         }
     }
 
@@ -373,7 +406,18 @@ public class PlayerState(byte playerId)
 
     public int GetKillCount()
     {
-        return Main.PlayerStates.Values.Count(state => state.PlayerId != PlayerId && state.GetRealKiller() == PlayerId);
+        int count = 0;
+        var states = Main.PlayerStates.Values;
+
+        foreach (var state in states)
+        {
+            if (state.PlayerId == PlayerId) continue;
+
+            if (state.GetRealKiller() == PlayerId) 
+                count++;
+        }
+
+        return count;
     }
 }
 
@@ -389,7 +433,7 @@ public class TaskState
     public void Init(PlayerControl player)
     {
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
-        if (player == null || player.Data?.Tasks == null) return;
+        if (!player || player.Data?.Tasks == null) return;
 
         if (!Utils.HasTasks(player.Data, false))
         {
@@ -471,7 +515,7 @@ public class TaskState
                 Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
@@ -561,11 +605,28 @@ public static class GameStates
             };
         }
     }
+    public static ServerType CurrentServerTypeInCreateMenu
+    {
+        get
+        {
+            if (IsFreePlay) return ServerType.Local;
+
+            string regionName = Utils.GetRegionName(ignoreNetworkMode: true);
+
+            return regionName switch
+            {
+                "Local Game" => ServerType.Custom,
+                "EU" or "NA" or "AS" => ServerType.Vanilla,
+                "MEU" or "MAS" or "MNA" => ServerType.Modded,
+                _ => regionName.Contains("Niko", StringComparison.OrdinalIgnoreCase) ? ServerType.Niko : ServerType.Custom
+            };
+        }
+    }
 
     /**********TOP ZOOM.cs***********/
-    public static bool IsShip => ShipStatus.Instance != null;
-    public static bool IsCanMove => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.CanMove;
-    public static bool IsDead => PlayerControl.LocalPlayer != null && !PlayerControl.LocalPlayer.IsAlive();
+    public static bool IsShip => ShipStatus.Instance;
+    public static bool IsCanMove => PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.CanMove;
+    public static bool IsDead => PlayerControl.LocalPlayer && !PlayerControl.LocalPlayer.IsAlive();
 }
 
 public static class MeetingStates
@@ -575,9 +636,8 @@ public static class MeetingStates
     public static int MeetingNum;
     public static bool MeetingCalled;
     public static bool FirstMeeting = true;
-    public static bool IsEmergencyMeeting => ReportTarget == null;
+    public static bool IsEmergencyMeeting => !ReportTarget;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static NetworkedPlayerInfo ReportTarget { get; set; }
-
 }

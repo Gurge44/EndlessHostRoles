@@ -21,15 +21,13 @@
   "MessageFromKPD": "★[ KARPED1EM ]★",
   "MessageFromSponsor": "★[ 貢獻者訊息 ]★",
   "MessageFromEAC": "★[ EAC ]★",
-  "SayTitle": "★[ 協館訊息 ]★",
+  "SayTitle": "★[ 協管訊息 ]★",
   "announcementUpdate": "<size=3f>更新到v{0}</size>\\n{1}",
   "announcementChangelog": "<size=3f>更新內容 v{0}</size>\\n{1}",
-  "Server": "<#00ffa5>伺服器:</color> <b>{0}</b>",
+  "Server": "<#00ffa5>Server:</color>: ",
   "VersionMismatch": "{0}安裝了不同版本的模組",
-  "ModMismatch": "{0} has a different mod installed that isn't compatible with EHR",
-  "Kick": "踢出",
-  "Ban": "封禁",
-  "TempBan": "僅封鎖此會話",
+  "ModMismatch": "{0} 安裝了與 EHR 不相容的其他模組 <#ffff00>⚠</color>",
+  "PrivacyPolicy": "<size=200%>您是否已閱讀並同意模組官方GitHub倉庫中的隱私權政策和行為準則？ </size>\\n您必須接受這些條款才能繼續。",
   "Yes": "是",
   "No": "否",
   "None": "無",
@@ -68,8 +66,6 @@
   "Preset_20": "設定檔20",
   "TabInfoTip": "<b>提示:</b>按住SHIFT可將將數值一次調整5，按住CTRL可將數值一次調整10! 使用此訊息上方的箭頭按鈕切換遊戲模式!",
   "Alignments": "陣營",
-  "Crewmate": "船員",
-  "Impostor": "偽裝者",
   "Neutral": "中立",
   "Coven": "巫師陣營",
   "Madmate": "叛徒",
@@ -91,7 +87,6 @@
   "Alive": "存活",
   "Dead": "死亡",
   "Kill": "擊殺",
-  "Suicide": "自殺",
   "Vent": "通風口",
   "Report": "報告",
   "Shapeshift": "變形",
@@ -118,6 +113,7 @@
     Role Prefixes    
   ============================== */
   "Prefix.Aide": "助手",
+  "Prefix.Absorber": "吸收者",
   "Prefix.Allergic": "過敏",
   "Prefix.Anchor": "寬恕者",
   "Prefix.AntiTP": "抗傳送",
@@ -142,16 +138,19 @@
   "Prefix.Compelled": "被迫",
   "Prefix.Composter": "堆肥箱",
   "Prefix.Concealer": "隱蔽者",
+  "Prefix.Constricted": "收縮",
   "Prefix.Damocles": "倒數",
   "Prefix.Deadlined": "死線",
   "Prefix.DeadlyQuota": "致命目標",
   "Prefix.Disco": "彩虹",
   "Prefix.Diseased": "病態",
   "Prefix.Disregarded": "漠視",
+  "Prefix.Dizzy": "眩暈",
   "Prefix.DoubleShot": "專業",
   "Prefix.Dynamo": "狂奔",
   "Prefix.Egoist": "利己主義者",
   "Prefix.Energetic": "充能",
+  "Prefix.Entombed": "埋葬",
   "Prefix.EvilSpirit": "惡靈",
   "Prefix.Examiner": "審查員",
   "Prefix.Facilitator": "引導者",
@@ -177,6 +176,7 @@
   "Prefix.Lucky": "幸運",
   "Prefix.Magnet": "磁鐵",
   "Prefix.Mare": "獵夢者",
+  "Prefix.MeetingAngel": "Meeting Angel",
   "Prefix.Messenger": "信使",
   "Prefix.Mimic": "保險箱",
   "Prefix.Minion": "爪牙",
@@ -190,6 +190,7 @@
   "Prefix.Physicist": "學者",
   "Prefix.Rascal": "流氓",
   "Prefix.Reach": "長槍",
+  "Prefix.Reroll": "重擲者",
   "Prefix.Rookie": "菜鳥",
   "Prefix.Schizophrenic": "雙重人格",
   "Prefix.Seer": "靈媒",
@@ -204,6 +205,7 @@
   "Prefix.Stressed": "壓力",
   "Prefix.Sunglasses": "太陽鏡",
   "Prefix.Swift": "無影",
+  "Prefix.Talkative": "Talkative",
   "Prefix.TaskMaster": "任務大師",
   "Prefix.Taskcounter": "計數者",
   "Prefix.Tiebreaker": "破平者",
@@ -215,27 +217,12 @@
   "Prefix.Undead": "亡靈",
   "Prefix.Underdog": "潛伏者",
   "Prefix.Unlucky": "倒霉",
+  "Prefix.Urgent": "Urgent",
   "Prefix.Venom": "毒液",
   "Prefix.Warden": "冤魂",
   "Prefix.Watcher": "觀察者",
   "Prefix.Workhorse": "加班狂",
   "Prefix.Youtuber": "Youtuber",
-  /* ==============================
-    Host Suffixes           
-  ============================== */
-  "SuffixMode": "名字標籤",
-  "SuffixMode.AutoHost": "自動房主",
-  "SuffixMode.DoNotKillMe": "不要首刀我",
-  "SuffixMode.NoAndroidPlz": "Android別進",
-  "SuffixMode.None": "無",
-  "SuffixMode.OriginalName": "玩家名稱",
-  "SuffixMode.Recording": "錄影中",
-  "SuffixMode.RoomHost": "房主",
-  "SuffixMode.Streaming": "直播中",
-  "SuffixMode.Version": "版本",
-  "SuffixModeText.AutoHost": "自動託管",
-  "SuffixModeText.DoNotKillMe": "別首刀我啊啊啊",
-  "SuffixModeText.NoAndroidPlz": "Android別進拜託了",
   /* ==============================
     TITLES           
   ============================== */
@@ -244,7 +231,6 @@
   "AnagramTitle": "<#888888>➡ 字謎 ⬅</color>",
   "BaitAliveTitle": "★[ 誘餌提示 ]★",
   "CleanserTitle": "【 ★ 清洗訊息 ★ 】",
-  "CompletedAchievementsTitle": "<#FAD101>已完成的成就</color>",
   "DoomsayerGuessCountTitle": "【 ★ 賭神 ★ 】",
   "EraserEraseMsgTitle": "★[ 抹除者 ]★",
   "EveryoneReadyTitle": "<#00ff00>所有人都準備好了!</color>",
@@ -260,20 +246,7 @@
   "JournalistNotesTitle": "<#fcba03>記錄者留下的筆記...</color>",
   "MediumTitle": "【 ★ 冥界之聲 ★ 】",
   "MeetingManagerMessageTitle": "★ 會議管理 ★",
-  "MenuTitle.AFKDetection": "★ 掛機檢測 ★",
-  "MenuTitle.AGMR.RandomGroup": "隨機組別 {index}",
-  "MenuTitle.AutoFactionMinMaxSettings": "自動隊伍規模",
-  "MenuTitle.AutoGMRotation": "自動遊戲模式輪換",
-  "MenuTitle.CTA": "★ 自定義陣營分配 ★",
   "MenuTitle.CrewAdvancedGameEndChecking": "進階遊戲結束檢查",
-  "MenuTitle.Disable": "★ 禁用相關設定 ★",
-  "MenuTitle.Ejections": "★ 逐出相關設定 ★",
-  "MenuTitle.Ghost": "★ 幽靈相關設定",
-  "MenuTitle.Guessers": "★ 賭怪模式 ★",
-  "MenuTitle.MapsSettings": "★ 地圖 ★",
-  "MenuTitle.Meeting": "★ 會議相關設定",
-  "MenuTitle.Other": "★ 其他設定 ★",
-  "MenuTitle.Sabotage": "★ 破壞 ★",
   "MenuTitle.Settings": "★設置★",
   "MenuTitle.TaskSettings": "★ 任務管理員 ★",
   "MessageTitle.Attention": "<#ff0000><#ffa500>⚠</color> 注意！ <#ffa500>⚠</color></color>",
@@ -565,9 +538,11 @@
   "CoronerNoTrack": "無法追蹤",
   "CoronerNotifyKiller": "通知兇手已被追蹤",
   "CoronerTrackRecorded": "追蹤已記錄",
+  "Crewmate": "船員",
   "CrewmateEHR": "船員",
   "CrewmateEHRInfo": "完成任務並尋找<color=#ff1919>偽裝者</color>",
   "CrewmateEHRInfoLong": "(船員陣營):\\n作為船員，你的目標很簡單: 找出船上的偽裝者並將其逐出。\\n船員可以透過逐出所有邪惡玩家或通過完成所有任務來獲勝",
+  "AbilityButtonText.Crewmate": "作祟",
   "Crusader": "十字軍",
   "CrusaderInfo": "別怕，我會幫你報仇的",
   "CrusaderInfoLong": "(船員陣營):\\n十字軍可以嘗試對某位玩家使用殺人鍵使他成為保護目標，如果有人嘗試殺害他，則十字軍會殺死兇手。",
@@ -646,9 +621,13 @@
   "DeputyHandcuffText": "手銬",
   "DeputyHandcuffedPlayer": "你給目標戴上了手銬!",
   "DeputyInvalidTarget": "目標無法被上銬",
+  "Detective": "偵探",
+  "DetectiveSuspectLimit": "每個案件嫌犯數",
   "DetectiveEHR": "偵探",
   "DetectiveEHRInfo": "收集訊息，偵破凶案",
   "DetectiveEHRInfoLong": "(船員陣營):\\n作為偵探，你可以記錄每個犯罪現場的情況並審問嫌疑人。\n\n<color=#ff0000><size=75%>由於基礎重置問題，此職業目前無法使用。 </size></color>",
+  "AbilityButtonText.Detective": "筆記",
+  "SecondaryAbilityButtonText.Detective": "審問",
   "Detour": "轉移者",
   "DetourInfo": "東西都給別人吧~",
   "DetourInfoLong": "(船員陣營):\\n轉移者會將對自己的互動轉移到最近的人身上。",
@@ -718,9 +697,11 @@
   "Electric": "雷擊者",
   "ElectricInfo": "震顫吧!",
   "ElectricInfoLong": "(船員陣營):\\n雷擊者每完成一個任務都能將隨機的壞人定住幾秒鐘",
+  "Engineer": "工程師",
   "EngineerEHR": "工程師",
   "EngineerEHRInfo": "使用通風管來抓到<color=#ff1919>偽裝者</color>",
   "EngineerEHRInfoLong": "(船員陣營):\\n工程師可以在通訊未被破壞時使用通風口。",
+  "AbilityButtonText.Engineer": "通風口",
   "Enigma": "猜想者",
   "EnigmaInfo": "有沒有一種可能，兇手的顏色是....",
   "EnigmaInfoLong": "(船員陣營):\\n猜想者在每輪會議開始時都會收到兇手的線索，當你完成更多任務時，你的線索就會更精確，依據房主設定，猜想者可能需要自己報告屍體才能獲得線索。\\n\\n<size=70%><u><b>淺色:</b></u>紅色、粉紅色、橘色、黃色、白色、青色、青綠色、玫紅色、蕉黃色、珊瑚紅\\n<u><b>深色:</b></u>藍色、綠色、黑色、紫色、棕色、深紅色、灰色、褐色</size>",
@@ -901,13 +882,14 @@
   "GrenadierSkillMaxOfUsage": "(初始) 閃光彈使用次數",
   "GrenadierSkillStop": "技能已失效，剩餘{0} 次使用次數",
   "GrenadierVentButtonText": "閃光彈",
+  "GuardianAngel": "守護天使",
   "GuardianAngelEHR": "守護天使",
   "GuardianAngelEHRInfo": "保護船員免受於<color=#ff1919>偽裝者</color>的殺戮",
   "GuardianAngelEHRInfoLong": "(船員陣營):\\n守護天使以鬼魂的身分出現，守護天使可以為船員套上護盾來讓他們免受於偽裝者的攻擊。",
+  "AbilityButtonText.GuardianAngel": "守護",
   "Guardian": "守護者",
   "GuardianInfo": "完成你的任務來免疫任何傷害",
   "GuardianInfoLong": "(船員陣營):\\n守護者完成所有任務後將變得無敵。(但可以被賭)",
-  "GuardianAngel": "守護天使",
   "Hacker": "黑客",
   "HackerInfo": "從任何地方觀看管理地圖",
   "HackerInfoLong": "(船員陣營):\\n黑客的技能會根據模組客戶端與原版客戶端而產生變化。\\n\\n安裝了模組的玩家可以在有剩餘能力次數的情況下直接使用地圖來查看管理地圖信息。根據設置，你也許可以在打開地圖的情況下移動。\\n\\n而原版客戶端可以使用通風口/寵物來獲取信息，信息為船上的不同房間中有多少人(本質上為管理地圖)。",
@@ -957,11 +939,11 @@
   "InsightNotify": "<color=#ffffff>某個人的職業是</color> {0}",
   "Inspector": "檢查員",
   "InspectorInfo": "檢查兩名玩家的陣營",
-  "InspectorInfoLong": "(船員陣營):\\n檢查員可以檢查兩名玩家是否處於同一陣營，如果他們處於同一陣營，則顯示肯定訊息，如果不處於同一陣營，則顯示否定訊息。\\n檢查指令為/cmp [玩家1ID] [玩家2ID]，您可以在玩家名字前看到該玩家的ID，或使用/id來查詢所有玩家的編號。\\n\\n請注意: 所有帶刀中立計算在同一陣營中，所有無刀中立計算在同一陣營中，騙術師被計算為船員陣營，流氓被計算為偽裝者陣營，律師/追隨者與他的目標也會被算作同陣營。",
+  "InspectorInfoLong": "(Crewmates):\\nTo check if two players are on the same team, use the command <b>/cmd cmp [player id 1] [player id 2]</b>. Neutral killers are counted as part of the same team. Non-Killing Neutrals are counted as separate teams. The Trickster is counted as crew, and Madmates are counted as Impostor. The Lawyer/Follower and its target count as the same team. You will receive an affirmation message if they are in the same team or a denial message if they are not.",
   "InspectorCheckBaitCountMode": "如果<color=#00f7ff>誘餌</color>在第一次會議上透露的話，則<color=#00f7ff>誘餌</color>將計為已透漏職業",
   "InspectorCheckEgoistickCountMode": "<color=#5600ff>利己主義者</color>算作",
   "InspectorCheckFalse": "<b>{0}</b> 和 <b>{1}</b> <color=#ff1919>不在</color>同一陣營！",
-  "InspectorCheckHelp": "指令：/cmp [1號玩家 ID] [2號玩家 ID]\\n範例 /cmp 1 5\\n你可以在玩家名字前面看到該玩家的ID\\n或是使用/id查看所有玩家的ID",
+  "InspectorCheckHelp": "Instructions: <b>/cmd cmp [Player ID 1] [Player ID 2]</b>\\nExample: <b>/cmd cmp 1 5</b>\\nYou can see the player IDs before everyone's names\\n or use the <b>/cmd id</b> command to list the player IDs",
   "InspectorCheckLimitPerMeeting": "每次會議的最大檢查次數",
   "InspectorCheckMax": "已達到每場遊戲的最大檢查次數!\\n你不能再使用你的技能了",
   "InspectorCheckNull": "請選擇存活玩家的ID以檢查其陣營",
@@ -976,7 +958,6 @@
   "InspectorCheckTrue": "<b>{0}</b> 和 <b>{1}</b> 在同一陣營！",
   "InspectorCopTargetReveal": "看起來 <b>{0}</b> 與 <b>{1}</b> 陣營一致",
   "InspectorDead": "很抱歉，你死後無法使用你的技能",
-  "InspectorTryHideMsg": "嘗試混淆<color=#0D57AF>檢查員</color>指令",
   "Investigator": "預言家",
   "InvestigatorInfo": "揭示其他玩家的身分",
   "InvestigatorInfoLong": "(船員陣營):\\n身為預言家，使用擊殺按鈕可以揭露附近一名玩家的職業。揭露的目標旁邊會顯示一個「○」。在目標附近停留一定時間即可揭露其職業。",
@@ -1019,7 +1000,6 @@
   "JudgeCanTrialnCrewKilling": "可以審判<color=#ff1919>帶刀</color> <color=#8cffff>船員</color>",
   "JudgeDead": "很抱歉，死亡後不能進行審判",
   "JudgeTrialMax": "你已經達到審判次數上限\\n不能再繼續審判啦!",
-  "JudgeTryHideMsg": "嘗試混淆<color=#f8d85a>法官</color>指令",
   "LazyGuy": "擺爛人",
   "LazyGuyInfo": "你只需要參加線上會議",
   "LazyGuyInfoLong": "(船員陣營):\\n擺爛人只有一個任務，不會被偽裝者控制，且不能獲得附加職業。",
@@ -1193,12 +1173,19 @@
   "Nightmare": "暗夜使者",
   "NightmareInfo": "惡魔貓男，你今晚的噩夢",
   "NightmareInfoLong": "(船員陣營):\\n暗夜使者不能在燈光破壞期間被殺",
+  "Noisemaker": "警示者",
   "NoisemakerEHR": "警示者",
   "NoisemakerEHRInfo": "在被擊殺時發出警報",
   "NoisemakerEHRInfoLong": "(船員陣營):\\n警示者死亡時會發出聲音以及提示，這樣船員們就可以當場抓獲擊殺你的人。",
+  "NoisemakerAlertDuration": "警報持續時間",
+  "NoisemakerImpostorAlert": "<color=#ff1919>偽裝者</color>看的到警報",
+  "AbilityButtonText.Noisemaker": "作祟",
   "Observer": "窺視者",
   "ObserverInfo": "他的盾沒了?",
   "ObserverInfoLong": "(船員陣營):\\n窺視者可以看到其他玩家的碎盾動畫。首次會議召開前窺視者的技能不會生效。",
+  "Operative": "Operative",
+  "OperativeInfo": "Reset Sabotage Cooldowns",
+  "OperativeInfoLong": "(Crewmates):\\nAs the Operative, you can vent/pet to reset all critical sabotage cooldowns to 30s.",
   "Oracle": "先知",
   "OracleInfo": "你的身分是什麼呢?",
   "OracleInfoLong": "(船員陣營):\\n先知可以在會議上投票給一名玩家，你會看到他們是船員陣營，中立陣營，亦或是偽裝者陣營。\\n\\n<color=#ff0000><b>但是請小心!\\n你的預測會有一定的機率發生錯誤</b></color>\\n(機率根據房主設定)",
@@ -1308,9 +1295,11 @@
   "ScannerTimeLimit": "隱身玩家在範圍內現形時間",
   "ScannerWarningInRange": "你在<color=#42f5a7>掃描者</color>附近！如果您在{0}秒內不離開，您將強制現形！",
   "ScannerNowVisible": "<color=#42f5a7>掃描者</color>讓你現形了！",
+  "Scientist": "科學家",
   "ScientistEHR": "科學家",
   "ScientistEHRInfo": "隨時隨地存取心電圖",
   "ScientistEHRInfoLong": "(船員陣營):\\n科學家擁有隨身心電圖，有助於辨識是否為自行舉報，屍體死了多久等等...",
+  "AbilityButtonText.Scientist": "心電圖",
   "Scout": "正義的追蹤者",
   "ScoutInfo": "追蹤其他玩家",
   "ScoutInfoLong": "(船員陣營):\\n正義的追蹤者可以透過在會議上投票給某位玩家來對他進行追蹤，之後正義的追蹤者可以看到指向目標的箭頭。此外，根據房主設定，正義的追蹤者可以在會議上看到目標的最後位置。",
@@ -1323,7 +1312,7 @@
   "SecurityGuardSkillStop": "技能已失效",
   "SecurityGuardVentButtonText": "<size=0>.</size>",
   "Sensor": "感測器",
-  "SensorInfo": "當有人進行破壞，你可以看到提示箭頭指著他們",
+  "SensorInfo": "得到指向呼叫破壞的人",
   "SensorInfoLong": "(船員陣營):\\n作為感測器，每當有人進行破壞時，你都會得到一個指向他們的臨時箭頭。",
   "Sensor.ArrowDuration": "箭頭持續時間",
   "Sentinel": "哨兵",
@@ -1420,7 +1409,7 @@
   "Spiritualist": "靈魂論者",
   "SpiritualistInfo": "幽靈把你引向死亡?",
   "SpiritualistInfoLong": "(船員陣營):\\n靈魂論者會得到一個指向上一次會議被報告屍體的靈魂，這個靈魂可能會把你帶向壞人，亦或著誤導你。",
-  "SpiritualistNoticeMessage": "靈魂論者有箭頭指向你!\\n你可以把他們帶到殺手那裡或者陷害船員",
+  "SpiritualistNoticeMessage": "The Spiritualist has an arrow pointing to you!\\nYou can use them to point out a killer or frame a crewmate",
   "SpiritualistShowGhostArrowEverySeconds": "靈魂箭頭延遲",
   "SpiritualistShowGhostArrowForSeconds": "靈魂箭頭持續時間",
   "SpiritualistTargetMessage": "<color=#ffff00>靈魂論者有一個指向你的箭頭</color>",
@@ -1432,6 +1421,15 @@
   "SuperStarInfo": "我是明日之星!",
   "SuperStarInfoLong": "(船員陣營):\\n大明星不能在兩個以上的人群中被殺，且所有玩家都知道誰是大明星(用★標示)，任何賭怪都不能猜測大明星",
   "SuperStarDead": "震驚! 知名網紅【<b>{0}</b>】在最近一段時間內不幸遇害！",
+  "Survivor": "Survivor",
+  "SurvivorInfo": "With each fallen crew, I get stronger",
+  "SurvivorInfoLong": "(Crewmates):\\nThe Survivor will get abilities with each set amount of players left in the game.\\n\\n- 1st Ability: See the number of alive players left in real time.\\n- 2nd Ability: Vent/Vanish to give yourself a temporary shield.\\n- 3rd Ability: An additional set amount of votes.\\n- Last Ability: Finish tasks to gain a Kill button.\\n\\nNote: All abilities are stackable, separated, and can shuffle their order if wanted, as well as disable them by set the required amount of players needed to 0 or 1.",
+  "SurvivorFirstAbility": "Number of players left to get 1st Ability",
+  "SurvivorSecondAbility": "Number of players left to get 2nd Ability",
+  "SurvivorThirdAbility": "Number of players left to get 3rd Ability",
+  "SurvivorLastAbility": "Number of players left to get Last Ability",
+  "SurvivorCurrentAlive": "- Alive Players:",
+  "SurvivorCantKillYet": "The current number of players is greater than your killing requirement, which means you cannot kill yet.",
   "Swapper": "換票師",
   "SwapperInfo": "交換兩名玩家的票數",
   "SwapperInfoLong": "(船員陣營):\\n換票師可以在會議期間使用<b>/sw <color=#0000ff>[ID]</color></b>兩次來交換兩名玩家的票數\\n你可以在玩家名字前看到該玩家的ID，或使用/id來查詢所有玩家的編號。\\n\\n例子:如果有三個玩家投票給紅色，有五個玩家投票給黃色，然後你選擇交換紅色與黃色的票數。則紅色獲得五票，黃色獲得三票\\n\\n由於技術限制，交換房主的票時看起來沒有交換，但其實已經換過去了。",
@@ -1447,6 +1445,9 @@
   "SwapperManipulatedEjection": "感謝 {0}",
   "SwapperMax": "初始最大換票次數",
   "SwapperTrialMax": "已達到技能使用次數上限",
+  "Tar": "Tar",
+  "TarInfo": "Avoid Kills",
+  "TarInfoLong": "(Crewmates):\\nAs the Tar, you can pet to activate your ability. This will freeze and blind you, and set your skin color to black for a set time. If someone tries to kill you during this time, it gets blocked, the killer gets teleported away, and your ability ends instantly.",
   "TaskManager": "任務管理員",
   "TaskManagerInfo": "你們的任務究竟做了多少呢?",
   "TaskManagerInfoLong": "(船員陣營):\\n任務管理員可以在名字旁看到所有人已完成的任務總數，並且會實時更新。",
@@ -1519,9 +1520,17 @@
   "Tracefinder": "尋跡者",
   "TracefinderInfo": "看見屍體的位置",
   "TracefinderInfoLong": "(船員陣營):\\n尋跡者擁有隨身心電圖，此外，你會獲得指向屍體的箭頭。",
+  "Tracker": "追蹤者",
   "TrackerEHR": "追蹤者",
   "TrackerEHRInfo": "在地圖上追蹤玩家",
   "TrackerEHRInfoLong": "(船員陣營):\\n追蹤者可以使用追蹤按鈕追蹤玩家，並在地圖上查看他們的位置。",
+  "TrackerCanGetArrowColor": "可以看到有顏色的箭頭",
+  "TrackerCooldown": "追蹤冷卻時間",
+  "TrackerDelay": "追蹤延遲",
+  "TrackerDuration": "追蹤持續時間",
+  "TrackerHideVote": "隱藏<color=#3CB371>正義的追蹤者</color>的投票",
+  "TrackerLastRoomMessage": "你追蹤的目標最後在的房間是:<b>{0}</b>",
+  "AbilityButtonText.Tracker": "追蹤",
   "Transmitter": "發送者",
   "TransmitterInfo": "將自己作為禮物發送出去?",
   "TransmitterInfoLong": "(船員陣營):\\n發送者每完成一項任務就會被傳送至最近的玩家。",
@@ -1608,11 +1617,11 @@
   "Wizard.BuffGivenNotify": "<#00ffa5>{0} 的 <#ffffff>{1}</color> 已設為 <#ffffff>{2}</color></color>",
   "Wizard.KCDStep": "一次增加擊殺冷卻數據的值的數量",
   "Wizard.MaxKCDValue": "可以給予玩家的最小殺大冷卻時間",
-  "Wizard.MaxSpeedValue": "可以給予玩家的最小速度",
-  "Wizard.MaxVisionValue": "可以給予玩家的最小視野",
+  "Wizard.MaxSpeedValue": "可以給予玩家的最大速度",
+  "Wizard.MaxVisionValue": "可以給予玩家的最大視野",
   "Wizard.MinKCDValue": "可以給予玩家的最小殺人冷卻時間",
-  "Wizard.MinSpeedValue": "可以給予玩家的最大速度",
-  "Wizard.MinVisionValue": "可以給予玩家的最大視野",
+  "Wizard.MinSpeedValue": "可以給玩家的最低速度",
+  "Wizard.MinVisionValue": "可以給予玩家的最小視野",
   "Wizard.SelectedBuff": "<#00ffa5>當前選擇的屬性:</color> <b>{0}</b> {1}{2}",
   "Wizard.SpeedStep": "一次增加速度數據的值的數量",
   "Wizard.Vision": "視野",
@@ -1638,8 +1647,6 @@
   "Anonymous": "駭客",
   "AnonymousInfo": "強制其他玩家報告屍體",
   "AnonymousInfoLong": "(偽裝者陣營):\\n駭客可以使用變形來駭入他變形的目標，被駭入的目標將會立刻報告本輪駭客殺死的被害者屍體，如果這輪駭客沒有殺死任何人，那麼將隨機報告場上的屍體，如果這輪根本沒有屍體，那麼被駭入的目標將自我報告。\\n請注意: 駭客的技能可以無視屍體是否可以被報告(也可以報告已被清除者清理過的屍體，或是清道夫殺人被傳送到地圖外面的屍體)\\n請注意: 駭入擺爛人並不會發動技能。",
-  "AnonymousBodies": "匿名實體",
-  "AnonymousKillerCount": "隱藏邪惡玩家數量",
   "AnonymousShapeshiftText": "駭入",
   "AntiAdminer": "監管者",
   "AntiAdminerInfo": "沒人能逃過你的眼睛",
@@ -1651,7 +1658,6 @@
   "Arrogance": "狂妄殺手",
   "ArroganceInfo": "殺死你的敵人可以將冷卻縮短",
   "ArroganceInfoLong": "(偽裝者陣營):\\n狂妄殺手每次殺人都會減少他的殺人冷卻。",
-  "ArroganceDefaultKillCooldown": "初始殺人冷卻時間",
   "ArroganceMinKillCooldown": "殺人冷卻時間下限",
   "ArroganceReduceKillCooldown": "減少的冷卻時間",
   "ArroganceShowProgressText": "在名稱下方顯示擊殺冷卻時間減少",
@@ -1680,7 +1686,7 @@
   "BomberInfo": "Creeper? Aww Man...",
   "BomberInfoLong": "(偽裝者陣營):\\n自爆兵能使用變形/寵物來炸死一定範圍內的玩家，但是作為代價，自爆兵自己也會被炸死。請注意: 自爆兵爆炸時全部玩家會看到螢幕閃爍作為提示(這個閃爍是跟網紅一樣的，請注意區別)。",
   "BomberCooldownsResetEachOther": "擊殺冷卻時間和炸彈冷卻時間在使用時相互重置",
-  "BomberDiesInExplosion": "<color=#ff1919>自爆兵</color>會在爆炸中死亡",
+  "BomberDiesInExplosion": "<#ff1919>自爆兵</color>會在爆炸中死亡",
   "BomberRadius": "爆炸範圍 (5x能炸半個餐廳)",
   "BomberShapeshiftText": "自爆",
   "BountyHunter": "賞金獵人",
@@ -1720,6 +1726,19 @@
   "CentralizerInfo": "集中船員的位置",
   "CentralizerInfoLong": "(偽裝者陣營):\\n作為集中器，標記一個位置。 然後再次使用你的能力將一定數量的玩家傳送到該位置。 你也可能被包括在內。",
   "Centralizer.NumPlayersTeleported": "傳送的玩家數量",
+  "Chainbinder": "Chainbinder",
+  "ChainbinderInfo": "Chain nearby players together",
+  "ChainbinderInfoLong": "(Impostors):\\nAs the Chainbinder, use your ability to chain two nearby players together for a short time. When they move too far apart, they are pulled back toward each other. With shapeshift basis, the selected player becomes part of the chain; with pets enabled, the two nearest valid players around you are chained instead. You can still kill normally.",
+  "Chainbinder.NotEnoughTargets": "Not enough valid players nearby to form a chain",
+  "Chainbinder.PairBound": "Chain formed: {0} and {1}",
+  "Chainbinder.PairEnded": "Your chain ended",
+  "Chainbinder.PairSuffix": "Chain: {0} <> {1}",
+  "ChainbinderButtonText": "Chain",
+  "ChainbinderCooldown": "Chain Cooldown",
+  "ChainbinderDuration": "Chain Duration",
+  "ChainbinderBindRange": "Chain Range",
+  "ChainbinderMaxDistance": "Max Distance Before Pull",
+  "ChainbinderCanBindImpostors": "Can Chain Fellow Impostors",
   "Changeling": "變幻者",
   "ChangelingInfo": "變幻無窮",
   "ChangelingInfoLong": "(偽裝者陣營):\\n變幻者可以透過使用通風口/撫摸寵物以在可用的偽裝者職業之間循環切換。你能在你的名字下方看到當前所選的職業。使用變形來確認你的選擇。之後你的職業會變成你所選的職業。",
@@ -1776,7 +1795,6 @@
   "CouncillorMakeEvilJudgeClear": "謀殺訊息與法官做出區分",
   "CouncillorMurderMax": "很抱歉，你已經達到謀殺的最大次數",
   "CouncillorMurderMaxMeeting": "很抱歉，你已經達到謀殺的最大次數",
-  "CouncillorTryHideMsg": "嘗試隱藏議員指令",
   "Crewpostor": "船鬼",
   "CrewpostorInfo": "誰又能知道我是披著船員皮的偽裝者呢?",
   "CrewpostorInfoLong": "(叛徒陣營):\\n船鬼完成一項任務時，你就會殺死最近的玩家。",
@@ -1859,6 +1877,11 @@
   "Exclusionary.CooldownAfterExclusion": "排除後的冷卻時間",
   "Exclusionary.ExclusionDelay": "排除延遲",
   "Exclusionary.ExclusionDuration": "排除時間",
+  "Exorcist": "Exorcist",
+  "ExorcistInfo": "Kill Mindless Chatters",
+  "ExorcistInfoLong": "(Impostors):\\nAs the Exorcist, you can use <b>/cmd exo</b> in a meeting to activate your ability (everyone is notified about it). Anyone who sends a chat message during your ability dies instantly.",
+  "Exorcist.AbilityUsedMsg": "<b><#ff5555>Anyone who sends a message in the next <#000000>{0}</color> seconds will die!",
+  "Exorcist.AbilityEnded": "<#00bb00>Messages can be sent again!",
   "Fabricator": "製造商",
   "FabricatorInfo": "更換死亡原因",
   "FabricatorInfoLong": "(偽裝者陣營):\\n作為製造商，你可以使用 <b>/fabricate {deathreason}</b> 來設定你下次擊殺的死亡原因。請將“{deathreason}”替換為模組中可用的死亡原因之一。",
@@ -1888,6 +1911,10 @@
   "Freezer": "凍結者",
   "FreezerInfo": "凍結玩家",
   "FreezerInfoLong": "(偽裝者陣營):\\n凍結者可以透過使用變形來將一名玩家凍結在原地一段時間無法移動。",
+  "Frightener": "Frightener",
+  "FrightenerInfo": "Prevent Players From Reporting",
+  "FrightenerInfoLong": "(Impostors):\\nAs the Frightener, you can shapeshift into a player to alarm them for some time. Alarmed players can't report bodies (or even call meetings), else they die.",
+  "Frightener.KillOnEmergencyMeetingCall": "Alarmed Players Die When Calling an Emergency Meeting",
   "Gambler": "賭徒",
   "GamblerInfo": "『領域展開．坐殺博徒』",
   "GamblerInfoLong": "(偽裝者陣營):\\n賭徒每次擊殺後都會發生隨機事件。這些效果可以是自我報告或是額外的狙擊手狙擊之間的任何效果。",
@@ -1968,9 +1995,11 @@
   "Hypocrite.NonImpGetsNotifyWhenLowTasks": "當<#ff1919>偽軍子</color>剩餘任務數量較少時，非偽裝者陣營會收到通知",
   "Hypocrite.NotifyAtXTasksLeft": "通知時剩下的任務數量",
   "HypocriteHasXTasksLeft": "<size=80%><#ffff44>{0} 是 <#ff1919>偽軍子</color>，剩下 <#ff1919>{1}</color> 個任務！ </color></size>",
+  "Impostor": "偽裝者",
   "ImpostorEHR": "偽裝者",
   "ImpostorEHRInfo": "殺人並破壞",
   "ImpostorEHRInfoLong": "(偽裝者陣營):\\n作為偽裝者，你的目標很簡單: 殺光船員\\n你可以破壞以及使用通風口。",
+  "AbilityButtonText.Impostor": "作祟",
   "Inhibitor": "抑鬱者",
   "InhibitorInfo": "你無法在破壞期間殺人",
   "InhibitorInfoLong": "(偽裝者陣營)：\\n作為抑制者，你只能在沒有嚴重破壞活動(例如，燈光或反應爐)時擊殺。",
@@ -2072,6 +2101,10 @@
   "NullifierInfoLong": "(偽裝者陣營):\\n銷毀者可以單擊擊殺來刪除一次船員的技能次數(如果他們有)，雙擊正常擊殺。\\n\\n請注意: 你不會知道目標是否有技能使用次數限制，但他們可能會知道技能被刪除，請小心!",
   "NullifierDelay": "刪除延遲時間",
   "NullifierUseRemoved": "刪除成功",
+  "Obstructer": "Obstructer",
+  "ObstructerInfo": "Slow Players Down During Sabotages",
+  "ObstructerInfoLong": "(Impostors):\\nAs the Obstructer, whenever you cause a sabotage, everyone starts to slow down every second, and you have a reduced kill cooldown during the sabotage.",
+  "Obstructer.SpeedReductionPerSecond": "Speed Reduction Per Second",
   "Occultist": "大祭司",
   "OccultistInfo": "復活你的隊友",
   "OccultistInfoLong": "(偽裝者陣營):\\n大祭司的報告按鈕有兩種可以切換的模式: 復活及報告。在報告模式下，你會正常報告屍體。但當你在復活狀態下嘗試報告屍體時，你會將其復活並將他轉變為逃亡者/叛徒附加職業 (如果他們不是偽裝者)",
@@ -2114,11 +2147,13 @@
   "Perplexer": "迷惑者",
   "PerplexerInfo": "反轉玩家的移動控制",
   "PerplexerInfoLong": "(偽裝者陣營):\\n作為迷惑者，使用你的變形選單選擇一名玩家。該玩家的移動控制將在一段時間內反轉。",
+  "Phantom": "魅影",
   "PhantomEHR": "魅影",
   "PhantomEHRInfo": "將自己轉變為隱身狀態",
   "PhantomEHRInfoLong": "(偽裝者陣營):\\n魅影可以使用技能進行隱身來躲避擊殺。如果你想在時間結束前顯形，可以點擊顯形按鈕。\\n請注意: 當你隱身或顯形時會產生對所有人可見的煙霧，因此請你在沒有人的區域進行隱身。",
   "PhantomCooldown": "隱身冷卻時間",
   "PhantomDuration": "隱身持續時間",
+  "AbilityButtonText.Phantom": "隱形",
   "Postponer": "延緩者",
   "PostponerInfo": "延後屍體生成",
   "PostponerInfoLong": "(偽裝者陣營):\\n作為延緩者，當你殺人時，屍體不會立即出現。而是會在一段時間後出現（與殺人地點相同）。",
@@ -2172,9 +2207,11 @@
   "ScavengerInfo": "殺人不留痕跡",
   "ScavengerInfoLong": "(偽裝者陣營):\\n清道夫在殺人之後不會留下屍體。此外如果受害者為誘餌，則清道夫不會報告誘餌的屍體。但是要使用擊殺能力時需要在使用擊殺後在該玩家附近停留幾秒(就像縱火犯的塗油一樣)。",
   "ScavengerKillDuration": "擊殺後的冷卻時間",
+  "Shapeshifter": "變形者",
   "ShapeshifterEHR": "變形者",
   "ShapeshifterEHRInfo": "隨時隨地存取心電圖",
   "ShapeshifterEHRInfoLong": "(偽裝者陣營):\\n變形者可以使用他的技能以偽裝成其他船員。\\n請注意: 變形時會出現動畫(所有人可見)，以及你的偽裝是暫時的。",
+  "AbilityButtonText.Shapeshifter": "變形",
   "Silencer": "消聲者",
   "SilencerInfo": "噓! 別講話...",
   "SilencerInfoLong": "(偽裝者陣營):\\n當消聲者變形時，會靜音該名玩家。被靜音的玩家將不能在會議上發言。\\n\\n被靜音的玩家試圖說話會觸發混亂指令，所以請被靜音的玩家看到自己被靜音後不要說話。",
@@ -2276,9 +2313,12 @@
   "Vindicator": "衛道士",
   "VindicatorInfo": "用你額外的票數殺死所有人",
   "VindicatorInfoLong": "(偽裝者陣營):\\n衛道士在投票時一票算做多票，就像市長一樣。",
+  "Viper": "毒蛇",
   "ViperEHR": "毒蛇",
   "ViperEHRInfo": "擊殺可溶解屍體",
   "ViperEHRInfoLong": "(偽裝者陣營):\\n作為毒蛇，你留下的屍體會因你的酸液而緩慢溶解，最終消失且無法舉報。\n\n<color=#ff0000><size=75%>目前，由於同步問題，警長等職業可能仍然能夠從他們的視角看到被溶解的屍體。 </size></color>",
+  "ViperDissolveTime": "溶解時間",
+  "AbilityButtonText.Viper": "酸液",
   "Visionary": "幻想家",
   "VisionaryInfo": "所有人的陣營通通一覽無遺",
   "VisionaryInfoLong": "(偽裝者陣營):\\n幻想家可以透過變形為某人來得知他的陣營，每次殺人都會增加一次技能次數。 \\n被使用技能的玩家將用名字顏色來顯示(<#8cffff>船員</color>/<#ff1919>偽裝者</color>/<#ffab1b>中立</color>/<#7b3fbb>女巫陣營</color>)。",
@@ -2470,6 +2510,10 @@
   "BerserkerInfo": "如果別人殺的人比你多，那就狂暴吧",
   "BerserkerInfoLong": "(中立陣營):\\n作為狂暴者，每次其他人進行擊殺，你的力量都會增強：\\n<size=80%>1：擊殺範圍更遠\\n2：擊殺冷卻時間更短\\n3：獲得偽裝者視野\\n4：免疫擊殺\\n5：自殺</size>\\n如果你進行擊殺，你的力量等級就會下降一級。殺光所有人才能獲勝！",
   "Berserker.LowerKillCooldown": "更短的擊殺冷卻",
+  "Blockade": "Blockade",
+  "BlockadeInfo": "Place Blockades",
+  "BlockadeInfoLong": "(Neutrals):\\nAs the Blockade, you can vanish/pet/shapeshift to place blockades. No one other than you can go through them. All blockades disappear when a meeting starts.",
+  "Blockade.BlockadeRadius": "Blockade Radius",
   "BloodKnight": "嗜血騎士",
   "BloodKnightInfo": "先下手為強也是個不錯的選擇",
   "BloodKnightInfoLong": "(中立陣營):\\n嗜血騎士每次殺人後都可以獲得一定時間的護盾，護盾可以抵擋掉所有正常殺人的舉動，直到護盾時間結束並失效。當只剩下嗜血騎士陣營與船員陣營且嗜血騎士陣營人數大於船員陣營，則嗜血騎士方獲勝",
@@ -2580,7 +2624,6 @@
   "DoomsayerMaxNumberOfGuessesPerMeeting": "每個會議最多猜測次數",
   "DoomsayerMisguessRolePrevGuessRoleUntilNextMeeting": "猜錯職業時會阻止其繼續猜測直到下次會議",
   "DoomsayerNotCorrectlyGuessRole": "你沒有猜對該玩家的職業！\\n但你沒有死亡，因為房主設定不允許你死亡",
-  "DoomsayerTryHideMsg": "隱藏<color=#14f786>賭神</color>的指令",
   "Doppelganger": "分身者",
   "DoppelgangerInfo": "竊取你的目標的特徵",
   "DoppelgangerInfoLong": "(中立陣營):\\n分身者在殺死玩家時將會偷走他們的名字與外觀，殺光所有人來獲勝。\\n\\n請注意: 你無法在隱蔽效果期間偷取目標的特徵。",
@@ -2604,7 +2647,7 @@
   "EndermanSecondsBeforeTP": "在標記的幾秒後傳送",
   "Evolver": "進化者",
   "EvolverInfo": "選擇你的進化",
-  "EvolverInfoLong": "(中立陣營):\\n進化者可以在每次會議後選擇增益，使用撫摸寵物來切換可選擇的能力，當選擇時間結束時，進化就會生效(同樣的增益可以多次選擇)\\n\\n<size=70%><b><u>進化列表:</u></b>\\n- 減少冷卻時間(減少2.5s)\\n- 獲得偽裝者視野 (不受燈光破壞限制)\\n- 增加視野(增加0.4x)\\n- 增加速度(增加0.25x)\\n- 增加殺人距離(短-->中-->長)\\n- 獲得使用通風口能力 (一次)\\n- 增加通風口使用上限 (三次)\\n- 獲得破壞能力 (一次)\\n- 增加破壞使用上限 (二次)\\n- 獲得護盾 (該輪不可被殺)</size>\\n\\n<u><b>請注意:</b></u>\\n如果你可以使用通風口，你的能力次數將會顯示在職業旁邊: <b>(V: 1)</b> - 破壞能力也相同: <b>(S: 2)</b>",
+  "EvolverInfoLong": "(Neutrals):\\nAs the Evolver, you can choose an upgrade after each meeting. Pet to cycle between the available upgrades. The same upgrade can appear multiple times. Once the timer to pick ends, your upgrade will be applied.\\n\\n<size=70%><b><u>Upgrades:</u></b>\\n- Decrease Kill Cooldown (by 5s)\\n- Gain Impostor Vision (unaffected by lights sabotage)\\n- Increase Vision (by 0.6x)\\n- Increase Speed (by 0.5x)\\n- Increase Kill Distance (Short → Medium → Long)\\n- Gain Venting Ability (and 3 uses)\\n- Increase Venting Use Limit (by 10)\\n- Gain Sabotage Ability (and 2 uses)\\n- Increase Sabotage Use Limit (by 5)\\n- Gain Shield (cannot be killed in the current round)</size>\\n\\n<u><b>Remarks:</b></u>\\nIf you can vent, the number of vent uses you have is displayed next to your role name like this: <b>(V: 1)</b> - Same with the sabotage use limit: <b>(S: 2)</b>",
   "EvolverProgress.Sabotage": " (S: {0})",
   "EvolverProgress.Vent": " (V: {0})",
   "EvolverSuffix": "<size=85%>選擇的能力將在<#00ffa5>{0}秒後生效</color>\\n當前選擇能力: <#00ffa5>{1}</color> (撫摸寵物來切換)\\n<size=70%>可選的能力: <#00ffa5>{2}</color></size></size>",
@@ -2657,7 +2700,7 @@
   "GaslighterWinCondition.LastStanding": "<#ffab1b>殺死所有人</color>",
   "Glitch": "故障者",
   "GlitchInfo": "破壞並殺死所有人",
-  "GlitchInfoLong": "(中立陣營):\\n故障者可以駭入玩家，玩家在被駭入期間無法殺人，使用通風口，和舉報屍體。\\n\\n單點殺人鍵駭入&雙點殺人鍵殺人。\\n此外，故障者可以使用破壞或者使用寵物來在一定時間內變形成一個隨機的玩家(破壞並不會真正發生)。\\n\\n殺光<b>所有人</b>來獲勝。",
+  "GlitchInfoLong": "(Neutrals):\\nAs the Glitch, your goal is to kill everyone on the ship. You can hack players to prevent them from killing, venting, sabotaging, and reporting dead bodies for a limited time by single clicking on them with your kill button. Double click with it to kill them normally. You can also disguise by shapeshifting for a limited time. Additionally, your cooldowns go down while in vents.",
   "GlitchCanVote": "可以投票",
   "God": "神",
   "GodInfo": "一切都在您的掌控之中",
@@ -2737,6 +2780,38 @@
   "JackalCanRecruitMadmates": "<color=#ff1919>叛徒</color>可以被招募成跟班",
   "JackalCanRecruitSidekick": "可以招募<color=#00b4eb>跟班</color>",
   "JackalSidekick": "不允許豺狼/跟班之間的互動",
+  "Jackpot": "Jackpot",
+  "JackpotInfo": "Open a gambling domain and spin for a jackpot",
+  "JackpotInfoLong": "(Neutrals):\\nAs Jackpot, use the Jackpot button to open a domain where spins happen automatically every few seconds. A miss costs money and raises your next jackpot chance. A near miss gives you a short buff and raises the next jackpot chance even more. Hitting the jackpot gives you a short burst of overwhelming power: near-instant kills, boosted speed, boosted vision, and temporary kill immunity. If you run out of money before you hit, you die.",
+  "JackpotButtonText": "Jackpot",
+  "Jackpot.StartingMoney": "Starting Money",
+  "Jackpot.MoneyPerKill": "Money Gained Per Kill",
+  "Jackpot.MissCost": "Money Lost On Miss",
+  "Jackpot.SpinInterval": "Spin Interval",
+  "Jackpot.BaseChance": "Base Jackpot Chance",
+  "Jackpot.MissChanceIncrease": "Jackpot Chance Increase Per Miss",
+  "Jackpot.NearChance": "Near Miss Chance",
+  "Jackpot.NearChanceIncrease": "Jackpot Chance Increase On Near Miss",
+  "Jackpot.NearDuration": "Near Miss Buff Duration",
+  "Jackpot.NearSpeed": "Near Miss Speed",
+  "Jackpot.NearVision": "Near Miss Vision",
+  "Jackpot.Duration": "Jackpot Duration",
+  "Jackpot.Speed": "Jackpot Speed",
+  "Jackpot.Vision": "Jackpot Vision",
+  "Jackpot.GameRulesTransmitted": "GAME RULES HAVE BEEN TRANSMITTED",
+  "Jackpot.DomainStarted": "The domain is live. Spins will roll every {0}s.",
+  "Jackpot.DomainAlreadyActive": "Your jackpot sequence is already active",
+  "Jackpot.KillReward": "+${0} from that kill. Money: ${1}",
+  "Jackpot.Spin.Miss": "<size=120%>MISS</size>\\nLost ${0}. Money: ${1}. Next jackpot chance: {2}%",
+  "Jackpot.Spin.Near": "<size=120%>NEAR MISS</size>\\nBuffed for {0}s. Money: ${1}. Next jackpot chance: {2}%",
+  "Jackpot.Spin.Jackpot": "JACKPOT!",
+  "Jackpot.JackpotState": "Unlimited pressure for {0}s.",
+  "Jackpot.OutOfMoney": "You ran out of money and busted.",
+  "Jackpot.JackpotEnded": "The jackpot ended. You can start spinning again.",
+  "Jackpot.Progress.Ready": "${0} | {1}% | READY",
+  "Jackpot.Progress.Spin": "${0} | {1}% | SPIN",
+  "Jackpot.Progress.Near": "${0} | {1}% | NEAR",
+  "Jackpot.Progress.Jackpot": "${0} | JACKPOT {1}s",
   "Jester": "小丑",
   "JesterInfo": "想個辦法讓你被投出去",
   "JesterInfoLong": "(中立陣營):\\n如果小丑被票出時則小丑單獨獲勝。如果遊戲結束時小丑仍然存活則失敗。\\n請注意: 小丑、暴民、冤罪師可以一同獲勝。",
@@ -2857,7 +2932,7 @@
   "ImmuneToAttacksWhenTasksDone": "完成任務後免疫擊殺",
   "Patroller": "巡邏員",
   "PatrollerInfo": "四處巡邏",
-  "PatrollerInfoLong": "(中立陣營):\\n巡邏員在每個房間內都有不同的提升。每局遊戲的每個房間的效果都不一樣。且每回合你可以從任何房間自由使用通風口一次。 \\n\\n殺死所有人即可獲勝！\\n根據設定，你可以透過撫摸寵物來查看當前的增強效果。",
+  "PatrollerInfoLong": "(中立陣營):\\n巡邏員在每個房間內都有不同的提升。每局遊戲的每個房間的效果都不一樣。且每回合你可以從任何房間自由使用通風口一次。 \\n\\n殺死所有人即可獲勝！\\n根據設定，你可以透過撫摸寵物來查看當前的增強效果。\n\n你可以獲得以下增益效果：\n速度提升\n擊殺冷卻時間縮短\n擊殺範圍擴大\n視野範圍擴大\n跳管能力\n破壞能力",
   "PatrollerBoost.Cooldown": "你有 <color=#00ffa5>更低的擊殺冷卻時間</color>",
   "PatrollerBoost.Range": "你有<color=#00ffa5>更遠的擊殺距離</color>",
   "PatrollerBoost.Sabotage": "<color=#00ffa5>你可以破壞</color>",
@@ -2868,10 +2943,10 @@
   "PatrollerNotifyNoBoost": "你現在在<color=#00ffa5>{0}</color>\\n在這個房間內，你獲得了<#ff0000>無增益</color>",
   "Pawn": "棋子",
   "PawnInfo": "不過是任人擺布?",
-  "PawnInfoLong": "(Neutrals):\\nAs the Pawn, you must complete all of your tasks, then use <b>/cmd choose {role}</b> to pick your role. (Alternatively, you can use the command earlier, and the system will change your role when you finish tasks.)\\n\\n(Replace {role} with the name of the role that you want to become.) (You can only choose roles that are enabled.)\\nYou lose if you have this role when the game ends.",
+  "PawnInfoLong": "(中立陣營):\\n棋子可以在完成所有任務後使用<b>/choose {role}</b> 來轉變職業(或者，您可以更早使用該命令，系統會在您完成任務後更改您的職業。)\\n\\n(將{role}替換成你想成為的職業名稱) (你只能選擇已啟用的職業)\\n如果你在遊戲結束時保持這個職業，你就輸了。",
   "Pawn.KeepsGameGoing": "讓遊戲繼續進行",
-  "PawnChooseFail": "<#ff5555>X <#bb0000>Please enter a valid role that is enabled.",
-  "PawnChosenRole": "<#00ff00>✓ <#00bb00>Your role will become {0} after the meeting if your tasks are done.",
+  "PawnChooseFail": "<#ff5555>X <#bb0000>請輸入一個已啟用的有效職業。",
+  "PawnChosenRole": "<#00ff00>✓ <#00bb00>如果您的任務已完成，會議結束後您的職業將變為 {0}。",
   "Pelican": "鵜鶘",
   "PelicanInfo": "好吃欸這個人",
   "PelicanInfoLong": "(中立陣營):\\n鵜鶘可以對某一位玩家使用殺人鍵來活吞該玩家，被活吞的玩家將會被傳送到地圖外並且無法與遊戲互動，活吞成功後鵜鶘將會看到自己身上出現盾牌破碎的效果作為提示。進入會議時將導致所有被鵜鶘吞下的玩家立刻死亡，若鵜鶘死亡或斷線，則被鵜鶘吞下的玩家將會立刻傳送到鵜鶘死亡的位置並可以再次與遊戲互動。當只剩下鵜鶘與船員陣營且鵜鶘陣營人數大於船員陣營人數，則鵜鶘獲得勝利。\\n請注意: 鵜鶘活吞玩家不是正常的殺人方式，因此老兵、保鑣等技能不會生效。",
@@ -3402,6 +3477,16 @@
   "ReaperInfo": "詛咒，收集靈魂，成為死神",
   "ReaperInfoLong": "(巫師陣營):\\n詛咒一名玩家；當被詛咒的玩家死亡時，你會獲得一個靈魂。當靈魂數量達到特定值（由房主設定）(或是如果你是最後一個殺手)時，你會化為死神。你無法使用《死靈之書》來增強你的力量。",
   "Reaper.SoulsRequired": "轉化為死神所需靈魂數量",
+  "Shadow": "Shadow",
+  "ShadowInfo": "Eliminate players from the shadows",
+  "ShadowInfoLong": "(Coven):\\nVanish to camouflage yourself. You may be able to camouflage your team using your kill button on them. With the Necronomicon, you can kill, and become invisible after doing so. Your camouflaging abilities may be switched to invisibility as well. (With the ability to camouflage your teammates, single click with your kill button to use it, and double click with it to kill normally.)",
+  "Shadow.SelfCamoCooldown": "Self Camouflage Cooldown",
+  "Shadow.SelfCamoDuration": "Self Camouflage Duration",
+  "Shadow.CanCamoOthersWithKillButton": "Can Camouflage Other <#7b3fbb>Coven Members</color> Via Kill Button",
+  "Shadow.OthersCooldown": "Cooldown For Camouflaging Others",
+  "Shadow.OthersCamoDuration": "Duration Of Others' Camouflage",
+  "Shadow.InvisDuration": "Invisibility Duration",
+  "Shadow.SwitchCamoAbilityToInvisWithNecronomicon": "Switch Camouflaging Ability To Invisibility Upon Gaining The Necronomicon",
   "Siren": "海妖",
   "SirenInfo": "透過唱歌轉變",
   "SirenInfoLong": "(巫師陣營):\\n海妖的聲音令人著迷。使用歌唱技能（透過消失按鈕）可以影響附近的玩家。 \\n- 第一次聽到海妖的聲音時，非女巫集會的玩家會短暫失明並減速。 \\n- 第二次聽到海妖的聲音時，他們再次失明並減速，並且暫時無法報告屍體。 \\n- 第三次聽到海妖的聲音時，他們會進入入迷狀態，皈依女巫集會。 \\n\\n擁有死靈之書後，海妖可以正常殺戮，並且她的歌唱效果會提升兩個階段：\\n- 未聽過任何歌曲的玩家會被視為聽過兩首歌曲。 \\n- 聽過一首歌的玩家會被視為聽過三首歌曲並進入入迷狀態。 \\n海妖會在每位玩家名字附近看到一個追蹤器，顯示他們目前的階段（0/3、1/3、2/3、入迷）。",
@@ -3465,6 +3550,9 @@
   /* ==============================
     Roles (Add-ons)
   ============================== */
+  "Absorber": "吸收者",
+  "AbsorberInfo": "報告屍體來吸收技能使用次數",
+  "AbsorberInfoLong": "(附加職業):\\n作為吸收者，你可以透過報告屍體從死亡玩家身上獲得最多 1 次技能使用次數。",
   "Aide": "助手",
   "AideInfo": "你無法破壞",
   "AideInfoLong": "(附加職業):\\n你無法破壞.",
@@ -3573,6 +3661,9 @@
   "Concealer": "遮瑕師",
   "ConcealerInfo": "你的擊殺是匿名的",
   "ConcealerInfoLong": "(附加職業):\\n作為遮瑕師，你擊殺的每個屍體都將是匿名的。",
+  "Constricted": "收縮",
+  "ConstrictedInfo": "你只有非常短的擊殺距離",
+  "ConstrictedInfoLong": "(附加職業):\\n只有擁有擊殺按鈕的職業才能獲得此附加職業。與其他職業不同，你的擊殺範圍是遊戲中最短的。",
   "Contagious": "被傳染",
   "ContagiousInfo": " 你被病毒感染了",
   "ContagiousInfoLong": "(背叛的附加職業):\\n被授予被傳染附加職業表示你被病原體感染了，你將會加入病毒陣營並離開原先的陣營，依據房主設定，被傳染的玩家可能會在會議後暴斃。",
@@ -3611,6 +3702,9 @@
   "Disregarded": "漠視",
   "DisregardedInfo": "你的屍體無法報告",
   "DisregardedInfoLong": "(附加職業):\\n當你持有漠視附加職業時，你的屍體無法被報告。",
+  "Dizzy": "眩暈",
+  "DizzyInfo": "你可能會打到人群中的其他人…",
+  "DizzyInfoLong": "(附加職業):\\n作為眩暈，如果你的擊殺範圍內有多名玩家，你的擊殺按鈕的目標將在範圍內的玩家之間隨機選擇。",
   "DoubleShot": "專業",
   "DoubleShotInfo": "猜錯了? 還有一次機會呢",
   "DoubleShotInfoLong": "(附加職業):\\n當你持有專業附加職業時，如果你猜測錯職業，你還可以有一次機會猜測，不過下一次猜測仍錯誤的話你仍然會自殺。",
@@ -3627,6 +3721,11 @@
   "Energetic": "充能",
   "EnergeticInfo": "你的技能冷卻更快",
   "EnergeticInfoLong": "(附加職業):\\n充能的技能冷卻時間會減少25%",
+  "Entombed": "埋葬",
+  "EntombedInfo": "無法去特定房間",
+  "EntombedInfoLong": "(附加內職業):\\n擁有埋葬附加職業，你無法進入特定房間。房間每回合隨機產生。如果你執意進入，就會自殺。",
+  "Entombed.SuffixGracePeriod": "這輪，你不能進入 <#bb0000><b>{0}</b></color>\\n將在 <#ffff44><b>{1}</b>秒</color> 後生效",
+  "Entombed.SuffixActive": "<size=80%><#ff5555>X</color> <#bb0000>{0}</color></size>",
   "Entranced": "附魔",
   "EntrancedInfo": "你是 巫師陣營 的一員",
   "EntrancedInfoLong": "(附加職業):\\n你是一位非巫師陣營玩家，但被迷惑了。現在你成為巫師陣營，並與他們一起獲得勝利。",
@@ -3644,7 +3743,7 @@
   "FlashSpeed": "<color=#ff8400>閃電俠</color>移動速度",
   "Fool": "蠢蛋",
   "FoolInfo": "你不會修復燈光和通訊",
-  "FoolInfoLong": "(Add-ons):\\nYou can't fix Lights and Comms sabotages.",
+  "FoolInfoLong": "(附加職業):\\n你不能修理燈光和通訊破壞。 注意:技術員不會得到此職業。",
   "Fragile": "脆弱",
   "FragileInfo": "所有事情都能殺了你",
   "FragileInfoLong": "(附加職業):\\n如果有玩家嘗試殺死持有嬌嫩附加職業的玩家，則持有嬌嫩的玩家將會立刻死亡(即使該職業不能直接殺死你)。",
@@ -3663,14 +3762,7 @@
   "GuesserInfo": "賭博並殺光所有人",
   "GuesserInfoLong": "(附加職業):\\n賭怪可以在會議上猜測某位玩家的職業，正確則會讓猜測目標死亡，錯誤則會自殺，\\n猜測指令為/bt [玩家ID] [職業名](指令開頭的/bt可以替換為/bet、/guess、/gs等)\\n您可以在玩家名字前看到玩家ID，或使用/id來查詢所有玩家的ID。",
   "GuesserCanGuessTimes": "每次會議猜測次數上限",
-  "GuesserDoesntDieOnMisguess": "<color=#f3e304>賭怪不會因猜測錯誤而死</color>",
-  "GuesserMaxKillsPerGame": "每場遊戲最大賭殺數量",
-  "GuesserMaxKillsPerMeeting": "每次會議最大賭殺數量",
-  "GuesserMode": "賭怪模式",
-  "GuesserNumRestrictions": "限制每個陣營的猜測人數",
   "GuesserSuicides": "賭怪在嘗試猜測帶有 <#BAAAE9>防賭</color> 的玩家時自殺",
-  "GuesserTryHideMsg": "嘗試隱藏賭怪指令",
-  "GuessersKeepTheGameGoing": "正義賭怪讓遊戲繼續進行",
   "Haste": "急迫",
   "HasteInfo": "急急急",
   "HasteInfoLong": "(附加職業):\\n急迫者可以在管道內等待冷卻時間。",
@@ -3776,6 +3868,20 @@
   "Reach": "長槍",
   "ReachInfo": "你有更長的殺人距離",
   "ReachInfoLong": "(附加職業):\\n只有擁有殺人鍵的玩家能具有長槍效果。具有長槍效果的玩家殺人距離會比一般人長。",
+  "Reroll": "重擲者",
+  "RerollInfo": "你可以重擲你的職業",
+  "RerollInfoLong": "(附加職業):\\n如果在會議期間使用 /cmd reroll 指令，會議結束後將重新指派職業。如果會議結束後存活，您將從配置的職業池中獲得一個新的職業。如果被放逐，則不會重新分配職業。",
+  "Reroll.SameFactionOnly": "只能成為同一陣營的職業",
+  "Reroll.AnnounceReroll": "重擲職業時通知所有人",
+  "Reroll.OnlyHostEnabledRoles": "只會重擲到房主啟用職業",
+  "Reroll.IgnoreVanillaRoles": "重置職業時忽略原版職業",
+  "Reroll.ConsumeOnSuccess": "成功更改後使用重新擲骰功能",
+  "Reroll.Pending": "你將在會議後重擲職業。",
+  "Reroll.AlreadyQueued": "本次會議已要求重擲。",
+  "Reroll.CommandUnavailable": "你現在不能使用/reroll",
+  "Reroll.Announce": "<b>{0}</b>重擲了他的職業。",
+  "Reroll.SuccessAlive": "你重擲了一個新職業。",
+  "Reroll.Failed": "沒有符合條件的重新註冊職業。",
   "Rookie": "菜鳥",
   "RookieInfo": "菜，就多練",
   "RookieInfoLong": "(附加職業):\\n你不能在第一輪中出刀",
@@ -3829,6 +3935,14 @@
   "Swift": "無影",
   "SwiftInfo": "剛剛什麼東西閃過去了?",
   "SwiftInfoLong": "(附加職業):\\n持有無影附加職業的玩家殺人時不會產生位移。",
+  "Talkative": "Talkative",
+  "TalkativeInfo": "Talkative",
+  "TalkativeInfoLong": "(Add-ons):\\nAs the Talkative, if you send more messages in a meeting than the specified limit in the settings, you suicide.",
+  "Talkative.MaxMessagesPerMeeting": "Max Messages Per Meeting",
+  "Talkative.Died": "{0} talked too much and died.",
+  "Urgent": "Urgent",
+  "UrgentInfo": "You Have +1 Emergency Meeting",
+  "UrgentInfoLong": "(Add-ons):\\nAs the Urgent, you have an extra emergency meeting.",
   "TaskMaster": "任務大師",
   "TaskMasterInfo": "每次會議結束自動完成1項任務",
   "TaskMasterInfoLong": "(附加職業):\\n作為任務大師，您在每次會議結束後將自動完成 1 項任務。",
@@ -3926,6 +4040,18 @@
   "HaunterRevealedYou": "你被噩夢揭示了身分!",
   "HaunterStopped": "<#00ff00>噩夢失去了他的職業!</color>",
   "HaunterStoppedSelf": "<#ff1313>一個偽裝者離你太近了，所以你的職業已被刪除。</color>",
+  "MeetingAngel": "Meeting Angel",
+  "MeetingAngelInfo": "Remove Votes",
+  "MeetingAngelInfoLong": "(Crewmate Ghost):\\nAs the Meeting Angel, you can use your protect button on someone every X meetings (specified by settings) to remove a certain number of votes targeting them.",
+  "MeetingAngel.NumVotesNegated": "移除的投票數",
+  "MeetingAngel.NumMeetingsCooldown": "Per how many meetings can someone be protected",
+  "MeetingAngel.CanProtectOptions.Crewmate": "Can Protect <#8cffff>Crewmates</color>",
+  "MeetingAngel.CanProtectOptions.Impostor": "Can Protect <#ff1919>Impostor</color>",
+  "MeetingAngel.CanProtectOptions.NeutralKilling": "Can Protect <#ffab1b>Neutral</color> <#ff1919>Killers</color>",
+  "MeetingAngel.CanProtectOptions.NeutralEvil": "Can Protect <#ffab1b>Neutral</color> <#ff5555>Evils</color>",
+  "MeetingAngel.CanProtectOptions.NeutralPariah": "可以保護<#ffff44>渾沌</color><#ffab1b>中立</color>",
+  "MeetingAngel.CanProtectOptions.NeutralBenign": "可以保護<#00ffa5>友善</color><#ffab1b>中立</color>",
+  "MeetingAngel.CanProtectOptions.Coven": "可以保護<#7b3fbb>巫師</color>",
   "Minion": "爪牙",
   "MinionInfo": "幫助偽裝者",
   "MinionInfoLong": "(偽裝者陣營 幽靈職業):\\n爪牙可以使用守護鍵來暫時讓一個非偽裝者玩家失明。",
@@ -3995,18 +4121,6 @@
     Ability           
   ============================== */
   "KillButtonText": "擊殺",
-  "AbilityButtonText.Crewmate": "作祟",
-  "AbilityButtonText.Detective": "筆記",
-  "AbilityButtonText.Engineer": "通風口",
-  "AbilityButtonText.GuardianAngel": "守護",
-  "AbilityButtonText.Impostor": "作祟",
-  "AbilityButtonText.Noisemaker": "作祟",
-  "AbilityButtonText.Phantom": "隱形",
-  "AbilityButtonText.Scientist": "心電圖",
-  "AbilityButtonText.Shapeshifter": "變形",
-  "AbilityButtonText.Tracker": "追蹤",
-  "AbilityButtonText.Viper": "酸液",
-  "SecondaryAbilityButtonText.Detective": "審問",
   "AbilityChargesWhenFinishedTasks": "完成所有任務後<color=#ffa500>每五秒</color>增加的<color=#00ffff>技能<color=#7FFFD2>使用次數</color>",
   "AbilityCooldown": "技能使用冷卻",
   "AbilityDuration": "技能持續時間",
@@ -4112,10 +4226,9 @@
   Gamemodes  
   ============================== */
   "Mode": "門重置模式",
-  "GameMode": "遊戲模式",
   "GameModeListTitle": "遊戲模式",
   "DoingTasksIsPointlessInThisGameMode": "看看，我看你是一個非常勤奮的船員，但是....\\n在這個遊戲模式下做任務是完全沒有意義的",
-  "NToCheckGameModeSettings": "Type <b>/n</b> to view the settings for this game mode",
+  "NToCheckGameModeSettings": "輸入<b>/n</b>查看此遊戲模式的設定",
   // Standard
   "Standard": "一般",
   "ModeStandard": "遊戲模式: 標準",
@@ -4262,10 +4375,12 @@
   "CTF_GameEndCriteria.TimeLimit": "時間限制",
   "CTF_Notify_EnemyTeamRoom": "敵方團隊在 <#00ffa5>{0}</color>",
   "CTF_PlayerStats_CarriedFor": "<#00a5ff>攜帶時間：<#ffffff>{0}秒</color></color>",
-  "CTF_PlayerStats_Tags": "<#00a5ff>Tags: <#ffffff>{0}</color></color>",
+  "CTF_PlayerStats_Tags": "<#00a5ff>標籤: <#ffffff>{0}</color></color>",
   "CTF_PointsToWin": "獲勝所需分數",
   "CTF_RoundsToPlay": "回合數量",
+  "CTF_SpawnProtectionTime": "復活保護時間",
   "CTF_SpeedReductionForFlagCarrier": "拿著旗幟的玩家的速度",
+  "CTF_Suffix.SpawnProtectionTime": "<#00ffa5>處於重生保護</color> <#888888>-</color> <#ffff44>{0}</color>",
   "CTF_TagCooldown": "標記玩家冷卻時間",
   "CTF_TaggedPlayersGet": "被標記的玩家會",
   "CTF_TaggedPlayersGet.Killed": "被殺",
@@ -4368,6 +4483,7 @@
   "SeekerVision": "尋找者視野",
   "HiderSpeed": "躲藏者速度",
   "HiderVision": "躲藏者視野",
+  "MinutesLeft": "<color=#00ffa5>剩餘分鐘數:</color> {0}",
   // Hide And Seek Roles
   "Agent": "特工",
   "AgentInfo": "你是躲藏者中的間諜",
@@ -4524,16 +4640,66 @@
   "ModeNaturalDisasters": "遊戲模式: 天災倖存",
   "ModeDescribe.NaturalDisasters": "在自然災害遊戲模式中，地圖上充滿了自然災害。你必須生存下來，成為最後一個活著的玩家才能獲勝！ \\n\\n<size=80%>所有自然災害及其影響清單：</size><size=70%>\\n- 地震：地面震動，難以移動。 \\n- 流星：流星從天而降，殺死一定範圍內的玩家。 \\n- 火山爆發：熔岩從一個點流出，殺死玩家。 \\n- 龍捲風：玩家被吸入龍捲風而死亡。 \\n- 雷暴：閃電擊中房間外，殺死被擊中的玩家。 \\n- 沙塵暴：沙子吹起，使視野變得難以看清。 \\n- 海嘯：巨浪朝特定方向襲來，淹沒途中的玩家。 \\n- 天坑：地面塌陷，殺死範圍內的玩家以及將來進入該範圍的任何玩家。 \\n- 建築物倒塌：船上的建築物倒塌，殺死其中的所有玩家。倒塌的房間以後將無法進入。 </size>",
   "GameModeTutorial.NaturalDisasters": "<size=90%>目前遊戲模式為<#03fc4a>自然災害</color>。 </size>\\n<size=80%>各種災害將持續在地圖上出現。 \\n有些會立刻殺死你，有些只會暫時給你負面效果。 \\n成為最後一個活著的玩家獲得勝利！ </size>",
-  "CollapsedBuildings": "<#00ffa5>倒塌的建築物:</color> {0}",
-  "AvailableBuildings": "<#00a5ff>可用建築：</color> {0}",
+  "CollapsedBuildings": "<#03fc4a>倒塌的建築物:</color> {0}",
+  "AvailableBuildings": "<#03FCFC>可用建築：</color> {0}",
   "ND_BuildingCollapse": "建築物倒塌",
-  "ND_DRLaughMessage.Collapsed": "就像電影裡一樣對吧? 但很遺憾這是現實，大家都要被倒塌的建築物砸死了!",
-  "ND_DRLaughMessage.Drowned": "你渴了嗎? 沒事，這裡有超級多的水!",
-  "ND_DRLaughMessage.Lava": "在岩漿裡游泳不是個明智的選擇，你覺得呢?",
-  "ND_DRLaughMessage.Lightning": "轟隆轟隆轟隆! 是閃電!",
-  "ND_DRLaughMessage.Meteor": "流星.... 他要掉下來了!",
-  "ND_DRLaughMessage.Sunken": "你知道鐵達尼號是因為地層凹陷而沉沒的嗎? 好吧，看來會沉沒的是你!",
-  "ND_DRLaughMessage.Tornado": "出去轉轉? 我只希望龍捲風沒有讓你感到天旋地轉!",
+  "ND_DRLaughMessage-0.Collapsed": "就像電影裡一樣對吧? 但很遺憾這是現實，大家都要被倒塌的建築物砸死了!",
+  "ND_DRLaughMessage-0.Drowned": "你渴了嗎? 沒事，這裡有超級多的水!",
+  "ND_DRLaughMessage-0.Lava": "在岩漿裡游泳不是個明智的選擇，你覺得呢?",
+  "ND_DRLaughMessage-0.Lightning": "轟隆轟隆轟隆! 是閃電!",
+  "ND_DRLaughMessage-0.Meteor": "流星.... 他要掉下來了!",
+  "ND_DRLaughMessage-0.Sunken": "你知道鐵達尼號是因為地層凹陷而沉沒的嗎? 好吧，看來會沉沒的是你!",
+  "ND_DRLaughMessage-0.Tornado": "出去轉轉? 我只希望龍捲風沒有讓你感到天旋地轉!",
+  "ND_DRLaughMessage-1.Collapsed": "哇!你真的把房子都掀翻了！",
+  "ND_DRLaughMessage-1.Drowned": "看來你終於學會如何沉淪或奮起……不過大部分時間都沉淪了！",
+  "ND_DRLaughMessage-1.Lava": "小心！那不是熱水浴缸！",
+  "ND_DRLaughMessage-1.Lightning": "那真的點亮了你的一天，嗯？",
+  "ND_DRLaughMessage-1.Meteor": "往好處想：你創造了歷史！",
+  "ND_DRLaughMessage-1.Sunken": "下去吧！希望你旅途愉快！",
+  "ND_DRLaughMessage-1.Tornado": "哇哦！希望你騎得開心！",
+  "ND_DRLaughMessage-2.Collapsed": "下次，或許不要站在坍塌部分下面!",
+  "ND_DRLaughMessage-2.Drowned": "呼吸是可有可無的，對吧？",
+  "ND_DRLaughMessage-2.Lava": "哇，好香！正合你意嗎？",
+  "ND_DRLaughMessage-2.Lightning": "我覺得那真是太刺激了！",
+  "ND_DRLaughMessage-2.Meteor": "你真是把「離開世界」這句話理解得淋漓盡致了！",
+  "ND_DRLaughMessage-2.Sunken": "別擔心，下面很舒服……大概吧！",
+  "ND_DRLaughMessage-2.Tornado": "那一定讓人頭暈目眩！",
+  "ND_DRLaughMessage-3.Collapsed": "別擔心，我相信那棟大樓確實需要一個擁抱！",
+  "ND_DRLaughMessage-3.Drowned": "你上游泳課的時候真是全力以赴啊！",
+  "ND_DRLaughMessage-3.Lava": "你沒想到天氣會那麼熱吧？",
+  "ND_DRLaughMessage-3.Lightning": "下次你應該找個不那麼亮的地方站著！",
+  "ND_DRLaughMessage-3.Meteor": "哎呀！來對了地方，但時間不對！",
+  "ND_DRLaughMessage-3.Sunken": "你真是掉進陷阱裡了！",
+  "ND_DRLaughMessage-3.Tornado": "向上，向上，飛吧！",
+  "ND_DRLaughMessageOthers-0.Collapsed": "{0} 以為這棟大樓有劇情保護。結果並沒有。",
+  "ND_DRLaughMessageOthers-0.Drowned": "{0} 忘記給他們裝備游泳圈了。",
+  "ND_DRLaughMessageOthers-0.Lava": "{0} 試圖在熔岩裡游泳。",
+  "ND_DRLaughMessageOthers-0.Lightning": "{0} 被提拔為避雷針。",
+  "ND_DRLaughMessageOthers-0.Meteor": "{0} 被宇宙親自選中。",
+  "ND_DRLaughMessageOthers-0.Sunken": "{0} 已進入地下 DLC。",
+  "ND_DRLaughMessageOthers-0.Tornado": "{0} 出去兜風後就再也沒回來。",
+  "ND_DRLaughMessageOthers-1.Collapsed": "{0} 剛剛測試了一下重力…結果失敗了。",
+  "ND_DRLaughMessageOthers-1.Drowned": "{0} 試圖在水中呼吸……",
+  "ND_DRLaughMessageOthers-1.Lava": "{0} 發現熔岩其實是熱的。",
+  "ND_DRLaughMessageOthers-1.Lightning": "{0} 剛剛解鎖了令人震驚的結局。",
+  "ND_DRLaughMessageOthers-1.Meteor": "{0} 沒能躲開。技術問題。",
+  "ND_DRLaughMessageOthers-1.Sunken": "{0} 上當了。真的。",
+  "ND_DRLaughMessageOthers-1.Tornado": "{0} 已遷移到未知位置。",
+  "ND_DRLaughMessageOthers-2.Collapsed": "突發新聞：{0} 已經康復，只是躲在建築物底下。",
+  "ND_DRLaughMessageOthers-2.Drowned": "{0} 已正式融入海洋。",
+  "ND_DRLaughMessageOthers-2.Lava": "{0} 已升級為超脆。",
+  "ND_DRLaughMessageOthers-2.Lightning": "{0} 忘記關閉「吸引閃電」模式。",
+  "ND_DRLaughMessageOthers-2.Meteor": "{0} 剛剛被隕石砸了。",
+  "ND_DRLaughMessageOthers-2.Sunken": "{0} 發現了一條通往地心的捷徑。",
+  "ND_DRLaughMessageOthers-2.Tornado": "{0} 現在是龍捲風中的一部分。",
+  "ND_DRLaughMessageOthers-3.Collapsed": "{0} 真的把「室內活動」看得太認真了。",
+  "ND_DRLaughMessageOthers-3.Drowned": "{0} 去游泳了…永遠地去了。",
+  "ND_DRLaughMessageOthers-3.Lava": "{0} 以為只是辣水。",
+  "ND_DRLaughMessageOthers-3.Lightning": "{0} 完全被電擊到了下週。",
+  "ND_DRLaughMessageOthers-3.Meteor": "{0} 抬頭看了看…做了錯誤的決定。",
+  "ND_DRLaughMessageOthers-3.Sunken": "{0} 就這麼消失了…不予退款。",
+  "ND_DRLaughMessageOthers-3.Tornado": "{0} 體驗過極速旅行。",
+  "ND_RemainingPlayers": "剩餘 {0} 位玩家。",
   "ND_Disaster.SpawnChance": "{disaster} 出現機率",
   "ND_DisasterFrequency": "天災出現頻率",
   "ND_DisasterWarningTime": "災害警告時間",
@@ -4541,10 +4707,14 @@
   "ND_Earthquake.DurationOpt": "地震持續時間",
   "ND_Earthquake.Speed": "在地震範圍內的速度",
   "ND_LimitMaximumDisastersAtOnce": "限制一次最多發生的天災數量",
-  "ND_LimitReachedOptions.OnlySpawnInstantDisasters": "只產生即時性天災",
+  "ND_MaximumDisastersAtOnce": "一次最多發生的天災數量",
+  "ND_WhenLimitIsReached": "達到天災數量上限時",
   "ND_LimitReachedOptions.RemoveOldest": "清除最早發生的天災",
   "ND_LimitReachedOptions.RemoveRandom": "移除隨機天災",
-  "ND_MaximumDisastersAtOnce": "一次最多發生的天災數量",
+  "ND_DisasterSpawnMode": "災難生成模式",
+  "ND_DisasterSpawnModes.AllOnPlayers": "玩家附近",
+  "ND_DisasterSpawnModes.AllOnRandomPlaces": "隨機地點",
+  "ND_DisasterSpawnModes.OnPlayersAndRandomPlaces": "玩家附近和隨機地點",
   "ND_Meteor": "流星",
   "ND_PreferRemovingThunderstorm": "優先移除雷暴",
   "ND_SandStorm": "沙塵暴",
@@ -4564,7 +4734,6 @@
   "ND_VolcanoEruption": "火山爆發",
   "ND_VolcanoEruption.DurationAfterFlowComplete": "岩漿流動結束後消失前的時間",
   "ND_VolcanoEruption.FlowStepDelay": "岩漿每次流動的延遲時間",
-  "ND_WhenLimitIsReached": "達到天災數量上限時",
   "OngoingThunderstorm": "<#ffff44>⚠ 雷暴持續中 ⚠</color>",
   // Quiz
   "Quiz": "測驗",
@@ -7985,7 +8154,7 @@
   "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut": "時間結束時不殺死房間外玩家",
   "RR_DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom": "當前兩名玩家進入正確房間，不降低時間限制",
   "RR_FirstPoints": "目前第一名:{0}, 分數:{1}",
-  "RR_GlobalTimeMultiplier": "全局時間限制(用來增加難度)",
+  "RR_GlobalTimeAddition": "全局時間增加（到原始必要時間）",
   "RR_Points": "分數:{0}/{1}",
   "RR_PointsToWin": "Points to Win",
   "RR_ReadyQM": "準備好了嗎?",
@@ -8205,38 +8374,93 @@
   "8BallResponse.18": "前景不是很好。",
   "8BallResponse.19": "太可疑了。",
   /* ==============================
-  AFK Detector              
+  Used as a definition for the response numbers              
   ============================== */
-  "AFKActivateOnStart": "遊戲開始時啟動掛機檢測",
-  "AFKConsequence": "掛機玩家的後果",
-  "AFKConsequence.Kick": "踢出",
-  "AFKConsequence.Nothing": "無",
-  "AFKConsequence.Shield": "盾牌",
-  "AFKConsequence.Suicide": "自殺",
-  "AFKKick": "{0} 因為掛機而被踢出",
-  "AFKMinPlayersToActivate": "啟動掛機檢測的最低存活玩家數",
-  "AFKShielded": "根據房主設定，掛機的玩家不能被殺死",
-  "AFKSuffix": "<#ffa500>(掛機)</color>",
-  "AFKTooMany": "本回合禁用了掛機檢測，因為掛機的玩家太多了!",
-  "AFKWarning": "<#ffff00><size=90%>立刻移動來避免被偵測為掛機玩家</color> <#ffffff>({0})</size></color>",
+  "8BallResponse.20": "\\n",
+  "8BallResponse.21": "\\n",
+  "8BallResponse.22": "\\n",
+  "8BallResponse.23": "\\n",
+  "8BallResponse.24": "\\n",
+  "8BallResponse.25": "\\n",
+  "8BallResponse.26": "\\n",
+  "8BallResponse.27": "\\n",
+  "8BallResponse.28": "\\n",
+  "8BallResponse.29": "\\n",
+  "8BallResponse.30": "\\n",
+  "8BallResponse.31": "\\n",
+  "8BallResponse.32": "\\n",
+  "8BallResponse.33": "\\n",
+  "8BallResponse.34": "\\n",
+  "8BallResponse.35": "\\n",
+  "8BallResponse.36": "\\n",
+  "8BallResponse.37": "\\n",
+  "8BallResponse.38": "\\n",
+  "8BallResponse.39": "\\n",
+  "8BallResponse.40": "\\n",
+  "8BallResponse.41": "\\n",
+  "8BallResponse.42": "\\n",
+  "8BallResponse.43": "\\n",
+  "8BallResponse.44": "\\n",
+  "8BallResponse.45": "\\n",
+  "8BallResponse.46": "\\n",
+  "8BallResponse.47": "\\n",
+  "8BallResponse.48": "\\n",
+  "8BallResponse.49": "\\n",
+  "8BallResponse.50": "\\n",
+  "8BallResponse.51": "\\n",
+  "8BallResponse.52": "\\n",
+  "8BallResponse.53": "\\n",
+  "8BallResponse.54": "\\n",
+  "8BallResponse.55": "\\n",
+  "8BallResponse.56": "\\n",
+  "8BallResponse.57": "\\n",
+  "8BallResponse.58": "\\n",
+  "8BallResponse.59": "\\n",
+  "8BallResponse.60": "\\n",
+  "8BallResponse.61": "\\n",
+  "8BallResponse.62": "\\n",
+  "8BallResponse.63": "\\n",
+  "8BallResponse.64": "\\n",
+  "8BallResponse.65": "\\n",
+  "8BallResponse.66": "\\n",
+  "8BallResponse.67": "\\n",
+  "8BallResponse.68": "\\n",
+  "8BallResponse.69": "\\n",
+  "8BallResponse.70": "\\n",
+  "8BallResponse.71": "\\n",
+  "8BallResponse.72": "\\n",
+  "8BallResponse.73": "\\n",
+  "8BallResponse.74": "\\n",
+  "8BallResponse.75": "\\n",
+  "8BallResponse.76": "\\n",
+  "8BallResponse.77": "\\n",
+  "8BallResponse.78": "\\n",
+  "8BallResponse.79": "\\n",
+  "8BallResponse.80": "\\n",
+  "8BallResponse.81": "\\n",
+  "8BallResponse.82": "\\n",
+  "8BallResponse.83": "\\n",
+  "8BallResponse.84": "\\n",
+  "8BallResponse.85": "\\n",
+  "8BallResponse.86": "\\n",
+  "8BallResponse.87": "\\n",
+  "8BallResponse.88": "\\n",
+  "8BallResponse.89": "\\n",
+  "8BallResponse.90": "\\n",
+  "8BallResponse.91": "\\n",
+  "8BallResponse.92": "\\n",
+  "8BallResponse.93": "\\n",
+  "8BallResponse.94": "\\n",
+  "8BallResponse.95": "\\n",
+  "8BallResponse.96": "\\n",
+  "8BallResponse.97": "\\n",
+  "8BallResponse.98": "\\n",
+  "8BallResponse.99": "\\n",
   "AAWarning": "<#ffff00>你必須遠離這個設備，否則你會死亡!</color>",
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
   "Admin": "管理地圖",
   "AdminTag": "<#ff0000>管理員</color>",
   "AdminUnmuted": "管理員{0}已解除對{1}的禁言。",
-  "ApplyAdminList": "啟用管理員列表",
-  "ApplyBanList": "踢出被封禁的玩家",
-  "ApplyModeratorList": "套用協管列表",
-  "ApplyVIPList": "套用VIP列表",
   "AprilFoolsMode": "愚人節模式",
-  "AutoKickStart": "踢出催開始的人",
-  "AutoKickStartAsBan": "踢出時封禁該玩家",
-  "AutoKickStartTimes": "踢出前警告次數",
-  "AutoKickStopWords": "踢出使用違禁詞的人",
-  "AutoKickStopWordsAsBan": "踢出時封禁該玩家",
-  "AutoKickStopWordsTimes": "踢出前警告次數",
   /* ==============================
     Lobby Control        
   ============================== */
@@ -8247,10 +8471,6 @@
   "PlayerAlreadyAdmin": "該玩家已經是管理員，所以沒有變化。",
   "PlayerAlreadyMod": "該玩家已是協管，所以沒有變化",
   "PlayerAlreadyVIP": "該玩家已是VIP，所以沒有變化",
-  "PlayerAutoStart": "自動開始需要的最小玩家數",
-  "PlayerCanSetColor": "允許玩家使用/color指令",
-  "PlayerCanSetName": "允許玩家使用/rename指令",
-  "PlayerCanTPInAndOut": "允許玩家使用/tpin & /tpout指令",
   "PlayerExemptedFromAFK": "{0} 在1局遊戲中免於防掛機檢測",
   "PlayerExiled": "{0} 已被逐出",
   "PlayerIdList": "玩家編號列表: ",
@@ -8270,7 +8490,10 @@
   "YouMuted": "<#ffff00>你被 <u>{0}</u> 禁言了 持續 <#ff0000>{1}</color> 秒",
   /* ==============================
     Achievements           
-  ============================== */
+    ============================== */
+  "AchievementCompletedTitle": "<#FAD101>成就已解鎖</color>",
+  "CompletedAchievementsTitle": "<#FAD101>已完成的成就</color>",
+  "IncompleteAchievementsTitle": "<#ff0000>未解鎖的成就</color>",
   "Achievement.ALightInTheShadows": "希望之光",
   "Achievement.ALightInTheShadows.Description": "在電力破壞期間靠近提燈者",
   "Achievement.APerfectTimeToRewindIt": "『敗者食塵』",
@@ -8519,19 +8742,550 @@
   "Achievement.YoureMyFriendNow.Description": "作為教父/豺狼/感染者/病原體/魅魔招募某人",
   "Achievement.YoureTooLate": "你慢了一步呢",
   "Achievement.YoureTooLate.Description": "作為萬疫之神反殺兇手",
-  "AchievementCompletedTitle": "<#FAD101>成就已解鎖</color>",
   /* ==============================
-    Maps           
+    Vanilla Settings          
+  ============================== */
+  "TabGroup.VanillaSettings": "原版設定",
+  /* ==============================
+    System Settings          
+  ============================== */
+  "TabGroup.SystemSettings": "系統設定",
+  "ModLanguage": "模組語言",
+  "UseGameLanguage": "使用遊戲語言",
+  "Hungarian": "匈牙利語",
+  "Indonesian": "印度尼西亞語",
+  "Persian": "波斯語",
+  "Polish": "波蘭語",
+  "KickLowLevelPlayer": "踢出沒有達到指定等級的玩家",
+  "KickBecauseLowLevel": "【<b>{0}</b>】因未達到房主規定的等級限制而被請離房間",
+  "KickMobilePlayer": "踢出使用Android平台遊玩的玩家",
+  "KickPlayerFriendCodeNotExist": "踢出沒有登入的玩家",
+  "ApplyDenyNameList": "踢出使用違規暱稱的玩家",
+  "ApplyBanList": "踢出被封禁的玩家",
+  "ApplyModeratorList": "套用協管列表",
+  "ApplyVIPList": "套用VIP列表",
+  "ApplyAdminList": "啟用管理員列表",
+  "AutoKickStart": "踢出催開始的人",
+  "AutoKickStartTimes": "踢出前警告次數",
+  "AutoKickStartAsBan": "踢出時封禁該玩家",
+  "AutoKickStopWords": "踢出使用違禁詞的人",
+  "AutoKickStopWordsTimes": "踢出前警告次數",
+  "AutoKickStopWordsAsBan": "踢出時封禁該玩家",
+  "MinWaitAutoStart": "自動開始前的等待時間(分鐘)",
+  "MaxWaitAutoStart": "當大廳計時器低於多少分鐘時強制開始遊戲",
+  "PlayerAutoStart": "自動開始需要的最小玩家數",
+  "AutoStartTimer": "自動開始的開始倒計時",
+  "AutoPlayAgain": "遊戲結束後自動返回大廳",
+  "AutoPlayAgainCountdown": "重新加入房間前的延遲(s)",
+  "AutoGMPollCommandAfterJoin": "加入大廳後自動執行/gmpoll",
+  "AutoGMPollCommandCooldown": "自動執行 /gmpoll 之前的延遲",
+  "AutoMPollCommandAfterJoin": "加入大廳後自動執行/mpoll",
+  "AutoMPollCommandCooldown": "自動執行 /mpoll 之前的延遲",
+  "AutoDraftStartCommandAfterJoin": "加入大廳後自動執行/draftstart",
+  "AutoDraftStartCommandCooldown": "自動執行 /gmpoll 之前的延遲",
+  "AutoReadyCheckCommandAfterJoin": "加入大廳後自動執行/readycheck",
+  "AutoReadyCheckCommandCooldown": "自動執行 /readycheck 之前的延遲",
+  "KickNotJoinedPlayersRegularly": "每25秒在大廳踢掉未加入遊戲的玩家",
+  "EnterKeyToStartGame": "按Enter鍵開始遊戲倒計時",
+  "LowLoadMode": "修復卡頓",
+  "DeepLowLoad": "優先考慮性能",
+  "DontUpdateDeadPlayers": "不要更新死亡玩家以提高性能",
+  "DumpLogAfterGameEnd": "每次遊戲結束後將遊戲日誌投放至電腦桌面",
+  "EndWhenPlayerBug": "出現嚴重錯誤時強制結束遊戲以防止黑屏",
+  "RemovePetsAtDeadPlayers": "強制刪除死亡玩家的寵物",
+  "CheatResponses": "檢測到外掛時",
+  "OnlyCancel": "只取消作弊行為",
+  "TempBan": "僅封鎖此會話",
+  "Ban": "封禁",
+  "Kick": "踢出",
+  "NoticeMe": "通知我",
+  "NoticeEveryone": "通知所有人",
+  "EnableMovementChecking": "啟用 EAC 檢查無效移動(防止加速外掛)(可能會導致誤報)",
+  "EnableEHRRateLimit": "啟用EPC發送速率限制(防止外掛作弊讓你崩遊戲)",
+  "KickOnInvalidRPC": "踢出無效的RPC玩家(可能由其他模組或外掛引起)",
+  "AutoDisplayKillLog": "結束後自動顯示殺人紀錄",
+  "AutoDisplayLastRoles": "結束後自動顯示上局職業",
+  "AutoDisplayLastAddOns": "結束後自動顯示上局附加職業",
+  "AutoDisplayLastResult": "結束後自動顯示最終結果",
+  "SuffixMode": "名字標籤",
+  "SuffixMode.AutoHost": "自動房主",
+  "SuffixMode.DoNotKillMe": "不要首刀我",
+  "SuffixMode.NoAndroidPlz": "Android別進",
+  "SuffixMode.None": "無",
+  "SuffixMode.OriginalName": "玩家名稱",
+  "SuffixMode.Recording": "錄影中",
+  "SuffixMode.RoomHost": "房主",
+  "SuffixMode.Streaming": "直播中",
+  "SuffixMode.Version": "版本",
+  "SuffixModeText.AutoHost": "自動託管",
+  "SuffixModeText.DoNotKillMe": "別首刀我啊啊啊",
+  "SuffixModeText.NoAndroidPlz": "Android別進拜託了",
+  "HideGameSettings": "隱藏遊戲設定",
+  "DIYGameSettings": "顯示自定義的/n訊息",
+  "PlayerCanSetColor": "允許玩家使用/color指令",
+  "PlayerCanSetName": "允許玩家使用/rename指令",
+  "PlayerCanTPInAndOut": "允許玩家使用/tpin & /tpout指令",
+  "FormatNameMode": "玩家名字同步模式",
+  "FormatNameModes.Color": "顏色",
+  "FormatNameModes.None": "禁用",
+  "FormatNameModes.Snacks": "隨機",
+  "DisableEmojiName": "禁止玩家使用表情符號作為名字",
+  "ChangeNameToRoleInfo": "開始遊戲時用玩家名字顯示職業簡介",
+  "ShowLongInfo": "顯示完整的職業介紹而不是職業簡介",
+  "SendRoleDescriptionFirstMeeting": "首次會議自動向非模組玩家傳送職業介紹",
+  "NoGameEnd": "測試模式(遊戲不結束)",
+  "AllowConsole": "開啟控制台",
+  "ShowAntiBlackoutWarning": "當逐出顯示被覆蓋時顯示防黑屏警告",
+  "PostLobbyCodeToEHRDiscordServer": "將房間號碼發佈至EHR網站",
+  "LobbyUpdateInterval": "始終至少每隔一段時間更新伺服器上的大廳資訊(玩家數量、地圖、遊戲模式等)",
+  "StoreCompletedAchievementsOnEHRDatabase": "將已完成的成就儲存到EHR資料庫(以便在重新安裝或更新時保持進度)",
+  "AllCrewRolesHaveVanillaColor": "所有<#8cffff>船員陣營</color>職業使用<#8cffff>原版船員職業顏色</color><#ffff00>(需要重啟)</color>",
+  "MessageRpcSizeLimit": "Message RPC Size Limit (Higher limit = increased risk of disconnects but fewer message splits - DO NOT INCREASE THIS IF YOU'RE HOSTING ON VANILLA REGIONS)",
+  "KickSlowJoiningPlayers": "踢出連接速度過慢的玩家（如果玩家在5秒內無法發送數據，將自動被踢出遊戲）",
+  "EnableAutoMessage": "啟用自動訊息（在大廳中按給定間隔發送帶有「Notification」標籤的文本）",
+  "AutoMessageSendInterval": "自動訊息發送間隔",
+  "RoleAssigningAlgorithm": "職業分配算法",
+  "RoleAssigningAlgorithm.Default": "預設",
+  "RoleAssigningAlgorithm.HashRandom": "Hash",
+  "RoleAssigningAlgorithm.MersenneTwister": "MersenneTwister",
+  "RoleAssigningAlgorithm.NetRandom": ".NET系統",
+  "RoleAssigningAlgorithm.Xorshift": "Xorshift",
+  "KPDCamouflageMode": "通訊破壞時的偽裝效果",
+  "CamouflageMode.Default": "預設",
+  "CamouflageMode.Gurge44": "<color=#ffe600>Gurge44</color>",
+  "CamouflageMode.Host": "<color=#FFFF00>房主</color>",
+  "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
+  "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
+  "MenuTitle.AutoFactionMinMaxSettings": "自動隊伍規模",
+  "EnableAutoFactionMinMaxSettings": "啟用基於玩家人數的自動隊伍人數分配",
+  "AutoFactionMinMaxSettings.PlayerCap": "這些設定生效所需的最低玩家人數閾值（0 = 不使用）",
+  "AutoFactionMinMaxSettings.Applied": "[自動隊伍規模] {0} 名玩家 (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
+  "FactionLimits.Impostor.Min": "<#00ffa5>最小</color> 偽裝者職業 <#ffffff>數量</color>",
+  "FactionLimits.Impostor.Max": "<#00a5ff>最大</color> 偽裝者職業 <#ffffff>數量</color>",
+  "FactionLimits.Coven.Min": "<#00ffa5>最小</color> 巫師職業 <#ffffff>數量</color>",
+  "FactionLimits.Coven.Max": "<#00ffa5>最大</color> 巫師職業 <#ffffff>數量</color>",
+  "FactionLimits.Neutral.Min": "<#00ffa5>最小</color> 中立職業 <#ffffff>數量</color>",
+  "FactionLimits.Neutral.Max": "<#00a5ff>最大</color> 中立職業 <#ffffff>數量</color>",
+  "MinNNKs": "<#00ffa5>最小</color>數量的<#ffff00>不帶刀</color> <#ffab1b>中立</color> <#888888>（善良、邪惡、渾沌）</color>",
+  "MaxNNKs": "<#00ffa5>最大</color>數量的<#ffff00>不帶刀</color> <#ffab1b>中立</color> <#888888>（善良、邪惡、渾沌）</color>",
+  "MenuTitle.GMPoll": "遊戲模式投票",
+  "GMPoll.Allow": "在 /gmpoll 選項中顯示 {gm}",
+  "MPoll.Allow": "在 /mpoll 選項中顯示 {m}",
+  "CrewAdvancedGameEndChecking": "為 {role} 啟用進階遊戲結束檢查",
+  "GuessersKeepTheGameGoing": "正義賭怪讓遊戲繼續進行",
+  "MenuTitle.AutoGMRotation": "自動遊戲模式輪換",
+  "EnableAutoGMRotation": "自動輪替遊戲模式",
+  "AutoGMRotationSlot": "遊戲 {index} 的遊戲模式(插槽 {index})",
+  "AGMR.Unused": "未使用/跳過該槽位",
+  "AGMR.Explicit": "明確指定",
+  "AGMR.Random": "隨機選擇",
+  "AGMR.Poll": "玩家投票(/gmpoll)",
+  "GameMode": "遊戲模式",
+  "AGMR.Slot.RandomGroupId": "此槽位使用的隨機組別",
+  "AGMR.Slot.Count": "我們要重複多少次？",
+  "MenuTitle.AGMR.RandomGroup": "隨機組別 {index}",
+  "AGMR.RandomGroup.GMChance": "選擇 {gm} 的機率",
+  /* ==============================
+  Mod Settings           
+  ============================== */
+  "TabGroup.GameSettings": "模組設定",
+  "MenuTitle.Ejections": "★ 逐出相關設定 ★",
+  "ConfirmEjectionsMode": "逐出確認模式",
+  "ConfirmEjections.None": "無",
+  "ConfirmEjections.Role": "確認職業",
+  "ConfirmEjections.Team": "確認陣營",
+  "ShowImpRemainOnEject": "逐出確認時顯示剩餘<color=#ff1919>偽裝者</color>數量",
+  "ShowNKRemainOnEject": "同時顯示剩餘邪惡<color=#ffab1b>中立</color>數量",
+  "ShowCovenRemainOnEject": "逐出確認時顯示剩餘<color=#7b3fbb>巫師</color>數量",
+  "AnonymousKillerCount": "隱藏 <#ff1919>邪惡</color>玩家數",
+  "ConfirmEgoistOnEject": "逐出時確認是否為<color=#5600ff>利己主義者</color>",
+  "ConfirmLoversOnEject": "逐出時確認是否為<color=#ff9ace>戀人</color>",
+  "ShowDifferentEjectionMessageForSomeRoles": "為某些職業顯示不同逐出信息(小丑，處刑人，冤罪師等)",
+  "ShowTeamNextToRoleNameOnEject": "確認職業時同時顯示所屬陣營",
+  "MenuTitle.MapsSettings": "★ 地圖 ★",
+  "RandomMapsMode": "隨機地圖模式",
+  "SkeldChance": "<color=#66a186>The Skeld</color>地圖隨機到的機率",
+  "MiraChance": "<color=#e84b56>MIRA</color>地圖隨機到的機率",
+  "PolusChance": "<color=#a167c0>Polus</color>地圖隨機到的機率",
+  "DleksChance": "<color=#66a186>dlekS ehT</color>地圖隨機到的機率",
+  "AirshipChance": "<color=#ed0007>Airship</color>地圖隨機到的機率",
+  "FungleChance": "<color=#ffa646>The Fungle</color>地圖隨機到的機率",
+  "OverrideSpeedForEachMap": "每張地圖的覆蓋速度",
+  "SpeedForMap": "在{map}的玩家速度",
+  "RandomSpawn": "隨機出生點",
+  "AirshipAdditionalSpawn": "額外出生點 (<color=#ed0007>The Airship</color>)",
+  "AirshipVariableElectrical": "電氣室門隨機關閉 (<color=#ed0007>Airship</color>)",
+  "DisableAirshipMovingPlatform": "禁用移動平台 (<color=#ed0007>Airship</color>)",
+  "DisableSporeTriggerOnFungle": "禁用煙霧蘑菇 (<color=#ffa646>Fungle</color>)",
+  "DisableZiplineOnFungle": "禁用滑索(<color=#ffa646>Fungle</color>)",
+  "DisableZiplineFromTop": "禁用從頂部使用滑索",
+  "DisableZiplineFromUnder": "禁用從底部使用滑索",
+  "DisableZiplineForCrew": "禁止<color=#8cffff>船員</color>使用滑索",
+  "DisableZiplineForImps": "禁止<color=#ff1919>偽裝者</color>使用滑索",
+  "DisableZiplineForNeutrals": "禁止<color=#ffab1b>中立</color>使用滑索",
+  "DisableZiplineForCoven": "禁止<color=#7b3fbb>巫師</color>使用滑索",
+  "ResetDoorsEveryTurns": "會議後重設門的開關",
+  "DoorsResetMode": "門重置模式",
+  "RandomByDoor": "隨機",
+  "AllOpen": "全開",
+  "AllClosed": "全關",
+  "ChangeDecontaminationTime": "更改消毒時間(<color=#e84b56>MIRA HQ</color>/<color=#a167c0>Polus</color>)",
+  "DecontaminationTimeOnMiraHQ": "<color=#e84b56>MIRA HQ</color>消毒所需時間",
+  "DecontaminationDoorOpenTimeOnMiraHQ": "<color=#e84b56>米拉總部</color>消毒所需時間",
+  "DecontaminationTimeOnPolus": "<color=#a167c0>Polus</color>消毒所需時間",
+  "DecontaminationDoorOpenTimeOnPolus": "<color=#e84b56>波魯斯</color>消毒所需時間",
+  "ExtraKillCooldownOnPolus": "<color=#a167c0>波魯斯</color>額外擊殺冷卻時間",
+  "ExtraKillCooldownOnAirship": "<color=#ed0007>高空飛船</color>額外擊殺冷卻時間",
+  "ExtraKillCooldownOnFungle": "<color=#ffa646>真菌世界</color>額外擊殺冷卻時間",
+  "MenuTitle.Sabotage": "★ 破壞 ★",
+  "CommsCamouflage": "通訊破壞時小灰人",
+  "CommsCamouflageDisableOnFungle": "在<color=#ffa646>Fungle</color>禁用",
+  "CommsCamouflageDisableOnMira": "在<color=#e84b56>米拉總部</color>中禁用",
+  "CommsCamouflageLimit": "限制",
+  "CommsCamouflageLimitSetChance": "設定隱蔽幾率 (每次通訊被破壞時)",
+  "CommsCamouflageLimitChance": "觸發隱蔽機率",
+  "CommsCamouflageLimitSetFrequency": "設定隱蔽頻率 (=每幾次通訊破壞後會有隱蔽效果)",
+  "CommsCamouflageLimitFrequency": "觸發隱蔽頻率",
+  "CommsCamouflageLimitSetMaxTimes": "設定隱蔽的最大次數上限",
+  "CommsCamouflageLimitMaxTimesPerGame": "每局遊戲最大隱蔽次數",
+  "CommsCamouflageLimitMaxTimesPerRound": "每回合最大隱蔽次數",
+  "CommsCamouflageSetSameSpeed": "偽裝狀態下所有玩家速度相同",
+  "CommsCamouflagePreventRound1": "第一輪不會偽裝",
+  "DisableReportWhenCC": "小灰人時禁止報告屍體",
+  "SabotageCooldownControl": "修改破壞冷卻時間",
+  "SabotageCooldown": "破壞冷卻時間",
+  "SabotageTimeControl": "更改修理時限",
+  "SkeldReactorTimeLimit": "<color=#66a186>The Skeld</color> 反應堆修理時限",
+  "SkeldO2TimeLimit": "<color=#66a186>The Skeld</color> 氧氣修理時限",
+  "MiraReactorTimeLimit": "<color=#e84b56>MIRA HQ</color>反應堆修理時限",
+  "MiraO2TimeLimit": "<color=#e84b56>MIRA HQ</color>氧氣修理時限",
+  "PolusReactorTimeLimit": "<color=#a167c0>Polus</color>反應堆修理時限",
+  "AirshipReactorTimeLimit": "<color=#ed0007>Airship</color>墜毀修理時限",
+  "FungleReactorTimeLimit": "<color=#ffa646>The Fungle</color>反應堆修理時限",
+  "FungleMushroomMixupDuration": "<color=#ffa646>The Fungle</color>混合蘑菇持續時長",
+  "LightsOutSpecialSettings": "關燈特殊設定",
+  "BlockDisturbancesToSwitches": "當電力修復好時阻止再次破壞",
+  "DisableAirshipViewingDeckLightsPanel": "禁用觀景台配電箱 (<color=#ed0007>Airship</color>)",
+  "DisableAirshipGapRoomLightsPanel": "禁用間隙室配電箱 (<color=#ed0007>Airship</color>)",
+  "DisableAirshipCargoLightsPanel": "禁用貨倉配電箱 (<color=#ed0007>Airship</color>)",
+  "SabotageTimeLimitWinners.Imps": "<#ff1919>偽裝者陣營</color>",
+  "SabotageTimeLimitWinners.NKs": "<#ffab1b>中立</color> <#ff1919>帶刀</color>",
+  "SabotageTimeLimitWinners.Coven": "<#7b3fbb>巫師陣營:</color>",
+  "IfSelectedTeamIsDead": "如果選擇的陣營已經死亡，那麼獲勝的陣營是",
+  "EnableCustomSabotages": "啟用自定義破壞",
+  "EnableGrabOxygenMaskCustomSabotage": "允許啟用獲取氧氣面罩(通過通訊破壞發起，連兩次以啟用)",
+  "MenuTitle.Disable": "★ 禁用相關設定 ★",
+  "DisableShieldAnimations": "禁用不必要的護盾動畫",
+  "DisableKillAnimationOnGuess": "禁用猜測時的殺人動畫",
+  "DisableShapeshiftAnimations": "禁用變形時的動畫",
+  "DisableAllShapeshiftAnimations": "禁用所有變形時的動畫",
+  "DisableTaskWin": "禁用任務勝利",
+  "DisableTaskWinIfAllCrewsAreDead": "當所有<#8cffff>船員</color>死亡後禁用任務勝利",
+  "DisableTaskWinIfAllCrewsAreConverted": "當所有<#8cffff>船員</color><#ffab1b>被招募</color>後禁用任務勝利",
+  "DisableMeeting": "禁用緊急會議以及報告屍體",
+  "DisableSabotage": "禁用破壞",
+  "DisableReactorOnSkeldAndMira": "禁用反應堆破壞 (<color=#66a186>The Skeld</color> & <color=#e84b56>MIRA HQ</color>)",
+  "DisableReactorOnPolus": "禁用重設抗震穩定器破壞 (<color=#a167c0>Polus</color>)",
+  "DisableReactorOnAirship": "禁用避開墜毀路線破壞 (<color=#ed0007>AirShip</color>)",
+  "DisableO2": "禁用氧氣破壞 (<color=#66a186>The Skeld</color> & <color=#e84b56>MIRA HQ</color>)",
+  "DisableComms": "禁用通訊破壞",
+  "DisableLights": "禁用燈光破壞",
+  "DisableMushroomMixup": "禁用蘑菇混合破壞 (<color=#ffa646>The Fungle</color>)",
+  "DisableCloseDoor": "禁用關門",
+  "DisableWhisperCommand": "禁用 /whisper 指令",
+  "DisableSpectateCommand": "禁用 /spectate 指令",
+  "Disable8ballCommand": "禁用 /8ball 指令",
+  "DisableVoteStartCommand": "禁用 /votestart 指令",
+  "DisableVentingOn1v1": "在1v1時禁用管道",
+  "DisableSabotagingOn1v1": "在1v1時禁用破壞",
+  "DisableDevices": "禁用設備",
+  "DisableSkeldDevices": "禁用<color=#66a186>The Skeld</color>設備",
+  "DisableSkeldAdmin": "禁用Skeld管理室地圖",
+  "DisableSkeldCamera": "禁用Skeld監控",
+  "DisableMiraHQDevices": "禁用<color=#e84b56>MIRA HQ</color>設備",
+  "DisableMiraHQAdmin": "禁用Mira HQ管理室地圖",
+  "DisableMiraHQDoorLog": "禁用Mira HQ通行紀錄",
+  "DisableAirshipCamera": "禁用Airship監控",
+  "DisablePolusDevices": "禁用<color=#a167c0>Polus</color>設備",
+  "DisablePolusAdmin": "禁用Polus管理室地圖",
+  "DisablePolusCamera": "禁用Polus監控",
+  "DisablePolusVital": "禁用Polus心電圖",
+  "DisableAirshipDevices": "禁用<color=#ed0007>The Airship</color>設備",
+  "DisableAirshipCockpitAdmin": "禁用The Airship(駕駛艙) 管理地圖",
+  "DisableAirshipRecordsAdmin": "禁用The Airship(檔案室) 管理地圖",
+  "DisableAirshipVital": "禁用Airship心電圖",
+  "DisableFungleDevices": "禁用<color=#ffa646>The Fungle</color>設備",
+  "DisableFungleCamera": "禁用Fungle望遠鏡",
+  "DisableFungleVital": "禁用Fungle心電圖",
+  "IgnoreConditions": "忽略條件",
+  "IgnoreImpostors": "忽略<color=#ff1919>偽裝者</color>",
+  "IgnoreNeutrals": "忽略<color=#ffab1b>中立</color>",
+  "IgnoreCrewmates": "忽略<color=#8cffff>船員</color>",
+  "IgnoreAfterAnyoneDied": "第一次死亡後忽略",
+  "MenuTitle.Meeting": "★ 會議相關設定",
+  "SyncButtonMode": "全場可用拍桌數量",
+  "SyncedButtonCount": "可用拍桌次數",
+  "AllAliveMeeting": "全員存活時的會議設定",
+  "AllAliveMeetingTime": "全員存活的會議時間",
+  "EnableGameStateCommand": "啟用 /gamestate 命令",
+  "GameStateCommand.ShowImpCount": "顯示剩餘<#ff1919>偽裝者</color>數",
+  "GameStateCommand.ShowMadmateCount": "顯示剩餘<#ff1919>叛徒</color>數",
+  "GameStateCommand.ShowConvertedCount": "顯示剩餘<#ffab1b>被招募</color>玩家數(不包括<#ff1919>叛徒</color>)",
+  "GameStateCommand.ShowNNKCount": "顯示剩餘<#ffff00>無刀</color> <#ffab1b>中立</color>數",
+  "GameStateCommand.ShowNKCount": "顯示剩餘<#ffab1b>中立</color> <#ff1919>帶刀</color>數",
+  "GameStateCommand.ShowCovenCount": "顯示剩餘<#7b3fbb>巫師</color>數",
+  "GameStateCommand.ShowCrewCount": "顯示剩餘<#8cffff>船員</color>數",
+  "GameStateCommand.ShowRomanticState": "顯示<#ff1493>暗戀者</color>配對狀態",
+  "GameStateCommand.ShowLoversState": "顯示<#ff9ace>戀人</color>配對狀態",
+  "GameStateCommand.ShowTasks": "顯示已完成的任務數量",
+  "MinPlayersForGameStateCommand": "使用此指令的最低存活玩家數",
+  "SeeEjectedRolesInMeeting": "可以在會議上看到被放逐玩家的職業",
+  "EveryoneSeesDeathReasons": "所有人都能看到死因",
+  "HostSeesCommandsEnteredByOthers": "房主可以看到其他人輸入的指令",
+  "AdditionalEmergencyCooldown": "附加緊急會議冷卻時間",
+  "AdditionalEmergencyCooldownThreshold": "適用存活人數",
+  "AdditionalEmergencyCooldownTime": "附加冷卻時間",
+  "DisablePlayerVotedMessage": "在會議中停用「X 已投票，剩餘 Y 人未投票。」訊息",
+  "VoteMode": "投票相關設定",
+  "WhenSkipVote": "跳過投票時",
+  "WhenNonVote": "不投票相當於",
+  "WhenTie": "平票時",
+  "TieMode.Default": "默認",
+  "TieMode.All": "全部逐出",
+  "TieMode.Random": "隨機逐出",
+  "Default": "默認",
+  "Suicide": "自殺",
+  "SelfVote": "自票",
+  "Skip": "跳過",
+  "WhenSkipVoteIgnoreFirstMeeting": "忽略首次會議",
+  "WhenSkipVoteIgnoreNoDeadBody": "無屍體時忽略",
+  "WhenSkipVoteIgnoreEmergency": "忽略緊急會議",
+  "MenuTitle.GameCommands": "遊戲指令",
+  "AnagramLanguage": "字謎詞語語言",
+  "AnagramLang.Auto": "自動(系統語言)",
+  "AnagramLang.English": "英語",
+  "AnagramLang.Spanish": "西班牙語",
+  "AnagramLang.Italian": "義大利語",
+  "AnagramLang.German": "德語",
+  "AnagramLang.French": "法語",
+  "AnagramLang.Chinese": "中文",
+  "AnagramLang.BrazilianPortuguese": "葡萄牙語（巴西）",
+  "AnagramLang.Romanian": "羅馬尼亞語",
+  "AnagramWordLength": "字謎長度",
+  "AnagramDifficulty": "字謎難易度",
+  "AnagramDiff.Easy": "簡單",
+  "AnagramDiff.MediumEasy": "中等-簡單",
+  "AnagramDiff.Medium": "中等",
+  "AnagramDiff.MediumHard": "中等-困難",
+  "AnagramDiff.Hard": "困難",
+  "EightballCommandIndexes": "/8ball 命令的回應數量（使用自訂翻譯檔案匯入其他回應。如果沒有定義，這些回應將傳回空白）",
+  "MenuTitle.Other": "★ 其他設定 ★",
+  "LadderDeath": "從梯子上下滑時可能會摔死",
+  "LadderDeathChance": "摔死的機率",
+  "FixFirstKillCooldown": "修正開場時的殺人冷卻",
+  "ArroganceDefaultKillCooldown": "初始殺人冷卻時間",
+  "KillCooldown": "殺人冷卻時間",
+  "ShieldPersonDiedFirst": "首刀保護(僅限被殺)",
+  "KillFlashDuration": "殺人閃光持續時間",
+  "UniqueNeutralRevealScreen": "每個<#ffab1b>中立</color>職業都有自己的開場畫面",
+  "DraftMaxRolesPerPlayer": "每位玩家在輪流抽角期間可以選擇的最大職業數量",
+  "DraftAffectedByRoleSpawnChances": "在選擇職業時，考慮職業刷新幾率",
+  "LargerRoleTextSize": "增加職業文本大小",
+  "DynamicTaskCountColor": "動態任務計數顏色",
+  "ShowTaskCountWhenAlive": "存活時時顯示任務進度",
+  "ShowTaskCountWhenDead": "死亡時時顯示任務進度",
+  "IntegrateNaturalDisasters": "將自然災害遊戲模式整合到當前遊戲模式",
+  "EnableGameTimeLimit": "啟用遊戲時間限制（超時 = 無人獲勝）",
+  "GameTimeLimit": "遊戲時間限制",
+  "GameTimerEnded": "遊戲時間限制結束",
+  "GameTimeLimitRunsDuringMeetings": "會議期間遊戲時間限制",
+  "OverrideVisionInVents": "在風管中覆蓋視野",
+  "InVentVisionForTeam": "{team} 在風管的視野",
+  "MenuTitle.Ghost": "★ 幽靈相關設定",
+  "GhostCanSeeOtherRoles": "幽靈可以看見他人職業",
+  "GhostCanSeeOtherVotes": "幽靈可以看見投票情況",
+  "GhostCanSeeDeathReason": "幽靈可以看見死因",
+  "MenuTitle.AFKDetection": "★ 掛機檢測 ★",
+  "EnableAFKDetector": "啟用 AFK 偵測器（也用於偵測和修復黑畫面）",
+  "AFKConsequence": "掛機玩家的後果",
+  "AFKConsequence.Nothing": "無",
+  "AFKConsequence.Shield": "盾牌",
+  "AFKConsequence.Suicide": "自殺",
+  "AFKConsequence.Kick": "踢出",
+  "AFKMinPlayersToActivate": "啟動掛機檢測的最低存活玩家數",
+  "AFKActivateOnStart": "遊戲開始時啟動掛機檢測",
+  "AFKShielded": "根據房主設定，掛機的玩家不能被殺死",
+  "AFKKick": "{0} 因為掛機而被踢出",
+  "AFKSuffix": "<#ffa500>(掛機)</color>",
+  "AFKTooMany": "本回合禁用了掛機檢測，因為掛機的玩家太多了!",
+  "AFKWarning": "<#ffff00><size=90%>立刻移動來避免被偵測為掛機玩家</color> <#ffffff>({0})</size></color>",
+  "MenuTitle.CTA": "★ 自定義陣營分配 ★", 
+  /* ==============================
+  Game Modifiers           
+  ============================== */
+  "TabGroup.TaskSettings": "遊戲修改",
+  "UsePets": "使用寵物按鍵代替使用通風管或變形",
+  "PetToAssign": "向每個人分配寵物",
+  "PetButtonText": "撫摸",
+  "pet_Alien": "腦洞蟲",
+  "pet_Bedcrab": "壓床蟹",
+  "pet_BredPet": "麵包寵物",
+  "pet_Bush": "灌木夥伴",
+  "pet_Charles": "Charles直升機",
+  "pet_Charles_Red": "高帽直升機",
+  "pet_ChewiePet": "軟糖船員",
+  "pet_Creb": "螃蟹",
+  "pet_Crewmate": "迷你船員",
+  "pet_Crow": "瘋鴉",
+  "pet_Cube": "神靈小子",
+  "pet_D2GhostPet": "機靈",
+  "pet_D2PoukaPet": "坡卡",
+  "pet_D2WormPet": "蠕蟲",
+  "pet_DancingSkeletonPet": "震骨者",
+  "pet_Doggy": "怪狗",
+  "pet_Ellie": "E. Rose",
+  "pet_Goose": "鵝",
+  "pet_GuiltySpark": "記罪者",
+  "pet_HamPet": "節日火腿",
+  "pet_Hamster": "漢普頓",
+  "pet_Lava": "岩漿夥伴",
+  "pet_Mister": "野獸先生",
+  "pet_Pate": "肉醬",
+  "pet_Pip": "樹鼠",
+  "pet_Pusheen": "Pusheen",
+  "pet_RANDOM_FOR_EVERYONE": "<color=#ffff00>隨機</color>",
+  "pet_Rammy": "拉米",
+  "pet_Robot": "機器人",
+  "pet_Snow": "雪球",
+  "pet_Squig": "史奎格",
+  "pet_Stickmin": "H. Stickmin",
+  "pet_Stormy": "風暴",
+  "pet_Strawb": "飛天草莓",
+  "pet_UFO": "飛碟",
+  "pet_YuleGoatPet": "聖誕羊",
+  "pet_clank": "克拉克",
+  "pet_coaltonpet": "小煤球",
+  "pet_frankendog": "科學怪犬",
+  "pet_lny_dragon": "斯凱爾德的荒涼",
+  "pet_nancy": "Nancy",
+  "pet_napstamate": "Napstamate",
+  "pet_nuggetPet": "雞塊",
+  "pet_pocketCircuitCar": "口袋電路",
+  "pet_poro": "Heimerdinger 的 Poro",
+  "pet_spaceCat": "太空貓",
+  "pet_test": "小錯誤",
+  "AnonymousBodies": "匿名屍體",
+  "EveryoneSeesDeadPlayersRoles": "所有人都能看到死亡玩家的職業",
+  "UsePhantomBasis": "使用隱身按鈕(魅影)作為技能觸發",
+  "UsePhantomBasisForNKs": "即使是 <#ff1919>帶刀</color> <#ffab1b>中立</color> 職業也以魅影為基底 <#ffff00>(實驗性)</color>",
+  "UseMeetingShapeshift": "在會議中使用變形選單來選擇目標，而不是指令/投票",
+  "UseMeetingShapeshiftForGuessing": "即使是猜測(可能會在原版伺服器中讓房主中斷連線)",
+  "EveryoneCanVent": "所有人都可以使用通風口",
+  "OverrideOtherCrewBasedRoles": "將其他船員職業改為工程師（不限於普通船員）",
+  "WhackAMole": "打地鼠",
+  "SpawnAdditionalRenegadeOnImpsDead": "當所有 <#ff1919>偽裝者</color> 死亡後隨機一個 <#8cffff>船員</color> 變為 <#ff1919>逃亡者</color>",
+  "SpawnAdditionalRenegadeWhenNKAlive": "當 <#ffab1b>帶刀中立</color> 活著時也會生成",
+  "SpawnAdditionalRenegadeMinAlivePlayers": "生成逃亡者需要的最小玩家數",
+  "DisableShortTasks": "禁用短任務",
+  "DisableCleanVent": "禁用清理管道任務",
+  "DisableCalibrateDistributor": "禁用校正配電盤任務",
+  "DisableChartCourse": "禁用制定航路任務",
+  "DisableStabilizeSteering": "禁用穩定轉向任務",
+  "DisableCleanO2Filter": "禁用清理氧氣過濾器任務",
+  "DisableUnlockManifolds": "禁用解鎖歧管任務",
+  "DisablePrimeShields": "禁用啟動護盾任務",
+  "DisableMeasureWeather": "禁用測量氣候任務",
+  "DisableBuyBeverage": "禁用購買飲料任務",
+  "DisableAssembleArtifact": "禁用組合文物任務",
+  "DisableSortSamples": "禁用分類標本任務",
+  "DisableProcessData": "禁用下載資料任務",
+  "DisableRunDiagnostics": "禁用執行診斷任務",
+  "DisableRepairDrill": "禁用修理鑽頭任務",
+  "DisableAlignTelescope": "禁用對準望遠鏡任務",
+  "DisableRecordTemperature": "禁用記錄溫度任務",
+  "DisableFillCanisters": "禁用填滿罐子任務",
+  "DisableMonitorTree": "禁用監控樹木任務",
+  "DisableStoreArtifacts": "禁用存放文物任務",
+  "DisablePutAwayPistols": "禁用收起手槍任務",
+  "DisablePutAwayRifles": "禁用收起步槍任務",
+  "DisableMakeBurger": "禁用製作漢堡任務",
+  "DisableCleanToilet": "禁用清理廁所任務",
+  "DisableDecontaminate": "禁用除汙任務",
+  "DisableSortRecords": "禁用將記錄分類任務",
+  "DisableFixShower": "禁用修復淋浴間任務",
+  "DisablePickUpTowels": "禁用撿起毛巾任務",
+  "DisablePolishRuby": "禁用拋光紅寶石任務",
+  "DisableDressMannequin": "禁用裝飾假人任務",
+  "DisableRoastMarshmallow": "禁用烤棉花糖任務",
+  "DisableCollectSamples": "禁用收集樣本任務",
+  "DisableReplaceParts": "禁用更換零件任務",
+  "DisableCommonTasks": "禁用普通任務",
+  "DisableSwipeCardTask": "禁用刷卡任務",
+  "DisableFixWiring": "禁用修復線路任務",
+  "DisableEnterIdCode": "禁用輸入識別碼任務",
+  "DisableInsertKeys": "禁用插入鑰匙任務",
+  "DisableScanBoardingPass": "禁用掃描登船證任務",
+  "DisableCollectVegetables": "禁用收集蔬菜任務",
+  "DisableMineOres": "禁用挖礦任務",
+  "DisableExtractFuel": "禁用提取燃料任務",
+  "DisableCatchFish": "禁用釣魚任務",
+  "DisablePolishGem": "禁用拋光寶石任務",
+  "DisableHelpCritter": "禁用幫助小動物任務",
+  "DisableHoistSupplies": "禁用囤積補給物資任務",
+  "DisableLongTasks": "禁用長任務",
+  "DisableSubmitScanTask": "禁用掃描任務",
+  "DisableUnlockSafeTask": "禁用保險箱任務",
+  "DisableStartReactorTask": "禁用啟動反應堆任務",
+  "DisableResetBreakerTask": "禁用重置斷路器任務",
+  "DisableAlignEngineOutput": "禁用校正引擎輸出任務",
+  "DisableInspectSample": "禁用檢查樣本任務",
+  "DisableEmptyChute": "禁用清空垃圾滑道任務",
+  "DisableClearAsteroids": "禁用清除小行星任務",
+  "DisableWaterPlants": "禁用幫植物澆水任務",
+  "DisableOpenWaterways": "禁用打開水道任務",
+  "DisableReplaceWaterJug": "禁用更換水壺的任務",
+  "DisableRebootWifi": "禁用重新啟動Wifi任務",
+  "DisableDevelopPhotos": "禁用沖洗照片任務",
+  "DisableRewindTapes": "禁用倒帶任務",
+  "DisableStartFans": "禁用啟動風扇任務",
+  "DisableFixAntenna": "禁用修理天線任務",
+  "DisableBuildSandcastle": "禁用堆沙堡任務",
+  "DisableCrankGenerator": "禁用起重機發電器任務",
+  "DisableMonitorMushroom": "禁用觀察蘑菇任務",
+  "DisablePlayVideoGame": "禁用打電動任務",
+  "DisableFindSignal": "禁用找到訊號任務",
+  "DisableThrowFisbee": "禁用投擲飛盤任務",
+  "DisableLiftWeights": "禁用舉重任務",
+  "DisableCollectShells": "禁用收集貝殼任務",
+  "DisableOtherTasks": "禁用一般任務",
+  "DisableUploadDataTask": "禁用上傳任務",
+  "DisableEmptyGarbage": "禁用清空垃圾任務",
+  "DisableFuelEngines": "禁用加油任務",
+  "DisableDivertPower": "禁用轉移電力任務",
+  "DisableActivateWeatherNodes": "禁用修復節點任務",
+  "MenuTitle.Guessers": "★ 賭怪模式 ★",
+  "GuesserMode": "賭怪模式",
+  "CrewmatesCanGuess": "<color=#8cffff>船員</color>可以猜測",
+  "ImpostorsCanGuess": "<color=#ff1919>偽裝者</color>可以猜測",
+  "NeutralKillersCanGuess": "<color=#ffab1b>帶刀中立</color>可以猜測",
+  "PassiveNeutralsCanGuess": "無刀<color=#ffab1b>中立</color>可以猜測",
+  "CovenCanGuess": "<color=#7b3fbb>巫師陣營成員</color>可以猜測",
+  "BetrayalAddonsCanGuess": "擁有<#ffab1b>背叛附加職業</color>的玩家可以猜測",
+  "CanGuessAddons": "可以猜測附加職業",
+  "CrewCanGuessCrew": "</color><color=#8cffff>船員</color>可以猜測<color=#8cffff>船員</color>職業",
+  "ImpCanGuessImp": "<color=#ff1919>偽裝者</color>可以猜測<color=#ff1919>偽裝者</color>職業",
+  "GuesserMaxKillsPerMeeting": "每次會議最大賭殺數量",
+  "GuesserMaxKillsPerGame": "每場遊戲最大賭殺數量",
+  "GuesserNumRestrictions": "限制每個陣營的猜測人數",
+  "GuesserDoesntDieOnMisguess": "<color=#f3e304>賭怪不會因猜測錯誤而死</color>",
+  "CanGuessDuringDiscussionTime": "<color=#f3e304>賭怪可以在討論期間猜測</color>",
+  "MisguessDeathReason": "「誤賭」死亡原因",
+  /* ==============================
+  Meeting Settings           
   ============================== */
   "AddedPolus": "包括 <color=#a167c0>Polus</color>",
   "AddedTheAirship": "包括 <color=#ed0007>Airship</color>",
   "AddedTheSkeld": "包括<color=#66a186>The Skeld</color>",
-  /* ==============================
-    Meeting Settings           
-  ============================== */
-  "AdditionalEmergencyCooldown": "附加緊急會議冷卻時間",
-  "AdditionalEmergencyCooldownThreshold": "適用存活人數",
-  "AdditionalEmergencyCooldownTime": "附加冷卻時間",
   "AddonCanBeGuessed": "可以被賭",
   "AfterMeeting": "會議後",
   "AfterMeetingKillCooldown": "會議後的擊殺冷卻時間",
@@ -8541,37 +9295,18 @@
   "AddonSettingsCrew": "<color=#8cffff>船員</color>配置",
   "AddonSettingsImp": "<color=#ff1919>偽裝者</color>配置",
   "AddonSettingsNeut": "<color=#ffab1b>中立</color>配置",
-  "AirshipAdditionalSpawn": "額外出生點 (<color=#ed0007>The Airship</color>)",
-  "AirshipReactorTimeLimit": "<color=#ed0007>Airship</color>墜毀修理時限",
-  "AirshipVariableElectrical": "電氣室門隨機關閉 (<color=#ed0007>Airship</color>)",
   /* ==============================
     Meeting Settings         
   ============================== */
-  "AllAliveMeeting": "全員存活時的會議設定",
-  "AllAliveMeetingTime": "全員存活的會議時間",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} 正確猜出了字母混排的答案(<b>{1}</b>)！",
-
+  "Sabotage": "破壞",
+  "SabotageButtonText": "破壞",
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "箭頭最長延遲時間",
   "ArrowDelayMin": "箭頭最短延遲時間",
-
-  /* ==============================
-  General Settings           
-  ============================== */
-  "AutoFactionMinMaxSettings.Applied": "[自動隊伍規模] {0} 名玩家 (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
-  "AutoFactionMinMaxSettings.PlayerCap": "這些設定生效所需的最低玩家人數閾值（0 = 不使用）",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "AutoPlayAgainCountdown": "重新加入房間前的延遲(s)",
-  "AutoReadyCheckCommandAfterJoin": "加入大廳後自動執行/readycheck",
-  "AutoReadyCheckCommandCooldown": "自動執行 /readycheck 之前的延遲",
-  "AutoStartTimer": "自動開始的開始倒計時",
   "BKProtectDuration": "免疫傷害持續時間",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -8579,7 +9314,6 @@
   "BMWSBP.Blackmailer": "<#990000>勒索者</color>",
   "BMWSBP.BlackmailerAndBlackmailed": "<#990000>勒索者</color> + <#ffa500>被勒索的玩家</color>",
   "BecomeMadmateCuzMadmateMode": "您因死亡而成為叛徒",
-  "BetrayalAddonsCanGuess": "擁有<#ffab1b>背叛附加職業</color>的玩家可以猜測",
   "BlackHoleDespawnMode": "黑洞消失模式",
   "BlackHoleDespawnTime": "黑洞消失後的時間",
   "BlackHoleMoveSpeed": "黑洞移動速度",
@@ -8592,13 +9326,7 @@
   ============================== */
   "BlackScreenFixCompleteNotify": "<#00ff00>已執行黑屏修復程式碼</color>",
   "BlackmailedSuffix": "<#ffa500>勒索</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "BlockDisturbancesToSwitches": "當電力修復好時阻止再次破壞",
   "BlockVentMovement": "無法在管道內移動",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -8639,18 +9367,8 @@
   ============================== */
   "CamerasAndAdmin": "監控 & 管理地圖",
   "CamerasDisabledNotify": "<color=#ffff00>監控已被房主禁用</color>",
-
-  /* ==============================
-    Camouflage           
-  ============================== */
   "CamouflageCooldown": "隱蔽冷卻時間",
   "CamouflageDuration": "隱蔽持續時間",
-  "CamouflageMode.Default": "預設",
-  "CamouflageMode.Gurge44": "<color=#ffe600>Gurge44</color>",
-  "CamouflageMode.Host": "<color=#FFFF00>房主</color>",
-  "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
-  "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -8669,8 +9387,6 @@
     Meeting Settings         
   ============================== */
   "CanGuess": "可以在賭怪模式下賭人",
-  "CanGuessAddons": "可以猜測附加職業",
-  "CanGuessDuringDiscussionTime": "<color=#f3e304>賭怪可以在討論期間猜測</color>",
   "CanGuessTarget": "可以猜測他們的目標",
 
   /* ==============================
@@ -8774,12 +9490,6 @@
   ============================== */
   "ChargeInterval": "擊殺冷卻結束後每秒獲得的充電百分比",
   "ChargeLossInterval": "屠殺時每秒損失的充電百分比",
-
-  /* ==============================
-    EAC           
-  ============================== */
-  "CheatResponses": "檢測到外掛時",
-
   /* ==============================
     Combos           
   ============================== */
@@ -8792,20 +9502,9 @@
     Commands           
   ============================== */
   // Command Behaviour
-  "GameStateCommand.ShowConvertedCount": "顯示剩餘<#ffab1b>被招募</color>玩家數(不包括<#ff1919>叛徒</color>)",
-  "GameStateCommand.ShowCovenCount": "顯示剩餘<#7b3fbb>巫師</color>數",
-  "GameStateCommand.ShowCrewCount": "顯示剩餘<#8cffff>船員</color>數",
-  "GameStateCommand.ShowImpCount": "顯示剩餘<#ff1919>偽裝者</color>數",
-  "GameStateCommand.ShowLoversState": "顯示<#ff9ace>戀人</color>配對狀態",
-  "GameStateCommand.ShowMadmateCount": "顯示剩餘<#ff1919>叛徒</color>數",
-  "GameStateCommand.ShowNKCount": "顯示剩餘<#ffab1b>中立</color> <#ff1919>帶刀</color>數",
-  "GameStateCommand.ShowNNKCount": "顯示剩餘<#ffff00>無刀</color> <#ffab1b>中立</color>數",
-  "GameStateCommand.ShowRomanticState": "顯示<#ff1493>暗戀者</color>配對狀態",
-  "GameStateCommand.ShowTasks": "顯示已完成的任務數量",
   "GNoCommandInfo": "<b>你只能在死亡後使用該指令</b>\\n\\n傳送 <b>/gno X</b> 來玩猜數字。\\n\\nX可以是一個0~99的數字(包括0，99)\\n\\n\n你有最多 <color=#ff0000>7次</color> 的機會來猜中數字。\\n\\n\n 範例:- <b>/gno 10</b>",
   "HostKillSelfByCommand": "房主選擇了自殺(使用了自殺指令)",
   "HostMayOmitCmdPrefix": "'cmd' 字首\\n可以省略",
-  "HostSeesCommandsEnteredByOthers": "房主可以看到其他人輸入的指令",
   "MyRoleCommandHelp": "<size=80%><#00ffa5>⇨ 在會議上輸入 <#00a5ff>/m</color> 來知道你的職業玩法 ⇦</color></size>",
   "NoSpamAnymoreUseCmd": "<size=2.5><#ff0000>⚠ <#ffff00>請使用 '/cmd {command name} {arguments}' 格式 <#ff0000>⚠</size>\\n<#ffa500>否則您的訊息將會暴露！",
   "SpectateCommand.ForcedSpectator": "<#00ff00>✓</color> {0} 將會觀戰下局遊戲。",
@@ -8818,8 +9517,8 @@
   "CommandArgs.AFKExempt.Id": "要免除掛機檢測的玩家ID",
   "CommandArgs.AddAdmin.Id": "要列入管理員名單的玩家ID",
   "CommandArgs.AddMod.Id": "輸入要加入協管列表的玩家ID",
-  "CommandArgs.AddTag.Color": "標籤的顏色(格式：十六進制，不用加上前面的#(例如：00ffa5))",
   "CommandArgs.AddTag.Id": "你想要把玩家列入標籤的ID",
+  "CommandArgs.AddTag.Color": "標籤的顏色(格式：十六進制，不用加上前面的#(例如：00ffa5))",
   "CommandArgs.AddTag.Tag": "要添加的標籤(您可以使用HTML標籤)(不要忘記結尾處的分隔符)",
   "CommandArgs.AddVIP.Id": "要列入VIP名單的玩家ID",
   "CommandArgs.Answer.Number": "問題的答案",
@@ -8829,7 +9528,7 @@
   "CommandArgs.Assume.Number": "預測投票的票數",
   "CommandArgs.Ban.Id": "要踢出或封禁的玩家ID",
   "CommandArgs.Ban.Reason": "處罰原因",
-  "CommandArgs.CSD.Sound": "要撥放的音效",
+  "CommandArgs.ChangePreset.Preset": "要切換到的預設（1-20）",
   "CommandArgs.ChangeRole.Role": "要改變的職業",
   "CommandArgs.ChangeSetting.Name": "要變更的設定名稱 (留空以查看所有設定)",
   "CommandArgs.ChangeSetting.UnknownValue": "(留空以查看此處放置的內容)",
@@ -8838,15 +9537,16 @@
   "CommandArgs.Check.Role": "要檢查的職業或附加職業",
   "CommandArgs.Choose.Role": "要選擇的職業",
   "CommandArgs.Colour.Color": "要設置的顏色 (例子. 紅色、藍色、黃色)",
-  "CommandArgs.Combo.Addon": "附加職業的名稱",
-  "CommandArgs.Combo.All": "是否應用於所有設定檔 (all/留空)",
   "CommandArgs.Combo.Mode": "add/ban/remove/allow (留空可查看所有組合)",
   "CommandArgs.Combo.Role": "主職業的名稱",
+  "CommandArgs.Combo.Addon": "附加職業的名稱",
+  "CommandArgs.Combo.All": "是否應用於所有設定檔 (all/留空)",
   "CommandArgs.Compare.Id1": "要比較的第一個玩家的ID",
   "CommandArgs.Compare.Id2": "要比較的第二個玩家的ID",
   "CommandArgs.ConfirmAuth.UUID": "由伺服器提供的唯一令牌",
   "CommandArgs.CopyPreset.SourcePreset": "要將所有設置複製的預設",
   "CommandArgs.CopyPreset.TargetPreset": "要將所有設置粘貼到的預設",
+  "CommandArgs.CSD.Sound": "要撥放的音效",
   "CommandArgs.Death.Id": "查看兇手的玩家ID（留空對自己使用）",
   "CommandArgs.DeathNote.Name": "要猜測的真實名稱，如果正確你會殺死擁有該名稱的玩家",
   "CommandArgs.Decree.Number": "0/1/2/3/4/5 (留空查看所有法令)",
@@ -8876,20 +9576,20 @@
   "CommandArgs.Level.Level": "你的新等級",
   "CommandArgs.Medium.Answer": "是/否",
   "CommandArgs.MessageWait.Duration": "發送訊息的冷卻時間",
-  "CommandArgs.Mute.Duration": "靜音秒數 (留空則為六十秒)",
   "CommandArgs.Mute.Id": "要靜音的玩家ID",
+  "CommandArgs.Mute.Duration": "靜音秒數 (留空則為六十秒)",
   "CommandArgs.Negotiation.Number": "選擇談判方式 (0/1/2/3)",
   "CommandArgs.Note.Action": "add/remove/clear/view",
   "CommandArgs.Note.UnknownValue": "要新增的筆記、要刪除的筆記的代碼或留空",
   "CommandArgs.OS.Chance": "職業的生成機率",
   "CommandArgs.OS.Role": "要設置生成機率的職業",
   "CommandArgs.PV.Vote": "A/B/C/D",
+  "CommandArgs.Poll.Question": "要詢問的問題",
   "CommandArgs.Poll.AnswerA": "第一個答案",
   "CommandArgs.Poll.AnswerB": "第二個答案",
   "CommandArgs.Poll.AnswerC": "第三個答案 (可留空)",
   "CommandArgs.Poll.AnswerD": "第四個答案 (可留空)",
-  "CommandArgs.Poll.Question": "要詢問的問題",
-  "CommandArgs.PlayerInfo.Id": "The player's ID whose info you want to see (leave blank to show all)",
+  "CommandArgs.PlayerInfo.Id": "你想查看哪個玩家的ID（留空則顯示所有玩家ID）",
   "CommandArgs.QA.Letter": "用字母來回答 (A/B/C)",
   "CommandArgs.R.Role": "要查看的職業 (留空來查看所有職業)",
   "CommandArgs.Rename.Name": "你的新名字",
@@ -8929,6 +9629,7 @@
   "CommandDescription.Ban": "從大廳內封禁或踢出玩家",
   "CommandDescription.CSD": "撥放自定義音效",
   "CommandDescription.ChemistInfo": "顯示所有適用於化學家職業的流程。",
+  "CommandDescription.ChangePreset": "將目前預設切換到指定的預設編號。",
   "CommandDescription.ChangeRole": "更改你的職業",
   "CommandDescription.ChangeSetting": "更改遊戲設定",
   "CommandDescription.Chat": "作為腹語師讓目標說出想說的話",
@@ -8959,6 +9660,7 @@
   "CommandDescription.EnableAllRoles": "啟用所有職業和附加職業",
   "CommandDescription.End": "結束遊戲",
   "CommandDescription.Exe": "處刑一名玩家",
+  "CommandDescription.Exo": "啟動你作為驅魔師的能力",
   "CommandDescription.Fabricate": "為你的下一次擊殺設定一個假的死亡原因(作為製造商)",
   "CommandDescription.Fix": "修復特定玩家的黑屏問題。",
   "CommandDescription.Forge": "作為偽造者，為玩家偽造職業。",
@@ -8991,13 +9693,15 @@
   "CommandDescription.OS": "設置職業的生成機率",
   "CommandDescription.PV": "在投票活動中投票",
   "CommandDescription.Poll": "開啟投票活動 (問題須以問號結尾)",
-  "CommandDescription.PlayerInfo": "See a player's ID, friend code, hashed PUID, and platform info",
+  "CommandDescription.PresetPoll": "發起投票來選出下一個預設方案。",
+  "CommandDescription.PlayerInfo": "查看玩家 ID、好友代碼、hashed PUID 和平台信息",
   "CommandDescription.QA": "回答測驗者的問題",
   "CommandDescription.QS": "查看測驗者的問題",
   "CommandDescription.R": "查看職業清單或特定職業的描述",
   "CommandDescription.Ready": "將自己標記為已準備",
   "CommandDescription.ReadyCheck": "開啟預備檢查 (檢查誰在掛機) (30秒後顯示結果)",
   "CommandDescription.Rename": "給予你一個新的名稱",
+  "CommandDescription.Reroll": "重新隨機選擇你的職業，作為「重擲者」。此操作在會議結束後生效。",
   "CommandDescription.Retribute": "作為懲罰者猜測誰殺了你標記的玩家",
   "CommandDescription.Revenge": "以黑手黨的身分對玩家進行復仇",
   "CommandDescription.Revive": "復活已死亡的玩家。需要特殊權限或開啟「遊戲不結束」模式。",
@@ -9010,7 +9714,7 @@
   "CommandDescription.Start": "開始游戲",
   "CommandDescription.Summon": "作為召喚師召喚一名玩家為你殺敵",
   "CommandDescription.Swap": "作為換票師選擇換票目標",
-  "CommandDescription.TimeLimit": "Show the remaining game time (when the time limit is enabled)",
+  "CommandDescription.TimeLimit": "顯示剩餘遊戲時間（啟用時間限制時）",
   "CommandDescription.TPIn": "傳送至大廳內",
   "CommandDescription.TPOut": "傳送至大廳外",
   "CommandDescription.Target": "作為腹語師標記一名玩家",
@@ -9039,6 +9743,7 @@
   "CommandForms.Ban": "ban,kick",
   "CommandForms.CSD": "csd",
   "CommandForms.ChemistInfo": "ci,chemistinfo",
+  "CommandForms.ChangePreset": "changepreset,presetchange,chp",
   "CommandForms.ChangeRole": "changerole",
   "CommandForms.ChangeSetting": "cs,changesetting",
   "CommandForms.Chat": "chat",
@@ -9046,9 +9751,9 @@
   "CommandForms.Choose": "choose,pick",
   "CommandForms.Colour": "colour,color",
   "CommandForms.Combo": "combo",
-  "CommandForms.Compare": "compare,cp,cmp",
+  "CommandForms.Compare": "compare,cmp",
   "CommandForms.ConfirmAuth": "confirmauth",
-  "CommandForms.CopyPreset": "copypreset,presetcopy",
+  "CommandForms.CopyPreset": "copypreset,presetcopy,cpp",
   "CommandForms.CosID": "cosid",
   "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
@@ -9069,6 +9774,7 @@
   "CommandForms.EnableAllRoles": "enableallroles",
   "CommandForms.End": "end",
   "CommandForms.Exe": "exe",
+  "CommandForms.Exo": "exo",
   "CommandForms.Fabricate": "fabricate",
   "CommandForms.Fix": "fix,blackscreenfix,fixblackscreen",
   "CommandForms.Forge": "forge",
@@ -9101,6 +9807,7 @@
   "CommandForms.OS": "os,optionset",
   "CommandForms.PV": "pv",
   "CommandForms.Poll": "poll",
+  "CommandForms.PresetPoll": "presetpoll,ppoll",
   "CommandForms.PlayerInfo": "pi,playerinfo",
   "CommandForms.QA": "qa",
   "CommandForms.QS": "qs",
@@ -9108,6 +9815,7 @@
   "CommandForms.Ready": "ready",
   "CommandForms.ReadyCheck": "rc,readycheck",
   "CommandForms.Rename": "rn,rename,name",
+  "CommandForms.Reroll": "reroll",
   "CommandForms.Retribute": "ret,retribute",
   "CommandForms.Revenge": "rv",
   "CommandForms.Revive": "revive",
@@ -9120,7 +9828,7 @@
   "CommandForms.Start": "start",
   "CommandForms.Summon": "summon",
   "CommandForms.Swap": "sw,swap,st",
-  "CommandForms.TimeLimit": "tl,timelimit",
+  "CommandForms.TimeLimit": "til,timelimit",
   "CommandForms.TPIn": "tpin",
   "CommandForms.TPOut": "tpout",
   "CommandForms.Target": "target",
@@ -9157,31 +9865,19 @@
   /* ==============================
     Polls and Draft
   ============================== */
-  "AGMR.Poll": "玩家投票(/gmpoll)",
-  "AGMR.Slot.Count": "我們要重複多少次？",
-  "AutoDraftStartCommandAfterJoin": "加入大廳後自動執行/draftstart",
-  "AutoDraftStartCommandCooldown": "自動執行 /gmpoll 之前的延遲",
-  "AutoGMPollCommandAfterJoin": "加入大廳後自動執行/gmpoll",
-  "AutoGMPollCommandCooldown": "自動執行 /gmpoll 之前的延遲",
   "AutoGMRotationStatusText.CooldownTimer": "將在 <b>{0}</b> 秒內跳到清單中的下一個遊戲模式",
   "AutoGMRotationStatusText.GMPoll": "玩家投票(/gmpoll)",
-  "AutoMPollCommandAfterJoin": "加入大廳後自動執行/mpoll",
-  "AutoMPollCommandCooldown": "自動執行 /mpoll 之前的延遲",
-  "AutoMessageSendInterval": "自動訊息發送間隔",
-  "DraftAffectedByRoleSpawnChances": "在選擇職業時，考慮職業刷新幾率",
   "DraftChosen": "你為下一局遊戲選擇了 <b>{0}</b> 職業\\n<size=70%>你可以再次輸入 /draft [index] 來更改你的選擇</size>",
-  "DraftMaxRolesPerPlayer": "每位玩家在輪流抽角期間可以選擇的最大職業數量",
   "DraftNotEnoughRoles": "沒有足夠的職業可供選擇，因此無法開始起草。請啟用更多職業並重試。",
   "DraftResend": "<size=90%>您的職業選擇如下：</size>\\n\\n{0}\\n\\n<size=90%>聊天指令：</size>\\n- 選擇角色：<b>/draft [編號]</b>\\n- 查看角色描述：<b>/dd [編號]</b>\\n<size=90%>用您選擇想要的職業的ID替代[index]例如：<b>/draft 4</b></size>",
   "DraftStart": "<size=90%>職業選擇開始！現在您可以從下方列表中選擇一個角色，以便在下一局遊戲中當上該職業。可供選擇的角色及其編號如下：</size>\\n\\n{0}\\n\\n<size=90%>聊天指令：</size>\\n- 選擇角色：<b>/draft [編號]</b>\\n- 檢視角色描述：<b>/dd [編號]</b>\\n將[編號]為您要選擇的角色對應的數字。例如：<b>/draft 4</b>\\n<size=70%>如果您不選擇角色，系統會像平常一樣隨機分配一個職業。 </size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>草稿模式</color> <#00a5ff>⬅</color>",
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>所有人都選擇了職業！</color>",
-  "GMPoll.Allow": "在 /gmpoll 選項中顯示 {gm}",
   "GameModePoll.Question": "我們接下來要玩哪個遊戲模式？",
-  "MPoll.Allow": "在 /mpoll 選項中顯示 {m}",
   "MapPoll.Question": "我們接下來要選擇哪張地圖？",
-  "MenuTitle.GMPoll": "遊戲模式投票",
   "MenuTitle.MPoll": "地圖投票",
+  "PresetPoll.Question": "接下來我們該玩哪個預設？",
+  "ChangePreset.Changed": "預設已變更為預設 {0}\\n預設名稱：{1}",
   "Poll.AlreadyVoted": "你已經投過票了，所以不會被計算在內",
   "Poll.Begin": "您可以使用 /pv A/B/C/D 指令進行投票",
   "Poll.Inactive": "目前沒有任何活躍的投票活動。",
@@ -9193,32 +9889,6 @@
   "Poll.YouVoted": "你投給了{0}，他現在有{1} 票",
   "PollResultTitle": "【 ★ 投票結果 ★ 】",
   "PollUsage": "建立投票樣式:\\n<size=80%><b>/poll [問題]? <size=55%>[答案A] [答案B]\n[答案C(可以沒有)] [答案D(可以沒有) [答案E(可以沒有)]</size></b><size=50%>\n\n<size=50%>請注意: 問題必須要以問號結尾(?)!",
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "CommsCamouflage": "通訊破壞時小灰人",
-  "CommsCamouflageDisableOnFungle": "在<color=#ffa646>Fungle</color>禁用",
-  "CommsCamouflageDisableOnMira": "在<color=#e84b56>米拉總部</color>中禁用",
-  "CommsCamouflageLimit": "限制",
-  "CommsCamouflageLimitChance": "觸發隱蔽機率",
-  "CommsCamouflageLimitFrequency": "觸發隱蔽頻率",
-  "CommsCamouflageLimitMaxTimesPerGame": "每局遊戲最大隱蔽次數",
-  "CommsCamouflageLimitMaxTimesPerRound": "每回合最大隱蔽次數",
-  "CommsCamouflageLimitSetChance": "設定隱蔽幾率 (每次通訊被破壞時)",
-  "CommsCamouflageLimitSetFrequency": "設定隱蔽頻率 (=每幾次通訊破壞後會有隱蔽效果)",
-  "CommsCamouflageLimitSetMaxTimes": "設定隱蔽的最大次數上限",
-  "CommsCamouflagePreventRound1": "第一輪不會偽裝",
-  "CommsCamouflageSetSameSpeed": "偽裝狀態下所有玩家速度相同",
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ConfirmEgoistOnEject": "逐出時確認是否為<color=#5600ff>利己主義者</color>",
-  "ConfirmEjections.None": "無",
-  "ConfirmEjections.Role": "確認職業",
-  "ConfirmEjections.Team": "確認陣營",
-  "ConfirmEjectionsMode": "逐出確認模式",
-  "ConfirmLoversOnEject": "逐出時確認是否為<color=#ff9ace>戀人</color>",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9246,23 +9916,15 @@
   "CovenCanBeInLove": "<color=#7b3fbb>巫師陣營</color>可以成為<color=#ff9ace>戀人</color>",
   "CovenCanBeRole": "<color=#7b3fbb>巫師</color> 可以成為 {role}",
   "CovenCanFindMarshall": "展現者向<#7b3fbb>巫師陣營</color>展示",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "CovenCanGuess": "<color=#7b3fbb>巫師陣營成員</color>可以猜測",
   "CovenReceiveNecronomiconAfterNumMeetings": "<color=#7b3fbb>巫師們</color>獲得<color=#7b3fbb>死靈之書</color>所需的會議次數",
-
   /* ==============================
-    General Settings           
+  General Settings           
   ============================== */
   "CrewCanBeEgoist": "<color=#8cffff>船員</color>可以成為<color=#5600ff>利己主義者</color>",
   "CrewCanBeInLove": "<color=#8cffff>船員</color>可以成為<color=#ff9ace>戀人</color>",
   "CrewCanBeLoyal": "<color=#8cffff>船員</color>可以成為<color=#B71556>忠誠</color>",
   "CrewCanBeRole": "<color=#8cffff>船員</color>可以成為{role}",
-  "CrewCanGuessCrew": "</color><color=#8cffff>船員</color>可以猜測<color=#8cffff>船員</color>職業",
   "CrewLoversWinWithCrew": "如果兩個<color=#ff9ace>戀人</color>都是<color=#8cffff>船員</color>，則可以跟隨<color=#8cffff>船員陣營</color>獲勝",
-  "CrewmatesCanGuess": "<color=#8cffff>船員</color>可以猜測",
   "CurrentActiveSettingsHelp": "目前啟用設定及幫助",
 
   /* ==============================
@@ -9306,24 +9968,16 @@
   ============================== */
   "DGResetMode": "皮膚重置模式",
   "DGResetTimer": "如果通過計時器重置皮膚，則重置後",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "DIYGameSettings": "顯示自定義的/n訊息",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "DeactivationAfterMeeting": "會議後",
-
   /* ==============================
     Sabotage Settings           
   ============================== */
   "DeadCrewCantSabotage": "<color=#8cffff>船員</color>死後不能破壞",
   "DeadImpCantSabotage": "<color=#ff1919>偽裝者</color>死後不能破壞",
   "DeadNeutralCantSabotage": "<color=#ffab1b>中立</color>死後不能破壞",
-
   /* ==============================
     Death Reasons           
   ============================== */
@@ -9333,6 +9987,7 @@
   "DeathReason.Assumed": "設想",
   "DeathReason.Asthma": "錯誤移動",
   "DeathReason.BadLuck": "霉運",
+  "DeathReason.Bankrupt": "破產",
   "DeathReason.Bite": "吸血",
   "DeathReason.Bombed": "炸死",
   "DeathReason.Collapsed": "倒塌",
@@ -9351,6 +10006,7 @@
   "DeathReason.Execution": "處刑",
   "DeathReason.Fall": "摔死",
   "DeathReason.FollowingSuicide": "殉情",
+  "DeathReason.Frightened": "恐懼",
   "DeathReason.Gambled": "賭博",
   "DeathReason.Hack": "駭入",
   "DeathReason.Hex": "妖術",
@@ -9395,213 +10051,51 @@
   "DeathReason.WrongAnswer": "錯誤答案",
   "DeathReason.YinYanged": "陰陽",
   "DeathReason.etc": "其它",
-
   "DebugMode": "調試模式",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "DecontaminationDoorOpenTimeOnMiraHQ": "<color=#e84b56>米拉總部</color>消毒所需時間",
-  "DecontaminationDoorOpenTimeOnPolus": "<color=#e84b56>波魯斯</color>消毒所需時間",
-  "DecontaminationTimeOnMiraHQ": "<color=#e84b56>MIRA HQ</color>消毒所需時間",
-  "DecontaminationTimeOnPolus": "<color=#a167c0>Polus</color>消毒所需時間",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "DecreasedKillCooldown": "降低擊殺冷卻時間",
   "DefaultShapeshiftCooldown": "預設變形冷卻時間",
   "DeliverCooldown": "送信冷卻",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "DetectiveSuspectLimit": "每個案件嫌犯數",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "DevourCooldown": "吞噬冷卻時間",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "DiedR1Warning": "<#ffff00>(上局被首刀)</color>",
-
   /* ==============================
     Task Settings          
   ============================== */
-  "Disable8ballCommand": "禁用 /8ball 指令",
-  "DisableActivateWeatherNodes": "禁用修復節點任務",
-  "DisableAirshipCamera": "禁用Airship監控",
-  "DisableAirshipCargoLightsPanel": "禁用貨倉配電箱 (<color=#ed0007>Airship</color>)",
-  "DisableAirshipCockpitAdmin": "禁用The Airship(駕駛艙) 管理地圖",
-  "DisableAirshipDevices": "禁用<color=#ed0007>The Airship</color>設備",
-  "DisableAirshipGapRoomLightsPanel": "禁用間隙室配電箱 (<color=#ed0007>Airship</color>)",
-  "DisableAirshipMovingPlatform": "禁用移動平台 (<color=#ed0007>Airship</color>)",
-  "DisableAirshipRecordsAdmin": "禁用The Airship(檔案室) 管理地圖",
-  "DisableAirshipViewingDeckLightsPanel": "禁用觀景台配電箱 (<color=#ed0007>Airship</color>)",
-  "DisableAirshipVital": "禁用Airship心電圖",
-  "DisableAlignEngineOutput": "禁用校正引擎輸出任務",
-  "DisableAlignTelescope": "禁用對準望遠鏡任務",
-  "DisableAllShapeshiftAnimations": "禁用所有變形時的動畫",
-  "DisableAssembleArtifact": "禁用組合文物任務",
   "DisableBard": "禁用 <color=#ff1919>吟遊詩人</color>",
-  "DisableBuildSandcastle": "禁用堆沙堡任務",
-  "DisableBuyBeverage": "禁用購買飲料任務",
-  "DisableCalibrateDistributor": "禁用校正配電盤任務",
-  "DisableCatchFish": "禁用釣魚任務",
-  "DisableChartCourse": "禁用制定航路任務",
-  "DisableCleanO2Filter": "禁用清理氧氣過濾器任務",
-  "DisableCleanToilet": "禁用清理廁所任務",
-  "DisableCleanVent": "禁用清理管道任務",
-  "DisableClearAsteroids": "禁用清除小行星任務",
-  "DisableCloseDoor": "禁用關門",
-  "DisableCollectSamples": "禁用收集樣本任務",
-  "DisableCollectShells": "禁用收集貝殼任務",
-  "DisableCollectVegetables": "禁用收集蔬菜任務",
-  "DisableCommonTasks": "禁用普通任務",
-  "DisableComms": "禁用通訊破壞",
   "DisableCrackedGlass": "禁用會議螢幕上的玻璃破裂",
-  "DisableCrankGenerator": "禁用起重機發電器任務",
-  "DisableDecontaminate": "禁用除汙任務",
-  "DisableDevelopPhotos": "禁用沖洗照片任務",
-  "DisableDevices": "禁用設備",
-  "DisableDivertPower": "禁用轉移電力任務",
-  "DisableDressMannequin": "禁用裝飾假人任務",
-  "DisableEmojiName": "禁止玩家使用表情符號作為名字",
-  "DisableEmptyChute": "禁用清空垃圾滑道任務",
-  "DisableEmptyGarbage": "禁用清空垃圾任務",
-  "DisableEnterIdCode": "禁用輸入識別碼任務",
-  "DisableExtractFuel": "禁用提取燃料任務",
-  "DisableFillCanisters": "禁用填滿罐子任務",
-  "DisableFindSignal": "禁用找到訊號任務",
-  "DisableFixAntenna": "禁用修理天線任務",
-  "DisableFixShower": "禁用修復淋浴間任務",
-  "DisableFixWiring": "禁用修復線路任務",
-  "DisableFuelEngines": "禁用加油任務",
-  "DisableFungleCamera": "禁用Fungle望遠鏡",
-  "DisableFungleDevices": "禁用<color=#ffa646>The Fungle</color>設備",
-  "DisableFungleVital": "禁用Fungle心電圖",
-  "DisableHelpCritter": "禁用幫助小動物任務",
   "DisableHiddenRoles": "禁用隱藏職業",
-  "DisableHoistSupplies": "禁用囤積補給物資任務",
-  "DisableInsertKeys": "禁用插入鑰匙任務",
-  "DisableInspectSample": "禁用檢查樣本任務",
-  "DisableKillAnimationOnGuess": "禁用猜測時的殺人動畫",
-  "DisableLiftWeights": "禁用舉重任務",
-  "DisableLights": "禁用燈光破壞",
   "DisableLobbyMusic": "禁用大廳音樂",
-  "DisableLongTasks": "禁用長任務",
-  "DisableMakeBurger": "禁用製作漢堡任務",
-  "DisableMeasureWeather": "禁用測量氣候任務",
-  "DisableMeeting": "禁用緊急會議以及報告屍體",
-  "DisableMineOres": "禁用挖礦任務",
-  "DisableMiraHQAdmin": "禁用Mira HQ管理室地圖",
-  "DisableMiraHQDevices": "禁用<color=#e84b56>MIRA HQ</color>設備",
-  "DisableMiraHQDoorLog": "禁用Mira HQ通行紀錄",
-  "DisableMonitorMushroom": "禁用觀察蘑菇任務",
-  "DisableMonitorTree": "禁用監控樹木任務",
-  "DisableMushroomMixup": "禁用蘑菇混合破壞 (<color=#ffa646>The Fungle</color>)",
-  "DisableO2": "禁用氧氣破壞 (<color=#66a186>The Skeld</color> & <color=#e84b56>MIRA HQ</color>)",
-  "DisableOpenWaterways": "禁用打開水道任務",
-  "DisableOtherTasks": "禁用一般任務",
-  "DisablePickUpTowels": "禁用撿起毛巾任務",
-  "DisablePlayVideoGame": "禁用打電動任務",
-  "DisablePlayerVotedMessage": "在會議中停用「X 已投票，剩餘 Y 人未投票。」訊息",
-  "DisablePolishGem": "禁用拋光寶石任務",
-  "DisablePolishRuby": "禁用拋光紅寶石任務",
-  "DisablePolusAdmin": "禁用Polus管理室地圖",
-  "DisablePolusCamera": "禁用Polus監控",
-  "DisablePolusDevices": "禁用<color=#a167c0>Polus</color>設備",
-  "DisablePolusVital": "禁用Polus心電圖",
-  "DisablePrimeShields": "禁用啟動護盾任務",
-  "DisableProcessData": "禁用下載資料任務",
-  "DisablePutAwayPistols": "禁用收起手槍任務",
-  "DisablePutAwayRifles": "禁用收起步槍任務",
-  "DisableReactorOnAirship": "禁用避開墜毀路線破壞 (<color=#ed0007>AirShip</color>)",
-  "DisableReactorOnPolus": "禁用重設抗震穩定器破壞 (<color=#a167c0>Polus</color>)",
-  "DisableReactorOnSkeldAndMira": "禁用反應堆破壞 (<color=#66a186>The Skeld</color> & <color=#e84b56>MIRA HQ</color>)",
-  "DisableRebootWifi": "禁用重新啟動Wifi任務",
-  "DisableRecordTemperature": "禁用記錄溫度任務",
-  "DisableRepairDrill": "禁用修理鑽頭任務",
-  "DisableReplaceParts": "禁用更換零件任務",
-  "DisableReplaceWaterJug": "禁用更換水壺的任務",
-  "DisableReportWhenCC": "小灰人時禁止報告屍體",
-  "DisableResetBreakerTask": "禁用重置斷路器任務",
-  "DisableRewindTapes": "禁用倒帶任務",
-  "DisableRoastMarshmallow": "禁用烤棉花糖任務",
-  "DisableRunDiagnostics": "禁用執行診斷任務",
-  "DisableSabotage": "禁用破壞",
-  "DisableSabotagingOn1v1": "在1v1時禁用破壞",
   "DisableSaboteur": "禁用 <color=#ff1919>破壞者</color>",
-  "DisableScanBoardingPass": "禁用掃描登船證任務",
-  "DisableShapeshiftAnimations": "禁用變形時的動畫",
-  "DisableShieldAnimations": "禁用不必要的護盾動畫",
-  "DisableShortTasks": "禁用短任務",
-  "DisableSkeldAdmin": "禁用Skeld管理室地圖",
-  "DisableSkeldCamera": "禁用Skeld監控",
-  "DisableSkeldDevices": "禁用<color=#66a186>The Skeld</color>設備",
-  "DisableSortRecords": "禁用將記錄分類任務",
-  "DisableSortSamples": "禁用分類標本任務",
-  "DisableSpectateCommand": "禁用 /spectate 指令",
-  "DisableSporeTriggerOnFungle": "禁用煙霧蘑菇 (<color=#ffa646>Fungle</color>)",
-  "DisableStabilizeSteering": "禁用穩定轉向任務",
-  "DisableStartFans": "禁用啟動風扇任務",
-  "DisableStartReactorTask": "禁用啟動反應堆任務",
-  "DisableStoreArtifacts": "禁用存放文物任務",
-  "DisableSubmitScanTask": "禁用掃描任務",
   "DisableSunnyboy": "禁用 <color=#ff9902>陽光開朗大男孩</color>",
-  "DisableSwipeCardTask": "禁用刷卡任務",
-  "DisableTaskWin": "禁用任務勝利",
-  "DisableTaskWinIfAllCrewsAreConverted": "當所有<#8cffff>船員</color><#ffab1b>被招募</color>後禁用任務勝利",
-  "DisableTaskWinIfAllCrewsAreDead": "當所有<#8cffff>船員</color>死亡後禁用任務勝利",
   "DisableTasks": "禁用任務",
-  "DisableThrowFisbee": "禁用投擲飛盤任務",
-  "DisableUnlockManifolds": "禁用解鎖歧管任務",
-  "DisableUnlockSafeTask": "禁用保險箱任務",
-  "DisableUploadDataTask": "禁用上傳任務",
   "DisableUseCommand": "房主設定不允許使用該指令",
   "DisableVanillaRoles": "禁用原版職業",
-  "DisableVentingOn1v1": "在1v1時禁用管道",
-  "DisableVoteStartCommand": "禁用 /votestart 指令",
-  "DisableWaterPlants": "禁用幫植物澆水任務",
-  "DisableWhisperCommand": "禁用 /whisper 指令",
-  "DisableZiplineForCoven": "禁止<color=#7b3fbb>巫師</color>使用滑索",
-  "DisableZiplineForCrew": "禁止<color=#8cffff>船員</color>使用滑索",
-  "DisableZiplineForImps": "禁止<color=#ff1919>偽裝者</color>使用滑索",
-  "DisableZiplineForNeutrals": "禁止<color=#ffab1b>中立</color>使用滑索",
-  "DisableZiplineFromTop": "禁用從頂部使用滑索",
-  "DisableZiplineFromUnder": "禁用從底部使用滑索",
-  "DisableZiplineOnFungle": "禁用滑索(<color=#ffa646>Fungle</color>)",
   "DisabledByProgram": "公開房間的操作已被程式禁用",
   "DisabledBySettings": "已在設定中被禁用",
-
   /* ==============================
     Maps           
   ============================== */
   "DoesntSpawnOnFungle": "當地圖為<color=#ffa646>Fungle</color>時不生成",
-  "DoorsResetMode": "門重置模式",
   /* ==============================
     Task Settings           
   ============================== */
   "DoYourTasksPlease": "請完成你的任務!",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "DualVotes": "重複投票",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
-  "DynamicTaskCountColor": "動態任務計數顏色",
-
   /* ==============================
     General Settings           
   ============================== */
   "E2Block": "阻擋抹除",
-
   /* ==============================
     EAC           
   ============================== */
@@ -9653,7 +10147,7 @@
   "ErrorEndTextDescription": "為了避免崩潰，遊戲被強制結束",
   "ErrorLevel1": "可能會出現錯誤",
   "ErrorLevel2": "這可能會導致遊戲出現嚴重問題",
-  "ErrorLevel3": "這個版本本來就不該發布",
+  "ErrorLevel3": "目前EHR版本不支援此版本的《Among Us》遊戲。 \\n請更新《Among Us》！",
   "ErrorTeleport": "傳送失敗",
   "FailChance": "預測錯誤的機率",
   "FailToTrack": "無法追蹤",
@@ -9662,7 +10156,6 @@
   "InvalidArgs": "無效參數",
   "InvalidArguments": "無效的參數",
   "InvalidUndeadTarget": "目標無法被招募",
-  "KickOnInvalidRPC": "踢出無效的RPC玩家(可能由其他模組或外掛引起)",
   "NotAssigned": "-",
   "NotAssignedInfo": "發生錯誤，報告房主!!",
   "RpcAntiBlackOutEndGame": "【<b>{0}</b>】發生未知錯誤，將結束遊戲以防止黑屏",
@@ -9685,19 +10178,9 @@
   /* ==============================
     General Settings           
   ============================== */
-  "EnableAFKDetector": "啟用 AFK 偵測器（也用於偵測和修復黑畫面）",
-  "EnableAutoFactionMinMaxSettings": "啟用基於玩家人數的自動隊伍人數分配",
-  "EnableAutoGMRotation": "自動輪替遊戲模式",
-  "EnableAutoMessage": "啟用自動訊息（在大廳中按給定間隔發送帶有「通知」標籤的文本）",
-  "EnableCustomSabotages": "啟用自定義破壞",
   "EnableDarkTheme": "聊天介面深色主題",
   "EnableDebugMode": "開啟偵錯模式",
-  "EnableEHRRateLimit": "啟用EPC發送速率限制(防止外掛作弊讓你崩遊戲)",
   "EnableExtraAbility": "啟用額外技能",
-  "EnableGameTimeLimit": "啟用遊戲時間限制（超時 = 無人獲勝）",
-  "EnableGrabOxygenMaskCustomSabotage": "允許啟用獲取氧氣面罩(通過通訊破壞發起，連兩次以啟用)",
-  "EnableKillerLeftCommand": "可以使用/gs (以前的/kcount) 指令",
-  "EnableMovementChecking": "啟用 EAC 檢查無效移動(防止加速外掛)(可能會導致誤報)",
   "EnableSpurtCharge": "顯示能量",
   "EnabledGMWarning": "你已啟用GM。這會讓你在每場遊戲開始時變成幽靈。由於未知問題，遊戲可能會立即以“所有人都已死亡”的原因結束，如果發生這種情況，請停用GM。",
 
@@ -9712,12 +10195,6 @@
     Cooldowns and Timers           
   ============================== */
   "EvenKillCooldown": "雙數殺人冷卻時間",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "EveryoneCanVent": "所有人都可以使用通風口",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9726,60 +10203,20 @@
   "ExiledInnocentTargetAddBelow": "\\n回頭一看，<color=#8f815e>冤罪師</color> 正數著手裡的錢呢……",
   "ExiledInnocentTargetInOneLine": "票出 {0} 讓你有種不祥的預感\\n他是 {1}，而回頭一看，<color=#8f815e>冤罪師</color> 正數著手裡的錢呢....\\nGG!",
   "ExiledJester": "票出 {0} 讓你有種不祥的預感\\n{1} 在狂笑著...\\nGG!",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "ExtraKillCooldownOnAirship": "<color=#ed0007>高空飛船</color>額外擊殺冷卻時間",
-  "ExtraKillCooldownOnFungle": "<color=#ffa646>真菌世界</color>額外擊殺冷卻時間",
-  "ExtraKillCooldownOnPolus": "<color=#a167c0>波魯斯</color>額外擊殺冷卻時間",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
   "ExtraVotesPT": "<#00a5ff>(<#00ffff>+<#00ffa5>{0}</color>票數</color>)</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "FactionLimits.Coven.Max": "<#00ffa5>最大</color> 巫師職業 <#ffffff>數量</color>",
-  "FactionLimits.Coven.Min": "<#00ffa5>最小</color> 巫師職業 <#ffffff>數量</color>",
-  "FactionLimits.Impostor.Max": "<#00a5ff>最大</color> 偽裝者職業 <#ffffff>數量</color>",
-  "FactionLimits.Impostor.Min": "<#00ffa5>最小</color> 偽裝者職業 <#ffffff>數量</color>",
-  "FactionLimits.Neutral.Max": "<#00a5ff>最大</color> 中立職業 <#ffffff>數量</color>",
-  "FactionLimits.Neutral.Min": "<#00ffa5>最小</color> 中立職業 <#ffffff>數量</color>",
-
   /* ==============================
     Task Settings           
   ============================== */
   "FakeTask": "假任務:",
-
   /* ==============================
     AFK Detector              
   ============================== */
   "FixBlackScreenWaitForDead": "所有人都活著，黑屏修復需要一個幽靈，所以它會等待有人死亡。",
-
-  /* ==============================
-    Cooldowns and Timers           
-  ============================== */
-  "FixFirstKillCooldown": "修正開場時的殺人冷卻",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "FreezeCooldown": "凍結的冷卻時間",
   "FreezeDuration": "凍結持續時間",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "FungleMushroomMixupDuration": "<color=#ffa646>The Fungle</color>混合蘑菇持續時長",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "FungleReactorTimeLimit": "<color=#ffa646>The Fungle</color>反應堆修理時限",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9839,14 +10276,6 @@
   ============================== */
   "GanPresidentCanBeMadmate": "可以招募<color=#30916f>總統</color>",
   "GanSheriffCanBeMadmate": "可以招募<color=#f8cd46>警長</color>",
-  "GhostCanSeeDeathReason": "幽靈可以看見死因",
-  "GhostCanSeeOtherRoles": "幽靈可以看見他人職業",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "GhostCanSeeOtherVotes": "幽靈可以看見投票情況",
-
   /* ==============================
     Task Settings           
   ============================== */
@@ -9903,22 +10332,10 @@
     Meeting Settings         
   ============================== */
   "HideDualVotes": "隱藏重複投票",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "HideGameSettings": "隱藏遊戲設定",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "HnSUnloadWarning": "<#ffff00><b>警告:</b></color>\\nEHR不支持原版的捉迷藏。\\n你可以開啟EHR的自訂捉迷藏模式，並不開啟任何職業來達到原版捉迷藏的效果。",
-
-  /* ==============================
-    Teams / Alignments           
-  ============================== */
-  "IfSelectedTeamIsDead": "如果選擇的陣營已經死亡，那麼獲勝的陣營是",
-
   /* ==============================
     General Settings           
   ============================== */
@@ -9927,80 +10344,29 @@
   "ImpCanBeLoyal": "<color=#ff1919>偽裝者</color>可以成為<color=#B71556>忠誠</color>",
   "ImpCanBeRole": "<color=#ff1919>偽裝者</color>可以成為{role}",
   "ImpCanFindMarshall": "<#ff1919>偽裝者</color>能看到展現者",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ImpCanGuessImp": "<color=#ff1919>偽裝者</color>可以猜測<color=#ff1919>偽裝者</color>職業",
-
   /* ==============================
     General Settings           
   ============================== */
   "ImpCanKillMadmate": "<color=#ff1919>偽裝者</color>可以殺死<color=#ff1919>叛徒</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ImpostorsCanGuess": "<color=#ff1919>偽裝者</color>可以猜測",
-
   /* ==============================
     Teams / Alignments           
   ============================== */
-  "InVentVisionForTeam": "{team} 在風管的視野",
-
   "IncompatibleMod": "不相容的模組",
   "IncompatibleNeutralMode": "如果中立不兼容則職業變成",
-
-  /* ==============================
-    Achievements           
-  ============================== */
-  "IncompleteAchievementsTitle": "<#ff0000>未解鎖的成就</color>",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "IncreasedSpeedDuration": "增加速度的持續時間",
   "IncreasedVisionDuration": "增加視野的持續時間",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "KCD": "<color=#ff1919>擊殺冷卻:</color> <color=#ffffff><b>{0}</b>秒</color>",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KPDCamouflageMode": "通訊破壞時的偽裝效果",
-  "KickAndriodPlayer": "【<b>{0}</b>】因該房禁止移動端玩家而被請離房間",
-  "KickAndroidPlayer": "踢出使用Android平台遊玩的玩家",
-  "KickBecauseDiffrentVersionOrMod": "【<b>{0}</b>】因安裝了不同版本的模組而被請離房間",
-  "KickBecauseLowLevel": "【<b>{0}</b>】因未達到房主規定的等級限制而被請離房間",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
   "KickCommandDisabled": "踢出指令目前已被禁用",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KickLowLevelPlayer": "踢出沒有達到指定等級的玩家",
-  "KickNintendoPlayer": "【<b>{0}</b>】因該房禁止NS玩家而被請離房間",
-  "KickNotJoinedPlayersRegularly": "每25秒在大廳踢掉未加入遊戲的玩家",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KickPlayStationPlayer": "【<b>{0}</b>】因該房禁止PS玩家而被請離房間",
-  "KickPlayerFriendCodeNotExist": "踢出沒有登入的玩家",
-  "KickSlowJoiningPlayers": "踢出連接速度過慢的玩家（如果玩家在5秒內無法發送數據，將自動被踢出遊戲）",
-  "KickXboxPlayer": "【<b>{0}</b>】因該房禁止Xbox玩家而被請離房間",
-
   /* ==============================
   Cooldowns and Timers           
   ============================== */
   "KillBaitNotify": "目標為誘餌，<color=#ffff00>將在<color=#ffab1b>{0}</color>秒後報告</color>",
-  "KillCooldown": "殺人冷卻時間",
   "KillCooldownAfterCleaning": "清理後的殺人冷卻",
   "KillCooldownAfterStoneGazing": "石化後的殺人冷卻",
   "KillCooldownNormally": "沒有破壞時的擊殺冷卻時間",
@@ -10009,12 +10375,6 @@
     General Settings           
   ============================== */
   "KillCount": " 殺人數: {0}",
-
-  /* ==============================
-    Cooldowns and Timers           
-  ============================== */
-  "KillFlashDuration": "殺人閃光持續時間",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10026,18 +10386,11 @@
     Lovers           
   ============================== */
   "LegacyLovers": "舊版<color=#ff9ace>戀人</color>",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "LightsOutSpecialSettings": "關燈特殊設定",
-
   /* ==============================
     General Settings           
   ============================== */
   "LimitPerGame": "每場遊戲的最大次數",
   "LimitPerRounds": "每輪的最大次數",
-
   /* ==============================
     Loading Hints           
   ============================== */
@@ -10083,7 +10436,7 @@
   "LoadingHint.36": "你知道嗎?\n你可以透過寵物來使用技能!\n只需在遊戲修改中進行設定!",
   "LoadingHint.37": "你知道嗎?\n你可以讓所有人都能跳管!\n只需打開遊戲修改中的設定即可!",
   "LoadingHint.38": "你知道嗎?\n你可以在遊戲修改中禁用特定的任務!",
-  "LoadingHint.39": "你知道嗎?\n你可以在模組設定中更改The Fungle上的滑索的持續時間!",
+  "LoadingHint.39": "你知道嗎？\n您可以將自然災害遊戲模式整合到任何其他遊戲模式中！\n拋棄災難的房間衝刺？ 在《死亡競賽》中，天坑擋住了路？ 區域在《區域之王》中倒塌了？就差最後一個設定了！",
   "LoadingHint.40": "你知道嗎?\n我賭你不知道",
   "LoadingHint.41": "你知道嗎?\n'at least'是兩個字而不是一個",
   "LoadingHint.42": "你知道嗎?\n我不知道。",
@@ -10096,13 +10449,6 @@
   ============================== */
   "LobbyCloseTimer": "大廳關閉時間剩餘: {0}",
   "LobbyTimer": "距離大廳被強制關閉時間剩餘{0}分鐘{1}秒",
-  "LobbyUpdateInterval": "始終至少每隔一段時間更新伺服器上的大廳資訊(玩家數量、地圖、遊戲模式等)",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "LowLoadMode": "修復卡頓",
-
   /* ==============================
     Task Settings           
   ============================== */
@@ -10172,18 +10518,7 @@
   "MaxInVentTime": "最大滯留通風口時間",
   "MaxInspectorCheckLimit": "檢查次數上限",
   "MaxMadmateRoles": "<#00ffa5>最大</color> <#ff1919>叛徒職業</color> 數量",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MaxNNKs": "<#00ffa5>最大</color>數量的<#ffff00>不帶刀</color> <#ffab1b>中立</color> <#888888>（善良、邪惡、渾沌）</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MaxWaitAutoStart": "當大廳計時器低於多少分鐘時強制開始遊戲",
   "Maximum": "最大人數",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
@@ -10214,7 +10549,6 @@
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>大廳代碼已傳送至 EHR 網站。這幫助其他人找到此大廳</color></size>\\n<size=70%>你可以在設定中禁用該功能(系統設定選項)</size>",
   "Message.LobbyShareFailed": "車隊姬似乎不在線(分享大廳失敗)",
   "Message.LobbyShared": "大廳代碼已成功分享!",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10236,8 +10570,13 @@
   "Message.SetToSeconds": "訊息傳送冷卻時間設為【<b>{0}</b>】秒",
   "Message.SyncButtonLeft": "剩餘緊急會議次數: {0}次，少拍桌多做事喔~",
   "Message.TempBannedByEAC": "【<b>{0}</b>】被EAC暫時封禁，理由: {1}",
+  "Message.TemplateList": "可用範本：\\n{0}\\n\\n<size=80%>使用<b>/template [tag]</b>傳送範本</size>",
+  "Message.NoTemplatesFound": "找不到範本",
+  "Message.TemplateConditionsNotMet": "在當前條件下此模板不可用",
   "Message.TemplateNotFoundClient": "房主不持有名為<b>{0}</b>的模板檔案",
   "Message.TemplateNotFoundHost": "未找到與<b>{0}</b>對應字串的模板檔案",
+  "Message.TemplateRankRequired": "您需要{0}等級才能使用此模板",
+  "Message.TemplateRoleRequired": "此模板需要<b>{0}</b>職業",
   "Message.TryFixName": "已嘗試修復名字遮擋問題",
   "Message.WarnWhoSayBanWord": "【<b>{0}</b>】，請友善討論喔~",
   "Message.WarnWhoSayBanWordTimes": "【<b>{0}</b>】被警告: {1} 次\\n請友善討論喔~",
@@ -10246,7 +10585,6 @@
   "Message.YTPlanNotice": "提醒: 該房間已啟用【創作者素材保護計畫】，房主可以指定自己的職業。\\n該功能只允許創作者錄製影片素材，如有濫用情況，請退出遊戲或舉報。\\n目前創作者認證:",
   "Message.YTPlanSelectFailed": "無法將您分配為<b>{0}</b>\\n可能是因為您沒有啟用該職業或該職業不支援被指定",
   "Message.YTPlanSelected": "您下一局將被分配為【<b>{0}</b>】",
-  "MessageRpcSizeLimit": "訊息RPC大小限制（限制值越高，斷線風險越大，但訊息分包的可能性越小－如果您從未遇到隨機斷線問題，則可以將限制值設為15000）",
   "MessageTooLong": "發送信息失敗。RPC數量超過系統設置中的設定數量。",
 
   /* ==============================
@@ -10254,51 +10592,24 @@
   ============================== */
   "MinMadmateRoles": "<#00ffa5>最小</color> <#ff1919>叛徒職業</color> 數量",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>模組最小/最大偽裝者數量自動設定為</color><#ffffff>{0}</color></b>\\n<size=80%>因為您只更改了原版設置，而該設定會被模組的設定覆蓋。 </size>",
-  "MinNNKs": "<#00ffa5>最小</color>數量的<#ffff00>不帶刀</color> <#ffab1b>中立</color> <#888888>（善良、邪惡、渾沌）</color>",
   "MinPlayersForAirship": "<color=#ed0007>Airship</color> 的最低玩家人數",
   "MinPlayersForFungle": "<color=#ffa646>The Fungle</color> 的最低玩家人數",
-  "MinPlayersForGameStateCommand": "使用此指令的最低存活玩家數",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
   "MinTasksToActivateAbility": "能力生效需要完成的最小任務數",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MinWaitAutoStart": "自動開始前的等待時間(分鐘)",
-  "MinutesLeft": "<color=#00ffa5>剩餘分鐘數:</color> {0}",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MiraO2TimeLimit": "<color=#e84b56>MIRA HQ</color>氧氣修理時限",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "MiraReactorTimeLimit": "<color=#e84b56>MIRA HQ</color>反應堆修理時限",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "ModBrokenMessage": "模組檔案損壞\\n請重新安裝模組",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
-  "ModLanguage": "模組語言",
   "ModdedClient": "模組客戶端",
   "ModeratorMuted": "協管 {0} 已將使用者 {1} 禁言<#00ffa5>{2}</color>秒。",
   "ModeratorTag": "<#8000ff>協管</color>",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "Modifier": "\n附加職業: ",
   "Modifiers": "\n附加職業: ",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10351,11 +10662,6 @@
   "NeutralCanBeRole": "<color=#ffab1b>中立</color>可以成為{role}",
 
   /* ==============================
-    Meeting Settings         
-  ============================== */
-  "NeutralKillersCanGuess": "<color=#ffab1b>帶刀中立</color>可以猜測",
-
-  /* ==============================
     General Settings           
   ============================== */
   "NoLimitAddonsNumMax": "每位玩家的附加職業上限",
@@ -10365,32 +10671,25 @@
     Meeting Settings         
   ============================== */
   "NoMoreEmergencyMeetingsLeft": "船上已沒有剩餘的緊急會議次數",
-
   /* ==============================
     Task Settings           
   ============================== */
   "NoPetActionMsgCrewTaskDone": "你是自由的",
   "NoPetActionMsgCrewWithTasksLeft": "你意識到你還有任務要做",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "NoWhisperAsRole": "<#ff0000>X</color> 您不能以該職業使用「whisper」指令。",
   "NoWhisperDuringCourt": "<#ff0000>X</color> /whisper 指令在該大廳中被禁止使用。",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
-  "NoisemakerAlertDuration": "警報持續時間",
-  "NoisemakerImpostorAlert": "<color=#ff1919>偽裝者</color>看的到警報",
   "NotifyGameEnding": "<#ff0000>遊戲結束通知</color>\\n<#ffff00>本遊戲已經結束。如果你的遊戲沒有結束，請退出遊戲並重新加入大廳。這是一個原版就有的bug。</color>",
   "NotifyGodAlive": "若神存活則在會議上通知所有人",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "NukeCooldown": "核爆冷卻時間",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10417,40 +10716,15 @@
     Cooldowns and Timers           
   ============================== */
   "OddKillCooldown": "單數殺人冷卻時間",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "OnlyCancel": "只取消作弊行為",
   "OnlyShowPart": "僅顯示部分",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "OverrideOtherCrewBasedRoles": "將其他船員職業改為工程師（不限於普通船員）",
-  "OverrideSpeedForEachMap": "每張地圖的覆蓋速度",
-  "OverrideVisionInVents": "在風管中覆蓋視野",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "PassiveNeutralsCanGuess": "無刀<color=#ffab1b>中立</color>可以猜測",
-
   /* ==============================
     General Settings           
   ============================== */
   "PetsForceEnabled": "Speedrun遊戲模式需要啟用寵物，所以它們被強制開啟。你可以在遊戲修改器下為以後的遊戲停用它。",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "PoisonCooldown": "投毒冷卻時間",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "PolusReactorTimeLimit": "<color=#a167c0>Polus</color>反應堆修理時限",
-
   /* ==============================
     General Settings           
   ============================== */
@@ -10462,18 +10736,6 @@
   "Promt.EnableAllRoles": "啟用所有職業和附加職業?<size=80%>\\n\\n<b>是</b> - 啟用所有職業和附加職業 \\n<b>否</b> - 進入職業和附加職業的快速設置對話框</size>",
   "Promt.EnableRole": "<size=60%>({0}/{1}) {2}\\n</size><size=80%>啟用 {3}?</size><size=60%>\\n\\n{4}</size>",
   "Promt.ResetAllOptions": "您確定要重製所有設置?此操作無法返回，可能需要幾分鐘。",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "RandomMapsMode": "隨機地圖模式",
-  "SkeldChance": "<color=#66a186>The Skeld</color>地圖隨機到的機率",
-  "MiraChance": "<color=#e84b56>MIRA</color>地圖隨機到的機率",
-  "PolusChance": "<color=#a167c0>Polus</color>地圖隨機到的機率",
-  "DleksChance": "<color=#66a186>dlekS ehT</color>地圖隨機到的機率",
-  "AirshipChance": "<color=#ed0007>Airship</color>地圖隨機到的機率",
-  "FungleChance": "<color=#ffa646>The Fungle</color>地圖隨機到的機率",
-
   /* ==============================
     Rates and Percentages
   ============================== */
@@ -10502,13 +10764,6 @@
     Notifications and Messages           
   ============================== */
   "ReadyCheckMessage": "遊戲即將開始，為了確定有多少玩家已準備好開始遊戲。\\n請輸入<b>/ready</b>讓房主/管理員知道你沒有在掛機。",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "RemainingText.AnonymousEvilCount.Plural": "邪惡玩家",
-  "RemainingText.AnonymousEvilCount.Single": "邪惡玩家",
-
   /* ==============================
     Client Settings
   ============================== */
@@ -10520,10 +10775,10 @@
   "EnableCustomButton": "使用模組按鈕樣式",
   "EnableCustomSoundEffect": "開啟模組技能音效",
   "SwitchVanilla": "切換為原版",
-
   "DarkThemeForMeetingUI": "會議介面深色主題",
   "HorseMode": "愚人節馬模式",
   "LongMode": "長脖子模式",
+  "ClassicMode": "經典模式",
   "ShowPlayerInfoInLobby": "在大廳顯示玩家信息",
   "LobbyMusic": "啟用大廳音樂",
   "EnableCommandHelper": "啟用指令助手",
@@ -10532,6 +10787,7 @@
   "ButtonCooldownInDecimalUnder10s": "冷卻時間低於 10 秒時顯示小數",
   "CancelPetAnimation": "完全取消房主的摸寵物動畫",
   "TryFixStuttering": "嘗試修復卡頓",
+  "ShowClientControlGUI": "顯示客戶端控制使用者介面",
   "GM": "GM(遊戲大師)",
   "GMInfo": "當吃瓜群眾在一旁看戲吧",
   "GMInfoLong": "(房主):\\n遊戲大師一開始就處於幽靈狀態，且所有人都會知道遊戲大師的存在。",
@@ -10546,31 +10802,10 @@
   "RestEHRSetting": "已恢復EHR的預設設定",
   "RevealMaxCount": "最大揭示次數",
   "RitualMaxCount": "最大揭示次數",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "Sabotage": "破壞",
-  "SabotageButtonText": "破壞",
-  "SabotageCooldown": "破壞冷卻時間",
-  "SabotageCooldownControl": "修改破壞冷卻時間",
-  "SabotageTimeControl": "更改修理時限",
-  "SabotageTimeLimitWinners.Coven": "<#7b3fbb>巫師陣營:</color>",
-  "SabotageTimeLimitWinners.Imps": "<#ff1919>偽裝者陣營</color>",
-  "SabotageTimeLimitWinners.NKs": "<#ffab1b>中立</color> <#ff1919>帶刀</color>",
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "SeeEjectedRolesInMeeting": "可以在會議上看到被放逐玩家的職業",
-  "SelfVote": "自票",
-  "SendRoleDescriptionFirstMeeting": "首次會議自動向非模組玩家傳送職業介紹",
-  "ShowLongInfo": "顯示完整的職業介紹而不是職業簡介",
-
   /* ==============================
     General Settings           
   ============================== */
   "SettingsForRoleText": "設定",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10599,50 +10834,16 @@
   "ShortTeamName.Crewmate": "船員",
   "ShortTeamName.Impostor": "偽裝者",
   "ShortTeamName.Neutral": "中立",
-
-  /* ==============================
-    Notifications and Messages           
-  ============================== */
-  "ShowAntiBlackoutWarning": "當逐出顯示被覆蓋時顯示防黑屏警告",
-
   /* ==============================
     General Settings           
   ============================== */
   "ShowArrows": "有指向屍體的箭頭",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowCovenRemainOnEject": "逐出確認時顯示剩餘<color=#7b3fbb>巫師</color>數量",
-  "ShowDifferentEjectionMessageForSomeRoles": "為某些職業顯示不同逐出信息(小丑，處刑人，冤罪師等)",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowImpRemainOnEject": "逐出確認時顯示剩餘<color=#ff1919>偽裝者</color>數量",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowNKRemainOnEject": "同時顯示剩餘邪惡<color=#ffab1b>中立</color>數量",
-
   /* ==============================
     General Settings           
   ============================== */
   "ShowResults": "顯示複盤訊息",
   "ShowSpecificRole": "完成任務時知道玩家具體身分",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
-  "ShowTaskCountWhenAlive": "存活時時顯示任務進度",
-  "ShowTaskCountWhenDead": "死亡時時顯示任務進度",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowTeamNextToRoleNameOnEject": "確認職業時同時顯示所屬陣營",
-
+  "SpectateDisabled": "<#ff0000>X</color> /spectate 指令在該大廳中被禁止使用。",
   /* ==============================
     Maps           
   ============================== */
@@ -10652,33 +10853,6 @@
   "Dleks": "<#66a186>Dleks Eht</color>",
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "SkeldO2TimeLimit": "<color=#66a186>The Skeld</color> 氧氣修理時限",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "SkeldReactorTimeLimit": "<color=#66a186>The Skeld</color> 反應堆修理時限",
-  "SpawnAdditionalRenegadeMinAlivePlayers": "生成逃亡者需要的最小玩家數",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "SpectateDisabled": "<#ff0000>X</color> /spectate 指令在該大廳中被禁止使用。",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "SpeedForMap": "在{map}的玩家速度",
-
-  /* ==============================
-    Achievements           
-  ============================== */
-  "StoreCompletedAchievementsOnEHRDatabase": "將已完成的成就儲存到EHR資料庫(以便在重新安裝或更新時保持進度)",
-
   /* ==============================
     Submerged           
   ============================== */
@@ -10691,73 +10865,25 @@
   "SubmergedRoomName.133": "壓艙水",
   "SubmergedRoomName.134": "下層中心",
   "SubmergedRoomName.135": "下層大廳",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "SupportsPetMessage": "\\n\\n<#00ff00>[✓] 該職業支持使用寵物按鈕來用於能力觸發或其他操作，可能取代通風口、變形或擊殺。</color>",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "SyncButtonMode": "全場可用拍桌數量",
-
   /* ==============================
     General Settings           
   ============================== */
   "SyncCustomSettingsRPC": "已同步RPC",
-  "SyncedButtonCount": "可用拍桌次數",
-
   /* ==============================
     General Settings           
   ============================== */
-  "TabGroup.GameSettings": "模組設定",
   "TabGroup.PresetSettings": "預設設定",
-  "TabGroup.SystemSettings": "系統設定",
-  "TabGroup.TaskSettings": "遊戲修改",
-  "TabGroup.VanillaSettings": "原版設定",
-  "TabInfo.GameSettings": "一般影響遊戲玩法的修改設置",
-  "TabInfo.PresetSettings": "預設遊戲設置，由你制定",
-  "TabInfo.SystemSettings": "模組本身的基本設置",
-  "TabInfo.TaskSettings": "對遊戲有重大影響的修改特定設置",
-  "TabInfo.VanillaSettings": "基本遊戲設定",
   "TargetCannotBeTeleported": "目標無法被傳送",
-
   /* ==============================
     Task Settings           
   ============================== */
   "TaskBasedCrewCanBeLazy": "基於任務的<color=#8cffff>船員</color>職業可以成為<color=#A4DFFE>懶人</color>",
   "TasklessCrewCanBeLazy": "沒有任務的<color=#8cffff>船員</color>可以成為<color=#A4DFFE>懶人</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "TieMode.All": "全部逐出",
-  "TieMode.Default": "默認",
-  "TieMode.Random": "隨機逐出",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "TrackerCanGetArrowColor": "可以看到有顏色的箭頭",
-
-  /* ==============================
-    Cooldowns and Timers           
-  ============================== */
-  "TrackerCooldown": "追蹤冷卻時間",
-  "TrackerDuration": "追蹤持續時間",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "TrackerHideVote": "隱藏<color=#3CB371>正義的追蹤者</color>的投票",
-
-  /* ==============================
-    Notifications and Messages           
-  ============================== */
-  "TrackerLastRoomMessage": "你追蹤的目標最後在的房間是:<b>{0}</b>",
   "TransformationAnnouncementMessage": "這艘船感染了一種強大的疾病，<#e5f6b4>瘟疫之源</color>變成了<color=#343136>萬疫之神</color>！",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10785,8 +10911,6 @@
   /* ==============================
     Meeting Settings         
   ============================== */
-  "UseMeetingShapeshift": "在會議中使用變形選單來選擇目標，而不是指令/投票",
-  "UseMeetingShapeshiftForGuessing": "即使是猜測(可能會在原版伺服器中讓房主中斷連線)",
   "UsePetInsteadOfKillButton": "使用寵物按鈕作為擊殺按鈕",
   "UseVoteCancelling": "使用取消投票的方法來使用技能而不是指令",
   "UseVoteCancellingAfterVote": "能夠在使用投票的技能發動後正常投票",
@@ -10796,12 +10920,10 @@
     Moderator / Admin / VIP         
   ============================== */
   "VIPTag": "<#ffff00>VIP</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "VanillaCrewmateCannotBeGuessed": "無法猜測白板船員",
-
   "VengefulCanVent": "<color=#ba2749>報復者</color>可以使用管道",
   "VengefulKCD": "<color=#ba2749>報復者</color>殺人冷卻",
   "VentBlockSuccess": "通風口已被堵住",
@@ -10809,26 +10931,21 @@
   "VentCooldown": "使用通風管冷卻時間",
   "VentLimit": "管道使用有最大次數限制",
   "VentPreventionMode": "管道使用模式",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "VitalsCooldown": "心電圖冷卻時間",
   "VitalsDuration": "心電圖持續時間",
-
   /* ==============================
     Meeting Settings         
   ============================== */
-  "VoteMode": "投票相關設定",
   "VoteStartDisabled": "<#ff0000>X</color> /votestart 指令在該大廳中被禁止使用。",
-  "VotedToStart": "<size=80%>如果大廳中有超過50%的玩家投票，則開始倒計時。\\n目前，{0}/{1}（{2}%）的玩家已經投票。需要{3}位玩家投票。</size>",
+  "VotedToStart": "<size=70%>如果大廳中有超過50%的玩家投票，則開始倒計時。\\n目前，{0}/{1}（{2}%）的玩家已經投票。需要{3}位玩家投票。\\n如果您也想開始遊戲，請輸入/vs</size>",
   "VotesPerKill": "每一次殺人獲得的票數",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "WMMode": "<color=#00ffa5>模式:</color> <color=#ffffff><b>{0}</b></color>",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
@@ -10843,12 +10960,6 @@
   ============================== */
   "WhenNextMeetingEnds": "下一次會議結束後",
   "WhenNextMeetingStarts": "下一次會議開始時",
-  "WhenNonVote": "不投票相當於",
-  "WhenSkipVote": "跳過投票時",
-  "WhenSkipVoteIgnoreEmergency": "忽略緊急會議",
-  "WhenSkipVoteIgnoreFirstMeeting": "忽略首次會議",
-  "WhenSkipVoteIgnoreNoDeadBody": "無屍體時忽略",
-  "WhenTie": "平票時",
   "WhisperDisabled": "<#ff0000>X</color> /whisper 指令在該大廳中被禁止使用",
   /* ==============================
     Combos           
@@ -10869,57 +10980,6 @@
   "assignCommonTasks": "%role%的普通任務數",
   "doOverride": "特別設定%role%的任務數",
   /* ==============================
-    Pets           
-  ============================== */
-  "PetButtonText": "撫摸",
-  "pet_Alien": "腦洞蟲",
-  "pet_Bedcrab": "壓床蟹",
-  "pet_BredPet": "麵包寵物",
-  "pet_Bush": "灌木夥伴",
-  "pet_Charles": "Charles直升機",
-  "pet_Charles_Red": "高帽直升機",
-  "pet_ChewiePet": "軟糖船員",
-  "pet_Creb": "螃蟹",
-  "pet_Crewmate": "迷你船員",
-  "pet_Crow": "瘋鴉",
-  "pet_Cube": "神靈小子",
-  "pet_D2GhostPet": "機靈",
-  "pet_D2PoukaPet": "坡卡",
-  "pet_D2WormPet": "蠕蟲",
-  "pet_DancingSkeletonPet": "震骨者",
-  "pet_Doggy": "怪狗",
-  "pet_Ellie": "E. Rose",
-  "pet_Goose": "鵝",
-  "pet_GuiltySpark": "記罪者",
-  "pet_HamPet": "節日火腿",
-  "pet_Hamster": "漢普頓",
-  "pet_Lava": "岩漿夥伴",
-  "pet_Mister": "野獸先生",
-  "pet_Pate": "肉醬",
-  "pet_Pip": "樹鼠",
-  "pet_Pusheen": "Pusheen",
-  "pet_RANDOM_FOR_EVERYONE": "<color=#ffff00>隨機</color>",
-  "pet_Rammy": "拉米",
-  "pet_Robot": "機器人",
-  "pet_Snow": "雪球",
-  "pet_Squig": "史奎格",
-  "pet_Stickmin": "H. Stickmin",
-  "pet_Stormy": "風暴",
-  "pet_Strawb": "飛天草莓",
-  "pet_UFO": "飛碟",
-  "pet_YuleGoatPet": "聖誕羊",
-  "pet_clank": "克拉克",
-  "pet_coaltonpet": "小煤球",
-  "pet_frankendog": "科學怪犬",
-  "pet_lny_dragon": "斯凱爾德的荒涼",
-  "pet_nancy": "Nancy",
-  "pet_napstamate": "Napstamate",
-  "pet_nuggetPet": "雞塊",
-  "pet_pocketCircuitCar": "口袋電路",
-  "pet_poro": "Heimerdinger 的 Poro",
-  "pet_spaceCat": "太空貓",
-  "pet_test": "小錯誤",
-  /* ==============================
     Task Settings           
   ============================== */
   "roleLongTasksNum": "%role%的長任務數",
@@ -10937,14 +10997,11 @@
   "Format.Seconds": "{0}秒",
   "Format.Times": "{0}",
   "Format.Votes": "{0}",
-  "FormatNameMode": "玩家名字同步模式",
-  "FormatNameModes.Color": "顏色",
-  "FormatNameModes.None": "禁用",
-  "FormatNameModes.Snacks": "隨機",
-
   /* ==============================
     Remaining Text           
   ============================== */
+  "RemainingText.AnonymousEvilCount.Plural": "邪惡玩家",
+  "RemainingText.AnonymousEvilCount.Single": "邪惡玩家",
   "RemainingText.CovenPlural": "巫師陣營",
   "RemainingText.CovenSingle": "巫師陣營",
   "RemainingText.ImpPlural": "偽裝者",
@@ -10980,17 +11037,11 @@
   "ROT.Neutral_Killing": "★ 帶刀類中立",
   "ROT.Neutral_Pariah": "★ 混沌中立",
   "ROT.Vanilla": "★ 原版職業",
-  "AllCrewRolesHaveVanillaColor": "所有<#8cffff>船員陣營</color>職業使用<#8cffff>原版船員職業顏色</color><#ffff00>(需要重啟)</color>",
   "ColoredOff": "<color=#ff4c6f>關閉</color>",
   "ColoredOn": "<color=#00fefe>開啟</color>",
   "IllegalColor": "請輸入正確的顏色",
   "AADelay": "離開設備的時間",
   "AADone": "該過程已完成",
-  "AGMR.Explicit": "明確指定",
-  "AGMR.Random": "隨機選擇",
-  "AGMR.RandomGroup.GMChance": "選擇 {gm} 的機率",
-  "AGMR.Slot.RandomGroupId": "此槽位使用的隨機組別",
-  "AGMR.Unused": "未使用/跳過該槽位",
   "AbilityCD": "技能使用冷卻",
   "AbilityUseGainWithEachKill": "<color=#00ffff>殺死一名玩家<color=#7FFFD2>獲得的</color>技能數量</color>",
   "ActiveRolesList": "開啟職業列表",
@@ -11001,10 +11052,7 @@
   "Addons": "附加職業",
   "After1PlayerEaten": "1名玩家被吞噬後",
   "AfterTime": "一段時間後",
-  "AllClosed": "全關",
-  "AllOpen": "全開",
   "AlliesKnowCrewpostor": "<color=#ff1919>偽裝者</color>知道船鬼",
-  "AllowConsole": "開啟控制台",
   "AmOblivious": "你是<color=#424242>膽小鬼</color>，所以你不能報告屍體",
   "Anagram": "這個字母順序被打亂的單字是<b>{0}</b>！猜猜原單字是什麼！ (提示：它的第一個字母是<b>{1}</b>！)",
   "AnalyzeCD": "分析冷卻時間",
@@ -11018,17 +11066,9 @@
   "AnalyzerSeeVentCount": "可以在結果中顯示跳管數",
   "AnnounceTransformation": "轉變通知(從<#e5f6b4>瘟疫之源</color>到<color=#343136>萬疫之神</color>)",
   "AppIDAdded": "由於沒有 steam_appid.txt 文件，因此創建了一個新文件以防止錯誤。 \\n請重新啟動遊戲以套用變更。",
-  "ApplyDenyNameList": "踢出使用違規暱稱的玩家",
   "AssignOnlyToCrewmate": "只分配給<color=#8cffff>船員</color>",
-  "AutoDisplayKillLog": "結束後自動顯示殺人紀錄",
-  "AutoDisplayLastAddOns": "結束後自動顯示上局附加職業",
-  "AutoDisplayLastResult": "結束後自動顯示最終結果",
-  "AutoDisplayLastRoles": "結束後自動顯示上局職業",
-  "ChangeNameToRoleInfo": "開始遊戲時用玩家名字顯示職業簡介",
-  "AutoGMRotationSlot": "遊戲 {index} 的遊戲模式(插槽 {index})",
   "AutoGMRotationStatusText": "<u>自動遊戲模式輪替已啟用！ </u>",
   "AutoGMRotationStatusText.NextGM": "下一個",
-  "AutoPlayAgain": "遊戲結束後自動返回大廳",
   "AutoWarnStopWords": "警告使用違禁詞的人",
   "AvailableRoles": "可供選擇的偽裝者職業列表",
   "AwkwardPotion": "錯誤藥水",
@@ -11057,14 +11097,12 @@
   "CKEO.SirenOnly": "僅限<#7b3fbb>海妖</color>",
   "CL.All": "全部",
   "Cameras": "監控",
-  "ChangeDecontaminationTime": "更改消毒時間(<color=#e84b56>MIRA HQ</color>/<color=#a167c0>Polus</color>)",
   "ChristmasGreeting": "聖誕節快樂！",
   "ConfirmAuth.Success": "<#00ff00>✓ <#00ffa5>已成功將驗證請求傳送至伺服器。",
   "CopyCrewVar": "可以複製船員職業的邪惡類型",
   "CovenKillEachOther": "身為巫師陣營成員，你不能(也不應該)殺死其他巫師",
   "CovenKillEntranced": "巫師陣營玩家無法殺死附魔的玩家",
   "CovenKnowSuperStarDead": "<color=#7b3fbb>巫師陣營</color>知道<color=#f6f657>大明星</color>死亡",
-  "CrewAdvancedGameEndChecking": "為 {role} 啟用進階遊戲結束檢查",
   "CrewKillingRed": "帶刀<color=#8cffff>船員</color>視為邪惡",
   "DGRM.AfterTime": "計時器",
   "DGRM.None": "無",
@@ -11072,18 +11110,13 @@
   "DeactivationImmediately": "立刻",
   "DeactivationIsVisibleOFF": "<color=#ff4c6f>關閉</color>",
   "DecreasedSpeed": "降低速度",
-  "DeepLowLoad": "優先考慮性能",
-  "Default": "默認",
   "DefaultRevertShapeshiftText": "解除",
   "DefaultShapeshiftText": "變形",
   "Delayed": "延遲",
   "DeleteTagSuccess": "<#00ffa5>✓</color>成功刪除{0}的標籤",
-  "Detective": "偵探",
   "DevouredName": "被吞噬",
-  "DontUpdateDeadPlayers": "不要更新死亡玩家以提高性能",
   "DoorLog": "門禁日誌",
   "DoorLogAndBinoculars": "門禁日誌 & 望遠鏡",
-  "DumpLogAfterGameEnd": "每次遊戲結束後將遊戲日誌投放至電腦桌面",
   "E2Kill": "擊殺目標",
   "ECMO.Coven": "<#7b3fbb>巫師陣營</color>",
   "ECMO.Nothing": "不計人數",
@@ -11092,9 +11125,6 @@
   "EatenByDevourer": "吞噬者吞噬了你的皮膚！",
   "EatenByPelican": "您被鵜鶘吞了，請等待鵜鶘死亡或會議...",
   "Ego-": "利己的-",
-  "EndWhenPlayerBug": "出現嚴重錯誤時強制結束遊戲以防止黑屏",
-  "Engineer": "工程師",
-  "EnterKeyToStartGame": "按Enter鍵開始遊戲倒計時",
   "EnterVentToWin": "跳進管道來點火!",
   "EraseMethod": "抹除模式",
   "EraserEraseNeutralNotice": "目標為中立職業，無法抹除",
@@ -11104,13 +11134,10 @@
   "EvenAfterWinning": "滿足勝利條件後",
   "EveryOneKnowSuperStar": "所有人知道誰是<color=#f6f657>大明星</color>",
   "EveryoneDied": "無人生還",
-  "EveryoneSeesDeadPlayersRoles": "所有人都能看到死亡玩家的職業",
-  "EveryoneSeesDeathReasons": "所有人都能看到死因",
   "ExperimentalRoleIndicator": "    <color=#ffff00>職業性</color>",
   "FPSGame": "FPS: ",
   "FPSSetTo": "FPS上限設定為: {0}",
   "FastBoot": "快速啟動",
-  "ForExample": "使用例子",
   "ForSpecifiedTime": "指定時間",
   "Forever": "永遠",
   "ForgeSuccess": "<#00ffa5>✓</color> 成功將 {1} 偽造成 {2}。\\n<size=80%>你還能使用 {0} 次技能。</size>",
@@ -11132,12 +11159,6 @@
   "HideGameCodes": "隱藏遊戲代碼",
   "HideResults": "隱藏複盤訊息",
   "HolidayGreeting": "佳節愉快！",
-  "Hungarian": "匈牙利語",
-  "IgnoreAfterAnyoneDied": "第一次死亡後忽略",
-  "IgnoreConditions": "忽略條件",
-  "IgnoreCrewmates": "忽略<color=#8cffff>船員</color>",
-  "IgnoreImpostors": "忽略<color=#ff1919>偽裝者</color>",
-  "IgnoreNeutrals": "忽略<color=#ffab1b>中立</color>",
   "Immediately": "立刻",
   "ImpEgoistVisibalToAllies": "<color=#ff1919>偽裝者</color>可以看到其他<color=#5600ff>利己主義者</color> <color=#ff1919>偽裝者</color>",
   "ImpKnowAlliesRole": "<color=#ff1919>偽裝者</color>知道隊友的職業",
@@ -11149,7 +11170,6 @@
   "IncorrectMarks": "\\n<color=#ffff00>你的兩條裂縫位置過於接近，他們將不起作用</color>\\n該次製造裂縫將被取消",
   "IncreasedSpeed": "增加速度",
   "IncreasedVision": "增加視野",
-  "Indonesian": "印度尼西亞語",
   "InfectDelay": "感染延遲",
   "InfectRadius": "感染半徑",
   "Infected": "被感染",
@@ -11162,10 +11182,7 @@
   "KilledByScavenger": "您因被清道夫殺死因此傳送至地圖外",
   "KnowTargetRole": "知道目標的職業",
   "LIRoleForOtherImps": "<#ff9ace>戀人</color> <#ff1919>偽裝者</color> 在其他<#ff1919>偽裝者</color>眼裡看作",
-  "LadderDeath": "從梯子上下滑時可能會摔死",
-  "LadderDeathChance": "摔死的機率",
   "Lance": "長矛",
-  "LargerRoleTextSize": "增加職業文本大小",
   "Last-": "僅存 ",
   "LastEndReason": "★ <u>結束原因:</u>",
   "LastResult": "★ <u>遊戲結果:</u>",
@@ -11185,7 +11202,6 @@
   "MarkDone": "成功製造裂縫",
   "MarksCleared": "已移除所有裂縫",
   "MisguessButNoSuicide": "你賭錯了，所以你..... 什麼? 你居然沒有死? 原來是善良的房主開啟了賭怪賭錯不會自殺的功能! 你撿回了一條命!",
-  "MisguessDeathReason": "「誤賭」死亡原因",
   "NBareRed": "友善<color=#ffab1b>中立</color>視為邪惡",
   "NEareRed": "邪惡<color=#ffab1b>中立</color>視為邪惡",
   "NKWC.LastStanding": "殺死所有人",
@@ -11198,33 +11214,24 @@
   "NeutralsKnowEachOther": "<color=#ffab1b>中立</color>可以互認",
   "NewUpdateAvailable": "<size=400%><b>更新來啦 ！</b></size>\n<size=200%><b>{0}</b></size>",
   "NewYearGreeting": "新年快樂！",
-  "NoGameEnd": "測試模式(遊戲不結束)",
   "NoInfoExists": "沒有存在的上局訊息",
   "NoPetActionMsgCrew": "你想像自己是平行宇宙中的偽裝者",
   "NoVenting": "禁止使用",
-  "Noisemaker": "警示者",
-  "NoticeEveryone": "通知所有人",
-  "NoticeMe": "通知我",
   "NukeRadius": "核爆半徑範圍 (12x超級大)",
   "NullCD": "技能使用冷卻",
   "NumOfRolesToKill": "名字下方所顯示的職業數量",
   "NumRolesListedForEachPlayer": "每位玩家列出的職業數量",
   "OnDemolitionistDead": "你殺死了爆破兵! 跳進管道或者死!",
-  "OnlinePresetInfo": "<b>{0}</b>\\n<size=70%>由{1}\\n{2}下載</size>",
+  "OnlinePresetInfo": "<b>{0}</b>\\n<size=70%>由{1} • {2}天以前 • {3} 下載</size>",
   "OnSuperStarDead": "警告：大明星死亡！",
   "OtherRoles.Addons": "★ 附加職業",
   "OtherRoles.CrewmateRoles": "★ 船員職業",
   "OtherRoles.ImpostorRoles": "★ 偽裝者職業",
   "OtherRoles.NeutralRoles": "★ 中立職業",
   "Outside": "外面",
-  "Persian": "波斯語",
-  "PetToAssign": "向每個人分配寵物",
   "PetToWin": "摸寵物來點燃！",
-  "Phantom": "魅影",
   "PingText": "延遲",
   "PleaseStopBeingDumb": "<size=90%><#dd00ff>護盾動畫<#ff0000>不</color>表示有人試圖殺死你！ </color>\\n<#ffff00>護盾動畫來重置冷卻時間！ </color></size>",
-  "Polish": "波蘭語",
-  "PostLobbyCodeToEHRDiscordServer": "將房間號碼發佈至EHR網站",
   "PotionInStore": "儲存的藥水",
   "PressTabToNextPage": "按下 <color=#ff1919>Tab</color> 或 <color=#ff1919>數字鍵</color> 以顯示下一頁....",
   "PrivateChat": "為<color=#ff9ace>戀人</color>啟用私密頻道",
@@ -11239,44 +11246,32 @@
   "QuickFixPotion": "維修藥水",
   "QuickFixPotionWaitForUse": "維修藥水等待使用",
   "RNGHasSpoken": "隨機事件已開始",
-  "RandomByDoor": "隨機",
   "RandomONImpRole": "隨機啟用偽裝者職業",
-  "RandomSpawn": "隨機出生點",
   "RecruitedByDeathknight": "你現在是亡靈們的一員了!",
   "RecruitedToDeathknight": "死靈法師招募你為死亡騎士!",
   "RejoinRequiredDueToVanillaSwitch": "你已決定切換到原版模式，因此需要斷開與當前遊戲的連接，否則會導致問題。請重新加入遊戲。",
-  "RemovePetsAtDeadPlayers": "強制刪除死亡玩家的寵物",
   "ReportBaitAtAllCost": "不惜一切代價報告<#00f7ff>誘餌</color>",
   "ReportButtonText": "報告",
-  "RequiresPetIndicator": "  <#ffab1b>寵物</color>",
-  "ResetDoorsEveryTurns": "會議後重設門的開關",
-  "Reverie": "遐想者",
+  "RequiresPetIndicator": "  <#ffab1b>寵物</color>", 
   "RevivedByAltruist": "<#ffff00><size=150%>你被 <color=#300000>殉道者</color> 復活了!</size></color>",
   "RevivedByOccultist": "<#ffff00><size=150%>你被<color=#ff1919>大祭司</color>復活了!</size>\\n你現在成為了 <color=#ff1919>偽裝者</color> 的一員</color>",
   "RevivedByTimeMaster": "<size=150%><#ffff00>您在回朔過程中復活了！ </color></size>",
   "SKPromotesToJackal": "<color=#00b4eb>豺狼</color>死亡後<color=#00b4eb>跟班</color>變成新的<color=#00b4eb>豺狼</color>",
-  "Scientist": "科學家",
   "SearchNoResult": "未找到結果",
   "SeeMedic": "<color=#00ff97>軍醫</color>",
   "SeeMedicAndTarget": "<color=#00ff97>軍醫</color> + <color=#8cffff>被保護者</color>",
   "SeeNoone": "無",
   "SeeTarget": "<color=#8cffff>被保護者</color>",
-  "SendHashedPuidToUseLinkedAccount": "我有一個連結到我的 Discord 帳戶的 EHR 帳戶，請發送我的hashed PUID，以便 Discord 用戶識別我",
   "SewedBySeamstress": "<#ffff44>你被 {0} 與某人縫在一起了!</color>",
-  "Shapeshifter": "變形者",
   "ShareLobby": "允許EHR-Chan自動發送您的房號至Discord",
   "Shield": "盾牌",
-  "ShieldPersonDiedFirst": "首刀保護(僅限被殺)",
   "ShieldPotion": "抗性藥水",
   "ShotBlank": "你打了個空!",
   "SightPotion": "夜視藥水",
   "SkillUsedLeft": "你發動了技能召開了會議。\\n你的技能剩餘使用次數:",
-  "Skip": "跳過",
   "SnatchWin": "搶奪勝利 (如果關閉則與獲勝陣營一起獲勝)",
   "SnatchesWin": "搶奪勝利",
   "SomeSortOfProtection": "該玩家因特定職業的技能而受到保護",
-  "SpawnAdditionalRenegadeOnImpsDead": "當所有 <#ff1919>偽裝者</color> 死亡後隨機一個 <#8cffff>船員</color> 變為 <#ff1919>逃亡者</color>",
-  "SpawnAdditionalRenegadeWhenNKAlive": "當 <#ffab1b>帶刀中立</color> 活著時也會生成",
   "SpectatorsList": "<#888888>以下</color>{0}<#888888>玩家正在觀看:</color>",
   "SpeedPotion": "速度藥水",
   "Stored": "庫存",
@@ -11318,14 +11313,11 @@
   "TeleportedByTransporter": "您被傳送至:{0}",
   "TeleportedByTwister": "您被傳送至:{0}",
   "TeleportedInRndVentByDisperser": "所有人都被傳送到通風口",
-  "IntegrateNaturalDisasters": "將自然災害遊戲模式整合到當前遊戲模式",
   "TeleportedByTornado": "\\n喔不! 你剛剛被龍捲風捲走了!\\n所以你來到了這裡!",
   "Temp.Blank": "",
   "TextBelowVersionText": "",
   "TimeDecreased": "時間減少了 {0} 秒",
   "TimeLeft": "剩餘時間",
-  "Tracker": "追蹤者",
-  "TrackerDelay": "追蹤延遲",
   "TrapConsecutiveBodies": "可以連續捕獲屍體",
   "TrapOnlyWorksOnTheBodyTrapster": "陷阱只在<color=#ff1919>陷阱師</color>的屍體上生效",
   "TriedToKillLastGameFirstKill": "你的目標是上一局中第一個被殺死的玩家。\\n請給他們一點遊戲體驗",
@@ -11340,32 +11332,22 @@
   "TypeImpostor": "偽裝者",
   "TypeNeutral": "中立",
   "UIScaleFactor": "介面按鈕尺寸比例",
-  "UniqueNeutralRevealScreen": "每個<#ffab1b>中立</color>職業都有自己的開場畫面",
   "UnreportableBody": "該屍體因特定職業的技能而受到無法報告",
   "UntilNextReveal": "直到下次揭曉",
   "Untouched": "全局設置決定",
   "UploadPreset": "將目前預設上傳到資料庫",
   "UploadPresetHeader": "上傳&公開",
-  "UseGameLanguage": "使用遊戲語言",
   "UseLegacyVersion": "使用舊版",
-  "UsePets": "使用寵物按鍵代替使用通風管或變形",
-  "UsePhantomBasis": "使用隱身按鈕(魅影)作為技能觸發",
-  "UsePhantomBasisForNKs": "即使是 <#ff1919>帶刀</color> <#ffab1b>中立</color> 職業也以魅影為基底 <#ffff00>(實驗性)</color>",
   "UsesPetInsteadOfKillNotice": "<#ffff00>⚠ 此職業需要使用撫摸寵物來進行擊殺!</color>",
   "VengefulHasImpVision": "<color=#ba2749>報復者</color>擁有<#ff1919>偽裝者</color>視野",
-  "Viper": "毒蛇",
-  "ViperDissolveTime": "溶解時間",
   "WMRadius": "斧頭擊殺半徑",
   "WMShieldAlreadyUsed": "盾牌已被使用",
   "WaitFor1Kill": "自殺倒計時在第一次擊殺後開始",
   "Website": "EHR網站",
-  "WhackAMole": "打地鼠",
   "WhenTargetIsNeutral": "當目標為中立時(且當通過擊殺來抹除時)",
   "YouAreHostSuffix": "你!",
   "YouReceivedTheNecronomicon": "您已獲得<{0}>死靈之書</color>！它賦予您正常擊殺的能力，以及基於您職業的其他能力。",
   "YouUnmuted": "{0} 解除了對你的禁言",
-  "ZiplineTravelTimeFromBottom": "坐滑索從底部到頂部需要的用時",
-  "ZiplineTravelTimeFromTop": "坐滑索從頂部到底部需要的用時",
   "killAttacker": "有擊殺嘗試時殺死兇手",
   "onSetPublicNoLatest": "我們有一個重要的更新，請更新本模組\\n否則您無法公開房間",
   "turnOff": "關",
@@ -11408,9 +11390,6 @@
   "GameOverReason.ImpostorDisconnect": "<color=#777777>偽裝者斷線</color>",
   "GameOverReason.ImpostorsByKill": "<color=#ff1919>偽裝者人數占優</color>",
   "GameOverReason.ImpostorsBySabotage": "<color=#ff1919><color=#8cffff>船員</color>沒有成功修復破壞</color>",
-  "GameTimeLimit": "遊戲時間限制",
-  "GameTimerEnded": "遊戲時間限制結束",
-  "GameTimeLimitRunsDuringMeetings": "會議期間遊戲時間限制",
   "Infectious": "感染者",
   "InfectiousInfo": "感染所有人",
   "InfectiousBiteCooldown": "感染冷卻時間",
@@ -11419,12 +11398,6 @@
   "InfectiousKillButtonText": "感染",
   "NtrInfo": "想什麼呢，我怎麼可能出軌",
   "ReadyClientsInfo": "\\n已就緒的客戶端:{0}(超時{1}秒)",
-  "RoleAssigningAlgorithm": "職業分配算法",
-  "RoleAssigningAlgorithm.Default": "預設",
-  "RoleAssigningAlgorithm.HashRandom": "Hash",
-  "RoleAssigningAlgorithm.MersenneTwister": "MersenneTwister",
-  "RoleAssigningAlgorithm.NetRandom": ".NET系統",
-  "RoleAssigningAlgorithm.Xorshift": "Xorshift",
   "RoleBlockCooldown": "職業封鎖冷卻時間",
   "RoleBlockDuration": "職業封鎖持續時間",
   "RoleBlockNotify": "你的職業技能被封鎖住了，你不能{0}",

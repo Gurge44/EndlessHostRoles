@@ -76,7 +76,7 @@ public class Anonymous : RoleBase
 
     public static void AddDeadBody(PlayerControl target)
     {
-        if (target != null && !DeadBodyList.Contains(target.PlayerId)) DeadBodyList.Add(target.PlayerId);
+        if (target && !DeadBodyList.Contains(target.PlayerId)) DeadBodyList.Add(target.PlayerId);
     }
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
@@ -87,12 +87,14 @@ public class Anonymous : RoleBase
 
         var targetId = byte.MaxValue;
 
-        foreach (byte db in DeadBodyList.ToArray())
+        foreach (byte db in DeadBodyList)
         {
             PlayerControl dp = Utils.GetPlayerById(db);
-            if (dp == null || dp.GetRealKiller() == null) continue;
+            if (!dp) continue;
+            PlayerControl realKiller = dp.GetRealKiller();
+            if (!realKiller) continue;
 
-            if (dp.GetRealKiller().PlayerId == pc.PlayerId) targetId = db;
+            if (realKiller.PlayerId == pc.PlayerId) targetId = db;
         }
 
         if (targetId == byte.MaxValue && DeadBodyList.Count > 0) targetId = DeadBodyList.RandomElement();

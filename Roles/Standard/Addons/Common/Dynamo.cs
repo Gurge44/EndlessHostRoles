@@ -39,7 +39,7 @@ public class Dynamo : IAddon
 
     public static void Add()
     {
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.Is(CustomRoles.Dynamo))
             {

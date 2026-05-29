@@ -4,79 +4,94 @@ namespace EHR.Modules.Extensions;
 
 public static class IGameManagerEx
 {
-    public static void Set(this BoolOptionNames name, bool value, IGameOptions opt)
+    extension(BoolOptionNames name)
     {
-        opt.SetBool(name, value);
-    }
-
-    public static void Set(this BoolOptionNames name, bool value, NormalGameOptionsV10 opt)
-    {
-        if (name is not BoolOptionNames.GhostsDoTasks and not BoolOptionNames.Roles)
+        public void Set(bool value, IGameOptions opt)
+        {
             opt.SetBool(name, value);
+        }
+
+        public void Set(bool value, NormalGameOptionsV10 opt)
+        {
+            if (name is not BoolOptionNames.GhostsDoTasks and not BoolOptionNames.Roles)
+                opt.SetBool(name, value);
+        }
+
+        public void Set(bool value, HideNSeekGameOptionsV10 opt)
+        {
+            opt.SetBool(name, value);
+        }
     }
 
-    public static void Set(this BoolOptionNames name, bool value, HideNSeekGameOptionsV10 opt)
+    extension(Int32OptionNames name)
     {
-        opt.SetBool(name, value);
+        public void Set(int value, IGameOptions opt)
+        {
+            opt.SetInt(name, value);
+        }
+
+        public void Set(int value, NormalGameOptionsV10 opt)
+        {
+            opt.SetInt(name, value);
+        }
+
+        public void Set(int value, HideNSeekGameOptionsV10 opt)
+        {
+            opt.SetInt(name, value);
+        }
     }
 
-    public static void Set(this Int32OptionNames name, int value, IGameOptions opt)
+    extension(FloatOptionNames name)
     {
-        opt.SetInt(name, value);
+        public void Set(float value, IGameOptions opt)
+        {
+            opt.SetFloat(name, value);
+        }
+
+        public void Set(float value, NormalGameOptionsV10 opt)
+        {
+            opt.SetFloat(name, value);
+        }
+
+        public void Set(float value, HideNSeekGameOptionsV10 opt)
+        {
+            opt.SetFloat(name, value);
+        }
     }
 
-    public static void Set(this Int32OptionNames name, int value, NormalGameOptionsV10 opt)
+    extension(ByteOptionNames name)
     {
-        opt.SetInt(name, value);
+        public void Set(byte value, IGameOptions opt)
+        {
+            opt.SetByte(name, value);
+        }
+
+        public void Set(byte value, NormalGameOptionsV10 opt)
+        {
+            opt.SetByte(name, value);
+        }
+
+        public void Set(byte value, HideNSeekGameOptionsV10 opt)
+        {
+            opt.SetByte(name, value);
+        }
     }
 
-    public static void Set(this Int32OptionNames name, int value, HideNSeekGameOptionsV10 opt)
+    extension(UInt32OptionNames name)
     {
-        opt.SetInt(name, value);
-    }
+        public void Set(uint value, IGameOptions opt)
+        {
+            opt.SetUInt(name, value);
+        }
 
-    public static void Set(this FloatOptionNames name, float value, IGameOptions opt)
-    {
-        opt.SetFloat(name, value);
-    }
+        public void Set(uint value, NormalGameOptionsV10 opt)
+        {
+            opt.SetUInt(name, value);
+        }
 
-    public static void Set(this FloatOptionNames name, float value, NormalGameOptionsV10 opt)
-    {
-        opt.SetFloat(name, value);
-    }
-
-    public static void Set(this FloatOptionNames name, float value, HideNSeekGameOptionsV10 opt)
-    {
-        opt.SetFloat(name, value);
-    }
-
-    public static void Set(this ByteOptionNames name, byte value, IGameOptions opt)
-    {
-        opt.SetByte(name, value);
-    }
-
-    public static void Set(this ByteOptionNames name, byte value, NormalGameOptionsV10 opt)
-    {
-        opt.SetByte(name, value);
-    }
-
-    public static void Set(this ByteOptionNames name, byte value, HideNSeekGameOptionsV10 opt)
-    {
-        opt.SetByte(name, value);
-    }
-
-    public static void Set(this UInt32OptionNames name, uint value, IGameOptions opt)
-    {
-        opt.SetUInt(name, value);
-    }
-
-    public static void Set(this UInt32OptionNames name, uint value, NormalGameOptionsV10 opt)
-    {
-        opt.SetUInt(name, value);
-    }
-
-    public static void Set(this UInt32OptionNames name, uint value, HideNSeekGameOptionsV10 opt)
-    {
-        opt.SetUInt(name, value);
+        public void Set(uint value, HideNSeekGameOptionsV10 opt)
+        {
+            opt.SetUInt(name, value);
+        }
     }
 }

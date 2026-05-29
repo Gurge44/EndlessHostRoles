@@ -64,6 +64,11 @@ public class Camouflager : RoleBase
         On = true;
     }
 
+    public override void Remove(byte playerId)
+    {
+        if (IsActive) IsDead();
+    }
+
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting)

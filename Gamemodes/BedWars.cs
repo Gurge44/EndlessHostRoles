@@ -73,6 +73,11 @@ public static class BedWars
     private static OptionItem SuddenDeathOption;
     private static OptionItem AllBedsBrokenAfterTimeOption;
 
+    private static readonly StringBuilder HudText = new();
+    private static readonly BedWarsTeam[] AllBedWarsTeam = Enum.GetValues<BedWarsTeam>();
+    private static readonly Item[] Selections = Enum.GetValues<Item>();
+    private static readonly ItemCategory[] Categories = Enum.GetValues<ItemCategory>()[1..];
+    private static readonly Upgrade[] AllUpgrade = Enum.GetValues<Upgrade>();
     public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
@@ -257,22 +262,22 @@ public static class BedWars
         long gracePeriodSecondsLeft = GracePeriodEnd - Utils.TimeStamp;
         if (gracePeriodSecondsLeft > 0) return string.Format(Translator.GetString("Bedwars.HudText.GracePeriodLeft"), gracePeriodSecondsLeft);
 
-        var sb = new StringBuilder();
+        HudText.Clear();
 
-        foreach (BedWarsTeam team in Enum.GetValues<BedWarsTeam>())
+        foreach (BedWarsTeam team in AllBedWarsTeam)
         {
             if (!AllNetObjects.TryGetValue(team, out NetObjectCollection netObjectCollection)) continue;
 
             if (!netObjectCollection.Bed.IsBroken)
-                sb.AppendLine(Utils.ColorString(team.GetColor(), $"{team.GetName()} {Utils.ColorString(Color.green, "✓")}"));
+                HudText.AppendLine(Utils.ColorString(team.GetColor(), $"{team.GetName()} {Utils.ColorString(Color.green, "✓")}"));
             else
             {
                 int playersLeftInTeam = Main.EnumerateAlivePlayerControls().Count(x => Data.TryGetValue(x.PlayerId, out PlayerData data) && data.Team == team);
-                sb.AppendLine($"{Utils.ColorString(team.GetColor(), team.GetName())} ({playersLeftInTeam})");
+                HudText.AppendLine($"{Utils.ColorString(team.GetColor(), team.GetName())} ({playersLeftInTeam})");
             }
         }
 
-        return sb.ToString().Trim();
+        return HudText.ToString().Trim();
     }
 
     public static bool CheckForGameEnd(out GameOverReason reason)
@@ -281,7 +286,7 @@ public static class BedWars
 
         if (!Main.IntroDestroyed || IsGracePeriod || GameStates.IsEnded) return false;
 
-        if (Enum.GetValues<BedWarsTeam>().FindFirst(x => Main.EnumerateAlivePlayerControls().Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
+        if (AllBedWarsTeam.FindFirst(x => Main.EnumerateAlivePlayerControls().Select(p => p.PlayerId).Concat(Reviving).All(p => !Data.TryGetValue(p, out PlayerData data) || data.Team == x), out BedWarsTeam team))
         {
             WinnerData = (team.GetColor(), team.GetName() + Translator.GetString("Win"));
             CustomWinnerHolder.WinnerIds = Data.Where(x => x.Value.Team == team).Select(x => x.Key).ToHashSet();
@@ -438,24 +443,27 @@ public static class BedWars
 
         // Assign players to teams
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         Dictionary<byte, BedWarsTeam> playerTeams = players
             .Select(x => x.PlayerId)
             .Partition(4)
-            .Zip(Enum.GetValues<BedWarsTeam>(), (pcs, team) => pcs.ToDictionary(x => x, _ => team))
+            .Zip(AllBedWarsTeam, (pcs, team) => pcs.ToDictionary(x => x, _ => team))
             .Flatten()
             .ToDictionary(x => x.Key, x => x.Value);
 
         yield return WaitFrameIfNecessary();
 
-        Utils.SetChatVisibleForAll();
+        Main.AllAlivePlayerControlsToList.SetChatVisible(true);
 
         yield return WaitFrameIfNecessary();
 
         MapNames map = Main.CurrentMap;
         Dictionary<BedWarsTeam, Base> bases = Bases[map];
+        
+        var sender = CustomRpcSender.Create("BedWars OnGameStart (Packed)", SendOption.Reliable);
+        sender.StartPackedMessage();
 
         foreach ((byte id, BedWarsTeam team) in playerTeams)
         {
@@ -468,45 +476,40 @@ public static class BedWars
                 Base = bases[team]
             };
 
-            {
-                var sender = CustomRpcSender.Create($"BedWars OnGameStart ({pc.GetRealName()})", SendOption.Reliable);
-
-                sender.TP(pc, data.Base.SpawnPosition);
-
-                byte colorId = team.GetColorId();
-
-                pc.SetColor(colorId);
-
-                sender.AutoStartRpc(pc.NetId, RpcCalls.SetColor)
-                    .Write(pc.Data.NetId)
-                    .Write(colorId)
-                    .EndRpc();
-
-                sender.SendMessage();
-            }
+            var writer = CustomRpcSender.Create($"BedWars OnGameStart ({pc.GetRealName()})", SendOption.Reliable);
+            writer.TP(pc, data.Base.SpawnPosition);
+            byte colorId = team.GetColorId();
+            pc.SetColor(colorId);
+            writer.AutoStartRpc(pc.NetId, RpcCalls.SetColor)
+                .Write(pc.Data.NetId)
+                .Write(colorId)
+                .EndRpc();
+            writer.SendMessage();
 
             if (!pc.AmOwner)
             {
-                var sender = CustomRpcSender.Create($"BedWars OnGameStart ({pc.GetRealName()}) (2)", SendOption.Reliable);
-                sender.StartMessage(pc.OwnerId);
-
-                sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
-                    .WriteNetObject(pc)
-                    .Write(0)
-                    .EndRpc();
-
-                foreach ((byte otherId, BedWarsTeam otherTeam) in playerTeams)
+                if (pc.OwnerId >= 0)
                 {
-                    PlayerControl target = otherId.GetPlayer();
-                    if (!target || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
+                    sender.StartMessage(pc.OwnerId);
 
-                    sender.StartRpc(target.NetId, RpcCalls.SetRole)
-                        .Write((ushort)RoleTypes.Impostor)
-                        .Write(true)
+                    sender.StartRpc(pc.NetId, RpcCalls.ProtectPlayer)
+                        .WriteNetObject(pc)
+                        .Write(0)
                         .EndRpc();
-                }
 
-                sender.SendMessage();
+                    foreach ((byte otherId, BedWarsTeam otherTeam) in playerTeams)
+                    {
+                        PlayerControl target = otherId.GetPlayer();
+                        if (!target || target.PlayerId == pc.PlayerId || otherTeam != team) continue;
+
+                        sender.StartRpc(target.NetId, RpcCalls.SetRole)
+                            .Write((ushort)RoleTypes.Impostor)
+                            .Write(true)
+                            .EndRpc();
+                    }
+
+                    sender.EndMessage();
+                }
             }
             else
             {
@@ -517,6 +520,8 @@ public static class BedWars
 
             yield return WaitFrameIfNecessary();
         }
+        
+        sender.SendMessage(dispose: PlayerControl.AllPlayerControls.Count <= 1);
 
         yield return WaitFrameIfNecessary();
 
@@ -543,7 +548,7 @@ public static class BedWars
             var itemShop = new BedWarsShop(itemShopPos, itemShopText);
             var upgradeShop = new BedWarsShop(upgradeShopPos, upgradeShopText);
             if (bed != null) AllNetObjects[team] = new(bed, new(itemShop), new(upgradeShop));
-            rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString($"{room}")));
+            rooms.Add(Utils.ColorString(team.GetColor(), Translator.GetString(room)));
 
             yield return WaitFrameIfNecessary();
         }
@@ -621,7 +626,7 @@ public static class BedWars
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)
     {
-        return ExtendedPlayerControl.IsValidTargetForKillButton(pc) && (!Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team);
+        return pc.IsValidTargetForKillButton() && (!Data.TryGetValue(pc.PlayerId, out PlayerData data) || !Data.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out PlayerData lpData) || data.Team != lpData.Team);
     }
 
     //[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -780,6 +785,8 @@ public static class BedWars
         public Base Base;
         public Item? Armor;
         public Item? Sword;
+        private readonly StringBuilder Suffix = new();
+        private readonly StringBuilder Info = new();
 
         public void Damage(PlayerControl pc, float damage, PlayerControl killer = null)
         {
@@ -854,60 +861,60 @@ public static class BedWars
 
         public string BuildSuffix(PlayerControl pc)
         {
-            var sb = new StringBuilder();
+            Suffix.Clear();
 
             if (NameNotifyManager.GetNameNotify(pc, out string notify) && notify.Length > 0)
-                sb.AppendLine(notify);
+                Suffix.AppendLine(notify);
 
-            if (!pc.IsAlive()) return $"<#ffffff>{sb.ToString().Trim()}</color>";
+            if (!pc.IsAlive()) return $"<#ffffff>{Suffix.ToString().Trim()}</color>";
 
-            sb.AppendLine(IsGracePeriod ? Translator.GetString("Bedwars.GracePeriod") : GetHealthInfo());
+            Suffix.AppendLine(IsGracePeriod ? Translator.GetString("Bedwars.GracePeriod") : GetHealthInfo());
 
             var topLines = 12;
             
             if (InShop.TryGetValue(pc.PlayerId, out Shop shop))
             {
-                sb.AppendLine();
-                sb.AppendLine(shop.GetSuffix(pc));
+                Suffix.AppendLine();
+                Suffix.AppendLine(shop.GetSuffix(pc));
                 topLines += 4;
             }
 
-            int lines = sb.ToString().Count(x => x == '\n');
-            sb.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, topLines - lines)));
-            sb.Append(new string('\n', Math.Max(0, 5 - lines)));
+            int lines = Suffix.ToString().Count(x => x == '\n');
+            Suffix.Insert(0, Utils.ColorString(Color.clear, ".") + new string('\n', Math.Max(0, topLines - lines)));
+            Suffix.Append(new string('\n', Math.Max(0, 5 - lines)));
 
-            sb.Append(GetArmorInfo());
-            sb.Append(" - ");
-            sb.AppendLine(GetSwordInfo());
+            Suffix.Append(GetArmorInfo());
+            Suffix.Append(" - ");
+            Suffix.AppendLine(GetSwordInfo());
 
-            sb.Append(Inventory);
+            Suffix.Append(Inventory);
 
-            return $"<#ffffff>{sb.ToString().Trim()}</color>";
+            return $"<#ffffff>{Suffix.ToString().Trim()}</color>";
         }
 
         public string GetInfoAsTarget(PlayerControl pc)
         {
             if (!pc.IsAlive()) return string.Empty;
 
-            var sb = new StringBuilder();
+            Info.Clear();
 
             if (GracePeriodEnd <= Utils.TimeStamp)
             {
-                sb.Append(GetHealthInfo());
-                sb.Append(' ');
-                sb.Append(' ');
-                sb.Append(' ');
-                sb.Append(' ');
-                sb.Append(GetArmorInfo());
-                sb.Append(' ');
-                sb.Append(' ');
-                sb.Append(GetSwordInfo());
+                Info.Append(GetHealthInfo())
+                    .Append(' ')
+                    .Append(' ')
+                    .Append(' ')
+                    .Append(' ')
+                    .Append(GetArmorInfo())
+                    .Append(' ')
+                    .Append(' ')
+                    .Append(GetSwordInfo());
 
                 if (Inventory.Items.ContainsKey(Item.TNT) && ItemDisplayData.TryGetValue(Item.TNT, out ItemDisplay display))
-                    sb.Append(Utils.ColorString(display.Color, $"    {display.Icon} {display.Name.Invoke()} {display.Icon}"));
+                    Info.Append(Utils.ColorString(display.Color, $"    {display.Icon} {display.Name.Invoke()} {display.Icon}"));
             }
 
-            return $"<#ffffff>{sb.ToString().Trim()}</color>";
+            return $"<#ffffff>{Info.ToString().Trim()}</color>";
         }
 
         private string GetArmorInfo()
@@ -1060,40 +1067,43 @@ public static class BedWars
         Red
     }
 
-    private static Color GetColor(this BedWarsTeam team)
+    extension(BedWarsTeam team)
     {
-        return team switch
+        private Color GetColor()
         {
-            BedWarsTeam.Blue => Color.cyan,
-            BedWarsTeam.Yellow => Color.yellow,
-            BedWarsTeam.Green => Color.green,
-            BedWarsTeam.Red => Color.red,
-            _ => Color.white
-        };
-    }
+            return team switch
+            {
+                BedWarsTeam.Blue => Color.cyan,
+                BedWarsTeam.Yellow => Color.yellow,
+                BedWarsTeam.Green => Color.green,
+                BedWarsTeam.Red => Color.red,
+                _ => Color.white
+            };
+        }
 
-    private static byte GetColorId(this BedWarsTeam team)
-    {
-        return team switch
+        private byte GetColorId()
         {
-            BedWarsTeam.Red => 0,
-            BedWarsTeam.Yellow => 5,
-            BedWarsTeam.Blue => 10,
-            BedWarsTeam.Green => 11,
-            _ => 7
-        };
-    }
+            return team switch
+            {
+                BedWarsTeam.Red => 0,
+                BedWarsTeam.Yellow => 5,
+                BedWarsTeam.Blue => 10,
+                BedWarsTeam.Green => 11,
+                _ => 7
+            };
+        }
 
-    private static string GetName(this BedWarsTeam team)
-    {
-        return team switch
+        private string GetName()
         {
-            BedWarsTeam.Blue => Translator.GetString("Bedwars.BlueTeam"),
-            BedWarsTeam.Yellow => Translator.GetString("Bedwars.YellowTeam"),
-            BedWarsTeam.Green => Translator.GetString("Bedwars.GreenTeam"),
-            BedWarsTeam.Red => Translator.GetString("Bedwars.RedTeam"),
-            _ => string.Empty
-        };
+            return team switch
+            {
+                BedWarsTeam.Blue => Translator.GetString("Bedwars.BlueTeam"),
+                BedWarsTeam.Yellow => Translator.GetString("Bedwars.YellowTeam"),
+                BedWarsTeam.Green => Translator.GetString("Bedwars.GreenTeam"),
+                BedWarsTeam.Red => Translator.GetString("Bedwars.RedTeam"),
+                _ => string.Empty
+            };
+        }
     }
 
     private abstract class Shop
@@ -1119,8 +1129,6 @@ public static class BedWars
     private sealed class ItemShop(BedWarsShop netObject) : Shop
     {
         public override CustomNetObject NetObject { get; } = netObject;
-        private Item[] Selections { get; } = Enum.GetValues<Item>();
-        private ItemCategory[] Categories { get; } = Enum.GetValues<ItemCategory>()[1..];
         private Dictionary<byte, int> CategoryIndex { get; } = [];
         private Dictionary<byte, ItemCategory> Category { get; } = [];
 
@@ -1256,7 +1264,6 @@ public static class BedWars
     private sealed class UpgradeShop(BedWarsShop netObject) : Shop
     {
         public override CustomNetObject NetObject { get; } = netObject;
-        private Upgrade[] Selections { get; } = Enum.GetValues<Upgrade>();
 
         public override void NextSelection(PlayerControl pc)
         {
@@ -1274,7 +1281,7 @@ public static class BedWars
             if (!pc || !pc.IsAlive()) return;
             if (!SelectionIndex.TryGetValue(pc.PlayerId, out int index) || index < 0 || index >= Selections.Length) return;
 
-            Upgrade selectedUpgrade = Selections[index];
+            Upgrade selectedUpgrade = AllUpgrade[index];
             if (!UpgradeCost.TryGetValue(selectedUpgrade, out int cost)) return;
 
             if (Data.TryGetValue(pc.PlayerId, out PlayerData data) && data.Inventory.Items.TryGetValue(Item.Diamond, out int res) && res >= cost)
@@ -1291,7 +1298,7 @@ public static class BedWars
         {
             if (!SelectionIndex.TryGetValue(pc.PlayerId, out int index) || index < 0 || index >= Selections.Length) return string.Empty;
 
-            Upgrade selectedUpgrade = Selections[index];
+            Upgrade selectedUpgrade = AllUpgrade[index];
             if (!UpgradeCost.TryGetValue(selectedUpgrade, out int cost) || !ItemDisplayData.TryGetValue(Item.Diamond, out ItemDisplay display)) return string.Empty;
             var costString = $"{cost} {Utils.ColorString(display.Color, display.Icon.ToString())}";
             if (!Data.TryGetValue(pc.PlayerId, out PlayerData data)) return string.Empty;
@@ -1372,7 +1379,7 @@ public static class BedWars
 
                 if (onBase)
                 {
-                    BedWarsTeam team = Enum.GetValues<BedWarsTeam>().MinBy(x => Vector2.Distance(Bases[Main.CurrentMap][x].BedPosition, NetObject.Position));
+                    BedWarsTeam team = AllBedWarsTeam.MinBy(x => Vector2.Distance(Bases[Main.CurrentMap][x].BedPosition, NetObject.Position));
                     if (Upgrades.TryGetValue(team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Forge)) Generated++;
                 }
             }
@@ -1672,9 +1679,11 @@ public static class BedWars
 
         public override string ToString()
         {
+            bool vanillaServer = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+            
             var i = 0;
             List<string> itemsDisplays = [];
-            string bottomText = Utils.EmptyMessage;
+            string bottomText = string.Empty;
 
             foreach ((Item item, int count) in Items)
             {
@@ -1685,9 +1694,9 @@ public static class BedWars
 
                 if (count > 1)
                 {
-                    sb.Append("<sub>");
+                    sb.Append(vanillaServer ? "X" : "<sub>");
                     sb.Append(count);
-                    sb.Append("</sub>");
+                    if (!vanillaServer) sb.Append("</sub>");
                 }
                 
                 itemsDisplays.Add(sb.ToString());
@@ -1696,22 +1705,23 @@ public static class BedWars
             }
 
             while (itemsDisplays.Count < InventorySlots)
-                itemsDisplays.Add(Utils.ColorString(Color.clear, "---"));
+                itemsDisplays.Add(Utils.ColorString(Color.clear, vanillaServer ? string.Empty : "---"));
 
             const string baseColor = "<#000000>";
             
             var finalSb = new StringBuilder();
             finalSb.Append(baseColor);
-            finalSb.AppendLine("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁");
-            finalSb.Append("</color>");
+            if (!vanillaServer) finalSb.AppendLine("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁");
             i = 0;
 
             foreach (string itemsDisplay in itemsDisplays)
             {
-                bool selected = i == SelectedSlot || i - 1 == SelectedSlot;
-                if (!selected) finalSb.Append(baseColor);
+                bool currentSelected = i == SelectedSlot;
+                bool previousSelected = i - 1 == SelectedSlot;
+                bool selected = currentSelected || previousSelected;
+                if (currentSelected) finalSb.Append("</color>");
                 finalSb.Append(selected ? '┃' : '│');
-                if (!selected) finalSb.Append("</color>");
+                if (previousSelected) finalSb.Append(baseColor);
                 finalSb.Append(' ');
                 finalSb.Append(itemsDisplay);
                 finalSb.Append(' ');
@@ -1719,15 +1729,20 @@ public static class BedWars
             }
 
             bool lastSelected = i - 1 == SelectedSlot;
-            if (!lastSelected) finalSb.Append(baseColor);
             finalSb.Append(lastSelected ? '┃' : '│');
-            if (!lastSelected) finalSb.Append("</color>");
-            finalSb.AppendLine(baseColor);
-            finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
-            finalSb.AppendLine("</color>");
 
-            finalSb.AppendLine();
-            finalSb.Append(Utils.ColorString(Color.white, bottomText));
+            if (!vanillaServer)
+            {
+                if (lastSelected) finalSb.Append(baseColor);
+                finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
+                finalSb.AppendLine();
+                finalSb.Append(Utils.ColorString(Color.white, bottomText));
+                finalSb.AppendLine("</color>");
+            }
+            else if (!lastSelected)
+            {
+                finalSb.AppendLine("</color>");
+            }
 
             return finalSb.ToString();
         }

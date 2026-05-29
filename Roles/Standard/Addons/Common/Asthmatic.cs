@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using EHR.Gamemodes;
 using EHR.Modules;
 using Hazel;
@@ -13,6 +12,7 @@ internal class Asthmatic : IAddon
     private static readonly Dictionary<byte, Counter> Timers = [];
     private static readonly Dictionary<byte, string> LastSuffix = [];
     private static readonly Dictionary<byte, Vector2> LastPosition = [];
+    private static readonly List<byte> ToRemove = [];
     private static int MinRedTime;
     private static int MaxRedTime;
     private static int MinGreenTime;
@@ -70,7 +70,7 @@ internal class Asthmatic : IAddon
         {
             var r = IRandom.Instance;
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Asthmatic))
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), '●', false, RandomRedTime, RandomGreenTime);
@@ -81,27 +81,36 @@ internal class Asthmatic : IAddon
     public static void OnFixedUpdate()
     {
         if (Timers.Count == 0) return;
-        
-        foreach (KeyValuePair<byte, Counter> kvp in Timers.ToArray())
+
+        ToRemove.Clear();
+
+        foreach ((byte id, Counter counter) in Timers)
         {
-            PlayerState state = Main.PlayerStates[kvp.Key];
+            PlayerState state = Main.PlayerStates[id];
 
             if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic) || state.MainRole == CustomRoles.Pestilence)
             {
-                state.RemoveSubRole(CustomRoles.Asthmatic);
-                Timers.Remove(kvp.Key);
-                LastSuffix.Remove(kvp.Key);
-                LastPosition.Remove(kvp.Key);
+                ToRemove.Add(id);
                 continue;
             }
 
-            kvp.Value.Update();
+            counter.Update();
+        }
+
+        if (ToRemove.Count == 0) return;
+
+        foreach (byte id in ToRemove)
+        {
+            Main.PlayerStates[id].RemoveSubRole(CustomRoles.Asthmatic);
+            Timers.Remove(id);
+            LastSuffix.Remove(id);
+            LastPosition.Remove(id);
         }
     }
 
     public static void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!Main.IntroDestroyed || !pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+        if (!pc.Is(CustomRoles.Asthmatic) || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
 
         Vector2 currentPosition = pc.Pos();
 

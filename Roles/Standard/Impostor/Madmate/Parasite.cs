@@ -58,7 +58,7 @@ internal class Parasite : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

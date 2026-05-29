@@ -81,12 +81,12 @@ public class Monarch : RoleBase
             var hasValue = false;
 
             killer.ResetKillCooldown();
-            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchKnightedPlayer")), setName: false);
+            hasValue |= sender.Notify(killer, CustomRoles.Monarch.ColoredTextByRole(GetString("MonarchKnightedPlayer")), setName: false);
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("KnightedByMonarch")), setName: false);
+            hasValue |= sender.Notify(target, CustomRoles.Monarch.ColoredTextByRole(GetString("KnightedByMonarch")), setName: false);
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
@@ -98,7 +98,7 @@ public class Monarch : RoleBase
             return false;
         }
 
-        killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Monarch), GetString("MonarchInvalidTarget")));
+        killer.Notify(CustomRoles.Monarch.ColoredTextByRole(GetString("MonarchInvalidTarget")));
         return false;
     }
 }

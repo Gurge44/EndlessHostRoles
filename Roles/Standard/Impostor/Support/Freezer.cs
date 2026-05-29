@@ -8,6 +8,7 @@ internal class Freezer : RoleBase
     private const int Id = 643530;
     public static bool On;
 
+    private static OptionItem KillCooldown;
     private static OptionItem FreezeCooldown;
     private static OptionItem FreezeDuration;
     public override bool IsEnable => On;
@@ -15,12 +16,16 @@ internal class Freezer : RoleBase
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Freezer);
-
-        FreezeCooldown = new FloatOptionItem(Id + 2, "FreezeCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
+        
+        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
             .SetValueFormat(OptionFormat.Seconds);
 
-        FreezeDuration = new FloatOptionItem(Id + 3, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
+        FreezeCooldown = new FloatOptionItem(Id + 3, "FreezeCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
+            .SetValueFormat(OptionFormat.Seconds);
+
+        FreezeDuration = new FloatOptionItem(Id + 4, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -39,6 +44,11 @@ internal class Freezer : RoleBase
     {
         AURoleOptions.ShapeshifterCooldown = FreezeCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

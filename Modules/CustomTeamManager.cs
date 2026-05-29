@@ -77,10 +77,13 @@ internal static class CustomTeamManager
 
     public static void InitializeCustomTeamPlayers()
     {
+        WinnerTeam = null;
+        CustomTeamPlayerIds.Clear();
         UpdateEnabledTeams();
+        
         if (EnabledCustomTeams.Count == 0) return;
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         
         CustomTeamPlayerIds = Main.PlayerStates
             .IntersectBy(aapc.Select(x => x.PlayerId), x => x.Key)
@@ -162,51 +165,85 @@ internal static class CustomTeamManager
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (seer == null || EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
+        if (EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
         return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
     }
 
+    private static readonly Dictionary<CustomTeam, HashSet<byte>> AliveTeamPlayers = [];
+    private static readonly List<byte> ToRemove = [];
     public static bool CheckCustomTeamGameEnd()
     {
         if (EnabledCustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
 
         try
         {
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.CachedAlivePlayerControls();
+            int aliveCount = aapc.Count;
 
-            if (aapc.Count == 1)
+            if (aliveCount == 1)
             {
                 PlayerControl lastPlayer = aapc[0];
                 CustomTeam lastTeam = GetCustomTeam(lastPlayer.PlayerId);
+                
                 WinnerTeam = lastTeam;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
+                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.CustomTeam);
                 CustomWinnerHolder.WinnerIds = [lastPlayer.PlayerId];
                 return true;
             }
-            
-            CustomTeamPlayerIds.Do(x => x.Value.RemoveWhere(p =>
+
+            foreach (var kvp in CustomTeamPlayerIds)
             {
-                PlayerControl pc = Utils.GetPlayerById(p);
-                return pc == null || pc.Data == null || pc.Data.Disconnected;
-            }));
+                var originalSet = kvp.Value;
+                ToRemove.Clear();
 
-            Dictionary<CustomTeam, HashSet<byte>> aliveTeamPlayers = CustomTeamPlayerIds.ToDictionary(x => x.Key, x => x.Value);
-            aliveTeamPlayers.Do(x => x.Value.RemoveWhere(p => !Utils.GetPlayerById(p).IsAlive()));
+                foreach (var id in originalSet)
+                {
+                    PlayerControl pc = Utils.GetPlayerById(id);
+                    if (!pc || !pc.Data || pc.Data.Disconnected)
+                        ToRemove.Add(id);
+                }
 
-            List<CustomTeam> toRemove = aliveTeamPlayers.Where(x => x.Value.Count == 0).Select(x => x.Key).ToList();
-            toRemove.ForEach(x => aliveTeamPlayers.Remove(x));
+                for (int i = 0; i < ToRemove.Count; i++)
+                    originalSet.Remove(ToRemove[i]);
+            }
 
-            CustomTeam team = aliveTeamPlayers.Keys.FirstOrDefault();
-
-            if (aliveTeamPlayers.Count == 1 && aapc.All(x =>
+            AliveTeamPlayers.Clear();
+            foreach ((CustomTeam teamKey, HashSet<byte> originalSet) in CustomTeamPlayerIds)
             {
-                CustomTeam customTeam = GetCustomTeam(x.PlayerId);
-                return customTeam != null && customTeam.Equals(team);
-            }))
+                HashSet<byte> aliveSet = null;
+                foreach (var id in originalSet)
+                {
+                    var pc = Utils.GetPlayerById(id);
+                    if (pc.IsAlive())
+                    {
+                        aliveSet ??= [];
+                        aliveSet.Add(id);
+                    }
+                }
+                if (aliveSet != null)
+                    AliveTeamPlayers[teamKey] = aliveSet;
+            }
+
+            if (AliveTeamPlayers.Count == 1)
             {
-                WinnerTeam = team;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CustomTeam);
-                CustomWinnerHolder.WinnerIds = aliveTeamPlayers.Values.First();
+                var aliveTeam = AliveTeamPlayers.GetEnumerator();
+                aliveTeam.MoveNext();
+
+                var onlyTeam = aliveTeam.Current.Key;
+                var winners = aliveTeam.Current.Value;
+
+                for (int i = 0; i < aapc.Count; i++)
+                {
+                    PlayerControl player = aapc[i];
+                    CustomTeam playerTeam = GetCustomTeam(player.PlayerId);
+
+                    if (playerTeam == null || !Equals(playerTeam, onlyTeam))
+                        return false;
+                }
+
+                WinnerTeam = onlyTeam;
+                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.CustomTeam);
+                CustomWinnerHolder.WinnerIds = winners;
                 return true;
             }
         }
@@ -274,9 +311,10 @@ internal static class CustomTeamManager
                 RoleRevealScreenBackgroundColor = parts[3];
 
                 TeamMembers = parts[4].Split(',').Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
+                
+                CustomTeams.Add(this);
             }
             catch (Exception e) { Utils.ThrowException(e); }
-            finally { CustomTeams.Add(this); }
         }
 
         public List<CustomRoles> TeamMembers { get; } = [];

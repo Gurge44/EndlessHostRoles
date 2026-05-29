@@ -7,6 +7,7 @@ public class Framer : RoleBase
     public static bool On;
     public static readonly HashSet<byte> FramedPlayers = [];
 
+    private static OptionItem KillCooldown;
     private static OptionItem AbilityUseLimit;
     public static OptionItem FramerAbilityUseGainWithEachKill;
 
@@ -14,7 +15,11 @@ public class Framer : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupRoleOptions(647196, TabGroup.ImpostorRoles, CustomRoles.Framer);
+        Options.SetupRoleOptions(647195, TabGroup.ImpostorRoles, CustomRoles.Framer);
+        
+        KillCooldown = new FloatOptionItem(647197, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
+            .SetValueFormat(OptionFormat.Seconds);
 
         AbilityUseLimit = new FloatOptionItem(647198, "AbilityUseLimit", new(0, 20, 0.05f), 0, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Framer])
@@ -35,6 +40,11 @@ public class Framer : RoleBase
     {
         On = true;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

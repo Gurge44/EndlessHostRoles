@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 
 namespace EHR.Roles;
@@ -6,7 +7,7 @@ namespace EHR.Roles;
 public class Crusader : RoleBase
 {
     private const int Id = 20050;
-    private static List<byte> PlayerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     public static List<byte> ForCrusade = [];
 
@@ -53,8 +54,7 @@ public class Crusader : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return !Main.PlayerStates[pc.PlayerId].IsDead
-               && pc.GetAbilityUseLimit() >= 1;
+        return pc.GetAbilityUseLimit() >= 1;
     }
 
     public override void SetKillCooldown(byte id)
@@ -93,7 +93,7 @@ public class Crusader : RoleBase
             return;
         }
 
-        keepGameGoing = ForCrusade.ToValidPlayers().Exists(x => x.IsAlive());
+        keepGameGoing = ForCrusade.ToValidPlayers().Any(x => x.IsAlive());
         countsAs = 1;
     }
 }

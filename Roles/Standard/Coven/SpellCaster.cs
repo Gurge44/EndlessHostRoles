@@ -55,7 +55,7 @@ public class SpellCaster : CovenBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -69,7 +69,7 @@ public class SpellCaster : CovenBase
     {
         VisibleHexes = HexedPlayers.Keys.Concat(PlayerIdList).ToHashSet();
 
-        if (Main.AllAlivePlayerControls.Count / 2 >= HexedPlayers.Keys.Count)
+        if (Main.AllAlivePlayerControlsCount / 2 >= HexedPlayers.Keys.Count)
             VisibleHexes.ExceptWith(PlayerIdList);
 
         HexedPlayers.SetAllValues(true);
@@ -131,7 +131,7 @@ public class SpellCaster : CovenBase
     {
         if (IsWinConditionMet())
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Coven);
+            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Coven);
             CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.Is(Team.Coven)).Select(x => x.PlayerId));
         }
     }

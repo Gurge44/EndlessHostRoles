@@ -85,7 +85,7 @@ public static class TextBoxPatch
 
             __instance.outputText.text = str + compoText;
             __instance.outputText.ForceMeshUpdate(true, true);
-            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+            __instance.keyboard?.text = __instance.text;
             __instance.OnChange.Invoke();
 
             if (__instance.tempTxt.Length == __instance.characterLimit && __instance.SendOnFullChars)
@@ -119,7 +119,7 @@ public static class TextBoxPatch
             bool startsWithCmd = input.StartsWith("/cmd ");
             if (startsWithCmd) input = "/" + input[5..];
 
-            if (!input.StartsWith('/') || input.Length < 2)
+            if (input.Length < 2 || !input.StartsWith('/') || input[1] == ' ')
             {
                 Destroy();
                 IsInvalidCommand = false;
@@ -380,9 +380,9 @@ public static class TextBoxPatch
 
     public static void OnMeetingStart()
     {
-        PlaceHolderText?.transform.SetAsLastSibling();
-        CommandInfoText?.transform.SetAsLastSibling();
-        AdditionalInfoText?.transform.SetAsLastSibling();
+        if (PlaceHolderText) PlaceHolderText.transform.SetAsLastSibling();
+        if (CommandInfoText) CommandInfoText.transform.SetAsLastSibling();
+        if (AdditionalInfoText) AdditionalInfoText.transform.SetAsLastSibling();
     }
 
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.Update))]

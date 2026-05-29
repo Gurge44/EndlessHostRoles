@@ -52,7 +52,7 @@ public class Poache : CovenBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void SetKillCooldown(byte id)

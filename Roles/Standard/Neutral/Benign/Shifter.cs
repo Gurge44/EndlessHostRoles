@@ -50,7 +50,7 @@ public class Shifter : RoleBase
         On = true;
 
         PlayerControl pc = playerId.GetPlayer();
-        if (pc == null) return;
+        if (!pc) return;
 
         pc.ResetKillCooldown();
         pc.SyncSettings();
@@ -82,6 +82,12 @@ public class Shifter : RoleBase
         if (!base.OnCheckMurder(killer, target)) return false;
 
         CustomRoles targetRole = target.GetCustomRole();
+
+        if (targetRole == CustomRoles.Pestilence)
+        {
+            target.Kill(killer);
+            return false;
+        }
 
         killer.RpcSetCustomRole(targetRole);
         killer.RpcChangeRoleBasis(targetRole);

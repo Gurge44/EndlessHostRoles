@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
 using EHR.Gamemodes;
 using EHR.Modules;
+using EHR.Modules.Extensions;
 using EHR.Patches;
 using EHR.Roles;
 using HarmonyLib;
@@ -82,22 +84,26 @@ internal static class OnGameJoinedPatch
             if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
             LateTask.New(() =>
-            {
+            {                
                 JoiningGame = false;
 
                 Options.AutoSetFactionMinMaxSettings();
 
-                if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()) && GameStates.IsOnlineGame)
+                try
                 {
-                    AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
-                    SceneChanger.ChangeScene("MainMenu");
-                }
+                    ClientData client = PlayerControl.LocalPlayer.GetClient();
 
-                ClientData client = PlayerControl.LocalPlayer.GetClient();
-                Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
+                    if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, client.GetHashedPuid()) && GameStates.IsOnlineGame)
+                    {
+                        AmongUsClient.Instance.ExitGame(DisconnectReasons.Banned);
+                        SceneChanger.ChangeScene("MainMenu");
+                    }
+                    Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
+                }
+                catch (Exception e) { Logger.Error($"ClientData null:{PlayerControl.LocalPlayer?.GetClient() == null}, PlayerControl.LocalPlayer null:{PlayerControl.LocalPlayer == null} - {e}", "OnGameJoinedPatch"); }
 
                 //Main.Instance.StartCoroutine(OptionShower.GetText());
-            }, 1f, "OnGameJoinedPatch");
+            }, 2f, "OnGameJoinedPatch");
 
             LateTask.New(() =>
             {
@@ -255,13 +261,13 @@ internal static class OnGameJoinedPatch
     /// </summary>
     private static (int Files, int Folders) CleanOldItems(bool dryRun = true, int days = 7)
     {
-        if (OperatingSystem.IsAndroid()) return (0, 0); // Not supported on Android
+        if (OperatingSystem.IsAndroid()) return (0, 0); // not supported on starlight until we find a working solution for android
         
         string path;
 
         try
         {
-            var f = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/EHR_Logs";
+            var f = Path.Combine(OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "EHR_Logs");
             // Normalize separators
             path = Path.GetFullPath(f);
         }
@@ -321,13 +327,10 @@ internal static class OnGameJoinedPatch
                         {
                             File.SetAttributes(file, FileAttributes.Normal); // remove read-only to avoid exceptions
                             File.Delete(file);
-                            filesDeleted++;
                         }
-                        else
-                        {
-                            // keep dry-run count behavior (so the user sees how many would be affected)
-                            filesDeleted++;
-                        }
+
+                        // keep dry-run count behavior (so the user sees how many would be affected)
+                        filesDeleted++;
                     }
                 }
                 catch (Exception exFile)
@@ -462,6 +465,8 @@ internal static class DisconnectInternalPatch
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]
 internal static class OnPlayerJoinedPatch
 {
+    private static CountdownTimer RpcSetNameWaitTimer;
+    
     public static bool IsDisconnected(this ClientData client)
     {
         foreach (ClientData clientData in AmongUsClient.Instance.allClients)
@@ -477,6 +482,7 @@ internal static class OnPlayerJoinedPatch
     {
         Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / Hashed PUID: {client.GetHashedPuid()}) joined the lobby", "Session");
 
+        Main.SetDirtyRebuildPC();
         LateTask.New(() =>
         {
             try
@@ -491,7 +497,7 @@ internal static class OnPlayerJoinedPatch
                     return;
                 }
 
-                if (client.Character != null && client.Character.Data != null && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && PlayerControl.AllPlayerControls.Count >= 17)
+                if (client.Character && client.Character.Data && (client.Character.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= client.Character.Data.DefaultOutfit.ColorId) && PlayerControl.AllPlayerControls.Count >= 17)
                     Disco.ChangeColor(client.Character);
             }
             catch { }
@@ -506,10 +512,10 @@ internal static class OnPlayerJoinedPatch
             Logger.Info($"TempBanned a player {client.PlayerName} without a friend code", "Temp Ban");
         }
 
-        if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform is Platforms.Android or Platforms.IPhone && Options.KickAndroidPlayer.GetBool())
+        if (AmongUsClient.Instance.AmHost && client.PlatformData.Platform is Platforms.Android or Platforms.IPhone && Options.KickMobilePlayer.GetBool())
         {
             AmongUsClient.Instance.KickPlayer(client.Id, false);
-            string msg = string.Format(GetString("KickAndriodPlayer"), client.PlayerName);
+            string msg = string.Format(GetString("KickMobilePlayer"), client.PlayerName);
             Logger.SendInGame(msg, Color.yellow);
             Logger.Info(msg, "Android Kick");
         }
@@ -529,8 +535,15 @@ internal static class OnPlayerJoinedPatch
 
             if (GameStates.IsLobby && !OnGameJoinedPatch.JoiningGame)
                 LateTask.New(Options.AutoSetFactionMinMaxSettings, 2f, log: false);
-            
-            LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 1f);
+
+            RpcSetNameWaitTimer?.Dispose();
+            RpcSetNameWaitTimer = new CountdownTimer(4f, () =>
+            {
+                RpcSetNameWaitTimer = null;
+                if (AmongUsClient.Instance.IsGameStarted) return;
+                Utils.ApplySuffix(PlayerControl.LocalPlayer, out string name);
+                PlayerControl.LocalPlayer.RpcSetName(name);
+            }, cancelOnMeeting: false, cancelOnGameEnd: false);
         }
     }
 }
@@ -542,7 +555,9 @@ internal static class OnPlayerLeftPatch
     {
         try
         {
-            if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character != null)
+            Main.SetDirtyRebuildPC();
+
+            if (AmongUsClient.Instance.AmHost && GameStates.IsInGame && data != null && data.Character)
             {
                 byte id = data.Character.PlayerId;
                 
@@ -595,17 +610,19 @@ internal static class OnPlayerLeftPatch
                     Spiritualist.RemoveTarget();
 
                 if (CopyCat.PlayerIdList.Remove(id))
-                    CopyCat.Instances.RemoveAll(x => x.CopyCatPC == null);
+                    CopyCat.Instances.RemoveAll(x => !x.CopyCatPC);
 
                 Postman.CheckAndResetTargets(data.Character);
                 GhostRolesManager.AssignedGhostRoles.Remove(id);
 
                 PlayerState state = Main.PlayerStates[id];
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
-
                 if (!state.IsDead) state.SetDead();
 
                 Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting, true);
+
+                try { state.Role.Remove(id); }
+                catch (Exception e) { Utils.ThrowException(e); }
 
                 NameNotifyManager.Notifies.Remove(id);
                 data.Character.RpcSetName(data.Character.GetRealName(true));
@@ -628,7 +645,7 @@ internal static class OnPlayerLeftPatch
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
 
-                if (data != null && data.Character != null)
+                if (data != null && data.Character)
                 {
                     uint netid = data.Character.NetId;
 
@@ -649,6 +666,7 @@ internal static class OnPlayerLeftPatch
                     Options.AutoSetFactionMinMaxSettings();
             }
 
+            GameEndChecker.SetDirtyCheckEnd();
             Utils.CountAlivePlayers(true);
         }
         catch (NullReferenceException) { }
@@ -671,8 +689,9 @@ internal static class InnerNetClientSpawnPatch
         ClientData client = Utils.GetClientById(ownerId);
 
         Logger.Msg($"Spawn player data: ID {client?.Character?.PlayerId}: {client?.PlayerName}", "CreatePlayer");
+        Main.ForceRebuildCachesPlayerControls();
 
-        if (client == null || client.Character == null // client is null
+        if (client == null || !client.Character // client is null
                            || client.ColorId < 0 || Palette.PlayerColors.Length <= client.ColorId) // invalid client color
             Logger.Warn("client is null or client have invalid color", "TrySyncAndSendMessage");
         else
@@ -691,13 +710,13 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+                    if (GameStates.IsLobby && client.Character && LobbyBehaviour.Instance && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
                     {
                         // Only for vanilla
                         if (!client.Character.IsModdedClient())
                         {
                             // This kicks the host now on vanilla regions
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
+                            // MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
                             // writer.WritePacked((int)GameStartManagerPatch.Timer);
                             // writer.Write(false);
                             // AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -714,7 +733,7 @@ internal static class InnerNetClientSpawnPatch
             }
         }
 
-        if (client != null && client.Character != null) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
+        if (client != null && client.Character) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
         if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && client != null && Main.ClientIdList.Contains(client.Id))
         {
@@ -722,7 +741,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowKillLog(client.Character.PlayerId);
@@ -734,7 +753,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowLastAddOns(client.Character.PlayerId);
@@ -746,7 +765,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowLastRoles(client.Character.PlayerId);
@@ -758,7 +777,7 @@ internal static class InnerNetClientSpawnPatch
             {
                 LateTask.New(() =>
                 {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                    if (!AmongUsClient.Instance.IsGameStarted && client.Character)
                     {
                         Main.IsChatCommand = true;
                         Utils.ShowLastResult(client.Character.PlayerId);
@@ -810,7 +829,7 @@ internal static class PlayerControlCheckNamePatch
         Logger.Info($"PlayerId: {__instance.PlayerId} - playerName: {playerName} - name: {name}", "Name player");
         RPC.SyncAllPlayerNames();
 
-        if (__instance != null && !name.Equals(playerName))
+        if (__instance && !name.Equals(playerName))
         {
             Logger.Warn($"Standard nickname: {playerName} => {name}", "Name Format");
             playerName = name;
@@ -823,7 +842,7 @@ internal static class SetColorPatch
 {
     public static void Postfix(PlayerControl __instance, byte bodyColor)
     {
-        if (Main.IntroDestroyed || __instance == null) return;
+        if (Main.IntroDestroyed || !__instance) return;
 
         string colorName = Palette.GetColorName(bodyColor);
         Logger.Info($"{__instance.GetRealName()}'s color is {colorName}", "RpcSetColor");
@@ -832,7 +851,7 @@ internal static class SetColorPatch
         {
             LateTask.New(() =>
             {
-                if (Options.KickSlowJoiningPlayers.GetBool() && __instance != null && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
+                if (Options.KickSlowJoiningPlayers.GetBool() && __instance && !Main.PlayerColors.ContainsKey(__instance.PlayerId))
                 {
                     ClientData client = __instance.GetClient();
 

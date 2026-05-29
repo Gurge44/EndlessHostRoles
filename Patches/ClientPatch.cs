@@ -4,6 +4,7 @@ using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
 using TMPro;
@@ -35,10 +36,10 @@ internal static class MakePublicPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 static class StartRpcImmediatelyPatch
 {
-    public static void Postfix(uint targetNetId, byte callId, Hazel.SendOption option, int targetClientId = -1)
+    public static void Postfix(uint targetNetId, byte callId, SendOption option, int targetClientId = -1)
     {
         if (callId is 21 or 44 or 45 or 104) return;
-        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.AllPlayerControls.FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
+        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.CachedAllPlayerControls().FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
     }
 }
 
@@ -71,8 +72,11 @@ internal static class MMOnlineManagerStartPatch
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
 internal static class SplashLogoAnimatorPatch
 {
+    public static SceneChanger SceneChanger;
+    
     public static void Prefix(SplashManager __instance)
     {
+        SceneChanger = __instance.sceneChanger;
         __instance.sceneChanger.AllowFinishLoadingScene();
         __instance.startedSceneLoad = true;
     }
@@ -86,6 +90,12 @@ internal static class RunLoginPatch
     public static void Prefix(ref bool canOnline)
     {
         if (DebugModeManager.AmDebugger) canOnline = true;
+
+        if (!Main.AckdPrivacyPolicy.Value)
+        {
+            ModUpdater.ShowPopupWithTwoButtons(GetString("PrivacyPolicy"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
+            return;
+        }
 
         try { ModUpdater.ShowAvailableUpdate(); }
         catch (Exception error) { Logger.Error(error.ToString(), "ModUpdater.ShowAvailableUpdate"); }
@@ -169,17 +179,21 @@ static class CheckOnlinePermissionsPatch
 [HarmonyPatch]
 internal static class AuthTimeoutPatch
 {
-    [HarmonyPatch(typeof(AuthManager._CoConnect_d__4), nameof(AuthManager._CoConnect_d__4.MoveNext))]
-    [HarmonyPatch(typeof(AuthManager._CoWaitForNonce_d__6), nameof(AuthManager._CoWaitForNonce_d__6.MoveNext))]
-    [HarmonyPrefix]
     // From Reactor.gg
     // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
-    public static bool CoWaitforNoncePrefix(ref bool __result)
+    
+    [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoConnect))]
+    [HarmonyPrefix]
+    public static bool CoConnect_Prefix()
     {
-        if (GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Local) return true;
-
-        __result = false;
-        return false;
+        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
+    }
+    
+    [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoWaitForNonce))]
+    [HarmonyPrefix]
+    public static bool CoWaitforNonce_Prefix()
+    {
+        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
     }
 
     // If you don't patch this, you still need to wait for 5 s.

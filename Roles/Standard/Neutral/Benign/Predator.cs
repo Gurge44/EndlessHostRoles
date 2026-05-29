@@ -155,11 +155,7 @@ internal class Predator : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
-
-        if (seer.IsModdedClient() && !hud) return string.Empty;
-
-        if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || seer.IsModdedClient() && !hud || Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
 
         if (pt.IsWon) return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
 

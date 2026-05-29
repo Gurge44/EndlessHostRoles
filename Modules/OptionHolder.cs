@@ -266,7 +266,7 @@ public static class Options
     public static OptionItem DisableTaskWin;
 
     public static OptionItem KillFlashDuration;
-    public static OptionItem EnableKillerLeftCommand;
+    public static OptionItem EnableGameStateCommand;
 
     public static OptionItem SeeEjectedRolesInMeeting;
     public static OptionItem EveryoneSeesDeathReasons;
@@ -327,13 +327,11 @@ public static class Options
     public static OptionItem EGCanGuessImp;
     public static OptionItem EGCanGuessAdt;
     public static OptionItem EGCanGuessTime;
-    public static OptionItem EGTryHideMsg;
     public static OptionItem ScavengerKillCooldown;
     public static OptionItem ScavengerKillDuration;
     public static OptionItem GGCanGuessCrew;
     public static OptionItem GGCanGuessAdt;
     public static OptionItem GGCanGuessTime;
-    public static OptionItem GGTryHideMsg;
     public static OptionItem LuckeyProbability;
     public static OptionItem LuckyProbability;
     public static OptionItem VindicatorAdditionalVote;
@@ -602,8 +600,6 @@ public static class Options
     public static OptionItem DisableZiplineForNeutrals;
     public static OptionItem DisableZiplineForCrew;
     public static OptionItem DisableZiplineForCoven;
-    public static OptionItem ZiplineTravelTimeFromBottom;
-    public static OptionItem ZiplineTravelTimeFromTop;
 
     // Sabotage
     public static OptionItem CommsCamouflage;
@@ -722,6 +718,12 @@ public static class Options
 
     public static OptionItem DisablePlayerVotedMessage;
 
+    // Game Commands
+    public static OptionItem AnagramLanguage;
+    public static OptionItem AnagramWordLength;
+    public static OptionItem AnagramDifficulty;
+    public static OptionItem EightballCommandIndexes;
+
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
 
@@ -740,7 +742,6 @@ public static class Options
     public static OptionItem PhantomCanGuess;
 
     public static OptionItem PostLobbyCodeToEHRWebsite;
-    public static OptionItem SendHashedPuidToUseLinkedAccount;
     public static OptionItem LobbyUpdateInterval;
     public static OptionItem StoreCompletedAchievementsOnEHRDatabase;
     public static OptionItem AllCrewRolesHaveVanillaColor;
@@ -793,7 +794,7 @@ public static class Options
     public static OptionItem AutoKickStopWords;
     public static OptionItem AutoKickStopWordsAsBan;
     public static OptionItem AutoKickStopWordsTimes;
-    public static OptionItem KickAndroidPlayer;
+    public static OptionItem KickMobilePlayer;
     public static OptionItem ApplyDenyNameList;
     public static OptionItem KickPlayerFriendCodeNotExist;
     public static OptionItem KickLowLevelPlayer;
@@ -966,8 +967,9 @@ public static class Options
 
         if (AllCrewRolesHaveVanillaColor.GetBool())
         {
-            List<CustomRoles> toChange = Main.RoleColors.Keys.Where(x => !x.IsAdditionRole() && x.IsCrewmate() && !x.IsForOtherGameMode()).ToList();
-            toChange.ForEach(x => Main.RoleColors[x] = "#8cffff");
+            List<CustomRoles> toChange = Main.RoleHtmlColors.Keys.Where(x => !x.IsAdditionRole() && x.IsCrewmate() && !x.IsForOtherGameMode()).ToList();
+            toChange.ForEach(x => Main.RoleHtmlColors[x] = "#8cffff");
+            Main.InitRoleColors();
         }
 
         CompileAutoGMRotationSettings();
@@ -989,7 +991,7 @@ public static class Options
 
             var grouped = Main.CustomRoleValues.GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                if (x is CustomRoles.GM or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict or CustomRoles.Hider or CustomRoles.Seeker or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Agent or CustomRoles.Venter or CustomRoles.Taskinator || x.IsForOtherGameMode() || x.IsVanilla() || x.IsVanillaEHR()) return 4;
                 if (x == CustomRoles.DoubleAgent) return 2;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
@@ -1179,6 +1181,8 @@ public static class Options
             .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
     }
 
+    //private static string PathUserData;
+    private static readonly List<string> Errors = [];
     public static void LoadUserData()
     {
         try
@@ -1190,10 +1194,10 @@ public static class Options
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
-                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData(), new JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(path + "/friendcode#1234.txt", JsonSerializer.Serialize(new UserData { Tag = string.Empty }, new JsonSerializerOptions { WriteIndented = true }));
             }
 
-            List<string> errors = [];
+            Errors.Clear();
 
             foreach (string file in Directory.GetFiles(path, "*.txt"))
             {
@@ -1207,14 +1211,14 @@ public static class Options
                 }
                 catch (Exception e)
                 {
-                    errors.Add($"{file}: {e.Message}");
+                    Errors.Add($"{file}: {e.Message}");
                 }
             }
             
-            if (errors.Count > 0)
+            if (Errors.Count > 0)
             {
-                errors.Insert(0, "The following errors occurred while loading user data files:");
-                Logger.Error(string.Join('\n', errors), "Options", multiLine: true);
+                Errors.Insert(0, "The following errors occurred while loading user data files:");
+                Logger.Error(string.Join('\n', Errors), "Options", multiLine: true);
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -1346,7 +1350,7 @@ public static class Options
 
         HashSet<TabGroup> doneTabs = [];
 
-        foreach (RoleOptionType roleOptionType in Enum.GetValues<RoleOptionType>())
+        foreach (RoleOptionType roleOptionType in Main.RoleOptionTypeValues)
         {
             if (roleOptionType is RoleOptionType.Coven_Miscellaneous or RoleOptionType.Impostor_Madmate) continue;
 
@@ -1576,8 +1580,6 @@ public static class Options
         foreach (KeyValuePair<RoleOptionType, RoleBase[]> roleClasses in roleClassesDict)
         {
             MainLoadingText = $"Building Role Settings: {roleClasses.Key} Roles";
-            int allRoles = roleClasses.Value.Length;
-            var index = 0;
 
             TabGroup tab = roleClasses.Key.GetTabFromOptionType();
 
@@ -1590,9 +1592,21 @@ public static class Options
 
             foreach (RoleBase roleClass in roleClasses.Value)
             {
-                index++;
-                RoleLoadingText = $"{index}/{allRoles} ({roleClass.GetType().Name})";
-                Log();
+                if (roleClass is IHideAndSeekRole) continue;
+
+                RoleLoadingText = roleClass.GetType().Name;
+
+                try { roleClass.SetupCustomOption(); }
+                catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
+
+                yield return null;
+            }
+
+            foreach (RoleBase roleClass in roleClasses.Value)
+            {
+                if (roleClass is not IHideAndSeekRole) continue;
+                
+                RoleLoadingText = roleClass.GetType().Name;
 
                 try { roleClass.SetupCustomOption(); }
                 catch (Exception e) { Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}"); }
@@ -1623,7 +1637,7 @@ public static class Options
             .SetValueFormat(OptionFormat.Level)
             .SetHeader(true);
 
-        KickAndroidPlayer = new BooleanOptionItem(19301, "KickAndroidPlayer", false, TabGroup.SystemSettings);
+        KickMobilePlayer = new BooleanOptionItem(19301, "KickMobilePlayer", false, TabGroup.SystemSettings);
         KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
@@ -1767,9 +1781,6 @@ public static class Options
 
         PostLobbyCodeToEHRWebsite = new BooleanOptionItem(19422, "PostLobbyCodeToEHRDiscordServer", true, TabGroup.SystemSettings)
             .SetHeader(true);
-
-        SendHashedPuidToUseLinkedAccount = new BooleanOptionItem(19501, "SendHashedPuidToUseLinkedAccount", true, TabGroup.SystemSettings)
-            .SetParent(PostLobbyCodeToEHRWebsite);
         
         LobbyUpdateInterval = new IntegerOptionItem(19502, "LobbyUpdateInterval", new(10, 30, 5), 30, TabGroup.SystemSettings)
             .SetParent(PostLobbyCodeToEHRWebsite)
@@ -1780,7 +1791,7 @@ public static class Options
         AllCrewRolesHaveVanillaColor = new BooleanOptionItem(19424, "AllCrewRolesHaveVanillaColor", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1400, TabGroup.SystemSettings)
+        MessageRpcSizeLimit = new IntegerOptionItem(19425, "MessageRpcSizeLimit", new(500, 100000, 100), 1200, TabGroup.SystemSettings)
             .SetHeader(true);
 
         KickSlowJoiningPlayers = new BooleanOptionItem(19428, "KickSlowJoiningPlayers", false, TabGroup.SystemSettings)
@@ -1876,7 +1887,7 @@ public static class Options
         
         AnonymousKillerCount = new BooleanOptionItem(44443, "AnonymousKillerCount", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+            .SetColor(new Color32(255, 238, 232, byte.MaxValue));
 
         LoadingPercentage = 66;
 
@@ -1946,7 +1957,7 @@ public static class Options
         OverrideSpeedForEachMap = new BooleanOptionItem(20782, "OverrideSpeedForEachMap", false, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
-        MapSpeeds = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
+        MapSpeeds = Main.MapNamesValues.ToDictionary(x => x, x => new FloatOptionItem(20783 + (int)x, "SpeedForMap", new(0.05f, 3f, 0.05f), 1.25f, TabGroup.GameSettings)
             .SetParent(OverrideSpeedForEachMap)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue))
@@ -2002,12 +2013,6 @@ public static class Options
 
         DisableZiplineForCoven = new BooleanOptionItem(22322, "DisableZiplineForCoven", false, TabGroup.GameSettings)
             .SetParent(DisableZiplineOnFungle)
-            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
-
-        ZiplineTravelTimeFromBottom = new FloatOptionItem(22312, "ZiplineTravelTimeFromBottom", new(0.5f, 10f, 0.5f), 4f, TabGroup.GameSettings)
-            .SetColor(new Color32(19, 188, 233, byte.MaxValue));
-
-        ZiplineTravelTimeFromTop = new FloatOptionItem(22314, "ZiplineTravelTimeFromTop", new(0.5f, 10f, 0.5f), 2f, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
         // Reset Doors After Meeting
@@ -2320,7 +2325,6 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
-            .SetParent(DisableSabotage)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 
         DisableWhisperCommand = new BooleanOptionItem(22811, "DisableWhisperCommand", false, TabGroup.GameSettings)
@@ -2843,7 +2847,7 @@ public static class Options
 
         var goId = 19723;
 
-        NumGuessersOnEachTeam = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x =>
+        NumGuessersOnEachTeam = Main.TeamValues[1..].ToDictionary(x => x, x =>
         {
             Color teamColor = x.GetColor();
 
@@ -2859,10 +2863,6 @@ public static class Options
 
             return (min, max);
         });
-
-        HideGuesserCommands = new BooleanOptionItem(19717, "GuesserTryHideMsg", true, TabGroup.TaskSettings)
-            .SetColor(Color.green)
-            .SetParent(GuesserMode);
 
         GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings)
             .SetColor(Color.yellow)
@@ -2908,7 +2908,7 @@ public static class Options
             .SetParent(AllAliveMeeting)
             .SetValueFormat(OptionFormat.Seconds);
 
-        EnableKillerLeftCommand = new BooleanOptionItem(44428, "EnableKillerLeftCommand", true, TabGroup.GameSettings)
+        EnableGameStateCommand = new BooleanOptionItem(44428, "EnableGameStateCommand", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
@@ -2918,14 +2918,14 @@ public static class Options
         {
             GameStateSettings[s] = new BooleanOptionItem(44429 + i, $"GameStateCommand.Show{s}", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
-                .SetParent(EnableKillerLeftCommand)
+                .SetParent(EnableGameStateCommand)
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
             i++;
         }
 
         MinPlayersForGameStateCommand = new IntegerOptionItem(44442, "MinPlayersForGameStateCommand", new(1, 15, 1), 1, TabGroup.GameSettings)
-            .SetParent(EnableKillerLeftCommand)
+            .SetParent(EnableGameStateCommand)
             .SetGameMode(CustomGameMode.Standard)
             .SetValueFormat(OptionFormat.Players)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
@@ -2994,6 +2994,43 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 96;
+
+
+        new TextOptionItem(100027, "MenuTitle.GameCommands", TabGroup.GameSettings)
+            .SetHeader(true)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        AnagramLanguage = new StringOptionItem(23821, "AnagramLanguage", [
+            "AnagramLang.Auto",
+            "AnagramLang.English",
+            "AnagramLang.Spanish",
+            "AnagramLang.Italian",
+            "AnagramLang.German",
+            "AnagramLang.French",
+            "AnagramLang.Chinese",
+            "AnagramLang.BrazilianPortuguese",
+            "AnagramLang.Romanian"
+        ], 0, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        AnagramWordLength = new StringOptionItem(23822, "AnagramWordLength", [
+                "?",
+                "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                "11", "12", "13", "14", "15"
+            ], 0, TabGroup.GameSettings, noTranslation: true)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        AnagramDifficulty = new StringOptionItem(23823, "AnagramDifficulty", [
+            "AnagramDiff.Easy",
+            "AnagramDiff.MediumEasy",
+            "AnagramDiff.Medium",
+            "AnagramDiff.MediumHard",
+            "AnagramDiff.Hard"
+        ], 0, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
+        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
 
         new TextOptionItem(100028, "MenuTitle.Other", TabGroup.GameSettings)
@@ -3074,7 +3111,7 @@ public static class Options
         OverrideVisionInVents = new BooleanOptionItem(19436, "OverrideVisionInVents", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue));
 
-        InVentVision = Enum.GetValues<Team>()[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
+        InVentVision = Main.TeamValues[1..].ToDictionary(x => x, x => new FloatOptionItem(19437 + (int)x, "InVentVisionForTeam", new(0f, 1.3f, 0.05f), x == Team.Crewmate ? 0f : 0.5f, TabGroup.GameSettings)
             .SetParent(OverrideVisionInVents)
             .SetValueFormat(OptionFormat.Multiplier)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
@@ -3111,7 +3148,7 @@ public static class Options
 
         #region CTA
 
-        new TextOptionItem(100027, "MenuTitle.CTA", TabGroup.GameSettings)
+        new TextOptionItem(100030, "MenuTitle.CTA", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
@@ -3168,7 +3205,7 @@ public static class Options
         new TextOptionItem(110020, "MenuTitle.GMPoll", TabGroup.SystemSettings)
             .SetHeader(true);
         
-        GMPollGameModesSettings = Enum.GetValues<CustomGameMode>()[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
+        GMPollGameModesSettings = Main.CustomGameModeValues[..^1].ToDictionary(x => x, x => new BooleanOptionItem(id++, "GMPoll.Allow", true, TabGroup.SystemSettings)
             .SetColor(Main.GameModeColors[x])
             .SetHeader(x == CustomGameMode.Standard)
             .AddReplacement(("{gm}", Translator.GetString($"{x}"))));
@@ -3178,7 +3215,7 @@ public static class Options
         new TextOptionItem(110030, "MenuTitle.MPoll", TabGroup.SystemSettings)
             .SetHeader(true);
 
-        MPollMapsSettings = Enum.GetValues<MapNames>().ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
+        MPollMapsSettings = Main.MapNamesValues.ToDictionary(x => x, x => new BooleanOptionItem(id++, "MPoll.Allow", true, TabGroup.SystemSettings)
             .SetHeader(x == MapNames.Skeld)
             .AddReplacement(("{m}", Translator.GetString($"{x}"))));
         
@@ -3254,14 +3291,14 @@ public static class Options
 
         for (var index = 1; index <= MaxAutoGMRotationRandomGroups; index++)
         {
-            new TextOptionItem(100030 + index, "MenuTitle.AGMR.RandomGroup", TabGroup.SystemSettings)
+            new TextOptionItem(100031 + index, "MenuTitle.AGMR.RandomGroup", TabGroup.SystemSettings)
                 .SetHeader(true)
                 .SetParent(EnableAutoGMRotation)
                 .AddReplacement(("{index}", index.ToString()));
 
             Dictionary<CustomGameMode, OptionItem> dict = [];
 
-            foreach (CustomGameMode customGameMode in Enum.GetValues<CustomGameMode>()[..^1])
+            foreach (CustomGameMode customGameMode in Main.CustomGameModeValues[..^1])
             {
                 OptionItem chanceToSelectGMInGroup = new IntegerOptionItem(id++, "AGMR.RandomGroup.GMChance", new(0, 100, 5), 50, TabGroup.SystemSettings)
                     .SetParent(EnableAutoGMRotation)
@@ -3313,7 +3350,8 @@ public static class Options
             OptionSaver.Save();
             OptionItem.SyncAllOptions();
             
-            Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
+            if (CurrentGameMode == CustomGameMode.Standard)
+                Logger.SendInGame(string.Format(Translator.GetString("AutoFactionMinMaxSettings.Applied"), playerCount, usedPlayerCount, string.Join(", ", new[] { Team.Impostor, Team.Coven, Team.Neutral }.Select(x => $"{Utils.ColorString(x.GetColor(), Translator.GetString($"ShortTeamName.{x}").ToUpper())}: <#ffffff>{usedValues.TeamSettings[x].MinSetting.GetInt()}-{usedValues.TeamSettings[x].MaxSetting.GetInt()}</color>")), usedValues.MinNNKs.GetInt(), usedValues.MaxNNKs.GetInt()));
 
             LastUsedPlayerCount = usedPlayerCount;
         }
@@ -3454,7 +3492,8 @@ public static class Options
 
     public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count = 1, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false, bool hideMaxSetting = true)
     {
-        var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
+        var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab)
+            .SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -3553,6 +3592,3 @@ public static class Options
 
     // ReSharper restore NotAccessedField.Global
 }
-
-
-

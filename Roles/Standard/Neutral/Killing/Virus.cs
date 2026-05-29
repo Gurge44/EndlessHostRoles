@@ -101,7 +101,7 @@ public class Virus : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -161,7 +161,7 @@ public class Virus : RoleBase
 
             var infectedIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
                 if (!isInfected) continue;

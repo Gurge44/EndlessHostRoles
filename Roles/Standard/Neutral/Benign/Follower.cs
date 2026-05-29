@@ -131,7 +131,7 @@ public class Follower : RoleBase
         BetTimes--;
         PlayerControl betPlayer = Utils.GetPlayerById(BetPlayer);
 
-        if (betPlayer != null)
+        if (betPlayer)
         {
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: betPlayer, ForceLoop: true);
             Utils.NotifyRoles(SpecifySeer: betPlayer, SpecifyTarget: killer, ForceLoop: true);
@@ -145,7 +145,7 @@ public class Follower : RoleBase
         killer.RPCPlayCustomSound("Bet");
 
         killer.Notify(GetString("FollowerBetPlayer"));
-        if (BetTargetKnowFollower.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), GetString("FollowerBetOnYou")));
+        if (BetTargetKnowFollower.GetBool()) target.Notify(CustomRoles.Follower.ColoredTextByRole(GetString("FollowerBetOnYou")));
 
         Logger.Info($"Target selected: {killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Follower");
         return false;
@@ -155,26 +155,28 @@ public class Follower : RoleBase
     {
         if (!seer.Is(CustomRoles.Follower))
         {
-            if (!BetTargetKnowFollower.GetBool()) return string.Empty;
-
-            if (Main.PlayerStates[target.PlayerId].Role is not Follower tc) return string.Empty;
-
-            return seer.PlayerId == tc.BetPlayer ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), "♦") : string.Empty;
+            if (!BetTargetKnowFollower.GetBool() || Main.PlayerStates[target.PlayerId].Role is not Follower tc) return string.Empty;
+            return seer.PlayerId == tc.BetPlayer ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
         else
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Follower tc) return string.Empty;
-
-            return tc.BetPlayer == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Follower), "♦") : string.Empty;
+            return tc.BetPlayer == target.PlayerId ? CustomRoles.Follower.ColoredTextByRole("♦") : string.Empty;
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        PlayerControl player = Utils.GetPlayerById(playerId);
-        if (Main.PlayerStates[playerId].Role is not Follower tc) return string.Empty;
+        if (Main.PlayerStates[playerId].Role is not Follower tc) return;
 
-        return player == null ? string.Empty : Utils.ColorString(tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray, $"({tc.BetTimes})");
+        PlayerControl player = Utils.GetPlayerById(playerId);
+        if (player == null) return;
+
+        Color32 color = tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Follower) : Color.gray;
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append('(')
+            .Append(tc.BetTimes)
+            .Append(")</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

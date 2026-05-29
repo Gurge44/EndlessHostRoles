@@ -50,8 +50,7 @@ public class Pursuer : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return !Main.PlayerStates[pc.PlayerId].IsDead
-               && pc.GetAbilityUseLimit() >= 1;
+        return pc.GetAbilityUseLimit() >= 1;
     }
 
     public override void SetKillCooldown(byte id)
@@ -61,7 +60,7 @@ public class Pursuer : RoleBase
 
     private bool CanBeClient(PlayerControl pc)
     {
-        return pc != null && pc.IsAlive() && !GameStates.IsMeeting && !clientList.Contains(pc.PlayerId);
+        return pc && pc.IsAlive() && !GameStates.IsMeeting && !clientList.Contains(pc.PlayerId);
     }
 
     private static bool CanSeel(byte playerId)
@@ -78,7 +77,7 @@ public class Pursuer : RoleBase
 
     private void SeelToClient(PlayerControl pc, PlayerControl target)
     {
-        if (pc == null || target == null || !pc.Is(CustomRoles.Pursuer)) return;
+        if (!pc || !target || !pc.Is(CustomRoles.Pursuer)) return;
 
         pc.RpcRemoveAbilityUse();
         clientList.Add(target.PlayerId);
