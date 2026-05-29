@@ -10,7 +10,7 @@ internal class ModdedSupportExampleClass
     // These are the flags I would think would be the best for EHR
     // They can be changed, all flags listed here: https://github.com/D1GQ/BetterAmongUs/blob/main/src/Modules/Support/BAUModdedSupportFlags.cs
     [Category("bau:flags")]
-    public static string[] BAUFlags = ["gameoption.disable.allgameoptions", "lobby.disable.customloadingbar", "gameplay.disable.customcolorblindtext", "client.disable.discordrp", "lobby.disable.cancelstartinggame", "gameplay.disable.betterrolealgorithm"];
+    public static string[] BAUFlags = ["gameoption.disable.allgameoptions", "lobby.disable.customloadingbar", "gameplay.disable.customcolorblindtext", "client.disable.discordrp", "lobby.disable.cancelstartinggame", "gameplay.disable.betterrolealgorithm", "gameplay.disable.nameoverride", "gameplay.disable.chatnameoverride", "gameplay.disable.playerinfo", "gameplay.disable.playermeetinginfo"];
 
     [Category("bau:event.bau_load")]
     public static bool OnBAULoad(BasePlugin bauPlugin)
