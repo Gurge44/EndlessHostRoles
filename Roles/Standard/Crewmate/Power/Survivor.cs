@@ -116,7 +116,7 @@ public class Survivor : RoleBase
         ShieldTimer = null;
     }
 
-    public override void SetButtonTexts(HudManager hud, byte i)
+    public override void SetButtonTexts(HudManager hud, byte id)
     {
         hud.AbilityButton?.OverrideText(GetString("AbilityButtonText.GuardianAngel"));
     }
