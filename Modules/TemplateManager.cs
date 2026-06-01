@@ -161,7 +161,7 @@ public static class TemplateManager
 
         try
         {
-            Regex rx = new(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
+            Regex rx = new(pattern, RegexOptions.Compiled, TimeSpan.FromMilliseconds(100));
             RegexCache[pattern] = rx;
             return rx;
         }
