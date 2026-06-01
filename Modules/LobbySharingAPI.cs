@@ -161,6 +161,7 @@ internal static class ExitGamePatch
         Logger.Msg($"Exiting game - reason: {reason}", "ExitGamePatch.Prefix");
 
         GameStates.InGame = false;
+        GameEndChecker.LoadingEndScreen = false;
         Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
         DataFlagRateLimiter.DropQueue();
 

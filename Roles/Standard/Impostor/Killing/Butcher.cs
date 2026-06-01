@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -70,7 +71,6 @@ internal class Butcher : RoleBase
                 RPCHandlerPatch.WhiteListFromRateLimitUntil(target.PlayerId, Utils.TimeStamp + 5);
 
                 Vector2 ops = target.Pos();
-                Vector2 originPos = killer.Pos();
                 var rd = IRandom.Instance;
 
                 Main.Instance.StartCoroutine(SpawnFakeDeadBodies());
@@ -85,15 +85,12 @@ internal class Butcher : RoleBase
 
                         Utils.RpcCreateDeadBody(location, (byte)target.CurrentOutfit.ColorId, target, SendOption.None);
 
-                        if (i % 4 == 0) yield return null;
+                        yield return new WaitForSecondsRealtime(0.2f);
                     }
-
-                    yield return null;
-                    killer.TP(originPos);
                 }
             }, 0.05f, "Butcher Murder");
         }
 
-        return base.OnCheckMurder(killer, target);
+        return true;
     }
 }

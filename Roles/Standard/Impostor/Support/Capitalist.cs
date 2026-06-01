@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -51,10 +52,11 @@ internal class Capitalist : RoleBase
         });
     }
 
-    public static bool AddTaskForPlayer(PlayerControl player)
+    public static void AddTaskForPlayer(PlayerControl player)
     {
-        if (CapitalistAddTask.TryGetValue(player.PlayerId, out int amount))
+        try
         {
+            if (!CapitalistAddTask.TryGetValue(player.PlayerId, out int amount)) return;
             TaskState taskState = player.GetTaskState();
             taskState.AllTasksCount += amount;
             CapitalistAddTask.Remove(player.PlayerId);
@@ -63,9 +65,7 @@ internal class Capitalist : RoleBase
             player.SyncSettings();
             Main.PlayerStates[player.PlayerId].TaskState.AllTasksCount = player.Data.Tasks.Count;
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            return false;
         }
-
-        return true;
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }

@@ -1037,8 +1037,12 @@ internal static class ReportDeadBodyPatch
 
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
 
-        foreach (KeyValuePair<byte, PlayerState> kvp in Main.PlayerStates)
-            kvp.Value.LastRoom = GetPlayerById(kvp.Key).GetPlainShipRoom();
+        try
+        {
+            foreach (KeyValuePair<byte, PlayerState> kvp in Main.PlayerStates)
+                kvp.Value.LastRoom = GetPlayerById(kvp.Key)?.GetPlainShipRoom();
+        }
+        catch (Exception e) { ThrowException(e); }
 
         if (!AmongUsClient.Instance.AmHost) return true;
 
@@ -1639,6 +1643,9 @@ internal static class FixedUpdatePatch
 
         if (self)
         {
+            if (NumSnapToCallsThisRound > 80)
+                NumSnapToCallsThisRound = 80;
+            
             Zoom.OnFixedUpdate();
             TextBoxPatch.CheckChatOpen();
 
@@ -2391,26 +2398,29 @@ internal static class GameDataCompleteTaskPatch
     
     public static void Postfix(PlayerControl pc, uint taskId)
     {
-        if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return;
-
-        if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
-        {
-            var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
-            Hider.OnSpecificTaskComplete(pc, task);
-        }
-        
         try
         {
+            if (MeetingHud.Instance && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) return;
+
+            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHnS.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
+            {
+                var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
+                Hider.OnSpecificTaskComplete(pc, task);
+            }
+        
+
             if (pc.IsAlive())
             {
                 var task = pc.myTasks.Find((Il2CppSystem.Predicate<PlayerTask>)(x => taskId == x.Id));
                 Benefactor.OnTaskComplete(pc, task);
             }
+
+            Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         }
         catch (Exception e) { ThrowException(e); }
-
-        Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
+        
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
+        
         NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         GameEndChecker.SetDirtyCheckEnd();
     }

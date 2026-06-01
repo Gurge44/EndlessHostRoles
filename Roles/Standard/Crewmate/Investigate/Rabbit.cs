@@ -40,7 +40,7 @@ internal class Rabbit : RoleBase
         RabbitStates.Remove(playerId);
     }
 
-    public static void ReceiveRPC(MessageReader reader)
+    public static void ReceiveRPCStatic(MessageReader reader)
     {
         byte id = reader.ReadByte();
         bool hasArrow = reader.ReadBoolean();
@@ -49,14 +49,14 @@ internal class Rabbit : RoleBase
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
+        if (!RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
 
         state.OnTaskComplete();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
 
         string suffix = state.Suffix;
         return hud ? $"<size=200%>{suffix}</size>" : suffix;

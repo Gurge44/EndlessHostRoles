@@ -32,12 +32,11 @@ internal static class LocalPetPatch
 
         AFKDetector.SetNotAFK(__instance.PlayerId);
 
-        if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
+        LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
 
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
-        LastProcess[__instance.PlayerId] = Utils.TimeStamp;
         return !Main.CancelPetAnimation.Value || !__instance.GetCustomRole().PetActivatedAbility();
     }
 
@@ -68,6 +67,10 @@ internal static class ExternalRpcPetPatch
 
         AFKDetector.SetNotAFK(pc.PlayerId);
 
+        LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
+        if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;
+        LastProcess[pc.PlayerId] = Utils.TimeStamp;
+
         if (!pc.inVent
             && !pc.inMovingPlat
             && !pc.walkingToVent
@@ -88,11 +91,6 @@ internal static class ExternalRpcPetPatch
                 AmongUsClient.Instance.FinishRpcImmediately(w);
             }
         }
-
-        if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
-        if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;
-
-        LastProcess[pc.PlayerId] = Utils.TimeStamp;
 
         Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 

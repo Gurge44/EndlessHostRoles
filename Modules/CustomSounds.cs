@@ -12,17 +12,23 @@ public static class CustomSoundsManager
 {
     private static readonly string SoundsPath = $"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
 
+    public static long LastSoundRPCTS;
+
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, float volume = 1f, float pitch = 1f, bool force = false)
     {
         try
         {
-            if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
-
             if (!pc || pc.AmOwner)
             {
                 Play(sound, volume, pitch);
                 return;
             }
+
+            if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
+
+            long now = Utils.TimeStamp;
+            if (now == LastSoundRPCTS) return;
+            LastSoundRPCTS = now;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None, pc.OwnerId);
             writer.Write(sound);
@@ -40,6 +46,10 @@ public static class CustomSoundsManager
             if (!AmongUsClient.Instance.AmHost) return;
 
             Play(sound, volume, pitch);
+            
+            long now = Utils.TimeStamp;
+            if (now == LastSoundRPCTS) return;
+            LastSoundRPCTS = now;
         
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None);
             writer.Write(sound);

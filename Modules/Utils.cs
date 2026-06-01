@@ -169,11 +169,11 @@ public static class Utils
 
             switch (Vector2.Distance(pc.Pos(), location))
             {
-                // case < 0.3f:
-                // {
-                //     if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
-                //     return false;
-                // }
+                case < 0.3f:
+                {
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    return false;
+                }
                 case < 1.5f when !GameStates.IsLobby:
                 {
                     if (log) Logger.Msg($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Changed to SendOption.None", "TP");
@@ -191,10 +191,16 @@ public static class Utils
         nt.SnapTo(location, (ushort)(nt.lastSequenceId + 328));
         nt.SetDirtyBit(uint.MaxValue);
 
-        if (NumSnapToCallsThisRound > 80)
+        if (NumSnapToCallsThisRound >= 80)
         {
-            if (log) Logger.Warn($"Too many SnapTo calls this round ({NumSnapToCallsThisRound}) - Changed to SendOption.None", "TP");
+            if (log) Logger.Warn($"Too many Reliable SnapTo calls this round ({NumSnapToCallsThisRound}) - Changed to SendOption.None", "TP");
             sendOption = SendOption.None;
+        }
+
+        if (NumSnapToCallsThisRound >= 100)
+        {
+            if (log) Logger.Warn($"Too many Total SnapTo calls this round and this second ({NumSnapToCallsThisRound}) - Canceled", "TP");
+            return false;
         }
 
         if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
@@ -214,7 +220,7 @@ public static class Utils
             SubmergedCompatibility.CheckOutOfBoundsElevator(pc);
         }
 
-        if (sendOption == SendOption.Reliable) NumSnapToCallsThisRound++;
+        NumSnapToCallsThisRound++;
         return true;
     }
 
@@ -2748,13 +2754,17 @@ public static class Utils
         if (!AmongUsClient.Instance.AmHost || GameStates.IsMeeting) yield break;
 
         const int frameBudget = 3; // milliseconds per frame
-        var stopwatch = new Stopwatch();
+        var stopwatch = Stopwatch.StartNew();
         var aapc = Main.CachedAlivePlayerControls();
+        var hasValue = false;
+        var sender = CustomRpcSender.Create("NotifyRoles", sendOption, log: false);
+        sender.StartPackedMessage();
 
         for (int seerIndex = 0; seerIndex < aapc.Count; seerIndex++)
         {
             PlayerControl seer = aapc[seerIndex];
-            NotifyRoles(SpecifySeer: seer, NoCache: noCache, SendOption: sendOption);
+            hasValue |= WriteSetNameRpcsToSender(ref sender, false, noCache, false, false, false, false, seer, [seer], aapc, out bool senderWasCleared, sendOption);
+            if (senderWasCleared) hasValue = false;
             
             if (stopwatch.ElapsedMilliseconds >= frameBudget)
             {
@@ -2764,6 +2774,8 @@ public static class Utils
                 stopwatch.Start();
             }
         }
+
+        sender.SendMessage(!hasValue || sender.stream.Length <= 11);
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -2779,24 +2791,18 @@ public static class Utils
             SeerList = SpecifySeer ? [SpecifySeer] : apc;
             TargetList = SpecifyTarget ? [SpecifyTarget] : apc;
 
-            var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
             var hasValue = false;
+            var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
+            sender.StartPackedMessage();
 
             for (byte seerIndex = 0; seerIndex < SeerList.Count; seerIndex++)
             {
                 PlayerControl seer = SeerList[seerIndex];
                 hasValue |= WriteSetNameRpcsToSender(ref sender, ForMeeting, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup, seer, SeerList, TargetList, out bool senderWasCleared, SendOption);
                 if (senderWasCleared) hasValue = false;
-
-                if (sender.stream.Length > 500)
-                {
-                    sender.SendMessage();
-                    sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
-                    hasValue = false;
-                }
             }
 
-            sender.SendMessage(!hasValue || sender.stream.Length <= 3);
+            sender.SendMessage(!hasValue || sender.stream.Length <= 11);
 
             if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
@@ -2838,26 +2844,26 @@ public static class Utils
                 var selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=500%>\n \n</size>";
                 selfName = $"{selfTeamName}\r\n<size=150%>{seerRole.ToColoredString()}</size>{roleNameUp}";
 
-                sender.RpcSetName(seer, selfName, seer);
+                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, selfName, seer);
                 return true;
             }
 
             if (seer.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
             {
-                sender.RpcSetName(seer, Car.Name);
+                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, Car.Name);
                 return true;
             }
             
             if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
             {
-                sender.RpcSetName(seer, Tree.Sprite);
+                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, Tree.Sprite);
                 return true;
             }
 
             if (forMeeting && Magistrate.CallCourtNextMeeting)
             {
                 selfName = seer.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
-                sender.RpcSetName(seer, selfName);
+                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, selfName);
                 return true;
             }
 
@@ -3183,7 +3189,7 @@ public static class Utils
             if (selfName.EndsWith("</size>")) selfName = selfName.Remove(selfName.Length - 7);
             if (selfName.EndsWith("</color>")) selfName = selfName.Remove(selfName.Length - 8);
 
-            sender.RpcSetName(seer, selfName, seer);
+            CustomRpcSenderExtensions.RpcSetName(ref sender, seer, selfName, seer);
             hasValue = true;
 
             bool onlySelfNameUpdateRequired = Options.CurrentGameMode switch
@@ -3214,24 +3220,24 @@ public static class Utils
                         if (target.PlayerId == seer.PlayerId) continue;
 
                         if ((IsActive(SystemTypes.MushroomMixupSabotage) || mushroomMixup) && !forMeeting && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && seer.HasDesyncRole())
-                            sender.RpcSetName(target, "<size=0%>", seer);
+                            CustomRpcSenderExtensions.RpcSetName(ref sender, target, "<size=0%>", seer);
                         else
                         {
                             if (target.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
                             {
-                                sender.RpcSetName(target, Car.Name, seer);
+                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, Car.Name, seer);
                                 continue;
                             }
             
                             if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
                             {
-                                sender.RpcSetName(target, Tree.Sprite, seer);
+                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, Tree.Sprite, seer);
                                 continue;
                             }
 
                             if (forMeeting && Magistrate.CallCourtNextMeeting)
                             {
-                                sender.RpcSetName(target, GetString(target.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName"), seer);
+                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, GetString(target.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName"), seer);
                                 return true;
                             }
                             
@@ -3500,17 +3506,9 @@ public static class Utils
                             if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);
                             if (targetName.EndsWith("</color>")) targetName = targetName.Remove(targetName.Length - 8);
 
-                            sender.RpcSetName(target, targetName, seer);
+                            CustomRpcSenderExtensions.RpcSetName(ref sender, target, targetName, seer);
                             hasValue = true;
                             senderWasCleared = false;
-
-                            if (sender.stream.Length > 500)
-                            {
-                                sender.SendMessage();
-                                sender = CustomRpcSender.Create(sender.name, sender.sendOption);
-                                hasValue = false;
-                                senderWasCleared = true;
-                            }
                         }
                     }
                     catch (Exception ex)
@@ -4153,7 +4151,7 @@ public static class Utils
                             CustomRpcSender sender = CustomRpcSender.Create("Bloodlust fix", SendOption.Reliable);
                             bool hasValue = false;
                             hasValue |= sender.RpcSetRole(pc, RoleTypes.Impostor, pc.OwnerId);
-                            Main.EnumeratePlayerControls().DoIf(x => x.IsImpostor(), x => hasValue |= sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
+                            Main.EnumerateAlivePlayerControls().DoIf(x => x.IsImpostor(), x => hasValue |= sender.RpcSetRole(x, RoleTypes.Crewmate, pc.OwnerId));
                             sender.SendMessage(dispose: !hasValue);
                             LateTask.New(() => pc.SetKillCooldown(), 0.2f, log: false);
                         }
@@ -5171,6 +5169,7 @@ public static class Utils
         
         DataFlagRateLimiter.Enqueue(() =>
         {
+            if (!deadBodyParent) return;
             CreateDeadBody(position, colorId, deadBodyParent);
             PlayerControl playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = deadBodyParent.PlayerId;

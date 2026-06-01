@@ -69,12 +69,15 @@ internal class Workaholic : RoleBase
         Main.AllPlayerSpeed[playerId] = WorkaholicSpeed.GetFloat();
     }
 
-    public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
+    public override void OnTaskComplete(PlayerControl player, int completedTasksCount, int allTasksCount)
     {
-        if (CompletedTasksCount + 1 >= AllTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
+        if (completedTasksCount + 1 >= allTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
         {
             Logger.Info("Workaholic Tasks Finished", "Workaholic");
             RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
+
+            GameEndChecker.ShouldNotCheck = true;
+            LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 0.2f);
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
                 pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);

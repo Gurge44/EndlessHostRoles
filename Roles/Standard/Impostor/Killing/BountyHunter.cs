@@ -82,7 +82,7 @@ public class BountyHunter : RoleBase
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public void ReceiveRPC(byte targetId)
+    public void ReceiveRPCTarget(byte targetId)
     {
         Target = targetId;
     }

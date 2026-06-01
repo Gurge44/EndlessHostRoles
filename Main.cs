@@ -260,13 +260,14 @@ public class Main : BasePlugin
 
     // ################# - WARNING!!! - #####################
     // Don't use Enumerate(Alive)PlayerControls if it updates every frame or every second
-    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions need use "for (...)" loop
+    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions, use "for (...)" loop
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
         // foreach can throw System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
         // if the code waits frames between iterations, so the safest way is to use a for loop backwards
         for (int index = PlayerControl.AllPlayerControls.Count - 1; index >= 0; index--)
         {
+            if (PlayerControl.AllPlayerControls.Count <= index) continue;
             PlayerControl pc = PlayerControl.AllPlayerControls[index];
             if (!pc || pc.PlayerId >= 254) continue;
             yield return pc;
@@ -276,6 +277,7 @@ public class Main : BasePlugin
     {
         for (int index = PlayerControl.AllPlayerControls.Count - 1; index >= 0; index--)
         {
+            if (PlayerControl.AllPlayerControls.Count <= index) continue;
             PlayerControl pc = PlayerControl.AllPlayerControls[index];
             if (!pc.IsAliveWithConditions() || pc.PlayerId >= 254) continue;
             yield return pc;
@@ -319,7 +321,7 @@ public class Main : BasePlugin
     }
     // ################# - WARNING!!! - #####################
     // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in Coroutines (Async) functions
-    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll/AlivePlayerControls witch LINQ functions (Like: ToList() or ToArray())
+    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll(Alive)PlayerControls with LINQ functions (Like: ToList() or ToArray())
     // ######################################
     public static List<PlayerControl> CachedAllPlayerControls()
     {

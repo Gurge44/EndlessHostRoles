@@ -1252,28 +1252,29 @@ internal static class IntroCutsceneDestroyPatch
                 {
                     lp.Notify(GetString("GLHF"), 2f);
 
+                    bool hasValue = false;
+                    var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
+                    sender.StartPackedMessage();
+                    
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.IsHost()) continue; // Skip the host
+                        if (pc.AmOwner) continue; // Skip the host
 
                         try
                         {
-                            var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                            
-                            if (AmongUsClient.Instance.AmClient)
-                                pc.Shapeshift(pc, false);
-
-                            sender.AutoStartRpc(pc.NetId, 46);
+                            sender.AutoStartRpc(pc.NetId, 46, pc.OwnerId);
                             sender.WriteNetObject(pc);
                             sender.Write(false);
                             sender.EndRpc();
 
                             sender.Notify(pc, GetString("GLHF"), 2f);
 
-                            sender.SendMessage();
+                            hasValue = true;
                         }
                         catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
                     }
+                    
+                    sender.SendMessage(dispose: !hasValue);
                 }, 4f, "Show Pet For Everyone");
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");

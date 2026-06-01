@@ -34,6 +34,11 @@ public static class CollectionExtensions
 
             return default(TKey);
         }
+        
+        // foreach will only throw System.InvalidOperationException: collection was modified; enumeration operation may not execute.
+        // if the number of elements inside the dictionary changes.
+        // If Count stays the same for the entire iteration, it can be safely enumerated without ToList or ToArray.
+        // Changing values does NOT modify the collection!
 
         /// <summary>
         ///     Sets the value for all existing keys in a dictionary to a specific value
@@ -41,7 +46,7 @@ public static class CollectionExtensions
         /// <param name="value"></param>
         public void SetAllValues(TValue value)
         {
-            foreach (TKey key in dictionary.Keys.ToArray())
+            foreach (TKey key in dictionary.Keys)
                 dictionary[key] = value;
         }
 
@@ -51,7 +56,7 @@ public static class CollectionExtensions
         /// <param name="adjust">The function to adjust the values with</param>
         public void AdjustAllValues(Func<TValue, TValue> adjust)
         {
-            foreach (TKey key in dictionary.Keys.ToArray())
+            foreach (TKey key in dictionary.Keys)
                 dictionary[key] = adjust(dictionary[key]);
         }
 

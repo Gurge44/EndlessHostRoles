@@ -1734,8 +1734,8 @@ public static class BedWars
             if (!vanillaServer)
             {
                 if (lastSelected) finalSb.Append(baseColor);
-                finalSb.Append("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
                 finalSb.AppendLine();
+                finalSb.AppendLine("▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔");
                 finalSb.Append(Utils.ColorString(Color.white, bottomText));
                 finalSb.AppendLine("</color>");
             }

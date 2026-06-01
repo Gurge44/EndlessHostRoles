@@ -14,6 +14,7 @@ internal static class CustomTeamManager
     public static CustomTeam WinnerTeam;
     public static Dictionary<CustomTeam, HashSet<byte>> CustomTeamPlayerIds = [];
     public static List<CustomTeamOptionGroup> CustomTeamOptions = [];
+    public static Dictionary<CustomTeam, List<bool>> CustomTeamOptionsCache = [];
 
     public static void LoadCustomTeams()
     {
@@ -72,7 +73,16 @@ internal static class CustomTeamManager
 
     private static void UpdateEnabledTeams()
     {
-        EnabledCustomTeams = CustomTeamOptions.Where(x => x.Enabled.GetBool()).Select(x => x.Team).ToHashSet();
+        EnabledCustomTeams.Clear();
+        CustomTeamOptionsCache.Clear();
+        
+        foreach (CustomTeamOptionGroup customTeamOptionGroup in CustomTeamOptions)
+        {
+            if (customTeamOptionGroup.Enabled.GetBool())
+                EnabledCustomTeams.Add(customTeamOptionGroup.Team);
+
+            CustomTeamOptionsCache[customTeamOptionGroup.Team] = customTeamOptionGroup.AllOptions.ConvertAll(x => x.GetBool());
+        }
     }
 
     public static void InitializeCustomTeamPlayers()
@@ -127,6 +137,44 @@ internal static class CustomTeamManager
             });
         }
 
+        if (Utils.DoRPC)
+        {
+            var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CTA, SendOption.Reliable);
+            msg.WritePacked(1);
+            msg.WritePacked(EnabledCustomTeams.Count);
+            EnabledCustomTeams.Do(x => x.Serialize(msg));
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
+            msg.Recycle();
+            
+            msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CTA, SendOption.Reliable);
+            msg.WritePacked(2);
+            msg.WritePacked(CustomTeamPlayerIds.Count);
+
+            foreach ((CustomTeam customTeam, HashSet<byte> ids) in CustomTeamPlayerIds)
+            {
+                msg.WritePacked(ids.Count);
+                ids.Do(x => msg.Write(x));
+                msg.Write(customTeam.TeamName);
+            }
+            
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
+            msg.Recycle();
+            
+            msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CTA, SendOption.Reliable);
+            msg.WritePacked(3);
+            msg.WritePacked(CustomTeamOptionsCache.Count);
+
+            foreach ((CustomTeam customTeam, List<bool> bools) in CustomTeamOptionsCache)
+            {
+                msg.WritePacked(bools.Count);
+                bools.ForEach(x => msg.Write(x));
+                msg.Write(customTeam.TeamName);
+            }
+            
+            AmongUsClient.Instance.FinishRpcImmediately(msg);
+            msg.Recycle();
+        }
+
         return;
 
         static HashSet<byte> TakeAsManyAsSet(IEnumerable<byte> playerIds, CustomTeam customTeam)
@@ -169,7 +217,44 @@ internal static class CustomTeamManager
         return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
     }
 
-    private static readonly Dictionary<CustomTeam, HashSet<byte>> AliveTeamPlayers = [];
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+            {
+                EnabledCustomTeams.Clear();
+                Loop.Times(reader.ReadPackedInt32(), _ => EnabledCustomTeams.Add(new CustomTeam(reader.ReadString())));
+                break;
+            }
+            case 2:
+            {
+                CustomTeamPlayerIds.Clear();
+                Loop.Times(reader.ReadPackedInt32(), _ =>
+                {
+                    HashSet<byte> ids = [];
+                    Loop.Times(reader.ReadPackedInt32(), _ => ids.Add(reader.ReadByte()));
+                    string teamName = reader.ReadString();
+                    CustomTeamPlayerIds[EnabledCustomTeams.First(x => x.TeamName == teamName)] = ids;
+                });
+                break;
+            }
+            case 3:
+            {
+                CustomTeamOptionsCache.Clear();
+                Loop.Times(reader.ReadPackedInt32(), _ =>
+                {
+                    List<bool> bools = [];
+                    Loop.Times(reader.ReadPackedInt32(), _ => bools.Add(reader.ReadBoolean()));
+                    string teamName = reader.ReadString();
+                    CustomTeamOptionsCache[EnabledCustomTeams.First(x => x.TeamName == teamName)] = bools;
+                });
+                break;
+            }
+        }
+    }
+
+    private static readonly List<CustomTeam> AliveTeamPlayers = [];
     private static readonly List<byte> ToRemove = [];
     public static bool CheckCustomTeamGameEnd()
     {
@@ -210,27 +295,20 @@ internal static class CustomTeamManager
             AliveTeamPlayers.Clear();
             foreach ((CustomTeam teamKey, HashSet<byte> originalSet) in CustomTeamPlayerIds)
             {
-                HashSet<byte> aliveSet = null;
                 foreach (var id in originalSet)
                 {
                     var pc = Utils.GetPlayerById(id);
-                    if (pc.IsAlive())
+                    if (pc && pc.IsAlive())
                     {
-                        aliveSet ??= [];
-                        aliveSet.Add(id);
+                        AliveTeamPlayers.Add(teamKey);
+                        break;
                     }
                 }
-                if (aliveSet != null)
-                    AliveTeamPlayers[teamKey] = aliveSet;
             }
 
             if (AliveTeamPlayers.Count == 1)
             {
-                var aliveTeam = AliveTeamPlayers.GetEnumerator();
-                aliveTeam.MoveNext();
-
-                var onlyTeam = aliveTeam.Current.Key;
-                var winners = aliveTeam.Current.Value;
+                var onlyTeam = AliveTeamPlayers[0];
 
                 for (int i = 0; i < aapc.Count; i++)
                 {
@@ -243,7 +321,7 @@ internal static class CustomTeamManager
 
                 WinnerTeam = onlyTeam;
                 CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.CustomTeam);
-                CustomWinnerHolder.WinnerIds = winners;
+                CustomWinnerHolder.WinnerIds = CustomTeamPlayerIds[onlyTeam];
                 return true;
             }
         }
@@ -287,9 +365,7 @@ internal static class CustomTeamManager
 
     public static bool IsSettingEnabledForTeam(CustomTeam team, CTAOption setting)
     {
-        CustomTeamOptionGroup optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
-        List<bool> values = optionsGroup.AllOptions.ConvertAll(x => x.GetBool());
-        return values[(int)setting];
+        return CustomTeamOptionsCache[team][(int)setting];
     }
 
     internal class CustomTeam
@@ -329,6 +405,27 @@ internal static class CustomTeamManager
         public override int GetHashCode()
         {
             return TeamName.GetHashCode();
+        }
+
+        public void Serialize(MessageWriter writer)
+        {
+            StringBuilder sb = new();
+            sb.Append(TeamName);
+            sb.Append(';');
+            sb.Append(RoleRevealScreenTitle);
+            sb.Append(';');
+            sb.Append(RoleRevealScreenSubtitle);
+            sb.Append(';');
+            sb.Append(RoleRevealScreenBackgroundColor);
+            sb.Append(';');
+
+            for (var index = 0; index < TeamMembers.Count; index++)
+            {
+                sb.Append(TeamMembers[index].ToString());
+                sb.Append(',');
+            }
+
+            writer.Write(sb.ToString());
         }
     }
 

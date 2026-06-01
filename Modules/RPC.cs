@@ -163,6 +163,7 @@ public enum CustomRPC
     Necronomicon,
     Stained,
     Entombed,
+    CTA,
 
     // Game Modes
     RoomRushDataSync,
@@ -713,7 +714,7 @@ internal static class RPCHandlerPatch
                 {
                     byte bountyId = reader.ReadByte();
                     byte targetId = reader.ReadByte();
-                    (Main.PlayerStates[bountyId].Role as BountyHunter)?.ReceiveRPC(targetId);
+                    (Main.PlayerStates[bountyId].Role as BountyHunter)?.ReceiveRPCTarget(targetId);
                     break;
                 }
                 case CustomRPC.SyncBargainer:
@@ -824,7 +825,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.SyncRabbit:
                 {
-                    Rabbit.ReceiveRPC(reader);
+                    Rabbit.ReceiveRPCStatic(reader);
                     break;
                 }
                 case CustomRPC.SyncYinYanger:
@@ -961,12 +962,12 @@ internal static class RPCHandlerPatch
                     if (operate == 1)
                     {
                         byte victim = reader.ReadByte();
-                        (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(victim);
+                        (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPCVictim(victim);
                     }
                     else
                     {
-                        float timer = reader.ReadSingle();
-                        (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(timer);
+                        bool reset = reader.ReadBoolean();
+                        (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPCTimer(reset);
                     }
 
                     break;
@@ -1374,6 +1375,11 @@ internal static class RPCHandlerPatch
                     LateTask.New(() => Stained.VioletNameList.Remove(id), 3f);
                     break;
                 }
+                case CustomRPC.CTA:
+                {
+                    CustomTeamManager.ReceiveRPC(reader);
+                    break;
+                }
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -1390,7 +1396,7 @@ internal static class RPC
         if (targetId != -1)
         {
             ClientData client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
+            if (client == null || !client.Character || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1) return;
@@ -1417,6 +1423,10 @@ internal static class RPC
     public static void PlaySoundRPC(byte playerID, Sounds sound)
     {
         if (AmongUsClient.Instance.AmHost) PlaySound(playerID, sound);
+        
+        long now = Utils.TimeStamp;
+        if (now == CustomSoundsManager.LastSoundRPCTS) return;
+        CustomSoundsManager.LastSoundRPCTS = now;
 
         SendOption sendOption = SendOption.Reliable;
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -36,8 +37,9 @@ internal class Vector : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        VectorVentCount[playerId] = 0;
-        VectorVentNumWin = MapWinCounts[SubmergedCompatibility.IsSubmerged() ? MapNames.Airship : Main.CurrentMap].GetInt();
+        if (!AmongUsClient.Instance.AmHost) return;
+        VectorVentNumWin = MapWinCounts[SubmergedCompatibility.IsSubmerged() || Main.LIMap ? MapNames.Airship : Main.CurrentMap].GetInt();
+        LateTask.New(() => Utils.SendRPC(CustomRPC.SyncRoleData, playerId, VectorVentNumWin), 8f);
     }
 
     public override void Init()
@@ -71,7 +73,7 @@ internal class Vector : RoleBase
     {
         VectorVentCount.TryAdd(pc.PlayerId, 0);
         VectorVentCount[pc.PlayerId]++;
-        if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        if (!pc.IsModdedClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: SendOption.None);
         if (pc.AmOwner) CustomSoundsManager.Play("MarioJump");
 
         if (AmongUsClient.Instance.AmHost && VectorVentCount[pc.PlayerId] >= VectorVentNumWin)
@@ -80,5 +82,10 @@ internal class Vector : RoleBase
             CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Vector);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
         }
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        VectorVentNumWin = reader.ReadPackedInt32();
     }
 }

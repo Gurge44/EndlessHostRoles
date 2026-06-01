@@ -818,6 +818,7 @@ internal static class MeetingHudStartPatch
             {
                 string playername = pc.GetRealName();
                 if (Doppelganger.DoppelVictim.TryGetValue(pc.PlayerId, out string value)) playername = value;
+                playername = Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, playername);
 
                 AddMsg(string.Format(GetString("SilencerDead"), playername, pc.PlayerId, CustomRoles.Silencer.ColoredTextByRole(GetString("SilencerKillTitle"))));
             }

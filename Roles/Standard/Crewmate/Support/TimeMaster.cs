@@ -131,27 +131,31 @@ internal class TimeMaster : RoleBase
 
     private static IEnumerator Rewind()
     {
-        const float delay = 0.3f;
-        long now = Utils.TimeStamp;
-        int length = TimeMasterRewindTimeLength.GetInt();
-
         Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
-        Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
-        ReportDeadBodyPatch.CanReport.SetAllValues(false);
-
+        
         try
         {
             Rewinding = true;
+
+            const float delay = 0.3f;
+            long now = Utils.TimeStamp;
+            int length = TimeMasterRewindTimeLength.GetInt();
+            float duration = length * delay + 0.55f;
+
+            Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
+            ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
 
             foreach (PlayerControl player in Main.EnumeratePlayerControls())
             {
                 if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
-                player.ReactorFlash(flashDuration: length * delay + 0.55f);
-                player.Notify(notify, Math.Max((length * delay) + 0.55f, 4f));
+                player.ReactorFlash(flashDuration: duration);
+                player.Notify(notify, Math.Max(duration, 4f));
                 player.MarkDirtySettings();
             }
+            
+            yield return PlayerGameOptionsSender.SendAllImmediately().Wait();
 
             yield return new WaitForSecondsRealtime(0.55f);
 
@@ -196,21 +200,29 @@ internal class TimeMaster : RoleBase
                     }
                 }
             }
-
-            
         }
         finally
         {
             Rewinding = false;
-            Main.AllPlayerSpeed = originalSpeeds;
-            ReportDeadBodyPatch.CanReport.SetAllValues(true);
+            Main.AllPlayerSpeed.AddRange(originalSpeeds);
             Utils.MarkEveryoneDirtySettings();
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
         }
+    }
+
+    public override void OnReportDeadBody()
+    {
+        AfterMeetingTasks();
     }
 
     public override void AfterMeetingTasks()
     {
-        Rewinding = false;
+        if (Rewinding)
+        {
+            Rewinding = false;
+            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl player)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -16,13 +17,12 @@ public class Penguin : RoleBase
     private static OptionItem OptionSpeedDuringDrag;
     private static OptionItem OptionVictimCanUseAbilities;
 
-    private float AbductTimer;
+    private Stopwatch AbductTimer;
     private float AbductTimerLimit;
 
     private PlayerControl AbductVictim;
     private float Cooldown;
 
-    private int Count;
     private float DefaultSpeed;
 
     private bool IsGoose;
@@ -33,7 +33,6 @@ public class Penguin : RoleBase
     private byte PenguinId = byte.MaxValue;
     private float SpeedDuringDrag;
 
-    private bool stopCount;
     private bool VictimCanUseAbilities;
 
     public override bool IsEnable => PenguinId != byte.MaxValue;
@@ -101,8 +100,7 @@ public class Penguin : RoleBase
         PenguinId = playerId;
         Penguin_ = Utils.GetPlayerById(playerId);
 
-        AbductTimer = 255f;
-        stopCount = false;
+        AbductTimer = null;
         LastNotify = 0;
     }
 
@@ -142,23 +140,25 @@ public class Penguin : RoleBase
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public void ReceiveRPC(byte victim)
+    public void ReceiveRPCVictim(byte victim)
     {
         if (victim == 255)
         {
             AbductVictim = null;
-            AbductTimer = 255f;
+            AbductTimer = null;
+            Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, true);
         }
         else
         {
             AbductVictim = Utils.GetPlayerById(victim);
-            AbductTimer = AbductTimerLimit;
+            AbductTimer = Stopwatch.StartNew();
+            Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, false);
         }
     }
 
-    public void ReceiveRPC(float timer)
+    public void ReceiveRPCTimer(bool reset)
     {
-        AbductTimer = timer;
+        AbductTimer = reset ? null : Stopwatch.StartNew();
     }
 
     private void AddVictim(PlayerControl target)
@@ -168,7 +168,8 @@ public class Penguin : RoleBase
         if (Thanos.IsImmune(target)) return;
 
         AbductVictim = target;
-        AbductTimer = AbductTimerLimit;
+        AbductTimer = Stopwatch.StartNew();
+        Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, false);
         Main.AllPlayerSpeed[PenguinId] = SpeedDuringDrag;
         Penguin_.MarkDirtySettings();
         LogSpeed();
@@ -209,7 +210,8 @@ public class Penguin : RoleBase
             }, 1f, log: false);
         }
 
-        AbductTimer = 255f;
+        AbductTimer = null;
+        Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, true);
         Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
         Penguin_.MarkDirtySettings();
         LogSpeed();
@@ -268,8 +270,6 @@ public class Penguin : RoleBase
     {
         if (!IsEnable) return;
 
-        stopCount = true;
-
         if (!AmongUsClient.Instance.AmHost) return;
         if (!AbductVictim) return;
 
@@ -301,30 +301,11 @@ public class Penguin : RoleBase
         if (!IsEnable) return;
 
         if (AbductVictim) Penguin_.MarkDirtySettings();
-
-        stopCount = false;
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!IsEnable) return;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (!GameStates.IsInTask) return;
-
-        if (!stopCount)
-        {
-            AbductTimer -= Time.fixedDeltaTime;
-
-            Count++;
-
-            if (Count >= 30)
-            {
-                Count = 0;
-                Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, AbductTimer);
-            }
-        }
 
         if (AbductVictim)
         {
@@ -340,7 +321,7 @@ public class Penguin : RoleBase
                 LastNotify = Utils.TimeStamp;
             }
 
-            if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !Penguin_.inMovingPlat && !Penguin_.onLadder)
+            if (AbductTimer.Elapsed.TotalSeconds >= AbductTimerLimit && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !Penguin_.inMovingPlat && !Penguin_.onLadder)
             {
                 // Set IsDead to true first (prevents ladder chase)
                 if (!IsGoose)
@@ -395,17 +376,21 @@ public class Penguin : RoleBase
                 {
                     LateTask.New(() =>
                     {
-                        if (AbductVictim != null) Utils.TP(AbductVictim.NetTransform, position, log: false);
+                        if (AbductVictim) Utils.TP(AbductVictim.NetTransform, position, log: false);
                     }, 0.25f, log: false);
                 }
             }
         }
-        else if (AbductTimer <= 100f) AbductTimer = 255f;
+        else
+        {
+            AbductTimer = null;
+            Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, true);
+        }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || !Main.PlayerStates.TryGetValue(seer.PlayerId, out PlayerState state) || state.Role is not Penguin pg || pg.AbductVictim == null) return string.Empty;
-        return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";
+        if (seer.PlayerId != PenguinId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || AbductTimer == null) return string.Empty;
+        return $"\u21b9 {(int)(AbductTimerLimit - AbductTimer.Elapsed.TotalSeconds + 1f)}s";
     }
 }

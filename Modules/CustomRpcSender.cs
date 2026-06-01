@@ -36,12 +36,14 @@ public class CustomRpcSender
     private readonly OnSendDelegateType onSendDelegate;
     public readonly SendOption sendOption;
 
+    public bool checkLength;
+
     // 0~: targetClientId (GameDataTo)
     // -1: All players (GameData)
     // -2: Not set
     private int currentRpcTarget;
 
-    private bool packed;
+    public bool packed;
 
     private State currentState/* = State.BeforeInit*/;
     public int messages;
@@ -57,6 +59,7 @@ public class CustomRpcSender
         this.log = log;
         currentRpcTarget = -2;
         packed = false;
+        checkLength = true;
         onSendDelegate = () => { };
         messages = 0;
 
@@ -177,7 +180,7 @@ public class CustomRpcSender
                     return count;
                 }
 
-                if (1 + GetPackedIntSize(AmongUsClient.Instance.GameId) >= stream.Length)
+                if (3 + GetPackedIntSize(AmongUsClient.Instance.GameId) >= stream.Length)
                     dispose = true;
                 else
                     EndMessage();
@@ -271,7 +274,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 500)
+        if (checkLength && stream.Length > 500)
         {
             if (currentState == State.InRootPackedMessage)
             {
@@ -320,7 +323,7 @@ public class CustomRpcSender
                 throw new InvalidOperationException(errorMsg);
         }
 
-        if (stream.Length > 500)
+        if (checkLength && stream.Length > 500)
         {
             doneStreams.Add(stream);
             stream = MessageWriter.Get(sendOption);
@@ -529,6 +532,63 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
+    public static void RpcSetName(ref CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
+    {
+        bool seerIsNull = !seer;
+        int targetClientId = seerIsNull ? -1 : seer.OwnerId;
+
+        name = name.Replace("color=", string.Empty);
+
+        switch (seerIsNull)
+        {
+            case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
+            case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
+                return;
+            case true:
+                Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
+                break;
+            default:
+                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                break;
+        }
+
+        sender.checkLength = false;
+
+        if (sender.stream.Length + GetSetNameRpcSize(player.NetId, name) > 1100)
+        {
+            bool packed = sender.packed;
+            sender.SendMessage();
+            sender = CustomRpcSender.Create(sender.name, sender.sendOption);
+            if (packed) sender.StartPackedMessage();
+        }
+
+        sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
+            .Write(player.Data.NetId)
+            .Write(name)
+            .Write(false)
+            .EndRpc();
+        
+        return;
+
+        static int GetSetNameRpcSize(uint netId, string playerName)
+        {
+            int byteCount = System.Text.Encoding.UTF8.GetByteCount(playerName);
+            return 3 + PackedUIntSize(netId) + 1 + 4 + PackedUIntSize((uint)byteCount) + byteCount + 1;
+        }
+
+        static int PackedUIntSize(uint value)
+        {
+            return value switch
+            {
+                < 0x80 => 1,
+                < 0x4000 => 2,
+                < 0x20_0000 => 3,
+                < 0x1000_0000 => 4,
+                _ => 5
+            };
+        }
+    }
+
     extension(CustomRpcSender sender)
     {
         public bool RpcSetRole(PlayerControl player, RoleTypes role, int targetClientId = -1, bool noRpcForSelf = true, bool changeRoleMap = false)
@@ -566,33 +626,6 @@ public static class CustomRpcSenderExtensions
             }
 
             return true;
-        }
-
-        public void RpcSetName(PlayerControl player, string name, PlayerControl seer = null)
-        {
-            bool seerIsNull = !seer;
-            int targetClientId = seerIsNull ? -1 : seer.OwnerId;
-
-            name = name.Replace("color=", string.Empty);
-
-            switch (seerIsNull)
-            {
-                case true when Main.LastNotifyNames.Where(x => x.Key.Item1 == player.PlayerId).All(x => x.Value == name):
-                case false when Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name:
-                    return;
-                case true:
-                    Main.EnumeratePlayerControls().Do(x => Main.LastNotifyNames[(player.PlayerId, x.PlayerId)] = name);
-                    break;
-                default:
-                    Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-                    break;
-            }
-
-            sender.AutoStartRpc(player.NetId, RpcCalls.SetName, targetClientId)
-                .Write(player.Data.NetId)
-                .Write(name)
-                .Write(false)
-                .EndRpc();
         }
 
         public bool RpcGuardAndKill(PlayerControl killer, PlayerControl target = null, bool forObserver = false, bool fromSetKCD = false)

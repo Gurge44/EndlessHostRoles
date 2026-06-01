@@ -377,6 +377,20 @@ internal static class ChangeRoleSettings
             {
                 RPC.SyncCustomSettingsRPC();
             }
+            else
+            {
+                CustomTeamManager.CustomTeams.Clear();
+                CustomTeamManager.EnabledCustomTeams.Clear();
+                CustomTeamManager.CustomTeamPlayerIds.Clear();
+                CustomTeamManager.CustomTeamOptionsCache.Clear();
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Bloodlust] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Nimble] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Examiner] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Finder] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Physicist] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Noisy] = [];
+                StartGameHostPatch.BasisChangingAddons[CustomRoles.Venom] = [];
+            }
 
             FallFromLadder.Reset();
             CustomSabotage.Reset();

@@ -10,6 +10,7 @@ using EHR.Modules;
 using EHR.Modules.Extensions;
 using EHR.Roles;
 using Hazel;
+using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using UnityEngine;
@@ -509,9 +510,11 @@ internal static class ExtendedPlayerControl
 
         public void RpcChangeRoleBasis(CustomRoles newCustomRole, bool loggerRoleMap = false, bool forced = false)
         {
+            if (!AmongUsClient.Instance.AmHost) return;
+            
             if (!forced)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !player || !player.IsAlive()) return;
+                if (!GameStates.IsInGame || !player || !player.IsAlive()) return;
 
                 if (AntiBlackout.SkipTasks || ExileController.Instance)
                 {
@@ -1299,12 +1302,16 @@ internal static class ExtendedPlayerControl
         {
             try
             {
-                string name = isMeeting ? player.Data.PlayerName : player.name;
-                return name.RemoveHtmlTags();
+                return (isMeeting ? player.Data.PlayerName : player.name).RemoveHtmlTags();
             }
             catch (NullReferenceException nullReferenceException)
             {
-                Logger.Error($"{nullReferenceException.Message} - player is null? {!player}", "GetRealName");
+                Logger.Warn($"{nullReferenceException.Message} - player is null? {!player}", "GetRealName");
+                return string.Empty;
+            }
+            catch (Il2CppException il2CppException)
+            {
+                Logger.Warn($"{il2CppException.Message} - player is null? {!player}", "GetRealName");
                 return string.Empty;
             }
             catch (Exception exception)

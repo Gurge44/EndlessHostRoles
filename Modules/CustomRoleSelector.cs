@@ -248,7 +248,7 @@ internal static class CustomRoleSelector
 
         Dictionary<RoleAssignType, List<RoleAssignInfo>> allRoles = roles.ToDictionary(x => x.Key, x => x.Value.ToList());
 
-        roles.Keys.ToArray().Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
+        roles.Keys.Do(type => ApplySubCategoryLimits(type, subCategoryLimits));
 
         Logger.Msg("===================================================", "PreSelectedRoles");
         Logger.Info(string.Join(", ", roles[RoleAssignType.Impostor].Select(x => x.Role.ToString())), "PreSelectedImpostorRoles");
