@@ -166,6 +166,7 @@ richfamily#6529 | 0d89b13bc | Novelseam | Racist |
 tubemarked#0995 | d5f2a5a16 | cudo | Racist | Slurs in a livestream
 remoteweek#6981 | 90ceb14d8 | IkerXD1437 | Racist | n word in Sarha's lobby
 genuinehod#0318 | 1ccac58bf |  | Racist | n word in name
+setutility#3985 | cebf5051a | Roman | Toxic | Homophobic slurs
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 
