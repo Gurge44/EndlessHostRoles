@@ -139,6 +139,7 @@ public class Sheriff : RoleBase
     {
         killer.RpcRemoveAbilityUse();
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
+        Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Shot;
         
         if (killer.AmOwner && Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 25)
             Achievements.Type.ItsGamblingTime.Complete();

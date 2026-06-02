@@ -166,6 +166,7 @@ public class Glitch : RoleBase
             LastKill = Utils.TimeStamp;
             KCDTimer = KillCooldown.GetInt();
             SendRPCSyncTimers();
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Bugged;
             return true;
         }
 

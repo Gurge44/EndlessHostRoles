@@ -74,6 +74,11 @@ public class PlayerState(byte playerId)
         LossOfBlood,
         Frightened,
         Bankrupt,
+        Bugged,
+        Destroyed,
+        Shot,
+        Diseased,
+        Stoned,
 
         // Natural Disasters
         Meteor,
