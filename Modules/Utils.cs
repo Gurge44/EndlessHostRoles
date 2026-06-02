@@ -2836,12 +2836,16 @@ public static class Utils
 
             if (SetUpRoleTextPatch.IsInIntro)
                 return false;
+            
+            var fontSize = Options.LargerRoleTextSize.GetBool() ? "2" : "1.7";
+            var lovers = Main.LoversPlayers;
+            var seerIsLover = false;
 
             if (seer.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
-                return false;
+                goto SkipSelf;
             
             if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded)
-                return false;
+                goto SkipSelf;
 
             if (forMeeting && Magistrate.CallCourtNextMeeting)
             {
@@ -2849,8 +2853,6 @@ public static class Utils
                 CustomRpcSenderExtensions.RpcSetName(ref sender, seer, null, selfName);
                 return true;
             }
-
-            var fontSize = Options.LargerRoleTextSize.GetBool() ? "2" : "1.7";
 
             if (forMeeting && (seer.GetClient().PlatformData.Platform is Platforms.Playstation or Platforms.Switch))
                 fontSize = "70%";
@@ -2860,9 +2862,6 @@ public static class Utils
 
             SelfMark.Clear();
             SelfSuffix.Clear();
-
-            var lovers = Main.LoversPlayers;
-            bool seerIsLover = false;
 
             if (!GameStates.IsLobby)
             {
@@ -3190,6 +3189,8 @@ public static class Utils
             };
 
             if (onlySelfNameUpdateRequired) return true;
+            
+            SkipSelf:
 
             // Run the second loop only when necessary, such as when the seer is dead
             if (!seer.IsAlive() || noCache || camouflageIsForMeeting || mushroomMixup || IsActive(SystemTypes.MushroomMixupSabotage) || forceLoop || seerList.Count == 1 || targetList.Count == 1)
