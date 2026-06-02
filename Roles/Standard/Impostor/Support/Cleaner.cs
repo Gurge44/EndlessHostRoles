@@ -105,10 +105,13 @@ internal class Cleaner : RoleBase
 
         cleaner.Notify(Translator.GetString("CleanerCleanBody"));
         cleaner.SetKillCooldown(KCDAfterClean);
+
         if (IsMedusa)
         {
             PlayerControl tpc = target.Object;
-            Main.PlayerStates[tpc.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
+            PlayerState tps = Main.PlayerStates[tpc.PlayerId];
+            tps.deathReason = PlayerState.DeathReason.Stoned;
+            RPC.SendDeathReason(tpc.PlayerId, state.deathReason, state.IsDead);
         }
 
         Logger.Info($"{cleaner.GetRealName()} cleans up the corpse of {target.Object.GetRealName()}", "Cleaner/Medusa");
