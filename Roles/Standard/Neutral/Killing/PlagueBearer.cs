@@ -230,7 +230,10 @@ public class Pestilence : RoleBase
         {
             PlayerState state = Main.PlayerStates[player.PlayerId];
             if (!player.IsAlive() && player.GetRealKiller() == pc && state.deathReason != PlayerState.DeathReason.Diseased)
+            {
                 state.deathReason = PlayerState.DeathReason.Diseased;
+                RPC.SendDeathReason(player.PlayerId, state.deathReason, state.IsDead);
+            }
         }
     }
 }
