@@ -263,7 +263,7 @@ internal class AntiAdminer : RoleBase
                     }
                     case 5:
                     {
-                        if (!Options.DisableFungleCamera.GetBool() && FastVector2.DistanceWithinRange(playerPos, DisableDevice.DevicePos["FungleCamera"], usableDistance))
+                        if (/*!Options.DisableFungleCamera.GetBool() && */FastVector2.DistanceWithinRange(playerPos, DisableDevice.DevicePos["FungleCamera"], usableDistance))
                         {
                             camera = true;
                             AddDeviceUse(playerId, Device.Camera);
