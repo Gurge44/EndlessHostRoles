@@ -76,8 +76,14 @@ public class Goddess : CovenBase
         if (Timer == null || killer.Is(CustomRoles.Pestilence) || !killer.IsAlive()) return true;
 
         killer.SetRealKiller(target);
+        Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
         target.Kill(killer);
         return false;
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Stoned;
     }
 
     public void ReceiveRPC(MessageReader reader)

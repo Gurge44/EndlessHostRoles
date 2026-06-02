@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Roles;
@@ -105,6 +106,14 @@ internal class Cleaner : RoleBase
 
         cleaner.Notify(Translator.GetString("CleanerCleanBody"));
         cleaner.SetKillCooldown(KCDAfterClean);
+
+        if (IsMedusa)
+        {
+            PlayerControl tpc = target.Object;
+            PlayerState tps = Main.PlayerStates[tpc.PlayerId];
+            tps.deathReason = PlayerState.DeathReason.Stoned;
+            RPC.SendDeathReason(tpc.PlayerId, tps.deathReason, tps.IsDead);
+        }
 
         Logger.Info($"{cleaner.GetRealName()} cleans up the corpse of {target.Object.GetRealName()}", "Cleaner/Medusa");
 
