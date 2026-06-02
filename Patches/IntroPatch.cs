@@ -1149,6 +1149,19 @@ internal static class IntroCutsceneDestroyPatch
         if (AmongUsClient.Instance.AmHost)
         {
             LateTask.New(() => apc.DoIf(x => x && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
+
+            try
+            {
+                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToValidPlayers().ToList();
+                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
+
+                spectators.ForEach(x =>
+                {
+                    x.RpcExileV2();
+                    Main.PlayerStates[x.PlayerId].SetDead();
+                });
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
             
             var aapc = Main.AllAlivePlayerControlsToList;
 
@@ -1244,8 +1257,6 @@ internal static class IntroCutsceneDestroyPatch
                     }
                 }
 
-                Main.ProcessShapeshifts = false;
-
                 LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
@@ -1276,22 +1287,7 @@ internal static class IntroCutsceneDestroyPatch
                     
                     sender.SendMessage(dispose: !hasValue);
                 }, 4f, "Show Pet For Everyone");
-
-                LateTask.New(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
             }
-
-            try
-            {
-                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToValidPlayers().ToList();
-                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
-
-                spectators.ForEach(x =>
-                {
-                    x.RpcExileV2();
-                    Main.PlayerStates[x.PlayerId].SetDead();
-                });
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
             {

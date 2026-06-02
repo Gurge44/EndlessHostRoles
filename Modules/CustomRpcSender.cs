@@ -532,7 +532,7 @@ public class CustomRpcSender
 
 public static class CustomRpcSenderExtensions
 {
-    public static void RpcSetName(ref CustomRpcSender sender, PlayerControl player, string name, PlayerControl seer = null)
+    public static void RpcSetName(ref CustomRpcSender sender, PlayerControl player, PlayerControl seer, string name)
     {
         bool seerIsNull = !seer;
         int targetClientId = seerIsNull ? -1 : seer.OwnerId;

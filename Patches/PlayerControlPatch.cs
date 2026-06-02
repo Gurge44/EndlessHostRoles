@@ -2640,18 +2640,6 @@ public static class PlayerControlFixMixedUpOutfitPatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ShouldProcessRpc))]
-internal static class ShouldProcessRpcPatch
-{
-    // Since the stupid AU code added a check for RPC processing for outfit players, we need to patch this
-    // Always return true because the check is absolutely pointless
-    public static bool Prefix(ref bool __result)
-    {
-        __result = true;
-        return false;
-    }
-}
-
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.RpcBootFromVent))]
 internal static class BootFromVentPatch
 {

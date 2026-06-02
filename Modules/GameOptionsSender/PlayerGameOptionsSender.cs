@@ -262,6 +262,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
     {
         if (PackedWriter == null) // Single write
         {
+            Logger.Info("Enqueue complete for single write", "SendOptionsArray");
             DataFlagRateLimiter.Enqueue(() =>
             {
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
@@ -289,7 +290,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 writer.Recycle();
                 Logger.Info("Queue finished and sent for single write", "SendOptionsArray");
             });
-            Logger.Info("Enqueue complete for single write", "SendOptionsArray");
             return;
         }
         

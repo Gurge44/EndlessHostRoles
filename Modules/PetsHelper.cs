@@ -7,7 +7,7 @@ public static class PetsHelper
     public static void RpcRemovePet(PlayerControl pc)
     {
         const string petId = "";
-        if (!GameStates.IsInGame || !Options.RemovePetsAtDeadPlayers.GetBool() || pc == null || !pc.Data.IsDead || pc.IsAlive() || pc.CurrentOutfit.PetId == petId) return;
+        if (!GameStates.IsInGame || !Options.RemovePetsAtDeadPlayers.GetBool() || !pc || !pc.Data.IsDead || pc.IsAlive() || pc.CurrentOutfit.PetId == petId) return;
 
         SetPet(pc, petId);
     }

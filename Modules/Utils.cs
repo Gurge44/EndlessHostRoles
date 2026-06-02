@@ -2793,7 +2793,7 @@ public static class Utils
 
             var hasValue = false;
             var sender = CustomRpcSender.Create("NotifyRoles", SendOption, log: false);
-            sender.StartPackedMessage();
+            if (!ForMeeting || !Magistrate.CallCourtNextMeeting) sender.StartPackedMessage();
 
             for (byte seerIndex = 0; seerIndex < SeerList.Count; seerIndex++)
             {
@@ -2830,40 +2830,23 @@ public static class Utils
 
             sender ??= CustomRpcSender.Create("NotifyRoles", sendOption);
 
-            // During the intro scene, set the team name for non-modded clients and skip the rest.
             string selfName;
             Team seerTeam = seer.GetTeam();
             CustomRoles seerRole = seer.GetCustomRole();
 
-            if (SetUpRoleTextPatch.IsInIntro && (seerRole.IsDesyncRole() || seer.Is(CustomRoles.Bloodlust)) && Options.CurrentGameMode == CustomGameMode.Standard)
-            {
-                const string iconTextLeft = "<color=#ffffff>\u21e8</color>";
-                const string iconTextRight = "<color=#ffffff>\u21e6</color>";
-                const string roleNameUp = "</size><size=1450%>\n \n</size>";
-
-                var selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=500%>\n \n</size>";
-                selfName = $"{selfTeamName}\r\n<size=150%>{seerRole.ToColoredString()}</size>{roleNameUp}";
-
-                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, selfName, seer);
-                return true;
-            }
+            if (SetUpRoleTextPatch.IsInIntro)
+                return false;
 
             if (seer.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
-            {
-                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, Car.Name);
-                return true;
-            }
+                return false;
             
-            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
-            {
-                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, Tree.Sprite);
-                return true;
-            }
+            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var seerState) && seerState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded)
+                return false;
 
             if (forMeeting && Magistrate.CallCourtNextMeeting)
             {
                 selfName = seer.Is(CustomRoles.Magistrate) ? GetString("Magistrate.CourtName") : GetString("Magistrate.JuryName");
-                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, selfName);
+                CustomRpcSenderExtensions.RpcSetName(ref sender, seer, null, selfName);
                 return true;
             }
 
@@ -3189,7 +3172,7 @@ public static class Utils
             if (selfName.EndsWith("</size>")) selfName = selfName.Remove(selfName.Length - 7);
             if (selfName.EndsWith("</color>")) selfName = selfName.Remove(selfName.Length - 8);
 
-            CustomRpcSenderExtensions.RpcSetName(ref sender, seer, selfName, seer);
+            CustomRpcSenderExtensions.RpcSetName(ref sender, seer, seer, selfName);
             hasValue = true;
 
             bool onlySelfNameUpdateRequired = Options.CurrentGameMode switch
@@ -3220,25 +3203,19 @@ public static class Utils
                         if (target.PlayerId == seer.PlayerId) continue;
 
                         if ((IsActive(SystemTypes.MushroomMixupSabotage) || mushroomMixup) && !forMeeting && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && seer.HasDesyncRole())
-                            CustomRpcSenderExtensions.RpcSetName(ref sender, target, "<size=0%>", seer);
+                            CustomRpcSenderExtensions.RpcSetName(ref sender, target, seer, "<size=0%>");
                         else
                         {
                             if (target.Is(CustomRoles.Car) && !forMeeting && !GameStates.IsEnded)
-                            {
-                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, Car.Name, seer);
                                 continue;
-                            }
             
-                            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded) 
-                            {
-                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, Tree.Sprite, seer);
+                            if (Main.PlayerStates.TryGetValue(target.PlayerId, out var targetState) && targetState.Role is Tree { TreeSpriteActive: true } && !forMeeting && !GameStates.IsEnded)
                                 continue;
-                            }
 
                             if (forMeeting && Magistrate.CallCourtNextMeeting)
                             {
-                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, GetString(target.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName"), seer);
-                                return true;
+                                CustomRpcSenderExtensions.RpcSetName(ref sender, target, seer, GetString(target.Is(CustomRoles.Magistrate) ? "Magistrate.CourtName" : "Magistrate.JuryName"));
+                                continue;
                             }
                             
                             TargetMark.Clear();
@@ -3506,7 +3483,7 @@ public static class Utils
                             if (targetName.EndsWith("</size>")) targetName = targetName.Remove(targetName.Length - 7);
                             if (targetName.EndsWith("</color>")) targetName = targetName.Remove(targetName.Length - 8);
 
-                            CustomRpcSenderExtensions.RpcSetName(ref sender, target, targetName, seer);
+                            CustomRpcSenderExtensions.RpcSetName(ref sender, target, seer, targetName);
                             hasValue = true;
                             senderWasCleared = false;
                         }

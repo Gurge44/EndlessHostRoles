@@ -61,7 +61,7 @@ public class Tree : RoleBase
         if (treeSpriteVisible)
         {
             TreeSpriteActive = true;
-            Utils.NotifyRoles(SpecifyTarget: pc);
+            pc.RpcSetName(Sprite);
         }
         else
             pc.RpcMakeInvisible();
@@ -69,7 +69,7 @@ public class Tree : RoleBase
         LateTask.New(() =>
         {
             Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
+            if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc || !pc.IsAlive()) return;
             pc.MarkDirtySettings();
             
             if (treeSpriteVisible)
@@ -97,7 +97,7 @@ public class Tree : RoleBase
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[x.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc == null || !pc.IsAlive()) return;
+                        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc || !pc.IsAlive()) return;
                         x.MarkDirtySettings();
                     }, FallStunDuration.GetFloat(), log: false);
                 }

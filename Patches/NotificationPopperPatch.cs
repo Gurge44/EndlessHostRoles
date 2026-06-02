@@ -73,6 +73,11 @@ internal static class NotificationPopperPatch
     private static void SendRpc(byte typeId, int optionId, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
     {
         if (Options.HideGameSettings.GetBool()) return;
-        Utils.SendRPC(CustomRPC.NotificationPopper, typeId, optionId, (int)customRole, playSound);
+        var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, Hazel.SendOption.None);
+        msg.Write(typeId);
+        msg.Write(optionId);
+        msg.Write((int)customRole);
+        msg.Write(playSound);
+        AmongUsClient.Instance.FinishRpcImmediately(msg);
     }
 }

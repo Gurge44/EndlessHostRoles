@@ -144,7 +144,6 @@ internal static class CustomTeamManager
             msg.WritePacked(EnabledCustomTeams.Count);
             EnabledCustomTeams.Do(x => x.Serialize(msg));
             AmongUsClient.Instance.FinishRpcImmediately(msg);
-            msg.Recycle();
             
             msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CTA, SendOption.Reliable);
             msg.WritePacked(2);
@@ -158,7 +157,6 @@ internal static class CustomTeamManager
             }
             
             AmongUsClient.Instance.FinishRpcImmediately(msg);
-            msg.Recycle();
             
             msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CTA, SendOption.Reliable);
             msg.WritePacked(3);
@@ -172,7 +170,6 @@ internal static class CustomTeamManager
             }
             
             AmongUsClient.Instance.FinishRpcImmediately(msg);
-            msg.Recycle();
         }
 
         return;
