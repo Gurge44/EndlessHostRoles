@@ -129,7 +129,7 @@ public class CustomRpcSender
         {
             // StartMessage processing
             if (currentState == State.InRootMessage)
-                EndMessage(startNew: !packed);
+                EndMessage(startNew: !packed && messages < AmongUsClient.Instance.GetMaxMessagePackingLimit());
             else if (messages > 0) // state is Ready or InRootPackedMessage
             {
                 if (currentState == State.InRootPackedMessage)
@@ -282,6 +282,7 @@ public class CustomRpcSender
                 doneStreams.Add(stream);
                 stream = MessageWriter.Get(sendOption);
                 messages = 0;
+                currentState = State.Ready;
                 StartPackedMessage();
             }
             else

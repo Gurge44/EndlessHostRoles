@@ -499,7 +499,7 @@ internal static class ExtendedPlayerControl
             if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out string name))
                 RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""), sender);
 
-            Camouflage.RpcSetSkin(player, sender: sender);
+            // Camouflage.RpcSetSkin(player, sender: sender);
             sender.SyncSettings(player);
 
             sender.SendMessage();
@@ -711,27 +711,6 @@ internal static class ExtendedPlayerControl
             }
 
             if (!forced) Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
-        }
-
-        public void RpcShapeshiftDesync(PlayerControl target, PlayerControl seer, bool animate)
-        {
-            try
-            {
-                int clientId = seer.OwnerId;
-
-                if (AmongUsClient.Instance.ClientId == clientId)
-                {
-                    try { player.Shapeshift(target, animate); }
-                    catch (Exception e) { ThrowException(e); }
-                    return;
-                }
-
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Shapeshift, SendOption.Reliable, clientId);
-                writer.WriteNetObject(target);
-                writer.Write(animate);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }
-            catch (Exception e) { ThrowException(e); }
         }
 
         public bool SyncGeneralOptions()
@@ -1512,7 +1491,7 @@ internal static class ExtendedPlayerControl
             if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
             if (!Main.Invisible.Add(player.PlayerId)) return;
 
-            player.RpcSetPet("");
+            // player.RpcSetPet("");
 
             if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
                 player.MakeInvisible();

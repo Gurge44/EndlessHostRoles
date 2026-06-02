@@ -84,10 +84,10 @@ internal static class GameEndChecker
             Ended = true;
             LoadingEndScreen = true;
 
-            foreach (var pc in Main.CachedAllPlayerControls())
+            /*foreach (var pc in Main.CachedAllPlayerControls())
             {
                 Camouflage.RpcSetSkin(pc, true, true, true);
-            }
+            }*/
 
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);

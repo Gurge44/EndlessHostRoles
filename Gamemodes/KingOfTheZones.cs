@@ -970,7 +970,7 @@ public static class KingOfTheZones
 
                 yield return null;
 
-                foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                /*foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                 {
                     try
                     {
@@ -980,7 +980,7 @@ public static class KingOfTheZones
                         player.RpcSetColor(colorId);
                     }
                     catch (Exception e) { Utils.ThrowException(e); }
-                }
+                }*/
 
                 yield return null;
 

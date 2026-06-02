@@ -851,7 +851,7 @@ public static class BedWars
             NameNotifyManager.Notifies.Remove(pc.PlayerId);
             RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
             pc.ReviveFromTemporaryExile();
-            pc.RpcSetColor(Team.GetColorId());
+            // pc.RpcSetColor(Team.GetColorId());
             pc.TP(Base.SpawnPosition);
             pc.SetChatVisible(true);
             Utils.NotifyRoles(SpecifyTarget: pc, SendOption: SendOption.None);

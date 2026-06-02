@@ -811,7 +811,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (Options.GhostCanSeeOtherVotes.GetBool() && !player.IsAlive()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
 
             if (Options.AdditionalEmergencyCooldown.GetBool() &&
-                Options.AdditionalEmergencyCooldownThreshold.GetInt() <= Utils.AllAlivePlayersCount)
+                Options.AdditionalEmergencyCooldownThreshold.GetInt() <= Main.AllAlivePlayerControlsCount)
             {
                 opt.SetInt(
                     Int32OptionNames.EmergencyCooldown,

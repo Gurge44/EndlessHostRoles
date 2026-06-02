@@ -2067,7 +2067,7 @@ internal static class ChatCommands
             return;
         }
 
-        player.RpcSetColor(color);
+        // player.RpcSetColor(color);
         Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), player.PlayerId, importance: MessageImportance.Low);
     }
 

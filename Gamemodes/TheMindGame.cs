@@ -329,7 +329,7 @@ public static class TheMindGame
                 foreach (PlayerControl pc in players)
                 {
                     Groups[pc.PlayerId] = group;
-                    pc.RpcSetColor(group.GetColorId());
+                    // pc.RpcSetColor(group.GetColorId());
                     pc.TP(location);
                     ids.Add(pc.PlayerId);
                 }
@@ -404,7 +404,7 @@ public static class TheMindGame
 
         Round = 2;
 
-        DefaultColorIds.DoIf(x => x.Key && x.Value is >= byte.MinValue and <= byte.MaxValue, x => x.Key.RpcSetColor((byte)x.Value));
+        // DefaultColorIds.DoIf(x => x.Key && x.Value is >= byte.MinValue and <= byte.MaxValue, x => x.Key.RpcSetColor((byte)x.Value));
 
         yield return NotifyEveryone("TMG.Notify.Round", 2, 2);
         if (Stop) yield break;

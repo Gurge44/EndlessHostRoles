@@ -637,11 +637,11 @@ internal static class MurderPlayerPatch
 
         RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
 
-        if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
+        /*if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
         {
             Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
             LateTask.New(() => Camouflage.RpcSetSkin(target, true), 0.2f, log: false);
-        }
+        }*/
 
         return true;
     }
@@ -896,7 +896,7 @@ internal static class ShapeshiftPatch
 
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (!shapeshifting) Camouflage.RpcSetSkin(shapeshifter);
+        if (!shapeshifting) /*Camouflage.RpcSetSkin(shapeshifter);*/ {}
         else
         {
             PlagueBearer.CheckAndSpreadInfection(shapeshifter, target);
@@ -1412,8 +1412,8 @@ internal static class ReportDeadBodyPatch
         {
             try
             {
-                if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                    Camouflage.RpcSetSkin(pc, revertToDefault: true);
+                /*if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                    Camouflage.RpcSetSkin(pc, revertToDefault: true);*/
 
                 if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
                     pc.FixMixedUpOutfit();

@@ -87,10 +87,10 @@ public class Exclusionary : RoleBase
                         sender.StartMessage(target.OwnerId);
                     }
 
-                    sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
+                    /*sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
                         .Write("")
                         .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                        .EndRpc();
+                        .EndRpc();*/
                     sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                         .WriteVector2(new Vector2(50f, 50f))
                         .Write(player.NetTransform.lastSequenceId)

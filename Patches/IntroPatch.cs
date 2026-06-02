@@ -1247,14 +1247,19 @@ internal static class IntroCutsceneDestroyPatch
             {
                 void GrantPetForEveryone()
                 {
+                    if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
+                    CustomRpcSender sender = CustomRpcSender.Create(nameof(GrantPetForEveryone), SendOption.Reliable);
+                    
                     foreach (PlayerControl pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
 
                         string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
+                        PetsHelper.SetPet(pc, petId, sender);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
+
+                    sender.SendMessage();
                 }
 
                 LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
@@ -1269,7 +1274,7 @@ internal static class IntroCutsceneDestroyPatch
                     
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.AmOwner) continue; // Skip the host
+                        if (pc.AmOwner || pc.OwnerId < 0) continue; // Skip the host
 
                         try
                         {

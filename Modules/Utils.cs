@@ -97,9 +97,7 @@ public static class Utils
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.EnumeratePlayerControls().Any(x => x.IsModdedClient() && !x.IsHost());
-    public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
-    private static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
-    public static int AllAlivePlayersCount => Main.EnumerateAlivePlayerControls().Count(pc => !pc.Is(CountTypes.OutOfGame));
+    public static int TotalTaskCountForReset => Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
 
     public static void ErrorEnd(string text)
@@ -3758,7 +3756,7 @@ public static class Utils
 
     public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
+        if (!AmongUsClient.Instance.AmHost || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return false;
         
         if (pc.Is(CustomRoles.BananaMan))
             newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Banana"));
@@ -4425,7 +4423,7 @@ public static class Utils
                     }
                 }
 
-                ContAliveLog.Append(" All: ").Append(AllAlivePlayersCount).Append('/').Append(AllPlayersCount);
+                ContAliveLog.Append(" All: ").Append(Main.AllAlivePlayerControlsCount).Append('/').Append(PlayerControl.AllPlayerControls.Count);
                 Logger.Info(ContAliveLog.ToString(), "CountAlivePlayers");
             }
 
