@@ -578,7 +578,7 @@ public static class Options
     public static OptionItem DisableAirshipCamera;
     public static OptionItem DisableAirshipVital;
     private static OptionItem DisableFungleDevices;
-    public static OptionItem DisableFungleCamera;
+    //public static OptionItem DisableFungleCamera;
     public static OptionItem DisableFungleVital;
     private static OptionItem DisableDevicesIgnoreConditions;
     public static OptionItem DisableDevicesIgnoreImpostors;
@@ -2420,11 +2420,11 @@ public static class Options
         DisableFungleDevices = new BooleanOptionItem(22925, "DisableFungleDevices", false, TabGroup.GameSettings)
             .SetParent(DisableDevices)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
+/*
         DisableFungleCamera = new BooleanOptionItem(22926, "DisableFungleCamera", false, TabGroup.GameSettings)
             .SetParent(DisableFungleDevices)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-
+*/
         DisableFungleVital = new BooleanOptionItem(22927, "DisableFungleVital", false, TabGroup.GameSettings)
             .SetParent(DisableFungleDevices)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
