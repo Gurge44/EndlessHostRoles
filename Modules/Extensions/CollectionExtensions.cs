@@ -190,6 +190,30 @@ public static class CollectionExtensions
         }
 
         /// <summary>
+        ///     Splits a collection into two integers based on a predicate
+        /// </summary>
+        /// <param name="predicate">The predicate to split the collection by</param>
+        /// <returns>
+        ///     A tuple containing two integers: one that is the number of elements that satisfy the predicate, and one that is the number of elements that
+        ///     do not
+        /// </returns>
+        public (int TrueCount, int FalseCount) SplitCount(Func<T, bool> predicate)
+        {
+            var int1 = 0;
+            var int2 = 0;
+
+            foreach (T element in collection)
+            {
+                if (predicate(element))
+                    int1++;
+                else
+                    int2++;
+            }
+
+            return (int1, int2);
+        }
+
+        /// <summary>
         ///     Determines whether a collection contains any elements that satisfy a predicate and returns the first element that
         ///     satisfies the predicate
         /// </summary>

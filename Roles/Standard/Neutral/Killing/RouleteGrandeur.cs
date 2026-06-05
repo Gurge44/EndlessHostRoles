@@ -113,7 +113,6 @@ public class RouleteGrandeur : RoleBase
     {
         long now = Utils.TimeStamp;
         if (now - LastRoll < 5) return;
-
         LastRoll = now;
         Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, LastRoll);
 

@@ -33,7 +33,6 @@ public class Wyrd : CovenBase
     private static Dictionary<Action, bool> ActionSuicideSettings = [];
 
     private int Countdown;
-    private long LastUpdate;
 
     public HashSet<byte> MarkedPlayers;
     private byte WyrdID;
@@ -80,7 +79,6 @@ public class Wyrd : CovenBase
         Instances.Add(this);
         MarkedPlayers = [];
         Countdown = CountdownTime.GetInt();
-        LastUpdate = Utils.TimeStamp;
     }
 
     public override void Remove(byte playerId)
@@ -123,10 +121,7 @@ public class Wyrd : CovenBase
         }
 
         if (MarkedPlayers.Count == 0 || Countdown <= 0) return;
-
-        long now = Utils.TimeStamp;
-        if (LastUpdate == now) return;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         Countdown--;
         Utils.SendRPC(CustomRPC.SyncRoleData, WyrdID, 3, Countdown);

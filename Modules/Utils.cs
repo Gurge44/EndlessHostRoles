@@ -1104,7 +1104,7 @@ public static class Utils
         try
         {
             float limit = playerId.GetAbilityUseLimit();
-            if (float.IsNaN(limit) || limit >= 10) return string.Empty;
+            if (float.IsNaN(limit) || (limit >= 10 && (!Main.PlayerStates.TryGetValue(playerId, out var state) || state.MainRole != CustomRoles.Generator))) return string.Empty;
 
             Color textColor;
 

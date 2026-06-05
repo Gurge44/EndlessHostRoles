@@ -1551,7 +1551,6 @@ internal static class FixedUpdatePatch
     private static readonly Dictionary<byte, long> LastAddAbilityTime = [];
     private static readonly List<string> AdditionalSuffixes = [];
     private static long LastErrorTS;
-    private static long LastSelfNameUpdateTS;
 
     public static void Postfix(PlayerControl __instance, bool lowLoad)
     {
@@ -1586,8 +1585,8 @@ internal static class FixedUpdatePatch
                         case Haunter haunter:
                             haunter.Update(__instance);
                             break;
-                        case Bloodmoon bloodmoon:
-                            Bloodmoon.Update(__instance, bloodmoon);
+                        case Bloodmoon:
+                            Bloodmoon.Update(__instance);
                             break;
                     }
                 }
@@ -1839,11 +1838,9 @@ internal static class FixedUpdatePatch
 
         if (GameStates.IsEnded || !Main.IntroDestroyed || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
-        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && LastSelfNameUpdateTS != now && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
+        bool shouldUpdateRegardlessOfLowLoad = self && GameStates.InGame && PlayerControl.LocalPlayer.IsAlive() && ((PlayerControl.AllPlayerControls.Count > 30 && PerSecondUpdateScheduler.ShouldRunUpdate() && Options.CurrentGameMode is CustomGameMode.StopAndGo or CustomGameMode.HotPotato or CustomGameMode.Speedrun or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.Mingle) || DirtyName.Remove(lpId));
 
         if (lowLoad && !shouldUpdateRegardlessOfLowLoad) return;
-
-        if (self) LastSelfNameUpdateTS = now;
 
         if (isLobby && !player.AmOwner)
         {

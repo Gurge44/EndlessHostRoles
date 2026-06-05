@@ -22,6 +22,8 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
 
+        protected virtual bool ConstantlyChangesPosition => false;
+        
         protected int Id;
         public PlayerControl playerControl;
         public Vector2 Position;
@@ -94,7 +96,6 @@ namespace EHR
         public void TP(Vector2 position)
         {
             Position = position;
-            SnapToSendFrameCount = 30;
         }
         
         private bool TryReusePooledObject(string sprite, Vector2 position)
@@ -241,8 +242,20 @@ namespace EHR
             {
                 if (!AmongUsClient.Instance.AmHost) return;
                 
-                // max 30 calls per second in total
-                if (++SnapToSendFrameCount < Math.Max(10, AllObjects.Count)) return;
+                // max ~60 calls per second in total
+                int updateFrequency;
+                
+                if (!ConstantlyChangesPosition)
+                {
+                    updateFrequency = 30;
+                }
+                else
+                {
+                    (int trueCount, int falseCount) = AllObjects.SplitCount(x => x.ConstantlyChangesPosition);
+                    updateFrequency = trueCount / 2 + falseCount;
+                }
+
+                if (++SnapToSendFrameCount < updateFrequency) return;
                 SnapToSendFrameCount = 0;
             
                 if (AmongUsClient.Instance.AmClient)
@@ -595,6 +608,8 @@ namespace EHR
             if (Abyssbringer.ShouldDespawnCNOOnMeeting) Despawn();
             else base.OnMeeting();
         }
+
+        protected override bool ConstantlyChangesPosition => Abyssbringer.BlackHoleMovesTowardsNearestPlayer.GetBool();
     }
 
     internal sealed class SprayedArea : CustomNetObject
@@ -672,6 +687,8 @@ namespace EHR
 
             CreateNetObject(warning, position);
         }
+
+        protected override bool ConstantlyChangesPosition => !SpawnTimer.IsRunning && DisasterName is "Tsunami" or "Tornado";
 
         public SystemTypes? Room { get; }
         public string DisasterName { get; }
@@ -918,6 +935,8 @@ namespace EHR
         public PlayerControl Thrower;
         private Vector2 Direction;
         public bool Active;
+
+        protected override bool ConstantlyChangesPosition => Active;
 
         public Snowball(Vector2 from, Vector2 direction, PlayerControl thrower)
         {

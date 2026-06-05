@@ -15,7 +15,7 @@ public class Abyssbringer : RoleBase
     public static OptionItem BlackHolePlaceCooldown;
     private static OptionItem BlackHoleDespawnMode;
     private static OptionItem BlackHoleDespawnTime;
-    private static OptionItem BlackHoleMovesTowardsNearestPlayer;
+    public static OptionItem BlackHoleMovesTowardsNearestPlayer;
     private static OptionItem BlackHoleMoveSpeed;
     private static OptionItem BlackHoleRadius;
     private static OptionItem KillCooldown;

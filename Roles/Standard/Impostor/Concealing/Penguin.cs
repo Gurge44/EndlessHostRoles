@@ -26,7 +26,6 @@ public class Penguin : RoleBase
     private float DefaultSpeed;
 
     private bool IsGoose;
-    private long LastNotify;
     private bool MeetingKill;
 
     private PlayerControl Penguin_;
@@ -101,7 +100,6 @@ public class Penguin : RoleBase
         Penguin_ = Utils.GetPlayerById(playerId);
 
         AbductTimer = null;
-        LastNotify = 0;
     }
 
     public override void SetKillCooldown(byte id)
@@ -146,13 +144,11 @@ public class Penguin : RoleBase
         {
             AbductVictim = null;
             AbductTimer = null;
-            Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, true);
         }
         else
         {
             AbductVictim = Utils.GetPlayerById(victim);
             AbductTimer = Stopwatch.StartNew();
-            Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, false);
         }
     }
 
@@ -315,11 +311,8 @@ public class Penguin : RoleBase
                 return;
             }
 
-            if (LastNotify != Utils.TimeStamp)
-            {
+            if (PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
                 Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
-                LastNotify = Utils.TimeStamp;
-            }
 
             if (AbductTimer.Elapsed.TotalSeconds >= AbductTimerLimit && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !Penguin_.inMovingPlat && !Penguin_.onLadder)
             {
@@ -381,7 +374,7 @@ public class Penguin : RoleBase
                 }
             }
         }
-        else
+        else if (AbductTimer != null)
         {
             AbductTimer = null;
             Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, true);

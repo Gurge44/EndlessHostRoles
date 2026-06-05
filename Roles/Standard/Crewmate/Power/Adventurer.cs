@@ -72,7 +72,6 @@ internal class Adventurer : RoleBase
     private int Count;
     private bool InCraftingMode;
     private long LastGroupingResourceTimeStamp;
-
     private long LastRandomResourceTimeStamp;
 
     private List<Weapon> OrderedWeapons;
@@ -276,7 +275,7 @@ internal class Adventurer : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (lowLoad) return;
+        if (lowLoad || !AdventurerPC || !AdventurerPC.IsAlive()) return;
 
         long now = Utils.TimeStamp;
 
@@ -339,8 +338,9 @@ internal class Adventurer : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
+        if (!pc.IsAlive()) return;
+        
         if (Count++ < 10) return;
-
         Count = 0;
 
         foreach ((Resource resource, Vector2 location) in ResourceLocations)

@@ -114,7 +114,6 @@ internal class Chemist : RoleBase
     private Dictionary<byte, long> Grenades;
     public bool IsBlinding;
     private Dictionary<Item, int> ItemCounts;
-    private long LastUpdate;
     private string SelectedProcess;
     private readonly List<string> SortedAvailableProcesses = [];
     private readonly List<string> Available = [];
@@ -214,7 +213,6 @@ internal class Chemist : RoleBase
         Instances.Add(this);
 
         ChemistPC = Utils.GetPlayerById(playerId);
-        LastUpdate = Utils.TimeStamp + 8;
         ItemCounts = [];
         CurrentFactory = Factory.None;
         SelectedProcess = string.Empty;
@@ -499,9 +497,8 @@ internal class Chemist : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
-
-        LastUpdate = Utils.TimeStamp;
+        if (!GameStates.IsInTask || !pc.IsAlive()) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         if (ItemCounts[Item.Air] < 900)
         {

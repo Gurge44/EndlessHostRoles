@@ -10,7 +10,6 @@ public class Entombed : IAddon
     public AddonTypes Type => AddonTypes.Harmful;
 
     public static Dictionary<byte, SystemTypes> BlockedRoom = [];
-    private static long LastNotifyTS;
     private static long MeetingEndTS;
     private static float GracePeriodLength;
 
@@ -60,11 +59,8 @@ public class Entombed : IAddon
         
         if (now - MeetingEndTS <= GracePeriodLength)
         {
-            if (LastNotifyTS != now)
-            {
-                LastNotifyTS = now;
+            if (PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
             
             return;
         }

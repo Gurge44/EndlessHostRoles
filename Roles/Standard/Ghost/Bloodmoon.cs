@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Hazel;
+using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -15,7 +15,6 @@ internal class Bloodmoon : IGhostRole
 
     private static readonly Dictionary<byte, (long TimeStamp, byte KillerId)> ScheduledDeaths = [];
 
-    private long LastUpdate;
     private byte BloodmoonID;
     
     public Team Team => Team.Impostor | Team.Neutral;
@@ -26,7 +25,6 @@ internal class Bloodmoon : IGhostRole
     {
         Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
         pc.MarkDirtySettings();
-        LastUpdate = Utils.TimeStamp;
         BloodmoonID = pc.PlayerId;
     }
 
@@ -50,7 +48,7 @@ internal class Bloodmoon : IGhostRole
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Seconds);
 
-        Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 3f, 0.05f), 0.5f, TabGroup.OtherRoles)
+        Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 3f, 0.05f), 0.25f, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -62,13 +60,12 @@ internal class Bloodmoon : IGhostRole
             .SetValueFormat(OptionFormat.Seconds);
     }
 
-    public static void Update(PlayerControl pc, Bloodmoon instance)
+    public static void Update(PlayerControl pc)
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = Utils.TimeStamp;
-        if (now == instance.LastUpdate) return;
-        instance.LastUpdate = now;
 
         foreach (KeyValuePair<byte, (long Value, byte KillerId)> death in ScheduledDeaths)
         {

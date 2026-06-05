@@ -36,8 +36,8 @@ public static class Prompt
 
             Action closePromt = () =>
             {
-                HidePromt();
                 CurrentQuestion = string.Empty;
+                HidePromt();
 
                 if (!ShowBackButton) hud.Dialogue.BackButton.gameObject.SetActive(true);
                 hud.Dialogue.Hide();
@@ -97,9 +97,9 @@ public static class Prompt
             {
                 if (!ShowBackButton) return false;
                 
+                CurrentQuestion = string.Empty;
                 ClearQueue();
                 HidePromt();
-                CurrentQuestion = string.Empty;
             }
 
             return true;

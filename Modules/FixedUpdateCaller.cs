@@ -26,6 +26,8 @@ public static class FixedUpdateCaller
     {
         try
         {
+            PerSecondUpdateScheduler.OnFixedUpdate();
+            
             AmongUsClient = AmongUsClient.Instance;
             LobbyBehaviour = LobbyBehaviour.Instance;
 

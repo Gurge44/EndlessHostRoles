@@ -18,7 +18,6 @@ internal class SoulHunter : RoleBase
     private static OptionItem TimeToKillTarget;
     private static OptionItem GetSoulForSuicide;
     public (byte ID, long StartTimeStamp, bool Frozen) CurrentTarget = (byte.MaxValue, 0, false);
-    private long LastUpdate;
     private float NormalSpeed;
     public PlayerControl SoulHunter_;
 
@@ -61,7 +60,6 @@ internal class SoulHunter : RoleBase
         SoulHunter_ = null;
         Souls = 0;
         CurrentTarget = (byte.MaxValue, 0, false);
-        LastUpdate = 0;
         NormalSpeed = Main.NormalOptions.PlayerSpeedMod;
     }
 
@@ -71,7 +69,6 @@ internal class SoulHunter : RoleBase
         LateTask.New(() => { SoulHunter_ = GetPlayerById(playerId); }, 3f, log: false);
         Souls = 0;
         CurrentTarget = (byte.MaxValue, 0, false);
-        LastUpdate = 0;
         NormalSpeed = Main.AllPlayerSpeed[playerId];
     }
 
@@ -140,7 +137,6 @@ internal class SoulHunter : RoleBase
         {
             CurrentTarget.ID = byte.MaxValue;
             CurrentTarget.StartTimeStamp = 0;
-            LastUpdate = 0;
             Souls++;
             SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
             LateTask.New(() => { SoulHunter_.SetKillCooldown(1f); }, 0.1f, log: false);
@@ -151,7 +147,6 @@ internal class SoulHunter : RoleBase
 
         CurrentTarget.ID = byte.MaxValue;
         CurrentTarget.StartTimeStamp = 0;
-        LastUpdate = TimeStamp;
         SoulHunter_.Suicide();
         target.Notify(GetString("SoulHunterTargetNotifySurvived"));
         Logger.Info("Killed Incorrect Player => Suicide", "SoulHunter");
@@ -178,7 +173,6 @@ internal class SoulHunter : RoleBase
         if (!SoulHunter_.IsModdedClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), target.GetRealName(), waitingTime + 1));
 
         target.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter_.GetRealName()), 300f);
-        LastUpdate = now;
 
         SendRPC();
         Logger.Info($"Waiting to being hunting (in {waitingTime}s)", "SoulHunter");
@@ -195,11 +189,9 @@ internal class SoulHunter : RoleBase
         }
 
         if (CurrentTarget.StartTimeStamp == 0) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
-
         PlayerControl target = GetPlayerById(CurrentTarget.ID);
         string targetName = target.GetRealName();
         int waitingTime = WaitingTimeAfterMeeting.GetInt();

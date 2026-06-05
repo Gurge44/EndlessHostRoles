@@ -17,7 +17,6 @@ public class Evolver : RoleBase
     private int ChooseTimer;
     private PlayerControl EvolverPC;
 
-    private long LastUpdate = Utils.TimeStamp;
     private int SelectedUpgradeIndex;
 
     private (float KillCooldown, bool ImpostorVision, float Vision, float Speed, int KillDistance, bool CanVent, int VentUseLimit, bool CanSabotage, int SabotageUseLimit, bool Shielded) Stats;
@@ -143,10 +142,7 @@ public class Evolver : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || !pc.IsAlive() || ChooseTimer == 0 || SelectedUpgradeIndex == -1 || Upgrades.Count == 0) return;
-
-        long now = Utils.TimeStamp;
-        if (LastUpdate == now) return;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         ChooseTimer--;
         Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);

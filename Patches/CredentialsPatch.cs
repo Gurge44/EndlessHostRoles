@@ -47,9 +47,7 @@ internal static class PingTrackerUpdatePatch
 
         if (!Instance) Instance = __instance;
 
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return false;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate()) return false;
 
         bool inGame = GameStates.InGame;
         Sb.Clear()

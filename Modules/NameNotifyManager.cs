@@ -12,7 +12,6 @@ public static class NameNotifyManager
     private static readonly List<KeyValuePair<string, long>> NameList = [];
     private static readonly Comparison<KeyValuePair<string, long>> CompareByValue = static (a, b) => a.Value.CompareTo(b.Value);
     private static readonly StringBuilder Sb = new();
-    private static long LastUpdate;
 
     public static void Reset()
     {
@@ -59,12 +58,11 @@ public static class NameNotifyManager
             Reset();
             return;
         }
+        
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate()) return;
+        if (Notifies.Count == 0) return;
 
         long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-        LastUpdate = now;
-
-        if (Notifies.Count == 0) return;
 
         var notifyEnumerator = Notifies.GetEnumerator();
         while (notifyEnumerator.MoveNext())

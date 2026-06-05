@@ -57,8 +57,8 @@ internal static class GameEndChecker
         if (Predicate == null || ShouldNotCheck || !AmongUsClient.Instance.AmHost || Main.HasJustStarted) return;
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return;
         
+        if (LastGameEndCheckUpdated != -1 && !PerSecondUpdateScheduler.ShouldRunUpdate()) return;
         var now = TimeStamp;
-        if (LastGameEndCheckUpdated == now) return;
         LastGameEndCheckUpdated = now;
         Ended = false;
 

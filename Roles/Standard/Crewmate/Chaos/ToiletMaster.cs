@@ -32,7 +32,6 @@ public class ToiletMaster : RoleBase
     private Dictionary<byte, (Poop Poop, long TimeStamp, object Data)> ActivePoops = [];
 
     private static Poop[] AllPoopValues;
-    private long LastUpdate;
     private List<PlayerControl> AffectedPlayers = [];
     private List<PlayerControl> ActivePoopDataList = [];
     private Dictionary<byte, long> PlayersUsingToilet = [];
@@ -129,7 +128,6 @@ public class ToiletMaster : RoleBase
     {
         On = true;
         Instances.Add(this);
-        LastUpdate = 8 + AbilityCooldown.GetInt() + ToiletDuration.GetInt();
         playerId.SetAbilityUseLimit(AbilityUses.GetFloat());
     }
 
@@ -310,11 +308,9 @@ public class ToiletMaster : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = Utils.TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
-
         int duration = ToiletDuration.GetInt();
         int maxUses = ToiletMaxUses.GetInt();
 

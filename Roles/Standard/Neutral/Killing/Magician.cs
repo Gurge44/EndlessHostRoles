@@ -181,8 +181,6 @@ public class Magician : RoleBase
 
     public static void UseCard(PlayerControl pc)
     {
-        if (pc == null) return;
-
         if (CardId == byte.MaxValue) return;
 
         var sync = false;

@@ -16,7 +16,6 @@ public class Oxyman : RoleBase
     private static OptionItem DecreasementEachSecond;
     private static OptionItem IncreasedSpeed;
     private static OptionItem DecreasedSpeed;
-    private long LastUpdate;
     private int OxygenLevel;
     private byte OxymanId;
 
@@ -63,7 +62,6 @@ public class Oxyman : RoleBase
         On = true;
         OxymanId = playerId;
         OxygenLevel = 59;
-        LastUpdate = Utils.TimeStamp;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -89,10 +87,7 @@ public class Oxyman : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || !Main.IntroDestroyed) return;
-
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         if (OxygenLevel <= 0)
         {

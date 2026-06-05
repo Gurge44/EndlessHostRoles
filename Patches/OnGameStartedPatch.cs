@@ -433,6 +433,7 @@ internal static class ChangeRoleSettings
                 GhostRolesManager.Initialize();
                 RoleBlockManager.Reset();
                 ChatManager.ResetHistory();
+                PerSecondUpdateScheduler.Reset();
             }
             catch (Exception e) { Utils.ThrowException(e); }
             
