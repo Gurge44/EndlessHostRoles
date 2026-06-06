@@ -119,6 +119,7 @@ spacerise#0568 | 77d07e6cc | sary | Cheater | Crashing games
 wingroomy#2048 | db7b396c9 | Blackdic | n word | 
 deersheer#8885 | 6dc6ba7c9 | Marijuanaa | Violation of CoC | 
 prawnbest#4791 | e05be117f |  | n word, inappropriate name, sexist speech | 
+iconicnews#4112 | 03427e77e |  | slur in name | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
