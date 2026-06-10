@@ -90,7 +90,7 @@ public static class Utils
 
     private static readonly StringBuilder ContAliveLog = new(100);
 
-    private static readonly Dictionary<string, Sprite> CachedSprites = [];
+    public static readonly Dictionary<string, Sprite> CachedSprites = [];
 
     private static long LastNotifyRolesErrorTS = TimeStamp;
 
@@ -468,22 +468,38 @@ public static class Utils
         mode = mode.Replace("color=", string.Empty);
         return parentheses ? $"({mode})" : mode;
     }
-    public static Color GetTabColor(this TabGroup tab)
+    
+    extension(TabGroup tab)
     {
-        return tab switch
+        public Color GetTabColor()
         {
-            TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
-            TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
-            TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
-            TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
-            TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
-            TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
-            TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
-            TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
-            TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
-            TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
-            _ => new(0.3f, 0.3f, 0.3f)
-        };
+            return tab switch
+            {
+                TabGroup.SystemSettings => new(0.2f, 0.2f, 0.2f),
+                TabGroup.GameSettings => new(0.2f, 0.4f, 0.3f),
+                TabGroup.TaskSettings => new(0.4f, 0.2f, 0.5f),
+                TabGroup.ImpostorRoles => new(0.5f, 0.2f, 0.2f),
+                TabGroup.CrewmateRoles => new(0.2f, 0.4f, 0.5f),
+                TabGroup.NeutralRoles => new(0.5f, 0.4f, 0.2f),
+                TabGroup.CovenRoles => new(0.5f, 0.2f, 0.4f),
+                TabGroup.Addons => new(0.4f, 0.2f, 0.3f),
+                TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
+                TabGroup.PresetExplorer => new(0.5f, 0.5f, 0.5f),
+                _ => new(0.3f, 0.3f, 0.3f)
+            };
+        }
+
+        public bool IsRelevant(CustomGameMode? gm = null)
+        {
+            if (tab == TabGroup.PresetExplorer) return true;
+
+            return (gm ?? Options.CurrentGameMode) switch
+            {
+                CustomGameMode.Standard => true,
+                CustomGameMode.HideAndSeek => tab <= TabGroup.NeutralRoles,
+                _ => tab <= TabGroup.TaskSettings
+            };
+        }
     }
 
     public static string GetRoleColorCode(CustomRoles role, string defaultHtml = "#ffffff")
@@ -4908,6 +4924,7 @@ public static class Utils
                 {
                     foreach (var pc in players)
                     {
+                        if (pc.IsModdedClient()) continue;
                         var dummyImp = players.FirstOrDefault(x => x != pc);
                         if (dummyImp) dummyImp.RpcSetRoleDesync(RoleTypes.Impostor, pc.OwnerId);
                     }

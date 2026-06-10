@@ -619,22 +619,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.NotificationPopper:
                 {
-                    byte typeId = reader.ReadByte();
-                    int optionId = reader.ReadPackedInt32();
-                    int customRole = reader.ReadPackedInt32();
-                    bool playSound = reader.ReadBoolean();
-                    OptionItem key = OptionItem.FastOptions[optionId];
-
-                    switch (typeId)
-                    {
-                        case 0:
-                            NotificationPopperPatch.AddSettingsChangeMessage(key, playSound);
-                            break;
-                        case 1:
-                            NotificationPopperPatch.AddRoleSettingsChangeMessage(key, (CustomRoles)customRole, playSound);
-                            break;
-                    }
-
+                    NotificationPopperPatch.AddSettingsChangeMessage(OptionItem.FastOptions[reader.ReadPackedInt32()], reader.ReadBoolean());
                     break;
                 }
                 case CustomRPC.RequestCommandProcessing:

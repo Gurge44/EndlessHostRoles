@@ -1065,6 +1065,9 @@ internal static class TaskPanelBehaviourPatch
     
     internal static TaskPanelBehaviour CreateRoleTab(CustomRoles role)
     {
+        TempPlayerData.Clear();
+        TempPointsData.Clear();
+        
         TaskPanel = HudManager.Instance.TaskStuff.transform.FindChild("TaskPanel").gameObject.GetComponent<TaskPanelBehaviour>();
         GameObject clonePanel = Object.Instantiate(TaskPanel.gameObject, TaskPanel.transform.parent);
         clonePanel.name = "RolePanel";

@@ -16,12 +16,11 @@ internal static class PingTrackerUpdatePatch
 {
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
-    private static long LastUpdate;
 
     private static readonly float[] FpsBuffer = new float[10];
     private static int FpsIndex;
     private static int FpsCount;
-    private static Color32 FpsColor = new(0, 165, 255, 255);
+    private static readonly Color32 FpsColor = new(0, 165, 255, 255);
 
     public static bool Prefix(PingTracker __instance)
     {

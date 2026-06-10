@@ -46,7 +46,6 @@ public static class Camouflage
     public static bool IsCamouflage;
     public static bool BlockCamouflage;
     public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
-    public static List<byte> ResetSkinAfterDeathPlayers = [];
     private static HashSet<byte> WaitingForSkinChange = [];
 
     private static int SkippedCamoTimes;
@@ -57,7 +56,6 @@ public static class Camouflage
     {
         IsCamouflage = false;
         PlayerSkins = [];
-        ResetSkinAfterDeathPlayers = [];
         WaitingForSkinChange = [];
 
         SkippedCamoTimes = 0;

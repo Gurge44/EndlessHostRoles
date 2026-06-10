@@ -457,13 +457,7 @@ public static class CollectionExtensions
         foreach (PlayerControl player in players)
         {
             hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
-
-            if (sender.stream.Length > 500)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
-                hasValue = false;
-            }
+            // RpcSetName will handle oversized packets
         }
 
         sender.SendMessage(dispose: !hasValue);
@@ -475,15 +469,8 @@ public static class CollectionExtensions
 
         for (int index = 0; index < players.Count; index++)
         {
-            PlayerControl player = players[index];
-            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
-
-            if (sender.stream.Length > 500)
-            {
-                sender.SendMessage();
-                sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
-                hasValue = false;
-            }
+            hasValue |= sender.Notify(players[index], text, time, overrideAll, log, setName);
+            // RpcSetName will handle oversized packets
         }
 
         sender.SendMessage(dispose: !hasValue);

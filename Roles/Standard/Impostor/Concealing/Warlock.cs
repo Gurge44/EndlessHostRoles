@@ -79,6 +79,9 @@ internal class Warlock : RoleBase
     public override void Init()
     {
         On = false;
+        WarlockTimer = [];
+        CursedPlayers = [];
+        IsCurseAndKill = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

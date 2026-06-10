@@ -101,7 +101,7 @@ internal static class EndGamePatch
         HashSet<PlayerControl> winner = Main.EnumeratePlayerControls().Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
 
         foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles)
-            winner.UnionWith(Main.EnumeratePlayerControls().Where(p => p.Is(team) && !winner.Contains(p)));
+            winner.UnionWith(Main.EnumeratePlayerControls().Where(p => p.Is(team)));
 
         Main.WinnerNameList = [];
         Main.WinnerList = [];

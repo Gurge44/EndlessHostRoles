@@ -67,6 +67,8 @@ internal class Arsonist : RoleBase
     public override void Init()
     {
         On = false;
+        ArsonistTimer = [];
+        IsDoused = [];
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

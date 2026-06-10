@@ -27,7 +27,7 @@ internal class Sprayer : RoleBase
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static int Id => 643240;
 
-    private static PlayerControl SprayerPC => GetPlayerById(SprayerId);
+    private static PlayerControl SprayerPC;
 
     public override bool IsEnable => SprayerId != byte.MaxValue;
 
@@ -73,6 +73,7 @@ internal class Sprayer : RoleBase
     public override void Init()
     {
         SprayerId = byte.MaxValue;
+        SprayerPC = null;
         Traps.Clear();
         TrappedCount.Clear();
         LowerVisionList.Clear();
@@ -82,6 +83,7 @@ internal class Sprayer : RoleBase
     public override void Add(byte playerId)
     {
         SprayerId = playerId;
+        SprayerPC = playerId.GetPlayer();
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
 
         foreach (PlayerControl pc in Main.CachedAlivePlayerControls()) TrappedCount[pc.PlayerId] = 0;

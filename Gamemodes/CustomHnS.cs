@@ -174,7 +174,7 @@ internal static class CustomHnS
             }
         }
 
-        Dictionary<Team, PlayerControl[]> playerTeams =Main.TeamValues[1..4]
+        Dictionary<Team, PlayerControl[]> playerTeams = Main.TeamValues[1..4]
             .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
             .Shuffle()
             .Zip(allPlayers)

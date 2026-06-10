@@ -14,7 +14,6 @@ public static class TheMindGame
 {
     private static Dictionary<byte, int> Points = [];
     private static Dictionary<byte, int> SuperPoints = [];
-    private static Dictionary<PlayerControl, int> DefaultColorIds = [];
     private static Dictionary<byte, Group> Groups = [];
     private static Dictionary<Group, List<byte>> GroupPlayers = [];
     private static List<SystemTypes> AllRooms = [];
@@ -276,7 +275,7 @@ public static class TheMindGame
         var pcCount = aapc.Count;
         Points = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         SuperPoints = aapc.ToDictionary(x => x.PlayerId, _ => 0);
-        DefaultColorIds = aapc.ToDictionary(x => x, x => x.Data.DefaultOutfit.ColorId);
+        aapc.ToDictionary(x => x, x => x.Data.DefaultOutfit.ColorId);
         PlayerItems = aapc.ToDictionary(x => x.PlayerId, _ => new List<Item>());
 
         Groups = [];

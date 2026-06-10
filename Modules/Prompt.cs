@@ -105,4 +105,11 @@ public static class Prompt
             return true;
         }
     }
+
+    public static void Reset()
+    {
+        CurrentQuestion = string.Empty;
+        ClearQueue();
+        HidePromt();
+    }
 }

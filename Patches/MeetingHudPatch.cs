@@ -1384,7 +1384,7 @@ internal static class MeetingHudOnDestroyPatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
 internal static class MeetingHudCastVotePatch
 {
-    private static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
+    public static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
 
     public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {

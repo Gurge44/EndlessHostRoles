@@ -19,7 +19,10 @@ static class ExceptionSwallowers
         yield return AccessTools.Method(typeof(PlayerControl), nameof(PlayerControl.RawSetName));
         yield return AccessTools.Method(typeof(PlayerControl), nameof(PlayerControl.SetName));
         yield return AccessTools.Method(typeof(CosmeticsLayer), nameof(CosmeticsLayer.UpdateBodyMaterial));
+        yield return AccessTools.Method(typeof(CosmeticsCache), nameof(CosmeticsCache.ClearUnusedCosmetics));
         yield return AccessTools.Method(typeof(InnerNetClient), nameof(InnerNetClient.SendOrDisconnect));
+        yield return AccessTools.Method(typeof(DisconnectPopup), nameof(DisconnectPopup.DoShow));
+        yield return AccessTools.Method(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.GetValue));
     }
     
     public static Exception Finalizer()

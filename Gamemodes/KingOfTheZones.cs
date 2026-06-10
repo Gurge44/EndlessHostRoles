@@ -664,7 +664,11 @@ public static class KingOfTheZones
                 }
         }
 
-        void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+        void ResetSkins()
+        {
+            DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
+            DefaultOutfits = [];
+        }
     }
 
     public static bool IsNotInLocalPlayersTeam(PlayerControl pc)

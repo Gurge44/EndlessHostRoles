@@ -22,10 +22,10 @@ internal static class NotificationPopperPatch
 
     public static void AddSettingsChangeMessage(OptionItem option, bool playSound = false)
     {
+        if (Utils.TimeStamp == GameSettingMenuPatch.LastPresetChange) return;
+        
         string optValue = option.GetString();
         if (optValue == "STRMISS") return;
-
-        SendRpc(0, option.Id, playSound: playSound);
 
         string name = option.GetName();
         if (name == "Accept") return;
@@ -33,23 +33,12 @@ internal static class NotificationPopperPatch
         string parentName = option.Parent?.GetName() ?? string.Empty;
         if (parentName == "Accept") return;
         
+        SendRpc(option.Id, playSound);
+        
         string str = option.Parent != null
             ? TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + parentName + "</font>: <font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>")
             : TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
 
-        SettingsChangeMessageLogic(option, str, playSound);
-    }
-
-    public static void AddRoleSettingsChangeMessage(OptionItem option, CustomRoles customRole, bool playSound = false)
-    {
-        string optValue = option.GetString();
-        if (optValue == "STRMISS") return;
-
-        string name = option.GetName();
-        if (name == "Accept") return;
-
-        SendRpc(1, option.Id, customRole, playSound);
-        string str = TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
         SettingsChangeMessageLogic(option, str, playSound);
     }
 
@@ -70,13 +59,11 @@ internal static class NotificationPopperPatch
         if (playSound) SoundManager.Instance.PlaySoundImmediate(Instance.settingsChangeSound, false);
     }
 
-    private static void SendRpc(byte typeId, int optionId, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
+    private static void SendRpc(int optionId, bool playSound = true)
     {
-        if (Options.HideGameSettings.GetBool()) return;
+        if (!AmongUsClient.Instance.AmHost || Options.HideGameSettings.GetBool()) return;
         var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, Hazel.SendOption.None);
-        msg.Write(typeId);
         msg.Write(optionId);
-        msg.Write((int)customRole);
         msg.Write(playSound);
         AmongUsClient.Instance.FinishRpcImmediately(msg);
     }

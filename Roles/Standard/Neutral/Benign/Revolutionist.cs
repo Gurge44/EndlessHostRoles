@@ -62,6 +62,11 @@ internal class Revolutionist : RoleBase
     public override void Init()
     {
         On = false;
+        IsDraw = [];
+        RevolutionistTimer = [];
+        RevolutionistStart = [];
+        RevolutionistLastTime = [];
+        RevolutionistCountdown = [];
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

@@ -969,8 +969,10 @@ static class PreventLargePacketKickPatch
     public static bool Prefix([HarmonyArgument(0)] MessageWriter msg)
     {
         if (msg.Length <= 1200) return true;
-        
-        if (GameStates.CurrentServerType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla)
+
+        var serverType = GameStates.CurrentServerType;
+
+        if (serverType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla || (serverType == GameStates.ServerType.Niko && msg.Length > 1400))
         {
             Logger.Warn($" Blocked large packet from sending (size: {msg.Length})", nameof(PreventLargePacketKickPatch));
             return false;

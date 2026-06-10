@@ -1060,6 +1060,12 @@ public class Main : BasePlugin
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
+    public Coroutine StartCoroutine(Il2CppSystem.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine);
+    }
+
     public Coroutine StartCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null) return null;

@@ -326,6 +326,8 @@ public static class CaptureTheFlag
                 if (pc && outfit != null)
                     Utils.RpcChangeSkin(pc, outfit);
             }
+
+            DefaultOutfits = [];
         }
     }
 
