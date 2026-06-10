@@ -275,7 +275,6 @@ public static class TheMindGame
         var pcCount = aapc.Count;
         Points = aapc.ToDictionary(x => x.PlayerId, _ => 0);
         SuperPoints = aapc.ToDictionary(x => x.PlayerId, _ => 0);
-        aapc.ToDictionary(x => x, x => x.Data.DefaultOutfit.ColorId);
         PlayerItems = aapc.ToDictionary(x => x.PlayerId, _ => new List<Item>());
 
         Groups = [];
@@ -960,21 +959,6 @@ public static class TheMindGame
                 break;
             }
         }
-    }
-
-    private static byte GetColorId(this Group group)
-    {
-        return group switch
-        {
-            Group.Red => 0,
-            Group.Yellow => 5,
-            Group.Blue => 10,
-            Group.Green => 11,
-            Group.Tan => 16,
-            Group.Rose => 13,
-            Group.Orange => 4,
-            _ => 7
-        };
     }
 
     public static bool CheckForGameEnd(out GameOverReason reason)
