@@ -16,7 +16,7 @@ public class Oracle : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
 
-    public static readonly List<byte> DidVote;
+    public static List<byte> DidVote;
 
     public override bool IsEnable => On;
 
