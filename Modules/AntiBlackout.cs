@@ -20,6 +20,7 @@ public static class AntiBlackout
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || PlayerControl.AllPlayerControls.Count <= 2) return;
 
         SkipTasks = true;
+        LateTask.New(() => SkipTasks = false, 15f);
         CachedRoleMap = StartGameHostPatch.RpcSetRoleReplacer.RoleMap.ToDictionary(x => (x.Key.SeerID, x.Key.TargetID), x => (x.Value.RoleType, x.Value.CustomRole));
 
         var players = Main.AllAlivePlayerControlsToArray;
