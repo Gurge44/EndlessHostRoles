@@ -5,7 +5,7 @@ namespace EHR.Roles;
 public class CovenMember : CovenBase
 {
     public static bool On;
-    private static List<CovenMember> Instances = [];
+    private static List<CovenMember> Instances;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Never;
 
@@ -18,12 +18,13 @@ public class CovenMember : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         CovenMemberId = playerId;
         OnAnyoneDead();
@@ -31,7 +32,7 @@ public class CovenMember : CovenBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -41,7 +42,7 @@ public class CovenMember : CovenBase
 
     public static void OnAnyoneDead()
     {
-        if (Instances.Count > 0 && !CustomRoles.CovenLeader.RoleExist())
+        if (Instances is { Count: > 0 } && !CustomRoles.CovenLeader.RoleExist())
         {
             foreach (CovenMember instance in Instances)
             {

@@ -930,7 +930,7 @@ internal static class ExtendedPlayerControl
         {
             if (!player) return;
 
-            if (!Mathf.Approximately(time, -1f) && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            if (!Mathf.Approximately(time, -1f) && Commited.ReduceKCD != null && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 time = Math.Max(time - reduction, 0.01f);
 
             Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(time < 0f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
@@ -1811,7 +1811,7 @@ internal static class ExtendedPlayerControl
                 Logger.Info($"KCD of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Antidote");
             }
 
-            if (Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            if (Commited.ReduceKCD != null && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 Main.AllPlayerKillCooldown[player.PlayerId] -= reduction;
 
             if (sync) player.SyncSettings();
@@ -2120,7 +2120,7 @@ internal static class ExtendedPlayerControl
 
         public bool IsSnitchTarget()
         {
-            return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || Enchanter.EnchantedPlayers.Contains(player.PlayerId) || Snitch.IsSnitchTarget(player);
+            return player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || (Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(player.PlayerId)) || Snitch.IsSnitchTarget(player);
         }
 
         public bool IsMadmate()

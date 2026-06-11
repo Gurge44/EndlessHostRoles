@@ -98,17 +98,20 @@ internal static class ExileControllerWrapUpPatch
 
         try
         {
-            foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+            if (Lazy.BeforeMeetingPositions != null)
             {
-                PlayerControl pc = id.GetPlayer();
-                if (!pc || !pc.IsAlive()) continue;
+                foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+                {
+                    PlayerControl pc = id.GetPlayer();
+                    if (!pc || !pc.IsAlive()) continue;
 
-                pc.TP(pos);
+                    pc.TP(pos);
+                }
             }
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
-        Lazy.BeforeMeetingPositions = [];
+        Lazy.BeforeMeetingPositions = null;
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);

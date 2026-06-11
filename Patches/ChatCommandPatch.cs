@@ -609,6 +609,7 @@ internal static class ChatCommands
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState state) || state.IsDead || state.Role is not Summoner sum || player.GetAbilityUseLimit() < 1) return;
         if (args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out var targetState) || !targetState.IsDead || targetState.MainRole == CustomRoles.GM) return;
 
+        Summoner.AlreadySummoned ??= [];
         bool reSummoned = !Summoner.AlreadySummoned.Add(targetId);
 
         if (reSummoned && !Summoner.AllowSummoningTheSamePlayerTwice.GetBool())
@@ -1745,7 +1746,7 @@ internal static class ChatCommands
 
     private static void HMCommand(PlayerControl player, string text, string[] args)
     {
-        if (!player.Is(CustomRoles.Messenger) || Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        if (!player.Is(CustomRoles.Messenger) || (Messenger.Sent != null && Messenger.Sent.Contains(player.PlayerId)) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
 
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
@@ -1771,6 +1772,7 @@ internal static class ChatCommands
             };
 
             Utils.SendMessage(message, title: string.Format(GetString("MessengerTitle"), player.PlayerId.ColoredPlayerName()), importance: MessageImportance.High);
+            Messenger.Sent ??= [];
             Messenger.Sent.Add(player.PlayerId);
         }
     }

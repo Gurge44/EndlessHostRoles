@@ -17,7 +17,7 @@ public class Wyrd : CovenBase
     }
 
     public static bool On;
-    private static List<Wyrd> Instances = [];
+    private static List<Wyrd> Instances;
 
     private static OptionItem ShapeshiftCooldown;
     private static OptionItem MaxMarkedPlayersAtOnce;
@@ -30,7 +30,7 @@ public class Wyrd : CovenBase
     private static OptionItem CanVentBeforeNecronomicon;
     private static OptionItem CanVentAfterNecronomicon;
 
-    private static Dictionary<Action, bool> ActionSuicideSettings = [];
+    private static Dictionary<Action, bool> ActionSuicideSettings;
 
     private int Countdown;
 
@@ -62,8 +62,18 @@ public class Wyrd : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
+        ActionSuicideSettings = null;
+    }
 
+    public override void Add(byte playerId)
+    {
+        On = true;
+        WyrdID = playerId;
+        Instances ??= [];
+        Instances.Add(this);
+        MarkedPlayers = [];
+        Countdown = CountdownTime.GetInt();
         ActionSuicideSettings = new()
         {
             { Action.Task, MarkedDiesOnTask.GetBool() },
@@ -72,18 +82,9 @@ public class Wyrd : CovenBase
         };
     }
 
-    public override void Add(byte playerId)
-    {
-        On = true;
-        WyrdID = playerId;
-        Instances.Add(this);
-        MarkedPlayers = [];
-        Countdown = CountdownTime.GetInt();
-    }
-
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -132,7 +133,7 @@ public class Wyrd : CovenBase
 
     public static bool CheckPlayerAction(PlayerControl pc, Action action)
     {
-        if (!ActionSuicideSettings[action]) return true;
+        if (!ActionSuicideSettings[action] || Instances == null) return true;
 
         foreach (Wyrd instance in Instances)
         {
@@ -148,6 +149,8 @@ public class Wyrd : CovenBase
 
     public static void OnAnyoneDeath(PlayerControl target)
     {
+        if (Instances == null) return;
+
         foreach (Wyrd instance in Instances)
         {
             if (instance.MarkedPlayers.Remove(target.PlayerId))

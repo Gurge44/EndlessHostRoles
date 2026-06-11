@@ -6,7 +6,7 @@ internal class Seeker : RoleBase, IHideAndSeekRole
 {
     public static bool On;
 
-    public static int StartId = 69_211_299;
+    public const int StartId = 69_211_299;
 
     public static OptionItem Vision;
     public static OptionItem Speed;
@@ -23,40 +23,33 @@ internal class Seeker : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
-        var textOpt = new TextOptionItem(StartId, "Seeker", TabGroup.ImpostorRoles)
+        new TextOptionItem(StartId, "Seeker", TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetHeader(true);
-
-        textOpt.SetValue(1, false, false); // Set Value as 1, becouse TextOptionItem "Seeker" is parent option
 
         Vision = new FloatOptionItem(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.25f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
-            .SetColor(new(255, 25, 25, byte.MaxValue))
-            .SetParent(textOpt);
+            .SetColor(new(255, 25, 25, byte.MaxValue));
 
         Speed = new FloatOptionItem(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Multiplier)
-            .SetColor(new(255, 25, 25, byte.MaxValue))
-            .SetParent(textOpt);
+            .SetColor(new(255, 25, 25, byte.MaxValue));
 
         CanVent = new BooleanOptionItem(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
-            .SetColor(new(255, 25, 25, byte.MaxValue))
-            .SetParent(textOpt);
+            .SetColor(new(255, 25, 25, byte.MaxValue));
 
         BlindTime = new FloatOptionItem(69_211_206, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
-            .SetColor(new(255, 25, 25, byte.MaxValue))
-            .SetParent(textOpt);
+            .SetColor(new(255, 25, 25, byte.MaxValue));
 
         KillCooldown = new IntegerOptionItem(69_211_207, "KillCooldown", new(0, 60, 1), 10, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.HideAndSeek)
             .SetValueFormat(OptionFormat.Seconds)
-            .SetColor(new(255, 25, 25, byte.MaxValue))
-            .SetParent(textOpt);
+            .SetColor(new(255, 25, 25, byte.MaxValue));
     }
 
     public override void Add(byte playerId)

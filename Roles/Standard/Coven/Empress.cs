@@ -8,7 +8,7 @@ namespace EHR.Roles;
 public class Empress : CovenBase
 {
     public static bool On;
-    private static List<Empress> Instances = [];
+    private static List<Empress> Instances;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -31,7 +31,7 @@ public class Empress : CovenBase
     private HashSet<byte> FrostGazed;
     private HashSet<byte> Killed;
 
-    public static HashSet<byte> Encouraged = [];
+    public static HashSet<byte> Encouraged;
 
     public override void SetupCustomOption()
     {
@@ -50,8 +50,8 @@ public class Empress : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
-        Encouraged = [];
+        Instances = null;
+        Encouraged = null;
     }
 
     public override void Add(byte playerId)
@@ -63,13 +63,14 @@ public class Empress : CovenBase
         SelectedSpell = default;
         FrostGazed = [];
         Killed = [];
+        Instances ??= [];
         Instances.Add(this);
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
-        Encouraged = [];
+        Instances?.Remove(this);
+        Encouraged = null;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -129,8 +130,8 @@ public class Empress : CovenBase
     {
         Killed = [];
         
-        Encouraged.Do(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
-        Encouraged = [];
+        Encouraged?.Do(x => Main.AllPlayerSpeed[x] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+        Encouraged = null;
         
         if (Weakened)
         {
@@ -182,7 +183,7 @@ public class Empress : CovenBase
                     killer.AddAbilityCD((int)Math.Round(cd));
                     break;
                 }
-                case Spells.Encourage when target.Is(Team.Coven) && Encouraged.Add(target.PlayerId):
+                case Spells.Encourage when target.Is(Team.Coven) && AddEncouraged(target.PlayerId):
                 {
                     Main.AllPlayerSpeed[target.PlayerId] *= 1.25f;
                     target.MarkDirtySettings();
@@ -191,6 +192,12 @@ public class Empress : CovenBase
                     break;
                 }
             }
+        }
+
+        bool AddEncouraged(byte id)
+        {
+            Encouraged ??= [];
+            return Encouraged.Add(id);
         }
     }
 
@@ -224,13 +231,14 @@ public class Empress : CovenBase
 
     public static void OnInteraction(PlayerControl target)
     {
-        foreach (Empress instance in Instances)
-            instance.FrostGazed.Remove(target.PlayerId);
+        if (Instances != null)
+            foreach (Empress instance in Instances)
+                instance.FrostGazed.Remove(target.PlayerId);
     }
 
     public static void OnAnyoneMurder(PlayerControl killer)
     {
-        if (!killer.Is(Team.Coven)) return;
+        if (!killer.Is(Team.Coven) || Instances == null) return;
         
         foreach (Empress instance in Instances)
         {

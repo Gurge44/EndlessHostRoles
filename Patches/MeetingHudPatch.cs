@@ -182,7 +182,7 @@ internal static class CheckForEndVotingPatch
                 bool canVote = !(CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool());
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Shifter) && !Shifter.CanVote.GetBool()) canVote = false;
                 if (ps.VotedFor.GetPlayer() && CheckRole(ps.VotedFor, CustomRoles.Zombie)) canVote = false;
-                if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
+                if (Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) canVote = false;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) canVote = false;
 
                 switch (Main.PlayerStates[ps.TargetPlayerId].Role)
@@ -641,7 +641,7 @@ internal static class ExtendedMeetingHud
                     Collector.CollectorVotes(target, ps);
                 }
 
-                if (Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
+                if (Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(ps.TargetPlayerId)) voteNum = 0;
                 if (Silencer.ForSilencer.Contains(ps.TargetPlayerId) && Main.AllAlivePlayerControlsCount > Silencer.MaxPlayersAliveForSilencedToVote.GetInt()) voteNum = 0;
 
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) voteNum += 1;

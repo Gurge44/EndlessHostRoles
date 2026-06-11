@@ -9,7 +9,7 @@ public class Workhorse : IAddon
 {
     private const int Id = 15700;
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
-    private static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     private static OptionItem SpawnChance;
     private static OptionItem OptionAssignOnlyToCrewmate;
@@ -48,7 +48,7 @@ public class Workhorse : IAddon
 
     public static void Init()
     {
-        PlayerIdList = [];
+        PlayerIdList = null;
 
         AssignOnlyToCrewmate = OptionAssignOnlyToCrewmate.GetBool();
         NumLongTasks = OptionNumLongTasks.GetInt();
@@ -57,12 +57,13 @@ public class Workhorse : IAddon
 
     private static void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
     }
 
     public static bool IsThisRole(byte playerId)
     {
-        return PlayerIdList.Contains(playerId);
+        return PlayerIdList != null && PlayerIdList.Contains(playerId);
     }
 
     private static bool IsAssignTarget(PlayerControl pc)
@@ -84,7 +85,8 @@ public class Workhorse : IAddon
     {
         try
         {
-            if (!CustomRoles.Workhorse.IsEnable() || PlayerIdList.Count >= CustomRoles.Workhorse.GetCount()) return;
+            if (!CustomRoles.Workhorse.IsEnable()) return;
+            if (PlayerIdList != null && PlayerIdList.Count >= CustomRoles.Workhorse.GetCount()) return;
             if (CurrentGameMode != CustomGameMode.Standard) return;
             if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return;
             if (!IsAssignTarget(pc)) return;
@@ -104,6 +106,6 @@ public class Workhorse : IAddon
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }
-        catch (System.Exception e) { Utils.ThrowException(e); }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }

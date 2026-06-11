@@ -137,13 +137,15 @@ internal static class ChangeRoleSettings
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
             Crewpostor.TasksDone = [];
-            Messenger.Sent = [];
-            Lazy.BeforeMeetingPositions = [];
-            Introvert.TeleportAwayDelays = [];
-            Onbound.NumBlocked = [];
-            Blessed.ShieldActive = [];
-            Talkative.NumMessagesThisMeeting = [];
-            Entombed.BlockedRoom = [];
+            Messenger.Sent = null;
+            Lazy.BeforeMeetingPositions = null;
+            Introvert.TeleportAwayDelays = null;
+            Onbound.NumBlocked = null;
+            Blessed.ShieldActive = null;
+            Talkative.NumMessagesThisMeeting = null;
+            Entombed.BlockedRoom = null;
+            Disco.LastChange = null;
+            Stained.VioletNameList = null;
 
             try
             {

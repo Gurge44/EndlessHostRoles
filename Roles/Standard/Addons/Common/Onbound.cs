@@ -9,7 +9,7 @@ public class Onbound : IAddon
     
     public AddonTypes Type => AddonTypes.Mixed;
 
-    public static Dictionary<byte, HashSet<byte>> NumBlocked = [];
+    public static Dictionary<byte, HashSet<byte>> NumBlocked;
 
     public void SetupCustomOption()
     {

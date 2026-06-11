@@ -371,7 +371,7 @@ public class PlayerState(byte playerId)
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (Enchanter.EnchantedPlayers.Contains(PlayerId))
+            if (Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(PlayerId))
                 deathReason = AllDeathReason[..^8].RandomElement();
 
             RPC.SendDeathReason(PlayerId, deathReason, IsDead);

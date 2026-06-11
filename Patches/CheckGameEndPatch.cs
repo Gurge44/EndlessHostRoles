@@ -198,9 +198,9 @@ internal static class GameEndChecker
 
             if (WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
             {
-                if (WinnerTeam == CustomWinner.Coven || Summoner.Instances.Exists(x => WinnerIds.Contains(x.SummonerId)))
+                if ((WinnerTeam == CustomWinner.Coven || (Summoner.Instances != null && Summoner.Instances.Exists(x => WinnerIds.Contains(x.SummonerId)))) && Summoner.AdditionalWinners != null)
                     WinnerIds.UnionWith(Summoner.AdditionalWinners);
-                    
+
                 foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     CustomRoles role = pc.GetCustomRole();
@@ -479,7 +479,7 @@ internal static class GameEndChecker
     {
         try
         {
-            if (Summoner.AdditionalWinners.Contains(state.Player.PlayerId)) return true;
+            if (Summoner.AdditionalWinners != null && Summoner.AdditionalWinners.Contains(state.Player.PlayerId)) return true;
             
             switch (state.MainRole)
             {

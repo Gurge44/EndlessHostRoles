@@ -10,7 +10,7 @@ namespace EHR.Roles;
 
 internal class Tornado : RoleBase
 {
-    private static readonly List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     public static OptionItem TornadoCooldown;
     public static OptionItem TornadoDuration;
@@ -19,12 +19,12 @@ internal class Tornado : RoleBase
     private static readonly Dictionary<string, string> ReplacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
 
     private static RandomSpawn.SpawnMap Map;
-    private static readonly Dictionary<(Vector2 Location, string RoomName), long> Tornados = [];
+    private static Dictionary<(Vector2 Location, string RoomName), long> Tornados;
     private static bool CanUseMap;
     private PlayerControl TornadoPC;
     private static int Id => 64420;
 
-    public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 } || Randomizer.Exists;
 
     public override void SetupCustomOption()
     {
@@ -49,8 +49,8 @@ internal class Tornado : RoleBase
 
     public override void Init()
     {
-        PlayerIdList.Clear();
-        Tornados.Clear();
+        PlayerIdList = null;
+        Tornados = null;
 
         try
         {
@@ -66,12 +66,13 @@ internal class Tornado : RoleBase
     public override void Add(byte playerId)
     {
         TornadoPC = GetPlayerById(playerId);
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
@@ -94,6 +95,8 @@ internal class Tornado : RoleBase
         float x = reader.ReadSingle();
         float y = reader.ReadSingle();
         string roomname = reader.ReadString();
+        
+        Tornados ??= [];
 
         if (add)
         {
@@ -113,6 +116,7 @@ internal class Tornado : RoleBase
     {
         (Vector2 Location, string RoomName) info = pc.GetPositionInfo();
         long now = TimeStamp;
+        Tornados ??= [];
         Tornados.TryAdd(info, now);
         SendRPCAddTornado(true, info.Location, info.RoomName, now);
         _ = new TornadoObject(info.Location, pc);
@@ -120,7 +124,7 @@ internal class Tornado : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!IsEnable || !GameStates.IsInTask || Tornados.Count == 0) return;
+        if (!IsEnable || !GameStates.IsInTask || Tornados == null || Tornados.Count == 0) return;
 
         long now = TimeStamp;
 
@@ -167,7 +171,7 @@ internal class Tornado : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModdedClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModdedClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId || Tornados == null) return string.Empty;
 
         return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
     }

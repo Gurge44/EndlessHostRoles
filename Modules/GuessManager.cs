@@ -340,6 +340,8 @@ public static class GuessManager
 
                     if (target.Is(CustomRoles.Onbound))
                     {
+                        Onbound.NumBlocked ??= [];
+                        
                         if (!Onbound.NumBlocked.TryGetValue(target.PlayerId, out HashSet<byte> attempters))
                             Onbound.NumBlocked[target.PlayerId] = attempters = [];
                         
@@ -1146,7 +1148,7 @@ public static class GuessManager
 
         public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
-            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
+            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances != null && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
                 CustomRoles.EvilGuesser => true,

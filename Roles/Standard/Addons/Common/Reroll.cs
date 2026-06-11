@@ -26,7 +26,7 @@ public class Reroll : IAddon
 
     private readonly record struct PendingReroll(Team TeamAtTrigger);
 
-    private static Dictionary<byte, PendingReroll> Pending = [];
+    private static Dictionary<byte, PendingReroll> Pending;
 
     public void SetupCustomOption()
     {
@@ -50,12 +50,12 @@ public class Reroll : IAddon
 
     public static void Init()
     {
-        Pending = [];
+        Pending = null;
     }
 
     public static void OnMeetingStart()
     {
-        Pending = [];
+        Pending = null;
     }
 
     public static bool TryQueueCommandTrigger(PlayerControl player)
@@ -67,6 +67,8 @@ public class Reroll : IAddon
             SendPrivateMessage(player, "Reroll.CommandUnavailable");
             return false;
         }
+
+        Pending ??= [];
 
         if (Pending.ContainsKey(player.PlayerId))
         {
@@ -92,6 +94,8 @@ public class Reroll : IAddon
 
     public static void ResolveAfterMeeting(NetworkedPlayerInfo lastExiled)
     {
+        if (Pending == null) return;
+        
         foreach ((byte playerId, PendingReroll pending) in Pending)
         {
             PlayerControl player = Utils.GetPlayerById(playerId);
@@ -113,8 +117,8 @@ public class Reroll : IAddon
                     break;
             }
         }
-        
-        Pending.Clear();
+
+        Pending = null;
     }
 
     private static bool TryResolveAliveRole(PlayerControl player, Team teamAtTrigger)

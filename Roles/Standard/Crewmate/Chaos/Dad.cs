@@ -22,8 +22,8 @@ public class Dad : RoleBase
     }
 
     public static bool On;
-    private static List<Dad> Instances = [];
-    private static List<Vector2> AllDeadBodies = [];
+    private static List<Dad> Instances;
+    private static List<Vector2> AllDeadBodies;
 
     private static OptionItem AlcoholDecreaseOnKilled;
     private static OptionItem AlcoholDecreaseOnVotedOut;
@@ -136,12 +136,13 @@ public class Dad : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         Main.AllPlayerSpeed[playerId] *= -1;
         DadId = playerId;
@@ -163,7 +164,7 @@ public class Dad : RoleBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
         if (!AmongUsClient.Instance.AmHost) return;
         Main.AllPlayerSpeed[playerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         PlayerGameOptionsSender.SetDirty(playerId);
@@ -191,7 +192,7 @@ public class Dad : RoleBase
 
     public override void OnReportDeadBody()
     {
-        AllDeadBodies = [];
+        AllDeadBodies = null;
         Arrows = string.Empty;
         Main.AllPlayerSpeed[DadId] = StartingSpeed;
 
@@ -254,7 +255,7 @@ public class Dad : RoleBase
                 pc.MarkDirtySettings();
                 break;
             case Ability.Sniffing:
-                AllDeadBodies.Do(x => LocateArrow.Add(DadId, x));
+                AllDeadBodies?.Do(x => LocateArrow.Add(DadId, x));
                 Arrows = LocateArrow.GetArrows(pc);
                 LocateArrow.RemoveAllTarget(DadId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -386,7 +387,7 @@ public class Dad : RoleBase
 
     public static bool OnVotedOut(byte id)
     {
-        Dad dad = Instances.FirstOrDefault(d => d.DadId == id);
+        Dad dad = Instances?.FirstOrDefault(d => d.DadId == id);
         if (dad == null) return false;
 
         dad.Alcohol -= AlcoholDecreaseOnVotedOut.GetInt();
@@ -397,11 +398,13 @@ public class Dad : RoleBase
 
     public static void OnAnyoneDeath(PlayerControl target)
     {
+        AllDeadBodies ??= [];
         AllDeadBodies.Add(target.Pos());
     }
 
     public static bool OnAnyoneCheckMurderStart(PlayerControl target)
     {
+        if (Instances == null) return false;
         Dad dad = Instances.FirstOrDefault(d => d.DadId == target.PlayerId);
         return dad != null && dad.UsingAbilities.Contains(Ability.Sleep);
     }

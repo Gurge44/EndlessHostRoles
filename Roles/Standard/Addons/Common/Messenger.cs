@@ -4,7 +4,7 @@ namespace EHR.Roles;
 
 public class Messenger : IAddon
 {
-    public static HashSet<byte> Sent = [];
+    public static HashSet<byte> Sent;
     public AddonTypes Type => AddonTypes.Helpful;
 
     public void SetupCustomOption()

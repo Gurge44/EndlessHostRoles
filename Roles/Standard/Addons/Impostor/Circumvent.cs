@@ -4,7 +4,7 @@ namespace EHR.Roles;
 
 internal class Circumvent : IAddon
 {
-    private static Dictionary<byte, int> Limits = [];
+    private static Dictionary<byte, int> Limits;
 
     private static OptionItem VentPreventionMode;
     private static OptionItem Limit;
@@ -32,7 +32,7 @@ internal class Circumvent : IAddon
 
     public static void Init()
     {
-        Limits = [];
+        Limits = null;
     }
 
     public static void Add()
@@ -44,7 +44,10 @@ internal class Circumvent : IAddon
             foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.SubRoles.Contains(CustomRoles.Circumvent))
+                {
+                    Limits ??= [];
                     Limits[state.Key] = Limit.GetInt();
+                }
             }
         }, 3f, log: false);
     }
@@ -57,7 +60,7 @@ internal class Circumvent : IAddon
             return;
         }
 
-        if (Limits.ContainsKey(pc.PlayerId))
+        if (Limits != null && Limits.ContainsKey(pc.PlayerId))
         {
             Limits[pc.PlayerId]--;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -68,12 +71,12 @@ internal class Circumvent : IAddon
     {
         if (VentPreventionMode.GetValue() != 2) return;
 
-        Limits.SetAllValues(Limit.GetInt());
+        Limits?.SetAllValues(Limit.GetInt());
     }
 
     public static void GetProgressText(byte playerId, StringBuilder resultText)
     {
-        if (!Limits.TryGetValue(playerId, out int limit)) return;
+        if (Limits == null || !Limits.TryGetValue(playerId, out int limit)) return;
 
         int mode = VentPreventionMode.GetValue();
 
@@ -99,6 +102,8 @@ internal class Circumvent : IAddon
     {
         if (!pc.Is(CustomRoles.Circumvent)) return true;
 
-        return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out int limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
+        if (pc.inVent) return true;
+        int limit = 0;
+        return ((Limits == null || !Limits.TryGetValue(pc.PlayerId, out limit)) && VentPreventionMode.GetValue() != 0) || limit > 0;
     }
 }

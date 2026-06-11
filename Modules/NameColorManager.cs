@@ -83,7 +83,7 @@ public static class NameColorManager
         RoleBase targetRoleClass = Main.PlayerStates[target.PlayerId].Role;
 
         // Global (low priority)
-        if (Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
+        if (Stained.VioletNameList != null && Stained.VioletNameList.Contains(target.PlayerId) && !isMeeting) color = "#ff00ff";
 
         // Coven
         if (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven)) color = Main.CovenColor;
@@ -181,7 +181,7 @@ public static class NameColorManager
             CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
             CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam().GetTextColor(),
             CustomRoles.Curser when ((Curser)seerRoleClass).KnownFactionPlayers.Contains(target.PlayerId) => target.GetTeam().GetTextColor(),
-            CustomRoles.Poache when Poache.PoachedPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Poache when Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Reaper when ((Reaper)seerRoleClass).CursedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Dreamweaver when ((Dreamweaver)seerRoleClass).InsanePlayers.Contains(target.PlayerId) || target.Is(CustomRoles.Insane) => "000000",
             CustomRoles.Banshee when ((Banshee)seerRoleClass).ScreechedPlayers.Contains(target.PlayerId) => "000000",

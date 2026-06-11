@@ -10,9 +10,9 @@ namespace EHR.Roles;
 public class Summoner : CovenBase
 {
     public static bool On;
-    public static List<Summoner> Instances = [];
-    public static HashSet<byte> AdditionalWinners = [];
-    public static HashSet<byte> AlreadySummoned = [];
+    public static List<Summoner> Instances;
+    public static HashSet<byte> AdditionalWinners;
+    public static HashSet<byte> AlreadySummoned;
     
     private static OptionItem SummonDelayAfterMeeting;
     private static OptionItem SummonedKillCooldown;
@@ -65,14 +65,15 @@ public class Summoner : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
-        AdditionalWinners = [];
-        AlreadySummoned = [];
+        Instances = null;
+        AdditionalWinners = null;
+        AlreadySummoned = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         SummonerId = playerId;
         Changed = false;
@@ -84,7 +85,7 @@ public class Summoner : CovenBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -113,7 +114,7 @@ public class Summoner : CovenBase
 
     public static bool OnAnyoneReport()
     {
-        return !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue);
+        return Instances == null || !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue);
     }
 
     public override void AfterMeetingTasks()
@@ -201,15 +202,18 @@ public class Summoner : CovenBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return !Instances.Exists(x => x.SummonedPlayerId == killer.PlayerId && target.Is(Team.Coven));
+        return Instances == null || !Instances.Exists(x => x.SummonedPlayerId == killer.PlayerId && target.Is(Team.Coven));
     }
 
     public static void OnAnyoneMurder(PlayerControl killer, PlayerControl target)
     {
+        if (Instances == null) return;
+
         foreach (Summoner instance in Instances)
         {
             if (instance.SummonedPlayerId == killer.PlayerId)
             {
+                AdditionalWinners ??= [];
                 AdditionalWinners.Add(instance.SummonedPlayerId);
                 instance.SummonedPlayerTimer?.Dispose();
                 instance.SummonedPlayerTimer = null;
@@ -228,7 +232,7 @@ public class Summoner : CovenBase
     {
         try
         {
-            if (!Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue)) return;
+            if (Instances == null || !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue)) return;
             Utils.SendMessage(Translator.GetString("Summoner.SomeoneWillBeRevivedMessage"), title: CustomRoles.Summoner.ToColoredString(), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }

@@ -217,6 +217,7 @@ internal static class EffectExtenstions
 
                         break;
                     case Effect.Rift:
+                        Rifts ??= [];
                         Rifts.TryAdd(PickRandomPlayer().Pos(), PickRandomPlayer().Pos());
 
                         try
@@ -240,6 +241,7 @@ internal static class EffectExtenstions
                     case Effect.TimeBomb:
                         Vector2 randomPlayerPos = PickRandomPlayer().Pos();
                         int bombTime = IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration);
+                        Bombs ??= [];
                         Bombs.TryAdd(randomPlayerPos, new CountdownTimer(bombTime, () =>
                         {
                             foreach (PlayerControl pc in FastVector2.GetPlayersInRange(randomPlayerPos, RandomFloat))
@@ -269,7 +271,7 @@ internal static class EffectExtenstions
                             {
                                 RevertSpeedChangesForPlayer(pc, false);
                                 AddEffectForPlayer(pc, effect);
-                                Main.AllPlayerSpeed[pc.PlayerId] = -AllPlayerDefaultSpeed[pc.PlayerId];
+                                Main.AllPlayerSpeed[pc.PlayerId] = -Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                                 NotifyAboutRNG(pc);
                             }
 
@@ -452,7 +454,7 @@ internal class Randomizer : RoleBase
         Duel
     }
 
-    private static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     private static OptionItem EffectFrequencyOpt;
     private static OptionItem EffectDurMin;
@@ -464,15 +466,14 @@ internal class Randomizer : RoleBase
     public static int MaximumEffectDuration;
     private static bool Notify;
 
-    private static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
-    public static Dictionary<byte, float> AllPlayerDefaultSpeed = [];
+    private static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects;
 
-    public static Dictionary<Vector2, Vector2> Rifts = [];
-    public static Dictionary<Vector2, CountdownTimer> Bombs = [];
+    public static Dictionary<Vector2, Vector2> Rifts;
+    public static Dictionary<Vector2, CountdownTimer> Bombs;
 
     public static Stopwatch TimeSinceLastMeeting;
-    private static Dictionary<byte, long> LastTP = [];
-    private static readonly List<Effect> ToRemoveEffects = [];
+    private static Dictionary<byte, long> LastTP;
+    private static readonly List<Effect> ToRemoveEffects;
     private static long LastDeathEffect;
 
     public static bool Exists;
@@ -494,17 +495,17 @@ internal class Randomizer : RoleBase
 
     public static bool IsShielded(PlayerControl pc)
     {
-        return CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
+        return CurrentEffects != null && CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
     }
 
     public static bool HasSuperVision(PlayerControl pc)
     {
-        return CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
+        return CurrentEffects != null && CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
     }
 
     public static bool IsBlind(PlayerControl pc)
     {
-        return CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
+        return CurrentEffects != null && CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
     }
 
     public override void SetupCustomOption()
@@ -531,14 +532,13 @@ internal class Randomizer : RoleBase
     {
         long now = Utils.TimeStamp;
 
-        PlayerIdList = [];
-        CurrentEffects = [];
-        AllPlayerDefaultSpeed = [];
-        Rifts = [];
-        Bombs = [];
+        PlayerIdList = null;
+        CurrentEffects = null;
+        Rifts = null;
+        Bombs = null;
 
         TimeSinceLastMeeting = new();
-        LastTP = Main.PlayerStates.Keys.ToDictionary(x => x, _ => now);
+        LastTP = null;
         LastDeathEffect = 0;
 
         EffectFrequency = EffectFrequencyOpt.GetInt();
@@ -552,8 +552,8 @@ internal class Randomizer : RoleBase
     public override void Add(byte playerId)
     {
         Exists = true;
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
-        AllPlayerDefaultSpeed = Main.PlayerStates.Keys.ToDictionary(x => x, _ => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
 
         _ = new CountdownTimer(EffectFrequency + 20, OnElapsed, cancelOnMeeting: false);
         return;
@@ -561,7 +561,7 @@ internal class Randomizer : RoleBase
         void OnElapsed()
         {
             var pc = Utils.GetPlayerById(playerId);
-            if (pc == null || !pc.IsAlive()) return;
+            if (!pc || !pc.IsAlive()) return;
 
             if (!ReportDeadBodyPatch.MeetingStarted && TimeSinceLastMeeting.IsRunning && TimeSinceLastMeeting.Elapsed.TotalSeconds > 10f)
             {
@@ -575,7 +575,7 @@ internal class Randomizer : RoleBase
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public static PlayerControl PickRandomPlayer()
@@ -589,8 +589,9 @@ internal class Randomizer : RoleBase
 
     public static void AddEffectForPlayer(PlayerControl pc, Effect effect)
     {
-        if (pc == null || !Exists) return;
+        if (!pc || !Exists) return;
 
+        CurrentEffects ??= [];
         if (!CurrentEffects.ContainsKey(pc.PlayerId)) CurrentEffects[pc.PlayerId] = [];
 
         int duration = IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration + 1);
@@ -619,11 +620,11 @@ internal class Randomizer : RoleBase
     {
         try
         {
-            if (pc == null || !Exists) return;
+            if (!pc || !Exists) return;
 
-            if (CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
+            if (CurrentEffects != null && CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
             {
-                Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
+                Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 if (sync) pc.MarkDirtySettings();
 
                 IEnumerable<Effect> keys = effects.Keys.AsEnumerable();
@@ -637,9 +638,9 @@ internal class Randomizer : RoleBase
     {
         try
         {
-            if (pc == null || !Exists) return;
+            if (!pc || !Exists) return;
 
-            if (CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
+            if (CurrentEffects != null && CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
             {
                 IEnumerable<Effect> keys = effects.Keys.AsEnumerable();
                 keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x), false);
@@ -658,7 +659,7 @@ internal class Randomizer : RoleBase
             RevertSpeedChangesForPlayer(pc, false);
             RevertVisionChangesForPlayer(pc, false);
 
-            Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
+            Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             pc.MarkDirtySettings();
         }
         catch (Exception e) { Logger.Exception(e, "Randomizer"); }
@@ -670,9 +671,9 @@ internal class Randomizer : RoleBase
 
         TimeSinceLastMeeting.Reset();
         LastDeathEffect = Utils.TimeStamp;
-        Rifts.Clear();
-        Bombs.Clear();
-        Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList[0], 2);
+        Rifts = null;
+        Bombs = null;
+        if (PlayerIdList != null) Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList[0], 2);
 
         foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
@@ -695,17 +696,18 @@ internal class Randomizer : RoleBase
         {
             case 1:
                 Vector2 key = NetHelpers.ReadVector2(reader);
+                Bombs ??= [];
                 Bombs.TryAdd(key, new CountdownTimer(reader.ReadPackedInt32(), () => Bombs.Remove(key), onCanceled: () => Bombs.Remove(key)));
                 break;
             case 2:
-                Bombs.Clear();
+                Bombs = null;
                 break;
         }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != target.PlayerId || Bombs.Count == 0 || !Bombs.FindFirst(x => FastVector2.DistanceWithinRange(x.Key, seer.Pos(), 5f), out KeyValuePair<Vector2, CountdownTimer> kvp)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || Bombs == null || Bombs.Count == 0 || !Bombs.FindFirst(x => FastVector2.DistanceWithinRange(x.Key, seer.Pos(), 5f), out KeyValuePair<Vector2, CountdownTimer> kvp)) return string.Empty;
         return $"<#ffff00>⚠ {(int)kvp.Value.Remaining.TotalSeconds}</color>";
     }
 
@@ -713,10 +715,11 @@ internal class Randomizer : RoleBase
     {
         try
         {
-            if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted) return;
+            if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted || Rifts == null) return;
 
             long now = Utils.TimeStamp;
-            if (LastTP[pc.PlayerId] + 5 > now) return;
+            if (LastTP != null && (!LastTP.TryGetValue(pc.PlayerId, out var ts) || ts + 5 > now)) return;
+            LastTP ??= [];
 
             Vector2 pos = pc.Pos();
 
@@ -745,10 +748,9 @@ internal class Randomizer : RoleBase
         try
         {
             if (!Exists || !pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted) return;
-            if (!CurrentEffects.TryGetValue(pc.PlayerId, out var effects) || effects.Count == 0) return;
+            if (CurrentEffects == null || !CurrentEffects.TryGetValue(pc.PlayerId, out var effects) || effects.Count == 0) return;
 
             long now = Utils.TimeStamp;
-            ToRemoveEffects.Clear();
 
             var enumerator = effects.GetEnumerator();
             while (enumerator.MoveNext())
@@ -757,14 +759,20 @@ internal class Randomizer : RoleBase
 
                 if (startTimeStamp + duration < now)
                 {
+                    ToRemoveEffects ??= [];
                     ToRemoveEffects.Add(effect);
                     if (effect.IsVisionChangingEffect()) RevertVisionChangesForPlayer(pc, true);
                     if (effect.IsSpeedChangingEffect()) RevertSpeedChangesForPlayer(pc, true);
                 }
             }
 
-            for (int i = 0; i < ToRemoveEffects.Count; i++)
-                effects.Remove(ToRemoveEffects[i]);
+            if (ToRemoveEffects != null)
+            {
+                for (int i = 0; i < ToRemoveEffects.Count; i++)
+                    effects.Remove(ToRemoveEffects[i]);
+
+                ToRemoveEffects = null;
+            }
         }
         catch (Exception ex) { Logger.Exception(ex, "Randomizer"); }
     }

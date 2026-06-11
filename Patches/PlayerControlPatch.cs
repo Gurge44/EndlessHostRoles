@@ -436,7 +436,7 @@ internal static class CheckMurderPatch
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
-            Blessed.ShieldActive.Contains(target.PlayerId) ||
+            (Blessed.ShieldActive != null && Blessed.ShieldActive.Contains(target.PlayerId)) ||
             Benefactor.ShieldedPlayers.Contains(target.PlayerId) ||
             Gaslighter.IsShielded(target) ||
             !Farmer.OnAnyoneCheckMurder(target) ||
@@ -1309,7 +1309,11 @@ internal static class ReportDeadBodyPatch
 
         Main.DiedThisRound = [];
 
-        try { Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(CustomRoles.Lazy), x => Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos()); }
+        try { Main.EnumerateAlivePlayerControls().DoIf(x => x.Is(CustomRoles.Lazy), x =>
+        {
+            Lazy.BeforeMeetingPositions ??= [];
+            Lazy.BeforeMeetingPositions[x.PlayerId] = x.Pos();
+        }); }
         catch (Exception e) { ThrowException(e); }
 
         try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Count > 0) LateTask.New(() => ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()), GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive() ? 1.5f : 0f); }

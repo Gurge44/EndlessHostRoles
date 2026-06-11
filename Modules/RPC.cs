@@ -1355,6 +1355,7 @@ internal static class RPCHandlerPatch
                 case CustomRPC.Stained:
                 {
                     byte id = reader.ReadByte();
+                    Stained.VioletNameList ??= [];
                     Stained.VioletNameList.Add(id);
                     LateTask.New(() => Stained.VioletNameList.Remove(id), 3f);
                     break;
