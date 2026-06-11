@@ -162,7 +162,7 @@ public static class NameColorManager
             CustomRoles.Glitch when target.IsRoleBlocked() => Utils.GetRoleColorCode(seerRole),
             CustomRoles.Slenderman when Slenderman.IsBlinded(target.PlayerId) => "000000",
             CustomRoles.Aid when Aid.ShieldedPlayers.ContainsKey(target.PlayerId) => Utils.GetRoleColorCode(CustomRoles.Aid),
-            CustomRoles.Spy when Spy.SpyRedNameList.Contains(target.PlayerId) => "#BA4A00",
+            CustomRoles.Spy when Spy.SpyRedNameList != null && Spy.SpyRedNameList.Contains(target.PlayerId) => "#BA4A00",
             CustomRoles.Mastermind when Mastermind.ManipulateDelays.ContainsKey(target.PlayerId) => "#00ffa5",
             CustomRoles.Mastermind when Mastermind.ManipulatedPlayers.ContainsKey(target.PlayerId) => Utils.GetRoleColorCode(CustomRoles.Arsonist),
             CustomRoles.Hitman when (seerRoleClass as Hitman)?.TargetId == target.PlayerId => "000000",
@@ -193,7 +193,7 @@ public static class NameColorManager
             CustomRoles.Wyrd when ((Wyrd)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Investor when ((Investor)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Stealth when ((Stealth)seerRoleClass).darkenedPlayers?.Any(x => x == target) ?? false => "000000",
-            CustomRoles.Snitch when Snitch.IsComplete.GetValueOrDefault(seer.PlayerId) && Snitch.IsSnitchTarget(target) => Utils.GetRoleColorCode(targetRole),
+            CustomRoles.Snitch when Snitch.IsComplete != null && Snitch.IsComplete.GetValueOrDefault(seer.PlayerId) && Snitch.IsSnitchTarget(target) => Utils.GetRoleColorCode(targetRole),
             _ => color
         };
 

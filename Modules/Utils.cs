@@ -531,7 +531,7 @@ public static class Utils
         if ((ExileController.Instance || targetState.IsDead || (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding or MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted)) && !GameStates.IsEnded && Forger.Forges.TryGetValue(targetId, out var forgedRole))
             targetMainRole = forgedRole;
 
-        if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles.TryGetValue(targetId, out CustomRoles shownRole))
+        if (!self && seerMainRole.IsImpostor() && targetMainRole == CustomRoles.DoubleAgent && DoubleAgent.ShownRoles != null && DoubleAgent.ShownRoles.TryGetValue(targetId, out CustomRoles shownRole))
             targetMainRole = shownRole;
 
         var loversShowDifferentRole = false;
@@ -3280,7 +3280,7 @@ public static class Utils
                                     if (Revolutionist.RevolutionistTimer.TryGetValue(seer.PlayerId, out (PlayerControl Player, float Timer) arKvp1) && arKvp1.Player == target)
                                         TargetMark.Append(CustomRoles.Revolutionist.ColoredTextByRole("○"));
                                     break;
-                                case CustomRoles.Investigator when Investigator.InvestigatorTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) arKvp2) && arKvp2.PLAYER == target:
+                                case CustomRoles.Investigator when Investigator.InvestigatorTimer != null && Investigator.InvestigatorTimer.TryGetValue(seer.PlayerId, out (PlayerControl PLAYER, float TIMER) arKvp2) && arKvp2.PLAYER == target:
                                     TargetMark.Append(CustomRoles.Investigator.ColoredTextByRole("○"));
                                     break;
                                 case CustomRoles.Analyst when (Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId:
@@ -3311,7 +3311,7 @@ public static class Utils
 
                             if (!GameStates.IsLobby)
                             {
-                                if (seer.IsAlive() && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
+                                if (seer.IsAlive() && Investigator.RandomRole != null && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
                                 {
                                     targetRoleText = Investigator.RandomRole[seer.PlayerId];
                                     targetRoleText += Investigator.GetTaskState();
@@ -3590,11 +3590,14 @@ public static class Utils
         }
 
         var markList = Markseeker.PlayerIdList;
-        for (int i = 0; i < markList.Count; i++)
+        if (markList != null)
         {
-            if (states[markList[i]].Role is Markseeker { IsEnable: true, TargetRevealed: true } role &&
-                role.MarkedId == targetId)
-                return true;
+            for (int i = 0; i < markList.Count; i++)
+            {
+                if (states[markList[i]].Role is Markseeker { IsEnable: true, TargetRevealed: true } role &&
+                    role.MarkedId == targetId)
+                    return true;
+            }
         }
 
         switch (Options.CurrentGameMode)
@@ -3730,11 +3733,14 @@ public static class Utils
         }
 
         var markList = Markseeker.PlayerIdList;
-        for (int i = 0; i < markList.Count; i++)
+        if (markList != null)
         {
-            if (states[markList[i]].Role is Markseeker { IsEnable: true, TargetRevealed: true } role &&
-                role.MarkedId == targetId)
-                return true;
+            for (int i = 0; i < markList.Count; i++)
+            {
+                if (states[markList[i]].Role is Markseeker { IsEnable: true, TargetRevealed: true } role &&
+                    role.MarkedId == targetId)
+                    return true;
+            }
         }
 
         if (local.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) return true;

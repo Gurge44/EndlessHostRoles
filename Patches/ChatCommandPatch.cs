@@ -801,7 +801,7 @@ internal static class ChatCommands
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (!Imitator.PlayerIdList.Contains(player.PlayerId) || !player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
+        if (Imitator.PlayerIdList == null || !Imitator.PlayerIdList.Contains(player.PlayerId) || !player.IsAlive() || args.Length < 2 || !byte.TryParse(args[1], out byte targetId) || !Main.PlayerStates.TryGetValue(targetId, out PlayerState targetState)) return;
 
         if (!targetState.IsDead)
         {
@@ -817,6 +817,7 @@ internal static class ChatCommands
             return;
         }
 
+        Imitator.ImitatingRole ??= [];
         Imitator.ImitatingRole[player.PlayerId] = targetState.MainRole;
         RPC.PlaySoundRPC(player.PlayerId, Sounds.TaskComplete);
         Logger.Info($"{player.GetRealName()} will be imitating as {targetState.MainRole}", "Imitator");

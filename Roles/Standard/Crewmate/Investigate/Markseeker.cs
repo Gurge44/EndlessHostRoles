@@ -5,7 +5,7 @@ namespace EHR.Roles;
 internal class Markseeker : RoleBase
 {
     private const int Id = 643550;
-    public static List<byte> PlayerIdList = [];
+    public static List<byte> PlayerIdList;
     public static bool On;
     public static OptionItem CancelVote;
 
@@ -24,18 +24,19 @@ internal class Markseeker : RoleBase
         On = true;
         MarkedId = byte.MaxValue;
         TargetRevealed = false;
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public override void Init()
     {
         On = false;
-        PlayerIdList = [];
+        PlayerIdList = null;
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)

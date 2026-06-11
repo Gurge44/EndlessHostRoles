@@ -128,7 +128,7 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual void OnVoteKick(PlayerControl pc, PlayerControl target)
     {
-        if (Imitator.PlayerIdList.Contains(pc.PlayerId))
+        if (Imitator.PlayerIdList != null && Imitator.PlayerIdList.Contains(pc.PlayerId))
         {
             string command = $"/imitate {target.PlayerId}";
             ChatCommands.ImitateCommand(pc, command, command.Split(' '));

@@ -190,7 +190,7 @@ public class President : RoleBase
 
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
-                        case Hacker when Hacker.UseLimit.ContainsKey(player.PlayerId):
+                        case Hacker when Hacker.UseLimit != null && Hacker.UseLimit.ContainsKey(player.PlayerId):
                             Hacker.UseLimit[player.PlayerId]++;
                             break;
                         default:

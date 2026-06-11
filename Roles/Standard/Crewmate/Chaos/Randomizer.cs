@@ -473,7 +473,7 @@ internal class Randomizer : RoleBase
 
     public static Stopwatch TimeSinceLastMeeting;
     private static Dictionary<byte, long> LastTP;
-    private static readonly List<Effect> ToRemoveEffects;
+    private static List<Effect> ToRemoveEffects;
     private static long LastDeathEffect;
 
     public static bool Exists;

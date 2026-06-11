@@ -21,7 +21,7 @@ internal class Analyst : RoleBase
 
     private static readonly Dictionary<string, string> ReplacementDict = new() { { "Analyze", CustomRoles.Analyst.ColoredTextByRole("Analyze") } };
 
-    public static Dictionary<byte, int> VentCount = [];
+    private static Dictionary<byte, int> VentCount;
     public (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
     public override bool IsEnable => PlayerId != byte.MaxValue;
@@ -95,7 +95,7 @@ internal class Analyst : RoleBase
 
     private static int GetVentCount(byte id)
     {
-        return SeeVentCount.GetBool() ? VentCount.GetValueOrDefault(id, 0) : 0;
+        return SeeVentCount.GetBool() && VentCount != null ? VentCount.GetValueOrDefault(id, 0) : 0;
     }
 
     private static string GetAnalyzeResult(PlayerControl pc)
@@ -106,7 +106,7 @@ internal class Analyst : RoleBase
     public override void Init()
     {
         PlayerId = byte.MaxValue;
-        VentCount = [];
+        VentCount = null;
         CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
     }
 
@@ -125,6 +125,8 @@ internal class Analyst : RoleBase
     public static void OnAnyoneEnterVent(PlayerControl pc)
     {
         if (!AmongUsClient.Instance.AmHost) return;
+
+        VentCount ??= [];
 
         if (!VentCount.TryAdd(pc.PlayerId, 1))
             VentCount[pc.PlayerId]++;

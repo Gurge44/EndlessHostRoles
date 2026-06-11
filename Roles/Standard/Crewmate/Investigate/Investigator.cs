@@ -14,8 +14,8 @@ public class Investigator : RoleBase
     private const int Id = 9700;
 
     private const string FontSize = "1.7";
-    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> InvestigatorTimer = [];
-    public static Dictionary<(byte, byte), bool> IsRevealed = [];
+    public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> InvestigatorTimer;
+    public static Dictionary<(byte, byte), bool> IsRevealed;
     public static byte CurrentRevealTarget = byte.MaxValue;
 
     private static OptionItem InvestigatorCooldown;
@@ -51,18 +51,21 @@ public class Investigator : RoleBase
     public override void Init()
     {
         On = false;
-        InvestigatorTimer = [];
-        IsRevealed = [];
-        RandomRole = [];
+        InvestigatorTimer = null;
+        IsRevealed = null;
+        RandomRole = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
 
+        IsRevealed ??= [];
+
         foreach (PlayerControl ar in Main.CachedAllPlayerControls())
             IsRevealed[(playerId, ar.PlayerId)] = false;
 
+        RandomRole ??= [];
         RandomRole[playerId] = GetRandomCrewRoleString();
     }
 
@@ -88,6 +91,9 @@ public class Investigator : RoleBase
         float revealTime = InvestigatorTime.GetFloat();
         killer.SetKillCooldown(revealTime == 0f ? InvestigatorCooldown.GetFloat() : revealTime);
 
+        InvestigatorTimer ??= [];
+        IsRevealed ??= [];
+
         if (!IsRevealed[(killer.PlayerId, target.PlayerId)] && !InvestigatorTimer.ContainsKey(killer.PlayerId))
         {
             InvestigatorTimer.TryAdd(killer.PlayerId, (target, 0f));
@@ -100,7 +106,7 @@ public class Investigator : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (GameStates.IsInTask && InvestigatorTimer.ContainsKey(player.PlayerId))
+        if (GameStates.IsInTask && InvestigatorTimer != null && IsRevealed != null && InvestigatorTimer.ContainsKey(player.PlayerId))
         {
             if (!player.IsAliveWithConditions())
             {
@@ -149,7 +155,7 @@ public class Investigator : RoleBase
     public override bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (base.KnowRole(seer, target)) return true;
-        return IsRevealed.GetValueOrDefault((seer.PlayerId, target.PlayerId));
+        return IsRevealed != null && IsRevealed.GetValueOrDefault((seer.PlayerId, target.PlayerId));
     }
 
     private static string GetRandomCrewRoleString()

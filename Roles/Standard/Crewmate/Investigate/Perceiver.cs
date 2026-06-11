@@ -14,7 +14,7 @@ internal class Perceiver : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     public static bool On;
-    private static int Id => 643360;
+    private const int Id = 643360;
 
     public override bool IsEnable => On;
 

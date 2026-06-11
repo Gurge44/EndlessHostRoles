@@ -1668,24 +1668,21 @@ internal static class ExtendedPlayerControl
         {
             if (!player || !target) return false;
 
-            Arsonist.IsDoused.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
-            return isDoused;
+            return Arsonist.IsDoused != null && Arsonist.IsDoused.GetValueOrDefault((player.PlayerId, target.PlayerId));
         }
 
         public bool IsDrawPlayer(PlayerControl target)
         {
             if (!player || !target) return false;
 
-            Revolutionist.IsDraw.TryGetValue((player.PlayerId, target.PlayerId), out bool isDraw);
-            return isDraw;
+            return Revolutionist.IsDraw.GetValueOrDefault((player.PlayerId, target.PlayerId));
         }
 
         public bool IsRevealedPlayer(PlayerControl target)
         {
             if (!player || !target) return false;
 
-            Investigator.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
-            return isDoused;
+            return Investigator.IsRevealed.GetValueOrDefault((player.PlayerId, target.PlayerId));
         }
 
         public void RpcSetDousedPlayer(PlayerControl target, bool isDoused)

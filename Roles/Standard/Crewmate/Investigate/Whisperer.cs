@@ -10,7 +10,7 @@ namespace EHR.Roles;
 public class Whisperer : RoleBase
 {
     public static bool On;
-    private static List<Whisperer> Instances = [];
+    private static List<Whisperer> Instances;
 
     public static OptionItem Cooldown;
     public static OptionItem Duration;
@@ -19,7 +19,7 @@ public class Whisperer : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static DateTime LastMeetingStart;
-    private static Dictionary<byte, (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage)> DeathInfo = [];
+    private static Dictionary<byte, (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage)> DeathInfo;
 
     private int Count;
     private (string Name, int Percent) CurrentlyQuestioning;
@@ -58,8 +58,8 @@ public class Whisperer : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
-        DeathInfo = [];
+        Instances = null;
+        DeathInfo = null;
     }
 
     public override void Add(byte playerId)
@@ -68,6 +68,7 @@ public class Whisperer : RoleBase
         Count = 0;
         Souls = [];
         Info = [];
+        Instances ??= [];
         Instances.Add(this);
         WhispererId = playerId;
         CurrentlyQuestioning = (string.Empty, 0);
@@ -76,7 +77,7 @@ public class Whisperer : RoleBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void OnPet(PlayerControl pc)
@@ -135,7 +136,7 @@ public class Whisperer : RoleBase
                 int next = IRandom.Instance.Next(7);
                 if (state.deathReason == PlayerState.DeathReason.Disconnected) next = 2;
                 (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage) deathInfo = ([], null);
-                if (next > 3 && !DeathInfo.TryGetValue(soulPlayerId, out deathInfo)) next = IRandom.Instance.Next(4);
+                if (next > 3 && (DeathInfo == null || !DeathInfo.TryGetValue(soulPlayerId, out deathInfo))) next = IRandom.Instance.Next(4);
                 if (pc.Is(CustomRoles.Autopsy) || pc.Is(CustomRoles.Doctor) || Options.EveryoneSeesDeathReasons.GetBool()) next = IRandom.Instance.Next(6);
                 PlayerState killerState = Main.PlayerStates[ID];
 
@@ -196,16 +197,20 @@ public class Whisperer : RoleBase
 
     public static void OnAnyoneDied(PlayerControl target)
     {
-        foreach (Whisperer instance in Instances)
+        if (Instances != null)
         {
-            if (instance.Souls.Exists(x => x.Player.PlayerId == target.PlayerId)) continue;
+            foreach (Whisperer instance in Instances)
+            {
+                if (instance.Souls.Exists(x => x.Player.PlayerId == target.PlayerId)) continue;
 
-            instance.Souls.Add(new(target));
-            Utils.SendRPC(CustomRPC.SyncRoleData, instance.WhispererId, 5, target.PlayerId);
+                instance.Souls.Add(new(target));
+                Utils.SendRPC(CustomRPC.SyncRoleData, instance.WhispererId, 5, target.PlayerId);
+            }
         }
 
         var room = target.GetPlainShipRoom();
-        DeathInfo[target.PlayerId] = (room == null ? [] : Main.EnumerateAlivePlayerControls().Where(x => x.IsInRoom(room)).Select(x => x.PlayerId).ToArray(), ShipStatusSystem.AllSabotage.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
+        DeathInfo ??= [];
+        DeathInfo[target.PlayerId] = (!room ? [] : Main.EnumerateAlivePlayerControls().Where(x => x.IsInRoom(room)).Select(x => x.PlayerId).ToArray(), ShipStatusSystem.AllSabotage.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
     }
 
     public override void OnReportDeadBody()

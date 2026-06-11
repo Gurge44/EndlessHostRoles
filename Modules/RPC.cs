@@ -763,6 +763,7 @@ internal static class RPCHandlerPatch
                     byte investigatorId = reader.ReadByte();
                     byte revealId = reader.ReadByte();
                     bool revealed = reader.ReadBoolean();
+                    Investigator.IsRevealed ??= [];
                     Investigator.IsRevealed[(investigatorId, revealId)] = revealed;
                     break;
                 }

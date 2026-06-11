@@ -8,7 +8,7 @@ namespace EHR.Roles;
 public class Socialite : RoleBase
 {
     public static bool On;
-    private static List<Socialite> Instances = [];
+    private static List<Socialite> Instances;
 
     private static OptionItem Cooldown;
     public static OptionItem UsePet;
@@ -35,12 +35,13 @@ public class Socialite : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         GuestList = [];
         SocialiteId = playerId;
@@ -49,7 +50,7 @@ public class Socialite : RoleBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void SetKillCooldown(byte id)
@@ -85,13 +86,16 @@ public class Socialite : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        foreach (Socialite socialite in Instances)
+        if (Instances != null)
         {
-            if (socialite.MarkedPlayerId == target.PlayerId && socialite.GuestList.Add(killer.PlayerId))
+            foreach (Socialite socialite in Instances)
             {
-                Utils.SendRPC(CustomRPC.SyncRoleData, socialite.SocialiteId, 2, killer.PlayerId);
-                Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(socialite.SocialiteId), SpecifyTarget: killer);
-                return false;
+                if (socialite.MarkedPlayerId == target.PlayerId && socialite.GuestList.Add(killer.PlayerId))
+                {
+                    Utils.SendRPC(CustomRPC.SyncRoleData, socialite.SocialiteId, 2, killer.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(socialite.SocialiteId), SpecifyTarget: killer);
+                    return false;
+                }
             }
         }
 

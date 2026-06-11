@@ -14,7 +14,7 @@ namespace EHR.Roles;
 public class Druid : RoleBase
 {
     private const int Id = 642800;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     public static OptionItem VentCooldown;
     private static OptionItem TriggerPlaceDelay;
@@ -29,7 +29,7 @@ public class Druid : RoleBase
 
     private readonly StringBuilder Suffix = new();
     private readonly StringBuilder HudText = new();
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -58,22 +58,17 @@ public class Druid : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        On = false;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         DruidPC = GetPlayerById(playerId);
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         TriggerIds = [];
         Triggers = [];
         DelayTimer = null;
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -166,7 +161,7 @@ public class Druid : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || Triggers.Count <= 0 || PlayerIdList.Contains(pc.PlayerId)) return;
+        if (!GameStates.IsInTask || Triggers.Count <= 0 || pc.Is(CustomRoles.Druid)) return;
 
         List<Vector2> toRemove = null;
 

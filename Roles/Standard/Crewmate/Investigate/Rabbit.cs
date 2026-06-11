@@ -7,12 +7,12 @@ namespace EHR.Roles;
 
 internal class Rabbit : RoleBase
 {
-    private static readonly Dictionary<byte, RabbitState> RabbitStates = [];
+    private static Dictionary<byte, RabbitState> RabbitStates;
     private static OptionItem OptionTaskTrigger;
     private static int TaskTrigger;
 
     private static int Id => 643330;
-    public override bool IsEnable => RabbitStates.Count > 0;
+    public override bool IsEnable => RabbitStates is { Count: > 0 };
 
     public override void SetupCustomOption()
     {
@@ -26,37 +26,39 @@ internal class Rabbit : RoleBase
 
     public override void Init()
     {
-        RabbitStates.Clear();
+        RabbitStates = null;
         TaskTrigger = OptionTaskTrigger.GetInt();
     }
 
     public override void Add(byte playerId)
     {
+        RabbitStates ??= [];
         RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
     }
 
     public override void Remove(byte playerId)
     {
-        RabbitStates.Remove(playerId);
+        RabbitStates?.Remove(playerId);
     }
 
     public static void ReceiveRPCStatic(MessageReader reader)
     {
         byte id = reader.ReadByte();
         bool hasArrow = reader.ReadBoolean();
+        RabbitStates ??= [];
         RabbitStates[id].ReceiveRPC(hasArrow);
     }
 
     public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (!RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
+        if (RabbitStates == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
 
         state.OnTaskComplete();
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || RabbitStates == null || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
 
         string suffix = state.Suffix;
         return hud ? $"<size=200%>{suffix}</size>" : suffix;

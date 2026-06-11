@@ -5,7 +5,7 @@ namespace EHR.Roles;
 public class Soothsayer : RoleBase
 {
     public static bool On;
-    private static List<Soothsayer> Instances = [];
+    private static List<Soothsayer> Instances;
 
     public static OptionItem CancelVote;
 
@@ -25,19 +25,20 @@ public class Soothsayer : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         Target = byte.MaxValue;
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
@@ -59,7 +60,7 @@ public class Soothsayer : RoleBase
 
     public static void OnAnyoneDeath(PlayerControl killer)
     {
-        if (killer == null) return;
+        if (!killer || Instances == null) return;
         Instances.DoIf(x => x.Target == killer.PlayerId, _ => Main.EnumerateAlivePlayerControls().Do(p => p.Notify(string.Format(Translator.GetString("SoothsayerDiedNotify"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(killer.PlayerId), killer.GetRealName())), 10f)));
     }
 }

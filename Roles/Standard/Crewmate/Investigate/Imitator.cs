@@ -8,8 +8,8 @@ namespace EHR.Roles;
 public class Imitator : RoleBase
 {
     public static bool On;
-    public static List<byte> PlayerIdList = [];
-    public static Dictionary<byte, CustomRoles> ImitatingRole = [];
+    public static List<byte> PlayerIdList;
+    public static Dictionary<byte, CustomRoles> ImitatingRole;
 
     public override bool IsEnable => On;
 
@@ -23,19 +23,23 @@ public class Imitator : RoleBase
     {
         if (GameStates.InGame && !Main.HasJustStarted) return;
         On = false;
-        PlayerIdList = [];
-        ImitatingRole = [];
+        PlayerIdList = null;
+        ImitatingRole = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        ImitatingRole ??= [];
         ImitatingRole[playerId] = CustomRoles.Imitator;
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
     }
 
     public static void SetRoles()
     {
+        if (PlayerIdList == null || ImitatingRole == null) return;
+
         foreach (byte id in PlayerIdList)
         {
             PlayerControl pc = id.GetPlayer();
@@ -62,7 +66,7 @@ public class Imitator : RoleBase
         {
             ChatCommands.ImitateCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
 
-            if (ImitatingRole.ContainsKey(PlayerControl.LocalPlayer.PlayerId))
+            if (ImitatingRole != null && ImitatingRole.ContainsKey(PlayerControl.LocalPlayer.PlayerId))
             {
                 foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
                 {
@@ -99,7 +103,7 @@ public class Imitator : RoleBase
     {
         public static void Postfix(MeetingHud __instance)
         {
-            if (PlayerIdList.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
+            if (PlayerIdList != null && PlayerIdList.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
                 CreateImitatorButton(__instance);
         }
     }

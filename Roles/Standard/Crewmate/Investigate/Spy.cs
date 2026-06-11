@@ -11,15 +11,15 @@ using static Utils;
 public class Spy : RoleBase
 {
     private const int Id = 640400;
-    private static List<byte> PlayerIdList = [];
-    public static HashSet<byte> SpyRedNameList = [];
+    private static bool On;
+    public static HashSet<byte> SpyRedNameList;
 
     private static OptionItem SpyRedNameDur;
     private static OptionItem UseLimitOpt;
     public static OptionItem SpyAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -44,19 +44,14 @@ public class Spy : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        SpyRedNameList = [];
+        On = false;
+        SpyRedNameList = null;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     private static void SendRPC(int operate, byte id = byte.MaxValue)
@@ -77,10 +72,11 @@ public class Spy : RoleBase
         {
             case 1:
                 byte susId = reader.ReadByte();
+                SpyRedNameList ??= [];
                 SpyRedNameList.Add(susId);
                 return;
             case 3:
-                SpyRedNameList.Remove(reader.ReadByte());
+                SpyRedNameList?.Remove(reader.ReadByte());
                 return;
         }
     }
@@ -90,6 +86,7 @@ public class Spy : RoleBase
         if (!target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return true;
 
         target.RpcRemoveAbilityUse();
+        SpyRedNameList ??= [];
         SpyRedNameList.Add(killer.PlayerId);
         SendRPC(1, killer.PlayerId);
         NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -97,12 +94,12 @@ public class Spy : RoleBase
 
         _ = new CountdownTimer(SpyRedNameDur.GetInt(), () =>
         {
-            SpyRedNameList.Remove(killer.PlayerId);
+            SpyRedNameList?.Remove(killer.PlayerId);
             SendRPC(3, killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
         }, onCanceled: () =>
         {
-            SpyRedNameList.Remove(killer.PlayerId);
+            SpyRedNameList?.Remove(killer.PlayerId);
             SendRPC(3, killer.PlayerId);
         });
         return false;

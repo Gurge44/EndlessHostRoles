@@ -704,7 +704,9 @@ internal static class MurderPlayerPatch
 
             if (target.Is(CustomRoles.Stained)) Stained.OnDeath(target, killer);
 
+            if (Witness.On)
             {
+                Witness.AllKillers ??= [];
                 Witness.AllKillers.Add(killer.PlayerId);
                 PlayerControl killer1 = killer;
                 LateTask.New(() => Witness.AllKillers.Remove(killer1.PlayerId), Options.WitnessTime.GetInt(), log: false);
@@ -1110,7 +1112,7 @@ internal static class ReportDeadBodyPatch
 
             if (target)
             {
-                if (Coroner.UnreportablePlayers.Contains(target.PlayerId)
+                if ((Coroner.UnreportablePlayers != null && Coroner.UnreportablePlayers.Contains(target.PlayerId))
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)
                     || (killer && killer.Is(CustomRoles.Goddess))
                     || Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Gambled
@@ -1455,18 +1457,21 @@ internal static class ReportDeadBodyPatch
 
         Main.LastVotedPlayerInfo = null;
         Arsonist.ArsonistTimer.Clear();
-        Investigator.InvestigatorTimer.Clear();
+        Investigator.InvestigatorTimer = null;
         Puppeteer.PuppeteerList.Clear();
         Puppeteer.PuppeteerDelayList.Clear();
         Veteran.VeteranInProtect.Clear();
         Grenadier.GrenadierBlinding.Clear();
         SecurityGuard.BlockSabo.Clear();
         Grenadier.MadGrenadierBlinding.Clear();
-        FortuneTeller.DidVote.Clear();
-        Oracle.DidVote.Clear();
+        FortuneTeller.DidVote = null;
+        Oracle.DidVote = null;
 
-        Imitator.ImitatingRole.ToArray().DoIf(x => !Main.PlayerStates.TryGetValue(x.Key, out var s) || s.MainRole != x.Value, x => Imitator.ImitatingRole.Remove(x.Key));
-        Imitator.ImitatingRole.SetAllValues(CustomRoles.Imitator);
+        if (Imitator.ImitatingRole != null)
+        {
+            Imitator.ImitatingRole.ToArray().DoIf(x => !Main.PlayerStates.TryGetValue(x.Key, out var s) || s.MainRole != x.Value, x => Imitator.ImitatingRole.Remove(x.Key));
+            Imitator.ImitatingRole.SetAllValues(CustomRoles.Imitator);
+        }
 
         foreach (PlayerState state in Main.PlayerStates.Values)
         {
@@ -1881,7 +1886,7 @@ internal static class FixedUpdatePatch
                 roleText = ColorString(roleTextData.Item2, roleTextData.Item1);
             }
 
-            if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRevealedPlayer(player) && player.Is(CustomRoles.Trickster))
+            if (!hideRoleText && PlayerControl.LocalPlayer.IsAlive() && Investigator.RandomRole != null && PlayerControl.LocalPlayer.IsRevealedPlayer(player) && player.Is(CustomRoles.Trickster))
             {
                 roleText = Investigator.RandomRole[lpId];
                 roleText += Investigator.GetTaskState();

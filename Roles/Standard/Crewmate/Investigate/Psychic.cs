@@ -10,7 +10,7 @@ namespace EHR.Roles;
 public class Psychic : RoleBase
 {
     private const int Id = 7900;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     private static OptionItem CanSeeNum;
     private static OptionItem Fresh;
@@ -21,7 +21,7 @@ public class Psychic : RoleBase
 
     private List<byte> RedPlayer = [];
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -46,21 +46,16 @@ public class Psychic : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        On = false;
         RedPlayer = [];
         PsychicId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         RedPlayer = [];
         PsychicId = playerId;
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     private void SendRPC()

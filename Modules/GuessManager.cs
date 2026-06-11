@@ -382,7 +382,7 @@ public static class GuessManager
                         return true;
                     }
 
-                    if (Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { TargetRevealed: true } ms && ms.MarkedId == target.PlayerId))
+                    if (Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { TargetRevealed: true } ms && ms.MarkedId == target.PlayerId))
                     {
                         ShowMessage("GuessMarkseekerTarget");
                         return true;

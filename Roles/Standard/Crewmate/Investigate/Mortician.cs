@@ -7,16 +7,16 @@ namespace EHR.Roles;
 public class Mortician : RoleBase
 {
     private const int Id = 7400;
-    public static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     private static OptionItem ShowArrows;
 
-    private static Dictionary<byte, string> LastPlayerName = [];
-    public static Dictionary<byte, string> MsgToSend = [];
+    private static Dictionary<byte, string> LastPlayerName;
+    public static Dictionary<byte, string> MsgToSend;
 
     private byte MorticianId;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override bool SeesArrowsToDeadBodies => ShowArrows.GetBool();
 
@@ -30,34 +30,37 @@ public class Mortician : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        LastPlayerName = [];
-        MsgToSend = [];
+        PlayerIdList = null;
+        LastPlayerName = null;
+        MsgToSend = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
         MorticianId = playerId;
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public static void OnPlayerDead(PlayerControl target)
     {
+        LastPlayerName ??= [];
         LastPlayerName.TryAdd(target.PlayerId, FastVector2.TryGetClosestPlayerInRangeTo(target, 4f, out PlayerControl closest) ? closest.GetRealName() : string.Empty);
     }
 
     public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)
     {
-        foreach (byte apc in PlayerIdList) LocateArrow.RemoveAllTarget(apc);
+        if (PlayerIdList != null) foreach (byte apc in PlayerIdList) LocateArrow.RemoveAllTarget(apc);
 
-        if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId) return;
+        if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId || LastPlayerName == null) return;
 
         LastPlayerName.TryGetValue(target.PlayerId, out string name);
+        MsgToSend ??= [];
         MsgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }
 

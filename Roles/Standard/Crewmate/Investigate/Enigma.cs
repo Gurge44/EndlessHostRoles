@@ -8,8 +8,8 @@ namespace EHR.Roles;
 public class Enigma : RoleBase
 {
     private const int Id = 8460;
-    public static List<byte> PlayerIdList = [];
-    private static Dictionary<byte, List<EnigmaClue>> ShownClues = [];
+    private static List<byte> PlayerIdList;
+    private static Dictionary<byte, List<EnigmaClue>> ShownClues;
 
     private static OptionItem EnigmaClueStage1Tasks;
     private static OptionItem EnigmaClueStage2Tasks;
@@ -18,8 +18,8 @@ public class Enigma : RoleBase
     private static OptionItem EnigmaClueStage3Probability;
     private static OptionItem EnigmaGetCluesWithoutReporting;
 
-    public static Dictionary<byte, string> MsgToSend = [];
-    public static Dictionary<byte, string> MsgToSendTitle = [];
+    public static Dictionary<byte, string> MsgToSend;
+    public static Dictionary<byte, string> MsgToSendTitle;
 
     private static readonly List<EnigmaClue> EnigmaClues =
     [
@@ -49,7 +49,7 @@ public class Enigma : RoleBase
         new EnigmaFriendCodeClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.FriendCodeClue }
     ];
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override void SetupCustomOption()
     {
@@ -83,32 +83,34 @@ public class Enigma : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        ShownClues = [];
-        MsgToSend = [];
-        MsgToSendTitle = [];
+        PlayerIdList = null;
+        ShownClues = null;
+        MsgToSend = null;
+        MsgToSendTitle = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
+        ShownClues ??= [];
         ShownClues[playerId] = [];
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public static void OnReportDeadBody(PlayerControl player, NetworkedPlayerInfo targetInfo)
     {
-        if (targetInfo == null) return;
+        if (PlayerIdList == null || !targetInfo) return;
 
         PlayerControl target = Utils.GetPlayerById(targetInfo.PlayerId);
-        if (target == null) return;
+        if (!target) return;
 
         PlayerControl killer = target.GetRealKiller();
-        if (killer == null) return;
+        if (!killer) return;
 
         var rd = IRandom.Instance;
 
@@ -135,6 +137,7 @@ public class Enigma : RoleBase
             }
             else if (tasksCompleted >= EnigmaClueStage1Tasks.GetInt()) stage = 1;
 
+            ShownClues ??= [];
             List<EnigmaClue> clues = EnigmaClues.FindAll(a => a.ClueStage <= stage && !ShownClues[playerId].Any(b => b.EnigmaClueType == a.EnigmaClueType && b.ClueStage == a.ClueStage));
 
             if (clues.Count == 0) continue;
@@ -146,9 +149,9 @@ public class Enigma : RoleBase
             string msg = clue.GetMessage(killer, showStageClue);
 
             ShownClues[playerId].Add(clue);
-
+            MsgToSend ??= [];
             MsgToSend[playerId] = msg;
-
+            MsgToSendTitle ??= [];
             MsgToSendTitle[playerId] = title;
         }
     }

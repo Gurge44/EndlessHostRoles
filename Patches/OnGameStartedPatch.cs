@@ -132,7 +132,7 @@ internal static class ChangeRoleSettings
             Nemesis.NemesisRevenged = [];
             Warlock.IsCurseAndKill = [];
             Warlock.IsCursed = false;
-            Forensic.ForensicNotify = [];
+            Forensic.ForensicNotify = null;
             Provocateur.Provoked = [];
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;

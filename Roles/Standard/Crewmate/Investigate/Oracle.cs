@@ -7,7 +7,7 @@ namespace EHR.Roles;
 public class Oracle : RoleBase
 {
     private const int Id = 7600;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     public static OptionItem CheckLimitOpt;
     public static OptionItem HideVote;
@@ -16,9 +16,9 @@ public class Oracle : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
 
-    public static readonly List<byte> DidVote = [];
+    public static readonly List<byte> DidVote;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -48,18 +48,13 @@ public class Oracle : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        On = false;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetFloat());
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
@@ -67,8 +62,8 @@ public class Oracle : RoleBase
         if (Starspawn.IsDayBreak) return false;
         if (player == null || target == null) return false;
 
+        DidVote ??= [];
         if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-
         DidVote.Add(player.PlayerId);
 
         if (player.GetAbilityUseLimit() < 1)

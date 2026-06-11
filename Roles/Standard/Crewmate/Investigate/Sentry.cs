@@ -20,7 +20,7 @@ internal class Sentry : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     private static readonly Dictionary<SimpleTeam, OptionItem> TeamsCanSeeInfo = [];
 
-    private static Vector2[] AvailableDevices = [];
+    private static Vector2[] AvailableDevices;
 
     private readonly Dictionary<byte, long> LastInfoSend = [];
     private readonly HashSet<byte> LastNotified = [];
@@ -84,11 +84,6 @@ internal class Sentry : RoleBase
         DeadBodiesInRoom = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         UsingDevice = [];
-    }
-
-    public override void Init()
-    {
-        On = false;
 
         AvailableDevices = DisableDevice.DevicePos.Where(x =>
         {
@@ -118,6 +113,12 @@ internal class Sentry : RoleBase
 
             return correctMap && enabled;
         }).Select(x => x.Value).ToArray();
+    }
+
+    public override void Init()
+    {
+        On = false;
+        AvailableDevices = null;
     }
 
     public override void OnPet(PlayerControl pc)
@@ -280,11 +281,10 @@ internal class Sentry : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (MonitoredRoom == null || MonitoredRoom == null || MonitoredRoom == null) return;
+        if (!MonitoredRoom || AvailableDevices == null) return;
 
         long now = Utils.TimeStamp;
         if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
-
         LastInfoSend[pc.PlayerId] = now;
 
         if (!CheckTeam(pc)) return;

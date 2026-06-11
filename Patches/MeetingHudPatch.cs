@@ -823,7 +823,7 @@ internal static class MeetingHudStartPatch
                 AddMsg(string.Format(GetString("SilencerDead"), playername, pc.PlayerId, CustomRoles.Silencer.ColoredTextByRole(GetString("SilencerKillTitle"))));
             }
 
-            if (Forensic.ForensicNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, CustomRoles.Forensic.ColoredTextByRole(GetString("ForensicNoticeTitle")));
+            if (Forensic.ForensicNotify != null && Forensic.ForensicNotify.TryGetValue(pc.PlayerId, out string value1)) AddMsg(value1, pc.PlayerId, CustomRoles.Forensic.ColoredTextByRole(GetString("ForensicNoticeTitle")));
             if (Main.SleuthMsgs.TryGetValue(pc.PlayerId, out string msg)) AddMsg(msg, pc.PlayerId, CustomRoles.Sleuth.ColoredTextByRole(GetString("Sleuth")));
 
             if (pc.Is(CustomRoles.Mimic) && !pc.IsAlive())
@@ -833,11 +833,11 @@ internal static class MeetingHudStartPatch
                     .Do(x => mimicMsg += $"\n{x.GetNameWithRole(true)}");
             }
 
-            if (Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2)) AddMsg(value2, pc.PlayerId, CustomRoles.Mortician.ColoredTextByRole(GetString("MorticianCheckTitle")));
-            if (Medium.ContactPlayer.ContainsValue(pc.PlayerId)) AddMsg(string.Format(GetString("MediumNotifySelf"), Main.AllPlayerNames[Medium.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
-            if (Medium.ContactPlayer.ContainsKey(pc.PlayerId) && (!Medium.OnlyReceiveMsgFromCrew.GetBool() || pc.IsCrewmate())) AddMsg(string.Format(GetString("MediumNotifyTarget"), Main.AllPlayerNames[Medium.ContactPlayer[pc.PlayerId]]), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
+            if (Mortician.MsgToSend != null && Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2)) AddMsg(value2, pc.PlayerId, CustomRoles.Mortician.ColoredTextByRole(GetString("MorticianCheckTitle")));
+            if (Medium.ContactPlayer != null && Medium.ContactPlayer.ContainsValue(pc.PlayerId)) AddMsg(string.Format(GetString("MediumNotifySelf"), Main.AllPlayerNames[Medium.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
+            if (Medium.ContactPlayer != null && Medium.ContactPlayer.ContainsKey(pc.PlayerId) && (!Medium.OnlyReceiveMsgFromCrew.GetBool() || pc.IsCrewmate())) AddMsg(string.Format(GetString("MediumNotifyTarget"), Main.AllPlayerNames[Medium.ContactPlayer[pc.PlayerId]]), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
             if (Virus.VirusNotify.TryGetValue(pc.PlayerId, out string value3)) AddMsg(value3, pc.PlayerId, CustomRoles.Virus.ColoredTextByRole(GetString("VirusNoticeTitle")));
-            if (Enigma.MsgToSend.TryGetValue(pc.PlayerId, out string value4)) AddMsg(value4, pc.PlayerId, CustomRoles.Enigma.ColoredTextByRole(Enigma.MsgToSendTitle[pc.PlayerId]));
+            if (Enigma.MsgToSend != null && Enigma.MsgToSendTitle != null && Enigma.MsgToSend.TryGetValue(pc.PlayerId, out string value4)) AddMsg(value4, pc.PlayerId, CustomRoles.Enigma.ColoredTextByRole(Enigma.MsgToSendTitle[pc.PlayerId]));
 
             if (QuizMaster.On && QuizMaster.MessagesToSend.TryGetValue(pc.PlayerId, out string value5))
             {
@@ -860,11 +860,12 @@ internal static class MeetingHudStartPatch
         if (MsgToSend.Count > 0) LateTask.New(() => MsgToSend.Do(x => Utils.SendMessage(x.Text, x.SendTo, x.Title, importance: MessageImportance.High)), 9f, "Meeting Start Notify");
 
         Main.SuperStarDead.Clear();
-        Forensic.ForensicNotify.Clear();
+        Forensic.ForensicNotify = null;
         Main.SleuthMsgs.Clear();
         Virus.VirusNotify.Clear();
-        Mortician.MsgToSend.Clear();
-        Enigma.MsgToSend.Clear();
+        Mortician.MsgToSend = null;
+        Enigma.MsgToSend = null;
+        Enigma.MsgToSendTitle = null;
         return;
 
         static void AddMsg(string text, byte sendTo = 255, string title = "") => MsgToSend.Add(new(text, sendTo, title));
@@ -930,14 +931,14 @@ internal static class MeetingHudStartPatch
                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 (CustomTeamManager.AreInSameCustomTeam(target.PlayerId, seer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(target.PlayerId, CTAOption.KnowRoles)) ||
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
-                Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
+                (Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId)) ||
                 seer.IsRevealedPlayer(target) ||
                 (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
                 seer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
 
-            if (seer.IsAlive() && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
+            if (seer.IsAlive() && Investigator.RandomRole != null && seer.IsRevealedPlayer(target) && target.Is(CustomRoles.Trickster))
             {
                 roleTextMeeting.text = Investigator.RandomRole[seer.PlayerId];
                 roleTextMeeting.text += Investigator.GetTaskState();

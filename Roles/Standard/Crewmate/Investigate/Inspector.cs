@@ -12,9 +12,9 @@ namespace EHR.Roles;
 public class Inspector : RoleBase
 {
     private const int Id = 6900;
-    private static List<byte> PlayerIdList = [];
-    private static Dictionary<byte, int> RoundCheckLimit = [];
-    private static Dictionary<byte, byte> FirstPick = [];
+    private static List<byte> PlayerIdList;
+    private static Dictionary<byte, int> RoundCheckLimit;
+    private static Dictionary<byte, byte> FirstPick;
 
     private static readonly string[] InspectorEgoistCountMode =
     [
@@ -32,7 +32,7 @@ public class Inspector : RoleBase
     public static OptionItem InspectorAbilityUseGainWithEachTaskCompleted;
     public static OptionItem InspectorChargesWhenFinishedTasks;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override void SetupCustomOption()
     {
@@ -79,27 +79,29 @@ public class Inspector : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        RoundCheckLimit = [];
-        FirstPick = [];
+        PlayerIdList = null;
+        RoundCheckLimit = null;
+        FirstPick = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(InspectorCheckLimitMax.GetFloat());
+        RoundCheckLimit ??= [];
         RoundCheckLimit.Add(playerId, InspectorCheckLimitPerMeeting.GetInt());
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public override void OnReportDeadBody()
     {
         RoundCheckLimit.Clear();
-        foreach (byte pc in PlayerIdList) RoundCheckLimit.Add(pc, InspectorCheckLimitPerMeeting.GetInt());
+        if (PlayerIdList != null) foreach (byte pc in PlayerIdList) RoundCheckLimit.Add(pc, InspectorCheckLimitPerMeeting.GetInt());
     }
 
     public static bool InspectorCheckMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -144,7 +146,7 @@ public class Inspector : RoleBase
 
                     bool outOfUses = pc.GetAbilityUseLimit() < 1;
 
-                    if (outOfUses || RoundCheckLimit[pc.PlayerId] < 1)
+                    if (outOfUses || RoundCheckLimit == null || RoundCheckLimit[pc.PlayerId] < 1)
                     {
                         if (outOfUses)
                         {
@@ -400,6 +402,8 @@ public class Inspector : RoleBase
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
+        
+        FirstPick ??= [];
 
         if (FirstPick.TryGetValue(lpcId, out byte firstPick))
         {
