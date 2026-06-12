@@ -112,7 +112,7 @@ public static class AntiBlackout
                         pc.RpcExiled();
 
                         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
-                            pc.RpcResetAbilityCooldown();
+                            pc.AddAbilityCD(ghostRole.Instance.Cooldown);
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

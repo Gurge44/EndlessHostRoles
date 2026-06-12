@@ -2055,7 +2055,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up)
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla || (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().up))
         {
             Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId, importance: MessageImportance.Low);
             return;
@@ -2070,7 +2070,7 @@ internal static class ChatCommands
             return;
         }
 
-        // player.RpcSetColor(color);
+        player.RpcSetColor(color);
         Utils.SendMessage(string.Format(GetString("Message.SetColor"), subArgs), player.PlayerId, importance: MessageImportance.Low);
     }
 

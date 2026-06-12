@@ -87,10 +87,13 @@ public class Exclusionary : RoleBase
                         sender.StartMessage(target.OwnerId);
                     }
 
-                    /*sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
-                        .Write("")
-                        .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                        .EndRpc();*/
+                    if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                    {
+                        sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
+                            .Write("")
+                            .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                            .EndRpc();
+                    }
                     sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                         .WriteVector2(new Vector2(50f, 50f))
                         .Write(player.NetTransform.lastSequenceId)
@@ -188,7 +191,7 @@ public class Exclusionary : RoleBase
                 sender.StartMessage(pc.OwnerId);
             }
 
-            if (Options.UsePets.GetBool())
+            if (Options.UsePets.GetBool() && GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
             {
                 sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
                     .Write(PetsHelper.GetPetId())

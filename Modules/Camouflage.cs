@@ -159,6 +159,7 @@ public static class Camouflage
 
     public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)
     {
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
         if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !revive && !notCommsOrCamo) || !target || (BlockCamouflage && !forceRevert && !revertToDefault && !gameEnd && !revive && !notCommsOrCamo)) return;
 
         Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");

@@ -499,7 +499,7 @@ internal static class ExtendedPlayerControl
             if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out string name))
                 RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""), sender);
 
-            // Camouflage.RpcSetSkin(player, sender: sender);
+            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) Camouflage.RpcSetSkin(player, sender: sender);
             sender.SyncSettings(player);
 
             sender.SendMessage();
@@ -844,7 +844,7 @@ internal static class ExtendedPlayerControl
 
         public void AddKCDAsAbilityCD()
         {
-            player.AddAbilityCD((int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float kcd) ? kcd : Options.AdjustedDefaultKillCooldown));
+            player.AddAbilityCD((int)Math.Round(Main.AllPlayerKillCooldown.GetValueOrDefault(player.PlayerId, Options.AdjustedDefaultKillCooldown)));
         }
 
         public void AddAbilityCD(bool includeDuration = true)
@@ -1491,7 +1491,7 @@ internal static class ExtendedPlayerControl
             if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
             if (!Main.Invisible.Add(player.PlayerId)) return;
 
-            // player.RpcSetPet("");
+            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) player.RpcSetPet("");
 
             if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
                 player.MakeInvisible();

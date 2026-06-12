@@ -376,27 +376,21 @@ internal static class HudManagerPatch
                         return string.Empty;
                     }
 
-                    string cdHUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) CD)
-                        ? string.Empty
-                        : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
-
-                    bool hasCD = cdHUDText != string.Empty;
-
-                    if (hasCD)
+                    if (Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) info))
                     {
-                        if (CooldownTimerFlashColor.HasValue) cdHUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, cdHUDText.RemoveHtmlTags())}</b>";
-
-                        LowerInfoText.text = $"{cdHUDText}\n{LowerInfoText.text}";
+                        string text = string.Format(GetString("CDPT"), info.TotalCooldown - (Utils.TimeStamp - info.StartTimeStamp) + 1);
+                        if (CooldownTimerFlashColor.HasValue) text = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, text.RemoveHtmlTags())}</b>";
+                        LowerInfoText.text = $"{text}\n{LowerInfoText.text}";
                     }
 
-                    if (AchievementUnlockedText != string.Empty)
+                    if (!string.IsNullOrWhiteSpace(AchievementUnlockedText))
                     {
-                        LowerInfoText.text = LowerInfoText.text == string.Empty
+                        LowerInfoText.text = string.IsNullOrWhiteSpace(LowerInfoText.text)
                             ? AchievementUnlockedText
                             : $"{AchievementUnlockedText}\n\n{LowerInfoText.text}\n\n\n\n";
                     }
 
-                    LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
+                    LowerInfoText.enabled = !string.IsNullOrWhiteSpace(LowerInfoText.text);
 
                     if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
                         LowerInfoText.enabled = false;
@@ -462,6 +456,24 @@ internal static class HudManagerPatch
                     __instance.AbilityButton?.Show();
                     __instance.AbilityButton?.SetEnabled();
                     __instance.AbilityButton?.OverrideText(GetString(player.GetRoleTypes() == RoleTypes.GuardianAngel ? StringNames.ProtectAbility : StringNames.HauntAbilityName));
+
+                    LowerInfoText.text = string.Empty;
+
+                    if (Main.AbilityCD.TryGetValue(player.PlayerId, out (long StartTimeStamp, int TotalCooldown) info))
+                    {
+                        string text = string.Format(GetString("CDPT"), info.TotalCooldown - (Utils.TimeStamp - info.StartTimeStamp) + 1);
+                        if (CooldownTimerFlashColor.HasValue) text = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, text.RemoveHtmlTags())}</b>";
+                        LowerInfoText.text = text;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(AchievementUnlockedText))
+                    {
+                        LowerInfoText.text = string.IsNullOrWhiteSpace(LowerInfoText.text)
+                            ? AchievementUnlockedText
+                            : $"{AchievementUnlockedText}\n\n{LowerInfoText.text}\n\n\n\n";
+                    }
+
+                    LowerInfoText.enabled = !string.IsNullOrWhiteSpace(LowerInfoText.text);
                 }
             }
 

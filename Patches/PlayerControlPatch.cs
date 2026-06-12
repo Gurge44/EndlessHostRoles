@@ -25,6 +25,14 @@ internal static class CheckProtectPatch
 
         Logger.Info($"CheckProtect: {__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckProtect");
 
+        if (__instance.HasAbilityCD())
+        {
+            if (!__instance.AmOwner) __instance.Notify(GetString("AbilityOnCooldown"));
+            else Main.Instance.StartCoroutine(ExternalRpcPetPatch.FlashCooldownTimer());
+            
+            return true;
+        }
+
         if (__instance.Is(CustomRoles.EvilSpirit))
         {
             if (target.Is(CustomRoles.Spiritcaller))
@@ -32,24 +40,14 @@ internal static class CheckProtectPatch
             else
                 Spiritcaller.HauntPlayer(target);
 
-            __instance.RpcResetAbilityCooldown();
+            __instance.AddAbilityCD(Spiritcaller.SpiritAbilityCooldown.GetInt());
             return true;
         }
 
         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
         {
+            __instance.AddAbilityCD(ghostRole.Instance.Cooldown);
             ghostRole.Instance.OnProtect(__instance, target);
-            __instance.RpcResetAbilityCooldown();
-            return true;
-        }
-
-        if (__instance.Is(CustomRoles.Sheriff))
-        {
-            if (__instance.Data.IsDead)
-            {
-                Logger.Info("Blocked", "CheckProtect");
-                return false;
-            }
         }
 
         return true;
@@ -637,12 +635,6 @@ internal static class MurderPlayerPatch
 
         RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
 
-        /*if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
-        {
-            Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
-            LateTask.New(() => Camouflage.RpcSetSkin(target, true), 0.2f, log: false);
-        }*/
-
         return true;
     }
 
@@ -898,7 +890,11 @@ internal static class ShapeshiftPatch
 
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (!shapeshifting) /*Camouflage.RpcSetSkin(shapeshifter);*/ {}
+        if (!shapeshifting)
+        {
+            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                Camouflage.RpcSetSkin(shapeshifter);
+        }
         else
         {
             PlagueBearer.CheckAndSpreadInfection(shapeshifter, target);
@@ -1418,8 +1414,8 @@ internal static class ReportDeadBodyPatch
         {
             try
             {
-                /*if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
-                    Camouflage.RpcSetSkin(pc, revertToDefault: true);*/
+                if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla && Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                    Camouflage.RpcSetSkin(pc, revertToDefault: true);
 
                 if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
                     pc.FixMixedUpOutfit();
@@ -1796,7 +1792,7 @@ internal static class FixedUpdatePatch
                 if (inTask && alive && !lowLoad)
                     Asthmatic.OnFixedUpdate();
 
-                if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))
+                if (!lowLoad && inTask && (!LastUpdate.TryGetValue(playerId, out long lastPetNotify) || lastPetNotify < now))
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out (long StartTimeStamp, int TotalCooldown) timer))
                     {
@@ -2144,7 +2140,7 @@ internal static class FixedUpdatePatch
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrWhiteSpace(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
                 AdditionalSuffixes.Add(GetString("DiedR1Warning"));
 
-            for (int i = 0; i < AdditionalSuffixes.Count; i++)
+            for (int i = AdditionalSuffixes.Count - 1; i >= 0; i--)
             {
                 if (string.IsNullOrWhiteSpace(AdditionalSuffixes[i]))
                 {

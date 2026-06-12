@@ -2920,32 +2920,13 @@ public static class Utils
 
                 SelfSuffix.Append(BuildSuffix(seer, seer, meeting: forMeeting));
 
-                AppendSuffixIfNotEmpty(Spurt.GetSuffix(seer));
-                AppendSuffixIfNotEmpty(Dynamo.GetSuffix(seer));
-                AppendSuffixIfNotEmpty(CustomTeamManager.GetSuffix(seer));
-
-                static void AppendSuffixIfNotEmpty(string suffix)
-                {
-                    if (string.IsNullOrEmpty(suffix)) return;
-
-                    bool hasNonWhite = false;
-                    for (int i = 0; i < suffix.Length; i++)
-                    {
-                        if (!char.IsWhiteSpace(suffix[i]))
-                        {
-                            hasNonWhite = true;
-                            break;
-                        }
-                    }
-                    if (!hasNonWhite) return;
-
-                    SelfSuffix.Append('\n');
-                    SelfSuffix.Append(suffix);
-                }
+                AdditionalSuffixes.Add(Spurt.GetSuffix(seer));
+                AdditionalSuffixes.Add(Dynamo.GetSuffix(seer));
+                AdditionalSuffixes.Add(CustomTeamManager.GetSuffix(seer));
 
                 if (!forMeeting)
                 {
-                    if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out (long StartTimeStamp, int TotalCooldown) time))
+                    if (Main.AbilityCD.TryGetValue(seer.PlayerId, out (long StartTimeStamp, int TotalCooldown) time))
                     {
                         long remainingCD = time.TotalCooldown - (now - time.StartTimeStamp) + 1;
                         SelfSuffix.Append("\n" + string.Format(GetString("CDPT"), remainingCD > 30 ? "> 30" : remainingCD));
@@ -3042,7 +3023,7 @@ public static class Utils
                         break;
                 }
 
-                for (int i = 0; i < AdditionalSuffixes.Count; i++)
+                for (int i = AdditionalSuffixes.Count - 1; i >= 0; i--)
                 {
                     if (string.IsNullOrWhiteSpace(AdditionalSuffixes[i]))
                     {
@@ -4169,7 +4150,7 @@ public static class Utils
                     {
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsEnded) return;
+                            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
                             string petId = PetsHelper.GetPetId();
                             PetsHelper.SetPet(pc, petId);
                             pc.Data.DefaultOutfit.PetSequenceId += 10;

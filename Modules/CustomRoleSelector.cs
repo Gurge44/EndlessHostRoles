@@ -103,7 +103,7 @@ internal static class CustomRoleSelector
 
             switch (role)
             {
-                case CustomRoles.Camouflager or CustomRoles.Magistrate or CustomRoles.Devourer or CustomRoles.Venerer or CustomRoles.Amogus or CustomRoles.Shadow or CustomRoles.MoonDancer or CustomRoles.Merchant or CustomRoles.Catalyst or CustomRoles.Doppelganger when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
+                case CustomRoles.Camouflager or CustomRoles.Magistrate or CustomRoles.Devourer or CustomRoles.Venerer or CustomRoles.Amogus or CustomRoles.Shadow or CustomRoles.MoonDancer or CustomRoles.Merchant or CustomRoles.Catalyst or CustomRoles.Doppelganger or CustomRoles.Butcher when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Bargainer when Main.LIMap:
                 case CustomRoles.AntiAdminer when Main.LIMap:
                 case CustomRoles.CameraMan when Main.LIMap:

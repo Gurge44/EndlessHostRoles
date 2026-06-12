@@ -34,6 +34,7 @@ internal class Bloodmoon : IGhostRole
         ScheduledDeaths.TryAdd(target.PlayerId, (Utils.TimeStamp, pc.PlayerId));
         Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
         pc.MarkDirtySettings(); // failsafe check
+        pc.AddAbilityCD(Cooldown + Duration.GetInt());
     }
 
     public void SetupCustomOption()

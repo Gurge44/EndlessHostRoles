@@ -61,7 +61,7 @@ internal static class NotificationPopperPatch
 
     private static void SendRpc(int optionId, bool playSound = true)
     {
-        if (!AmongUsClient.Instance.AmHost || Options.HideGameSettings.GetBool()) return;
+        if (!AmongUsClient.Instance.AmHost || Options.HideGameSettings.GetBool() || !Utils.DoRPC) return;
         var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, Hazel.SendOption.None);
         msg.Write(optionId);
         msg.Write(playSound);

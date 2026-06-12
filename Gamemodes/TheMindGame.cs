@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using EHR.Roles;
@@ -327,7 +328,6 @@ public static class TheMindGame
                 foreach (PlayerControl pc in players)
                 {
                     Groups[pc.PlayerId] = group;
-                    // pc.RpcSetColor(group.GetColorId());
                     pc.TP(location);
                     ids.Add(pc.PlayerId);
                 }
@@ -401,8 +401,6 @@ public static class TheMindGame
         aapc.Join(Points, x => x.PlayerId, x => x.Key, (pc, kvp) => (pc, points: kvp.Value)).OrderBy(x => x.points).SkipLast(MinPlayersInRound2).Do(x => x.pc.Suicide());
 
         Round = 2;
-
-        // DefaultColorIds.DoIf(x => x.Key && x.Value is >= byte.MinValue and <= byte.MaxValue, x => x.Key.RpcSetColor((byte)x.Value));
 
         yield return NotifyEveryone("TMG.Notify.Round", 2, 2);
         if (Stop) yield break;
@@ -997,6 +995,7 @@ public static class TheMindGame
         MindDetective
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum Group
     {
         Red,

@@ -138,7 +138,7 @@ internal static class ExternalRpcPetPatch
 
         if (pc.HasAbilityCD())
         {
-            if (!pc.IsHost()) pc.Notify(Translator.GetString("AbilityOnCooldown"));
+            if (!pc.AmOwner) pc.Notify(Translator.GetString("AbilityOnCooldown"));
             else Main.Instance.StartCoroutine(FlashCooldownTimer());
 
             return;
@@ -230,7 +230,7 @@ internal static class ExternalRpcPetPatch
         return target;
     }
 
-    private static IEnumerator FlashCooldownTimer()
+    public static IEnumerator FlashCooldownTimer()
     {
         var yellow = false;
 
