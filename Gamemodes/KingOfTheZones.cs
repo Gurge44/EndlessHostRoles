@@ -247,8 +247,6 @@ public static class KingOfTheZones
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
         AllRooms.Remove(SystemTypes.Outside);
-        AllRooms.Remove(SystemTypes.Ventilation);
-        AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
         if (SubmergedCompatibility.IsSubmerged()) AllRooms.RemoveWhere(x => (byte)x > 135);
 
         Zones = Main.LIMap ? ShipStatus.Instance.AllRooms.Select(x => x.RoomId).TakeRandom(NumZones.GetInt()) : DefaultZones[Main.CurrentMap][NumZones.GetInt() - 1];

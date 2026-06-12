@@ -3390,7 +3390,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now)
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive())
         {
             player.RpcGuesserMurderPlayer();
             player.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));

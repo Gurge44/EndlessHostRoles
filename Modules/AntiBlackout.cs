@@ -20,7 +20,6 @@ public static class AntiBlackout
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default || PlayerControl.AllPlayerControls.Count <= 2) return;
 
         SkipTasks = true;
-        LateTask.New(() => SkipTasks = false, 15f);
         CachedRoleMap = StartGameHostPatch.RpcSetRoleReplacer.RoleMap.ToDictionary(x => (x.Key.SeerID, x.Key.TargetID), x => (x.Value.RoleType, x.Value.CustomRole));
 
         var players = Main.AllAlivePlayerControlsToArray;
@@ -63,24 +62,6 @@ public static class AntiBlackout
             ExileControllerWrapUpPatch.AfterMeetingTasks();
             return;
         }
-
-        // Set the temporarily revived crewmate back to dead.
-        //foreach (PlayerControl pc in Main.EnumeratePlayerControls())
-        //{
-        //    try
-        //    {
-        //        if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
-
-        //        NetworkedPlayerInfo data = pc.Data;
-
-        //        if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
-        //        {
-        //            data.IsDead = true;
-        //            data.SendGameData();
-        //        }
-        //    }
-        //    catch (Exception e) { Utils.ThrowException(e); }
-        //}
 
         // Reset the role types for all players.
         foreach (((byte seerId, byte targetId), (RoleTypes roleType, CustomRoles _)) in CachedRoleMap)

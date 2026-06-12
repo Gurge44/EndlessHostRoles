@@ -132,12 +132,12 @@ public static class NameNotifyManager
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static void SendRPC(CustomRpcSender sender, byte playerId, string text, long expireTS, bool overrideAll)
+    public static void SendRPC(CustomRpcSender sender, PlayerControl player, string text, long expireTS, bool overrideAll)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || player.OwnerId < 0) return;
 
-        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify);
-        sender.Write(playerId);
+        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, sender.packed || sender.currentRpcTarget >= 0 ? player.OwnerId : -1);
+        sender.Write(player.PlayerId);
         sender.Write(text);
         sender.Write(expireTS.ToString());
         sender.Write(overrideAll);

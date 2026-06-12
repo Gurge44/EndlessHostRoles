@@ -4052,6 +4052,7 @@
   "MeetingAngel.CanProtectOptions.NeutralPariah": "Can Protect <#ffab1b>Neutral</color> <#ffff44>Pariahs</color>",
   "MeetingAngel.CanProtectOptions.NeutralBenign": "Can Protect <#ffab1b>Neutral</color> <#00ffa5>Benigns</color>",
   "MeetingAngel.CanProtectOptions.Coven": "Can Protect <#7b3fbb>Covens</color>",
+  "MeetingAngel.NegatedMsg": "Removed <b>{0}</b> votes targeting {1}",
   "Minion": "Minion",
   "MinionInfo": "Help the Impostors",
   "MinionInfoLong": "(Impostor/Neutral Ghost):\\nAs the Minion, you can protect someone (optimally a crewmate) to blind them for a few seconds.",
