@@ -1557,6 +1557,7 @@ internal static class ChatCommands
         {
             return role switch
             {
+                CustomRoles.Camouflager or CustomRoles.Magistrate or CustomRoles.Devourer or CustomRoles.Venerer or CustomRoles.Amogus or CustomRoles.Shadow or CustomRoles.MoonDancer or CustomRoles.Merchant or CustomRoles.Catalyst or CustomRoles.Doppelganger or CustomRoles.Butcher when GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
                 CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
                 CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla => true,
                 CustomRoles.RoomRusher when Main.LIMap => true,
