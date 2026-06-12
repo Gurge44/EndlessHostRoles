@@ -473,7 +473,9 @@ internal static class HudManagerPatch
                             : $"{AchievementUnlockedText}\n\n{LowerInfoText.text}\n\n\n\n";
                     }
 
-                    LowerInfoText.enabled = !string.IsNullOrWhiteSpace(LowerInfoText.text);
+                    bool enabled = !string.IsNullOrWhiteSpace(LowerInfoText.text);
+                    LowerInfoText.enabled = enabled;
+                    LowerInfoText.gameObject.SetActive(enabled);
                 }
             }
 

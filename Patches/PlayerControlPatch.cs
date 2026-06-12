@@ -1798,7 +1798,7 @@ internal static class FixedUpdatePatch
                     {
                         SendOption sendOption = SendOption.None;
                         
-                        if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
+                        if (timer.StartTimeStamp + timer.TotalCooldown < now || (!alive && !player.HasGhostRole()))
                         {
                             player.RemoveAbilityCD();
                             sendOption = SendOption.Reliable;
