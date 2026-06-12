@@ -724,7 +724,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             bool energeticIncreaseSpeed = false, energeticDecreaseCooldown = false;
 
-            if (state.SubRoles.Contains(CustomRoles.Energetic) || Empress.Encouraged.Contains(player.PlayerId))
+            if (state.SubRoles.Contains(CustomRoles.Energetic) || (Empress.Encouraged != null && Empress.Encouraged.Contains(player.PlayerId)))
             {
                 if (player.CanUseKillButton())
                     energeticDecreaseCooldown = true;

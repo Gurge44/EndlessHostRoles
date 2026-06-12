@@ -133,7 +133,7 @@ public class Wyrd : CovenBase
 
     public static bool CheckPlayerAction(PlayerControl pc, Action action)
     {
-        if (!ActionSuicideSettings[action] || Instances == null) return true;
+        if (ActionSuicideSettings == null || !ActionSuicideSettings[action] || Instances == null) return true;
 
         foreach (Wyrd instance in Instances)
         {

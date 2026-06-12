@@ -193,18 +193,7 @@ internal class Chemist : RoleBase
     {
         On = false;
         Instances = [];
-
         FactoryLocations = [];
-
-        LateTask.New(() =>
-        {
-            FactoryLocations = ShipStatus.Instance.AllRooms
-                .Select(x => x.RoomId)
-                .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
-                .Distinct()
-                .Zip(Enum.GetValues<Factory>()[1..])
-                .ToDictionary(x => x.First, x => x.Second);
-        }, 20f, log: false);
     }
 
     public override void Add(byte playerId)
@@ -226,6 +215,13 @@ internal class Chemist : RoleBase
         Grenades = [];
 
         ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
+        
+        FactoryLocations = ShipStatus.Instance.AllRooms
+            .Select(x => x.RoomId)
+            .Where(x => x != SystemTypes.Outside && !x.ToString().Contains("Decontamination"))
+            .Distinct()
+            .Zip(Enum.GetValues<Factory>()[1..])
+            .ToDictionary(x => x.First, x => x.Second);
     }
 
     public override void Remove(byte playerId)
