@@ -3093,7 +3093,7 @@ public static class Options
 
         IntegrateNaturalDisasters = new BooleanOptionItem(24454, "IntegrateNaturalDisasters", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))
-            .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReCreateSettings(GameSettingMenuPatch.ModSettingsTabs[TabGroup.GameSettings]));
+            .RegisterUpdateValueEvent((_, _, _) => GameOptionsMenuPatch.ReCreateSettings(TabGroup.GameSettings));
 
         EnableGameTimeLimit = new BooleanOptionItem(24455, "EnableGameTimeLimit", false, TabGroup.GameSettings)
             .SetColor(new Color32(193, 255, 209, byte.MaxValue))

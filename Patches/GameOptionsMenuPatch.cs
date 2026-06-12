@@ -389,11 +389,17 @@ public static class GameOptionsMenuPatch
         return false;
     }
 
-    public static void ReCreateSettings(GameOptionsMenu __instance)
+    public static void ReCreateSettings(TabGroup tab)
     {
-        if (ModGameOptionsMenu.TabIndex < 3) return;
+        if (!GameSettingMenuPatch.ModSettingsTabs.TryGetValue(tab, out GameOptionsMenu menu)) return;
+        ReCreateSettings(menu, tab);
+    }
 
-        var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+    public static void ReCreateSettings(GameOptionsMenu __instance, TabGroup? modTab = null)
+    {
+        if (!modTab.HasValue && ModGameOptionsMenu.TabIndex < 3) return;
+
+        modTab ??= (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
 
         var num = 2.0f;
 
@@ -1131,7 +1137,7 @@ public static class GameSettingMenuPatch
         {
             LastPresetChange = Utils.TimeStamp;
             Options.Preset--;
-            ModSettingsTabs.Values.Do(GameOptionsMenuPatch.ReCreateSettings);
+            Main.TabGroupValues.Do(GameOptionsMenuPatch.ReCreateSettings);
             GameOptionsMenuPatch.RefreshSettingValues();
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
@@ -1177,7 +1183,7 @@ public static class GameSettingMenuPatch
         {
             LastPresetChange = Utils.TimeStamp;
             Options.Preset++;
-            ModSettingsTabs.Values.Do(GameOptionsMenuPatch.ReCreateSettings);
+            Main.TabGroupValues.Do(GameOptionsMenuPatch.ReCreateSettings);
             GameOptionsMenuPatch.RefreshSettingValues();
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
@@ -1250,12 +1256,12 @@ public static class GameSettingMenuPatch
                 if (ModSettingsTabLoaded && !((TabGroup)(ModGameOptionsMenu.TabIndex - 3)).IsRelevant(gm))
                     GameSettingMenu.Instance.ChangeTab(4, false);
                 Options.GameMode.SetValue((int)gm - 1);
-                GameOptionsMenuPatch.ReCreateSettings(ModSettingsTabs[TabGroup.GameSettings]);
+                GameOptionsMenuPatch.ReCreateSettings(TabGroup.GameSettings);
                 if (gm is CustomGameMode.Standard or CustomGameMode.HideAndSeek)
                 {
-                    GameOptionsMenuPatch.ReCreateSettings(ModSettingsTabs[TabGroup.ImpostorRoles]);
-                    GameOptionsMenuPatch.ReCreateSettings(ModSettingsTabs[TabGroup.CrewmateRoles]);
-                    GameOptionsMenuPatch.ReCreateSettings(ModSettingsTabs[TabGroup.NeutralRoles]);
+                    GameOptionsMenuPatch.ReCreateSettings(TabGroup.ImpostorRoles);
+                    GameOptionsMenuPatch.ReCreateSettings(TabGroup.CrewmateRoles);
+                    GameOptionsMenuPatch.ReCreateSettings(TabGroup.NeutralRoles);
                 }
                 GameOptionsMenuPatch.RefreshTabButtons();
                 GameOptionsMenuPatch.RefreshCheckMarkColors();

@@ -3600,6 +3600,8 @@ internal static class RpcSendChatPatch
 {
     public static bool Prefix(PlayerControl __instance, string chatText, ref bool __result)
     {
+        if (!AmongUsClient.Instance.AmHost && !__instance.IsAlive() && Options.CurrentGameMode != CustomGameMode.Standard) return true;
+        
         if (string.IsNullOrWhiteSpace(chatText))
         {
             __result = false;
