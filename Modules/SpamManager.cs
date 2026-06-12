@@ -147,34 +147,42 @@ public static class SpamManager
 
         return true;
     }
-    
-    private static readonly string[] StartWords =
-    [
-        "start",
-        "started",
-        "begin",
-        "commence",
-        "proceed",
 
-        // Russian
-        "старт",
-        "начни",
-        "начинай",
-        "го",
-        "гоу",
+    private static readonly Dictionary<SupportedLangs, string[]> StartWords = new()
+    {
+        [SupportedLangs.English] =
+        [
+            "start",
+            "begin",
+            "commence"
+        ],
 
-        // Chinese
-        "开",
-        "开始",
-        "快开",
+        [SupportedLangs.Russian] =
+        [
+            // Russian
+            "старт",
+            "начни",
+            "начинай",
+            "гоу"
+        ],
 
-        // Pinyin
-        "kai",
-        "kaishi"
-    ];
+        [SupportedLangs.SChinese] =
+        [
+            "开始",
+            "快开"
+        ],
+
+        [SupportedLangs.TChinese] =
+        [
+            "开始",
+            "快开"
+        ]
+    };
 
     private static bool ContainsStart(string text)
     {
+        if (!StartWords.TryGetValue(GetUserTrueLang(), out string[] words)) return false;
+        
         if (string.IsNullOrWhiteSpace(text))
             return false;
 
@@ -183,7 +191,7 @@ public static class SpamManager
 
         string normalized = Normalize(text);
 
-        foreach (string word in StartWords)
+        foreach (string word in words)
         {
             string target = Normalize(word);
 
