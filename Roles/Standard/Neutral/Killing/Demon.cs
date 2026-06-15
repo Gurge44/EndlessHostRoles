@@ -98,7 +98,7 @@ public class Demon : RoleBase
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDemonHealth, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(DemonHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth[playerId]);
+        writer.Write(DemonHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth.GetValueOrDefault(playerId, HealthMax.GetInt()));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -115,7 +115,7 @@ public class Demon : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || target.Is(CustomRoles.Demon) || !PlayerHealth.TryGetValue(target.PlayerId, out var targetHealth)) return false;
+        if (target.Is(CustomRoles.Demon) || !PlayerHealth.TryGetValue(target.PlayerId, out var targetHealth)) return false;
 
         killer.SetKillCooldown();
 
@@ -148,7 +148,7 @@ public class Demon : RoleBase
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || killer.Is(CustomRoles.Demon)) return true;
+        if (killer.Is(CustomRoles.Demon)) return true;
 
         if (DemonHealth[target.PlayerId] - SelfDamage.GetInt() < 1)
         {

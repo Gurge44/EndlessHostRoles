@@ -63,34 +63,38 @@ internal class Bloodmoon : IGhostRole
 
     public static void Update(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || ScheduledDeaths.Count == 0) return;
         if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = Utils.TimeStamp;
+        List<byte> toRemove = null;
 
-        foreach (KeyValuePair<byte, (long Value, byte KillerId)> death in ScheduledDeaths)
+        foreach ((byte id, (long markTS, byte killerId)) in ScheduledDeaths)
         {
-            PlayerControl player = Utils.GetPlayerById(death.Key);
-            if (!player || !player.IsAlive()) continue;
+            PlayerControl player = Utils.GetPlayerById(id);
+            
+            if (!player || !player.IsAlive())
+            {
+                toRemove ??= [];
+                toRemove.Add(id);
+                continue;
+            }
 
-            if (now - death.Value.Value < Duration.GetInt())
+            if (now - markTS < Duration.GetInt())
             {
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 continue;
             }
 
-            if (pc.RpcCheckAndMurder(player, true)) player.Suicide(PlayerState.DeathReason.LossOfBlood, pc);
+            if (pc.RpcCheckAndMurder(player, true))
+            {
+                player.Suicide(PlayerState.DeathReason.LossOfBlood, killerId.GetPlayer());
+                toRemove ??= [];
+                toRemove.Add(id);
+            }
         }
-
-        /*var alivePlayers = Main.CachedAlivePlayerControls();
-        for (int index = 0; index < alivePlayers.Count; index++)
-        {
-            PlayerControl target = alivePlayers[index];
-            if (target.Is(Team.Impostor) && pc.Is(Team.Impostor)) continue;
-            if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), 4f)) continue;
-
-            target.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None);
-        }*/
+        
+        toRemove?.ForEach(x => ScheduledDeaths.Remove(x));
     }
 
     public static void OnMeetingStart()

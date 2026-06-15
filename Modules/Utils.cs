@@ -1083,18 +1083,21 @@ public static class Utils
 
     public static string GetProgressText(byte playerId, bool comms = false)
     {
+        if (!Main.PlayerStates.TryGetValue(playerId, out var state)) return string.Empty;
+        
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.StopAndGo: return GetTaskCount(playerId, comms, AmongUsClient.Instance.AmHost);
             case CustomGameMode.Speedrun:
-            case CustomGameMode.Standard when Forger.Forges.ContainsKey(playerId) && Main.PlayerStates.TryGetValue(playerId, out var state) && state.IsDead:
+            case CustomGameMode.Standard when Forger.Forges.ContainsKey(playerId) && state.IsDead:
+            case CustomGameMode.Standard when state.MainRole.IsImpostor() && CustomRoles.DoubleAgent.RoleExist(true):
                 return string.Empty;
         }
 
         ProgressText.Clear();
         PlayerControl pc = GetPlayerById(playerId);
 
-        try { Main.PlayerStates[playerId].Role.GetProgressText(playerId, comms, ProgressText); }
+        try { state.Role.GetProgressText(playerId, comms, ProgressText); }
         catch (Exception ex) { Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText"); }
 
         if (pc.Is(CustomRoles.Damocles)) Damocles.GetProgressText(playerId, ProgressText);
@@ -2799,7 +2802,7 @@ public static class Utils
         {
             //if (!ForMeeting && !NoCache && !ForceLoop && !CamouflageIsForMeeting && !GuesserIsForMeeting && !MushroomMixup && GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
             if (!AmongUsClient.Instance.AmHost) return;
-            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
+            if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer && SpecifySeer.IsModdedClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.AmOwner)) || (GameStates.IsMeeting && !ForMeeting) || GameStates.IsLobby)) return;
 
             var apc = Main.CachedAllPlayerControls();
             SeerList = SpecifySeer ? [SpecifySeer] : apc;
@@ -4862,19 +4865,18 @@ public static class Utils
         return null;
     }
 
-    private static readonly Dictionary<Color32, string> ColorPrefixCache = [];
     public static string ColorString(Color32 color, string str)
     {
         return ColorPrefix(color) + str + "</color>";
     }
+    // formatting 3-4 bytes to hex is extremely cheap, caching here is essentially useless, it just adds more memory usage
     public static string ColorPrefix(Color32 color)
     {
-        if (!ColorPrefixCache.TryGetValue(color, out var prefix))
-        {
-            prefix = $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>";
-            ColorPrefixCache[color] = prefix;
-        }
-        return prefix;
+        return $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>";
+    }
+    public static string ToHexRGB(Color32 color)
+    {
+        return $"{color.r:X2}{color.g:X2}{color.b:X2}";
     }
 
     /// <summary>

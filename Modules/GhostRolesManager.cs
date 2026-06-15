@@ -27,7 +27,7 @@ internal static class GhostRolesManager
         if (GhostRoles.Count == 0) return;
 
         CustomRoles suitableRole = GetSuitableGhostRole(pc);
-        Logger.Warn($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
+        Logger.Msg($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
 
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);

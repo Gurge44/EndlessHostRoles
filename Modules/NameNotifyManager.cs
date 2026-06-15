@@ -90,7 +90,7 @@ public static class NameNotifyManager
                 if (!AmongUsClient.Instance.AmHost) continue;
 
                 PlayerControl pc = Utils.GetPlayerById(id);
-                if (pc.IsAlive()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }
     }

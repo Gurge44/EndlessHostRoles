@@ -17,8 +17,8 @@ public class Psychic : RoleBase
     private static OptionItem CkshowEvil;
     private static OptionItem NBshowEvil;
     private static OptionItem NEshowEvil;
-    private byte PsychicId;
 
+    private byte PsychicId;
     private List<byte> RedPlayer = [];
 
     public override bool IsEnable => On;
@@ -82,7 +82,7 @@ public class Psychic : RoleBase
 
     public static bool IsRedForPsy(PlayerControl target, PlayerControl seer)
     {
-        if (target == null || seer == null) return false;
+        if (!target || !seer) return false;
 
         if (Main.PlayerStates[seer.PlayerId].Role is not Psychic ph) return false;
 

@@ -17,87 +17,17 @@ public static class TextBoxPatch
 
     public static bool IsInvalidCommand;
 
-    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
+    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]
-    public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
+    public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
-        if (Translator.GetUserTrueLang() == SupportedLangs.Russian || !__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
-
-        var flag = false;
-        __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
-        var ch = ' ';
-        __instance.tempTxt.Clear();
-
-        for (var index = 0; index < input.Length; ++index)
+        if (!__instance.IpMode && i is '\'' or '"' or '’' or '`' or '-' or '–' or '—' or '‐' or '.' or ',' or ':' or ';' or '!' or '?' or '(' or ')' or '[' or ']' or '{' or '}' or '<' or '>' or '+' or '=' or '~' or '^' or '*' or '%' or '&' or '|' or '$' or '€' or '£' or '¥' or '₽' or >= '\u0100' and <= '\u024F' or >= '\u0370' and <= '\u03FF')
         {
-            char upperInvariant = input[index];
-
-            if (ch == ' ' && upperInvariant == ' ')
-                __instance.AdjustCaretPosition(-1);
-            else
-            {
-                switch (upperInvariant)
-                {
-                    case '\r':
-                    case '\n':
-                        flag = true;
-                        break;
-                    case '\b':
-                        __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
-                        __instance.AdjustCaretPosition(-1);
-                        break;
-                }
-
-                if (__instance.ForceUppercase)
-                    upperInvariant = char.ToUpperInvariant(upperInvariant);
-
-                if (upperInvariant is '\r' or '\n' or '\b')
-                    __instance.AdjustCaretPosition(-1);
-                else
-                {
-                    __instance.tempTxt.Append(upperInvariant);
-                    ch = upperInvariant;
-                }
-            }
+            __result = true;
+            return false;
         }
 
-        if (!__instance.tempTxt.ToString().Equals(TranslationController.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
-        {
-            int length = __instance.tempTxt.Length;
-            __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
-            __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
-        }
-
-        input = __instance.tempTxt.ToString();
-
-        if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
-        {
-            __instance.text = input;
-            __instance.compoText = inputCompo;
-            string str = __instance.text;
-            string compoText = __instance.compoText;
-
-            if (__instance.Hidden)
-            {
-                str = "";
-                for (var index = 0; index < __instance.text.Length; ++index) str += "*";
-            }
-
-            __instance.outputText.text = str + compoText;
-            __instance.outputText.ForceMeshUpdate(true, true);
-            __instance.keyboard?.text = __instance.text;
-            __instance.OnChange.Invoke();
-
-            if (__instance.tempTxt.Length == __instance.characterLimit && __instance.SendOnFullChars)
-            {
-                __instance.OnEnter.Invoke();
-                __instance.LoseFocus();
-            }
-        }
-
-        if (flag && !Input.GetKey(KeyCode.LeftShift)) __instance.OnEnter.Invoke();
-        __instance.SetPipePosition();
-        return false;
+        return true;
     }
 
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
@@ -383,30 +313,6 @@ public static class TextBoxPatch
         if (PlaceHolderText) PlaceHolderText.transform.SetAsLastSibling();
         if (CommandInfoText) CommandInfoText.transform.SetAsLastSibling();
         if (AdditionalInfoText) AdditionalInfoText.transform.SetAsLastSibling();
-    }
-
-    [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.Update))]
-    [HarmonyPrefix]
-    public static bool UpdatePatch(TextBoxTMP __instance)
-    {
-        if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return true;
-
-        if (!__instance.enabled || !__instance.hasFocus) return false;
-        __instance.MoveCaret();
-        string inputString = Input.inputString;
-
-        if (inputString.Length > 0 || __instance.compoText != Input.compositionString)
-        {
-            if (__instance.text is null or "Enter Name") __instance.text = "";
-            int startIndex = Math.Clamp(__instance.caretPos, 0, __instance.text.Length);
-            __instance.SetText(__instance.text.Insert(startIndex, inputString), Input.compositionString);
-        }
-
-        if (!__instance.Pipe || !__instance.hasFocus) return false;
-        __instance.pipeBlinkTimer += Time.deltaTime * 2f;
-        __instance.Pipe.enabled = (int)__instance.pipeBlinkTimer % 2 == 0;
-
-        return false;
     }
 
     // Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs

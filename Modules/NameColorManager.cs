@@ -16,7 +16,7 @@ public static class NameColorManager
         if (!TryGetData(seer, target, out string colorCode))
         {
             if (KnowTargetRoleColor(seer, target, isMeeting, out string color))
-                colorCode = color == "" ? target.GetRoleColorCode() : color;
+                colorCode = color == "" ? Utils.ToHexRGB(Utils.GetRoleText(seer.PlayerId, target.PlayerId, seeTargetBetrayalAddons: seer.PlayerId == target.PlayerId || (seer.Is(Team.Impostor) && target.Is(Team.Impostor))).Item2) : color;
         }
 
         string openTag = "", closeTag = "";
@@ -194,6 +194,7 @@ public static class NameColorManager
             CustomRoles.Investor when ((Investor)seerRoleClass).MarkedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Stealth when ((Stealth)seerRoleClass).darkenedPlayers?.Any(x => x == target) ?? false => "000000",
             CustomRoles.Snitch when Snitch.IsComplete != null && Snitch.IsComplete.GetValueOrDefault(seer.PlayerId) && Snitch.IsSnitchTarget(target) => Utils.GetRoleColorCode(targetRole),
+            CustomRoles.Psychic when (GameStates.IsMeeting || ReportDeadBodyPatch.MeetingStarted) && Psychic.IsRedForPsy(target, seer) => Main.ImpostorColor,
             _ => color
         };
 
