@@ -71,7 +71,9 @@ public class SimpleButton
     {
         if (BaseButton || !passiveButton) return;
 
-        BaseButton = Object.Instantiate(passiveButton);
+        GameObject parent = new GameObject("BaseButton parent");
+        Object.DontDestroyOnLoad(parent);
+        BaseButton = Object.Instantiate(passiveButton, parent.transform);
         var label = BaseButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
         BaseButton.gameObject.SetActive(false);
 

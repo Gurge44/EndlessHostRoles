@@ -487,8 +487,9 @@ internal static class SetEverythingUpPatch
 
             yield return null;
 
-            // Clear unused assets
+            GC.Collect();
             Resources.UnloadUnusedAssets();
+            GC.Collect();
             yield return null;
 
             Vector3 pos = main.ViewportToWorldPoint(new(0f, 1f, main.nearClipPlane));

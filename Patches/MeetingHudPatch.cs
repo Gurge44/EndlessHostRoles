@@ -1361,6 +1361,10 @@ internal static class MeetingHudOnDestroyPatch
         }
 
         if (Main.LIMap) Main.Instance.StartCoroutine(WaitForExileFinish());
+        
+        GC.Collect();
+        Resources.UnloadUnusedAssets();
+        GC.Collect();
         return;
 
         IEnumerator WaitForExileFinish()

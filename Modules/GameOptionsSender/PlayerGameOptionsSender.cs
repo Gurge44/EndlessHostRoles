@@ -740,9 +740,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     case RoleTypes.Engineer:
                         AURoleOptions.EngineerCooldown *= 0.75f;
                         break;
-                    case RoleTypes.GuardianAngel:
-                        AURoleOptions.GuardianAngelCooldown *= 0.75f;
-                        break;
                     case RoleTypes.Shapeshifter:
                         AURoleOptions.ShapeshifterCooldown *= 0.75f;
                         break;

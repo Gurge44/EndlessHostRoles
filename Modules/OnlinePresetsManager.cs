@@ -156,7 +156,7 @@ public static class OnlinePresetsManager
                         GameSettingMenu.Instance.ChangeTab(tabIndex, Controller.currentTouchType == Controller.TouchType.Joystick);
                         ModGameOptionsMenu.TabIndex = tabIndex;
                     }, 0.4f);
-                });
+                }, showBackButton: false);
             }));
             TextMeshPro minusText = row.MinusBtn.GetComponentInChildren<TextMeshPro>();
             minusText.DestroyTranslator();

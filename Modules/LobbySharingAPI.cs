@@ -162,7 +162,6 @@ internal static class ExitGamePatch
 
         GameStates.InGame = false;
         GameEndChecker.LoadingEndScreen = false;
-        Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
         DataFlagRateLimiter.DropQueue();
 
         if (SetUpRoleTextPatch.IsInIntro)
@@ -170,6 +169,9 @@ internal static class ExitGamePatch
             SetUpRoleTextPatch.IsInIntro = false;
             Utils.NotifyRoles(ForceLoop: true);
         }
+
+        if (GameSettingMenu.Instance)
+            GameSettingMenuPatch.Close_Prefix();
     }
 
     public static void Postfix(InnerNetClient __instance)

@@ -14,7 +14,7 @@ public static class Prompt
     private static string CurrentQuestion = string.Empty;
     private static bool ShowBackButton;
 
-    public static void Show(string question, Action onYes, Action onNo, bool showBackButton = false)
+    public static void Show(string question, Action onYes, Action onNo, bool showBackButton = true)
     {
         try
         {

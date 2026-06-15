@@ -86,6 +86,8 @@ internal static class OnGameJoinedPatch
             LateTask.New(() =>
             {                
                 JoiningGame = false;
+                
+                Main.RealOptionsData?.Restore(GameOptionsManager.Instance.CurrentGameOptions);
 
                 Options.AutoSetFactionMinMaxSettings();
 

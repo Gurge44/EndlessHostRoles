@@ -32,13 +32,15 @@ internal static class GhostRolesManager
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);
         pc.RpcSetRoleDesync(instance.RoleTypes, pc.OwnerId);
-        pc.AddAbilityCD(instance.Cooldown);
         instance.OnAssign(pc);
         Main.ResetCamPlayerList.Add(pc.PlayerId);
         AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
 
         if (suitableRole == CustomRoles.Haunter)
             GhostRoles.Remove(suitableRole);
+        
+        if (instance.RoleTypes == RoleTypes.GuardianAngel)
+            pc.AddAbilityCD(instance.Cooldown);
 
         NotifyAboutGhostRole(pc, true);
     }

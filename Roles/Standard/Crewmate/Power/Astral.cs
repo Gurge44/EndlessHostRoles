@@ -52,9 +52,6 @@ public class Astral : RoleBase
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
-
-        try { AURoleOptions.GuardianAngelCooldown = 900f; }
-        catch { }
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

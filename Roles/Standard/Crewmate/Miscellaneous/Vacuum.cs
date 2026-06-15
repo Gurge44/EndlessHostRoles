@@ -60,9 +60,6 @@ public class Vacuum : RoleBase
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
-
-        try { AURoleOptions.GuardianAngelCooldown = 900f; }
-        catch { }
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -99,7 +96,7 @@ public class Vacuum : RoleBase
                 {
                     if (instance.Timer == null) continue;
                     PlayerControl vacuum = instance.VacuumId.GetPlayer();
-                    if (vacuum == null || !vacuum.IsAlive()) continue;
+                    if (!vacuum || !vacuum.IsAlive()) continue;
                     target.TP(vacuum);
                     return false;
                 }

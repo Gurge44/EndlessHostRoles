@@ -25,20 +25,9 @@ public static class ModGameOptionsMenu
     public static readonly Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
     public static readonly System.Collections.Generic.Dictionary<CustomRoles, Transform> HelpIconList = [];
     public static readonly System.Collections.Generic.Dictionary<OptionItem, BaseGameSetting> BaseGameSettingCache = [];
-    public static readonly HashSet<GameObject> SpawnedUI = new();
 
     public static T Track<T>(T obj) where T : Object
     {
-        switch (obj)
-        {
-            case GameObject go:
-                SpawnedUI.Add(go);
-                break;
-            case Component c:
-                SpawnedUI.Add(c.gameObject);
-                break;
-        }
-
         return obj;
     }
 
@@ -1000,6 +989,7 @@ public static class GameSettingMenuPatch
     public static readonly System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
 
     public static long LastPresetChange;
+    public static bool ChangingPreset;
 
     public static FreeChatInputField InputField;
     private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
@@ -1135,6 +1125,7 @@ public static class GameSettingMenuPatch
 
         minus.OnClick.AddListener((Action)(() =>
         {
+            ChangingPreset = true;
             LastPresetChange = Utils.TimeStamp;
             Options.Preset--;
             Main.TabGroupValues.Do(GameOptionsMenuPatch.ReCreateSettings);
@@ -1142,6 +1133,8 @@ public static class GameSettingMenuPatch
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
+            ChangingPreset = false;
+            NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset, true);
         }));
 
         minus.activeTextColor = minus.inactiveTextColor = minus.disabledTextColor = minus.selectedTextColor = Color.white;
@@ -1181,6 +1174,7 @@ public static class GameSettingMenuPatch
 
         plus.OnClick.AddListener((Action)(() =>
         {
+            ChangingPreset = true;
             LastPresetChange = Utils.TimeStamp;
             Options.Preset++;
             Main.TabGroupValues.Do(GameOptionsMenuPatch.ReCreateSettings);
@@ -1188,6 +1182,8 @@ public static class GameSettingMenuPatch
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
+            ChangingPreset = false;
+            NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset, true);
         }));
 
         plus.activeTextColor = plus.inactiveTextColor = plus.disabledTextColor = plus.selectedTextColor = Color.white;

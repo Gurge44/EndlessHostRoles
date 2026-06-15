@@ -5076,8 +5076,7 @@ public static class Utils
             Prompt.Show(
                 string.Format(GetString("Promt.EnableRole"), count, all, rotStr, role.ToColoredString(), infoLong),
                 (() => option.SetValue(1)) + increment,
-                (() => option.SetValue(0)) + increment,
-                showBackButton: true);
+                (() => option.SetValue(0)) + increment);
         }
 
         if (addons) return;
