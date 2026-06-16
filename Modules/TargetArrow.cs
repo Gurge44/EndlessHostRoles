@@ -151,7 +151,7 @@ internal static class TargetArrow
             }
 
             // Take the direction vector of the target
-            Vector3 dir = target.transform.position - seer.transform.position;
+            Vector3 dir = target.Pos3() - seer.Pos3();
             int index;
 
             if (dir.magnitude < 2)

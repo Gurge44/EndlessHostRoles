@@ -1452,6 +1452,12 @@ internal static class ExtendedPlayerControl
 
             return player.transform.position;
         }
+        
+        public Vector3 Pos3()
+        {
+            Vector2 pos = player.Pos();
+            return new Vector3(pos.x, pos.y, player.transform.position.z);
+        }
 
         // Next 5: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
 
