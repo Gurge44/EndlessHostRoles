@@ -778,7 +778,7 @@ internal static class ShipStatusFixedUpdatePatch
             if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
                 Stopwatch.Reset();
-                yield return new WaitForSecondsRealtime(AntiBlackout.SkipTasks ? 2f : 5f);
+                yield return new WaitForSecondsRealtime(5f);
                 Stopwatch.Start();
                 continue;
             }

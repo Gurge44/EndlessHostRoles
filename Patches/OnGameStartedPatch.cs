@@ -344,10 +344,6 @@ internal static class ChangeRoleSettings
             GameStates.AlreadyDied = false;
 
             Main.Instance.StartCoroutine(PopulateSkinItems());
-            
-            GC.Collect();
-            Resources.UnloadUnusedAssets();
-            GC.Collect();
         }
         catch (Exception ex)
         {
@@ -507,6 +503,16 @@ internal static class StartGameHostPatch
         try
         {
             loadingBarManager.SetLoadingPercent(10f, StringNames.LoadingBarGameStart);
+            loadingBarManager.loadingBar.loadingText.text = GetString("LoadingBarText.3");
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        try
+        {
+            GC.Collect();
+            Resources.UnloadUnusedAssets();
+            GC.Collect();
+            
             loadingBarManager.loadingBar.loadingText.text = loadingTextText1;
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -1045,8 +1051,9 @@ internal static class StartGameHostPatch
         }
         
         
+        string loadingText = GetString("LoadingBarText.4");
         LoadingBarManager loadingBarManager = LoadingBarManager.Instance;
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 95f, 1f, GetString("LoadingBarText.1"));
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(90f, 95f, 1f, loadingText);
 
         foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
         {
@@ -1063,7 +1070,8 @@ internal static class StartGameHostPatch
 
         Logger.Info("Successfully set everyone's data as Disconnected", "StartGameHost");
 
-        yield return loadingBarManager.WaitAndSmoothlyUpdate(95f, 100f, 1f, GetString("LoadingBarText.1"));
+        if (GameOptionsManager.Instance.CurrentGameOptions.MapId is 2 or 5) loadingText = GetString("LoadingBarText.5");
+        yield return loadingBarManager.WaitAndSmoothlyUpdate(95f, 100f, 1f, loadingText);
         loadingBarManager.ToggleLoadingBar(false);
 
         Main.EnumeratePlayerControls().Do(SetRoleSelf);

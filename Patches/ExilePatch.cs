@@ -219,9 +219,16 @@ internal static class ExileControllerWrapUpPatch
         Utils.MarkEveryoneDirtySettings();
         Utils.CheckAndSetVentInteractions();
 
-        Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync());
+        Main.Instance.StartCoroutine(Coroutine());
         
         Stopwatch.Reset();
+        return;
+
+        System.Collections.IEnumerator Coroutine()
+        {
+            yield return Utils.NotifyEveryoneAsync();
+            yield return Utils.SendGameData();
+        }
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

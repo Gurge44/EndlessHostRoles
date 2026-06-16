@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using AmongUs.Data;
 using EHR.Patches;
 using EHR.Roles;
@@ -97,6 +98,24 @@ internal static class UrlFinderPatch
     {
         __result = false;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.ForceClosed))]
+static class ChatControllerForceClosedPatch
+{
+    public static bool Prefix()
+    {
+        return !Utils.TempReviveHostRunning || GameStates.IsEnded || !GameStates.InGame;
+    }
+}
+
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.SetVisible))]
+static class ChatControllerSetVisiblePatch
+{
+    public static bool Prefix([HarmonyArgument(0)] bool visible)
+    {
+        return visible || !Utils.TempReviveHostRunning || GameStates.IsEnded || !GameStates.InGame;
     }
 }
 

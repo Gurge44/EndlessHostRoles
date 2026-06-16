@@ -1213,7 +1213,7 @@ public static class Utils
         if (Options.SyncButtonMode.GetBool()) messages.Add(new(GetString("SyncButtonModeInfo"), playerId));
         if (Options.SabotageTimeControl.GetBool()) messages.Add(new(GetString("SabotageTimeControlInfo"), playerId));
         if (Options.RandomMapsMode.GetBool()) messages.Add(new(GetString("RandomMapsModeInfo"), playerId));
-        if (Main.GM.Value) messages.Add(new(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), playerId));
+        if (Main.GM.Value) messages.Add(new(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong").FixRoleName(CustomRoles.GM), playerId));
         messages.AddRange(from role in Main.CustomRoleValues where role.IsEnable() && !role.IsVanilla() select new Message(GetRoleName(role) + GetRoleMode(role) + GetString($"{role}InfoLong").FixRoleName(role), playerId));
         if (Options.NoGameEnd.GetBool()) messages.Add(new(GetString("NoGameEndInfo"), playerId));
         messages.SendMultipleMessages();
@@ -3844,6 +3844,45 @@ public static class Utils
         pc.Data.SendGameData();
 
         return true;
+    }
+    
+    public static IEnumerator SendGameData() 
+    {
+        int messages = 0;
+
+        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+        writer.StartMessage(5);
+        writer.Write(AmongUsClient.Instance.GameId);
+
+        foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
+        {
+            if (writer.Length > 500 || messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
+            {
+                messages = 0;
+                writer.EndMessage();
+                var qa = DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer));
+                yield return qa.Wait();
+                if (qa.Dropped)
+                {
+                    writer.Recycle();
+                    yield break;
+                }
+                writer.Clear(SendOption.Reliable);
+                writer.StartMessage(5);
+                writer.Write(AmongUsClient.Instance.GameId);
+            }
+
+            writer.StartMessage(1);
+            writer.WritePacked(playerinfo.NetId);
+            playerinfo.Serialize(writer, false);
+            writer.EndMessage();
+            
+            messages++;
+        }
+
+        writer.EndMessage();
+        yield return DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer)).Wait();
+        writer.Recycle();
     }
 
     public static void SendGameDataTo(int targetClientId)

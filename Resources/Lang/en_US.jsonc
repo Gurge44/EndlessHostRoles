@@ -10401,8 +10401,11 @@
     Loading Hints           
   ============================== */
   "Loading": "<b><color=#ffff00>Loading....</color></b>\\n<size=2>This may take a minute.</size>",
-  "LoadingBarText.1": "Setting up your game....",
-  "LoadingBarText.2": "{0}/{1} Clients Ready ({2})",
+  "LoadingBarText.1": "Docking The Ship....",
+  "LoadingBarText.2": "Boarding: {0}/{1} ({2}s left)",
+  "LoadingBarText.3": "Opening The Gate....",
+  "LoadingBarText.4": "Heading Off....",
+  "LoadingBarText.5": "Landing....",
   "LoadingHint.0": "Did you know?\nYou can put roles of your choice into custom teams!\nView instructions on our website (link on main menu)!",
   "LoadingHint.1": "Did you know?\nYou can force or ban certain role and add-on combos using /combo in lobby!\nGive it a try after this game!",
   "LoadingHint.2": "Did you know?\nYou can change roles', add-ons', settings', etc. names using custom translation files!",
