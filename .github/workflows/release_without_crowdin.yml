@@ -36,7 +36,6 @@ jobs:
   # ---------------------------------------------------------
   build-control-panel:
     runs-on: windows-latest
-    needs: [prepare-build]
     steps:
       - uses: actions/checkout@v4
 
