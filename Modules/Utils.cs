@@ -3846,43 +3846,72 @@ public static class Utils
         return true;
     }
     
-    public static IEnumerator SendGameData() 
+    public static IEnumerator SendGameDataContinuously()
     {
-        int messages = 0;
-
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-        writer.StartMessage(5);
-        writer.Write(AmongUsClient.Instance.GameId);
-
-        foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        
+        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
         {
-            if (writer.Length > 500 || messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
+            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
-                messages = 0;
-                writer.EndMessage();
-                var qa = DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer));
-                yield return qa.Wait();
-                if (qa.Dropped)
+                stopwatch.Reset();
+                yield return new WaitForSecondsRealtime(10f);
+                stopwatch.Start();
+                continue;
+            }
+            
+            int messages = 0;
+
+            MessageWriter writer = MessageWriter.Get();
+            writer.StartMessage(5);
+            writer.Write(AmongUsClient.Instance.GameId);
+
+            for (var index = 0; index < GameData.Instance.AllPlayers.Count; index++)
+            {
+                NetworkedPlayerInfo playerinfo = GameData.Instance.AllPlayers[index];
+
+                if (writer.Length > 500 || messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
                 {
-                    writer.Recycle();
-                    yield break;
+                    messages = 0;
+                    writer.EndMessage();
+                    var qa = DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer), channel: SendOption.None);
+                    yield return qa.Wait();
+                    yield return new WaitForSecondsRealtime(1f);
+
+                    if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
+                    {
+                        writer.Recycle();
+                        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
+                        yield break;
+                    }
+
+                    writer.Clear(SendOption.None);
+                    writer.StartMessage(5);
+                    writer.Write(AmongUsClient.Instance.GameId);
                 }
-                writer.Clear(SendOption.Reliable);
-                writer.StartMessage(5);
-                writer.Write(AmongUsClient.Instance.GameId);
+                
+                if (!playerinfo || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerinfo.PlayerId)))) continue;
+                
+                playerinfo.IsDead = !playerinfo.Object.IsAlive();
+
+                writer.StartMessage(1);
+                writer.WritePacked(playerinfo.NetId);
+                playerinfo.Serialize(writer, false);
+                writer.EndMessage();
+
+                messages++;
             }
 
-            writer.StartMessage(1);
-            writer.WritePacked(playerinfo.NetId);
-            playerinfo.Serialize(writer, false);
             writer.EndMessage();
+            if (messages > 0) yield return DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer), channel: SendOption.None).Wait();
+            writer.Recycle();
             
-            messages++;
+            stopwatch.Reset();
+            yield return new WaitForSecondsRealtime(5f);
+            stopwatch.Start();
         }
-
-        writer.EndMessage();
-        yield return DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer)).Wait();
-        writer.Recycle();
+        
+        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
     }
 
     public static void SendGameDataTo(int targetClientId)

@@ -232,11 +232,6 @@ internal static class ExileControllerWrapUpPatch
             if (GameStates.IsEnded) yield break;
             
             yield return Utils.NotifyEveryoneAsync();
-
-            foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
-                playerinfo.IsDead = !playerinfo.Object.IsAlive();
-            
-            yield return Utils.SendGameData();
         }
     }
 

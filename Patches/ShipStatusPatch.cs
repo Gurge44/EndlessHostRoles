@@ -773,7 +773,7 @@ internal static class ShipStatusFixedUpdatePatch
     {
         Stopwatch = Stopwatch.StartNew();
         
-        while (ShipStatus.Instance)
+        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
         {
             if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
@@ -831,7 +831,6 @@ internal static class ShipStatusFixedUpdatePatch
             Stopwatch.Start();
         }
         
-        if (ShipStatus.Instance)
-            Main.Instance.StartCoroutine(Postfix());
+        Logger.Msg("Coroutine finished", nameof(ShipStatusFixedUpdatePatch));
     }
 }
