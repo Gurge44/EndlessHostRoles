@@ -67,9 +67,7 @@ public class Entombed : IAddon
         
         if (now - MeetingEndTS <= GracePeriodLength)
         {
-            if (PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             return;
         }
 

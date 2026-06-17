@@ -1653,12 +1653,8 @@ internal static class FixedUpdatePatch
             if (!isLobby)
             {
                 CustomSabotage.UpdateAll();
-
-                if (!lowLoad)
-                {
-                    NameNotifyManager.OnFixedUpdate();
-                    LastImpostor.SetSubRole();
-                }
+                NameNotifyManager.OnFixedUpdate();
+                LastImpostor.SetSubRole();
             }
         }
 
