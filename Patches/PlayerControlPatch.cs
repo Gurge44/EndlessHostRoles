@@ -1266,12 +1266,9 @@ internal static class ReportDeadBodyPatch
         
         LateTask.New(() =>
         {
-            foreach (CustomNetObject cno in CustomNetObject.AllObjects)
+            for (var index = CustomNetObject.AllObjects.Count - 1; index >= 0; index--)
             {
-                try
-                {
-                    cno?.OnMeeting();
-                }
+                try { CustomNetObject.AllObjects[index]?.OnMeeting(); }
                 catch (Exception e) { ThrowException(e); }
             }
         }, 5f, "CNO OnMeeting");

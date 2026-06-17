@@ -282,6 +282,7 @@ public class CustomLogger
         if (string.IsNullOrWhiteSpace(append)) return;
         if (dump) append += HtmlFooter;
         File.AppendAllText(LOGFilePath, append);
+        Builder.Clear();
         PrivateInstance = null;
 #if DEBUG
         Main.Instance.StopCoroutine(InactivityCheck());
