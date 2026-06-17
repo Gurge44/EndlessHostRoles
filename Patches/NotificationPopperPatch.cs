@@ -1,4 +1,5 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using HarmonyLib;
 using Il2CppSystem;
 using UnityEngine;
@@ -20,7 +21,7 @@ internal static class NotificationPopperPatch
 {
     public static NotificationPopper Instance;
 
-    public static void AddSettingsChangeMessage(OptionItem option, bool playSound = false)
+    public static void AddSettingsChangeMessage(OptionItem option)
     {
         if (GameSettingMenuPatch.ChangingPreset) return;
         
@@ -33,16 +34,16 @@ internal static class NotificationPopperPatch
         string parentName = option.Parent?.GetName() ?? string.Empty;
         if (parentName == "Accept") return;
         
-        SendRpc(option.Id, playSound);
+        SendRpc(option.Id);
         
         string str = option.Parent != null
             ? TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + parentName + "</font>: <font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>")
             : TranslationController.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + name + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + optValue + "</font>");
 
-        SettingsChangeMessageLogic(option, str, playSound);
+        SettingsChangeMessageLogic(option, str);
     }
 
-    private static void SettingsChangeMessageLogic(OptionItem option, string item, bool playSound)
+    private static void SettingsChangeMessageLogic(OptionItem option, string item)
     {
         if (Instance.lastMessageKey == option.Id && Instance.activeMessages.Count > 0)
             Instance.activeMessages[^1].UpdateMessage(item);
@@ -56,15 +57,30 @@ internal static class NotificationPopperPatch
             Instance.AddMessageToQueue(newMessage);
         }
 
-        if (playSound) SoundManager.Instance.PlaySoundImmediate(Instance.settingsChangeSound, false);
+        SoundManager.Instance.PlaySoundImmediate(Instance.settingsChangeSound, false);
     }
 
-    private static void SendRpc(int optionId, bool playSound = true)
+    private static readonly HashSet<int> RpcBatch = [];
+
+    private static void SendRpc(int optionId)
     {
         if (!AmongUsClient.Instance.AmHost || Options.HideGameSettings.GetBool() || !Utils.DoRPC) return;
-        var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, Hazel.SendOption.None);
-        msg.Write(optionId);
-        msg.Write(playSound);
+        
+        if (RpcBatch.Add(optionId) && RpcBatch.Count >= 5)
+            ReleaseRpcs();
+    }
+
+    public static void ReleaseRpcs()
+    {
+        OptionItem.SyncAllOptions();
+        
+        if (RpcBatch.Count == 0) return;
+        
+        var msg = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NotificationPopper, Hazel.SendOption.Reliable);
+        msg.WritePacked(RpcBatch.Count);
+        RpcBatch.Do(msg.WritePacked);
         AmongUsClient.Instance.FinishRpcImmediately(msg);
+        
+        RpcBatch.Clear();
     }
 }

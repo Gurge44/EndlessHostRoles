@@ -564,7 +564,7 @@ public static class ToggleOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetBool() ? 1 : 0);
             __instance.OnValueChanged.Invoke(__instance);
-            NotificationPopperPatch.AddSettingsChangeMessage(item, true);
+            NotificationPopperPatch.AddSettingsChangeMessage(item);
             return false;
         }
 
@@ -657,7 +657,7 @@ public static class NumberOptionPatch
                     break;
             }
 
-            NotificationPopperPatch.AddSettingsChangeMessage(item, true);
+            NotificationPopperPatch.AddSettingsChangeMessage(item);
             return false;
         }
 
@@ -904,7 +904,7 @@ public static class StringOptionPatch
         {
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
-            NotificationPopperPatch.AddSettingsChangeMessage(item, true);
+            NotificationPopperPatch.AddSettingsChangeMessage(item);
             __instance.TitleText.SetText(NameCache[__instance]);
             return false;
         }
@@ -1134,7 +1134,7 @@ public static class GameSettingMenuPatch
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
             ChangingPreset = false;
-            NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset, true);
+            NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset);
         }));
 
         minus.activeTextColor = minus.inactiveTextColor = minus.disabledTextColor = minus.selectedTextColor = Color.white;
@@ -1183,7 +1183,7 @@ public static class GameSettingMenuPatch
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
             ChangingPreset = false;
-            NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset, true);
+            NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset);
         }));
 
         plus.activeTextColor = plus.inactiveTextColor = plus.disabledTextColor = plus.selectedTextColor = Color.white;
@@ -1562,6 +1562,8 @@ public static class GameSettingMenuPatch
         catch (Exception e) { Utils.ThrowException(e); }
         
         Options.AutoSetFactionMinMaxSettings();
+        
+        NotificationPopperPatch.ReleaseRpcs();
     }
 }
 
@@ -1597,14 +1599,5 @@ public static class FixDarkThemeForSearchBar
             field.textArea.compoText.Color(Color.white);
             field.textArea.outputText.color = Color.white;
         }
-    }
-}
-
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSyncSettings))]
-public static class RpcSyncSettingsPatch
-{
-    public static void Postfix()
-    {
-        OptionItem.SyncAllOptions();
     }
 }

@@ -619,7 +619,7 @@ internal static class RPCHandlerPatch
                 }
                 case CustomRPC.NotificationPopper:
                 {
-                    NotificationPopperPatch.AddSettingsChangeMessage(OptionItem.FastOptions[reader.ReadPackedInt32()], reader.ReadBoolean());
+                    Loop.Times(reader.ReadPackedInt32(), _ => NotificationPopperPatch.AddSettingsChangeMessage(OptionItem.FastOptions[reader.ReadPackedInt32()]));
                     break;
                 }
                 case CustomRPC.RequestCommandProcessing:
