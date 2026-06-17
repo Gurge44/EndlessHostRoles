@@ -189,7 +189,7 @@ public static class SpamManager
         if (text.Length > 35)
             return false;
 
-        string normalized = Normalize(text);
+        string normalized = Normalize(text).Replace("starlight", string.Empty);
 
         foreach (string word in words)
         {

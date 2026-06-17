@@ -1387,7 +1387,7 @@ internal static class TaskPanelBehaviourPatch
                 {
                     FinalTextBuilder.Append("\r\n\r\n")
                         .Append("<size=90%>")
-                        .Append(string.Join('\n', Main.EnumeratePlayerControls().Select(pc => new { pc, alive = pc.IsAlive() }).OrderByDescending(x => x.alive).Select(x => $"{(!x.alive ? "<#777777><s>" : "")}{HotPotato.GetIndicator(x.pc.PlayerId)}{(x.alive ? x.pc.PlayerId.ColoredPlayerName() : Main.AllPlayerNames.GetValueOrDefault(x.pc.PlayerId, $"ID {x.pc.PlayerId}"))}{(!x.alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></s>" : "")}")))
+                        .Append(string.Join('\n', Main.EnumeratePlayerControls().Select(pc => new { pc, alive = pc.IsAlive() }).OrderByDescending(x => x.alive).Select(x => $"{(!x.alive ? "<#777777><s>" : "")}{HotPotato.GetIndicator(x.pc.PlayerId)}{(x.alive ? x.pc.PlayerId.ColoredPlayerName() : Main.AllPlayerNames.GetValueOrDefault(x.pc.PlayerId, $"ID {x.pc.PlayerId}"))}{(!x.alive ? $"</color></s>  <#ff0000>{GetString("Dead")}</color>" : "</b>")}")))
                         .Append("</size>");
                     break;
                 }

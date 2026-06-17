@@ -96,7 +96,26 @@ public static class Utils
 
     private static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
 
-    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.EnumeratePlayerControls().Any(x => x.IsModdedClient() && !x.IsHost());
+    public static bool DoRPC
+    {
+        get
+        {
+            if (!AmongUsClient.Instance.AmHost) return false;
+
+            var apc = Main.CachedAllPlayerControls();
+
+            for (int i = 0; i < apc.Count; i++)
+            {
+                PlayerControl pc = apc[i];
+                
+                if (pc && !pc.AmOwner && Main.PlayerVersion.ContainsKey(pc.PlayerId))
+                    return true;
+            }
+            
+            return false;
+        }
+    }
+
     public static int TotalTaskCountForReset => Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
 

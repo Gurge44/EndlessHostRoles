@@ -563,11 +563,11 @@ public static class TemplateManager
         blocked = false;
         blockSource = null;
 
-        List<TemplateEntry> restricted = [.. eligible.FindAll(hasCondition)];
+        List<TemplateEntry> restricted = eligible.FindAll(hasCondition);
         if (restricted.Count == 0) return eligible;
 
-        List<TemplateEntry> unrestricted = [.. eligible.FindAll(e => !hasCondition(e))];
-        List<TemplateEntry> passing = [.. restricted.FindAll(meetsCondition)];
+        List<TemplateEntry> unrestricted = eligible.FindAll(e => !hasCondition(e));
+        List<TemplateEntry> passing = restricted.FindAll(meetsCondition);
 
         if (passing.Count > 0) return passing;
         if (unrestricted.Count > 0) return unrestricted;

@@ -35,7 +35,7 @@ public static class RoomRush
     private static long TimeLimitEndTS;
     private static HashSet<byte> DonePlayers = [];
 
-    private static bool GameGoing;
+    public static bool GameGoing;
     public static DateTime GameStartDateTime;
 
     private static RandomSpawn.SpawnMap Map;
@@ -700,7 +700,7 @@ public static class RoomRush
         GameGoing = false;
 
         int ventLimit = VentTimes.GetInt();
-        VentLimit = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => ventLimit);
+        VentLimit = Main.CachedAllPlayerControls().ToDictionary(x => x.PlayerId, _ => ventLimit);
 
         AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
         AllRooms.Remove(SystemTypes.Hallway);
@@ -711,7 +711,7 @@ public static class RoomRush
         Points = [];
 
         if (WinByPointsInsteadOfDeaths.GetBool())
-            Points = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => 0);
+            Points = Main.CachedAllPlayerControls().ToDictionary(x => x.PlayerId, _ => 0);
 
         try { Map = RandomSpawn.SpawnMap.GetSpawnMap(); }
         catch { }
@@ -807,7 +807,14 @@ public static class RoomRush
         }
 
         if (ventLimit > 0)
-            aapc.Do(x => x.RpcSetRoleGlobal(RoleTypes.Engineer));
+        {
+            for (int i = 0; i < aapc.Count; i++)
+            {
+                var pc = aapc[i];
+                if (!pc || !pc.IsAlive()) continue;
+                pc.RpcSetRoleGlobal(RoleTypes.Engineer);
+            }
+        }
 
         Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
@@ -839,7 +846,6 @@ public static class RoomRush
 
         DonePlayers.Clear();
         RoomGoal = AllRooms.Without(previous).RandomElement();
-        Vector2 goalPos = RoomGoal.GetRoomClass().transform.position;
         float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         int time;
         
@@ -880,8 +886,13 @@ public static class RoomRush
         TimeLimitEndTS = Utils.TimeStamp + time;
         Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous)} ({previous}), to: {Translator.GetString(RoomGoal)} ({RoomGoal}) - Time: {time}  ({map})", "RoomRush");
 
-        Main.EnumeratePlayerControls().Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
-        if (DisplayArrowToRoom.GetBool()) Main.EnumeratePlayerControls().Do(x => LocateArrow.Add(x.PlayerId, goalPos));
+        try
+        {
+            Main.CachedAllPlayerControls().Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
+            Vector2 goalPos = RoomGoal.GetRoomClass().transform.position;
+            if (DisplayArrowToRoom.GetBool()) Main.CachedAllPlayerControls().Do(x => LocateArrow.Add(x.PlayerId, goalPos));
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
 
         Utils.NotifyRoles();
         LateTask.New(() => Utils.DirtyName.Add(PlayerControl.LocalPlayer.PlayerId), 0.2f);
@@ -961,8 +972,8 @@ public static class RoomRush
             case 1:
                 PointsToWinValue = PointsToWin.GetInt() * Main.AllAlivePlayerControlsCount;
                 int ventLimit = VentTimes.GetInt();
-                VentLimit = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => ventLimit);
-                if (WinByPointsInsteadOfDeaths.GetBool()) Points = Main.EnumeratePlayerControls().ToDictionary(x => x.PlayerId, _ => 0);
+                VentLimit = Main.CachedAllPlayerControls().ToDictionary(x => x.PlayerId, _ => ventLimit);
+                if (WinByPointsInsteadOfDeaths.GetBool()) Points = Main.CachedAllPlayerControls().ToDictionary(x => x.PlayerId, _ => 0);
                 break;
             case 2:
                 int limit = reader.ReadPackedInt32();

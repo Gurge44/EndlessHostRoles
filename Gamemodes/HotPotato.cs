@@ -91,7 +91,7 @@ internal static class HotPotato
 
     public static string GetIndicator(byte id)
     {
-        return HotPotatoState.HolderID == id ? "  \u2668  " : string.Empty;
+        return HotPotatoState.HolderID == id ? "  \u2668  <b>" : string.Empty;
     }
 
     public static string GetSuffixText(byte id, bool hud)
