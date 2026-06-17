@@ -1,5 +1,9 @@
 name: Build & Release EHR
 
+permissions:
+  actions: read
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:
@@ -98,20 +102,75 @@ jobs:
           path: build\EHR_Control-Panel_BETA.exe
 
   # ---------------------------------------------------------
-  # 3) Package everything on Linux
+  # 3) Sign binaries using SignPath
   # ---------------------------------------------------------
-  package:
+  sign:
     runs-on: ubuntu-latest
     needs: [build-ehr, build-control-panel]
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download EHR artifact
+      - name: Download EHR
         uses: actions/download-artifact@v4
         with:
           name: ehr
-          path: artifacts/ehr
+          path: signing
+
+      - name: Download Control Panel
+        uses: actions/download-artifact@v4
+        with:
+          name: control-panel
+          path: signing
+
+      - name: Create SignPath ZIP
+        run: |
+          cd signing
+          zip ../signpath-input.zip EHR.dll EHR_Control-Panel_BETA.exe
+
+      - name: Upload unsigned artifact
+        id: upload-unsigned-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: signpath-input
+          path: signpath-input.zip
+
+      - name: Submit signing request
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: 298f5e96-d02b-40b5-88f6-32bddafcd47d
+          project-slug: EndlessHostRoles
+          signing-policy-slug: test-signing
+          artifact-configuration-slug: initial
+          github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+
+      - name: Extract signed ZIP
+        run: |
+          mkdir extracted
+          unzip signed/*.zip -d extracted
+
+      - name: Upload signed binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-binaries
+          path: extracted/*
+
+  # ---------------------------------------------------------
+  # 4) Package everything on Linux
+  # ---------------------------------------------------------
+  package:
+    runs-on: ubuntu-latest
+    needs: [sign]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download signed binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: signed-binaries
+          path: artifacts/signed
 
       - name: Prepare release folders
         run: |
@@ -129,8 +188,8 @@ jobs:
 
       - name: Copy EHR dll to plugins
         run: |
-          cp artifacts/ehr/EHR.dll epic/BepInEx/plugins/
-          cp artifacts/ehr/EHR.dll steam/BepInEx/plugins/
+          cp artifacts/signed/EHR.dll epic/BepInEx/plugins/
+          cp artifacts/signed/EHR.dll steam/BepInEx/plugins/
 
       - name: Download modded regions DLL
         run: |
@@ -143,7 +202,7 @@ jobs:
           cp -r packaging/* steam/
 
       - name: Steam App ID
-        run : echo "945360" > steam_appid.txt
+        run : echo "945360" > steam/steam_appid.txt
 
       - name: Create Epic/MS Store ZIP
         run: |
@@ -162,7 +221,7 @@ jobs:
           path: ./EHR*.zip
 
   # ---------------------------------------------------------
-  # 4) Create GitHub Release
+  # 5) Create GitHub Release
   # ---------------------------------------------------------
   release:
     runs-on: ubuntu-latest
@@ -180,17 +239,11 @@ jobs:
           name: final-zips
           path: release-artifacts/zips
 
-      - name: Download EHR.dll
+      - name: Download signed binaries
         uses: actions/download-artifact@v4
         with:
-          name: ehr
-          path: release-artifacts/ehr
-
-      - name: Download Control Panel EXE
-        uses: actions/download-artifact@v4
-        with:
-          name: control-panel
-          path: release-artifacts/control-panel
+          name: signed-binaries
+          path: release-artifacts/signed
 
       # -----------------------------
       # Create GitHub Release
@@ -204,8 +257,8 @@ jobs:
           body_path: CHANGELOG.md
           files: |
             release-artifacts/zips/*
-            release-artifacts/ehr/EHR.dll
-            release-artifacts/control-panel/*.exe
+            release-artifacts/signed/EHR.dll
+            release-artifacts/signed/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # -----------------------------
