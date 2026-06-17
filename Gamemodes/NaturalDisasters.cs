@@ -38,8 +38,8 @@ public static class NaturalDisasters
 
     private static readonly string[] LimitReachedOptions =
     [
-        "ND_LimitReachedOptions.RemoveRandom",
-        "ND_LimitReachedOptions.RemoveOldest"
+        "ND_LimitReachedOptions.RemoveOldest",
+        "ND_LimitReachedOptions.RemoveRandom"
     ];
 
     private static readonly string[] DisasterSpawnModes =
@@ -89,12 +89,12 @@ public static class NaturalDisasters
             .SetParent(LimitMaximumDisastersAtOnce)
             .SetColor(color);
 
-        WhenLimitIsReached = new StringOptionItem(id++, "ND_WhenLimitIsReached", LimitReachedOptions, 1, TabGroup.GameSettings)
+        WhenLimitIsReached = new StringOptionItem(id++, "ND_WhenLimitIsReached", LimitReachedOptions, 0, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetParent(LimitMaximumDisastersAtOnce)
             .SetColor(color);
 
-        PreferRemovingThunderstorm = new BooleanOptionItem(id++, "ND_PreferRemovingThunderstorm", true, TabGroup.GameSettings)
+        PreferRemovingThunderstorm = new BooleanOptionItem(id++, "ND_PreferRemovingThunderstorm", false, TabGroup.GameSettings)
             .SetGameMode(gameMode)
             .SetParent(WhenLimitIsReached)
             .SetColor(color);
@@ -516,7 +516,7 @@ public static class NaturalDisasters
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            Speed = new FloatOptionItem(id + 1, "ND_Earthquake.Speed", new(0.05f, 2f, 0.05f), 0.2f, TabGroup.GameSettings)
+            Speed = new FloatOptionItem(id + 1, "ND_Earthquake.Speed", new(0.05f, 2f, 0.05f), 0.1f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -528,7 +528,7 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                float speed = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range) switch
+                float speed = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range * 1.25f) switch
                 {
                     true when AffectedPlayers.Add(pc.PlayerId) => Speed.GetFloat(),
                     false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
@@ -678,7 +678,7 @@ public static class NaturalDisasters
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            GoesThroughWalls = new BooleanOptionItem(id + 1, "ND_Tornado.GoesThroughWalls", false, TabGroup.GameSettings)
+            GoesThroughWalls = new BooleanOptionItem(id + 1, "ND_Tornado.GoesThroughWalls", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color);
 
@@ -687,7 +687,7 @@ public static class NaturalDisasters
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Multiplier);
 
-            AngleChangeFrequency = new IntegerOptionItem(id + 3, "ND_Tornado.AngleChangeFrequency", new(1, 30, 1), 5, TabGroup.GameSettings)
+            AngleChangeFrequency = new IntegerOptionItem(id + 3, "ND_Tornado.AngleChangeFrequency", new(1, 30, 1), 3, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -787,7 +787,7 @@ public static class NaturalDisasters
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            HitFrequency = new IntegerOptionItem(id + 1, "ND_Thunderstorm.HitFrequency", new(1, 20, 1), 3, TabGroup.GameSettings)
+            HitFrequency = new IntegerOptionItem(id + 1, "ND_Thunderstorm.HitFrequency", new(1, 20, 1), 2, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -861,7 +861,7 @@ public static class NaturalDisasters
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            Vision = new FloatOptionItem(id + 1, "ND_SandStorm.Vision", new(0f, 1f, 0.05f), 0.2f, TabGroup.GameSettings)
+            Vision = new FloatOptionItem(id + 1, "ND_SandStorm.Vision", new(0f, 1f, 0.05f), 0f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -873,7 +873,7 @@ public static class NaturalDisasters
 
             foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
             {
-                bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range);
+                bool inRange = FastVector2.DistanceWithinRange(pc.Pos(), Position, Range * 1.25f);
                 
                 if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
                     pc.MarkDirtySettings();

@@ -8,6 +8,7 @@ using EHR.Roles;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
+using UnityEngine;
 
 namespace EHR.Patches;
 
@@ -226,7 +227,15 @@ internal static class ExileControllerWrapUpPatch
 
         System.Collections.IEnumerator Coroutine()
         {
+            yield return new WaitForSecondsRealtime(0.2f);
+            
+            if (GameStates.IsEnded) yield break;
+            
             yield return Utils.NotifyEveryoneAsync();
+
+            foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
+                playerinfo.IsDead = !playerinfo.Object.IsAlive();
+            
             yield return Utils.SendGameData();
         }
     }
