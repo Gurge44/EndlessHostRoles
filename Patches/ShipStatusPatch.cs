@@ -91,10 +91,10 @@ internal static class UpdateSystemPatch
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
     {
-        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "UpdateSystem");
+        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole()}, amount: {amount}", "UpdateSystem");
 #if DEBUG
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
-            Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
+            Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole()}, amount: {amount}");
 #endif
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
@@ -143,14 +143,14 @@ internal static class UpdateSystemPatch
                     {
                         case Mechanic:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Mechanic");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Mechanic");
                             Mechanic.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
                         }
                         case Alchemist { FixNextSabo: true } am:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Alchemist");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Alchemist");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
                             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
@@ -160,7 +160,7 @@ internal static class UpdateSystemPatch
                         }
                         case Adventurer av:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Adventurer");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Adventurer");
                             if (amount.HasBit(SwitchSystem.DamageSystem)) break;
 
                             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ (1 << amount));
@@ -170,7 +170,7 @@ internal static class UpdateSystemPatch
                         }
                         case Technician:
                         {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Technician");
+                            Logger.Info($"{player.GetNameWithRole()} instant-fix-lights", "Technician");
                             Technician.SwitchSystemRepair(player.PlayerId, switchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;

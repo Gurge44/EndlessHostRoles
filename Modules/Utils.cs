@@ -180,7 +180,7 @@ public static class Utils
 
             if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || (submerged && pc.AmOwner && SubmergedCompatibility.GetInTransition()))
             {
-                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+                if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is in an un-teleportable state - Teleporting canceled", "TP");
                 return false;
             }
 
@@ -188,12 +188,12 @@ public static class Utils
             {
                 case < 0.3f:
                 {
-                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is too close to the destination - Teleporting canceled", "TP");
                     return false;
                 }
                 case < 1.5f when !GameStates.IsLobby:
                 {
-                    if (log) Logger.Msg($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Changed to SendOption.None", "TP");
+                    if (log) Logger.Msg($"Target ({pc.GetNameWithRole()}) is too close to the destination - Changed to SendOption.None", "TP");
                     sendOption = SendOption.None;
                     break;
                 }
@@ -229,7 +229,7 @@ public static class Utils
         messageWriter.Write(newSid);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
-        if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+        if (log) Logger.Info($"{pc.GetNameWithRole()} => {location}", "TP");
 
         if (submerged)
         {
@@ -246,7 +246,7 @@ public static class Utils
         Il2CppReferenceArray<Vent> vents = ShipStatus.Instance.AllVents;
         Vent vent = vents.RandomElement();
 
-        Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
+        Logger.Info($"{nt.myPlayer.GetNameWithRole()} => {vent.transform.position} (vent)", "TP");
 
         return TP(nt, new(vent.transform.position.x, vent.transform.position.y + 0.3636f), log);
     }
@@ -1117,7 +1117,7 @@ public static class Utils
         PlayerControl pc = GetPlayerById(playerId);
 
         try { state.Role.GetProgressText(playerId, comms, ProgressText); }
-        catch (Exception ex) { Logger.Error($"For {pc.GetNameWithRole().RemoveHtmlTags()}, failed to get progress text:  " + ex, "Utils.GetProgressText"); }
+        catch (Exception ex) { Logger.Error($"For {pc.GetNameWithRole()}, failed to get progress text:  " + ex, "Utils.GetProgressText"); }
 
         if (pc.Is(CustomRoles.Damocles)) Damocles.GetProgressText(playerId, ProgressText);
         if (pc.Is(CustomRoles.Stressed)) Stressed.GetProgressText(playerId, ProgressText);
@@ -3867,67 +3867,40 @@ public static class Utils
     
     public static IEnumerator SendGameDataContinuously()
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        float waitTime = GameData.Instance.AllPlayers.Count switch
+        {
+            <= 15 => 1f,
+            <= 20 => 0.8f,
+            _ => 0.5f
+        };
         
         while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
         {
             if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
             {
-                stopwatch.Reset();
                 yield return new WaitForSecondsRealtime(10f);
-                stopwatch.Start();
                 continue;
             }
-            
-            int messages = 0;
-
-            MessageWriter writer = MessageWriter.Get();
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
 
             for (var index = 0; index < GameData.Instance.AllPlayers.Count; index++)
             {
-                NetworkedPlayerInfo playerinfo = GameData.Instance.AllPlayers[index];
+                NetworkedPlayerInfo playerInfo = GameData.Instance.AllPlayers[index];
+                
+                if (!playerInfo || (Astral.On && Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out PlayerState state) && state.Role is Astral { Timer: not null }) || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerInfo.PlayerId)))) continue;
 
-                if (writer.Length > 500 || messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
+                playerInfo.IsDead = !playerInfo.Object.IsAlive();
+
+                var qa = playerInfo.SendGameData(SendOption.None);
+                yield return qa.Wait();
+
+                if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
                 {
-                    messages = 0;
-                    writer.EndMessage();
-                    var qa = DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer), channel: SendOption.None);
-                    yield return qa.Wait();
-                    yield return new WaitForSecondsRealtime(1f);
-
-                    if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
-                    {
-                        writer.Recycle();
-                        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
-                        yield break;
-                    }
-
-                    writer.Clear(SendOption.None);
-                    writer.StartMessage(5);
-                    writer.Write(AmongUsClient.Instance.GameId);
+                    Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
+                    yield break;
                 }
-                
-                if (!playerinfo || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerinfo.PlayerId)))) continue;
-                
-                playerinfo.IsDead = !playerinfo.Object.IsAlive();
 
-                writer.StartMessage(1);
-                writer.WritePacked(playerinfo.NetId);
-                playerinfo.Serialize(writer, false);
-                writer.EndMessage();
-
-                messages++;
+                yield return new WaitForSecondsRealtime(waitTime);
             }
-
-            writer.EndMessage();
-            if (messages > 0) yield return DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(writer), channel: SendOption.None).Wait();
-            writer.Recycle();
-            
-            stopwatch.Reset();
-            yield return new WaitForSecondsRealtime(5f);
-            stopwatch.Start();
         }
         
         Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
@@ -3942,7 +3915,7 @@ public static class Utils
         writer.Write(AmongUsClient.Instance.GameId);
         writer.WritePacked(targetClientId);
 
-        foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
+        foreach (NetworkedPlayerInfo playerInfo in GameData.Instance.AllPlayers)
         {
             if (writer.Length > 500 || messages >= AmongUsClient.Instance.GetMaxMessagePackingLimit())
             {
@@ -3964,8 +3937,8 @@ public static class Utils
             }
 
             writer.StartMessage(1);
-            writer.WritePacked(playerinfo.NetId);
-            playerinfo.Serialize(writer, false);
+            writer.WritePacked(playerInfo.NetId);
+            playerInfo.Serialize(writer, false);
             writer.EndMessage();
 
             messages++;
@@ -4532,7 +4505,7 @@ public static class Utils
 
         return num switch
         {
-            < 128 when player => player.GetNameWithRole().RemoveHtmlTags(),
+            < 128 when player => player.GetNameWithRole(),
             253 => "Skip",
             254 => "None",
             255 => "Dead",
@@ -5071,49 +5044,57 @@ public static class Utils
 
     public static string GetRegionName(IRegionInfo region = null, bool ignoreNetworkMode = false)
     {
-        region ??= ServerManager.Instance.CurrentRegion;
-
-        string name = region.Name;
-
-        if (!ignoreNetworkMode && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+        try
         {
-            name = "Local Game";
-            return name;
-        }
+            region ??= ServerManager.Instance.CurrentRegion;
 
-        if (region.PingServer.EndsWith("among.us", StringComparison.Ordinal))
-        {
-            // Official server
-            name = name switch
+            string name = region.Name;
+
+            if (!ignoreNetworkMode && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
-                "North America" => "NA",
-                "Europe" => "EU",
-                "Asia" => "AS",
-                _ => name
-            };
+                name = "Local Game";
+                return name;
+            }
+
+            if (region.PingServer.EndsWith("among.us", StringComparison.Ordinal))
+            {
+                // Official server
+                name = name switch
+                {
+                    "North America" => "NA",
+                    "Europe" => "EU",
+                    "Asia" => "AS",
+                    _ => name
+                };
+
+                return name;
+            }
+
+            string ip = region.Servers.FirstOrDefault()?.Ip ?? string.Empty;
+
+            if (ip.Contains("aumods.org", StringComparison.Ordinal) || ip.Contains("duikbo.at", StringComparison.Ordinal))
+            {
+                // Official Modded Server
+                if (ip.Contains("au-eu"))
+                    name = "MEU";
+                else if (ip.Contains("au-as"))
+                    name = "MAS";
+                else
+                    name = "MNA";
+
+                return name;
+            }
+
+            if (name.Contains("Niko", StringComparison.OrdinalIgnoreCase))
+                name = name.Replace("233(", "-").Replace("233 (", "-").TrimEnd(')');
 
             return name;
         }
-
-        string ip = region.Servers.FirstOrDefault()?.Ip ?? string.Empty;
-
-        if (ip.Contains("aumods.org", StringComparison.Ordinal) || ip.Contains("duikbo.at", StringComparison.Ordinal))
+        catch
         {
-            // Official Modded Server
-            if (ip.Contains("au-eu"))
-                name = "MEU";
-            else if (ip.Contains("au-as"))
-                name = "MAS";
-            else
-                name = "MNA";
-
-            return name;
+            try { return (region ?? ServerManager.Instance.CurrentRegion).Name; }
+            catch { return string.Empty; }
         }
-
-        if (name.Contains("Niko", StringComparison.OrdinalIgnoreCase))
-            name = name.Replace("233(", "-").Replace("233 (", "-").TrimEnd(')');
-
-        return name;
     }
 
     private static (int AddonsProgress, int RolesProgress) QuickSetupProgress;

@@ -145,7 +145,7 @@ public class Investigator : RoleBase
                         NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
                         RPC.ResetCurrentRevealTarget(player.PlayerId);
 
-                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Investigator");
+                        Logger.Info($"Canceled: {player.GetNameWithRole()}", "Investigator");
                     }
                 }
             }

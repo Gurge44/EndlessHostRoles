@@ -430,12 +430,12 @@ internal static class GameEndChecker
 
                 if (toGhostImpostor)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
+                    Logger.Info($"{pc.GetNameWithRole()}: changed to ImpostorGhost", "ResetRoleAndEndGame");
                     pc.RpcSetRole(RoleTypes.ImpostorGhost);
                 }
                 else
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: changed to CrewmateGhost", "ResetRoleAndEndGame");
+                    Logger.Info($"{pc.GetNameWithRole()}: changed to CrewmateGhost", "ResetRoleAndEndGame");
                     pc.RpcSetRole(RoleTypes.CrewmateGhost);
                 }
             }

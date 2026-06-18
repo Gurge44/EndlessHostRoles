@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
+using AmongUs.QuickChat;
 using EHR.Gamemodes;
 using EHR.Patches;
 using EHR.Roles;
@@ -311,7 +312,7 @@ internal static class RPCHandlerPatch
                             return false;
                         }
 
-                        Logger.Info($"RPC Set Name For Player: {__instance.GetNameWithRole().RemoveHtmlTags()} => {name}", "SetName");
+                        Logger.Info($"RPC Set Name For Player: {__instance.GetNameWithRole()} => {name}", "SetName");
                         break;
                     case RpcCalls.SetRole:
                         var role = (RoleTypes)subReader.ReadUInt16();
@@ -320,7 +321,7 @@ internal static class RPCHandlerPatch
                         break;
                     case RpcCalls.SendChat:
                         string text = subReader.ReadString();
-                        Logger.Info($"({__instance.FriendCode}|{__instance.GetClient()?.GetHashedPuid()}) {__instance.GetNameWithRole().RemoveHtmlTags()}: {text}", "ReceiveChat");
+                        Logger.Info($"({__instance.FriendCode}|{__instance.GetClient()?.GetHashedPuid()}) {__instance.GetNameWithRole()}: {text}", "ReceiveChat");
                         ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
 
                         if (canceled)
@@ -330,12 +331,24 @@ internal static class RPCHandlerPatch
                         }
 
                         break;
+                    case RpcCalls.SendQuickChat:
+                        string quickText = QuickChatNetData.Deserialize(subReader).ToChatText();
+                        Logger.Info($"({__instance.FriendCode}|{__instance.GetClient()?.GetHashedPuid()}) {__instance.GetNameWithRole()}: {quickText}", "ReceiveQuickChat");
+                        ChatCommands.OnReceiveChat(__instance, quickText, out bool quickCanceled);
+
+                        if (quickCanceled)
+                        {
+                            subReader.Recycle();
+                            return false;
+                        }
+
+                        break;
                     case RpcCalls.StartMeeting:
                         PlayerControl p = Utils.GetPlayerById(subReader.ReadByte());
-                        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
+                        Logger.Info($"{__instance.GetNameWithRole()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
                         break;
                     case RpcCalls.Pet:
-                        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} petted their pet", "RpcHandlerPatch");
+                        Logger.Info($"{__instance.GetNameWithRole()} petted their pet", "RpcHandlerPatch");
                         break;
                 }
 

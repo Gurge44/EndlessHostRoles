@@ -250,7 +250,7 @@ internal class Arsonist : RoleBase
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                         RPC.ResetCurrentDousingTarget(playerId);
 
-                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
+                        Logger.Info($"Canceled: {player.GetNameWithRole()}", "Arsonist");
                     }
                 }
             }

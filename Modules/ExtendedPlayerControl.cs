@@ -2466,28 +2466,28 @@ internal static class ExtendedPlayerControl
         }
     }
 
-    extension(NetworkedPlayerInfo player)
+    extension(NetworkedPlayerInfo playerInfo)
     {
         public CustomRoles GetCustomRole()
         {
-            return (!player || !player.Object) ? CustomRoles.Crewmate : player.Object.GetCustomRole();
+            return (!playerInfo || !playerInfo.Object) ? CustomRoles.Crewmate : playerInfo.Object.GetCustomRole();
         }
 
-        public DataFlagRateLimiter.QueuedAction SendGameData()
+        public DataFlagRateLimiter.QueuedAction SendGameData(SendOption sendOption = SendOption.Reliable)
         {
             return DataFlagRateLimiter.Enqueue(() =>
             {
-                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                MessageWriter writer = MessageWriter.Get(sendOption);
                 writer.StartMessage(5);
                 writer.Write(AmongUsClient.Instance.GameId);
                 writer.StartMessage(1);
-                writer.WritePacked(player.NetId);
-                player.Serialize(writer, false);
+                writer.WritePacked(playerInfo.NetId);
+                playerInfo.Serialize(writer, false);
                 writer.EndMessage();
                 writer.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Recycle();
-            });
+            }, channel: sendOption);
         }
     }
 

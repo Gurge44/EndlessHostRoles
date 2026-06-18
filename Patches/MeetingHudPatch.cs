@@ -83,7 +83,7 @@ internal static class CheckForEndVotingPatch
 
                     Statistics.OnVotingComplete(States.ToArray(), voteTarget.Data, false, true);
 
-                    Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
+                    Logger.Info($"{voteTarget.GetNameWithRole()} expelled by dictator", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
                     Logger.Info("Dictatorship vote, forced end of meeting", "Special Phase");
 
@@ -140,11 +140,11 @@ internal static class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.SkippedVote, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Commit suicide for skipping voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Commit suicide for skipping voting");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to skipping voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Self-voting due to skipping voting");
                                 break;
                         }
                     }
@@ -155,15 +155,15 @@ internal static class CheckForEndVotingPatch
                         {
                             case VoteMode.Suicide:
                                 TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.DidntVote, ps.TargetPlayerId);
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Committed suicide for not voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Committed suicide for not voting");
                                 break;
                             case VoteMode.SelfVote:
                                 ps.VotedFor = ps.TargetPlayerId;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Self-voting due to not voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Self-voting due to not voting");
                                 break;
                             case VoteMode.Skip:
                                 ps.VotedFor = 253;
-                                voteLog.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} Skip for not voting");
+                                voteLog.Info($"{voter.GetNameWithRole()} Skip for not voting");
                                 break;
                         }
                     }
@@ -548,7 +548,7 @@ internal static class CheckForEndVotingPatch
     {
         if (playerIds.Length == 0) return;
         Logger.Info($"{playerIds.Join(x => Main.AllPlayerNames[x])} - died with the reason: {deathReason}", "TryAddAfterMeetingDeathPlayers");
-        byte[] addedIdList = playerIds.Where(playerId => Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason)).ToArray();
+        byte[] addedIdList = playerIds.Where(id => (!Main.PlayerStates.TryGetValue(id, out PlayerState state) || state.MainRole != CustomRoles.Pestilence) && Main.AfterMeetingDeathPlayers.TryAdd(id, deathReason)).ToArray();
         CheckForDeathOnExile(deathReason, addedIdList);
     }
 
@@ -593,7 +593,7 @@ internal static class CheckForEndVotingPatch
 
         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Revenge, target.PlayerId);
         target.SetRealKiller(player);
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} revenged: {target.GetNameWithRole().RemoveHtmlTags()}", "RevengeOnExile");
+        Logger.Info($"{player.GetNameWithRole()} revenged: {target.GetNameWithRole()}", "RevengeOnExile");
     }
 
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer /*, PlayerState.DeathReason deathReason*/)
@@ -1251,7 +1251,7 @@ internal static class MeetingHudUpdatePatch
                         Main.PlayerStates[player.PlayerId].SetDead();
                         Utils.AfterPlayerDeathTasks(player, true);
                         Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
-                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} was executed by the host", "Execution");
+                        Logger.Info($"{player.GetNameWithRole()} was executed by the host", "Execution");
                         __instance.CheckForEndVoting();
                     }
                 });

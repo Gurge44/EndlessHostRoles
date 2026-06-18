@@ -149,7 +149,7 @@ public class BountyHunter : RoleBase
         }, onCanceled: () => Timer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, playerId, true);
 
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: Reset Target", "BountyHunter");
+        Logger.Info($"{player.GetNameWithRole()}: Reset Target", "BountyHunter");
 
         List<PlayerControl> cTargets = new(Main.EnumerateAlivePlayerControls().Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
 
@@ -166,7 +166,7 @@ public class BountyHunter : RoleBase
         Target = targetId;
         if (ShowTargetArrow) TargetArrow.Add(playerId, targetId);
 
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}'s New Target Is {target.GetNameWithRole().RemoveHtmlTags()}", "BountyHunter");
+        Logger.Info($"{player.GetNameWithRole()}'s New Target Is {target.GetNameWithRole()}", "BountyHunter");
 
         SendRPC();
         return targetId;

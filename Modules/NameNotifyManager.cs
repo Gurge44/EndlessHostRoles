@@ -43,12 +43,12 @@ public static class NameNotifyManager
 
         if (alreadyContainsKey)
         {
-            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
             return;
         }
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, SendOption: sendOption);
-        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
     }
 
     public static void OnFixedUpdate()

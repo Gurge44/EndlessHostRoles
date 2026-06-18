@@ -245,7 +245,7 @@ internal class Warlock : RoleBase
                         ResetCooldowns(true, true, true, pc);
 
                         targetw.SetRealKiller(pc);
-                        Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
+                        Logger.Info($"{targetw.GetNameWithRole()} was killed", "Warlock");
                         cp.Kill(targetw);
                         pc.Notify(Translator.GetString("WarlockControlKill"));
                         RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);

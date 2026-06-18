@@ -154,7 +154,7 @@ internal class EvilEraser : RoleBase
             pc.RpcSetCustomRole(erasedRole);
             pc.RpcChangeRoleBasis(erasedRole);
             pc.Notify(GetString("LostRoleByEvilEraser"));
-            Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
+            Logger.Info($"{pc.GetNameWithRole()} lost their role", "Eraser");
             ErasedPlayers.Add(id);
         });
 

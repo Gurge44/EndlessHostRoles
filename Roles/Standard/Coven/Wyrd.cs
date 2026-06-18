@@ -156,7 +156,7 @@ public class Wyrd : CovenBase
             if (instance.MarkedPlayers.Remove(target.PlayerId))
             {
                 var wyrd = instance.WyrdID.GetPlayer();
-                if (wyrd != null) Utils.NotifyRoles(SpecifySeer: wyrd, SpecifyTarget: target);
+                if (wyrd) Utils.NotifyRoles(SpecifySeer: wyrd, SpecifyTarget: target);
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.WyrdID, 2, target.PlayerId);
             }
         }
@@ -211,8 +211,7 @@ public class Wyrd : CovenBase
 
             if (!seerIsWyrd)
             {
-                var suicideActions = AllAction.Where(x => ActionSuicideSettings[x]).ToList();
-                var join = string.Join(", ", suicideActions.ConvertAll(x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}")));
+                var join = string.Join(", ", AllAction.Where(x => ActionSuicideSettings[x]).Select(x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}")));
                 Suffix.AppendFormat(Translator.GetString("Wyrd.Suffix.SuicideWarnings"), join);
             }
         }

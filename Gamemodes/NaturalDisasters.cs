@@ -1017,7 +1017,7 @@ public static class NaturalDisasters
             const int id = 69_216_600;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
 
-            MovingSpeed = new FloatOptionItem(id, "ND_Tsunami.MovingSpeed", new(0.25f, 10f, 0.25f), 2f, TabGroup.GameSettings)
+            MovingSpeed = new FloatOptionItem(id, "ND_Tsunami.MovingSpeed", new(0.25f, 10f, 0.25f), 2.5f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Multiplier);

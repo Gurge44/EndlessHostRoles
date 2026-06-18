@@ -600,7 +600,7 @@ public static class NumberOptionPatch
             case StringNames.GameShortTasks:
             case StringNames.GameLongTasks:
             case StringNames.GameCommonTasks:
-                __instance.ValidRange = new(0, 90);
+                __instance.ValidRange = new(0, 85);
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 break;
             case StringNames.GameKillCooldown:

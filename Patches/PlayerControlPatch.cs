@@ -23,7 +23,7 @@ internal static class CheckProtectPatch
     {
         if (!AmongUsClient.Instance.AmHost || target.Data.IsDead || !target.IsAlive()) return false;
 
-        Logger.Info($"CheckProtect: {__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckProtect");
+        Logger.Info($"CheckProtect: {__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "CheckProtect");
 
         if (__instance.HasAbilityCD())
         {
@@ -105,11 +105,11 @@ internal static class CheckMurderPatch
 
             AFKDetector.SetNotAFK(killer.PlayerId);
 
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
+            Logger.Info($"{killer.GetNameWithRole()} => {target.GetNameWithRole()}", "CheckMurder");
 
             if (killer.Data.IsDead)
             {
-                Logger.Info($"Killer {killer.GetNameWithRole().RemoveHtmlTags()} is dead, kill canceled", "CheckMurder");
+                Logger.Info($"Killer {killer.GetNameWithRole()} is dead, kill canceled", "CheckMurder");
                 return false;
             }
 
@@ -210,7 +210,7 @@ internal static class CheckMurderPatch
 
             if (killer.PlayerId != target.PlayerId && !killer.CanUseKillButton())
             {
-                Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + " cannot use their kill button, the kill was blocked", "CheckMurder");
+                Logger.Info(killer.GetNameWithRole() + " cannot use their kill button, the kill was blocked", "CheckMurder");
                 return false;
             }
 
@@ -280,7 +280,7 @@ internal static class CheckMurderPatch
             if (Penguin.IsVictim(killer)) return false;
 
             Sniper.TryGetSniper(target.PlayerId, ref killer);
-            if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
+            if (killer != __instance) Logger.Info($"Real Killer: {killer.GetNameWithRole()}", "CheckMurder");
 
             if (Pelican.IsEaten(target.PlayerId)) return false;
 
@@ -672,7 +672,7 @@ internal static class MurderPlayerPatch
         }
         catch (Exception e) { ThrowException(e); }
 
-        if (killer != __instance) Logger.Info($"Real Killer = {killer.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+        if (killer != __instance) Logger.Info($"Real Killer = {killer.GetNameWithRole()}", "MurderPlayer");
 
         if (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.etc)
         {
@@ -776,7 +776,7 @@ internal static class MurderPlayerPatch
                     delay = Math.Max(delay, 0.15f);
                     if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(CustomRoles.Bait.ColoredTextByRole(string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
 
-                    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} killed Bait => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+                    Logger.Info($"{killer.GetNameWithRole()} killed Bait => {target.GetNameWithRole()}", "MurderPlayer");
 
                     LateTask.New(() =>
                     {
@@ -1029,11 +1029,11 @@ internal static class ReportDeadBodyPatch
         if (AmongUsClient.Instance.AmHost && (!CanReport[__instance.PlayerId] || __instance.IsRoleBlocked()))
         {
             WaitReport[__instance.PlayerId].Add(target);
-            Logger.Warn($"{__instance.GetNameWithRole().RemoveHtmlTags()}: Reporting is currently prohibited, so we will wait until it becomes possible.", "ReportDeadBody");
+            Logger.Warn($"{__instance.GetNameWithRole()}: Reporting is currently prohibited, so we will wait until it becomes possible.", "ReportDeadBody");
             return false;
         }
 
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
+        Logger.Info($"{__instance.GetNameWithRole()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
 
         try
         {
@@ -1423,7 +1423,7 @@ internal static class ReportDeadBodyPatch
                 // Fix name when LateTask "Shapeshift Patch - Force Name" was not revert name back before meeting started
                 if (pc.IsShifted() && Main.ShapeshiftIsAnimated.GetValueOrDefault(pc.PlayerId))
                 {
-                    Logger.Info($"Revert name back for shifted player: {player.GetNameWithRole().RemoveHtmlTags()}", "ReportDeadBody");
+                    Logger.Info($"Revert name back for shifted player: {player.GetNameWithRole()}", "ReportDeadBody");
                     pc.RpcSetName(Main.AllPlayerNames[pc.PlayerId]);
                 }
 
@@ -1571,7 +1571,7 @@ internal static class FixedUpdatePatch
             {
                 NetworkedPlayerInfo info = ReportDeadBodyPatch.WaitReport[id][0];
                 ReportDeadBodyPatch.WaitReport[id].Clear();
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}: Now that it is possible to report, we will process the report.", "ReportDeadBody");
+                Logger.Info($"{__instance.GetNameWithRole()}: Now that it is possible to report, we will process the report.", "ReportDeadBody");
                 __instance.ReportDeadBody(info);
             }
 
@@ -2410,7 +2410,7 @@ internal static class GameDataCompleteTaskPatch
                 Benefactor.OnTaskComplete(pc, task);
             }
 
-            Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
+            Logger.Info($"TaskComplete: {pc.GetNameWithRole()}", "CompleteTask");
         }
         catch (Exception e) { ThrowException(e); }
         
@@ -2540,7 +2540,7 @@ internal static class PlayerControlProtectPlayerPatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "ProtectPlayer");
+        Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "ProtectPlayer");
     }
 }
 
@@ -2549,7 +2549,7 @@ internal static class PlayerControlRemoveProtectionPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
-        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}", "RemoveProtection");
+        Logger.Info($"{__instance.GetNameWithRole()}", "RemoveProtection");
     }
 }
 

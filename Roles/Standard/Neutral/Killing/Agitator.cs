@@ -136,7 +136,7 @@ public class Agitator : RoleBase
                 if (pc && pc.IsAlive() && killer)
                 {
                     pc.Suicide(PlayerState.DeathReason.Bombed, killer);
-                    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitator");
+                    Logger.Info($"{killer.GetNameWithRole()} bombed {pc.GetNameWithRole()}, bomb cd complete", "Agitator");
                     ResetBomb();
 
                     if (pc.AmOwner)
@@ -210,7 +210,7 @@ public class Agitator : RoleBase
         target.Notify(GetString("AgitatorTargetNotify"));
 
         SendRPC(CurrentBombedPlayer, LastBombedPlayer);
-        Logger.Msg($"{player.GetNameWithRole().RemoveHtmlTags()} passed bomb to {target.GetNameWithRole().RemoveHtmlTags()}", "Agitator Pass");
+        Logger.Msg($"{player.GetNameWithRole()} passed bomb to {target.GetNameWithRole()}", "Agitator Pass");
     }
 
     private void SendRPC(byte newbomb, byte oldbomb)

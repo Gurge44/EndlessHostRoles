@@ -820,12 +820,12 @@ public static class CustomRpcSenderExtensions
 
             if (alreadyContainsKey)
             {
-                if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+                if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
                 return returnValue;
             }
 
             if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
-            if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
+            if (log) Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
 
             return returnValue;
         }
@@ -842,13 +842,13 @@ public static class CustomRpcSenderExtensions
 
                 if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                 {
-                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is in an un-teleportable state - Teleporting canceled", "TP");
                     return false;
                 }
 
                 if (FastVector2.DistanceWithinRange(pc.Pos(), location, 0.5f))
                 {
-                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is too close to the destination - Teleporting canceled", "TP");
+                    if (log) Logger.Warn($"Target ({pc.GetNameWithRole()}) is too close to the destination - Teleporting canceled", "TP");
                     return false;
                 }
             }
@@ -864,7 +864,7 @@ public static class CustomRpcSenderExtensions
             sender.Write(newSid);
             sender.EndRpc();
 
-            if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+            if (log) Logger.Info($"{pc.GetNameWithRole()} => {location}", "TP");
 
             CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
             CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);

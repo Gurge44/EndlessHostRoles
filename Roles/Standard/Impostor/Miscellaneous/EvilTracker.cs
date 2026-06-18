@@ -128,7 +128,7 @@ public class EvilTracker : RoleBase
         if (target == null || target.Is(CustomRoleTypes.Impostor)) return false;
 
         SetTarget(shapeshifter.PlayerId, target.PlayerId);
-        Logger.Info($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}'s target is now {target.GetNameWithRole().RemoveHtmlTags()}", "EvilTrackerTarget");
+        Logger.Info($"{shapeshifter.GetNameWithRole()}'s target is now {target.GetNameWithRole()}", "EvilTrackerTarget");
         shapeshifter.MarkDirtySettings();
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: shapeshifter);

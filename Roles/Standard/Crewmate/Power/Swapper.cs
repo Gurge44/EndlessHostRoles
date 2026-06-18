@@ -125,7 +125,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
                 else if (vote2Available && selfCheck) // Take the second slot
@@ -134,7 +134,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
                 else if (target.PlayerId == SwapTargets.Item1) // If this player is already chosen to be swapped in the first slot, cancel it
@@ -143,7 +143,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
                 else if (target.PlayerId == SwapTargets.Item2) // If this player is already chosen to be swapped in the second slot, cancel it
@@ -152,7 +152,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
                 else if (!selfCheck) // When the Swapper tries to swap themselves, but they aren't allowed to

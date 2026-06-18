@@ -93,7 +93,7 @@ public class Sheriff : RoleBase
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(ShotLimitOpt.GetFloat());
 
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {playerId.GetAbilityUseLimit()}", "Sheriff");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : Shot Limit - {playerId.GetAbilityUseLimit()}", "Sheriff");
     }
 
     public override void Remove(byte playerId)
@@ -138,7 +138,7 @@ public class Sheriff : RoleBase
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         killer.RpcRemoveAbilityUse();
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
+        Logger.Info($"{killer.GetNameWithRole()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
         Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Shot;
         
         if (killer.AmOwner && Utils.TimeStamp - IntroCutsceneDestroyPatch.IntroDestroyTS < 25)

@@ -142,7 +142,7 @@ public class Demon : RoleBase
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} attacked {target.GetNameWithRole().RemoveHtmlTags()}, did {Damage.GetInt()} damage", "Demon");
+        Logger.Info($"{killer.GetNameWithRole()} attacked {target.GetNameWithRole()}, did {Damage.GetInt()} damage", "Demon");
         return false;
     }
 
@@ -164,7 +164,7 @@ public class Demon : RoleBase
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} attacked {target.GetNameWithRole().RemoveHtmlTags()}, did {SelfDamage.GetInt()} damage", "Demon");
+        Logger.Info($"{killer.GetNameWithRole()} attacked {target.GetNameWithRole()}, did {SelfDamage.GetInt()} damage", "Demon");
         return false;
     }
 

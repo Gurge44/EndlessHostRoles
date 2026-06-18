@@ -112,7 +112,7 @@ internal class QuickShooter : RoleBase
         pc.ResetKillCooldown();
         pc.SetKillCooldown();
         pc.Notify(Translator.GetString("QuickShooterStoraging"));
-        Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : Remaining: {ShotLimit[pc.PlayerId]} bullets", "QuickShooter");
+        Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole()} : Remaining: {ShotLimit[pc.PlayerId]} bullets", "QuickShooter");
     }
 
     public override void SetKillCooldown(byte id)

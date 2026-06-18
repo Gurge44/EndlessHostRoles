@@ -126,7 +126,7 @@ public class Councillor : RoleBase
 
                 if (target)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} murdered {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
+                    Logger.Info($"{pc.GetNameWithRole()} murdered {target.GetNameWithRole()}", "Councillor");
                     var councillorSuicide = true;
 
                     if (pc.GetAbilityUseLimit() < 1)

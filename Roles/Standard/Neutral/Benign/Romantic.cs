@@ -178,7 +178,7 @@ public class Romantic : RoleBase
                 if (PartnerHasArrows.GetBool() && BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
             }
 
-            Logger.Info($"Partner picked: {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
+            Logger.Info($"Partner picked: {RomanticPC.GetNameWithRole()} => {target.GetNameWithRole()}", "Romantic");
         }
         else if (!IsPartnerProtected)
         {
@@ -287,7 +287,7 @@ public class Romantic : RoleBase
 
         if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || !killer.IsAlive() || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
-            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner killer is dead ({!killer.IsAlive()}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner killer is dead ({!killer.IsAlive()}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole()} to Ruthless Romantic", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
         }
         else if (ConvertingRolesAndAddons.TryGetValue(partnerRole, out CustomRoles convertedRole))

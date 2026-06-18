@@ -369,7 +369,7 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else pc.ShowPopUp($"{CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle"))}\n{GetString("CantGuessJailed")}");
 
-                        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} tried to guess jailed player {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
+                        Logger.Info($"Player {pc.GetNameWithRole()} tried to guess jailed player {target.GetNameWithRole()}", "Guesser");
                         return true;
                     }
 
@@ -378,7 +378,7 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else pc.ShowPopUp($"{CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle"))}\n{GetString("JailedCanOnlyGuessJailor")}");
 
-                        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} tried to guess {target.GetNameWithRole().RemoveHtmlTags()} while jailed", "Guesser");
+                        Logger.Info($"Player {pc.GetNameWithRole()} tried to guess {target.GetNameWithRole()} while jailed", "Guesser");
                         return true;
                     }
 
@@ -468,7 +468,7 @@ public static class GuessManager
                     // -----------------------------------------------------------------------------------------------------------------------------------
 
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} guessed {target.GetNameWithRole().RemoveHtmlTags()}", "Guesser");
+                    Logger.Info($"{pc.GetNameWithRole()} guessed {target.GetNameWithRole()}", "Guesser");
                     PlayerControl dp = guesserSuicide ? pc : target;
                     target = dp;
 

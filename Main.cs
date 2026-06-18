@@ -944,8 +944,9 @@ public class Main : BasePlugin
 
         if (!OperatingSystem.IsAndroid())
         {
-            // there are some issues with TextBoxPatch on Android
+            // there are some issues with TextBoxPatch and DiscordRPC on Android
             Harmony.PatchAll(typeof(TextBoxPatch));
+            Harmony.PatchAll(typeof(DiscordRPC));
         }
 
         if (!DebugModeManager.AmDebugger)

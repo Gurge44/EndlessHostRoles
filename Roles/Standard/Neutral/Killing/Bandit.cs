@@ -170,14 +170,14 @@ public class Bandit : RoleBase
             if (StealMode.GetValue() == 1)
             {
                 Main.PlayerStates[target.PlayerId].RemoveSubRole((CustomRoles)SelectedAddOn);
-                Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole()}", "Bandit");
                 killer.RpcSetCustomRole((CustomRoles)SelectedAddOn);
-                Logger.Info($"Successfully Added {SelectedAddOn} addon to {killer.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully Added {SelectedAddOn} addon to {killer.GetNameWithRole()}", "Bandit");
             }
             else
             {
                 Targets[killer.PlayerId][target.PlayerId] = (CustomRoles)SelectedAddOn;
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} will steal {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()} after meeting starts", "Bandit");
+                Logger.Info($"{killer.GetNameWithRole()} will steal {SelectedAddOn} addon from {target.GetNameWithRole()} after meeting starts", "Bandit");
             }
 
             TotalSteals[killer.PlayerId]++;
@@ -210,9 +210,9 @@ public class Bandit : RoleBase
                 if (target == null) continue;
 
                 Main.PlayerStates[targetId].RemoveSubRole(role);
-                Logger.Info($"Successfully removed {role} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully removed {role} addon from {target.GetNameWithRole()}", "Bandit");
                 banditpc.RpcSetCustomRole(role);
-                Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole()}", "Bandit");
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: banditpc);
             }
 

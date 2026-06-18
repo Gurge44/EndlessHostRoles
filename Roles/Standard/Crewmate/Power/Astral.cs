@@ -81,7 +81,7 @@ public class Astral : RoleBase
     void BecomeAliveAgain(PlayerControl pc, bool onMeeting = false)
     {
         Timer = null;
-        if (!pc.IsAlive()) return;
+        if (!pc || !pc.IsAlive()) return;
 
         GhostRolesManager.RemoveGhostRole(pc.PlayerId);
         ReportDeadBodyPatch.AlreadyReportedBodies.Remove(pc.PlayerId);
@@ -115,7 +115,6 @@ public class Astral : RoleBase
         if (Timer != null)
         {
             Timer.Dispose();
-            Timer = null;
             BecomeAliveAgain(astralPc, true);
         }
 

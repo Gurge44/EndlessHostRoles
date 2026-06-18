@@ -61,7 +61,7 @@ public class Medium : RoleBase
 
             pc.RpcRemoveAbilityUse();
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
-            Logger.Info($"Medium Connection: {pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Medium");
+            Logger.Info($"Medium Connection: {pc.GetNameWithRole()} => {target.PlayerName}", "Medium");
         }
     }
 

@@ -437,7 +437,7 @@ public class TaskState
 
     public void Init(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole()}: InitTask", "TaskState.Init");
         if (!player || player.Data?.Tasks == null) return;
 
         if (!Utils.HasTasks(player.Data, false))
@@ -449,14 +449,14 @@ public class TaskState
         HasTasks = true;
         CompletedTasksCount = 0;
         AllTasksCount = player.Data.Tasks.Count;
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
 
     public void Update(PlayerControl player)
     {
         try
         {
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
+            Logger.Info($"{player.GetNameWithRole()}: UpdateTask", "TaskState.Update");
             GameData.Instance.RecomputeTaskCounts();
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
@@ -534,7 +534,7 @@ public class TaskState
         CompletedTasksCount++;
 
         CompletedTasksCount = Math.Min(AllTasksCount, CompletedTasksCount);
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
+        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
     }
 }
 

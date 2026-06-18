@@ -92,9 +92,9 @@ internal static class ExternalRpcPetPatch
             }
         }
 
-        Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
+        Logger.Info($"Player {pc.GetNameWithRole()} petted their pet", "PetActionTrigger");
 
-        LateTask.New(() => OnPetUse(pc), 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
+        LateTask.New(() => OnPetUse(pc), 0.2f, $"OnPetUse: {pc.GetNameWithRole()}", false);
     }
 
     private static void OnPetUse(PlayerControl pc)

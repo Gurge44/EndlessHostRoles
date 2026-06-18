@@ -316,7 +316,7 @@ public class Medic : RoleBase
 
         ProtectList.Clear();
         SendRPCForProtectList();
-        Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Medic is dead", "Medic");
+        Logger.Info($"{target.GetNameWithRole()} : Medic is dead", "Medic");
 
         if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.Immediately)
         {

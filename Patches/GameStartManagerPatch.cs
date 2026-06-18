@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Gamemodes;
@@ -127,6 +128,12 @@ public static class GameStartManagerPatch
         private static int MinPlayer;
         private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
+        
+        private static readonly Type DiscordManagerType = AccessTools.TypeByName("DiscordManager");
+        private static readonly PropertyInfo InstanceExistsProperty = DiscordManagerType?.GetProperty("InstanceExists");
+        private static readonly PropertyInfo InstanceProperty = DiscordManagerType?.GetProperty("Instance");
+        private static readonly MethodInfo SetInLobbyHostMethod = DiscordManagerType?.GetMethod("SetInLobbyHost");
+        private static readonly MethodInfo SetInLobbyClientMethod = DiscordManagerType?.GetMethod("SetInLobbyClient");
 
         public static bool Prefix(GameStartManager __instance)
         {
@@ -156,7 +163,7 @@ public static class GameStartManagerPatch
                     }
                 }
 
-                if (!AmongUsClient.Instance || !GameData.Instance) return true;
+                if (!GameData.Instance) return true;
 
                 CheckAutoStart(__instance);
             }
@@ -284,12 +291,10 @@ public static class GameStartManagerPatch
                 ActionMapGlyphDisplay startButtonGlyph = instance.StartButtonGlyph;
                 startButtonGlyph?.SetColor(instance.LastPlayerCount >= instance.MinPlayers ? Palette.EnabledColor : Palette.DisabledClear);
 
-                if (DiscordManager.InstanceExists)
+                if (DiscordManagerType != null && ((bool?)InstanceExistsProperty?.GetValue(null) ?? false))
                 {
-                    if (AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
-                        DiscordManager.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
-                    else
-                        DiscordManager.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
+                    MethodInfo method = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame ? SetInLobbyHostMethod : SetInLobbyClientMethod;
+                    method?.Invoke(InstanceProperty?.GetValue(null), [instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId]);
                 }
             }
 

@@ -142,7 +142,7 @@ public class Inspector : RoleBase
 
                 if (target1 != null && target2 != null)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} checked {target1.GetNameWithRole().RemoveHtmlTags()} and {target2.GetNameWithRole().RemoveHtmlTags()}", "Inspector");
+                    Logger.Info($"{pc.GetNameWithRole()} checked {target1.GetNameWithRole()} and {target2.GetNameWithRole()}", "Inspector");
 
                     bool outOfUses = pc.GetAbilityUseLimit() < 1;
 

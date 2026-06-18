@@ -5,7 +5,6 @@ using EHR.Modules;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static EHR.Translator;
 
 
