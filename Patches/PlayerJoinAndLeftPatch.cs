@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -25,7 +24,7 @@ namespace EHR;
 internal static class OnGameJoinedPatch
 {
     public static bool JoiningGame;
-    public static bool ClearedLogs;
+    private static bool ClearedLogs;
 
     public static void Postfix(AmongUsClient __instance)
     {
@@ -102,7 +101,7 @@ internal static class OnGameJoinedPatch
                     }
                     Logger.Info($"{client.PlayerName.RemoveHtmlTags()} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / HashPuid: {client.GetHashedPuid()} / Platform: {client.PlatformData.Platform}) Hosted room (Server: {Utils.GetRegionName()})", "Session");
                 }
-                catch (Exception e) { Logger.Error($"ClientData null:{PlayerControl.LocalPlayer?.GetClient() == null}, PlayerControl.LocalPlayer null:{PlayerControl.LocalPlayer == null} - {e}", "OnGameJoinedPatch"); }
+                catch (Exception e) { Logger.Error($"ClientData null:{PlayerControl.LocalPlayer?.GetClient() == null}, PlayerControl.LocalPlayer null:{!PlayerControl.LocalPlayer} - {e}", "OnGameJoinedPatch"); }
 
                 //Main.Instance.StartCoroutine(OptionShower.GetText());
             }, 2f, "OnGameJoinedPatch");

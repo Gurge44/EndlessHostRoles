@@ -49,14 +49,10 @@ public static class ModGameOptionsMenu
 [HarmonyPatch(typeof(GameOptionsMenu))]
 public static class GameOptionsMenuPatch
 {
-    public static GameOptionsMenu Instance;
-    
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
     {
-        Instance = __instance;
-        
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
         if (__instance.Children == null || __instance.Children.Count == 0)
@@ -562,7 +558,7 @@ public static class ToggleOptionPatch
         {
             __instance.CheckMark.enabled = !__instance.CheckMark.enabled;
             OptionItem item = OptionItem.AllOptions[index];
-            item.SetValue(__instance.GetBool() ? 1 : 0);
+            item.SetValue(__instance.GetBool() ? 1 : 0, doSave: true, doSync: false);
             __instance.OnValueChanged.Invoke(__instance);
             NotificationPopperPatch.AddSettingsChangeMessage(item);
             return false;
@@ -650,10 +646,10 @@ public static class NumberOptionPatch
             switch (item)
             {
                 case IntegerOptionItem integerOptionItem:
-                    integerOptionItem.SetValue(integerOptionItem.Rule.GetNearestIndex(__instance.GetInt()));
+                    integerOptionItem.SetValue(integerOptionItem.Rule.GetNearestIndex(__instance.GetInt()), doSave: true, doSync: false);
                     break;
                 case FloatOptionItem floatOptionItem:
-                    floatOptionItem.SetValue(floatOptionItem.Rule.GetNearestIndex(__instance.GetFloat()));
+                    floatOptionItem.SetValue(floatOptionItem.Rule.GetNearestIndex(__instance.GetFloat()), doSave: true, doSync: false);
                     break;
             }
 
@@ -903,7 +899,7 @@ public static class StringOptionPatch
         if (ModGameOptionsMenu.OptionList.TryGetValue(__instance, out int index))
         {
             OptionItem item = OptionItem.AllOptions[index];
-            item.SetValue(__instance.GetInt());
+            item.SetValue(__instance.GetInt(), doSave: true, doSync: false);
             NotificationPopperPatch.AddSettingsChangeMessage(item);
             __instance.TitleText.SetText(NameCache[__instance]);
             return false;
