@@ -1688,11 +1688,11 @@ internal static class CustomRolesHelper
 
         public bool RoleExist(bool countDead = false)
         {
-            var players = Main.CachedAllPlayerControls();
+            var players = countDead ? Main.CachedAllPlayerControls() : Main.CachedAlivePlayerControls();
             for (int i = 0; i < players.Count; i++)
             {
                 var player = players[i];
-                if (player.Is(role) && (countDead || player.IsAlive()))
+                if (player.Is(role))
                     return true;
             }
             return false;
