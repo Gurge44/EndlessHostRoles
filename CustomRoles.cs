@@ -504,6 +504,9 @@ public enum CustomRoles
     // Snowdown
     SnowdownPlayer,
 
+    // LoopWanted
+    LoopHunter,
+
     // GM
     GM,
 

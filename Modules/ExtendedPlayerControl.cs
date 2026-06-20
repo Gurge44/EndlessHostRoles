@@ -373,7 +373,7 @@ internal static class ExtendedPlayerControl
                 RoleTypes newRoleType = state.MainRole.GetRoleTypes();
                 CustomGameMode gameMode = Options.CurrentGameMode;
 
-                if (gameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars or CustomGameMode.Snowdown)
+                if (gameMode is CustomGameMode.SoloPVP or CustomGameMode.FFA or CustomGameMode.CaptureTheFlag or CustomGameMode.KingOfTheZones or CustomGameMode.BedWars or CustomGameMode.Snowdown or CustomGameMode.LoopWanted)
                     hasValue |= sender.RpcSetRole(player, newRoleType, player.OwnerId);
 
                 player.ResetKillCooldown();
@@ -1338,6 +1338,7 @@ internal static class ExtendedPlayerControl
                 case CustomGameMode.BedWars:
                 case CustomGameMode.Deathrace:
                 case CustomGameMode.Snowdown:
+                case CustomGameMode.LoopWanted:
                     return true;
             }
 
@@ -1398,6 +1399,7 @@ internal static class ExtendedPlayerControl
                 CustomGameMode.TheMindGame => false,
                 CustomGameMode.Mingle => false,
                 CustomGameMode.Snowdown => true,
+                CustomGameMode.LoopWanted => false,
                 CustomGameMode.Deathrace => Deathrace.CanUseVent(player, player.GetClosestVent().Id),
 
                 CustomGameMode.Standard when CopyCat.PlayerIdList.Contains(player.PlayerId) => true,
@@ -1783,6 +1785,7 @@ internal static class ExtendedPlayerControl
                 CustomRoles.BedWarsPlayer => 1f,
                 CustomRoles.Racer => 3f,
                 CustomRoles.SnowdownPlayer => 10f,
+                CustomRoles.LoopHunter => Main.AllPlayerKillCooldown[player.PlayerId],
                 _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControlsCount <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
                 _ => Main.AllPlayerKillCooldown[player.PlayerId]
             };

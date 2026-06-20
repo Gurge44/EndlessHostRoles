@@ -1216,7 +1216,8 @@ public static class GameSettingMenuPatch
             gms.Remove(CustomGameMode.Deathrace);
         }
         
-        const int totalCols = 3;
+        const int totalCols = 2;
+        int itemsPerCol = Mathf.CeilToInt(gms.Count / (float)totalCols);
 
         GMButtons.Clear();
 
@@ -1231,8 +1232,8 @@ public static class GameSettingMenuPatch
                 gmButton.transform.SetParent(gameSettingsLabel.transform, false);
                 gmButton.SetActive(true);
             }
-            gmButton.transform.localPosition = new Vector3((((index / 8) - ((totalCols - 1) / 2f)) * 1.4f) + 0.86f, gameSettingsLabelPos.y - 1.9f - (0.22f * (index % 8)), -1f);
-            gmButton.transform.localScale = new(0.4f, 0.3f, 1f);
+            gmButton.transform.localPosition = new Vector3((((index / itemsPerCol) - ((totalCols - 1) / 2f)) * 1.4f) + 0.16f, gameSettingsLabelPos.y - 1.9f - (0.17f * (index % itemsPerCol)), -1f);
+            gmButton.transform.localScale = new(0.35f, 0.22f, 1f);
             var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             gmButtonTmp.alignment = TextAlignmentOptions.Center;
             gmButtonTmp.DestroyTranslator();

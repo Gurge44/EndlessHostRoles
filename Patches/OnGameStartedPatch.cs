@@ -316,6 +316,7 @@ internal static class ChangeRoleSettings
                 HotPotato.Init();
                 CustomHnS.Init();
                 Speedrun.Init();
+                LoopWanted.Init();
             }
             catch (Exception e) { Utils.ThrowException(e); }
 
@@ -951,6 +952,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.Init();
                     goto default;
+                case CustomGameMode.LoopWanted:
+                    LoopWanted.OnGameStart();
+                    goto default;
                 default:
                     if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                     break;
@@ -1022,6 +1026,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.Snowdown:
                     GameEndChecker.SetPredicateToSnowdown();
+                    break;
+                case CustomGameMode.LoopWanted:
+                    GameEndChecker.SetPredicateToLoopWanted();
                     break;
             }
 
