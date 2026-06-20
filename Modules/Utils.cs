@@ -2547,7 +2547,7 @@ public static class Utils
                     CustomGameMode.Deathrace => CustomRoles.Racer.ColoredTextByRole($"{modeText}\r\n") + name,
                     CustomGameMode.Mingle => CustomRoles.MinglePlayer.ColoredTextByRole($"{modeText}\r\n") + name,
                     CustomGameMode.Snowdown => CustomRoles.SnowdownPlayer.ColoredTextByRole($"{modeText}\r\n") + name,
-                    CustomGameMode.LoopWanted => name,
+                    CustomGameMode.LoopWanted => CustomRoles.LoopHunter.ColoredTextByRole($"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -3208,6 +3208,7 @@ public static class Utils
                 CustomGameMode.Quiz => true,
                 CustomGameMode.Deathrace => true,
                 CustomGameMode.Mingle => true,
+                CustomGameMode.LoopWanted => true,
                 _ => false
             };
 
@@ -3439,9 +3440,6 @@ public static class Utils
                                         break;
                                     case CustomGameMode.Snowdown:
                                         AdditionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
-                                        break;
-                                    case CustomGameMode.LoopWanted when seer == target:
-                                        AdditionalSuffixes.Add(LoopWanted.GetSuffix(seer, target));
                                         break;
                                 }
 

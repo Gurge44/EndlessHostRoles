@@ -162,9 +162,6 @@ public static class FixedUpdateCaller
                             case CustomGameMode.Snowdown:
                                 Snowdown.FixedUpdatePatch.Postfix(pc);
                                 break;
-                            case CustomGameMode.LoopWanted:
-                                LoopWanted.FixedUpdatePatch.Postfix();
-                                break;
                         }
 
                         CheckInvalidMovementPatch.Postfix(pc);
@@ -201,6 +198,9 @@ public static class FixedUpdateCaller
                             goto default;
                         case CustomGameMode.Mingle:
                             Mingle.FixedUpdatePatch.Postfix();
+                            goto default;
+                        case CustomGameMode.LoopWanted:
+                            LoopWanted.FixedUpdatePatch.Postfix();
                             goto default;
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;

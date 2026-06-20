@@ -1785,7 +1785,7 @@ internal static class ExtendedPlayerControl
                 CustomRoles.BedWarsPlayer => 1f,
                 CustomRoles.Racer => 3f,
                 CustomRoles.SnowdownPlayer => 10f,
-                CustomRoles.LoopHunter => Main.AllPlayerKillCooldown[player.PlayerId],
+                CustomRoles.LoopHunter => LoopWanted.BaseKillCooldown.GetFloat(),
                 _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControlsCount <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
                 _ => Main.AllPlayerKillCooldown[player.PlayerId]
             };

@@ -2131,9 +2131,6 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.Snowdown:
                     AdditionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
                     break;
-                case CustomGameMode.LoopWanted when self:
-                    AdditionalSuffixes.Add(LoopWanted.GetSuffix(seer, target, false));
-                    break;
             }
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrWhiteSpace(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)

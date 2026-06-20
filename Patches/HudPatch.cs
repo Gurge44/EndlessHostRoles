@@ -332,6 +332,7 @@ internal static class HudManagerPatch
                         CustomGameMode.NaturalDisasters when AmongUsClient.Instance.AmHost => NaturalDisasters.SuffixText,
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
                         CustomGameMode.Snowdown => Snowdown.GetHudText(),
+                        CustomGameMode.LoopWanted => LoopWanted.GetSuffix(player, player, true),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
