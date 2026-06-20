@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup> 
-        <AmongUsPath>D:\SteamLibrary\steamapps\common\Among Us</AmongUsPath> 
+        <AmongUsPath>D:\SteamLibrary\steamapps\common\Among Us</AmongUsPath>
     </PropertyGroup>
     <Import Project="local.props" Condition="Exists('local.props')" /> 
     <PropertyGroup>

@@ -35,6 +35,7 @@ public enum CustomGameMode
     Deathrace = 0x0F,
     Mingle = 0x10,
     Snowdown = 0x11,
+    LoopWanted = 0x12,
     All = int.MaxValue
 }
 
@@ -89,7 +90,8 @@ public static class Options
         "BedWars",
         "Deathrace",
         "Mingle",
-        "Snowdown"
+        "Snowdown",
+        "LoopWanted"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -928,6 +930,7 @@ public static class Options
         14 => CustomGameMode.Deathrace,
         15 => CustomGameMode.Mingle,
         16 => CustomGameMode.Snowdown,
+        17 => CustomGameMode.LoopWanted,
         _ => CustomGameMode.Standard
     };
 
@@ -1854,6 +1857,8 @@ public static class Options
         Mingle.SetupCustomOption();
         // Snowdown
         Snowdown.SetupCustomOption();
+        // LoopWanted
+        LoopWanted.SetupCustomOption();
 
         yield return null;
 

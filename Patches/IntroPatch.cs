@@ -310,6 +310,16 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleBlurbText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
+            case CustomGameMode.LoopWanted:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.LoopHunter);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("LoopHunter");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("LoopHunterInfo");
+                break;
+            }
             default:
             {
                 CustomRoles role = lp.GetCustomRole();
@@ -1017,6 +1027,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
+            case CustomGameMode.LoopWanted:
+            {
+                __instance.TeamTitle.text = GetString("LoopHunter");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.LoopHunter);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("LoopHunterInfo");
+                break;
+            }
         }
 
         return;
@@ -1361,6 +1380,9 @@ internal static class IntroCutsceneDestroyPatch
                     break;
                 case CustomGameMode.Snowdown:
                     Snowdown.GameStart();
+                    break;
+                case CustomGameMode.LoopWanted:
+                    LoopWanted.OnGameStart();
                     break;
             }
 

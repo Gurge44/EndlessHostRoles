@@ -389,6 +389,11 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     Snowdown.ApplyGameOptions();
                     goto case CustomGameMode.RoomRush;
                 }
+                case CustomGameMode.LoopWanted:
+                {
+                    LoopWanted.ApplyGameOptions(opt, player.PlayerId);
+                    break;
+                }
                 case CustomGameMode.NaturalDisasters:
                 {
                     SetMaxVision();

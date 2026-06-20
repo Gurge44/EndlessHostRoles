@@ -162,6 +162,9 @@ public static class FixedUpdateCaller
                             case CustomGameMode.Snowdown:
                                 Snowdown.FixedUpdatePatch.Postfix(pc);
                                 break;
+                            case CustomGameMode.LoopWanted:
+                                LoopWanted.FixedUpdatePatch.Postfix();
+                                break;
                         }
 
                         CheckInvalidMovementPatch.Postfix(pc);

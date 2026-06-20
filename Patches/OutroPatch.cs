@@ -67,7 +67,7 @@ internal static class EndGamePatch
             long secondsIn = new DateTimeOffset(date.ToUniversalTime()).ToUnixTimeSeconds() - IntroCutsceneDestroyPatch.IntroDestroyTS;
             byte killerId = value.GetRealKiller();
             bool gmIsFm = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.StopAndGo;
-            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown;
+            bool gmIsFmhh = gmIsFm || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.LoopWanted;
             sb.Append($"\n{secondsIn / 60:00}:{secondsIn % 60:00} {Main.AllPlayerNames[key]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(key, pure: true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFmhh ? string.Empty : Utils.GetDisplayRoleName(killerId, pure: true))}{(gmIsFm ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
@@ -601,6 +601,7 @@ internal static class SetEverythingUpPatch
                 case CustomGameMode.Deathrace:
                 case CustomGameMode.BedWars:
                 case CustomGameMode.Quiz:
+                case CustomGameMode.LoopWanted:
                 {
                     foreach (byte id in cloneRoles.Where(EndGamePatch.SummaryText.ContainsKey))
                         sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
