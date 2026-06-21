@@ -173,6 +173,7 @@ setutility#3985 | cebf5051a | Roman | Toxic | Homophobic slurs
 happyhive#6928 | ac2bf6263 | Ben Dover | Racist | n word
 lawfulray#5665 | eba567cb3 | abo hmed | Racist | n word and trading steam accounts to ban evade
 hillynavy#5547 | 51c95f35a | IMDYINGHEK | racist | 
+halfbreak#5055 | 72c09f7a0 | SHUTUPNGGA | Racist | 
 
 ## Other
 tenthrope#3476 |  | Oldishwire | Other | 
