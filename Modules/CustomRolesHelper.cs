@@ -74,7 +74,8 @@ internal static class CustomRolesHelper
                 CustomRoles.BedWarsPlayer or
                 CustomRoles.Racer or
                 CustomRoles.MinglePlayer or
-                CustomRoles.SnowdownPlayer;
+                CustomRoles.SnowdownPlayer or
+                CustomRoles.LoopHunter;
         }
 
         public RoleBase GetRoleClass()
@@ -486,6 +487,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Racer => RoleTypes.Phantom,
                 // Snowdown
                 CustomRoles.SnowdownPlayer => RoleTypes.Phantom,
+                // LoopWanted
+                CustomRoles.LoopHunter => RoleTypes.Impostor,
                 // Standard
                 CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
                 CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -1685,11 +1688,11 @@ internal static class CustomRolesHelper
 
         public bool RoleExist(bool countDead = false)
         {
-            var players = Main.CachedAllPlayerControls();
+            var players = countDead ? Main.CachedAllPlayerControls() : Main.CachedAlivePlayerControls();
             for (int i = 0; i < players.Count; i++)
             {
                 var player = players[i];
-                if (player.Is(role) && (countDead || player.IsAlive()))
+                if (player.Is(role))
                     return true;
             }
             return false;

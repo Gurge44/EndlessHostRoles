@@ -258,8 +258,11 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.OnCheckMurder(killer, target);
                     return false;
+                case CustomGameMode.LoopWanted:
+                    LoopWanted.OnCheckMurder(killer, target);
+                    return false;
             }
-            
+
             PlagueBearer.CheckAndSpreadInfection(killer, target);
             PlagueBearer.CheckAndSpreadInfection(target, killer);
 
@@ -2309,6 +2312,7 @@ internal static class EnterVentPatch
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
+            case CustomGameMode.LoopWanted:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }

@@ -179,7 +179,8 @@ public enum CustomRPC
     NaturalDisastersSync,
     TMGSync,
     BedWarsSync,
-    DeathraceSync
+    DeathraceSync,
+    LoopWantedSync
 
     // The total number of RPCs must not exceed 255
     // Because HandleRpc accepts Rpc in byte (max 255) system, and it will be impossible to use int
@@ -1274,6 +1275,11 @@ internal static class RPCHandlerPatch
                     
                     break;
                 }
+                case CustomRPC.LoopWantedSync:
+                {
+                    LoopWanted.ReceiveRPC(reader);
+                    break;
+                }
                 case CustomRPC.InspectorCommand:
                 {
                     Inspector.ReceiveRPC(reader);
@@ -1372,6 +1378,11 @@ internal static class RPCHandlerPatch
                     Stained.VioletNameList ??= [];
                     Stained.VioletNameList.Add(id);
                     LateTask.New(() => Stained.VioletNameList.Remove(id), 3f);
+                    break;
+                }
+                case CustomRPC.Entombed:
+                {
+                    Entombed.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.CTA:

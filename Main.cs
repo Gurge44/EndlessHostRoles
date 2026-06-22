@@ -147,7 +147,8 @@ public class Main : BasePlugin
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
         [CustomGameMode.NaturalDisasters] = [],
-        [CustomGameMode.Snowdown] = []
+        [CustomGameMode.Snowdown] = [],
+        [CustomGameMode.LoopWanted] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -883,6 +884,8 @@ public class Main : BasePlugin
                 { CustomRoles.MinglePlayer, "#FE9900" },
                 // Snowdown
                 { CustomRoles.SnowdownPlayer, "#e4fdff" },
+                // Loop Wanted
+                { CustomRoles.LoopHunter, "#D9BAA5" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -972,7 +975,8 @@ public class Main : BasePlugin
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
             [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
-            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer)
+            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer),
+            [CustomGameMode.LoopWanted] = Utils.GetRoleColor(CustomRoles.LoopHunter)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>

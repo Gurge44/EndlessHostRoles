@@ -19,12 +19,13 @@ public static class CollectionExtensions
         ///     Returns the key of a dictionary by its value
         /// </summary>
         /// <param name="value">The <typeparamref name="TValue" /> used to search for the corresponding key</param>
+        /// <param name="defaultValue">The return value if <paramref name="value"/> is not found in the <paramref name="dictionary"/></param>
         /// <returns>
-        ///     The key of the <paramref name="dictionary" /> that corresponds to the given <paramref name="value" />, or the
-        ///     default value of <typeparamref name="TKey" /> if the <paramref name="value" /> is not found in the
+        ///     The key of the <paramref name="dictionary" /> that corresponds to the given <paramref name="value" />, or
+        ///     <paramref name="defaultValue"/> if the <paramref name="value" /> is not found in the
         ///     <paramref name="dictionary" />
         /// </returns>
-        public TKey GetKeyByValue(TValue value)
+        public TKey GetKeyByValue(TValue value, TKey defaultValue = default)
         {
             foreach (KeyValuePair<TKey, TValue> pair in dictionary)
             {
@@ -32,7 +33,7 @@ public static class CollectionExtensions
                     return pair.Key;
             }
 
-            return default(TKey);
+            return defaultValue;
         }
         
         // foreach will only throw System.InvalidOperationException: collection was modified; enumeration operation may not execute.
