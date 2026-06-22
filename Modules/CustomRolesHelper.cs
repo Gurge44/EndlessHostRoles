@@ -1764,6 +1764,12 @@ internal static class CustomRolesHelper
         {
             return role.ColoredTextByRole(Translator.GetString(role.ToString()));
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string ColoredTextByRole(string str)
+        {
+            return Utils.ColorString(Utils.GetRoleColor(role), str);
+        }
     }
 
     extension(Team team)
@@ -1793,12 +1799,6 @@ internal static class CustomRolesHelper
                 _ => string.Empty
             };
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ColoredTextByRole(this CustomRoles role, string str)
-    {
-        return Utils.ColorString(Utils.GetRoleColor(role), str);
     }
 
     extension(RoleOptionType type)

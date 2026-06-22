@@ -86,7 +86,7 @@ public class Astral : RoleBase
         GhostRolesManager.RemoveGhostRole(pc.PlayerId);
         ReportDeadBodyPatch.AlreadyReportedBodies.Remove(pc.PlayerId);
         pc.RpcSetRoleGlobal(Options.UsePets.GetBool() ? RoleTypes.Crewmate : RoleTypes.Engineer);
-        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) Camouflage.RpcSetSkin(pc);
+        Camouflage.RpcSetSkin(pc);
 
         if (onMeeting) return;
 

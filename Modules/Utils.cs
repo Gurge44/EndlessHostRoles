@@ -3789,7 +3789,10 @@ public static class Utils
 
     public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
-        if (!AmongUsClient.Instance.AmHost || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return false;
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            return pc.RpcChangeOutfitByData(newOutfit, writer?.stream, sendOption);
+        
+        if (!AmongUsClient.Instance.AmHost) return false;
         
         if (pc.Is(CustomRoles.BananaMan))
             newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Banana"));
@@ -4221,7 +4224,7 @@ public static class Utils
                     {
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
+                            if (GameStates.IsEnded) return;
                             string petId = PetsHelper.GetPetId();
                             PetsHelper.SetPet(pc, petId);
                             pc.Data.DefaultOutfit.PetSequenceId += 10;

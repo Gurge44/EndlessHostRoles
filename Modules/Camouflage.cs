@@ -4,6 +4,7 @@ using AmongUs.Data;
 using EHR.Modules;
 using EHR.Roles;
 using Hazel;
+using UnityEngine;
 
 namespace EHR;
 
@@ -151,15 +152,15 @@ public static class Camouflage
 
             RpcSetSkin(pc);
 
-            yield return null;
+            yield return new WaitForSecondsRealtime(0.1f);
         }
 
+        yield return new WaitForSecondsRealtime(0.5f);
         yield return Utils.NotifyEveryoneAsync();
     }
 
     public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)
     {
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
         if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !revive && !notCommsOrCamo) || !target || (BlockCamouflage && !forceRevert && !revertToDefault && !gameEnd && !revive && !notCommsOrCamo)) return;
 
         Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
@@ -215,6 +216,12 @@ public static class Camouflage
         }
 
         Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            target.RpcChangeOutfitByData(newOutfit);
+            return;
+        }
 
         bool noSender = sender == null;
         if (noSender) sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})", SendOption.Reliable);

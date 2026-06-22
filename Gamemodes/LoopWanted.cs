@@ -305,10 +305,10 @@ internal static class LoopWanted
 
         Suffix.Clear();
 
-        Suffix.Append("<color=#ffb432>");
+        Suffix.Append("<#D9BAA5>");
         Suffix.Append(hud ? GetString("LoopWanted.CurrentTarget") : GetString("Target"));
-        Suffix.Append(":</color> <b>");
-        Suffix.Append(Main.AllPlayerNames.GetValueOrDefault(targetId, GetString("Unknown")));
+        Suffix.Append(": <b>");
+        Suffix.Append(targetId.ColoredPlayerName());
         Suffix.Append("</b>");
 
         if (ShowTargetArrow.GetBool())
@@ -317,9 +317,11 @@ internal static class LoopWanted
             Suffix.Append(TargetArrow.GetArrows(seer, targetId));
         }
 
+        Suffix.Append("</color>");
+
         if (CarnivalMode)
         {
-            Suffix.Append("\n<color=#ff6600>");
+            Suffix.Append("\n<#ff6600>");
             Suffix.Append(GetString("LoopWanted.CarnivalModeHUD"));
             Suffix.Append("</color>");
         }

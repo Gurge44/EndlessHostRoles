@@ -363,8 +363,6 @@ public static class CaptureTheFlag
         int blueCount = players.Count / 2;
         HashSet<byte> bluePlayers = [];
         HashSet<byte> yellowPlayers = [];
-        
-        bool vanillaServer = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
         for (var i = 0; i < blueCount; i++)
         {
@@ -372,7 +370,7 @@ public static class CaptureTheFlag
             players.Remove(player);
             PlayerTeams[player.PlayerId] = CTFTeam.Blue;
             bluePlayers.Add(player.PlayerId);
-            if (!vanillaServer) player.RpcSetColor(1);
+            player.RpcChangeColor(1);
             yield return WaitFrameIfNecessary();
         }
 
@@ -380,7 +378,7 @@ public static class CaptureTheFlag
         {
             PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
             yellowPlayers.Add(player.PlayerId);
-            if (!vanillaServer) player.RpcSetColor(5);
+            player.RpcChangeColor(5);
             yield return WaitFrameIfNecessary();
         }
 

@@ -84,9 +84,8 @@ internal static class GameEndChecker
             Ended = true;
             LoadingEndScreen = true;
 
-            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
-                foreach (var pc in Main.CachedAllPlayerControls())
-                    Camouflage.RpcSetSkin(pc, true, true, true);
+            foreach (var pc in Main.CachedAllPlayerControls())
+                Camouflage.RpcSetSkin(pc, true, true, true);
 
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);

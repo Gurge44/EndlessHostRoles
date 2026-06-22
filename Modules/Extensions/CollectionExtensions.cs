@@ -452,7 +452,7 @@ public static class CollectionExtensions
 
     public static void NotifyPlayers(this IEnumerable<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable).StartPackedMessage();
         var hasValue = false;
 
         foreach (PlayerControl player in players)
@@ -465,7 +465,7 @@ public static class CollectionExtensions
     }
     public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
-        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable);
+        var sender = CustomRpcSender.Create("NotifyPlayers", SendOption.Reliable).StartPackedMessage();
         var hasValue = false;
 
         for (int index = 0; index < players.Count; index++)

@@ -12,10 +12,15 @@ public static class PetsHelper
         SetPet(pc, petId);
     }
 
-    public static void SetPet(PlayerControl pc, string petId, CustomRpcSender writer = null)
+    public static void SetPet(PlayerControl pc, string petId)
     {
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
-        var sender = writer ?? CustomRpcSender.Create("PetsHelper.SetPet", SendOption.Reliable);
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            pc.RpcChangePet(petId);
+            return;
+        }
+
+        var sender = CustomRpcSender.Create("PetsHelper.SetPet", SendOption.Reliable);
 
         try { pc.SetPet(petId); }
         catch { }
@@ -27,8 +32,6 @@ public static class PetsHelper
             .Write(petId)
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
-        
-        if (writer != null) return;
 
         sender.SendMessage();
     }
