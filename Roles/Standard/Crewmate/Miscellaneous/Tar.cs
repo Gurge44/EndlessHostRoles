@@ -52,7 +52,7 @@ public class Tar : RoleBase
 
         Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
         Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
-        if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) pc.RpcSetColor(6);
+        pc.RpcChangeColor(6);
         pc.MarkDirtySettings();
 
         Timer = new CountdownTimer(AbilityDuration.GetFloat(), () =>
@@ -61,7 +61,7 @@ public class Tar : RoleBase
             if (!pc || !pc.IsAlive()) return;
             Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) pc.RpcSetColor((byte)ColorId);
+            pc.RpcChangeColor((byte)ColorId);
             pc.MarkDirtySettings();
         }, cancelOnMeeting: false, onCanceled: () =>
         {
@@ -93,7 +93,7 @@ public class Tar : RoleBase
             Timer = null;
             Main.AllPlayerSpeed[TarId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             Main.PlayerStates[TarId].IsBlackOut = false;
-            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) TarId.GetPlayer()?.RpcSetColor((byte)ColorId);
+            TarId.GetPlayer()?.RpcChangeColor((byte)ColorId);
         }
     }
 }

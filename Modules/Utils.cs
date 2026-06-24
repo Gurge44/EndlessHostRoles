@@ -2547,7 +2547,7 @@ public static class Utils
                     CustomGameMode.Deathrace => CustomRoles.Racer.ColoredTextByRole($"{modeText}\r\n") + name,
                     CustomGameMode.Mingle => CustomRoles.MinglePlayer.ColoredTextByRole($"{modeText}\r\n") + name,
                     CustomGameMode.Snowdown => CustomRoles.SnowdownPlayer.ColoredTextByRole($"{modeText}\r\n") + name,
-                    CustomGameMode.LoopWanted => name,
+                    CustomGameMode.LoopWanted => CustomRoles.LoopHunter.ColoredTextByRole($"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -3208,6 +3208,7 @@ public static class Utils
                 CustomGameMode.Quiz => true,
                 CustomGameMode.Deathrace => true,
                 CustomGameMode.Mingle => true,
+                CustomGameMode.LoopWanted => true,
                 _ => false
             };
 
@@ -3439,9 +3440,6 @@ public static class Utils
                                         break;
                                     case CustomGameMode.Snowdown:
                                         AdditionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
-                                        break;
-                                    case CustomGameMode.LoopWanted when seer == target:
-                                        AdditionalSuffixes.Add(LoopWanted.GetSuffix(seer, target));
                                         break;
                                 }
 
@@ -3791,7 +3789,10 @@ public static class Utils
 
     public static bool RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit, CustomRpcSender writer = null, SendOption sendOption = SendOption.Reliable)
     {
-        if (!AmongUsClient.Instance.AmHost || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return false;
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+            return pc.RpcChangeOutfitByData(newOutfit, writer?.stream, sendOption);
+        
+        if (!AmongUsClient.Instance.AmHost) return false;
         
         if (pc.Is(CustomRoles.BananaMan))
             newOutfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(pc.PlayerId, "Banana"));
@@ -4223,7 +4224,7 @@ public static class Utils
                     {
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsEnded || GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
+                            if (GameStates.IsEnded) return;
                             string petId = PetsHelper.GetPetId();
                             PetsHelper.SetPet(pc, petId);
                             pc.Data.DefaultOutfit.PetSequenceId += 10;

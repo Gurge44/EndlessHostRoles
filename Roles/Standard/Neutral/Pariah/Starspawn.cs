@@ -49,6 +49,7 @@ public class Starspawn : RoleBase
     public override void Remove(byte playerId)
     {
         Instances.Remove(this);
+        if (IsDayBreak) IsDayBreak = Instances.Count > 0;
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

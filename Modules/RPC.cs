@@ -1380,6 +1380,11 @@ internal static class RPCHandlerPatch
                     LateTask.New(() => Stained.VioletNameList.Remove(id), 3f);
                     break;
                 }
+                case CustomRPC.Entombed:
+                {
+                    Entombed.ReceiveRPC(reader);
+                    break;
+                }
                 case CustomRPC.CTA:
                 {
                     CustomTeamManager.ReceiveRPC(reader);

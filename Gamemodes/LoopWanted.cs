@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -17,7 +15,7 @@ internal static class LoopWanted
     private static bool CarnivalMode;
     private static float DefaultSpeed;
 
-    private static OptionItem BaseKillCooldown;
+    public static OptionItem BaseKillCooldown;
     private static OptionItem PunishmentMode;
     private static OptionItem LowerVisionMultiplier;
     private static OptionItem CarnivalPlayerCount;
@@ -30,7 +28,7 @@ internal static class LoopWanted
     public static void SetupCustomOption()
     {
         var id = 69_226_001;
-        Color color = new Color32(255, 180, 50, byte.MaxValue);
+        Color color = Utils.GetRoleColor(CustomRoles.LoopHunter);
         const CustomGameMode gameMode = CustomGameMode.LoopWanted;
         const TabGroup tab = TabGroup.GameSettings;
 
@@ -42,12 +40,7 @@ internal static class LoopWanted
 
         PunishmentMode = new StringOptionItem(id++, "LoopWanted.PunishmentMode", PunishmentModeOptions, 0, tab)
             .SetGameMode(gameMode)
-            .SetColor(color)
-            .RegisterUpdateValueEvent((_, _, currentValue) =>
-            {
-                LowerVisionMultiplier.SetHidden(currentValue != 1);
-            })
-            .SetRunEventOnLoad(true);
+            .SetColor(color);
 
         LowerVisionMultiplier = new FloatOptionItem(id++, "LoopWanted.LowerVisionMultiplier", new(0f, 10f, 0.5f), 0.5f, tab)
             .SetParent(PunishmentMode)
@@ -70,18 +63,19 @@ internal static class LoopWanted
             .SetColor(color)
             .SetValueFormat(OptionFormat.Multiplier);
 
-        ShowTargetArrow = new BooleanOptionItem(id++, "LoopWanted.ShowTargetArrow", false, tab)
+        ShowTargetArrow = new BooleanOptionItem(id, "LoopWanted.ShowTargetArrow", false, tab)
             .SetGameMode(gameMode)
             .SetColor(color);
     }
 
     public static void Init()
     {
-        if (Options.CurrentGameMode != CustomGameMode.LoopWanted) return;
-
+        Suffix.Clear();
         TargetMap = [];
         LowerVisionList = [];
         CarnivalMode = false;
+
+        if (Options.CurrentGameMode != CustomGameMode.LoopWanted) return;
 
         DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
 
@@ -99,14 +93,12 @@ internal static class LoopWanted
         if (!AmongUsClient.Instance.AmHost) return;
 
         TargetMap = [];
-        TargetArrow.Init();
 
-        var allPlayers = Main.EnumerateAlivePlayerControls();
-        if (Main.GM.Value)
-            allPlayers = allPlayers.Without(PlayerControl.LocalPlayer);
-        allPlayers = allPlayers.ExceptBy(ChatCommands.Spectators, x => x.PlayerId).ToArray();
+        var allPlayers = Main.CachedAlivePlayerControls();
+        if (Main.GM.Value) allPlayers.Remove(PlayerControl.LocalPlayer);
+        allPlayers.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
-        List<byte> playerIds = allPlayers.Select(x => x.PlayerId).Shuffle().ToList();
+        List<byte> playerIds = allPlayers.ConvertAll(x => x.PlayerId).Shuffle();
 
         if (playerIds.Count < 2)
         {
@@ -120,7 +112,7 @@ internal static class LoopWanted
             byte hunterId = playerIds[i];
             if (hunterId == targetId) continue; // should never happen, but guard
             if (TargetMap.ContainsValue(targetId))
-                TargetMap.Remove(TargetMap.First(kv => kv.Value == targetId).Key);
+                TargetMap.Remove(TargetMap.GetKeyByValue(targetId));
             TargetMap[hunterId] = targetId;
             if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, targetId);
             Logger.Info($"{hunterId.ColoredPlayerName()} 2 targets 2 {targetId.ColoredPlayerName()}", "LoopWanted");
@@ -130,14 +122,14 @@ internal static class LoopWanted
         CarnivalMode = false;
     }
 
-    public static byte GetTarget(byte playerId)
+    private static byte GetTarget(byte playerId)
     {
-        return TargetMap.TryGetValue(playerId, out byte target) ? target : byte.MaxValue;
+        return TargetMap.GetValueOrDefault(playerId, byte.MaxValue);
     }
 
-    public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
+        if (!AmongUsClient.Instance.AmHost) return;
 
         byte killerId = killer.PlayerId;
         byte targetId = target.PlayerId;
@@ -156,7 +148,7 @@ internal static class LoopWanted
             if (nextTarget != byte.MaxValue && nextTarget != killerId)
             {
                 if (TargetMap.ContainsValue(nextTarget))
-                    TargetMap.Remove(TargetMap.First(kv => kv.Value == nextTarget).Key);
+                    TargetMap.Remove(TargetMap.GetKeyByValue(nextTarget));
                 TargetMap[killerId] = nextTarget;
                 if (ShowTargetArrow.GetBool()) TargetArrow.Add(killerId, nextTarget);
                 Logger.Info($"{killer.GetRealName()}'s new target is {nextTarget.ColoredPlayerName()}", "LoopWanted");
@@ -169,31 +161,22 @@ internal static class LoopWanted
 
             TargetMap.Remove(targetId);
 
-            killer.SyncSettings();
-
             CheckCarnivalMode();
-            Utils.NotifyRoles(SpecifySeer: killer);
+            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
 
             SyncTargetMapRPC();
             Utils.SendRPC(CustomRPC.LoopWantedSync, 1, CarnivalMode);
 
             killer.Kill(target);
-            return false;
         }
         else
         {
             Logger.Info($"{killer.GetRealName()} killed wrong target {target.GetRealName()} (expected: {expectedTarget.ColoredPlayerName()})", "LoopWanted");
-            int punishment = PunishmentMode.GetInt();
-            if (punishment == 0)
-            {
+
+            if (PunishmentMode.GetInt() == 0)
                 killer.Kill(target);
-                ApplyPunishment(killer);
-            }
-            else
-            {
-                ApplyPunishment(killer);
-            }
-            return false;
+
+            ApplyPunishment(killer);
         }
     }
 
@@ -208,17 +191,15 @@ internal static class LoopWanted
 
     private static void ApplyPunishment(PlayerControl killer)
     {
-        int punishment = PunishmentMode.GetInt();
-
-        switch (punishment)
+        switch (PunishmentMode.GetInt())
         {
             case 0:
                 Logger.Info($"{killer.GetRealName()} is committing suicide for wrong kill", "LoopWanted");
-                killer.Notify(GetString("LoopWanted.WrongKillSuicide"), 5f);
+                killer.Notify(GetString("LoopWanted.WrongKillSuicide"));
                 LateTask.New(() =>
                 {
                     if (!killer || !killer.IsAlive() || GameStates.IsEnded) return;
-                    killer.Suicide(PlayerState.DeathReason.Kill);
+                    killer.Suicide();
                     HandleDeadPlayer(killer.PlayerId);
                 }, 0.5f, "LoopWanted Suicide Punishment");
                 break;
@@ -227,42 +208,32 @@ internal static class LoopWanted
                 float visionMultiplier = LowerVisionMultiplier.GetFloat();
                 LowerVisionList[killer.PlayerId] = Utils.TimeStamp;
                 killer.MarkDirtySettings();
-                killer.Notify(string.Format(GetString("LoopWanted.WrongKillLowerVision"), visionMultiplier), 5f);
+                killer.Notify(string.Format(GetString("LoopWanted.WrongKillLowerVision"), visionMultiplier));
                 break;
         }
     }
 
-    public static void HandleDeadPlayer(byte deadPlayerId)
+    private static void HandleDeadPlayer(byte deadPlayerId)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!TargetMap.ContainsKey(deadPlayerId)) return;
+        if (!TargetMap.Remove(deadPlayerId)) return;
 
-        byte hunterId = byte.MaxValue;
-        foreach (var kvp in TargetMap)
-        {
-            if (kvp.Value == deadPlayerId && kvp.Key != deadPlayerId)
-            {
-                hunterId = kvp.Key;
-                break;
-            }
-        }
-
+        byte hunterId = TargetMap.GetKeyByValue(deadPlayerId, byte.MaxValue);
         byte nextTarget = GetTarget(deadPlayerId);
 
         TargetArrow.RemoveAllTarget(deadPlayerId);
-        TargetMap.Remove(deadPlayerId);
         LowerVisionList.Remove(deadPlayerId);
 
         if (hunterId != byte.MaxValue && nextTarget != byte.MaxValue && nextTarget != hunterId)
         {
             TargetArrow.RemoveAllTarget(hunterId);
             if (TargetMap.ContainsValue(nextTarget))
-                TargetMap.Remove(TargetMap.First(kv => kv.Value == nextTarget).Key);
+                TargetMap.Remove(TargetMap.GetKeyByValue(nextTarget));
             TargetMap[hunterId] = nextTarget;
             if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, nextTarget);
 
             PlayerControl hunter = Utils.GetPlayerById(hunterId);
-            if (hunter) Utils.NotifyRoles(SpecifySeer: hunter);
+            if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
         }
         else if (hunterId != byte.MaxValue)
         {
@@ -276,7 +247,7 @@ internal static class LoopWanted
 
     private static void CheckCarnivalMode()
     {
-        int aliveCount = Main.EnumerateAlivePlayerControls().Count(x => !ChatCommands.Spectators.Contains(x.PlayerId));
+        int aliveCount = Main.AllAlivePlayerControlsCount;
         int threshold = CarnivalPlayerCount.GetInt();
 
         if (!CarnivalMode && aliveCount <= threshold && aliveCount > 1)
@@ -284,15 +255,13 @@ internal static class LoopWanted
             CarnivalMode = true;
             Utils.SendRPC(CustomRPC.LoopWantedSync, 1, true);
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
-                if (ChatCommands.Spectators.Contains(pc.PlayerId)) continue;
-
                 Main.AllPlayerSpeed[pc.PlayerId] = DefaultSpeed * CarnivalSpeedMultiplier.GetFloat();
                 Main.AllPlayerKillCooldown[pc.PlayerId] = CarnivalKillCooldown.GetFloat();
-                pc.SyncSettings();
+                if (!pc.AmOwner) pc.ReactorFlash();
                 pc.MarkDirtySettings();
-                pc.Notify(GetString("LoopWanted.CarnivalModeActivated"), 5f);
+                pc.Notify(GetString("LoopWanted.CarnivalModeActivated"));
             }
 
             SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
@@ -307,27 +276,25 @@ internal static class LoopWanted
 
         if (!Main.IntroDestroyed || GameStates.IsEnded) return false;
 
-        var alivePlayers = Main.EnumerateAlivePlayerControls()
-            .Where(x => !ChatCommands.Spectators.Contains(x.PlayerId)).ToArray();
+        var alivePlayers = Main.CachedAlivePlayerControls();
 
-        if (alivePlayers.Length <= 1)
+        switch (alivePlayers.Count)
         {
-            if (alivePlayers.Length == 1)
-            {
+            case 1:
                 PlayerControl winner = alivePlayers[0];
                 CustomWinnerHolder.WinnerIds = [winner.PlayerId];
                 Logger.Info($"LoopWanted Winner: {winner.GetRealName()}", "LoopWanted");
-            }
-            else
-            {
-                CustomWinnerHolder.WinnerIds = [];
-            }
-
-            return true;
+                return true;
+            case 0:
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                Logger.Info("No players alive, force ending the game", "LoopWanted");
+                return true;
+            default:
+                return false;
         }
-
-        return false;
     }
+
+    private static readonly StringBuilder Suffix = new();
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false)
     {
@@ -336,16 +303,30 @@ internal static class LoopWanted
         byte targetId = GetTarget(seer.PlayerId);
         if (targetId == byte.MaxValue) return string.Empty;
 
-        string targetName = Main.AllPlayerNames.GetValueOrDefault(targetId, GetString("Unknown"));
-        string arrow = ShowTargetArrow.GetBool() ? TargetArrow.GetArrows(seer, targetId) : string.Empty;
+        Suffix.Clear();
 
-        var sb = new StringBuilder();
-        sb.Append($"<color=#ffb432>{(hud ? GetString("LoopWanted.CurrentTarget") : GetString("Target"))}:</color> <b>{targetName.RemoveHtmlTags().Replace("\r\n", string.Empty)}</b> {arrow}");
+        Suffix.Append("<#D9BAA5>");
+        Suffix.Append(hud ? GetString("LoopWanted.CurrentTarget") : GetString("Target"));
+        Suffix.Append(": <b>");
+        Suffix.Append(targetId.ColoredPlayerName());
+        Suffix.Append("</b>");
+
+        if (ShowTargetArrow.GetBool())
+        {
+            Suffix.Append(' ');
+            Suffix.Append(TargetArrow.GetArrows(seer, targetId));
+        }
+
+        Suffix.Append("</color>");
 
         if (CarnivalMode)
-            sb.Append($"\n<color=#ff6600>{GetString("LoopWanted.CarnivalModeHUD")}</color>");
+        {
+            Suffix.Append("\n<#ff6600>");
+            Suffix.Append(GetString("LoopWanted.CarnivalModeHUD"));
+            Suffix.Append("</color>");
+        }
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     private static void SyncTargetMapRPC()
@@ -388,9 +369,10 @@ internal static class LoopWanted
 
         if (LowerVisionList.ContainsKey(playerId))
         {
+            float vision = LowerVisionMultiplier.GetFloat();
             opt.SetVision(false);
-            opt.SetFloat(FloatOptionNames.CrewLightMod, LowerVisionMultiplier.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, LowerVisionMultiplier.GetFloat());
+            opt.SetFloat(FloatOptionNames.CrewLightMod, vision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, vision);
         }
         else
         {
@@ -406,35 +388,29 @@ internal static class LoopWanted
 
         public static void Postfix()
         {
-            if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance ||
-                Options.CurrentGameMode != CustomGameMode.LoopWanted || !AmongUsClient.Instance.AmHost) return;
+            if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.LoopWanted || !AmongUsClient.Instance.AmHost) return;
 
             long now = Utils.TimeStamp;
             if (IntroCutsceneDestroyPatch.IntroDestroyTS + 10 > now || LastFixedUpdate == now) return;
             LastFixedUpdate = now;
 
-            var deadPlayersInMap = new List<byte>();
+            List<byte> deadPlayersInMap = null;
             foreach (var kvp in TargetMap)
             {
-                byte id = kvp.Key;
-                if (id.GetPlayer()?.IsAlive() == true) continue;
-                if (Main.PlayerStates.TryGetValue(id, out var state) && state.IsDead)
-                    deadPlayersInMap.Add(id);
-            }
-            foreach (byte deadId in deadPlayersInMap)
-                HandleDeadPlayer(deadId);
+                CheckDead(kvp.Key);
+                CheckDead(kvp.Value);
+                continue;
 
-            var orphaned = new List<byte>();
-            foreach (var kvp in TargetMap)
-            {
-                byte targetId = kvp.Value;
-                var targetPlayer = targetId.GetPlayer();
-                var state = Main.PlayerStates.GetValueOrDefault(targetId);
-                if (targetPlayer && !targetPlayer.IsAlive() || (state != null && state.IsDead))
-                    orphaned.Add(kvp.Key);
+                void CheckDead(byte id)
+                {
+                    if (!Main.PlayerStates.TryGetValue(id, out var state) || state.IsDead)
+                    {
+                        deadPlayersInMap ??= [];
+                        deadPlayersInMap.Add(id);
+                    }
+                }
             }
-            foreach (byte hunterId in orphaned)
-                HandleDeadPlayer(TargetMap[hunterId]);
+            deadPlayersInMap?.ForEach(HandleDeadPlayer);
 
             CheckCarnivalMode();
         }

@@ -497,9 +497,10 @@ internal static class ExtendedPlayerControl
             LateTask.New(() => player.SetKillCooldown(), 0.2f, log: false);
 
             if (Options.AnonymousBodies.GetBool() && Main.AllPlayerNames.TryGetValue(player.PlayerId, out string name))
-                RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""), sender);
-
-            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) Camouflage.RpcSetSkin(player, sender: sender);
+                RpcChangeSkin(player, new NetworkedPlayerInfo.PlayerOutfit().Set(name, 15, "", "", "", "", ""));
+            else
+                Camouflage.RpcSetSkin(player);
+            
             sender.SyncSettings(player);
 
             sender.SendMessage();
@@ -1785,7 +1786,7 @@ internal static class ExtendedPlayerControl
                 CustomRoles.BedWarsPlayer => 1f,
                 CustomRoles.Racer => 3f,
                 CustomRoles.SnowdownPlayer => 10f,
-                CustomRoles.LoopHunter => Main.AllPlayerKillCooldown[player.PlayerId],
+                CustomRoles.LoopHunter => LoopWanted.BaseKillCooldown.GetFloat(),
                 _ when player.Is(CustomRoles.Underdog) => Main.AllAlivePlayerControlsCount <= Underdog.UnderdogMaximumPlayersNeededToKill.GetInt() ? Underdog.UnderdogKillCooldownWithLessPlayersAlive.GetInt() : Underdog.UnderdogKillCooldownWithMorePlayersAlive.GetInt(),
                 _ => Main.AllPlayerKillCooldown[player.PlayerId]
             };
@@ -2387,9 +2388,81 @@ internal static class ExtendedPlayerControl
             if (player.IsModdedClient() || player.IsTrusted() || player.FriendCode.GetDevUser().HasTag()) return false;
             return !Main.GamesPlayed.TryGetValue(player.FriendCode, out int gamesPlayed) || gamesPlayed < 4;
         }
+
+        public void RpcChangePet(string petId)
+        {
+            if (player.Data.DefaultOutfit.PetId == petId) return;
+            
+            player.Data.DefaultOutfit.PetId = petId;
+            player.SyncOutfitData();
+        }
+        
+        public void RpcChangeColor(byte colorId)
+        {
+            if (player.Data.DefaultOutfit.ColorId == colorId) return;
+
+            player.Data.DefaultOutfit.ColorId = colorId;
+            player.SyncOutfitData();
+        }
+        
+        public bool RpcChangeOutfitByData(NetworkedPlayerInfo.PlayerOutfit outfit, MessageWriter writer = null, SendOption sendOption = SendOption.Reliable, bool revertShapeshiftIfAlreadyShifted = true)
+        {
+            if (!AmongUsClient.Instance.AmHost) return false;
+            if (player.Is(CustomRoles.BananaMan)) outfit = BananaMan.GetOutfit(Main.AllPlayerNames.GetValueOrDefault(player.PlayerId, "Banana"));
+            if (outfit.Compare(player.Data.DefaultOutfit)) return false;
+            Camouflage.SetPetForOutfitIfNecessary(outfit);
+            if (outfit.Compare(player.Data.DefaultOutfit)) return false;
+            
+            player.Data.Outfits[PlayerOutfitType.Default] = outfit;
+            player.SyncOutfitData(writer, sendOption, revertShapeshiftIfAlreadyShifted);
+            return true;
+        }
+
+        public void SyncOutfitData(MessageWriter writer = null, SendOption sendOption = SendOption.Reliable, bool revertShapeshiftIfAlreadyShifted = true)
+        {
+            try { player.Shapeshift(player, false); } catch { }
+            
+            MessageWriter stream;
+
+            if (writer == null)
+            {
+                stream = MessageWriter.Get(sendOption);
+                stream.StartMessage(5);
+                stream.Write(AmongUsClient.Instance.GameId);
+            }
+            else
+            {
+                stream = writer;
+            }
+            
+            stream.StartMessage(1);
+            stream.WritePacked(player.Data.NetId);
+            player.Data.Serialize(stream, false);
+            stream.EndMessage();
+
+            if (revertShapeshiftIfAlreadyShifted || !player.IsShifted())
+            {
+                stream.StartMessage(2);
+                stream.WritePacked(player.NetId);
+                stream.Write((byte)RpcCalls.Shapeshift);
+                stream.WriteNetObject(player);
+                stream.Write(false);
+                stream.EndMessage();
+            }
+            
+            if (writer == null)
+            {
+                stream.EndMessage();
+                DataFlagRateLimiter.Enqueue(() =>
+                {
+                    AmongUsClient.Instance.SendOrDisconnect(stream);
+                    stream.Recycle();
+                }, channel: sendOption, cleanup: stream.Recycle);
+            }
+        }
     }
 
-    // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts.
+    // If you use vanilla RpcSetRole, it will block further SetRole calls until the next game starts. Use RpcSetRoleGlobal!
 
     /*
     public static void RpcShowScanAnimationDesync(this PlayerControl target, PlayerControl seer, bool on)

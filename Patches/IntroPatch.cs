@@ -1266,51 +1266,58 @@ internal static class IntroCutsceneDestroyPatch
             {
                 void GrantPetForEveryone()
                 {
-                    if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) return;
-                    CustomRpcSender sender = CustomRpcSender.Create(nameof(GrantPetForEveryone), SendOption.Reliable);
+                    var messages = 0;
+                    var stream = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
                     
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.Is(CustomRoles.GM)) continue;
+                        try
+                        {
+                            if (pc.Is(CustomRoles.GM)) continue;
 
-                        string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId, sender);
-                        Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
+                            if (stream.Length > 500 || messages + 2 > AmongUsClient.Instance.GetMaxMessagePackingLimit())
+                            {
+                                stream.EndMessage();
+
+                                var captured = stream;
+                                DataFlagRateLimiter.Enqueue(() =>
+                                {
+                                    AmongUsClient.Instance.SendOrDisconnect(captured);
+                                    captured.Recycle();
+                                }, cleanup: captured.Recycle);
+
+                                stream = MessageWriter.Get(SendOption.Reliable);
+                                stream.StartMessage(5);
+                                stream.Write(AmongUsClient.Instance.GameId);
+
+                                messages = 0;
+                            }
+
+                            string petId = PetsHelper.GetPetId();
+                            pc.Data.DefaultOutfit.PetId = petId;
+                            pc.SyncOutfitData(stream);
+                            messages += 2;
+                            Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
                     }
 
-                    sender.SendMessage();
+                    stream.EndMessage();
+                    DataFlagRateLimiter.Enqueue(() =>
+                    {
+                        AmongUsClient.Instance.SendOrDisconnect(stream);
+                        stream.Recycle();
+                    }, cleanup: stream.Recycle);
                 }
 
                 LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {
-                    lp.Notify(GetString("GLHF"), 2f);
-
-                    bool hasValue = false;
-                    var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                    sender.StartPackedMessage();
-                    
-                    foreach (PlayerControl pc in aapc)
-                    {
-                        if (pc.AmOwner || pc.OwnerId < 0) continue; // Skip the host
-
-                        try
-                        {
-                            sender.AutoStartRpc(pc.NetId, 46, pc.OwnerId);
-                            sender.WriteNetObject(pc);
-                            sender.Write(false);
-                            sender.EndRpc();
-
-                            sender.Notify(pc, GetString("GLHF"), 2f);
-
-                            hasValue = true;
-                        }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-                    }
-                    
-                    sender.SendMessage(dispose: !hasValue);
-                }, 4f, "Show Pet For Everyone");
+                    aapc.NotifyPlayers(GetString("GLHF"), 3f);
+                }, 4f, "GLHF");
             }
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)

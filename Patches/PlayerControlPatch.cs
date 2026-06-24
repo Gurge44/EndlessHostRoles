@@ -895,8 +895,7 @@ internal static class ShapeshiftPatch
 
         if (!shapeshifting)
         {
-            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
-                Camouflage.RpcSetSkin(shapeshifter);
+            Camouflage.RpcSetSkin(shapeshifter);
         }
         else
         {
@@ -1414,7 +1413,7 @@ internal static class ReportDeadBodyPatch
         {
             try
             {
-                if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla && Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
+                if (Main.CheckShapeshift.ContainsKey(pc.PlayerId) && !Doppelganger.DoppelVictim.ContainsKey(pc.PlayerId))
                     Camouflage.RpcSetSkin(pc, revertToDefault: true);
 
                 if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))

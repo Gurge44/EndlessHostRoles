@@ -202,6 +202,9 @@ public static class FixedUpdateCaller
                         case CustomGameMode.Mingle:
                             Mingle.FixedUpdatePatch.Postfix();
                             goto default;
+                        case CustomGameMode.LoopWanted:
+                            LoopWanted.FixedUpdatePatch.Postfix();
+                            goto default;
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;
                             break;

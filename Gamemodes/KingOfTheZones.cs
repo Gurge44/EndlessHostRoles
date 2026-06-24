@@ -972,19 +972,13 @@ public static class KingOfTheZones
 
                 yield return null;
 
-                if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
                 {
-                    foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+                    try
                     {
-                        try
-                        {
-                            byte colorId = PlayerTeams[player.PlayerId].GetColorId();
-                            if (player.CurrentOutfit.ColorId == colorId) continue;
-
-                            player.RpcSetColor(colorId);
-                        }
-                        catch (Exception e) { Utils.ThrowException(e); }
+                        player.RpcChangeColor(PlayerTeams[player.PlayerId].GetColorId());
                     }
+                    catch (Exception e) { Utils.ThrowException(e); }
                 }
 
                 yield return null;

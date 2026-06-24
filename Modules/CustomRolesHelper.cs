@@ -1690,11 +1690,11 @@ internal static class CustomRolesHelper
 
         public bool RoleExist(bool countDead = false)
         {
-            var players = Main.CachedAllPlayerControls();
+            var players = countDead ? Main.CachedAllPlayerControls() : Main.CachedAlivePlayerControls();
             for (int i = 0; i < players.Count; i++)
             {
                 var player = players[i];
-                if (player.Is(role) && (countDead || player.IsAlive()))
+                if (player.Is(role))
                     return true;
             }
             return false;
@@ -1766,6 +1766,12 @@ internal static class CustomRolesHelper
         {
             return role.ColoredTextByRole(Translator.GetString(role.ToString()));
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string ColoredTextByRole(string str)
+        {
+            return Utils.ColorString(Utils.GetRoleColor(role), str);
+        }
     }
 
     extension(Team team)
@@ -1795,12 +1801,6 @@ internal static class CustomRolesHelper
                 _ => string.Empty
             };
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ColoredTextByRole(this CustomRoles role, string str)
-    {
-        return Utils.ColorString(Utils.GetRoleColor(role), str);
     }
 
     extension(RoleOptionType type)
