@@ -79,6 +79,9 @@ internal static class LoopWanted
 
         DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
 
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+            ReportDeadBodyPatch.CanReport[pc.PlayerId] = false;
+
         Utils.SendRPC(CustomRPC.LoopWantedSync, 1, false);
     }
 
