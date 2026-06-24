@@ -65,7 +65,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual bool CanUseSabotage(PlayerControl pc)
     {
         if (pc.Is(CustomRoles.Aide)) return false;
-        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControls.Count == 2) return false;
+        if (Options.DisableSabotagingOn1v1.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Main.AllAlivePlayerControlsCount == 2) return false;
         return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
     }
 
@@ -116,19 +116,19 @@ public abstract class RoleBase : IComparable<RoleBase>
 
     public virtual bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return target != null && killer != null;
+        return target && killer;
     }
 
     public virtual bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        return target != null && killer != null;
+        return target && killer;
     }
 
     public virtual void OnMurder(PlayerControl killer, PlayerControl target) { }
 
     public virtual void OnVoteKick(PlayerControl pc, PlayerControl target)
     {
-        if (Imitator.PlayerIdList.Contains(pc.PlayerId))
+        if (Imitator.PlayerIdList != null && Imitator.PlayerIdList.Contains(pc.PlayerId))
         {
             string command = $"/imitate {target.PlayerId}";
             ChatCommands.ImitateCommand(pc, command, command.Split(' '));
@@ -170,12 +170,10 @@ public abstract class RoleBase : IComparable<RoleBase>
         AfterMeetingTasks();
     }
 
-    public virtual string GetProgressText(byte playerId, bool comms)
+    public virtual void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        StringBuilder sb = new();
-        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId));
-        sb.Append(Utils.GetTaskCount(playerId, comms));
-        return sb.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public virtual void SetButtonTexts(HudManager hud, byte id) { }
@@ -188,7 +186,7 @@ public abstract class RoleBase : IComparable<RoleBase>
     public virtual bool KnowRole(PlayerControl seer, PlayerControl target)
     {
         if (Options.NeutralsKnowEachOther.GetBool() && seer.Is(Team.Neutral) && target.Is(Team.Neutral)) return true;
-        if (Options.EveryoneSeesDeadPlayersRoles.GetBool() && !target.IsAlive() && !seer.Is(CustomRoles.NecroGuesser)) return true;
+        if (Options.EveryoneSeesDeadPlayersRoles.GetBool() && !target.IsAlive() && !seer.Is(CustomRoles.NecroGuesser) && !target.Is(CustomRoles.Innocent)) return true;
 
         CustomRoles seerRole = seer.GetCustomRole();
         return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();

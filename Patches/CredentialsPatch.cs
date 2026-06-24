@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using EHR.Modules;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static EHR.Translator;
 
 
@@ -16,18 +15,21 @@ internal static class PingTrackerUpdatePatch
 {
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
-    private static long LastUpdate;
-    private static readonly List<float> LastFPS = [];
+
+    private static readonly float[] FpsBuffer = new float[10];
+    private static int FpsIndex;
+    private static int FpsCount;
+    private static readonly Color32 FpsColor = new(0, 165, 255, 255);
 
     public static bool Prefix(PingTracker __instance)
     {
         FpsSampler.TickFrame();
-        
         PingTracker instance = !Instance ? __instance : Instance;
+        
+        var client = AmongUsClient.Instance;
+        if (!client) return false;
 
-        if (!AmongUsClient.Instance) return false;
-
-        if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
+        if (client.NetworkMode == NetworkModes.FreePlay)
         {
             instance.gameObject.SetActive(false);
             return false;
@@ -35,80 +37,100 @@ internal static class PingTrackerUpdatePatch
 
         if (instance.name != "EHR_SettingsText")
         {
-            instance.aspectPosition.DistanceFromEdge = !AmongUsClient.Instance.IsGameStarted ? instance.lobbyPos : instance.gamePos;
+            instance.aspectPosition.DistanceFromEdge = !client.IsGameStarted ? instance.lobbyPos : instance.gamePos;
+
             instance.text.alignment = TextAlignmentOptions.Center;
             instance.text.text = Sb.ToString();
         }
 
         if (!Instance) Instance = __instance;
 
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return false;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate()) return false;
 
-        Sb.Clear();
+        bool inGame = GameStates.InGame;
+        Sb.Clear()
+            .Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>")
+            .Append(Main.CredentialsText);
 
-        Sb.Append(GameStates.IsLobby ? "\r\n<size=2>" : "<size=1.5>");
+        int ping = client.Ping;
 
-        Sb.Append(Main.CredentialsText);
+        string color =
+            ping < 30 ? "#44dfcc" :
+            ping < 100 ? "#7bc690" :
+            ping < 200 ? "#f3920e" :
+            ping < 400 ? "#ff146e" :
+            "#ff4500";
 
-        int ping = AmongUsClient.Instance.Ping;
+        Sb.Append(inGame ? "    -    " : "\r\n")
+            .Append("<color=")
+            .Append(color)
+            .Append('>')
+            .Append(GetString("PingText"))
+            .Append(": ")
+            .Append(ping)
+            .Append("</color>");
 
-        string color = ping switch
+        AppendSeparator(inGame);
+
+        Sb.Append(GetString("Server"))
+            .Append("<b>")
+            .Append(Utils.GetRegionName())
+            .Append("</b>");
+
+        if (Main.ShowFps.Value && FpsCount > 0)
         {
-            < 30 => "#44dfcc",
-            < 100 => "#7bc690",
-            < 200 => "#f3920e",
-            < 400 => "#ff146e",
-            _ => "#ff4500"
-        };
+            float sum = 0f;
+            for (int i = 0; i < FpsCount; i++)
+                sum += FpsBuffer[i];
 
-        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
-        Sb.Append($"<color={color}>{GetString("PingText")}: {ping}</color>");
-        AppendSeparator();
-        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
+            float fps = sum / FpsCount;
 
-        if (Main.ShowFps.Value && LastFPS.Count > 0)
-        {
-            float fps = LastFPS.Average();
+            Color fpsColor =
+                fps < 10f ? Color.red :
+                fps < 25f ? Color.yellow :
+                fps < 50f ? Color.green :
+                FpsColor;
 
-            Color fpscolor = fps switch
-            {
-                < 10f => Color.red,
-                < 25f => Color.yellow,
-                < 50f => Color.green,
-                _ => new Color32(0, 165, 255, 255)
-            };
+            AppendSeparator(inGame);
 
-            AppendSeparator();
-            Sb.Append($"{Utils.ColorString(fpscolor, Utils.ColorString(Color.cyan, GetString("FPSGame")) + (int)fps)}");
+            Sb.Append(Utils.ColorPrefix(fpsColor))
+                .Append(Utils.ColorPrefix(Color.cyan))
+                .Append(GetString("FPSGame"))
+                .Append((int)fps)
+                .Append("</color>")
+                .Append("</color>");
         }
 
-        if (GameStates.InGame) Sb.Append("\r\n.");
+        if (inGame) Sb.Append("\r\n.");
         return false;
-
-        void AppendSeparator() => Sb.Append(GameStates.InGame ? "    -    " : "  -  ");
     }
-    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AppendSeparator(bool inGame)
+    {
+        Sb.Append(inGame ? "    -    " : "  -  ");
+    }
+
     static class FpsSampler
     {
         private static int Frames;
         private static float Elapsed;
         private const float SampleInterval = 0.5f; // half-second window
-    
+
         public static void TickFrame()
         {
             Frames++;
             Elapsed += Time.unscaledDeltaTime;
             if (Elapsed < SampleInterval) return;
-            LastFPS.Add(Frames / Elapsed);
-            if (LastFPS.Count > 10) LastFPS.RemoveAt(0);
+            float fps = Frames / Elapsed;
+            FpsBuffer[FpsIndex] = fps;
+            if (FpsCount < 10) FpsCount++;
+            FpsIndex++;
+            if (FpsIndex >= 10) FpsIndex = 0;
             Frames = 0;
             Elapsed = 0f;
         }
     }
 }
-
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
 internal static class VersionShowerStartPatch
 {
@@ -173,112 +195,6 @@ public static class UpdateFriendCodeUIPatch
             friendsButton.transform.FindChild("Highlight").GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
             friendsButton.transform.FindChild("Inactive").GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
         }
-    }
-}
-
-[HarmonyPatch(typeof(FriendsListUI), nameof(FriendsListUI.Open))]
-internal static class FriendsListUIOpenPatch
-{
-    public static bool Prefix(FriendsListUI __instance)
-    {
-        try
-        {
-            if (__instance.gameObject.activeSelf || __instance.currentSceneName == "")
-                __instance.Close();
-            else
-            {
-                FriendsListBar[] componentsInChildren = __instance.GetComponentsInChildren<FriendsListBar>(true);
-
-                for (var index = 0; index < componentsInChildren.Length; ++index)
-                {
-                    if (componentsInChildren[index])
-                        Object.Destroy(componentsInChildren[index].gameObject);
-                }
-
-                Scene activeScene = SceneManager.GetActiveScene();
-                __instance.currentSceneName = activeScene.name;
-                __instance.UpdateFriendCodeUI();
-
-                if ((HudManager.InstanceExists && HudManager.InstanceExists && HudManager.Instance.Chat && HudManager.Instance.Chat.IsOpenOrOpening) || ShipStatus.Instance)
-                    return false;
-
-                __instance.friendBars = new();
-                __instance.lobbyBars = new();
-                __instance.notifBars = new();
-                __instance.platformFriendBars = new();
-                __instance.viewingAllFriends = true;
-                __instance.gameObject.SetActive(true);
-                __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(t => t.gameObject.SetActive(false)));
-                __instance.ViewRequestsButton.color = __instance.NoRequestsColor;
-                __instance.ViewRequestsText.text = TranslationController.Instance.GetString(StringNames.NoNewRequests);
-
-                __instance.StartCoroutine(FriendsListManager.Instance.RefreshFriendsList((Action)(() =>
-                {
-                    __instance.ClearNotifs();
-
-                    if (EOSManager.Instance.IsFriendsListAllowed())
-                    {
-                        __instance.AddFriendObjects.SetActive(true);
-                        __instance.RefreshBlockedPlayers();
-                        __instance.RefreshFriends();
-                        __instance.RefreshNotifications();
-                    }
-                    else
-                    {
-                        __instance.AddFriendObjects.SetActive(false);
-                        __instance.guestAccountWarnings.ForEach((Action<FriendsListGuestWarning>)(g => g.SetUp()));
-                    }
-
-                    __instance.RefreshRecentlyPlayed();
-                    __instance.RefreshPlatformFriends();
-
-                    foreach (FriendsListBar friendBar in __instance.friendBars)
-                    {
-                        foreach (PassiveButton passiveButton in friendBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    foreach (FriendsListBar platformFriendBar in __instance.platformFriendBars)
-                    {
-                        foreach (PassiveButton passiveButton in platformFriendBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    foreach (FriendsListBar notifBar in __instance.notifBars)
-                    {
-                        foreach (PassiveButton passiveButton in notifBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    foreach (FriendsListBar lobbyBar in __instance.lobbyBars)
-                    {
-                        foreach (PassiveButton passiveButton in lobbyBar.ControllerSelectable)
-                            ControllerManager.Instance.AddSelectableUiElement(passiveButton);
-                    }
-
-                    ControllerManager.Instance.PickTopSelectable();
-                })));
-
-                if (__instance.currentSceneName == "OnlineGame")
-                {
-                    __instance.RefreshLobbyPlayers();
-                    __instance.LobbyPlayersTab.SetActive(true);
-                    __instance.LobbyPlayersInactiveTab.SetActive(false);
-                    __instance.OpenTab(0);
-                }
-                else
-                {
-                    __instance.LobbyPlayersInactiveTab.SetActive(true);
-                    __instance.LobbyPlayersTab.SetActive(false);
-                    __instance.OpenTab(2);
-                }
-
-                ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-            }
-        }
-        catch (Exception e) { Utils.ThrowException(e); }
-
-        return false;
     }
 }
 

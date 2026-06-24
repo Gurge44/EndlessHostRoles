@@ -11,8 +11,8 @@ public class Commited : IAddon
     private static OptionItem Reduction;
     private static OptionItem IgnoreSkips;
 
-    private static Dictionary<byte, byte> Target = [];
-    public static Dictionary<byte, float> ReduceKCD = [];
+    private static Dictionary<byte, byte> Target;
+    public static Dictionary<byte, float> ReduceKCD;
 
     public void SetupCustomOption()
     {
@@ -31,32 +31,39 @@ public class Commited : IAddon
 
     public static void Init()
     {
-        Target = [];
-        ReduceKCD = [];
+        Target = null;
+        ReduceKCD = null;
     }
 
     public static void OnMeetingStart()
     {
-        Target = [];
+        Target = null;
 
         if (!PermanentReduction.GetBool())
-            ReduceKCD = [];
+            ReduceKCD = null;
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
 
         foreach (PlayerControl pc in aapc)
         {
             if (pc.Is(CustomRoles.Commited))
+            {
+                Target ??= [];
                 Target[pc.PlayerId] = aapc.Where(x => !x.Is(CustomRoles.Commited)).RandomElement().PlayerId;
+            }
         }
     }
 
     public static void OnVotingResultsShown(List<MeetingHud.VoterState> vs)
     {
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        if (Target == null) return;
+        
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (Target.TryGetValue(pc.PlayerId, out byte target) && vs.FindFirst(x => x.VoterId == pc.PlayerId, out MeetingHud.VoterState s) && vs.FindFirst(x => x.VoterId == target, out MeetingHud.VoterState ts) && !(IgnoreSkips.GetBool() && s.SkippedVote) && s.VotedForId == ts.VotedForId)
             {
+                ReduceKCD ??= [];
+                
                 if (ReduceKCD.ContainsKey(pc.PlayerId))
                     ReduceKCD[pc.PlayerId] += Reduction.GetFloat();
                 else
@@ -67,7 +74,7 @@ public class Commited : IAddon
 
     public static string GetMark(PlayerControl seer, PlayerControl target)
     {
-        if (!seer.Is(CustomRoles.Commited) || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Commited), "⌆");
+        if (!seer.Is(CustomRoles.Commited) || Target == null || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
+        return CustomRoles.Commited.ColoredTextByRole("⌆");
     }
 }

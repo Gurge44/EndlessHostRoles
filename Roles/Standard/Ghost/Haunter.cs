@@ -24,7 +24,7 @@ internal class Haunter : IGhostRole
     ];
 
     private byte HaunterId;
-    private List<byte> WarnedImps = [];
+    private readonly List<byte> WarnedImps = [];
     private long WarnTimeStamp;
 
     public Team Team => Team.Crewmate | Team.Neutral;
@@ -44,7 +44,7 @@ internal class Haunter : IGhostRole
 
             taskState.HasTasks = true;
             taskState.CompletedTasksCount = 0;
-            taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
+            taskState.AllTasksCount = Utils.TotalTaskCountForReset - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
             pc.RpcResetTasks();
             pc.SyncSettings();
@@ -81,7 +81,7 @@ internal class Haunter : IGhostRole
     {
         if (WarnedImps.Count > 0) return;
 
-        WarnedImps = [];
+        WarnedImps.Clear();
 
         IEnumerable<PlayerControl> filtered = Main.EnumerateAlivePlayerControls().Where(x =>
         {
@@ -123,31 +123,46 @@ internal class Haunter : IGhostRole
 
         AllHauntedPlayers.UnionWith(targets);
 
-        var targetPcs = targets.ToValidPlayers();
+        var targetPcs = targets.ToValidPlayers().ToArray();
 
-        targetPcs.ForEach(x => x.Notify(Translator.GetString("HaunterRevealedYou"), 10f));
-        WarnedImps.ToValidPlayers().ForEach(x => x.Notify(Translator.GetString("HaunterFinishedTasks"), 10f));
+        targetPcs.Do(x => x.Notify(Translator.GetString("HaunterRevealedYou"), 10f));
+        WarnedImps.ToValidPlayers().Do(x => x.Notify(Translator.GetString("HaunterFinishedTasks"), 10f));
 
-        targetPcs.ForEach(x => Utils.NotifyRoles(SpecifyTarget: x));
+        targetPcs.Do(x => Utils.NotifyRoles(SpecifyTarget: x));
     }
 
     public void Update(PlayerControl pc)
     {
         if (WarnedImps.Count == 0 || WarnTimeStamp >= Utils.TimeStamp) return;
 
-        if (WarnedImps.Any(imp => TargetArrow.GetArrows(Utils.GetPlayerById(imp), pc.PlayerId) == "・"))
+        int warnedCount = WarnedImps.Count;
+        byte pcId = pc.PlayerId;
+        bool triggered = false;
+        for (int index = 0; index < warnedCount; index++)
         {
-            foreach (byte imp in WarnedImps)
+            byte impId = WarnedImps[index];
+            if (TargetArrow.GetArrows(Utils.GetPlayerById(impId), pcId) == "・")
             {
-                TargetArrow.Remove(imp, pc.PlayerId);
-                Utils.GetPlayerById(imp)?.Notify(Translator.GetString("HaunterStopped"), 7f);
+                triggered = true;
+                break;
             }
-
-            WarnedImps = [];
-            Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Haunter);
-            GhostRolesManager.AssignedGhostRoles.Remove(pc.PlayerId);
-            pc.Notify(Translator.GetString("HaunterStoppedSelf"), 7f);
         }
+        if (!triggered) return;
+
+        for (int index = 0; index < warnedCount; index++)
+        {
+            byte impId = WarnedImps[index];
+
+            TargetArrow.Remove(impId, pcId);
+
+            var imp = Utils.GetPlayerById(impId);
+            if (imp) imp.Notify(Translator.GetString("HaunterStopped"), 7f);
+        }
+
+        WarnedImps.Clear();
+        Main.PlayerStates[pcId].RemoveSubRole(CustomRoles.Haunter);
+        GhostRolesManager.AssignedGhostRoles.Remove(pcId);
+        pc.Notify(Translator.GetString("HaunterStoppedSelf"), 7f);
     }
 
     public static string GetSuffix(PlayerControl seer)

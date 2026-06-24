@@ -41,9 +41,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.4.2";
-    public const string PluginDisplayVersion = "7.4.2";
-    public const bool TestBuild = false;
+    public const string PluginVersion = "7.5.2";
+    public const string PluginDisplayVersion = "7.5.2";
+    public const bool TestBuild = true;
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
@@ -73,6 +73,14 @@ public class Main : BasePlugin
     // Cache
     public static readonly Type[] AllTypes = Assembly.GetExecutingAssembly().GetTypes();
     public static readonly CustomRoles[] CustomRoleValues = Enum.GetValues<CustomRoles>();
+    public static readonly CustomGameMode[] CustomGameModeValues = Enum.GetValues<CustomGameMode>();
+    public static readonly CountTypes[] CountTypesValues = Enum.GetValues<CountTypes>();
+    public static readonly RoleOptionType[] RoleOptionTypeValues = Enum.GetValues<RoleOptionType>();
+    public static readonly Team[] TeamValues = Enum.GetValues<Team>();
+    public static readonly CustomRoleTypes[] CustomRoleTypesValues = Enum.GetValues<CustomRoleTypes>();
+    public static readonly TabGroup[] TabGroupValues = Enum.GetValues<TabGroup>();
+    public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
+    public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
 
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
@@ -84,7 +92,8 @@ public class Main : BasePlugin
     public static Dictionary<(byte, byte), string> LastNotifyNames = [];
     public static Dictionary<byte, Color32> PlayerColors = [];
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
-    public static Dictionary<CustomRoles, string> RoleColors;
+    public static Dictionary<CustomRoles, string> RoleHtmlColors = [];
+    public static readonly Dictionary<CustomRoles, Color> RoleColors = [];
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
     public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> AlwaysSpawnTogetherCombos = [];
@@ -138,7 +147,8 @@ public class Main : BasePlugin
         [CustomGameMode.Speedrun] = [],
         [CustomGameMode.CaptureTheFlag] = [],
         [CustomGameMode.NaturalDisasters] = [],
-        [CustomGameMode.Snowdown] = []
+        [CustomGameMode.Snowdown] = [],
+        [CustomGameMode.LoopWanted] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -236,31 +246,94 @@ public class Main : BasePlugin
     public static ConfigEntry<string> Preset20 { get; private set; }
 
     // Other Configs
-    public static ConfigEntry<string> WebhookUrl { get; private set; }
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
-    public static ConfigEntry<bool> AckdPrivacyPolicy { get; set; }
+    public static ConfigEntry<bool> AckdPrivacyPolicy { get; private set; }
 
-    public static IReadOnlyList<PlayerControl> AllPlayerControls => EnumeratePlayerControls().ToArray();
-    public static IReadOnlyList<PlayerControl> AllAlivePlayerControls => EnumerateAlivePlayerControls().ToArray();
+    public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
+    public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
+    public static List<PlayerControl> AllPlayerControlsToList => CachedAllPlayerControlsList.ToList();
+    public static List<PlayerControl> AllAlivePlayerControlsToList => CachedAlivePlayerControlsList.ToList();
 
+    public static int AllPlayerControlsCount => CachedAllPlayerControlsList.Count;
+    public static int AllAlivePlayerControlsCount => CachedAlivePlayerControlsList.Count;
+
+
+    // ################# - WARNING!!! - #####################
+    // Don't use Enumerate(Alive)PlayerControls if it updates every frame or every second
+    // Better use CachedAll/AlivePlayerControls, but in Coroutines (Async) functions, use "for (...)" loop
     public static IEnumerable<PlayerControl> EnumeratePlayerControls()
     {
-        foreach (var pc in PlayerControl.AllPlayerControls)
+        // foreach can throw System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
+        // if the code waits frames between iterations, so the safest way is to use a for loop backwards
+        for (int index = PlayerControl.AllPlayerControls.Count - 1; index >= 0; index--)
         {
+            if (PlayerControl.AllPlayerControls.Count <= index) continue;
+            PlayerControl pc = PlayerControl.AllPlayerControls[index];
             if (!pc || pc.PlayerId >= 254) continue;
             yield return pc;
         }
     }
-
     public static IEnumerable<PlayerControl> EnumerateAlivePlayerControls()
     {
-        return EnumeratePlayerControls()
-            .Where(pc => pc.IsAlive()
-                         && pc.Data
-                         && (!pc.Data.Disconnected || !IntroDestroyed)
-                         && !Pelican.IsEaten(pc.PlayerId));
+        for (int index = PlayerControl.AllPlayerControls.Count - 1; index >= 0; index--)
+        {
+            if (PlayerControl.AllPlayerControls.Count <= index) continue;
+            PlayerControl pc = PlayerControl.AllPlayerControls[index];
+            if (!pc.IsAliveWithConditions() || pc.PlayerId >= 254) continue;
+            yield return pc;
+        }
+    }
+
+    private static bool SetDirtyPlayer = true;
+    private static readonly List<PlayerControl> CachedAllPlayerControlsList = [];
+    private static readonly List<PlayerControl> CachedAlivePlayerControlsList = [];
+    public static void SetDirtyRebuildPC()
+    {
+        SetDirtyPlayer = true;
+    }
+    public static void ForceRebuildCachesPlayerControls()
+    {
+        SetDirtyRebuildPC();
+        RebuildCaches();
+    }
+    private static void RebuildCaches()
+    {
+        if (!SetDirtyPlayer) return;
+        SetDirtyPlayer = false;
+
+        CachedAllPlayerControlsList.Clear();
+        CachedAlivePlayerControlsList.Clear();
+
+        var players = PlayerControl.AllPlayerControls;
+        int count = players.Count;
+
+        for (byte playerIndex = 0; playerIndex < count; playerIndex++)
+        {
+            PlayerControl pc = players[playerIndex];
+            if (!pc || pc.PlayerId >= 254) continue;
+
+            CachedAllPlayerControlsList.Add(pc);
+            if (pc.IsAliveWithConditions())
+                CachedAlivePlayerControlsList.Add(pc);
+        }
+        //Logger.Info("All Count: " + CachedAllPlayerControlsList.Count, "RebuildPlayerControl");
+        //Logger.Info("Alive Count: " + CachedAlivePlayerControlsList.Count, "RebuildPlayerControl");
+    }
+    // ################# - WARNING!!! - #####################
+    // Don't use CachedAll/AlivePlayerControls witch "foreach (...)" loop in Coroutines (Async) functions
+    // In async functions use a "for (...)" loop or Enumerate(Alive)PlayerControls or CachedAll(Alive)PlayerControls with LINQ functions (Like: ToList() or ToArray())
+    // ######################################
+    public static List<PlayerControl> CachedAllPlayerControls()
+    {
+        RebuildCaches();
+        return CachedAllPlayerControlsList; 
+    }
+    public static List<PlayerControl> CachedAlivePlayerControls()
+    {
+        RebuildCaches();
+        return CachedAlivePlayerControlsList;
     }
 
     // ReSharper disable once InconsistentNaming
@@ -361,7 +434,6 @@ public class Main : BasePlugin
         Preset18 = Config.Bind("Preset Name Options", "Preset18", "Preset_18");
         Preset19 = Config.Bind("Preset Name Options", "Preset19", "Preset_19");
         Preset20 = Config.Bind("Preset Name Options", "Preset20", "Preset_20");
-        WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
@@ -372,7 +444,7 @@ public class Main : BasePlugin
 
         try
         {
-            RoleColors = new()
+            RoleHtmlColors = new()
             {
                 // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
@@ -403,6 +475,7 @@ public class Main : BasePlugin
                 { CustomRoles.Sheriff, "#ffb347" },
                 { CustomRoles.CopyCat, "#ffb2ab" },
                 { CustomRoles.SuperStar, "#f6f657" },
+                { CustomRoles.Survivor, "#989d12" },
                 { CustomRoles.Ventguard, "#ffa5ff" },
                 { CustomRoles.Demolitionist, "#5e2801" },
                 { CustomRoles.Express, "#00ffff" },
@@ -441,6 +514,7 @@ public class Main : BasePlugin
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Operative, "#47f5d2" },
                 { CustomRoles.Tar, "#8C796B" },
                 { CustomRoles.Sensor, "#a3f7ff" },
                 { CustomRoles.Doorjammer, "#FFECA1" },
@@ -687,6 +761,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Dizzy, "#de97a7" },
                 { CustomRoles.Entombed, "#8c71de" },
                 { CustomRoles.Urgent, "#D49255" },
                 { CustomRoles.Talkative, "#6ADEDE" },
@@ -712,6 +787,7 @@ public class Main : BasePlugin
                 { CustomRoles.Introvert, "#6293e3" },
                 { CustomRoles.Deadlined, "#ffa500" },
                 { CustomRoles.Rookie, "#bf671f" },
+                { CustomRoles.Reroll, "#6BCBFF" },
                 { CustomRoles.Trainee, "#4287f5" },
                 { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },
@@ -810,6 +886,8 @@ public class Main : BasePlugin
                 { CustomRoles.MinglePlayer, "#FE9900" },
                 // Snowdown
                 { CustomRoles.SnowdownPlayer, "#e4fdff" },
+                // Loop Wanted
+                { CustomRoles.LoopHunter, "#D9BAA5" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -825,8 +903,10 @@ public class Main : BasePlugin
                 { CustomRoles.Taskinator, "#561dd1" }
             };
 
-            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, ImpostorColor));
-            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleColors.TryAdd(x, CovenColor));
+            CustomRoleValues.Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleHtmlColors.TryAdd(x, ImpostorColor));
+            CustomRoleValues.Where(x => x.IsCoven() || x == CustomRoles.Entranced).Do(x => RoleHtmlColors.TryAdd(x, CovenColor));
+
+            InitRoleColors();
         }
         catch (ArgumentException ex)
         {
@@ -869,8 +949,9 @@ public class Main : BasePlugin
 
         if (!OperatingSystem.IsAndroid())
         {
-            // there are some issues with TextBoxPatch on Android
+            // there are some issues with TextBoxPatch and DiscordRPC on Android
             Harmony.PatchAll(typeof(TextBoxPatch));
+            Harmony.PatchAll(typeof(DiscordRPC));
         }
 
         if (!DebugModeManager.AmDebugger)
@@ -896,7 +977,8 @@ public class Main : BasePlugin
             [CustomGameMode.BedWars] = Utils.GetRoleColor(CustomRoles.BedWarsPlayer),
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
             [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
-            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer)
+            [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer),
+            [CustomGameMode.LoopWanted] = Utils.GetRoleColor(CustomRoles.LoopHunter)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
@@ -935,7 +1017,7 @@ public class Main : BasePlugin
 
     private static void HandleRoleColorFiles()
     {
-        string serialized = JsonSerializer.Serialize(RoleColors, new JsonSerializerOptions { WriteIndented = true });
+        string serialized = JsonSerializer.Serialize(RoleHtmlColors, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText($"{DataPath}/OriginalRoleColors.json", serialized);
 
         if (!Directory.Exists($"{DataPath}/EHR_DATA"))
@@ -954,13 +1036,22 @@ public class Main : BasePlugin
                 foreach ((string roleName, string hex) in JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [])
                 {
                     if (!Enum.TryParse(roleName, true, out CustomRoles role)) continue;
-                    RoleColors[role] = hex;
+                    RoleHtmlColors[role] = hex;
                 }
+                InitRoleColors();
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
     }
-
+    public static void InitRoleColors()
+    {
+        RoleColors.Clear();
+        foreach ((CustomRoles role, string hexColor) in RoleHtmlColors)
+        {
+            if (ColorUtility.TryParseHtmlString(hexColor, out Color color))
+                RoleColors[role] = color;
+        }
+    }
     public static void LoadRoleClasses()
     {
         AllRoleClasses = [];
@@ -974,6 +1065,12 @@ public class Main : BasePlugin
             AllRoleClasses.Sort();
         }
         catch (Exception e) { Utils.ThrowException(e); }
+    }
+
+    public Coroutine StartCoroutine(Il2CppSystem.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null) return null;
+        return coroutines.StartCoroutine(coroutine);
     }
 
     public Coroutine StartCoroutine(IEnumerator coroutine)
@@ -999,27 +1096,34 @@ public class Main : BasePlugin
         coroutines.StopAllCoroutines();
     }
 
-    public static IEnumerator GetRandomWord(Action<string> onComplete)
+    public static IEnumerator GetRandomWord(Action<string> onComplete, string langParam = "", int length = 0, int difficulty = 0)
     {
-        var api = "https://random-word.ryanrk.com/api/en/word/random";
-        UnityWebRequest request = UnityWebRequest.Get(api);
-        yield return request.SendWebRequest();
+        var api = new StringBuilder("https://random-word-api.herokuapp.com/word");
+        bool hasQuery = false;
 
-        if (request.result != UnityWebRequest.Result.Success)
+        void Append(string key, string value)
         {
-            api = "https://random-word-api.herokuapp.com/word";
-            request = UnityWebRequest.Get(api);
-            yield return request.SendWebRequest();
+            api.Append(hasQuery ? '&' : '?');
+            api.Append(key).Append('=').Append(value);
+            hasQuery = true;
         }
 
-        if (request.result != UnityWebRequest.Result.Success)
+        if (!string.IsNullOrEmpty(langParam)) Append("lang", langParam);
+        if (length > 0) Append("length", length.ToString());
+        if (difficulty > 0) Append("diff", difficulty.ToString());
+
+        UnityWebRequest request = UnityWebRequest.Get(api.ToString());
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success) 
             yield break;
 
         string response = request.downloadHandler.text;
         int firstQuote = response.IndexOf("\"", StringComparison.Ordinal);
         int lastQuote = response.LastIndexOf("\"", StringComparison.Ordinal);
-        string word = response.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+        if (firstQuote < 0 || lastQuote <= firstQuote) yield break;
 
+        string word = response.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
         onComplete?.Invoke(word);
     }
 }
@@ -1245,4 +1349,4 @@ public enum TieMode
     Random
 }
 
-public class Coroutines : MonoBehaviour { }
+public class Coroutines : MonoBehaviour;

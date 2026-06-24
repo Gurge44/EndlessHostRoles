@@ -20,7 +20,7 @@ public class Accumulator : RoleBase
 
     public override bool IsEnable => On;
 
-    private bool Killing;
+    public bool Killing;
     private float KCD;
     private byte AccumulatorId;
 

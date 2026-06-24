@@ -6,19 +6,19 @@ namespace EHR.Roles;
 public class Cantankerous : RoleBase
 {
     private const int Id = 642860;
-    private static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     private static OptionItem PointsGainedPerEjection;
     private static OptionItem StartingPoints;
     private static OptionItem KCD;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Cantankerous);
 
-        KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.ImpostorRoles)
+        KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 0.5f), 15f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -33,18 +33,19 @@ public class Cantankerous : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        PlayerIdList = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(StartingPoints.GetFloat());
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public override void SetKillCooldown(byte id)
@@ -59,12 +60,16 @@ public class Cantankerous : RoleBase
 
     public static void OnCrewmateEjected()
     {
+        if (PlayerIdList == null) return;
+        
         int value = PointsGainedPerEjection.GetInt();
 
-        foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
+        foreach (byte id in PlayerIdList)
         {
-            if (state.Value.Role is Cantankerous)
-                Utils.GetPlayerById(state.Key).RpcIncreaseAbilityUseLimitBy(value);
+            var pc = id.GetPlayer();
+            if (!pc || !pc.IsAlive()) continue;
+            
+            pc.RpcIncreaseAbilityUseLimitBy(value);
         }
     }
 

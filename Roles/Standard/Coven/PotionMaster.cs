@@ -10,7 +10,7 @@ namespace EHR.Roles;
 public class PotionMaster : CovenBase
 {
     public static bool On;
-    private static List<PotionMaster> Instances = [];
+    private static List<PotionMaster> Instances;
 
     private static OptionItem AbilityCooldown;
     private static OptionItem KillCooldown;
@@ -40,7 +40,7 @@ public class PotionMaster : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
@@ -49,12 +49,13 @@ public class PotionMaster : CovenBase
         ShieldedPlayers = [];
         RevealedPlayers = [];
         PotionMasterId = playerId;
+        Instances ??= [];
         Instances.Add(this);
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -64,7 +65,7 @@ public class PotionMaster : CovenBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -120,7 +121,7 @@ public class PotionMaster : CovenBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl target)
     {
-        return !Instances.Any(x => x.ShieldedPlayers.ContainsKey(target.PlayerId));
+        return Instances == null || !Instances.Any(x => x.ShieldedPlayers.ContainsKey(target.PlayerId));
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -141,10 +142,7 @@ public class PotionMaster : CovenBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud) return string.Empty;
-        if (seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId) return string.Empty;
-        if (!ShieldedPlayers.TryGetValue(target.PlayerId, out CountdownTimer timer)) return string.Empty;
-
+        if (seer.PlayerId == target.PlayerId && seer.IsModdedClient() && !hud || seer.PlayerId != target.PlayerId && seer.PlayerId != PotionMasterId || !ShieldedPlayers.TryGetValue(target.PlayerId, out CountdownTimer timer)) return string.Empty;
         return string.Format(Translator.GetString("PotionMaster.Suffix"), (int)Math.Ceiling(timer.Remaining.TotalSeconds), Main.CovenColor);
     }
 }

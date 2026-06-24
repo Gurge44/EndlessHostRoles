@@ -1,7 +1,7 @@
-using EHR.Modules;
-using EHR.Patches;
 using System;
 using System.Collections.Generic;
+using EHR.Modules;
+using EHR.Patches;
 using UnityEngine;
 
 namespace EHR;
@@ -11,8 +11,6 @@ public abstract class OptionItem
     public const int NumPresets = 20;
     public const int PresetId = 0;
     public readonly List<OptionItem> Children;
-
-    private Dictionary<string, string> _replacementDictionary;
 
     public OptionBehaviour OptionBehaviour;
 
@@ -66,17 +64,16 @@ public abstract class OptionItem
     public bool IsText { get; protected set; }
 
     public TextOptionItem Header { get; set; }
-    public BaseGameSetting CachedSetting { get; set; }
 
     public Dictionary<string, string> ReplacementDictionary
     {
-        get => _replacementDictionary;
+        get;
         set
         {
             if (value == null)
-                _replacementDictionary?.Clear();
+                field?.Clear();
             else
-                _replacementDictionary = value;
+                field = value;
         }
     }
 
@@ -306,12 +303,12 @@ public abstract class OptionItem
 
     public static OptionItem operator ++(OptionItem item)
     {
-        return item.Do(item => item.SetValue(item.CurrentValue + 1));
+        return item.Do(optionItem => optionItem.SetValue(optionItem.CurrentValue + 1));
     }
 
     public static OptionItem operator --(OptionItem item)
     {
-        return item.Do(item => item.SetValue(item.CurrentValue - 1));
+        return item.Do(optionItem => optionItem.SetValue(optionItem.CurrentValue - 1));
     }
 
     protected static void SwitchPreset(int newPreset)
@@ -329,7 +326,7 @@ public abstract class OptionItem
         if (
                 PlayerControl.AllPlayerControls.Count <= 1
                 || !AmongUsClient.Instance.AmHost
-                || PlayerControl.LocalPlayer == null
+                || !PlayerControl.LocalPlayer
             )
             return;
 

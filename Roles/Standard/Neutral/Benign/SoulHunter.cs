@@ -18,7 +18,6 @@ internal class SoulHunter : RoleBase
     private static OptionItem TimeToKillTarget;
     private static OptionItem GetSoulForSuicide;
     public (byte ID, long StartTimeStamp, bool Frozen) CurrentTarget = (byte.MaxValue, 0, false);
-    private long LastUpdate;
     private float NormalSpeed;
     public PlayerControl SoulHunter_;
 
@@ -61,7 +60,6 @@ internal class SoulHunter : RoleBase
         SoulHunter_ = null;
         Souls = 0;
         CurrentTarget = (byte.MaxValue, 0, false);
-        LastUpdate = 0;
         NormalSpeed = Main.NormalOptions.PlayerSpeedMod;
     }
 
@@ -71,7 +69,6 @@ internal class SoulHunter : RoleBase
         LateTask.New(() => { SoulHunter_ = GetPlayerById(playerId); }, 3f, log: false);
         Souls = 0;
         CurrentTarget = (byte.MaxValue, 0, false);
-        LastUpdate = 0;
         NormalSpeed = Main.AllPlayerSpeed[playerId];
     }
 
@@ -92,7 +89,7 @@ internal class SoulHunter : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public static bool IsSoulHunterTarget(byte id)
@@ -140,7 +137,6 @@ internal class SoulHunter : RoleBase
         {
             CurrentTarget.ID = byte.MaxValue;
             CurrentTarget.StartTimeStamp = 0;
-            LastUpdate = 0;
             Souls++;
             SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
             LateTask.New(() => { SoulHunter_.SetKillCooldown(1f); }, 0.1f, log: false);
@@ -151,7 +147,6 @@ internal class SoulHunter : RoleBase
 
         CurrentTarget.ID = byte.MaxValue;
         CurrentTarget.StartTimeStamp = 0;
-        LastUpdate = TimeStamp;
         SoulHunter_.Suicide();
         target.Notify(GetString("SoulHunterTargetNotifySurvived"));
         Logger.Info("Killed Incorrect Player => Suicide", "SoulHunter");
@@ -178,7 +173,6 @@ internal class SoulHunter : RoleBase
         if (!SoulHunter_.IsModdedClient()) SoulHunter_.Notify(string.Format(GetString("SoulHunterNotifyFreeze"), target.GetRealName(), waitingTime + 1));
 
         target.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter_.GetRealName()), 300f);
-        LastUpdate = now;
 
         SendRPC();
         Logger.Info($"Waiting to being hunting (in {waitingTime}s)", "SoulHunter");
@@ -195,11 +189,9 @@ internal class SoulHunter : RoleBase
         }
 
         if (CurrentTarget.StartTimeStamp == 0) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
-
         PlayerControl target = GetPlayerById(CurrentTarget.ID);
         string targetName = target.GetRealName();
         int waitingTime = WaitingTimeAfterMeeting.GetInt();
@@ -255,18 +247,24 @@ internal class SoulHunter : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || Main.PlayerStates[seer.PlayerId].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
-
-        if (!sh.IsTargetBlocked) return string.Empty;
-
+        if (!hud || Main.PlayerStates[seer.PlayerId].Role is not SoulHunter { IsEnable: true, IsTargetBlocked: true } sh) return string.Empty;
         return sh.CurrentTarget.Frozen ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.StartTimeStamp) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
     }
 
-    public override string GetProgressText(byte id, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (Main.PlayerStates[id].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
+        if (Main.PlayerStates[playerId].Role is not SoulHunter { IsEnable: true } sh) return;
 
-        int souldsNeeded = NumOfSoulsToWin.GetInt();
-        return $"<#777777>-</color> <#{(sh.Souls >= souldsNeeded ? "00ff00" : "ffffff")}>{sh.Souls}/{souldsNeeded}</color>";
+        int soulsNeeded = NumOfSoulsToWin.GetInt();
+        bool enough = sh.Souls >= soulsNeeded;
+        string colorCode = enough ? "00ff00" : "ffffff";
+
+        resultText.Append("<color=#777777>-</color> <color=#")
+            .Append(colorCode)
+            .Append('>')
+            .Append(sh.Souls)
+            .Append('/')
+            .Append(soulsNeeded)
+            .Append("</color>");
     }
 }

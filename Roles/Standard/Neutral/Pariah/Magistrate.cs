@@ -1,5 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections;
+using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -36,10 +39,29 @@ public class Magistrate : RoleBase
         AbilityTrigger = Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() ? AbilityTriggers.Vanish : Options.UsePets.GetBool() ? AbilityTriggers.Pet : AbilityTriggers.Vent;
     }
 
+    public override void Remove(byte playerId)
+    {
+        Main.Instance.StartCoroutine(Coroutine());
+        return;
+        
+        IEnumerator Coroutine()
+        {
+            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSecondsRealtime(5f);
+            yield return new WaitForSecondsRealtime(1f);
+            while (GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks) yield return new WaitForSecondsRealtime(2f);
+            if (GameStates.IsEnded || !GameStates.InGame) yield break;
+            AfterMeetingTasks();
+        }
+    }
+
     public override void AfterMeetingTasks()
     {
-        CallCourtNextMeeting = false;
-        Main.EnumeratePlayerControls().Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
+        if (CallCourtNextMeeting)
+        {
+            CallCourtNextMeeting = false;
+            Utils.SendRPC(CustomRPC.SyncRoleData, MagistrateID, CallCourtNextMeeting);
+            Main.EnumeratePlayerControls().Do(x => Camouflage.RpcSetSkin(x, notCommsOrCamo: true));
+        }
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -83,6 +105,12 @@ public class Magistrate : RoleBase
         pc.RPCPlayCustomSound("Line");
         pc.RpcRemoveAbilityUse();
         CallCourtNextMeeting = true;
+        Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, CallCourtNextMeeting);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        CallCourtNextMeeting = reader.ReadBoolean();
     }
 
     private enum AbilityTriggers

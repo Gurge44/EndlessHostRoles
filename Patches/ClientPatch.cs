@@ -1,11 +1,12 @@
-using AmongUs.Data;
-using EHR.Modules;
-using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes;
-using InnerNet;
 using System;
 using System.Linq;
 using System.Reflection;
+using AmongUs.Data;
+using EHR.Modules;
+using HarmonyLib;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
+using InnerNet;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -35,10 +36,10 @@ internal static class MakePublicPatch
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
 static class StartRpcImmediatelyPatch
 {
-    public static void Postfix(uint targetNetId, byte callId, Hazel.SendOption option, int targetClientId = -1)
+    public static void Postfix(uint targetNetId, byte callId, SendOption option, int targetClientId = -1)
     {
         if (callId is 21 or 44 or 45 or 104) return;
-        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.AllPlayerControls.FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
+        Logger.Info($"Starting RPC: {callId} ({RPC.GetRpcName(callId)}) as {Main.CachedAllPlayerControls().FirstOrDefault(x => x.NetId == targetNetId)?.GetRealName() ?? targetNetId.ToString()} with SendOption {option} to {Utils.GetClientById(targetClientId)?.Character?.GetRealName() ?? targetClientId.ToString()}", "StartRpcImmediately");
     }
 }
 
@@ -92,7 +93,7 @@ internal static class RunLoginPatch
 
         if (!Main.AckdPrivacyPolicy.Value)
         {
-            ModUpdater.ShowPopupWithTwoButtons(GetString("PP"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
+            ModUpdater.ShowPopupWithTwoButtons(GetString("PrivacyPolicy"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
             return;
         }
 
@@ -180,17 +181,19 @@ internal static class AuthTimeoutPatch
 {
     // From Reactor.gg
     // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
+    
     [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoConnect))]
     [HarmonyPrefix]
     public static bool CoConnect_Prefix()
     {
-        return GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
+        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
     }
+    
     [HarmonyPatch(typeof(AuthManager), nameof(AuthManager.CoWaitForNonce))]
     [HarmonyPrefix]
     public static bool CoWaitforNonce_Prefix()
     {
-        return GameStates.CurrentServerType is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
+        return GameStates.CurrentServerTypeInCreateMenu is GameStates.ServerType.Vanilla or GameStates.ServerType.Local;
     }
 
     // If you don't patch this, you still need to wait for 5 s.

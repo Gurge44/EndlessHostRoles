@@ -31,8 +31,9 @@ public class Sniper : RoleBase
     private int bulletCount;
     public bool IsAim;
     private Vector3 LastPosition;
-    private List<byte> shotNotify = [];
     private Vector3 snipeBasePosition;
+    private List<byte> shotNotify = [];
+    private readonly Dictionary<PlayerControl, float> Targets = [];
 
     private byte snipeTarget;
     public override bool IsEnable => On;
@@ -149,14 +150,14 @@ public class Sniper : RoleBase
 
     private Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
     {
-        var targets = new Dictionary<PlayerControl, float>();
+        Targets.Clear();
         Vector3 snipeBasePos = snipeBasePosition;
         Vector3 snipePos = sniper.transform.position;
         Vector3 dir = (snipePos - snipeBasePos).normalized;
 
         snipePos -= dir;
 
-        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl target in Main.CachedAlivePlayerControls())
         {
             if (target.PlayerId == sniper.PlayerId) continue;
 
@@ -170,16 +171,16 @@ public class Sniper : RoleBase
             if (PrecisionShooting)
             {
                 float err = Vector3.Cross(dir, targetPos).magnitude;
-                if (err < 0.5) targets[target] = err;
+                if (err < 0.5) Targets[target] = err;
             }
             else
             {
                 float err = targetPos.magnitude;
-                targets[target] = err;
+                Targets[target] = err;
             }
         }
 
-        return targets;
+        return Targets;
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -298,10 +299,8 @@ public class Sniper : RoleBase
 
     public override void OnFixedUpdate(PlayerControl sniper)
     {
+        if (!AimAssist || !IsAim || !GameStates.IsInTask) return;
         if (!sniper.IsAlive()) return;
-        if (!AimAssist) return;
-        if (!IsAim) return;
-        if (!GameStates.IsInTask) return;
 
         Vector3 pos = sniper.transform.position;
 
@@ -350,7 +349,7 @@ public class Sniper : RoleBase
             if (0.5f < sp.AimTime && (!AimAssistOneshot || sp.AimTime < 1.0f))
             {
                 if (sp.GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
-                    return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "◎")}</size>";
+                    return "<size=200%>" + Utils.ColorString(Palette.ImpostorRed, "◎") + "</size>";
             }
         }
         else
@@ -360,7 +359,7 @@ public class Sniper : RoleBase
                 if (Main.PlayerStates[sniperId].Role is not Sniper sp) continue;
 
                 List<byte> snList = sp.shotNotify;
-                if (snList.Count > 0 && snList.Contains(seerId)) return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!")}</size>";
+                if (snList.Count > 0 && snList.Contains(seerId)) return "<size=200%>" + Utils.ColorString(Palette.ImpostorRed, "!") + "</size>";
             }
         }
 

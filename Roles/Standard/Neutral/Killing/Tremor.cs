@@ -2,6 +2,7 @@ using System;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using InnerNet;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -106,7 +107,7 @@ public class Tremor : RoleBase
         bool wasDoom = IsDoom;
         long now = Utils.TimeStamp;
 
-        if (!wasDoom && LastUpdate != now)
+        if (!wasDoom && PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
         {
             Timer--;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);
@@ -116,7 +117,7 @@ public class Tremor : RoleBase
 
         if (wasDoom != IsDoom)
         {
-            Main.EnumerateAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
+            Main.CachedAlivePlayerControls().NotifyPlayers(Translator.GetString("Tremor.DoomNotify"));
             DoomTimer = DoomTime.GetInt();
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedDuringDoom.GetFloat();
             pc.MarkDirtySettings();
@@ -126,17 +127,33 @@ public class Tremor : RoleBase
         {
             Count++;
 
-            if (Count % 3 == 0) pc.RpcGuardAndKill();
+            if (Count % 3 == 0)
+            {
+                if (pc.AmOwner) pc.MurderPlayer(pc, MurderResultFlags.FailedProtected);
+                else
+                {
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None, pc.OwnerId);
+                    writer.WriteNetObject(pc);
+                    writer.Write((int)MurderResultFlags.FailedProtected);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                }
+            }
 
             if (Count < 15) return;
 
             Count = 0;
 
-            FastVector2.GetPlayersInRange(pc.Pos(), 2.5f, x => x.PlayerId != pc.PlayerId)
-                .Do(pc.Kill);
+            var aliveTargets = Main.CachedAlivePlayerControls();
+            for (int index = 0; index < aliveTargets.Count; index++)
+            {
+                PlayerControl target = aliveTargets[index];
+                if (pc.PlayerId == target.PlayerId) continue;
+                if (!FastVector2.DistanceWithinRange(target.Pos(), pc.Pos(), 2.5f)) continue;
 
-            if (LastUpdate == now) return;
-            LastUpdate = now;
+                pc.Kill(target);
+            }
+
+            if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
             DoomTimer--;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, DoomTimer);

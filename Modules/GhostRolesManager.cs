@@ -27,7 +27,7 @@ internal static class GhostRolesManager
         if (GhostRoles.Count == 0) return;
 
         CustomRoles suitableRole = GetSuitableGhostRole(pc);
-        Logger.Warn($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
+        Logger.Msg($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
 
         IGhostRole instance = CreateGhostRoleInstance(suitableRole);
         pc.RpcSetCustomRole(suitableRole);
@@ -38,6 +38,9 @@ internal static class GhostRolesManager
 
         if (suitableRole == CustomRoles.Haunter)
             GhostRoles.Remove(suitableRole);
+        
+        if (instance.RoleTypes == RoleTypes.GuardianAngel)
+            pc.AddAbilityCD(instance.Cooldown);
 
         NotifyAboutGhostRole(pc, true);
     }
@@ -47,9 +50,8 @@ internal static class GhostRolesManager
         if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
         PlayerControl pc = Utils.GetPlayerById(id);
-        if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
-
         IGhostRole instance = CreateGhostRoleInstance(role);
+        if (set) pc.RpcSetRoleDesync(instance.RoleTypes, pc.OwnerId);
         instance.OnAssign(pc);
         Main.ResetCamPlayerList.Add(pc.PlayerId);
         AssignedGhostRoles[id] = (role, instance);
@@ -62,7 +64,7 @@ internal static class GhostRolesManager
         if (!first && pc.IsModdedClient()) return;
 
         CustomRoles role = ghostRole.Role;
-        (string Split, string Message) info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
+        (string Split, string Message) info = GetMessage(Translator.GetString($"{role}InfoLong").FixRoleName(role).Split("\n")[1..].Join(delimiter: "\n"));
         var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
         var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
         Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");

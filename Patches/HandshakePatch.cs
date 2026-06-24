@@ -38,7 +38,7 @@ public enum ModFlags : ushort
     /// <summary>
     /// Notifies the game server that the host has authority over game logic.
     /// </summary>
-    DisableServerAuthority = 1 << 3,
+    DisableServerAuthority = 1 << 3
 }
 
 
@@ -60,7 +60,7 @@ public enum ReactorProtocolVersion : byte
     /// <summary>
     ///     Latest version.
     /// </summary>
-    Latest = V3,
+    Latest = V3
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.GetConnectionData))]

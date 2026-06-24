@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
-using UnityEngine;
-
-namespace EHR.Roles;
+﻿namespace EHR.Roles;
 
 public class Psychopath : RoleBase
 {
@@ -34,7 +30,7 @@ public class Psychopath : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || !pc.IsAlive() || Main.KillTimers[pc.PlayerId] > 0f || Count++ < 10) return;
-        var killRange = GameManager.Instance.LogicOptions.GetKillDistance();
+        var killRange = pc.GetKillDistance();
         if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl closestPlayer, x => !x.IsImpostor())) return;
         Count = 0;
         pc.RpcCheckAndMurder(closestPlayer);

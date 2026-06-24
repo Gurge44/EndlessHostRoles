@@ -95,7 +95,7 @@ internal abstract class RandomSpawn
     {
         public abstract Dictionary<SystemTypes, Vector2> Positions { get; }
 
-        public virtual void RandomTeleport(PlayerControl player)
+        public void RandomTeleport(PlayerControl player)
         {
             KeyValuePair<SystemTypes, Vector2> spawn = GetLocation();
             Logger.Info($"{player.Data.PlayerName} => {Translator.GetString(spawn.Key.ToString())} {spawn.Value}", "RandomSpawn");

@@ -11,6 +11,7 @@ namespace EHR;
 
 public class PlayerState(byte playerId)
 {
+    public static readonly DeathReason[] AllDeathReason = Enum.GetValues<DeathReason>();
     public enum DeathReason
     {
         Kill,
@@ -73,6 +74,11 @@ public class PlayerState(byte playerId)
         LossOfBlood,
         Frightened,
         Bankrupt,
+        Bugged,
+        Destroyed,
+        Shot,
+        Diseased,
+        Stoned,
 
         // Natural Disasters
         Meteor,
@@ -150,16 +156,12 @@ public class PlayerState(byte playerId)
                 if (!AmongUsClient.Instance.AmHost) LateTask.New(() => TaskState.Init(Player), 1f, log: false);
             }
 
-            if (role.IsVanilla() || role.ToString().Contains("EHR"))
+            if (role.IsVanilla() || role.IsVanillaEHR())
                 Main.AbilityUseLimit.Remove(PlayerId);
         }
 
-        if (!AmongUsClient.Instance.AmHost) return;
-
         if (Main.IntroDestroyed && GameStates.InGame)
         {
-            Player.ResetKillCooldown();
-
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
@@ -167,10 +169,16 @@ public class PlayerState(byte playerId)
                 HudSpritePatch.ForceUpdate = true;
             }
 
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            Player.ResetKillCooldown();
+
             if (Decryptor.On) Decryptor.Instances.ForEach(x => x.OnRoleChange(PlayerId));
 
             if (!role.Is(Team.Impostor) && !(role == CustomRoles.Traitor && Traitor.CanGetImpostorOnlyAddons.GetBool()))
                 SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
+            
+            if (role == CustomRoles.GM) return;
 
             if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Renegade)
                 SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
@@ -187,6 +195,8 @@ public class PlayerState(byte playerId)
             Utils.NotifyRoles(SpecifySeer: Player);
             Utils.NotifyRoles(SpecifyTarget: Player);
         }
+
+        if (!AmongUsClient.Instance.AmHost) return;
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
 
@@ -213,6 +223,12 @@ public class PlayerState(byte playerId)
 
         if (replaceAll)
         {
+            if (SubRoles.Contains(CustomRoles.Flash) || SubRoles.Contains(CustomRoles.Dynamo) || SubRoles.Contains(CustomRoles.Spurt))
+            {
+                Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                PlayerGameOptionsSender.SetDirty(PlayerId);
+            }
+            
             SubRoles.Clear();
             Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
         }
@@ -350,17 +366,31 @@ public class PlayerState(byte playerId)
     public void SetDead()
     {
         IsDead = true;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (Enchanter.EnchantedPlayers.Contains(PlayerId))
-                deathReason = Enum.GetValues<DeathReason>()[..^8].RandomElement();
+            if (Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(PlayerId))
+                deathReason = AllDeathReason[..^8].RandomElement();
 
-            RPC.SendDeathReason(PlayerId, deathReason);
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
             Utils.CheckAndSpawnAdditionalRenegade(GameData.Instance.GetPlayerById(PlayerId));
 
             if (GameStates.IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Discussion or MeetingHud.VoteStates.NotVoted or MeetingHud.VoteStates.Voted)
                 MeetingHud.Instance.CheckForEndVoting();
+        }
+    }
+    public void SetAlive()
+    {
+        IsDead = false;
+        deathReason = DeathReason.etc;
+        Main.ForceRebuildCachesPlayerControls();
+        GameEndChecker.ForceCheckEnd();
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            RPC.SendDeathReason(PlayerId, deathReason, IsDead);
         }
     }
 
@@ -381,7 +411,18 @@ public class PlayerState(byte playerId)
 
     public int GetKillCount()
     {
-        return Main.PlayerStates.Values.Count(state => state.PlayerId != PlayerId && state.GetRealKiller() == PlayerId);
+        int count = 0;
+        var states = Main.PlayerStates.Values;
+
+        foreach (var state in states)
+        {
+            if (state.PlayerId == PlayerId) continue;
+
+            if (state.GetRealKiller() == PlayerId) 
+                count++;
+        }
+
+        return count;
     }
 }
 
@@ -396,7 +437,7 @@ public class TaskState
 
     public void Init(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole()}: InitTask", "TaskState.Init");
         if (!player || player.Data?.Tasks == null) return;
 
         if (!Utils.HasTasks(player.Data, false))
@@ -408,14 +449,14 @@ public class TaskState
         HasTasks = true;
         CompletedTasksCount = 0;
         AllTasksCount = player.Data.Tasks.Count;
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
 
     public void Update(PlayerControl player)
     {
         try
         {
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
+            Logger.Info($"{player.GetNameWithRole()}: UpdateTask", "TaskState.Update");
             GameData.Instance.RecomputeTaskCounts();
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
@@ -479,7 +520,7 @@ public class TaskState
                 Wyrd.CheckPlayerAction(player, Wyrd.Action.Task);
 
                 // Update the player's task count for Task Managers
-                foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
                 {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
@@ -493,7 +534,7 @@ public class TaskState
         CompletedTasksCount++;
 
         CompletedTasksCount = Math.Min(AllTasksCount, CompletedTasksCount);
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
+        Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
     }
 }
 

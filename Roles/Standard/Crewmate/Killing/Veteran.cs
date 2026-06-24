@@ -68,14 +68,10 @@ internal class Veteran : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        var progressText = new StringBuilder();
-
-        progressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.Contains(playerId)));
-        progressText.Append(Utils.GetTaskCount(playerId, comms));
-
-        return progressText.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.Contains(playerId)))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -128,6 +124,7 @@ internal class Veteran : RoleBase
             if (!killer.Is(CustomRoles.Pestilence))
             {
                 killer.SetRealKiller(target);
+                Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Shot;
                 target.Kill(killer);
                 Logger.Info($"{target.GetRealName()} reverse killed: {killer.GetRealName()}", "Veteran Kill");
                 return false;

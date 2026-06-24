@@ -17,7 +17,7 @@ public class Wyrd : CovenBase
     }
 
     public static bool On;
-    private static List<Wyrd> Instances = [];
+    private static List<Wyrd> Instances;
 
     private static OptionItem ShapeshiftCooldown;
     private static OptionItem MaxMarkedPlayersAtOnce;
@@ -30,13 +30,15 @@ public class Wyrd : CovenBase
     private static OptionItem CanVentBeforeNecronomicon;
     private static OptionItem CanVentAfterNecronomicon;
 
-    private static Dictionary<Action, bool> ActionSuicideSettings = [];
+    private static Dictionary<Action, bool> ActionSuicideSettings;
 
     private int Countdown;
-    private long LastUpdate;
 
     public HashSet<byte> MarkedPlayers;
     private byte WyrdID;
+
+    private static readonly Action[] AllAction = Enum.GetValues<Action>();
+    private readonly StringBuilder Suffix = new();
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -60,8 +62,18 @@ public class Wyrd : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
+        ActionSuicideSettings = null;
+    }
 
+    public override void Add(byte playerId)
+    {
+        On = true;
+        WyrdID = playerId;
+        Instances ??= [];
+        Instances.Add(this);
+        MarkedPlayers = [];
+        Countdown = CountdownTime.GetInt();
         ActionSuicideSettings = new()
         {
             { Action.Task, MarkedDiesOnTask.GetBool() },
@@ -70,19 +82,9 @@ public class Wyrd : CovenBase
         };
     }
 
-    public override void Add(byte playerId)
-    {
-        On = true;
-        WyrdID = playerId;
-        Instances.Add(this);
-        MarkedPlayers = [];
-        Countdown = CountdownTime.GetInt();
-        LastUpdate = Utils.TimeStamp;
-    }
-
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -120,10 +122,7 @@ public class Wyrd : CovenBase
         }
 
         if (MarkedPlayers.Count == 0 || Countdown <= 0) return;
-
-        long now = Utils.TimeStamp;
-        if (LastUpdate == now) return;
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         Countdown--;
         Utils.SendRPC(CustomRPC.SyncRoleData, WyrdID, 3, Countdown);
@@ -134,7 +133,7 @@ public class Wyrd : CovenBase
 
     public static bool CheckPlayerAction(PlayerControl pc, Action action)
     {
-        if (!ActionSuicideSettings[action]) return true;
+        if (ActionSuicideSettings == null || !ActionSuicideSettings[action] || Instances == null) return true;
 
         foreach (Wyrd instance in Instances)
         {
@@ -150,12 +149,14 @@ public class Wyrd : CovenBase
 
     public static void OnAnyoneDeath(PlayerControl target)
     {
+        if (Instances == null) return;
+
         foreach (Wyrd instance in Instances)
         {
             if (instance.MarkedPlayers.Remove(target.PlayerId))
             {
                 var wyrd = instance.WyrdID.GetPlayer();
-                if (wyrd != null) Utils.NotifyRoles(SpecifySeer: wyrd, SpecifyTarget: target);
+                if (wyrd) Utils.NotifyRoles(SpecifySeer: wyrd, SpecifyTarget: target);
                 Utils.SendRPC(CustomRPC.SyncRoleData, instance.WyrdID, 2, target.PlayerId);
             }
         }
@@ -177,9 +178,13 @@ public class Wyrd : CovenBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + $" <#ffffff>{MarkedPlayers.Count}/{MaxMarkedPlayersAtOnce.GetInt()}</color>";
+        base.GetProgressText(playerId, comms, resultText);
+        
+        resultText.Append(" <#ffffff>")
+            .Append(MarkedPlayers.Count).Append('/').Append(MaxMarkedPlayersAtOnce.GetInt())
+            .Append("</color>");
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -196,22 +201,21 @@ public class Wyrd : CovenBase
                 return string.Empty;
         }
 
-        var sb = new StringBuilder();
-        if (Countdown <= 0) sb.Append("<#ff0000>");
-        sb.AppendLine(string.Format(Translator.GetString("Wyrd.Suffix.FateCountdown"), Countdown));
+        Suffix.Clear();
+        if (Countdown <= 0) Suffix.Append("<#ff0000>");
+        Suffix.AppendFormat(Translator.GetString("Wyrd.Suffix.FateCountdown"), Countdown);
 
         if (Countdown <= 0)
         {
-            sb.Append("</color>");
+            Suffix.AppendLine("</color>");
 
             if (!seerIsWyrd)
             {
-                var suicideActions = Enum.GetValues<Action>().Where(x => ActionSuicideSettings[x]).ToList();
-                var join = string.Join(", ", suicideActions.ConvertAll(x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}")));
-                sb.AppendLine(string.Format(Translator.GetString("Wyrd.Suffix.SuicideWarnings"), join));
+                var join = string.Join(", ", AllAction.Where(x => ActionSuicideSettings[x]).Select(x => Translator.GetString($"Wyrd.Suffix.SuicideWarningOnAction.{x}")));
+                Suffix.AppendFormat(Translator.GetString("Wyrd.Suffix.SuicideWarnings"), join);
             }
         }
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 }

@@ -24,6 +24,7 @@ public class EvilTracker : RoleBase
     private static TargetMode CurrentTargetMode;
     private static RoleTypes RoleTypes;
     public static bool CanSeeLastRoomInMeeting;
+    private static Color32 ShadeColor;
 
     private static readonly string[] TargetModeText =
     [
@@ -61,6 +62,7 @@ public class EvilTracker : RoleBase
         Target = byte.MaxValue;
         CanSetTarget = false;
         EvilTrackerId = byte.MaxValue;
+        ShadeColor = Palette.ImpostorRed.ShadeColor(0.5f);
     }
 
     public override void Add(byte playerId)
@@ -115,8 +117,8 @@ public class EvilTracker : RoleBase
 
     public static void OnAnyoneMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanSeeKillFlash && killer != null && killer.Is(CustomRoleTypes.Impostor) && killer != target && !PlayerIdList.Contains(killer.PlayerId))
-            PlayerIdList.ToValidPlayers().ForEach(x => x.KillFlash());
+        if (CanSeeKillFlash && killer.Is(CustomRoleTypes.Impostor) && killer != target && !PlayerIdList.Contains(killer.PlayerId))
+            PlayerIdList.ToValidPlayers().Do(x => x.KillFlash());
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -126,7 +128,7 @@ public class EvilTracker : RoleBase
         if (target == null || target.Is(CustomRoleTypes.Impostor)) return false;
 
         SetTarget(shapeshifter.PlayerId, target.PlayerId);
-        Logger.Info($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}'s target is now {target.GetNameWithRole().RemoveHtmlTags()}", "EvilTrackerTarget");
+        Logger.Info($"{shapeshifter.GetNameWithRole()}'s target is now {target.GetNameWithRole()}", "EvilTrackerTarget");
         shapeshifter.MarkDirtySettings();
         Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: shapeshifter);
@@ -190,9 +192,11 @@ public class EvilTracker : RoleBase
         (Main.PlayerStates[trackerId].Role as EvilTracker)?.SetTarget(trackerId, targetId);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
+        if (CanTarget(playerId))
+            resultText.Append(Utils.ColorPrefix(ShadeColor))
+                .Append("◁</color>");
     }
 
     public static string GetTargetMark(PlayerControl seer, PlayerControl target)
@@ -212,7 +216,7 @@ public class EvilTracker : RoleBase
 
         if (imps.Length > 0)
         {
-            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
+            sb.Append(Utils.ColorPrefix(Utils.GetRoleColor(CustomRoles.Impostor)));
             foreach (byte impostorId in imps) sb.Append(TargetArrow.GetArrows(target, impostorId));
             sb.Append("</color>");
         }
@@ -227,7 +231,7 @@ public class EvilTracker : RoleBase
         string text = Utils.ColorString(Palette.ImpostorRed, TargetArrow.GetArrows(seer, target.PlayerId));
         PlainShipRoom room = Main.PlayerStates[target.PlayerId].LastRoom;
 
-        if (room == null)
+        if (!room)
             text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
         else
             text += Utils.ColorString(Palette.ImpostorRed, "@" + GetString(room.RoomId.ToString()));

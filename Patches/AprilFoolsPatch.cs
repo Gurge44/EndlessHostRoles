@@ -33,7 +33,6 @@ public static class GetNormalBodyTypePatch
             if (Main.ClassicMode.Value || AprilFoolsMode.ShouldClassicMode())
             {
                 __result = PlayerBodyTypes.Classic;
-                return;
             }
         }
         catch { }

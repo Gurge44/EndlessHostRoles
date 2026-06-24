@@ -10,8 +10,8 @@ public class Allergic : IAddon
     private static OptionItem Time;
     private static OptionItem Range;
 
-    private static Dictionary<byte, byte> AllergicPlayers = [];
-    private static Dictionary<byte, long> AllergyMaxTS = [];
+    private static Dictionary<byte, byte> AllergicPlayers;
+    private static Dictionary<byte, long> AllergyMaxTS;
     public AddonTypes Type => AddonTypes.Harmful;
 
     public void SetupCustomOption()
@@ -29,17 +29,22 @@ public class Allergic : IAddon
 
     public static void Init()
     {
-        AllergicPlayers = [];
-        AllergyMaxTS = [];
+        AllergicPlayers = null;
+        AllergyMaxTS = null;
 
         LateTask.New(() =>
         {
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControlsToList;
 
-            foreach (PlayerControl pc in aapc)
+            for (var index = 0; index < aapc.Count; index++)
             {
+                PlayerControl pc = aapc[index];
+
                 if (pc.Is(CustomRoles.Allergic))
                 {
+                    AllergicPlayers ??= [];
+                    AllergyMaxTS ??= [];
+
                     PlayerControl target = aapc.Without(pc).RandomElement();
                     AllergicPlayers[pc.PlayerId] = target.PlayerId;
                 }
@@ -51,7 +56,7 @@ public class Allergic : IAddon
     {
         if (Main.HasJustStarted || !Main.IntroDestroyed || ExileController.Instance || AntiBlackout.SkipTasks) return;
 
-        if (!AllergicPlayers.TryGetValue(pc.PlayerId, out byte targetId)) return;
+        if (AllergicPlayers == null || !AllergicPlayers.TryGetValue(pc.PlayerId, out byte targetId)) return;
 
         PlayerControl target = targetId.GetPlayer();
 
@@ -62,7 +67,6 @@ public class Allergic : IAddon
                 Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
                 Utils.SendRPC(CustomRPC.SyncAllergic, 1, pc.PlayerId);
             }
-
             return;
         }
 
@@ -91,6 +95,7 @@ public class Allergic : IAddon
                 AllergyMaxTS.Remove(reader.ReadByte());
                 break;
             case 2:
+                AllergyMaxTS ??= [];
                 AllergyMaxTS[reader.ReadByte()] = long.Parse(reader.ReadString());
                 break;
         }
@@ -98,7 +103,7 @@ public class Allergic : IAddon
 
     public static string GetSelfSuffix(PlayerControl seer)
     {
-        if (!seer.IsAlive() || !AllergyMaxTS.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
+        if (!seer.IsAlive() || AllergyMaxTS == null || !AllergyMaxTS.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
         long now = Utils.TimeStamp;
         float percentage = (float)(endTS - now) / Time.GetInt();
         return string.Format(Translator.GetString("Allergic.Suffix"), 100 - (int)Math.Round(percentage * 100f));

@@ -63,7 +63,7 @@ public sealed class Stealth : RoleBase
     private IEnumerable<PlayerControl> FindPlayersInSameRoom(PlayerControl killedPlayer)
     {
         PlainShipRoom room = killedPlayer.GetPlainShipRoom();
-        if (room == null) return null;
+        if (!room) return null;
 
         Collider2D roomArea = room.roomArea;
         SystemTypes roomName = room.RoomId;

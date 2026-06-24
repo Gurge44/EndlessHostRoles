@@ -80,7 +80,7 @@ public class CopyCat : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     private void ResetRole()

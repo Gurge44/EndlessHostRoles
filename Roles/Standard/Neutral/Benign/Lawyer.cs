@@ -83,7 +83,7 @@ public class Lawyer : RoleBase
                     PlayerControl selectedTarget = targetList.RandomElement();
                     Target[playerId] = selectedTarget.PlayerId;
                     SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
-                    Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
+                    Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}:{selectedTarget.GetNameWithRole()}", "Lawyer");
 
                     if (!TargetKnowsLawyer.GetBool()) return;
                     LateTask.New(() => selectedTarget.Notify(string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 18f, log: false);
@@ -163,11 +163,11 @@ public class Lawyer : RoleBase
         {
             if (!TargetKnowsLawyer.GetBool() && seer.IsAlive()) return string.Empty;
 
-            return Target.TryGetValue(target.PlayerId, out byte x) && (seer.PlayerId == x || !seer.IsAlive()) ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
+            return Target.TryGetValue(target.PlayerId, out byte x) && (seer.PlayerId == x || !seer.IsAlive()) ? CustomRoles.Lawyer.ColoredTextByRole("§") : string.Empty;
         }
 
         bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId);
-        return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
+        return GetValue && targetId == target.PlayerId ? CustomRoles.Lawyer.ColoredTextByRole("§") : string.Empty;
     }
 
     private static void ChangeRole(PlayerControl lawyer)

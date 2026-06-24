@@ -75,16 +75,16 @@ public class Judge : RoleBase
         foreach (byte pid in list) MeetingUseLimit[pid] = TrialLimitPerMeeting.GetInt();
     }
 
-    public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
+    public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Judge)) return false;
 
         int operate; // 1:ID 2:Trial
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true))
             operate = 1;
-        else if (GuessManager.CheckCommand(ref msg, "jj|tl|trial|审判|判|审", false, out spamRequired))
+        else if (GuessManager.CheckCommand(ref msg, "jj|tl|trial|审判|判|审", false))
             operate = 2;
         else
             return false;
@@ -102,9 +102,6 @@ public class Judge : RoleBase
                 break;
             case 2:
             {
-                if (!isUI && spamRequired && sendCmdWarn)
-                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
-
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {
                     Utils.SendMessage(error, pc.PlayerId, importance: MessageImportance.Low);
@@ -115,7 +112,7 @@ public class Judge : RoleBase
 
                 if (target != null)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} trialed {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
+                    Logger.Info($"{pc.GetNameWithRole()} trialed {target.GetNameWithRole()}", "Judge");
                     bool judgeSuicide;
 
                     if (pc.GetAbilityUseLimit() < 1 || MeetingUseLimit[pc.PlayerId] < 1 || TotalUseLimit[pc.PlayerId] < 1)
@@ -131,9 +128,9 @@ public class Judge : RoleBase
                     if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                            Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else
-                            pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
+                            pc.ShowPopUp(CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
 
                         return true;
                     }
@@ -190,7 +187,7 @@ public class Judge : RoleBase
                         MeetingManager.OnTrial(dp, pc);
                         Utils.AfterPlayerDeathTasks(dp, true);
 
-                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")), importance: MessageImportance.High), 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, CustomRoles.Judge.ColoredTextByRole(GetString("TrialKillTitle")), importance: MessageImportance.High), 0.6f, "Guess Msg");
                     }, 0.2f, "Trial Kill");
                 }
 
@@ -234,7 +231,7 @@ public class Judge : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;
-        TrialMsg(shapeshifter, $"/tl {target.PlayerId}", sendCmdWarn: false);
+        TrialMsg(shapeshifter, $"/tl {target.PlayerId}");
     }
 
     private static void SendRPC(byte playerId)

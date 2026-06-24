@@ -5,7 +5,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -35,6 +34,7 @@ public class Witch : RoleBase
     private byte WitchId;
     private bool SpellMode;
 
+    private readonly StringBuilder Suffix = new();
     public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -140,8 +140,8 @@ public class Witch : RoleBase
     {
         if (NowSwitchTrigger == SwitchTrigger.Vanish)
         {
-            var killRange = GameManager.Instance.LogicOptions.GetKillDistance() + 1f;
-            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl target, x => !x.IsImpostor())) return false;
+            var killRange = pc.GetKillDistance() + 1f;
+            if (!FastVector2.TryGetClosestPlayerInRangeTo(pc, killRange, out PlayerControl target, IsHM ? null : x => !x.IsImpostor())) return false;
             SetSpelled(pc, target);
         }
 
@@ -175,7 +175,7 @@ public class Witch : RoleBase
 
     private void SetSpelled(PlayerControl killer, PlayerControl target)
     {
-        if (!IsSpelled(target.PlayerId) && killer.GetAbilityUseLimit() > 0)
+        if (!IsSpelled(target.PlayerId) && (IsHM || killer.GetAbilityUseLimit() > 0))
         {
             SpelledPlayer.Add(target.PlayerId);
             SendRPC(true, killer.PlayerId, target.PlayerId);
@@ -263,7 +263,7 @@ public class Witch : RoleBase
 
             var spelledIdList = new List<byte>();
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 foreach (byte witchId in PlayerIdList)
                 {
@@ -281,7 +281,7 @@ public class Witch : RoleBase
                     else
                         Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
                     
-                    witchId.SetAbilityUseLimit(MaxSpellsPerRound.GetInt());
+                    if (!wc.IsHM) witchId.SetAbilityUseLimit(MaxSpellsPerRound.GetInt());
                 }
             }
 
@@ -308,27 +308,27 @@ public class Witch : RoleBase
     {
         if (seer.PlayerId != WitchId || seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var str = new StringBuilder();
+        Suffix.Clear();
 
         if (hud)
-            str.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
+            Suffix.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
         else
-            str.Append($"{GetString("Mode")}: ");
+            Suffix.Append($"{GetString("Mode")}: ");
 
         switch (NowSwitchTrigger)
         {
             case SwitchTrigger.DoubleTrigger:
-                str.Append(GetString("WitchModeDouble"));
+                Suffix.Append(GetString("WitchModeDouble"));
                 break;
             case SwitchTrigger.Vanish:
-                str.Append(GetString("WitchModeVanish"));
+                Suffix.Append(GetString("WitchModeVanish"));
                 break;
             default:
-                str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+                Suffix.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
                 break;
         }
 
-        return str.ToString();
+        return Suffix.ToString();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

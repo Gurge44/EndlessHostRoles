@@ -1,9 +1,9 @@
-using Hazel;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 
 namespace EHR.Modules;
@@ -12,17 +12,23 @@ public static class CustomSoundsManager
 {
     private static readonly string SoundsPath = $"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
 
+    public static long LastSoundRPCTS;
+
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, float volume = 1f, float pitch = 1f, bool force = false)
     {
         try
         {
-            if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
-
-            if (!pc || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
+            if (!pc || pc.AmOwner)
             {
                 Play(sound, volume, pitch);
                 return;
             }
+
+            if (!force && (!AmongUsClient.Instance.AmHost || !pc.IsModdedClient())) return;
+
+            long now = Utils.TimeStamp;
+            if (now == LastSoundRPCTS) return;
+            LastSoundRPCTS = now;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None, pc.OwnerId);
             writer.Write(sound);
@@ -40,6 +46,10 @@ public static class CustomSoundsManager
             if (!AmongUsClient.Instance.AmHost) return;
 
             Play(sound, volume, pitch);
+            
+            long now = Utils.TimeStamp;
+            if (now == LastSoundRPCTS) return;
+            LastSoundRPCTS = now;
         
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.None);
             writer.Write(sound);
@@ -88,18 +98,18 @@ public static class CustomSoundsManager
         catch (Exception e) { Utils.ThrowException(e); }
     }
 
-    private static readonly Dictionary<string, AudioClip> audioCache = [];
+    private static readonly Dictionary<string, AudioClip> AudioCache = [];
 
     private static void StartPlay(string path, float volume = 1f, float pitch = 1f)
     {
-        if (!audioCache.TryGetValue(path, out var clip))
+        if (!AudioCache.TryGetValue(path, out var clip))
         {
             clip = LoadWAV(path);
-            audioCache[path] = clip;
+            AudioCache[path] = clip;
         }
 
         if (clip)
-            SoundManager.Instance.PlaySoundImmediate(clip, false, volume);
+            SoundManager.Instance.PlaySoundImmediate(clip, false, volume, pitch);
     }
 
     private static AudioClip LoadWAV(string path)
@@ -107,7 +117,7 @@ public static class CustomSoundsManager
         var fileData = Il2CppSystem.IO.File.ReadAllBytes(path);
         WAV wav = new(fileData);
 
-        Logger.Info($"[WAV: LeftChannel={wav.LeftChannel}, RightChannel={wav.RightChannel}, ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
+        Logger.Info($"[WAV: ChannelCount={wav.ChannelCount}, SampleCount={wav.SampleCount}, Frequency={wav.Frequency}]", "CustomSounds");
 
         AudioClip clip = AudioClip.Create(Path.GetFileNameWithoutExtension(path), wav.SampleCount, 1, wav.Frequency, false, false);
         clip.SetData(wav.LeftChannel, 0);
@@ -169,8 +179,7 @@ public static class CustomSoundsManager
 
             // Allocate memory (right will be null if only mono sound)
             LeftChannel = new Il2CppStructArray<float>(SampleCount);
-            if (ChannelCount == 2) RightChannel = new Il2CppStructArray<float>(SampleCount);
-            else RightChannel = null;
+            RightChannel = ChannelCount == 2 ? new Il2CppStructArray<float>(SampleCount) : null;
 
             int end = pos + dataSize;
             // Write to double array/s:
@@ -183,7 +192,7 @@ public static class CustomSoundsManager
 
                 if (ChannelCount == 2)
                 {
-                    RightChannel[i] = BytesToFloat(wav[pos], wav[pos + 1]);
+                    RightChannel?[i] = BytesToFloat(wav[pos], wav[pos + 1]);
                     pos += 2;
                 }
                 i++;
@@ -191,6 +200,7 @@ public static class CustomSoundsManager
         }
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
+/*
         public Il2CppStructArray<float> GetStereoData()
         {
             if (RightChannel == null) return LeftChannel;
@@ -205,5 +215,6 @@ public static class CustomSoundsManager
 
             return stereoData;
         }
+*/
     }
 }

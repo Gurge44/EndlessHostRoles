@@ -32,7 +32,7 @@ static class ShowRoleMoveNextPatch
     {
         var wrapper = new StateMachineWrapper<IntroCutscene>(__instance);
         
-        if (wrapper.GetField<int>("__1__state") != 1 || !__result) return;
+        if (wrapper.State != 1 || !__result) return;
 
         GameStates.InGame = true;
         SetUpRoleTextPatch.Postfix(wrapper.Instance);
@@ -86,10 +86,10 @@ static class CoShowIntroPatch
             yield return CoBegin(Object.Instantiate(__instance.IntroPrefab, __instance.transform));
 
             PlayerControl.LocalPlayer.SetKillTimer(10f);
-            (ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>()).SetInitialSabotageCooldown();
+            ShipStatus.Instance.Systems[SystemTypes.Sabotage].CastFast<SabotageSystemType>().SetInitialSabotageCooldown();
 
             if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out ISystemType systemType) && systemType.TryCast<IDoorSystem>() != null)
-                (systemType.CastFast<IDoorSystem>()).SetInitialSabotageCooldown();
+                systemType.CastFast<IDoorSystem>().SetInitialSabotageCooldown();
 
             yield return ShipStatus.Instance.PrespawnStep();
             PlayerControl.LocalPlayer.AdjustLighting();
@@ -310,6 +310,16 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleBlurbText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
+            case CustomGameMode.LoopWanted:
+            {
+                Color color = Utils.GetRoleColor(CustomRoles.LoopHunter);
+                __instance.YouAreText.transform.gameObject.SetActive(false);
+                __instance.RoleText.text = GetString("LoopHunter");
+                __instance.RoleText.color = color;
+                __instance.RoleBlurbText.color = color;
+                __instance.RoleBlurbText.text = GetString("LoopHunterInfo");
+                break;
+            }
             default:
             {
                 CustomRoles role = lp.GetCustomRole();
@@ -340,7 +350,7 @@ internal static class SetUpRoleTextPatch
         {
             LateTask.New(() =>
             {
-                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || lp == null) return;
+                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || !lp) return;
                 lp.SetName(Main.AllPlayerNames[lp.PlayerId]);
             }, 1f, "Reset Name For Modded Client");
         }
@@ -410,7 +420,7 @@ internal static class SetUpRoleTextPatch
 
             foreach (OptionItem o in options)
             {
-                if (!o.IsCurrentlyHidden() && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
+                if (!o.IsCurrentlyHidden(checkCollapsedSection: false) && (o.Parent == null ? !o.GetString().Equals(disabledRoleStr) : AllParentsEnabled(o)))
                     sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
 
                 if (i++ > 20)
@@ -477,7 +487,7 @@ internal static class BeginCrewmatePatch
         {
             teamToDisplay = new();
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (pc.Is(Team.Coven))
                     teamToDisplay.Add(pc);
@@ -500,7 +510,7 @@ internal static class BeginCrewmatePatch
             {
                 teamToDisplay = new();
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
@@ -512,7 +522,7 @@ internal static class BeginCrewmatePatch
         {
             teamToDisplay = new();
 
-            foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAllPlayerControls())
             {
                 if (FreeForAll.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && team == ffaTeam)
                     teamToDisplay.Add(pc);
@@ -862,7 +872,7 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                 __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
 
-                foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+                foreach (PlayerControl pc in Main.CachedAllPlayerControls())
                 {
                     if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
                         teamToDisplay.Add(pc);
@@ -1017,6 +1027,15 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
+            case CustomGameMode.LoopWanted:
+            {
+                __instance.TeamTitle.text = GetString("LoopHunter");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.LoopHunter);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("LoopHunterInfo");
+                break;
+            }
         }
 
         return;
@@ -1045,9 +1064,18 @@ internal static class BeginImpostorPatch
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
+        if (PlayerControl.LocalPlayer.IsImpostor() && role != CustomRoles.DoubleAgent && CustomRoleSelector.RoleResult.ContainsValue(CustomRoles.DoubleAgent))
+        {
+            foreach (var pc in Main.CachedAllPlayerControls())
+            {
+                if (pc.Is(CustomRoles.DoubleAgent) && !pc.AmOwner)
+                    yourTeam.Add(pc);
+            }
+        }
+
         if (PlayerControl.LocalPlayer.IsImpostor() && Options.ImpKnowWhosMadmate.GetBool())
         {
-            foreach (var pc in Main.EnumeratePlayerControls())
+            foreach (var pc in Main.CachedAllPlayerControls())
             {
                 if (pc.IsMadmate() && !pc.AmOwner)
                     yourTeam.Add(pc);
@@ -1061,7 +1089,7 @@ internal static class BeginImpostorPatch
 
             if (Options.MadmateKnowWhosImp.GetBool())
             {
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.IsImpostor() && !pc.AmOwner)
                         yourTeam.Add(pc);
@@ -1070,7 +1098,7 @@ internal static class BeginImpostorPatch
 
             if (Options.MadmateKnowWhosMadmate.GetBool())
             {
-                foreach (var pc in Main.EnumeratePlayerControls())
+                foreach (var pc in Main.CachedAllPlayerControls())
                 {
                     if (pc.IsMadmate() && !pc.AmOwner)
                         yourTeam.Add(pc);
@@ -1129,10 +1157,10 @@ internal static class IntroCutsceneDestroyPatch
 
         Main.IntroDestroyed = true;
         PreventKill = true;
-        LateTask.New(() => PreventKill = false, 10f, "PreventKillReset");
+        LateTask.New(() => PreventKill = false, Options.StartingKillCooldown?.GetFloat() ?? 10f, "PreventKillReset");
 
-        var apc = Main.AllPlayerControls;
-        
+        var apc = Main.AllPlayerControlsToList;
+
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
         apc.Do(x => x.roleAssigned = false);
@@ -1140,8 +1168,21 @@ internal static class IntroCutsceneDestroyPatch
         if (AmongUsClient.Instance.AmHost)
         {
             LateTask.New(() => apc.DoIf(x => x && ((x.AmOwner && Main.GM.Value) || ChatCommands.Spectators.Contains(x.PlayerId)), x => x.RpcSetCustomRole(CustomRoles.GM)), 8f);
+
+            try
+            {
+                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToValidPlayers().ToList();
+                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
+
+                spectators.ForEach(x =>
+                {
+                    x.RpcExileV2();
+                    Main.PlayerStates[x.PlayerId].SetDead();
+                });
+            }
+            catch (Exception e) { Utils.ThrowException(e); }
             
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControlsToList;
 
             Utils.NumSnapToCallsThisRound = aapc.Count;
             
@@ -1164,7 +1205,7 @@ internal static class IntroCutsceneDestroyPatch
                     }
                     else
                     {
-                        int kcd = Options.StartingKillCooldown.GetInt();
+                        int kcd = Options.StartingKillCooldown?.GetInt() ?? 10;
                         LateTask.New(() => aapc.Do(x => x.SetKillCooldown(kcd)), 2f, "FixKillCooldownTask");
                     }
                 }
@@ -1179,7 +1220,7 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.HideAndSeek when CustomHnS.Chat:
                 case CustomGameMode.NaturalDisasters when NaturalDisasters.Chat:
                 case CustomGameMode.Standard when Options.ChatDuringGame.GetBool():
-                    LateTask.New(Utils.SetChatVisibleForAll, 4f);
+                    LateTask.New(() => Main.AllAlivePlayerControlsToList.SetChatVisible(true), 4f);
                     break;
             }
 
@@ -1225,65 +1266,61 @@ internal static class IntroCutsceneDestroyPatch
             {
                 void GrantPetForEveryone()
                 {
+                    var messages = 0;
+                    var stream = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
+                    
                     foreach (PlayerControl pc in aapc)
                     {
-                        if (pc.Is(CustomRoles.GM)) continue;
+                        try
+                        {
+                            if (pc.Is(CustomRoles.GM)) continue;
 
-                        string petId = PetsHelper.GetPetId();
-                        PetsHelper.SetPet(pc, petId);
-                        Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
+                            if (stream.Length > 500 || messages + 2 > AmongUsClient.Instance.GetMaxMessagePackingLimit())
+                            {
+                                stream.EndMessage();
+
+                                var captured = stream;
+                                DataFlagRateLimiter.Enqueue(() =>
+                                {
+                                    AmongUsClient.Instance.SendOrDisconnect(captured);
+                                    captured.Recycle();
+                                }, cleanup: captured.Recycle);
+
+                                stream = MessageWriter.Get(SendOption.Reliable);
+                                stream.StartMessage(5);
+                                stream.Write(AmongUsClient.Instance.GameId);
+
+                                messages = 0;
+                            }
+
+                            string petId = PetsHelper.GetPetId();
+                            pc.Data.DefaultOutfit.PetId = petId;
+                            pc.SyncOutfitData(stream);
+                            messages += 2;
+                            Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
                     }
-                }
 
-                Main.ProcessShapeshifts = false;
+                    stream.EndMessage();
+                    DataFlagRateLimiter.Enqueue(() =>
+                    {
+                        AmongUsClient.Instance.SendOrDisconnect(stream);
+                        stream.Recycle();
+                    }, cleanup: stream.Recycle);
+                }
 
                 LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
 
                 LateTask.New(() =>
                 {
-                    lp.Notify(GetString("GLHF"), 2f);
-
-                    foreach (PlayerControl pc in aapc)
-                    {
-                        if (pc.IsHost()) continue; // Skip the host
-
-                        try
-                        {
-                            var sender = CustomRpcSender.Create("Shapeshift After Pet Assign On Game Start", SendOption.Reliable);
-                            
-                            if (AmongUsClient.Instance.AmClient)
-                                pc.Shapeshift(pc, false);
-
-                            sender.AutoStartRpc(pc.NetId, 46);
-                            sender.WriteNetObject(pc);
-                            sender.Write(false);
-                            sender.EndRpc();
-
-                            sender.Notify(pc, GetString("GLHF"), 2f);
-
-                            sender.SendMessage();
-                        }
-                        catch (Exception ex) { Logger.Fatal(ex.ToString(), "IntroPatch.RpcShapeshift"); }
-                    }
-                }, 4f, "Show Pet For Everyone");
-
-                LateTask.New(() => Main.ProcessShapeshifts = true, 2f, "Enable SS Processing");
+                    aapc.NotifyPlayers(GetString("GLHF"), 3f);
+                }, 4f, "GLHF");
             }
 
-            try
-            {
-                System.Collections.Generic.List<PlayerControl> spectators = ChatCommands.Spectators.ToList().ToValidPlayers();
-                if (Main.GM.Value) spectators.Add(PlayerControl.LocalPlayer);
-
-                spectators.ForEach(x =>
-                {
-                    x.RpcExileV2();
-                    Main.PlayerStates[x.PlayerId].SetDead();
-                });
-            }
-            catch (Exception e) { Utils.ThrowException(e); }
-
-            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
+            if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
             {
                 var map = RandomSpawn.SpawnMap.GetSpawnMap();
                 aapc.Do(map.RandomTeleport);
@@ -1351,6 +1388,9 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.GameStart();
                     break;
+                case CustomGameMode.LoopWanted:
+                    LoopWanted.OnGameStart();
+                    break;
             }
 
             if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
@@ -1358,13 +1398,17 @@ internal static class IntroCutsceneDestroyPatch
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, "NotifyEveryoneAsync On Game Start");
             LateTask.New(Utils.MarkEveryoneDirtySettings, 0.5f, "SyncAllSettings On Game Start");
             LateTask.New(() => Main.Instance.StartCoroutine(ShipStatusFixedUpdatePatch.Postfix()), 5f, "ShipStatusFixedUpdatePatch Postfix Start");
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.SendGameDataContinuously()), 10f, "SendGameDataContinuously Start");
 
             Utils.CheckAndSetVentInteractions();
         }
         else
         {
             foreach (PlayerControl player in apc)
+            {
+                Main.PlayerStates.TryAdd(player.PlayerId, new(player.PlayerId));
                 Main.PlayerStates[player.PlayerId].InitTask(player);
+            }
 
             switch (Options.CurrentGameMode)
             {
@@ -1373,6 +1417,9 @@ internal static class IntroCutsceneDestroyPatch
                     break;
                 case CustomGameMode.StopAndGo:
                     StopAndGo.RoundTimer = Stopwatch.StartNew();
+                    break;
+                case CustomGameMode.RoomRush:
+                    RoomRush.GameStartDateTime = DateTime.Now;
                     break;
             }
         }
@@ -1408,9 +1455,9 @@ internal static class IntroCutsceneDestroyPatch
             if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !Utils.HasTasks(PlayerControl.LocalPlayer.Data, forRecompute: false))
                 hud.TaskPanel.open = false;
             
-            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool()) return;
+            if (!AmongUsClient.Instance.AmHost || !Lovers.PrivateChat.GetBool() || Options.ChatDuringGame.GetBool()) return;
             
-            Main.LoversPlayers.ForEach(x => x.SetChatVisible(true));
+            Main.LoversPlayers.SetChatVisible(true);
         }, 1f, log: false);
 
         LateTask.New(() =>

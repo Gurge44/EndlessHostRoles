@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
@@ -70,15 +69,20 @@ internal class Workaholic : RoleBase
         Main.AllPlayerSpeed[playerId] = WorkaholicSpeed.GetFloat();
     }
 
-    public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
+    public override void OnTaskComplete(PlayerControl player, int completedTasksCount, int allTasksCount)
     {
-        if (CompletedTasksCount + 1 >= AllTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
+        if (completedTasksCount + 1 >= allTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
         {
             Logger.Info("Workaholic Tasks Finished", "Workaholic");
             RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls().Where(pc => pc.PlayerId != player.PlayerId).ToArray()) pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
+            GameEndChecker.ShouldNotCheck = true;
+            LateTask.New(() => GameEndChecker.ShouldNotCheck = false, 0.2f);
+
+            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+                pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
+
+            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Workaholic);
             CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
         }
     }

@@ -159,7 +159,7 @@ public class Ambusher : RoleBase
             DontCheck = false;
         }
 
-        if (LastRPCTS != now)
+        if (LastRPCTS == 0 || PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
         {
             pc.RpcResetAbilityCooldown();
             Utils.SendRPC(CustomRPC.SyncRoleData, AmbusherId, 1, TargetId, TargetTimer, AbilityEndTimer, DontCheck);

@@ -85,9 +85,10 @@ public class ClientOptionItem
             ToggleButton = Object.Instantiate(mouseMoveToggle, CustomBackground.transform);
             OptionButtons.Add(ToggleButton);
 
+            // ReSharper disable once PossibleLossOfFraction
             ToggleButton.transform.localPosition = new(
                 (OptionButtons.Count - 1) % 3 == 0 ? -2.6f : ((OptionButtons.Count - 1) % 3 == 1 ? 0f : 2.6f),
-                           2.2f - (0.5f * ((OptionButtons.Count - 1) / 3)),
+                2.2f - (0.5f * ((OptionButtons.Count - 1) / 3)),
                            -6f);
 
             ToggleButton.name = name;
@@ -97,7 +98,7 @@ public class ClientOptionItem
 
             passiveButton.OnClick.AddListener(new Action(() =>
             {
-                if (config != null) config.Value = !config.Value;
+                config?.Value = !config.Value;
 
                 UpdateToggle();
                 additionalOnClickAction?.Invoke();
@@ -126,9 +127,9 @@ public class ClientOptionItem
 
         int totalRows = (OptionButtons.Count + 2) / 3;
 
-        float topPosition = 2.2f;
-        float bottomLimit = -1.6f;
-        float availableHeight = topPosition - bottomLimit;
+        const float topPosition = 2.2f;
+        const float bottomLimit = -1.6f;
+        const float availableHeight = topPosition - bottomLimit;
         float rowSpacing = totalRows > 1 ? availableHeight / (totalRows - 1) : 0f;
 
         for (int i = 0; i < OptionButtons.Count; i++)

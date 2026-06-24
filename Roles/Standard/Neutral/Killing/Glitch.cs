@@ -27,7 +27,8 @@ public class Glitch : RoleBase
     public int KCDTimer;
     public long LastHack;
     public long LastKill;
-    private long LastUpdate;
+
+    private readonly StringBuilder Suffix = new();
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -86,8 +87,6 @@ public class Glitch : RoleBase
 
         LastKill = ts;
         LastHack = ts;
-
-        LastUpdate = ts;
     }
 
     public override void Remove(byte playerId)
@@ -145,7 +144,7 @@ public class Glitch : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0)) return false;
+        if (KCDTimer > 0 && HackCDTimer > 0) return false;
 
         if (killer.CheckDoubleTrigger(target, () =>
         {
@@ -164,6 +163,7 @@ public class Glitch : RoleBase
             LastKill = Utils.TimeStamp;
             KCDTimer = KillCooldown.GetInt();
             SendRPCSyncTimers();
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Bugged;
             return true;
         }
 
@@ -172,14 +172,12 @@ public class Glitch : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(player.PlayerId)) return;
+        
         long now = Utils.TimeStamp;
-        if (LastUpdate == now) return;
-        LastUpdate = now;
 
         if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
         if (KCDTimer is > 180 or < 0) KCDTimer = 0;
-
-        if (player == null) return;
 
         if (!player.IsAlive())
         {
@@ -208,18 +206,18 @@ public class Glitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != GlitchId || seer.PlayerId != target.PlayerId || !seer.IsAlive() || (seer.IsModdedClient() && !hud) || meeting) return string.Empty;
 
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
-        if (!hud) sb.Append("<size=70%>");
+        if (!hud) Suffix.Append("<size=70%>");
 
-        if (HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), HackCDTimer)}\n");
-        if (KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), KCDTimer)}\n");
+        if (HackCDTimer > 0) Suffix.AppendFormat(Translator.GetString("HackCD"), HackCDTimer).Append('\n');
+        if (KCDTimer > 0) Suffix.AppendFormat(Translator.GetString("KCD"), KCDTimer).Append('\n');
 
-        if (!hud) sb.Append("</size>");
+        if (!hud) Suffix.Append("</size>");
 
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     public override void AfterMeetingTasks()

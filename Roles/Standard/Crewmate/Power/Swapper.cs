@@ -66,7 +66,7 @@ public class Swapper : RoleBase
         CNO = null;
     }
 
-    public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
+    public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || pc.GetCustomRole() != CustomRoles.Swapper) return false;
 
@@ -75,9 +75,9 @@ public class Swapper : RoleBase
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true))
             operate = 1;
-        else if (GuessManager.CheckCommand(ref msg, "sw|换票|换|swap|st", false, out spamRequired))
+        else if (GuessManager.CheckCommand(ref msg, "sw|换票|换|swap|st", false))
             operate = 2;
         else
             return false;
@@ -104,9 +104,6 @@ public class Swapper : RoleBase
                     return true;
                 }
 
-                if (HideMsg.GetBool() && !isUI && spamRequired && sendCmdWarn)
-                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
-
                 if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
                 {
                     Utils.SendMessage(GetString("SwapHelp"), pc.PlayerId);
@@ -128,7 +125,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
                 else if (vote2Available && selfCheck) // Take the second slot
@@ -137,7 +134,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
                 else if (target.PlayerId == SwapTargets.Item1) // If this player is already chosen to be swapped in the first slot, cancel it
@@ -146,7 +143,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
                 else if (target.PlayerId == SwapTargets.Item2) // If this player is already chosen to be swapped in the second slot, cancel it
@@ -155,7 +152,7 @@ public class Swapper : RoleBase
 
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId, importance: MessageImportance.High);
 
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
+                    Logger.Info($"{pc.GetNameWithRole()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
                 else if (!selfCheck) // When the Swapper tries to swap themselves, but they aren't allowed to
@@ -218,7 +215,7 @@ public class Swapper : RoleBase
                     state.VotedForId = SwapTargets.Item1;
             }
 
-            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Swapper), GetString("SwapTitle")), importance: MessageImportance.High);
+            Utils.SendMessage(string.Format(GetString("SwapVote"), SwapTargets.Item1.ColoredPlayerName(), SwapTargets.Item2.ColoredPlayerName()), title: CustomRoles.Swapper.ColoredTextByRole(GetString("SwapTitle")), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }
     }
@@ -227,10 +224,10 @@ public class Swapper : RoleBase
     {
         if (Starspawn.IsDayBreak) return;
 
-        if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter.PlayerId) : null;
+        if (CNO == null) CNO = CanSwapSelf.GetBool() ? new ShapeshiftMenuElement(shapeshifter) : null;
         else if (CNO.playerControl.NetId == target.NetId) target = shapeshifter;
         
-        SwapMsg(shapeshifter, $"/sw {target.PlayerId}", sendCmdWarn: false);
+        SwapMsg(shapeshifter, $"/sw {target.PlayerId}");
     }
 
     public override void OnReportDeadBody()

@@ -83,7 +83,7 @@ public class Executioner : RoleBase
                     PlayerControl selectedTarget = targetList.RandomElement();
                     Target[playerId] = selectedTarget.PlayerId;
                     SendRPC(playerId, selectedTarget.PlayerId, "SetTarget");
-                    Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {selectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
+                    Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()}'s target: {selectedTarget.GetNameWithRole()}", "Executioner");
                 }
                 catch (Exception ex) { Logger.Error(ex.ToString(), "Executioner.Add"); }
             }, 0.5f, log: false);
@@ -168,7 +168,7 @@ public class Executioner : RoleBase
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
         bool GetValue = Target.TryGetValue(seer.PlayerId, out byte targetId) || (!seer.IsAlive() && Target.ContainsValue(target.PlayerId));
-        return GetValue && (!seer.IsAlive() || targetId == target.PlayerId) ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
+        return GetValue && (!seer.IsAlive() || targetId == target.PlayerId) ? CustomRoles.Executioner.ColoredTextByRole("♦") : string.Empty;
     }
 
     public static bool CheckExileTarget(NetworkedPlayerInfo exiled, bool Check = false)

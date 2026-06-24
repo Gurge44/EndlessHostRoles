@@ -125,7 +125,7 @@ public class Fireworker : RoleBase
     public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
     {
         Logger.Info("Fireworker ShapeShift", "Fireworker");
-        if (pc == null || !pc.IsAlive() || !shapeshifting || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!shapeshifting || !pc.IsAliveWithConditions()) return false;
 
         UseAbility(pc);
 
@@ -135,7 +135,7 @@ public class Fireworker : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         Logger.Info("Fireworker Vanish", "Fireworker");
-        if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (!pc.IsAliveWithConditions()) return false;
 
         UseAbility(pc);
 
@@ -176,7 +176,7 @@ public class Fireworker : RoleBase
 
                 if (suicide)
                 {
-                    int totalAlive = Main.AllAlivePlayerControls.Count;
+                    int totalAlive = Main.AllAlivePlayerControlsCount;
                     if (totalAlive != 1) pc.Suicide();
                 }
 

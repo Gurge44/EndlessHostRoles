@@ -1,7 +1,8 @@
-﻿using EHR.Patches;
+﻿using System.Linq;
+using EHR.Patches;
 using HarmonyLib;
-using System;
-using System.Linq;
+using Il2CppSystem;
+using Exception = System.Exception;
 
 namespace EHR;
 
@@ -14,22 +15,22 @@ internal static class AllMapIconsPatch
     [HarmonyPrefix]
     public static void GameStartManagerStart_Prefix(GameStartManager __instance)
     {
-        if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == MapNames.Dleks))
+        if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
         {
             __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
             {
                 Name = MapNames.Dleks,
-                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f),
+                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f)
             });
         }
         if (SubmergedCompatibility.Loaded)
         {
-            if (!__instance.AllMapIcons.ToArray().Any(x => x.Name == (MapNames)6))
+            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
             {
                 __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
                 {
                     Name = (MapNames)6,
-                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f),
+                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f)
                 });
             }
         }
@@ -40,7 +41,7 @@ internal static class AllMapIconsPatch
     {
         try
         {
-            if (__instance == null) return;
+            if (!__instance) return;
 
             LateTask.New(() =>
             {
@@ -88,7 +89,7 @@ public static class CreateGameOptionsPatch
     [HarmonyPrefix]
     public static bool MapChangedPrefix(CreateGameOptions __instance)
     {
-        if (__instance.mapPicker.GetSelectedID() is (int)MapNames.Dleks)
+        if (__instance.mapPicker.GetSelectedID() == (int)MapNames.Dleks)
         {
             __instance.mapBanner.flipX = false;
             __instance.rendererBGCrewmates.sprite = __instance.bgCrewmates[0];
@@ -98,10 +99,7 @@ public static class CreateGameOptionsPatch
             __instance.SetCrewmateGraphic(__instance.capacityOption.Value - 1f);
             return false;
         }
-        if (SubmergedCompatibility.Loaded && __instance.mapPicker.GetSelectedID() is (int)(MapNames)6)
-            return false;
-
-        return true;
+        return !SubmergedCompatibility.Loaded || __instance.mapPicker.GetSelectedID() != 6;
     }
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.Start))]
     [HarmonyPrefix]

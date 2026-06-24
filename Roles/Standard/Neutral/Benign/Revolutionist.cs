@@ -16,6 +16,7 @@ internal class Revolutionist : RoleBase
     public static byte CurrentDrawTarget = byte.MaxValue;
 
     public static bool On;
+    private static Color32 ShadeColor;
 
     public static OptionItem RevolutionistDrawTime;
     public static OptionItem RevolutionistCooldown;
@@ -53,13 +54,19 @@ internal class Revolutionist : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        foreach (PlayerControl ar in Main.EnumeratePlayerControls())
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Revolutionist).ShadeColor(0.25f);
+        foreach (PlayerControl ar in Main.CachedAllPlayerControls())
             IsDraw.Add((playerId, ar.PlayerId), false);
     }
 
     public override void Init()
     {
         On = false;
+        IsDraw = [];
+        RevolutionistTimer = [];
+        RevolutionistStart = [];
+        RevolutionistLastTime = [];
+        RevolutionistCountdown = [];
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -87,10 +94,17 @@ internal class Revolutionist : RoleBase
         opt.SetVision(false);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
         (int, int) draw = Utils.GetDrawPlayerCount(playerId, out _);
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist).ShadeColor(0.25f), $"<color=#777777>-</color> {draw.Item1}/{draw.Item2}");
+        Color32 color = ShadeColor;
+        
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append("<color=#777777>-</color> ")
+            .Append(draw.Item1)
+            .Append('/')
+            .Append(draw.Item2)
+            .Append("</color>");
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -139,12 +153,11 @@ internal class Revolutionist : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         byte playerId = player.PlayerId;
-
-        if (GameStates.IsInTask && RevolutionistTimer.TryGetValue(playerId, out var value))
+        if (RevolutionistTimer.TryGetValue(playerId, out var value))
         {
             PlayerControl rvTarget = value.Player;
 
-            if (!player.IsAlive() || Pelican.IsEaten(playerId))
+            if (!player.IsAliveWithConditions())
             {
                 RevolutionistTimer.Remove(playerId);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget, ForceLoop: true);
@@ -171,12 +184,12 @@ internal class Revolutionist : RoleBase
                         Main.PlayerStates[rvTarget.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                         player.Kill(rvTarget);
                         Main.PlayerStates[rvTarget.PlayerId].SetDead();
-                        Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rvTarget.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
+                        Logger.Info($"Revolutionist: {player.GetNameWithRole()} killed {rvTarget.GetNameWithRole()}", "Revolutionist");
                     }
                 }
                 else
                 {
-                    float range = GameManager.Instance.LogicOptions.GetKillDistance();
+                    float range = player.GetKillDistance();
 
                     if (FastVector2.DistanceWithinRange(player.Pos(), rvTarget.Pos(), range))
                         RevolutionistTimer[playerId] = (rvTarget, rvTime + Time.fixedDeltaTime);
@@ -186,13 +199,12 @@ internal class Revolutionist : RoleBase
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rvTarget);
                         RPC.ResetCurrentDrawTarget(playerId);
 
-                        Logger.Info($"Canceled: {player.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
+                        Logger.Info($"Canceled: {player.GetNameWithRole()}", "Revolutionist");
                     }
                 }
             }
         }
-
-        if (GameStates.IsInTask && player.IsDrawDone() && player.IsAlive())
+        if (player.IsDrawDone() && player.IsAlive())
         {
             if (RevolutionistStart.TryGetValue(playerId, out var start))
             {
@@ -208,12 +220,15 @@ internal class Revolutionist : RoleBase
                     {
                         Utils.GetDrawPlayerCount(playerId, out List<PlayerControl> y);
 
-                        foreach (PlayerControl pc in y)
+                        if (y != null)
                         {
-                            if (pc != null && pc.IsAlive())
+                            foreach (PlayerControl pc in y)
                             {
-                                pc.Suicide(PlayerState.DeathReason.Sacrifice);
-                                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                                if (pc != null && pc.IsAlive())
+                                {
+                                    pc.Suicide(PlayerState.DeathReason.Sacrifice);
+                                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                                }
                             }
                         }
 
@@ -234,10 +249,10 @@ internal class Revolutionist : RoleBase
     {
         if (AmongUsClient.Instance.IsGameStarted && pc.IsDrawDone())
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Revolutionist);
             Utils.GetDrawPlayerCount(pc.PlayerId, out List<PlayerControl> x);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-            foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
+            if (x != null) foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
         }
     }
 

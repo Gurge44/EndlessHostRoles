@@ -8,7 +8,7 @@ namespace EHR.Roles;
 public class Snitch : RoleBase
 {
     private const int Id = 8000;
-    private static readonly List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
     private static readonly Color RoleColor = Utils.GetRoleColor(CustomRoles.Snitch);
 
     private static OptionItem OptionEnableTargetArrow;
@@ -25,14 +25,14 @@ public class Snitch : RoleBase
     private static bool CanFindMadmate;
     public static int RemainingTasksToBeFound;
 
-    public static readonly Dictionary<byte, bool> IsExposed = [];
-    public static readonly Dictionary<byte, bool> IsComplete = [];
+    public static Dictionary<byte, bool> IsExposed = [];
+    public static Dictionary<byte, bool> IsComplete = [];
+    private static HashSet<byte> TargetList = [];
+    private static Dictionary<byte, Color> TargetColorlist = [];
 
-    private static readonly HashSet<byte> TargetList = [];
-    private static readonly Dictionary<byte, Color> TargetColorlist = [];
     private byte SnitchId;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override void SetupCustomOption()
     {
@@ -48,17 +48,16 @@ public class Snitch : RoleBase
 
     public override void Init()
     {
-        PlayerIdList.Clear();
-
-        IsExposed.Clear();
-        IsComplete.Clear();
-
-        TargetList.Clear();
-        TargetColorlist.Clear();
+        PlayerIdList = null;
+        IsExposed = null;
+        IsComplete = null;
+        TargetList = null;
+        TargetColorlist = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
         SnitchId = playerId;
 
@@ -69,78 +68,29 @@ public class Snitch : RoleBase
         CanFindMadmate = OptionCanFindMadmate.GetBool();
         RemainingTasksToBeFound = OptionRemainingTasks.GetInt();
 
+        IsExposed ??= [];
+        IsComplete ??= [];
         IsExposed[playerId] = false;
         IsComplete[playerId] = false;
     }
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
-        IsExposed.Remove(playerId);
-        IsComplete.Remove(playerId);
-    }
-
-    private static bool IsSnitch(byte playerId)
-    {
-        return PlayerIdList.Contains(playerId);
+        PlayerIdList?.Remove(playerId);
+        IsExposed?.Remove(playerId);
+        IsComplete?.Remove(playerId);
     }
 
     private static bool GetExpose(PlayerControl pc)
     {
-        if (!IsSnitch(pc.PlayerId) || !pc.IsAlive() || pc.Is(CustomRoles.Madmate)) return false;
+        if (!pc.IsAlive() || pc.Is(CustomRoles.Madmate)) return false;
 
-        byte snitchId = pc.PlayerId;
-        return IsExposed[snitchId];
+        return IsExposed != null && IsExposed.GetValueOrDefault(pc.PlayerId);
     }
 
     public static bool IsSnitchTarget(PlayerControl target)
     {
         return (target.Is(CustomRoleTypes.Impostor) && !target.Is(CustomRoles.Trickster)) || (target.IsNeutralKiller() && CanFindNeutralKiller) || (target.Is(CustomRoleTypes.Coven) && CanFindCoven) || (target.Is(CustomRoles.Madmate) && CanFindMadmate) || (target.Is(CustomRoles.Rascal) && CanFindMadmate);
-    }
-
-    private static void CheckTask(PlayerControl snitch)
-    {
-        if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate) || snitch.IsConverted()) return;
-
-        byte snitchId = snitch.PlayerId;
-        TaskState snitchTask = snitch.GetTaskState();
-
-        if (!IsExposed[snitchId] && snitchTask.RemainingTasksCount <= RemainingTasksToBeFound)
-        {
-            foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
-            {
-                if (!IsSnitchTarget(target)) continue;
-                TargetArrow.Add(target.PlayerId, snitchId);
-                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-            }
-
-            IsExposed[snitchId] = true;
-        }
-
-        if (IsComplete[snitchId] || !snitchTask.IsTaskFinished) return;
-
-        foreach (PlayerControl target in Main.EnumerateAlivePlayerControls())
-        {
-            if (!IsSnitchTarget(target)) continue;
-
-            byte targetId = target.PlayerId;
-            NameColorManager.Add(snitchId, targetId);
-
-            if (!EnableTargetArrow) continue;
-
-            TargetArrow.Add(snitchId, targetId);
-
-            if (TargetList.Add(targetId))
-            {
-                if (CanGetColoredArrow)
-                    TargetColorlist.Add(targetId, target.GetRoleColor());
-            }
-
-            Utils.NotifyRoles(SpecifySeer: snitch, SpecifyTarget: target);
-        }
-
-        snitch.Notify(Translator.GetString("SnitchDoneTasks"));
-        IsComplete[snitchId] = true;
     }
 
     public static string GetWarningMark(PlayerControl seer, PlayerControl target)
@@ -150,7 +100,7 @@ public class Snitch : RoleBase
 
     public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if (GameStates.IsMeeting || !IsSnitchTarget(seer) || (target != null && seer.PlayerId != target.PlayerId)) return string.Empty;
+        if (GameStates.IsMeeting || !IsSnitchTarget(seer) || (target && seer.PlayerId != target.PlayerId) || PlayerIdList == null || IsExposed == null) return string.Empty;
 
         IEnumerable<byte> exposedSnitch = PlayerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
         byte[] snitch = exposedSnitch as byte[] ?? exposedSnitch.ToArray();
@@ -168,23 +118,65 @@ public class Snitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || (target != null && seer.PlayerId != target.PlayerId) || hud) return string.Empty;
+        if (seer.Is(CustomRoles.Madmate) || !EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId || seer.PlayerId != target.PlayerId || hud) return string.Empty;
 
         var arrows = string.Empty;
 
-        foreach (byte targetId in TargetList)
+        if (TargetList != null)
         {
-            string arrow = TargetArrow.GetArrows(seer, targetId);
-            arrows += CanGetColoredArrow ? Utils.ColorString(TargetColorlist[targetId], arrow) : arrow;
+            foreach (byte targetId in TargetList)
+            {
+                string arrow = TargetArrow.GetArrows(seer, targetId);
+                arrows += CanGetColoredArrow && TargetColorlist != null ? Utils.ColorString(TargetColorlist[targetId], arrow) : arrow;
+            }
         }
 
         return arrows;
     }
 
-    public static void OnCompleteTask(PlayerControl player)
+    public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
     {
-        if (!IsSnitch(player.PlayerId) || player.Is(CustomRoles.Madmate)) return;
+        if (!pc.IsAlive() || pc.IsConverted() || pc.Is(CustomRoles.Madmate)) return;
 
-        CheckTask(player);
+        if (IsExposed != null && !IsExposed.GetValueOrDefault(pc.PlayerId) && totalTaskCount - (completedTaskCount + 1) <= RemainingTasksToBeFound)
+        {
+            foreach (PlayerControl target in Main.CachedAlivePlayerControls())
+            {
+                if (!IsSnitchTarget(target)) continue;
+                TargetArrow.Add(target.PlayerId, pc.PlayerId);
+                Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+            }
+
+            IsExposed[pc.PlayerId] = true;
+        }
+
+        if (IsComplete == null || IsComplete.GetValueOrDefault(pc.PlayerId) || completedTaskCount + 1 < totalTaskCount) return;
+
+        IsComplete[pc.PlayerId] = true;
+        pc.Notify(Translator.GetString("SnitchDoneTasks"));
+
+        foreach (PlayerControl target in Main.CachedAlivePlayerControls())
+        {
+            if (!IsSnitchTarget(target)) continue;
+
+            byte targetId = target.PlayerId;
+            NameColorManager.Add(pc.PlayerId, targetId);
+
+            if (!EnableTargetArrow) continue;
+
+            TargetArrow.Add(pc.PlayerId, targetId);
+
+            TargetList ??= [];
+            if (TargetList.Add(targetId))
+            {
+                if (CanGetColoredArrow)
+                {
+                    TargetColorlist ??= [];
+                    TargetColorlist.Add(targetId, target.GetRoleColor());
+                }
+            }
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
+        }
     }
 }

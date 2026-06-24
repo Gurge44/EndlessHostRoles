@@ -234,7 +234,6 @@ public enum CustomRoles
     Medic,
     Medium,
     Merchant,
-    Telecommunication,
     Mole,
     Monarch,
     Mortician,
@@ -243,6 +242,7 @@ public enum CustomRoles
     Nightmare,
     Negotiator,
     Observer,
+    Operative,
     Oracle,
     Oxyman,
     Pacifist,
@@ -273,9 +273,11 @@ public enum CustomRoles
     SpeedBooster,
     Spy,
     SuperStar,
+    Survivor,
     Swapper,
     Tar,
     TaskManager,
+    Telecommunication,
     Telekinetic,
     Tether,
     TimeManager,
@@ -435,6 +437,7 @@ public enum CustomRoles
     Poache,
     PotionMaster,
     Reaper,
+    Shadow,
     Siren,
     SpellCaster,
     Summoner,
@@ -501,6 +504,9 @@ public enum CustomRoles
     // Snowdown
     SnowdownPlayer,
 
+    // LoopWanted
+    LoopHunter,
+
     // GM
     GM,
 
@@ -545,6 +551,7 @@ public enum CustomRoles
     Disco,
     Diseased,
     Disregarded,
+    Dizzy,
     Dynamo,
     DoubleShot,
     Egoist,
@@ -596,6 +603,7 @@ public enum CustomRoles
     Rascal,
     Reach,
     Rookie,
+    Reroll,
     Trainee,
     Schizophrenic,
     Seer,

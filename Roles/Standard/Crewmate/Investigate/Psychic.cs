@@ -10,18 +10,18 @@ namespace EHR.Roles;
 public class Psychic : RoleBase
 {
     private const int Id = 7900;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     private static OptionItem CanSeeNum;
     private static OptionItem Fresh;
     private static OptionItem CkshowEvil;
     private static OptionItem NBshowEvil;
     private static OptionItem NEshowEvil;
-    private byte PsychicId;
 
+    private byte PsychicId;
     private List<byte> RedPlayer = [];
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -46,21 +46,16 @@ public class Psychic : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        On = false;
         RedPlayer = [];
         PsychicId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         RedPlayer = [];
         PsychicId = playerId;
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     private void SendRPC()
@@ -87,7 +82,7 @@ public class Psychic : RoleBase
 
     public static bool IsRedForPsy(PlayerControl target, PlayerControl seer)
     {
-        if (target == null || seer == null) return false;
+        if (!target || !seer) return false;
 
         if (Main.PlayerStates[seer.PlayerId].Role is not Psychic ph) return false;
 
@@ -106,7 +101,7 @@ public class Psychic : RoleBase
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
         List<PlayerControl> BadListPc = Main.EnumerateAlivePlayerControls().Where(x =>
-            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || Framer.FramedPlayers.Contains(x.PlayerId) || Enchanter.EnchantedPlayers.Contains(x.PlayerId) || x.IsConverted() ||
+            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || Framer.FramedPlayers.Contains(x.PlayerId) || (Enchanter.EnchantedPlayers != null && Enchanter.EnchantedPlayers.Contains(x.PlayerId)) || x.IsConverted() ||
             (x.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CkshowEvil.GetBool()) ||
             (x.GetCustomRole().GetNeutralRoleCategory() is RoleOptionType.Neutral_Evil or RoleOptionType.Neutral_Pariah && NEshowEvil.GetBool()) ||
             (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && NBshowEvil.GetBool())

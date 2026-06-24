@@ -14,7 +14,7 @@ namespace EHR.Roles;
 public class Druid : RoleBase
 {
     private const int Id = 642800;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     public static OptionItem VentCooldown;
     private static OptionItem TriggerPlaceDelay;
@@ -27,7 +27,9 @@ public class Druid : RoleBase
     private Dictionary<Vector2, int> TriggerIds = [];
     private Dictionary<Vector2, string> Triggers = [];
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    private readonly StringBuilder Suffix = new();
+    private readonly StringBuilder HudText = new();
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -56,22 +58,17 @@ public class Druid : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        On = false;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         DruidPC = GetPlayerById(playerId);
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         TriggerIds = [];
         Triggers = [];
         DelayTimer = null;
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -142,7 +139,7 @@ public class Druid : RoleBase
             (Vector2 location, string roomName) = pc.GetPositionInfo();
             Triggers.TryAdd(location, roomName);
             SendRPCAddTrigger(true, pc.PlayerId, location, roomName);
-            _ = new PlayerDetector(location, [pc.PlayerId], out int id);
+            _ = new PlayerDetector(location, pc, out int id);
             TriggerIds.TryAdd(location, id);
         }
         else
@@ -154,7 +151,7 @@ public class Druid : RoleBase
                 (Vector2 location, string roomName) = pc.GetPositionInfo();
                 Triggers.TryAdd(location, roomName);
                 SendRPCAddTrigger(true, id, location, roomName);
-                _ = new PlayerDetector(location, [pc.PlayerId], out int oid);
+                _ = new PlayerDetector(location, pc, out int oid);
                 TriggerIds.TryAdd(location, oid);
             }, onTick: () => pc.Notify(string.Format(GetString("DruidTimeLeft"), (int)Math.Ceiling(DelayTimer.Remaining.TotalSeconds)), 2f, overrideAll: true), onCanceled: () => DelayTimer = null);
         }
@@ -164,18 +161,23 @@ public class Druid : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || Triggers.Count <= 0 || PlayerIdList.Contains(pc.PlayerId)) return;
+        if (!GameStates.IsInTask || Triggers.Count <= 0 || pc.Is(CustomRoles.Druid)) return;
 
-        foreach (KeyValuePair<Vector2, string> trigger in Triggers.ToArray())
+        List<Vector2> toRemove = null;
+
+        foreach (KeyValuePair<Vector2, string> trigger in Triggers)
         {
             if (FastVector2.DistanceWithinRange(trigger.Key, pc.Pos(), 1.5f))
             {
-                Triggers.Remove(trigger.Key);
+                toRemove ??= [];
+                toRemove.Add(trigger.Key);
                 DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
                 SendRPCAddTrigger(false, DruidPC.PlayerId, trigger.Key);
                 CustomNetObject.Get(TriggerIds[trigger.Key])?.Despawn();
             }
         }
+        
+        toRemove?.ForEach(x => Triggers.Remove(x));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -184,26 +186,25 @@ public class Druid : RoleBase
 
         if (seer.IsModdedClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId || Triggers.Count == 0) return string.Empty;
 
-        var sb = new StringBuilder();
-        sb.Append("\n<size=1.7>");
+        Suffix.Clear().Append("\n<size=1.7>");
 
-        sb.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
-        sb.Append(string.Join(", ", Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+        Suffix.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active")
+            .Append(string.Join(", ", Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")))
+            .Append("</size>");
 
-        sb.Append("</size>");
-        return sb.ToString();
+        return Suffix.ToString();
     }
 
     private string GetHUDText(PlayerControl pc)
     {
         if (!pc || Triggers.Count == 0) return string.Empty;
 
-        var sb = new StringBuilder();
+        HudText.Clear();
 
-        sb.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
-        sb.Append(string.Join('\n', Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+        HudText.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
+        HudText.Append(string.Join('\n', Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
-        return sb.ToString();
+        return HudText.ToString();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

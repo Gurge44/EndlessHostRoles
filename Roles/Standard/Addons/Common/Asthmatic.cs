@@ -9,9 +9,10 @@ namespace EHR.Roles;
 
 internal class Asthmatic : IAddon
 {
-    private static readonly Dictionary<byte, Counter> Timers = [];
-    private static readonly Dictionary<byte, string> LastSuffix = [];
-    private static readonly Dictionary<byte, Vector2> LastPosition = [];
+    private static Dictionary<byte, Counter> Timers;
+    private static Dictionary<byte, string> LastSuffix;
+    private static Dictionary<byte, Vector2> LastPosition;
+    private static List<byte> ToRemove;
     private static int MinRedTime;
     private static int MaxRedTime;
     private static int MinGreenTime;
@@ -53,9 +54,9 @@ internal class Asthmatic : IAddon
 
     public static void Init()
     {
-        Timers.Clear();
-        LastSuffix.Clear();
-        LastPosition.Clear();
+        Timers = null;
+        LastSuffix = null;
+        LastPosition = null;
 
         MinRedTime = AsthmaticMinRedTime.GetInt();
         MaxRedTime = AsthmaticMaxRedTime.GetInt();
@@ -69,47 +70,54 @@ internal class Asthmatic : IAddon
         {
             var r = IRandom.Instance;
 
-            foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
                 if (pc.Is(CustomRoles.Asthmatic))
+                {
+                    Timers ??= [];
+                    LastSuffix ??= [];
+                    LastPosition ??= [];
+                    
                     Timers[pc.PlayerId] = new(30, r.Next(MinRedTime, MaxRedTime), '●', false, RandomRedTime, RandomGreenTime);
+                }
             }
         }, 8f, log: false);
     }
 
     public static void OnFixedUpdate()
     {
-        if (Timers.Count == 0) return;
+        if (Timers == null || Timers.Count == 0) return;
 
-        List<byte> toRemove = [];
-        
         foreach ((byte id, Counter counter) in Timers)
         {
             PlayerState state = Main.PlayerStates[id];
 
             if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic) || state.MainRole == CustomRoles.Pestilence)
             {
-                toRemove.Add(id);
+                ToRemove ??= [];
+                ToRemove.Add(id);
                 continue;
             }
 
             counter.Update();
         }
-        
-        if (toRemove.Count == 0) return;
 
-        foreach (byte id in toRemove)
+        if (ToRemove == null) return;
+
+        foreach (byte id in ToRemove)
         {
             Main.PlayerStates[id].RemoveSubRole(CustomRoles.Asthmatic);
             Timers.Remove(id);
             LastSuffix.Remove(id);
             LastPosition.Remove(id);
         }
+
+        ToRemove = null;
     }
 
     public static void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (!pc.Is(CustomRoles.Asthmatic) || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+        if (!pc.Is(CustomRoles.Asthmatic) || !RunChecks || Timers == null || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
 
         Vector2 currentPosition = pc.Pos();
 
@@ -153,10 +161,10 @@ internal class Asthmatic : IAddon
 
         string suffix = GetSuffixText(pc.PlayerId);
 
-        if (!pc.IsModdedClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix))
+        if (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)
         {
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            Utils.SendRPC(CustomRPC.SyncAsthmatic, pc.PlayerId, suffix);
+            if (pc.IsNonHostModdedClient()) Utils.SendRPC(CustomRPC.SyncAsthmatic, pc.PlayerId, suffix);
         }
 
         LastSuffix[pc.PlayerId] = suffix;
@@ -169,7 +177,7 @@ internal class Asthmatic : IAddon
 
     public static string GetSuffixText(byte id)
     {
-        if (Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
+        if (Timers != null && Main.PlayerStates.TryGetValue(id, out var state) && !state.IsDead)
         {
             if (Timers.TryGetValue(id, out Counter counter))
                 return $"{counter.ColoredArrow} <font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\">{counter.ColoredTimerString}</font>";

@@ -48,23 +48,18 @@ public class Vacuum : RoleBase
         Instances.Add(this);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        StringBuilder sb = new();
-        sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null));
-        sb.Append(Utils.GetTaskCount(playerId, comms));
-        return sb.ToString();
+        resultText.Append(Utils.GetAbilityUseLimitDisplay(playerId, Timer != null))
+            .Append(Utils.GetTaskCount(playerId, comms));
     }
-    
+
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         if (Options.UsePets.GetBool()) return;
 
         AURoleOptions.EngineerCooldown = AbilityCooldown.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = 1f;
-
-        try { AURoleOptions.GuardianAngelCooldown = 900f; }
-        catch { }
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -101,7 +96,7 @@ public class Vacuum : RoleBase
                 {
                     if (instance.Timer == null) continue;
                     PlayerControl vacuum = instance.VacuumId.GetPlayer();
-                    if (vacuum == null || !vacuum.IsAlive()) continue;
+                    if (!vacuum || !vacuum.IsAlive()) continue;
                     target.TP(vacuum);
                     return false;
                 }

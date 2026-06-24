@@ -23,7 +23,7 @@ public class Spider : RoleBase
     public override bool IsEnable => On;
 
     private Dictionary<Vector2, Dictionary<byte, long>> Webs = [];
-    private long LastNotifyTS;
+    private readonly List<Vector2> ToRemove = [];
     private bool NameDirty;
     private byte SpiderId;
 
@@ -49,7 +49,6 @@ public class Spider : RoleBase
     {
         On = true;
         Webs = [];
-        LastNotifyTS = 0;
         NameDirty = false;
         SpiderId = playerId;
         Instances.Add(this);
@@ -130,29 +129,37 @@ public class Spider : RoleBase
         if (pc.PlayerId == SpiderId) return;
         
         Vector2 pos = pc.Pos();
+        float range = WebTrapRange.GetFloat();
+        int trappedDuration = TrappedDuration.GetInt();
+        long expireTime = Utils.TimeStamp + trappedDuration;
 
-        if (Webs.FindFirst(x => FastVector2.DistanceWithinRange(x.Key, pos, WebTrapRange.GetFloat()) && x.Value.TryAdd(pc.PlayerId, Utils.TimeStamp + TrappedDuration.GetInt()), out KeyValuePair<Vector2, Dictionary<byte, long>> kvp))
+        foreach ((Vector2 webPos, Dictionary<byte, long> trappedPlayers) in Webs)
         {
+            if (!FastVector2.DistanceWithinRange(webPos, pos, range)) continue;
+            if (!trappedPlayers.TryAdd(pc.PlayerId, expireTime)) continue;
+
             RPC.PlaySoundRPC(SpiderId, Sounds.TaskUpdateSound);
             pc.RPCPlayCustomSound("FlashBang");
             pc.MarkDirtySettings();
-            Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 1, kvp.Key, pc.PlayerId, kvp.Value.Last().Value);
+
+            Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 1, webPos, pc.PlayerId, expireTime);
+            break;
         }
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
+        if (Webs.Count <= 0) return;
+
         long now = Utils.TimeStamp;
-        List<Vector2> toRemove = [];
-        
+        ToRemove.Clear();
+
         foreach ((Vector2 pos, Dictionary<byte, long> trapped) in Webs)
         {
-            if (trapped.Count > 0)
-                NameDirty = true;
-            
+            if (trapped.Count > 0) NameDirty = true;
             if (trapped.Values.Min() <= now)
             {
-                toRemove.Add(pos);
+                ToRemove.Add(pos);
                 LateTask.New(() =>
                 {
                     trapped.Keys.ToValidPlayers().Do(x =>
@@ -164,18 +171,18 @@ public class Spider : RoleBase
                 }, 0.2f, log: false);
             }
         }
-        
-        toRemove.ForEach(x =>
-        {
-            Webs.Remove(x);
-            LocateArrow.Remove(pc.PlayerId, x);
-            Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 2, x);
-        });
 
-        if (NameDirty && now != LastNotifyTS)
+        if (ToRemove.Count > 0)
+            ToRemove.ForEach(x =>
+            {
+                Webs.Remove(x);
+                LocateArrow.Remove(pc.PlayerId, x);
+                Utils.SendRPC(CustomRPC.SyncRoleData, SpiderId, 2, x);
+            });
+
+        if (NameDirty && PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId))
         {
             NameDirty = false;
-            LastNotifyTS = now;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
     }

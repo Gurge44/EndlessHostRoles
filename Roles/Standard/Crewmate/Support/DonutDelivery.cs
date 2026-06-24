@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
@@ -11,7 +10,6 @@ public class DonutDelivery : RoleBase
 {
     private const int Id = 642700;
     private static List<DonutDelivery> Instances = [];
-    private static Dictionary<byte, float> StartingSpeed = [];
 
     private static OptionItem CD;
     private static OptionItem UseLimit;
@@ -66,7 +64,6 @@ public class DonutDelivery : RoleBase
     public override void Init()
     {
         Instances = [];
-        StartingSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
     }
 
     public override void Add(byte playerId)
@@ -99,7 +96,7 @@ public class DonutDelivery : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
+        if (!IsEnable) return false;
 
         killer.RpcRemoveAbilityUse();
 
@@ -123,7 +120,7 @@ public class DonutDelivery : RoleBase
 
                 LateTask.New(() =>
                 {
-                    Main.AllPlayerSpeed[target.PlayerId] = StartingSpeed[target.PlayerId];
+                    Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     target.MarkDirtySettings();
                 }, SEDuration.GetFloat(), log: false);
             }, SEDelay.GetFloat(), log: false);

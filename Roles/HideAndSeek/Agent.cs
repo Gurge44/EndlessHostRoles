@@ -16,7 +16,7 @@ public class Agent : RoleBase, IHideAndSeekRole
 
     public override void SetupCustomOption()
     {
-        new TextOptionItem(69_211_2000, $"TypeImpostor", TabGroup.ImpostorRoles)
+        new TextOptionItem(69_211_2000, "TypeImpostor", TabGroup.ImpostorRoles)
             .SetHeader(true)
             .SetGameMode(CustomGameMode.HideAndSeek);
 

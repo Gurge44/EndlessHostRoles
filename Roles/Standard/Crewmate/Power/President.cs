@@ -184,13 +184,13 @@ public class President : RoleBase
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 break;
             case Decree.GovernmentSupport:
-                foreach (PlayerControl player in Main.EnumeratePlayerControls())
+                foreach (PlayerControl player in Main.CachedAllPlayerControls())
                 {
                     if (!player.IsCrewmate()) continue;
 
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
-                        case Hacker when Hacker.UseLimit.ContainsKey(player.PlayerId):
+                        case Hacker when Hacker.UseLimit != null && Hacker.UseLimit.ContainsKey(player.PlayerId):
                             Hacker.UseLimit[player.PlayerId]++;
                             break;
                         default:

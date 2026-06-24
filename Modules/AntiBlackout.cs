@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
-using Hazel;
 
 namespace EHR;
 
@@ -23,11 +22,11 @@ public static class AntiBlackout
         SkipTasks = true;
         CachedRoleMap = StartGameHostPatch.RpcSetRoleReplacer.RoleMap.ToDictionary(x => (x.Key.SeerID, x.Key.TargetID), x => (x.Value.RoleType, x.Value.CustomRole));
 
-        var players = Main.AllAlivePlayerControls;
+        var players = Main.AllAlivePlayerControlsToArray;
         if (CheckForEndVotingPatch.TempExiledPlayer) players = players.Where(x => x.PlayerId != CheckForEndVotingPatch.TempExiledPlayer.PlayerId).ToArray();
         PlayerControl dummyImp = players.OrderByDescending(x => x.GetCustomRole() is not (CustomRoles.DetectiveEHR or CustomRoles.Detective) && !x.Is(CustomRoles.Examiner)).ThenByDescending(x => x.IsModdedClient()).MinBy(x => x.PlayerId);
 
-        if (players.Count == 2)
+        if (players.Length == 2)
         {
             // There are only 2 players alive. We need to revive 1 dead player to have 2 living crewmates.
             PlayerControl revived = Main.EnumeratePlayerControls().Where(x => !x.IsAlive() && !x.Data.Disconnected && x != CheckForEndVotingPatch.TempExiledPlayer?.Object).MaxBy(x => x.PlayerId);
@@ -57,30 +56,12 @@ public static class AntiBlackout
     // After the ejection screen, we revert the role types to their actual values.
     public static void RevertToActualRoleTypes()
     {
-        if (CachedRoleMap.Count == 0 || CustomWinnerHolder.WinnerTeam != CustomWinner.Default || GameStates.IsEnded)
+        if (CachedRoleMap.Count == 0 || GameStates.IsEnded)
         {
             SkipTasks = false;
             ExileControllerWrapUpPatch.AfterMeetingTasks();
             return;
         }
-
-        // Set the temporarily revived crewmate back to dead.
-        //foreach (PlayerControl pc in Main.EnumeratePlayerControls())
-        //{
-        //    try
-        //    {
-        //        if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
-
-        //        NetworkedPlayerInfo data = pc.Data;
-
-        //        if (data != null && !data.IsDead && !data.Disconnected && !pc.IsAlive())
-        //        {
-        //            data.IsDead = true;
-        //            data.SendGameData();
-        //        }
-        //    }
-        //    catch (Exception e) { Utils.ThrowException(e); }
-        //}
 
         // Reset the role types for all players.
         foreach (((byte seerId, byte targetId), (RoleTypes roleType, CustomRoles _)) in CachedRoleMap)
@@ -131,7 +112,7 @@ public static class AntiBlackout
                         pc.RpcExiled();
 
                         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
-                            pc.RpcResetAbilityCooldown();
+                            pc.AddAbilityCD(ghostRole.Instance.Cooldown);
                     }
                 }
                 catch (Exception e) { Utils.ThrowException(e); }

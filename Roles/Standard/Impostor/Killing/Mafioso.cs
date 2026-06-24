@@ -123,13 +123,6 @@ public class Mafioso : RoleBase
         writer.Write(MafiosoId);
         writer.Write(Tier);
         writer.Write(XP);
-        writer.Write(PreviouslyUsedVents.Count);
-
-        if (PreviouslyUsedVents.Count > 0)
-        {
-            foreach (int vent in PreviouslyUsedVents.ToArray())
-                writer.Write(vent);
-        }
 
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
@@ -138,14 +131,6 @@ public class Mafioso : RoleBase
     {
         Tier = reader.ReadInt32();
         XP = reader.ReadInt32();
-        PreviouslyUsedVents.Clear();
-        int elements = reader.ReadInt32();
-
-        if (elements > 0)
-        {
-            for (var i = 0; i < elements; i++)
-                PreviouslyUsedVents.Add(reader.ReadInt32());
-        }
     }
 
     private void SendRPCSyncPistolCD()
@@ -156,7 +141,6 @@ public class Mafioso : RoleBase
         writer.Write(MafiosoId);
         writer.Write(Pistol1CD);
         writer.Write(Pistol2CD);
-        writer.Write(lastUpdate.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -164,7 +148,6 @@ public class Mafioso : RoleBase
     {
         Pistol1CD = reader.ReadInt32();
         Pistol2CD = reader.ReadInt32();
-        lastUpdate = long.Parse(reader.ReadString());
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -201,21 +184,21 @@ public class Mafioso : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!GameStates.IsInTask || target == null || killer == null || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !IsEnable) return true;
+        if (!GameStates.IsInTask || !killer.Is(CustomRoles.Mafioso) || Tier < 3 || !IsEnable) return true;
 
         if (Pistol1CD > 0 && Pistol2CD > 0) return false;
 
-        int KCD = Tier >= 4 ? (int)Math.Round(AdjustedDefaultKillCooldown) : (int)Math.Round(AdjustedDefaultKillCooldown * 1.5);
-        KCD++;
+        int kcd = Tier >= 4 ? (int)Math.Round(AdjustedDefaultKillCooldown) : (int)Math.Round(AdjustedDefaultKillCooldown * 1.5);
+        kcd++;
 
         if (Pistol1CD <= 0)
         {
-            Pistol1CD = KCD;
+            Pistol1CD = kcd;
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }
         else if (Pistol2CD <= 0)
         {
-            Pistol2CD = KCD;
+            Pistol2CD = kcd;
             NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }
 
@@ -224,13 +207,13 @@ public class Mafioso : RoleBase
             LateTask.New(() =>
             {
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
-                if (target != null && target.IsAlive() && GameStates.IsInTask) target.Suicide(PlayerState.DeathReason.Kill, killer);
+                if (target && target.IsAlive() && GameStates.IsInTask) target.Suicide(PlayerState.DeathReason.Kill, killer);
             }, Delay.GetInt(), "Mafioso Tier 5 Kill Delay");
 
             return false;
         }
 
-        if (Pistol1CD > 1 && Pistol2CD > 1) LateTask.New(() => { killer.SetKillCooldown(Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
+        if (Pistol1CD > 1 && Pistol2CD > 1) LateTask.New(() => killer.SetKillCooldown(Math.Min(Pistol1CD, Pistol2CD) - 1), 0.1f, "Mafioso SetKillCooldown");
 
         return true;
     }
@@ -240,18 +223,19 @@ public class Mafioso : RoleBase
         if (!IsEnable) return;
 
         PreviouslyUsedVents.Clear();
-        int KCD = Tier >= 4 ? (int)Math.Round(AdjustedDefaultKillCooldown) : (int)Math.Round(AdjustedDefaultKillCooldown * 1.5);
-        KCD++;
-        Pistol1CD = KCD;
-        Pistol2CD = KCD;
+        int kcd = Tier >= 4 ? (int)Math.Round(AdjustedDefaultKillCooldown) : (int)Math.Round(AdjustedDefaultKillCooldown * 1.5);
+        kcd++;
+        Pistol1CD = kcd;
+        Pistol2CD = kcd;
         lastUpdate = TimeStamp;
         SendRPC();
         SendRPCSyncPistolCD();
     }
 
-    public override string GetProgressText(byte id, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return id.IsPlayerModdedClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
+        if (playerId.IsPlayerModdedClient()) return;
+        resultText.AppendFormat(GetString("MafiosoProgressText"), Tier, XP);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -139,7 +140,7 @@ public class Spiritcaller : RoleBase
 
     public static void HauntPlayer(PlayerControl target)
     {
-        if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
+        if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(CustomRoles.Spiritcaller.ColoredTextByRole(GetString("HauntedByEvilSpirit")));
 
         if (SpiritCauseVisionTime.GetFloat() > 0 && PlayersHaunted.Add(target.PlayerId))
         {
@@ -187,7 +188,7 @@ public class Spiritcaller : RoleBase
         else AddProtect++;
     }
 
-    static System.Collections.IEnumerator ProtectCoroutine()
+    static IEnumerator ProtectCoroutine()
     {
         Protected = true;
 

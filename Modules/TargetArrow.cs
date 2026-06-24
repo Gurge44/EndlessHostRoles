@@ -72,7 +72,8 @@ internal static class TargetArrow
     {
         ArrowInfo arrowInfo = new(seer, target);
         List<ArrowInfo> removeList = new(TargetArrows.Keys.Where(k => k.Equals(arrowInfo)));
-        foreach (ArrowInfo a in removeList.ToArray()) TargetArrows.Remove(a);
+        if (removeList.Count == 0) return;
+        removeList.ForEach(a => TargetArrows.Remove(a));
 
         Utils.SendRPC(CustomRPC.Arrow, true, 2, seer, target);
         Logger.Info($"Removed target arrow: {seer} ({seer.GetPlayer()?.GetRealName()}) => {target} ({target.GetPlayer()?.GetRealName()})", "TargetArrow");
@@ -85,7 +86,8 @@ internal static class TargetArrow
     public static void RemoveAllTarget(byte seer)
     {
         List<ArrowInfo> removeList = new(TargetArrows.Keys.Where(k => k.From == seer));
-        foreach (ArrowInfo arrowInfo in removeList.ToArray()) TargetArrows.Remove(arrowInfo);
+        if (removeList.Count == 0) return;
+        removeList.ForEach(a => TargetArrows.Remove(a));
 
         Utils.SendRPC(CustomRPC.Arrow, true, 3, seer);
         Logger.Info($"Removed all target arrows for {seer} ({seer.GetPlayer()?.GetRealName()})", "TargetArrow");
@@ -112,6 +114,7 @@ internal static class TargetArrow
         return TargetArrows.Keys.Where(ai => ai.From == seer).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
     }
 
+    private static readonly List<ArrowInfo> ArrowList = [];
     /// <summary>
     ///     Check target arrow every FixedUpdate
     ///     Issue NotifyRoles when there are updates
@@ -123,13 +126,20 @@ internal static class TargetArrow
 
         bool seerIsDead = !seer.IsAlive();
 
-        List<ArrowInfo> arrowList = new(TargetArrows.Keys.Where(a => a.From == seer.PlayerId));
-        if (arrowList.Count == 0) return;
+        ArrowList.Clear();
+        foreach (var arrowInfo in TargetArrows.Keys)
+        {
+            if (arrowInfo.From == seer.PlayerId)
+                ArrowList.Add(arrowInfo);
+        }
+        int arrowCount = ArrowList.Count;
+        if (arrowCount == 0) return;
 
         var update = false;
 
-        foreach (ArrowInfo arrowInfo in arrowList.ToArray())
+        for (int arrowId = 0; arrowId < arrowCount; arrowId++)
         {
+            ArrowInfo arrowInfo = ArrowList[arrowId];
             byte targetId = arrowInfo.To;
             PlayerControl target = Utils.GetPlayerById(targetId);
 
@@ -141,7 +151,7 @@ internal static class TargetArrow
             }
 
             // Take the direction vector of the target
-            Vector3 dir = target.transform.position - seer.transform.position;
+            Vector3 dir = target.Pos3() - seer.Pos3();
             int index;
 
             if (dir.magnitude < 2)

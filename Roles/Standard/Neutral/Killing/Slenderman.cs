@@ -96,7 +96,7 @@ public class Slenderman : RoleBase
                 MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.Write(SlendermanPC.PlayerId);
                 w.WritePacked(Blinded.Count);
-                Blinded.Do(x => w.Write(x));
+                Blinded.Do(w.Write);
                 Utils.EndRPC(w);
             }
         }
@@ -118,8 +118,11 @@ public class Slenderman : RoleBase
         Blinded.Clear();
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return base.GetProgressText(playerId, comms) + $" ({Blinded.Count})";
+        base.GetProgressText(playerId, comms, resultText);
+        resultText.Append(" (")
+            .Append(Blinded.Count)
+            .Append(')');
     }
 }

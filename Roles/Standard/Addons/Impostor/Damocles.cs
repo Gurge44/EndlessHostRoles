@@ -58,9 +58,11 @@ public class Damocles : IAddon
 
     public static void Update(PlayerControl pc)
     {
+        if (!pc || !GameStates.IsInTask) return;
+
         byte id = pc.PlayerId;
         long now = Utils.TimeStamp;
-        if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+        if (LastUpdate.TryGetValue(id, out long ts) && ts >= now) return;
 
         if (!pc.IsAlive())
         {
@@ -94,16 +96,6 @@ public class Damocles : IAddon
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(Timer[playerId]);
-        writer.Write(LastUpdate[playerId].ToString());
-        List<int> pev = PreviouslyEnteredVents.GetValueOrDefault(playerId, []);
-        writer.Write(pev.Count);
-
-        if (pev.Count > 0)
-        {
-            foreach (int vent in pev.ToArray())
-                writer.Write(vent);
-        }
-
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -111,14 +103,6 @@ public class Damocles : IAddon
     {
         byte playerId = reader.ReadByte();
         Timer[playerId] = reader.ReadInt32();
-        LastUpdate[playerId] = long.Parse(reader.ReadString());
-        int elements = reader.ReadInt32();
-
-        if (elements > 0)
-        {
-            for (var i = 0; i < elements; i++)
-                PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
-        }
     }
 
     public static void OnMurder(byte id)
@@ -189,8 +173,8 @@ public class Damocles : IAddon
         Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
     }
 
-    public static string GetProgressText(byte id)
+    public static void GetProgressText(byte id, StringBuilder resultText)
     {
-        return string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
+        resultText.AppendFormat(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
     }
 }

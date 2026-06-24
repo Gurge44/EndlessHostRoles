@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using HarmonyLib;
 
 namespace EHR.Roles;
 
@@ -21,11 +20,12 @@ internal class Sentry : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     private static readonly Dictionary<SimpleTeam, OptionItem> TeamsCanSeeInfo = [];
 
-    private static Vector2[] AvailableDevices = [];
+    private static Vector2[] AvailableDevices;
 
     private readonly Dictionary<byte, long> LastInfoSend = [];
-
     private readonly HashSet<byte> LastNotified = [];
+    private readonly StringBuilder PlayersBuilder = new();
+    private readonly StringBuilder BodiesBuilder = new();
 
     private HashSet<byte> DeadBodiesInRoom;
     public PlainShipRoom MonitoredRoom;
@@ -44,7 +44,7 @@ internal class Sentry : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
             .SetValueFormat(OptionFormat.Seconds);
 
-        ShowInfoDuration = new IntegerOptionItem(++id, "Sentry.ShowInfoDuration", new(1, 60, 1), 5, TabGroup.CrewmateRoles)
+        ShowInfoDuration = new IntegerOptionItem(++id, "Sentry.ShowInfoDuration", new(1, 60, 1), 10, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
             .SetValueFormat(OptionFormat.Seconds);
 
@@ -84,11 +84,6 @@ internal class Sentry : RoleBase
         DeadBodiesInRoom = [];
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
         UsingDevice = [];
-    }
-
-    public override void Init()
-    {
-        On = false;
 
         AvailableDevices = DisableDevice.DevicePos.Where(x =>
         {
@@ -118,6 +113,12 @@ internal class Sentry : RoleBase
 
             return correctMap && enabled;
         }).Select(x => x.Value).ToArray();
+    }
+
+    public override void Init()
+    {
+        On = false;
+        AvailableDevices = null;
     }
 
     public override void OnPet(PlayerControl pc)
@@ -151,18 +152,52 @@ internal class Sentry : RoleBase
             pc.RpcRemoveAbilityUse();
         }
 
-        string roomName = Translator.GetString(MonitoredRoom.RoomId.ToString());
-        string players = Main.EnumerateAlivePlayerControls().Where(IsInMonitoredRoom).Select(x => Utils.GetPlayerById(x.shapeshiftTargetPlayerId) ?? x).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
-        string bodies = GetColoredNames(DeadBodiesInRoom);
+        string roomName = Translator.GetString(MonitoredRoom.RoomId);
+        var alivePlayers = Main.CachedAlivePlayerControls();
+        PlayersBuilder.Clear();
+        BodiesBuilder.Clear();
 
+        for (int aliveIndex = 0; aliveIndex < alivePlayers.Count; aliveIndex++)
+        {
+            PlayerControl target = alivePlayers[aliveIndex];
+
+            if (!IsInMonitoredRoom(target)) continue;
+
+            PlayerControl realTarget = null;
+
+            if (target.shapeshiftTargetPlayerId != byte.MaxValue)
+                realTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
+
+            if (realTarget == null) realTarget = target;
+
+            string coloredName = Utils.ColorString(Main.PlayerColors[realTarget.PlayerId], realTarget.GetRealName());
+
+            if (PlayersBuilder.Length > 0)
+                PlayersBuilder.Append(", ");
+
+            PlayersBuilder.Append(coloredName);
+        }
+        string players = PlayersBuilder.ToString();
+
+        foreach (byte id in DeadBodiesInRoom)
+        {
+            PlayerControl bodyPc = Utils.GetPlayerById(id);
+            if (bodyPc == null) continue;
+
+            string coloredName = Utils.ColorString(Main.PlayerColors[id], bodyPc.GetRealName());
+
+            if (BodiesBuilder.Length > 0)
+                BodiesBuilder.Append(", ");
+
+            BodiesBuilder.Append(coloredName);
+        }
+        string bodies = BodiesBuilder.ToString();
         string noDataString = Translator.GetString("Sentry.Notify.Info.NoData");
+
         if (players.Length == 0) players = noDataString;
         if (bodies.Length == 0) bodies = noDataString;
 
         pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt(), fromDevice);
-        return;
-
-        static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x)).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
     }
 
     private bool IsInMonitoredRoom(PlayerControl pc)
@@ -214,7 +249,7 @@ internal class Sentry : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         if (seer.PlayerId == SentryPC.PlayerId && MonitoredRoom)
             return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{MonitoredRoom.RoomId}"));
@@ -246,25 +281,33 @@ internal class Sentry : RoleBase
 
     public override void OnCheckPlayerPosition(PlayerControl pc)
     {
-        if (MonitoredRoom == null || MonitoredRoom == null || MonitoredRoom == null) return;
+        if (!MonitoredRoom || AvailableDevices == null) return;
 
-        if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == Utils.TimeStamp) return;
-
-        LastInfoSend[pc.PlayerId] = Utils.TimeStamp;
+        long now = Utils.TimeStamp;
+        if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
+        LastInfoSend[pc.PlayerId] = now;
 
         if (!CheckTeam(pc)) return;
 
         Vector2 pos = pc.Pos();
         float range = DisableDevice.UsableDistance - 1f;
 
-        if (!AvailableDevices.Any(x => FastVector2.DistanceWithinRange(pos, x, range)))
+        bool inRange = false;
+        for (int index = 0; index < AvailableDevices.Length; index++)
+        {
+            if (FastVector2.DistanceWithinRange(pos, AvailableDevices[index], range))
+            {
+                inRange = true;
+                break;
+            }
+        }
+        if (!inRange)
         {
             if (UsingDevice.Remove(pc.PlayerId))
             {
                 NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
-
             return;
         }
 

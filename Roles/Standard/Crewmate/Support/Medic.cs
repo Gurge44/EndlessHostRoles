@@ -116,7 +116,7 @@ public class Medic : RoleBase
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
         writer.Write(1);
         writer.Write(ProtectList.Count);
-        ProtectList.ForEach(x => writer.Write(x));
+        ProtectList.ForEach(writer.Write);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -160,9 +160,10 @@ public class Medic : RoleBase
         opt.SetVision(false);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return playerId.GetAbilityUseLimit() > 0 ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
+        if (playerId.GetAbilityUseLimit() > 0) base.GetProgressText(playerId, comms, resultText);
+        else resultText.Append(Utils.GetTaskCount(playerId, comms));
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -315,7 +316,7 @@ public class Medic : RoleBase
 
         ProtectList.Clear();
         SendRPCForProtectList();
-        Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : Medic is dead", "Medic");
+        Logger.Info($"{target.GetNameWithRole()} : Medic is dead", "Medic");
 
         if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.Immediately)
         {
@@ -329,7 +330,7 @@ public class Medic : RoleBase
     {
         if (ProtectList.Count > 0)
         {
-            var shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
+            var shieldMark = CustomRoles.Medic.ColoredTextByRole(" ●");
 
             bool self = seer.PlayerId == target.PlayerId;
             bool seerIsMedic = seer.Is(CustomRoles.Medic);

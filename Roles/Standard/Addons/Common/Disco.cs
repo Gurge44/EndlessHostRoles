@@ -5,7 +5,7 @@ namespace EHR.Roles;
 
 internal class Disco : IAddon
 {
-    private static readonly Dictionary<byte, long> LastChange = [];
+    public static Dictionary<byte, long> LastChange;
     public AddonTypes Type => AddonTypes.Mixed;
 
     public void SetupCustomOption()
@@ -40,12 +40,13 @@ internal class Disco : IAddon
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc.IsShifted() || Camouflage.IsCamouflage || pc.inVent || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || pc.walkingToVent || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.inMovingPlat) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || pc.IsShifted() || Camouflage.IsCamouflage || pc.inVent || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || pc.walkingToVent || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.inMovingPlat) return;
 
         long now = Utils.TimeStamp;
-        if (LastChange.TryGetValue(pc.PlayerId, out long change) && change + DiscoChangeInterval.GetInt() > now) return;
+        if (LastChange != null && LastChange.TryGetValue(pc.PlayerId, out long change) && change + DiscoChangeInterval.GetInt() > now) return;
 
         ChangeColor(pc);
+        LastChange ??= [];
         LastChange[pc.PlayerId] = now;
     }
 }

@@ -10,17 +10,18 @@ internal class Spiritualist : RoleBase
 {
     private const int Id = 8100;
 
-    public static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     private static OptionItem ShowGhostArrowEverySeconds;
     private static OptionItem ShowGhostArrowForSeconds;
 
     public static byte SpiritualistTarget;
+    
     private long LastGhostArrowShowTime;
     private long ShowGhostArrowUntil;
     private byte SpiritualistId;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     private bool ShowArrow
     {
@@ -54,7 +55,7 @@ internal class Spiritualist : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        PlayerIdList = null;
         SpiritualistTarget = 0;
         LastGhostArrowShowTime = 0;
         ShowGhostArrowUntil = 0;
@@ -62,6 +63,7 @@ internal class Spiritualist : RoleBase
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
         SpiritualistTarget = byte.MaxValue;
         LastGhostArrowShowTime = 0;
@@ -71,7 +73,7 @@ internal class Spiritualist : RoleBase
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public static void OnReportDeadBody(NetworkedPlayerInfo target)
@@ -85,6 +87,8 @@ internal class Spiritualist : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (PlayerIdList == null) return;
+
         foreach (byte spiritualist in PlayerIdList)
         {
             PlayerControl player = spiritualist.GetPlayer();
@@ -96,7 +100,7 @@ internal class Spiritualist : RoleBase
             if (!AmongUsClient.Instance.AmHost) continue;
 
             PlayerControl target = Main.EnumeratePlayerControls().FirstOrDefault(a => a.PlayerId == SpiritualistTarget);
-            if (target == null) continue;
+            if (!target) continue;
 
             target.Notify(GetString("SpiritualistTargetMessage"));
 
@@ -132,8 +136,7 @@ internal class Spiritualist : RoleBase
 
     public static void RemoveTarget()
     {
-        foreach (byte spiritualist in PlayerIdList) TargetArrow.Remove(spiritualist, SpiritualistTarget);
-
+        if (PlayerIdList != null) foreach (byte spiritualist in PlayerIdList) TargetArrow.Remove(spiritualist, SpiritualistTarget);
         SpiritualistTarget = byte.MaxValue;
     }
 }

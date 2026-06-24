@@ -1,11 +1,14 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
 using EHR.Roles;
 using HarmonyLib;
 using Hazel;
+using Il2CppInterop.Runtime.InteropTypes;
+using UnityEngine;
 
 namespace EHR.Patches;
 
@@ -32,7 +35,7 @@ internal static class ExileControllerWrapUpPatch
                     Logger.Info("The exiled player is an impostor, but the Innocent cannot win due to the settings", "Exeiled Winner Check");
                 else
                 {
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
+                    CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Innocent);
 
                     Main.EnumeratePlayerControls()
                         .Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
@@ -75,7 +78,7 @@ internal static class ExileControllerWrapUpPatch
 
         Swapper.OnExileFinish();
 
-        foreach (PlayerControl pc in Main.EnumeratePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAllPlayerControls())
         {
             if (pc.Is(CustomRoles.Warlock))
             {
@@ -88,11 +91,28 @@ internal static class ExileControllerWrapUpPatch
             PetsHelper.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship)
+        if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap)
         {
             var map = RandomSpawn.SpawnMap.GetSpawnMap();
-            Main.EnumerateAlivePlayerControls().Do(player => map.RandomTeleport(player));
+            Main.EnumerateAlivePlayerControls().Do(map.RandomTeleport);
         }
+
+        try
+        {
+            if (Lazy.BeforeMeetingPositions != null)
+            {
+                foreach ((byte id, Vector2 pos) in Lazy.BeforeMeetingPositions)
+                {
+                    PlayerControl pc = id.GetPlayer();
+                    if (!pc || !pc.IsAlive()) continue;
+
+                    pc.TP(pos);
+                }
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
+
+        Lazy.BeforeMeetingPositions = null;
 
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
@@ -142,7 +162,7 @@ internal static class ExileControllerWrapUpPatch
 
         if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded) return;
 
-        bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
+        bool showRemainingKillers = Options.EnableGameStateCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool ejectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
         Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
 
@@ -159,7 +179,7 @@ internal static class ExileControllerWrapUpPatch
         LateTask.New(() =>
         {
             if (ChatCommands.HasMessageDuringEjectionScreen)
-                ChatManager.ClearChat(Main.AllAlivePlayerControls);
+                ChatManager.ClearChat(Main.CachedAlivePlayerControls());
         }, 3f, log: false);
     }
 
@@ -200,9 +220,19 @@ internal static class ExileControllerWrapUpPatch
         Utils.MarkEveryoneDirtySettings();
         Utils.CheckAndSetVentInteractions();
 
-        Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync());
+        Main.Instance.StartCoroutine(Coroutine());
         
         Stopwatch.Reset();
+        return;
+
+        System.Collections.IEnumerator Coroutine()
+        {
+            yield return new WaitForSecondsRealtime(0.2f);
+            
+            if (GameStates.IsEnded) yield break;
+            
+            yield return Utils.NotifyEveryoneAsync();
+        }
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
@@ -216,15 +246,22 @@ internal static class ExileControllerWrapUpPatch
             finally { WrapUpFinalizer(); }
         }
     }
-
-    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
-    private static class AirshipExileControllerPatchAndroid
+    
+    [HarmonyPatch]
+    static class AirshipExileControllerPatch
     {
-        public static void Postfix(AirshipExileController __instance)
+        public static MethodBase TargetMethod()
         {
-            if (Main.LIMap) return;
+            return Utils.GetStateMachineMoveNext<AirshipExileController>(nameof(AirshipExileController.WrapUpAndSpawn));
+        }
+    
+        public static void Postfix(Il2CppObjectBase __instance, ref bool __result)
+        {
+            var wrapper = new StateMachineWrapper<AirshipExileController>(__instance);
+        
+            if (wrapper.State != 1 || !__result || Main.LIMap) return;
 
-            try { WrapUpPostfix(__instance.initData.networkedPlayer); }
+            try { WrapUpPostfix(wrapper.Instance.initData.networkedPlayer); }
             finally { WrapUpFinalizer(); }
         }
     }

@@ -15,8 +15,9 @@ public class Car : RoleBase
     private int Count;
     private HashSet<byte> CurrentlyPropelling;
     private Vector2 LastPosition;
+    private byte CarId;
 
-    public static string Name => "<voffset=7em><alpha=#00>.</alpha></voffset><size=150%><font=\"VCR SDF\"><line-height=67%><br><alpha=#00>\u2588<#628d85>\u2588<#628d85>\u2588<#628d85>\u2588<#628d85>\u2588<#628d85>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#586874>\u2588<#586874>\u2588<#547a96>\u2588<#547a96>\u2588<#6894b6>\u2588<#6894b6>\u2588<#586874>\u2588<alpha=#00>\u2588<br><#586874>\u2588<#586874>\u2588<#586874>\u2588<#547a96>\u2588<#547a96>\u2588<#586874>\u2588<#586874>\u2588<#f5ee2e>\u2588<br><#000000>\u2588<#0d233f>\u2588<#586874>\u2588<#586874>\u2588<#586874>\u2588<#f5ee2e>\u2588<#586874>\u2588<#517a9a>\u2588<br><#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<#000000>\u2588<#0d233f>\u2588<#586874>\u2588<#517a9a>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>";
+    public static string Name => "<voffset=7em><alpha=#00>.</alpha></voffset><size=150%><line-height=97%><cspace=0.16em><#0000>W</color><mark=#628d85>WWWWW</mark><#0000>WW</color>\n<mark=#586874>WW</mark><mark=#547a96>WW</mark><mark=#6894b6>WW</mark><mark=#586874>W</mark><#0000>W</color>\n<mark=#586874>WWW</mark><mark=#547a96>WW</mark><mark=#586874>WW</mark><mark=#f5ee2e>W</mark>\n<mark=#000000>W</mark><mark=#0d233f>W</mark><mark=#586874>WWW</mark><mark=#f5ee2e>W</mark><mark=#586874>W</mark><mark=#517a9a>W</mark>\n<mark=#000000>WW</mark><#0000>W</color><mark=#000000>W</mark><mark=#0d233f>W</mark><mark=#586874>W</mark><mark=#517a9a>W</mark><#0000>W\nWWW</color><mark=#000000>WW</mark><#0000>WWW";
 
     public override bool IsEnable => On;
 
@@ -40,6 +41,7 @@ public class Car : RoleBase
         LastPosition = Utils.GetPlayerById(playerId).Pos();
         Count = 0;
         CurrentlyPropelling = [];
+        CarId = playerId;
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
@@ -118,6 +120,13 @@ public class Car : RoleBase
         target.MarkDirtySettings();
 
         CurrentlyPropelling.Remove(target.PlayerId);
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        var pc = CarId.GetPlayer();
+        if (!pc || !pc.IsAlive()) return;
+        pc.RpcSetName(Name);
     }
 
     private enum Direction

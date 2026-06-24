@@ -12,7 +12,7 @@ public class Enchanter : CovenBase
     private static OptionItem CanVentBeforeNecronomicon;
     private static OptionItem CanVentAfterNecronomicon;
 
-    public static HashSet<byte> EnchantedPlayers = [];
+    public static HashSet<byte> EnchantedPlayers;
 
     protected override NecronomiconReceivePriorities NecronomiconReceivePriority => NecronomiconReceivePriorities.Random;
 
@@ -30,7 +30,7 @@ public class Enchanter : CovenBase
     public override void Init()
     {
         On = false;
-        EnchantedPlayers = [];
+        EnchantedPlayers = null;
     }
 
     public override void Add(byte playerId)
@@ -46,12 +46,12 @@ public class Enchanter : CovenBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (EnchantedPlayers.Contains(target.PlayerId)) return HasNecronomicon;
+        if (EnchantedPlayers != null && EnchantedPlayers.Contains(target.PlayerId)) return HasNecronomicon;
         if (HasNecronomicon) return killer.CheckDoubleTrigger(target, EnchantTarget);
         EnchantTarget();
         return false;
@@ -59,6 +59,7 @@ public class Enchanter : CovenBase
         void EnchantTarget()
         {
             if (killer.GetAbilityUseLimit() < 1) return;
+            EnchantedPlayers ??= [];
             EnchantedPlayers.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1, target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);

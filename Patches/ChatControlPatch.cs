@@ -100,6 +100,24 @@ internal static class UrlFinderPatch
     }
 }
 
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.ForceClosed))]
+static class ChatControllerForceClosedPatch
+{
+    public static bool Prefix()
+    {
+        return !Utils.TempReviveHostRunning || GameStates.IsEnded || !GameStates.InGame;
+    }
+}
+
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.SetVisible))]
+static class ChatControllerSetVisiblePatch
+{
+    public static bool Prefix([HarmonyArgument(0)] bool visible)
+    {
+        return visible || !Utils.TempReviveHostRunning || GameStates.IsEnded || !GameStates.InGame;
+    }
+}
+
 public static class ChatManager
 {
     private const int MaxHistorySize = 20;
@@ -170,7 +188,7 @@ public static class ChatManager
         int operate = message switch
         {
             { } str when CheckCommand(ref str, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id|shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审|xp|效颦|效|颦|sw|换票|换|swap", false) || CheckName(ref playername, "系统消息", false) => 1,
-            { } str when CheckCommand(ref str, "up|ask|target|vote|chat|check|decree|assume|note|whisper|w|summon|fabricate|select|retribute|imitate|choose|forge|daybreak|jailtalk|jt", false) => 2,
+            { } str when CheckCommand(ref str, "up|ask|target|vote|chat|check|decree|assume|note|whisper|w|summon|fabricate|select|retribute|imitate|choose|forge|daybreak|jailtalk|jt|reroll", false) => 2,
             { } str when CheckCommand(ref str, "r|role|m|myrole|n|now") => 4,
             _ => 3
         };
@@ -205,6 +223,9 @@ public static class ChatManager
             {
                 AddChatHistory(player, originalMessage);
                 
+                if (AmongUsClient.Instance.AmHost)
+                    TemplateManager.SendTemplateForMessage(originalMessage, player.PlayerId);
+                    
                 if (GameStates.IsMeeting && player.Is(CustomRoles.Talkative))
                     Talkative.OnMessageSend(player);
                 
@@ -223,31 +244,32 @@ public static class ChatManager
         if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
     }
 
+    private static readonly StringBuilder TitleText = new();
     public static void SendPreviousMessagesToAll()
     {
         if (!AmongUsClient.Instance.AmHost || !HudManager.InstanceExists) return;
 
         Logger.Info(" Sending Previous Messages To Everyone", "ChatManager");
 
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         if (aapc.Count == 0) return;
 
         if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
         {
             ClearChat();
 
-            StringBuilder sb = new();
+            TitleText.Clear();
             ChatHistory.ForEach(x =>
             {
                 string[] split = x.Split(':');
                 byte id = byte.Parse(split[0].Trim());
                 string msg = string.Join(':', split[1..]).Trim();
-                sb.Append(id.ColoredPlayerName());
-                sb.Append(':');
-                sb.Append(' ');
-                sb.AppendLine(msg);
+                TitleText.Append(id.ColoredPlayerName())
+                    .Append(':')
+                    .Append(' ')
+                    .AppendLine(msg);
             });
-            LateTask.New(() => Utils.SendMessage("\n", title: sb.ToString().Trim()), 0.2f);
+            LateTask.New(() => Utils.SendMessage("\n", title: TitleText.ToString().Trim()), 0.2f);
             
             return;
         }
@@ -301,7 +323,7 @@ public static class ChatManager
         if (!AmongUsClient.Instance.AmHost) return;
         PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (!player) return;
-        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControls.Count) SendEmptyMessage(null);
+        if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
         return;
 

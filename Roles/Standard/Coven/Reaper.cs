@@ -8,7 +8,7 @@ namespace EHR.Roles;
 public class Reaper : CovenBase
 {
     public static bool On;
-    private static List<Reaper> Instances = [];
+    private static List<Reaper> Instances;
 
     private static OptionItem AbilityCooldown;
     private static OptionItem SoulsRequired;
@@ -36,12 +36,13 @@ public class Reaper : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         ReaperId = playerId;
         CursedPlayers = [];
@@ -50,7 +51,7 @@ public class Reaper : CovenBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -60,7 +61,7 @@ public class Reaper : CovenBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void SetKillCooldown(byte id)
@@ -84,6 +85,8 @@ public class Reaper : CovenBase
 
     public static void OnAnyoneDead(PlayerControl target)
     {
+        if (Instances == null) return;
+        
         Instances.DoIf(x => x.CursedPlayers.Contains(target.PlayerId) && ++x.Souls >= SoulsRequired.GetInt(), x => x.BecomeDeath());
         Instances.RemoveAll(x => x.Souls >= SoulsRequired.GetInt());
 
@@ -94,7 +97,7 @@ public class Reaper : CovenBase
     void BecomeDeath(bool removeInstance = false)
     {
         PlayerControl reaperPc = ReaperId.GetPlayer();
-        if (reaperPc == null) return;
+        if (!reaperPc) return;
 
         reaperPc.RpcSetCustomRole(CustomRoles.Death);
         reaperPc.SetKillCooldown(KillCooldown.GetFloat());
@@ -103,7 +106,7 @@ public class Reaper : CovenBase
         Utils.NotifyRoles(SpecifySeer: reaperPc);
         Utils.NotifyRoles(SpecifyTarget: reaperPc);
 
-        if (removeInstance) Instances.Remove(this);
+        if (removeInstance) Instances?.Remove(this);
     }
 }
 
@@ -134,7 +137,7 @@ public class Death : CovenBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void SetKillCooldown(byte id)

@@ -39,7 +39,7 @@ public class Catalyst : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.Is(Team.Impostor))
             {

@@ -12,7 +12,7 @@ internal class CustomTaskCountsPatch
 
         foreach (NetworkedPlayerInfo p in __instance.AllPlayers)
         {
-            if (p == null) continue;
+            if (!p) continue;
 
             bool hasTasks = Utils.HasTasks(p) && Main.PlayerStates[p.PlayerId].TaskState.AllTasksCount > 0;
 

@@ -64,7 +64,7 @@ internal class Speedrunner : RoleBase
 
             LateTask.New(() =>
             {
-                if (!GameStates.IsEnded) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                if (!GameStates.IsEnded) CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Crewmate);
             }, 1f, log: false);
         }
         else if (completedTasks >= SpeedrunnerNotifyAtXTasksLeft.GetInt() && SpeedrunnerNotifyKillers.GetBool())

@@ -160,56 +160,56 @@ public class Amnesiac : RoleBase
         {
             case CustomRoles.Jackal:
                 RememberedRole = CustomRoles.Sidekick;
-                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedNeutralKiller"));
                 break;
             case CustomRoles.Necromancer:
                 RememberedRole = CustomRoles.Deathknight;
-                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedNeutralKiller"));
                 break;
             case CustomRoles.LovingCrewmate when loversAlive > 0:
                 target.RpcSetCustomRole(CustomRoles.CrewmateEHR);
                 RememberedRole = CustomRoles.LovingCrewmate;
                 Main.LoversPlayers.RemoveAll(x => x.PlayerId == target.PlayerId);
                 Main.LoversPlayers.Add(amnesiac);
-                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedLover"));
+                amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedLover"));
                 break;
             case CustomRoles.LovingImpostor when loversAlive > 0:
                 target.RpcSetCustomRole(CustomRoles.ImpostorEHR);
                 RememberedRole = CustomRoles.LovingImpostor;
                 Main.LoversPlayers.RemoveAll(x => x.PlayerId == target.PlayerId);
                 Main.LoversPlayers.Add(amnesiac);
-                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedLover"));
+                amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedLover"));
                 break;
             case CustomRoles.LovingCrewmate:
                 RememberedRole = CustomRoles.Sheriff;
-                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+                amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedCrewmate"));
                 break;
             case CustomRoles.LovingImpostor:
                 RememberedRole = CustomRoles.Renegade;
-                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
+                amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedImpostor"));
                 break;
             default:
                 switch (target.GetTeam())
                 {
                     case Team.Impostor:
                         RememberedRole = SingleRoles.Contains(targetRole) ? CustomRoles.Renegade : targetRole;
-                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
+                        amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedImpostor"));
                         break;
                     case Team.Crewmate:
                         RememberedRole = CanRememberCrewPower.GetBool() || targetRole.GetCrewmateRoleCategory() != RoleOptionType.Crewmate_Power ? targetRole : CustomRoles.Sheriff;
-                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+                        amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedCrewmate"));
                         break;
                     case Team.Neutral when !SingleRoles.Contains(targetRole):
                         RememberedRole = targetRole;
-                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                        amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedNeutralKiller"));
                         break;
                     case Team.Neutral:
                         RememberedRole = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()];
-                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
+                        amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString($"Remembered{RememberedRole}"));
                         break;
                     case Team.Coven:
                         RememberedRole = targetRole == CustomRoles.CovenLeader ? Main.CustomRoleValues.FindFirst(x => x.IsCoven() && !x.RoleExist(true), out CustomRoles unusedCovenRole) ? unusedCovenRole : null : targetRole;
-                        if (RememberedRole.HasValue) amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCoven"));
+                        if (RememberedRole.HasValue) amneNotifyString = CustomRoles.Amnesiac.ColoredTextByRole(GetString("RememberedCoven"));
                         break;
                 }
 
@@ -219,7 +219,7 @@ public class Amnesiac : RoleBase
 
         if (!RememberedRole.HasValue)
         {
-            amnesiac.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
+            amnesiac.Notify(CustomRoles.Amnesiac.ColoredTextByRole(GetString("AmnesiacInvalidTarget")));
             return;
         }
 
@@ -234,7 +234,7 @@ public class Amnesiac : RoleBase
         if (RememberAddons.GetBool()) target.GetCustomSubRoles().ForEach(x => amnesiac.RpcSetCustomRole(x));
 
         hasValue |= sender.Notify(amnesiac, amneNotifyString);
-        hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
+        hasValue |= sender.Notify(target, CustomRoles.Amnesiac.ColoredTextByRole(GetString("AmnesiacRemembered")));
 
         hasValue |= sender.RpcGuardAndKill(target, amnesiac);
         hasValue |= sender.RpcGuardAndKill(target, target);

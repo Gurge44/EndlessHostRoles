@@ -13,7 +13,7 @@ internal class Forensic : RoleBase
     public static OptionItem ForensicCanknowColorType;
     public static OptionItem ForensicCanknowColorTypeMinBodyAge;
 
-    public static Dictionary<byte, string> ForensicNotify = [];
+    public static Dictionary<byte, string> ForensicNotify;
 
     public override bool IsEnable => false;
 
@@ -82,6 +82,7 @@ internal class Forensic : RoleBase
             msg += "；" + string.Format(Translator.GetString("ForensicNoticeColorType"), str, colors);
         }
 
+        ForensicNotify ??= [];
         ForensicNotify[player.PlayerId] = msg;
     }
 }

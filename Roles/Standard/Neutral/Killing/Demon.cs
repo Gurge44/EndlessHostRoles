@@ -68,7 +68,7 @@ public class Demon : RoleBase
         PlayerIdList.Add(playerId);
         DemonHealth[playerId] = SelfHealthMax.GetInt();
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
     }
 
@@ -98,7 +98,7 @@ public class Demon : RoleBase
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDemonHealth, SendOption.Reliable);
         writer.Write(playerId);
-        writer.Write(DemonHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth[playerId]);
+        writer.Write(DemonHealth.TryGetValue(playerId, out int value) ? value : PlayerHealth.GetValueOrDefault(playerId, HealthMax.GetInt()));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -115,7 +115,7 @@ public class Demon : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || target.Is(CustomRoles.Demon) || !PlayerHealth.TryGetValue(target.PlayerId, out var targetHealth)) return false;
+        if (target.Is(CustomRoles.Demon) || !PlayerHealth.TryGetValue(target.PlayerId, out var targetHealth)) return false;
 
         killer.SetKillCooldown();
 
@@ -142,13 +142,13 @@ public class Demon : RoleBase
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} attacked {target.GetNameWithRole().RemoveHtmlTags()}, did {Damage.GetInt()} damage", "Demon");
+        Logger.Info($"{killer.GetNameWithRole()} attacked {target.GetNameWithRole()}, did {Damage.GetInt()} damage", "Demon");
         return false;
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || killer.Is(CustomRoles.Demon)) return true;
+        if (killer.Is(CustomRoles.Demon)) return true;
 
         if (DemonHealth[target.PlayerId] - SelfDamage.GetInt() < 1)
         {
@@ -164,7 +164,7 @@ public class Demon : RoleBase
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} attacked {target.GetNameWithRole().RemoveHtmlTags()}, did {SelfDamage.GetInt()} damage", "Demon");
+        Logger.Info($"{killer.GetNameWithRole()} attacked {target.GetNameWithRole()}, did {SelfDamage.GetInt()} damage", "Demon");
         return false;
     }
 

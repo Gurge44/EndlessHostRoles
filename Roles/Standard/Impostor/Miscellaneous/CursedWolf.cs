@@ -79,7 +79,7 @@ internal class CursedWolf : RoleBase
 
         killer.RpcGuardAndKill(target);
         target.RpcRemoveAbilityUse();
-        Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : {target.GetAbilityUseLimit()} curses remain", "CursedWolf");
+        Logger.Info($"{target.GetNameWithRole()} : {target.GetAbilityUseLimit()} curses remain", "CursedWolf");
 
         if (KillAttacker)
         {

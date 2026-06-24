@@ -1,17 +1,23 @@
 # Thank you so much for finding and using EHR!
 
-> [!CAUTION]
-> **Due to an issue on InnerSloth's servers, players (even unmodded ones) get banned after completing a visual task. Please disable Visual Tasks to avoid this issue.** We've talked to InnerSloth about this, and they've said they're working on the fix.
+> [!NOTE]
+> Regardless of the measures I've coded to obey InnerSloth's new anti-cheat, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
 
-- **Fixed HUGE (~ 400 MB) memory leak when opening the settings UI**
-- Custom Net Objects should spawn more reliably, and not delayed/flickering for non-host modded clients
-- Fixed Coven roles not getting the Necronomicon
-- Drafting in Custom Hide And Seek now doesn't give disabled roles as choices and forcefully assigns 1 seeker if everyone drafted a non-seeker role
-- Fixed King Of The Zones sometimes not registering zone domination
-- Fixed Asthmatic not working after the host dies
-- New client option: `Show Client Control GUI` (Enabled by default)
-- Improved Client Control GUI (by Zypherus) + keybinds to open/close it: DELETE or CTRL + `
-- Fixed Dleks button (by TommyXL)
-- Other internal fixes and optimizations
+- Fixed drafting not listing non-crew roles (and thus fewer than before)
+- Fixed Snitch not seeing killers after task completion
+- Fixed Sheriff being able to kill anyone when `Recruited Sheriff Can Go Nuts` is enabled
+- Fixed Exorcist not killing anyone
+- Fixed Time Master not rewinding player positions
+- Fixed Lovers win condition triggering when Lovers are disabled
+- Fixed Bloodlust not keeping the game going
+- Fixed Lovers seeing double ejection screen when chatting during the game is enabled both globally and for Lovers
+- Fixed HUD not updating on role change for non-host modded clients
+- Fixed name notifies not disappearing for non-host modded clients
+- Fixed meeting HUD issues for non-host modded clients
+- Fixed Magistrate role data not syncing for non-host modded clients
+
+> [!WARNING]
+> If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")
+I'm saying this now, it's guaranteed that we'll get someone who skipped reading this complaining about this exact issue.
 
 ---

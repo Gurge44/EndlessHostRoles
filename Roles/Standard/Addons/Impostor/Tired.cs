@@ -8,7 +8,7 @@ public class Tired : IAddon
 {
     public AddonTypes Type => AddonTypes.ImpOnly;
 
-    public static Dictionary<byte, int> KillsThisRound = [];
+    private static Dictionary<byte, int> KillsThisRound;
 
     private static OptionItem MaxKillsPerRound;
     
@@ -22,19 +22,22 @@ public class Tired : IAddon
 
     public static void Reset()
     {
-        try { KillsThisRound = Main.EnumerateAlivePlayerControls().Where(x => x.Is(CustomRoles.Tired)).ToDictionary(x => x.PlayerId, _ => 0); }
+        try { KillsThisRound = Main.CachedAlivePlayerControls().Where(x => x.Is(CustomRoles.Tired)).ToDictionary(x => x.PlayerId, _ => 0); }
         catch (Exception e) { Utils.ThrowException(e); }
+
+        if (KillsThisRound.Count == 0)
+            KillsThisRound = null;
     }
     
     public static void OnMurder(byte killerId)
     {
-        if (!KillsThisRound.ContainsKey(killerId)) return;
+        if (KillsThisRound == null || !KillsThisRound.ContainsKey(killerId)) return;
         KillsThisRound[killerId]++;
     }
     
     public static bool CheckMurderLimit(byte killerId)
     {
-        if (!KillsThisRound.TryGetValue(killerId, out int kills)) return true;
+        if (KillsThisRound == null || !KillsThisRound.TryGetValue(killerId, out int kills)) return true;
         return kills < MaxKillsPerRound.GetInt();
     }
 }

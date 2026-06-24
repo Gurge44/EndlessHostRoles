@@ -74,25 +74,25 @@ public static class CaptureTheFlag
 
     private static (Vector2 Position, string RoomName) BlueFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
-        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(nameof(SystemTypes.Launchpad))),
-        MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(nameof(SystemTypes.Nav))),
-        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(nameof(SystemTypes.Electrical))),
-        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(nameof(SystemTypes.Cockpit))),
-        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Kitchen))),
-        (MapNames)6 => (new(-13.31f, -34.56f), Translator.GetString(nameof(SystemTypes.Engine))),
+        MapNames.Skeld => (new(16.5f, -4.8f), Translator.GetString(SystemTypes.Nav)),
+        MapNames.MiraHQ => (new(-4.5f, 2.0f), Translator.GetString(SystemTypes.Launchpad)),
+        MapNames.Dleks => (new(-16.5f, -4.8f), Translator.GetString(SystemTypes.Nav)),
+        MapNames.Polus => (new(9.5f, -12.5f), Translator.GetString(SystemTypes.Electrical)),
+        MapNames.Airship => (new(-23.5f, -1.6f), Translator.GetString(SystemTypes.Cockpit)),
+        MapNames.Fungle => (new(-15.5f, -7.5f), Translator.GetString(SystemTypes.Kitchen)),
+        (MapNames)6 => (new(-13.31f, -34.56f), Translator.GetString(SystemTypes.Engine)),
         _ => (Vector2.zero, string.Empty)
     };
 
     private static (Vector2 Position, string RoomName) YellowFlagBase => Main.CurrentMap switch
     {
-        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(nameof(SystemTypes.Reactor))),
-        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(nameof(SystemTypes.Greenhouse))),
-        MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(nameof(SystemTypes.Reactor))),
-        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(nameof(SystemTypes.Laboratory))),
-        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(nameof(SystemTypes.CargoBay))),
-        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(nameof(SystemTypes.Comms))),
-        (MapNames)6 => (new(12.98f, -25.68f), Translator.GetString(nameof(SystemTypes.Comms))),
+        MapNames.Skeld => (new(-20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor)),
+        MapNames.MiraHQ => (new(17.8f, 23.0f), Translator.GetString(SystemTypes.Greenhouse)),
+        MapNames.Dleks => (new(20.5f, -5.5f), Translator.GetString(SystemTypes.Reactor)),
+        MapNames.Polus => (new(36.5f, -7.5f), Translator.GetString(SystemTypes.Laboratory)),
+        MapNames.Airship => (new(33.5f, -1.5f), Translator.GetString(SystemTypes.CargoBay)),
+        MapNames.Fungle => (new(22.2f, 13.7f), Translator.GetString(SystemTypes.Comms)),
+        (MapNames)6 => (new(12.98f, -25.68f), Translator.GetString(SystemTypes.Comms)),
         _ => (Vector2.zero, string.Empty)
     };
 
@@ -319,16 +319,15 @@ public static class CaptureTheFlag
 
         void ResetSkins()
         {
-            Utils.CombineSendTimeLowering(() =>
+            foreach ((byte key, NetworkedPlayerInfo.PlayerOutfit outfit) in DefaultOutfits)
             {
-                foreach ((byte key, NetworkedPlayerInfo.PlayerOutfit outfit) in DefaultOutfits)
-                {
-                    PlayerControl pc = key.GetPlayer();
+                PlayerControl pc = key.GetPlayer();
 
-                    if (pc && outfit != null)
-                        Utils.RpcChangeSkin(pc, outfit);
-                }
-            });
+                if (pc && outfit != null)
+                    Utils.RpcChangeSkin(pc, outfit);
+            }
+
+            DefaultOutfits = [];
         }
     }
 
@@ -358,7 +357,7 @@ public static class CaptureTheFlag
 
         // Assign players to teams
         List<PlayerControl> players = Main.EnumerateAlivePlayerControls().Shuffle();
-        if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+        if (Main.GM.Value) players.RemoveAll(x => x.AmOwner);
         if (ChatCommands.Spectators.Count > 0) players.RemoveAll(x => ChatCommands.Spectators.Contains(x.PlayerId));
 
         int blueCount = players.Count / 2;
@@ -371,7 +370,7 @@ public static class CaptureTheFlag
             players.Remove(player);
             PlayerTeams[player.PlayerId] = CTFTeam.Blue;
             bluePlayers.Add(player.PlayerId);
-            player.RpcSetColor(1);
+            player.RpcChangeColor(1);
             yield return WaitFrameIfNecessary();
         }
 
@@ -379,7 +378,7 @@ public static class CaptureTheFlag
         {
             PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
             yellowPlayers.Add(player.PlayerId);
-            player.RpcSetColor(5);
+            player.RpcChangeColor(5);
             yield return WaitFrameIfNecessary();
         }
 
@@ -418,6 +417,9 @@ public static class CaptureTheFlag
             yield return WaitFrameIfNecessary();
         }
         
+        var sender = CustomRpcSender.Create("CTF Set Teams");
+        sender.StartPackedMessage();
+        
         foreach (CTFTeamData data in TeamData.Values)
         {
             foreach (byte id1 in data.Players)
@@ -425,9 +427,8 @@ public static class CaptureTheFlag
                 try
                 {
                     var pc1 = id1.GetPlayer();
-                    if (!pc1 || pc1.AmOwner) continue;
+                    if (!pc1 || pc1.AmOwner || pc1.OwnerId < 0) continue;
 
-                    var sender = CustomRpcSender.Create("CTF Set Teams");
                     sender.StartMessage(pc1.OwnerId);
 
                     foreach (byte id2 in data.Players)
@@ -446,14 +447,16 @@ public static class CaptureTheFlag
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }
-                            
-                    sender.SendMessage();
+
+                    sender.EndMessage();
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
                 
                 yield return WaitFrameIfNecessary();
             }
         }
+        
+        sender.SendMessage(dispose: PlayerControl.AllPlayerControls.Count <= 1);
 
         ValidTag = true;
         GameStartTS = Utils.TimeStamp;

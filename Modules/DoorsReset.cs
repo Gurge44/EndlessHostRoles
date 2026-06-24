@@ -63,7 +63,7 @@ public static class DoorsReset
         }
 
         DoorsSystemType doorsSystem = DoorsSystem;
-        if (doorsSystem != null) doorsSystem.IsDirty = true;
+        doorsSystem?.IsDirty = true;
     }
 
     /// <summary>Close all doors on the map</summary>
@@ -79,7 +79,7 @@ public static class DoorsReset
         }
 
         DoorsSystemType doorsSystem = DoorsSystem;
-        if (doorsSystem != null) doorsSystem.IsDirty = true;
+        doorsSystem?.IsDirty = true;
     }
 
     /// <summary>Randomly opens and closes all doors on the map</summary>
@@ -94,7 +94,7 @@ public static class DoorsReset
         }
 
         DoorsSystemType doorsSystem = DoorsSystem;
-        if (doorsSystem != null) doorsSystem.IsDirty = true;
+        doorsSystem?.IsDirty = true;
     }
 
     /// <summary>Sets the open/close status of the door. Do nothing for doors that cannot be closed by sabotage</summary>

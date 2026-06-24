@@ -6,7 +6,7 @@ namespace EHR.Roles;
 
 internal class Witness : RoleBase
 {
-    public static HashSet<byte> AllKillers = [];
+    public static HashSet<byte> AllKillers;
 
     public static bool On;
     public override bool IsEnable => On;
@@ -34,7 +34,7 @@ internal class Witness : RoleBase
     public override void Init()
     {
         On = false;
-        AllKillers = [];
+        AllKillers = null;
     }
 
     public override void SetKillCooldown(byte id)
@@ -54,18 +54,18 @@ internal class Witness : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         killer.SetKillCooldown();
-        killer.Notify($"<size=3><#{(AllKillers.Contains(target.PlayerId) ? "ffff00>⚠" : "00ff00>✓")}</color></size>");
+        killer.Notify($"<size=3><#{(AllKillers != null && AllKillers.Contains(target.PlayerId) ? "ffff00>⚠" : "00ff00>✓")}</color></size>");
         return false;
     }
 
     public override void OnReportDeadBody()
     {
-        AllKillers.Clear();
+        AllKillers = null;
     }
 }

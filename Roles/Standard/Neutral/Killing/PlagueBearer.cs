@@ -102,7 +102,7 @@ public class PlagueBearer : RoleBase
     {
         int plagued = 0, all = 0;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (pc.PlayerId == playerId) continue;
 
@@ -222,5 +222,18 @@ public class Pestilence : RoleBase
         if (Announced || !PlagueBearer.AnnounceTransformation.GetBool()) return;
         LateTask.New(() => Utils.SendMessage(GetString("TransformationAnnouncementMessage"), title: $"{CustomRoles.PlagueBearer.ToColoredString()} => {CustomRoles.Pestilence.ToColoredString()}", importance: MessageImportance.High), 12f, "Pb to Pesti transform message");
         Announced = true;
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        foreach (PlayerControl player in Main.CachedAllPlayerControls())
+        {
+            PlayerState state = Main.PlayerStates[player.PlayerId];
+            if (!player.IsAlive() && player.GetRealKiller() == pc && state.deathReason != PlayerState.DeathReason.Diseased)
+            {
+                state.deathReason = PlayerState.DeathReason.Diseased;
+                RPC.SendDeathReason(player.PlayerId, state.deathReason, state.IsDead);
+            }
+        }
     }
 }

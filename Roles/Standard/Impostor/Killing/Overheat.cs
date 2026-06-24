@@ -32,11 +32,11 @@ public class Overheat : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
 
-        OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 30f, TabGroup.ImpostorRoles)
+        OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 7.5f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
 
-        KCDDecreasePerIncreasedTemperature = new FloatOptionItem(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 5f, TabGroup.ImpostorRoles)
+        KCDDecreasePerIncreasedTemperature = new FloatOptionItem(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 4f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
             .SetValueFormat(OptionFormat.Seconds);
     }

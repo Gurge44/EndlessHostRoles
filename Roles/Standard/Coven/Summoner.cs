@@ -10,9 +10,9 @@ namespace EHR.Roles;
 public class Summoner : CovenBase
 {
     public static bool On;
-    public static List<Summoner> Instances = [];
-    public static HashSet<byte> AdditionalWinners = [];
-    public static HashSet<byte> AlreadySummoned = [];
+    public static List<Summoner> Instances;
+    public static HashSet<byte> AdditionalWinners;
+    public static HashSet<byte> AlreadySummoned;
     
     private static OptionItem SummonDelayAfterMeeting;
     private static OptionItem SummonedKillCooldown;
@@ -65,14 +65,15 @@ public class Summoner : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
-        AdditionalWinners = [];
-        AlreadySummoned = [];
+        Instances = null;
+        AdditionalWinners = null;
+        AlreadySummoned = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         SummonerId = playerId;
         Changed = false;
@@ -84,7 +85,7 @@ public class Summoner : CovenBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -113,7 +114,7 @@ public class Summoner : CovenBase
 
     public static bool OnAnyoneReport()
     {
-        return !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue);
+        return Instances == null || !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue);
     }
 
     public override void AfterMeetingTasks()
@@ -148,7 +149,7 @@ public class Summoner : CovenBase
                 RPC.PlaySoundRPC(SummonedPlayerId, Sounds.SpawnSound);
                 GhostRolesManager.RemoveGhostRole(SummonedPlayerId);
                 ReportDeadBodyPatch.AlreadyReportedBodies.Remove(SummonedPlayerId);
-                state.IsDead = false;
+                state.SetAlive();
                 ExtendedPlayerControl.TempExiled.Remove(SummonedPlayerId);
                 summoned.RpcSetCustomRole(CustomRoles.SerialKiller);
                 summoned.RpcChangeRoleBasis(CustomRoles.SerialKiller);
@@ -201,15 +202,18 @@ public class Summoner : CovenBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return !Instances.Exists(x => x.SummonedPlayerId == killer.PlayerId && target.Is(Team.Coven));
+        return Instances == null || !Instances.Exists(x => x.SummonedPlayerId == killer.PlayerId && target.Is(Team.Coven));
     }
 
     public static void OnAnyoneMurder(PlayerControl killer, PlayerControl target)
     {
+        if (Instances == null) return;
+
         foreach (Summoner instance in Instances)
         {
             if (instance.SummonedPlayerId == killer.PlayerId)
             {
+                AdditionalWinners ??= [];
                 AdditionalWinners.Add(instance.SummonedPlayerId);
                 instance.SummonedPlayerTimer?.Dispose();
                 instance.SummonedPlayerTimer = null;
@@ -228,7 +232,7 @@ public class Summoner : CovenBase
     {
         try
         {
-            if (!Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue)) return;
+            if (Instances == null || !Instances.Exists(x => x.SummonedPlayerId != byte.MaxValue)) return;
             Utils.SendMessage(Translator.GetString("Summoner.SomeoneWillBeRevivedMessage"), title: CustomRoles.Summoner.ToColoredString(), importance: MessageImportance.High);
         }
         catch (Exception e) { Utils.ThrowException(e); }
@@ -253,7 +257,7 @@ public class Summoner : CovenBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (meeting || SummonedPlayerId == byte.MaxValue || SummonedPlayerTimer == null) return string.Empty;
-        if (target.PlayerId == SummonedPlayerId && seer.PlayerId != target.PlayerId && PlayersSeeSummonedPlayerWarning.GetBool()) return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Summoner), Translator.GetString("Summoner.SummonedWarningSuffix"));
+        if (target.PlayerId == SummonedPlayerId && seer.PlayerId != target.PlayerId && PlayersSeeSummonedPlayerWarning.GetBool()) return CustomRoles.Summoner.ColoredTextByRole(Translator.GetString("Summoner.SummonedWarningSuffix"));
         if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
         if (seer.PlayerId == SummonerId) return string.Format(Translator.GetString("Summoner.SelfSuffix"), SummonedPlayerId.ColoredPlayerName(), (int)SummonedPlayerTimer.Remaining.TotalSeconds);
         return seer.PlayerId == SummonedPlayerId ? string.Format(Translator.GetString("Summoner.SummonedPlayerSuffix"), SummonerId.ColoredPlayerName(), CustomRoles.Summoner.ToColoredString(), (int)SummonedPlayerTimer.Remaining.TotalSeconds) : string.Empty;

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using static EHR.Options;
+﻿using static EHR.Options;
 
 namespace EHR.Roles;
 

@@ -22,8 +22,8 @@ public static class Statistics
     {
         try
         {
-            var apc = Main.AllPlayerControls;
-            var aapc = Main.AllAlivePlayerControls;
+            var apc = Main.CachedAllPlayerControls();
+            var aapc = Main.CachedAlivePlayerControls();
 
             WinCountsForOutro = string.Empty;
 
@@ -274,7 +274,7 @@ public static class Statistics
             {
                 if (GameStates.IsEnded) return;
 
-                var aapc = Main.AllAlivePlayerControls;
+                var aapc = Main.CachedAlivePlayerControls();
 
                 if (aapc.Count == 2 && lp.IsAlive() && aapc.All(x => x.IsNeutralKiller() || x.IsImpostor()))
                     Achievements.Type.Duel.Complete();
@@ -328,7 +328,7 @@ public static class Statistics
                     (targetState.Role is Follower tc && tc.BetPlayer == killer.PlayerId))
                     Achievements.Type.WhatHaveIDone.CompleteAfterGameEnd();
 
-                if (targetState.MainRole == CustomRoles.Snitch && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
+                if (targetState.MainRole == CustomRoles.Snitch && Snitch.IsExposed != null && Snitch.IsExposed.TryGetValue(target.PlayerId, out bool exposed) && exposed)
                     Achievements.Type.ThatWasClose.CompleteAfterGameEnd();
 
                 switch (killerState.MainRole)

@@ -24,7 +24,7 @@ internal class Lookout : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        var aapc = Main.AllAlivePlayerControls;
+        var aapc = Main.CachedAlivePlayerControls();
         var sb = new StringBuilder();
 
         for (var i = 0; i < aapc.Count; i++)

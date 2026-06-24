@@ -2,7 +2,6 @@
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -125,7 +124,7 @@ public class Doomsayer : RoleBase
 
         GuessingToWin[doomsayer.PlayerId] = DoomsayerAmountOfGuessesToWin.GetInt();
         GuessesCount = DoomsayerAmountOfGuessesToWin.GetInt();
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Doomsayer);
+        CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Doomsayer);
         CustomWinnerHolder.WinnerIds.Add(doomsayer.PlayerId);
     }
 

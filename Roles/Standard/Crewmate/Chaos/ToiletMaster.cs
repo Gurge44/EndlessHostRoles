@@ -11,7 +11,7 @@ namespace EHR.Roles;
 public class ToiletMaster : RoleBase
 {
     public static bool On;
-    private static List<ToiletMaster> Instances = [];
+    private static List<ToiletMaster> Instances;
 
     public static OptionItem AbilityCooldown;
     private static OptionItem AbilityUses;
@@ -31,10 +31,15 @@ public class ToiletMaster : RoleBase
 
     private Dictionary<byte, (Poop Poop, long TimeStamp, object Data)> ActivePoops = [];
 
-    private long LastUpdate;
+    private static Poop[] AllPoopValues;
+    private List<PlayerControl> AffectedPlayers = [];
+    private List<PlayerControl> ActivePoopDataList = [];
     private Dictionary<byte, long> PlayersUsingToilet = [];
 
+    private KeyValuePair<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> FoundFirst;
     private Dictionary<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> Toilets = [];
+    private readonly List<Vector2> ToRemove = [];
+
     private static ToiletVisibilityOptions ToiletVisible => (ToiletVisibilityOptions)ToiletVisibility.GetValue();
     public override bool IsEnable => On;
 
@@ -112,23 +117,24 @@ public class ToiletMaster : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
         Toilets = [];
         ActivePoops = [];
         PlayersUsingToilet = [];
+        AllPoopValues = Enum.GetValues<Poop>();
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
-        LastUpdate = 8 + AbilityCooldown.GetInt() + ToiletDuration.GetInt();
         playerId.SetAbilityUseLimit(AbilityUses.GetFloat());
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void OnPet(PlayerControl pc)
@@ -151,26 +157,35 @@ public class ToiletMaster : RoleBase
     {
         if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask) return;
 
-        if (ActivePoops.TryGetValue(pc.PlayerId, out (Poop Poop, long TimeStamp, object Data) activePoop))
+        long now = Utils.TimeStamp;
+        byte playerId = pc.PlayerId;
+
+        if (ActivePoops.TryGetValue(playerId, out (Poop Poop, long TimeStamp, object Data) activePoop))
         {
-            if (activePoop.TimeStamp + PoopDurationSettings[activePoop.Poop].GetInt() <= Utils.TimeStamp)
+            if (activePoop.TimeStamp + PoopDurationSettings[activePoop.Poop].GetInt() <= now)
             {
-                ActivePoops.Remove(pc.PlayerId);
+                ActivePoops.Remove(playerId);
 
                 switch (activePoop.Poop)
                 {
                     case Poop.Brown:
-                        Main.AllPlayerSpeed[pc.PlayerId] -= BrownPoopSpeedBoost.GetFloat();
+                        Main.AllPlayerSpeed[playerId] -= BrownPoopSpeedBoost.GetFloat();
                         break;
                     case Poop.Red:
                         float defaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                        ActivePoopDataList = (List<PlayerControl>)activePoop.Data;
 
-                        ((List<PlayerControl>)activePoop.Data).DoIf(x => x != null, x =>
+                        if (ActivePoopDataList != null)
                         {
-                            Main.AllPlayerSpeed[x.PlayerId] = defaultSpeed;
-                            x.MarkDirtySettings();
-                        });
+                            for (int index = 0; index < ActivePoopDataList.Count; index++)
+                            {
+                                PlayerControl x = ActivePoopDataList[index];
+                                if (x == null) continue;
 
+                                Main.AllPlayerSpeed[x.PlayerId] = defaultSpeed;
+                                x.MarkDirtySettings();
+                            }
+                        }
                         break;
                 }
             }
@@ -181,63 +196,95 @@ public class ToiletMaster : RoleBase
         try
         {
             Vector2 pos = pc.Pos();
-            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = Toilets.First(x => FastVector2.DistanceWithinRange(x.Key, pos, ToiletUseRadius.GetFloat())).Value;
-
+            FoundFirst = default;
+            float toiletRadius = ToiletUseRadius.GetFloat();
+            bool hasToilet = false;
+            foreach (var kvp in Toilets)
+            {
+                if (FastVector2.DistanceWithinRange(kvp.Key, pos, toiletRadius))
+                {
+                    FoundFirst = kvp;
+                    hasToilet = true;
+                    break;
+                }
+            }
+            if (!hasToilet) return;
+            
+            (Toilet NetObject, int Uses, long PlaceTimeStamp) toilet = FoundFirst.Value;
             if (toilet.Uses >= AbilityUses.GetInt()) return;
 
-            if (!PlayersUsingToilet.TryGetValue(pc.PlayerId, out long ts))
+            if (!PlayersUsingToilet.TryGetValue(playerId, out long ts))
             {
-                PlayersUsingToilet[pc.PlayerId] = Utils.TimeStamp;
+                PlayersUsingToilet[playerId] = now;
                 return;
             }
 
-            if (ts + ToiletUseTime.GetInt() > Utils.TimeStamp) return;
+            if (ts + ToiletUseTime.GetInt() > now) return;
 
             toilet.Uses++;
+            Toilets[FoundFirst.Key] = toilet;
 
-            Poop poop = Enum.GetValues<Poop>().RandomElement();
+            Poop poop = AllPoopValues.RandomElement();
             if (poop != Poop.Green) pc.Notify(Utils.ColorString(GetPoopColor(poop), string.Format(Translator.GetString("TM.GetPoopNotify"), poop)));
 
             switch (poop)
             {
                 case Poop.Brown:
-                    Main.AllPlayerSpeed[pc.PlayerId] += BrownPoopSpeedBoost.GetFloat();
-                    ActivePoops[pc.PlayerId] = (poop, Utils.TimeStamp, null);
+                    Main.AllPlayerSpeed[playerId] += BrownPoopSpeedBoost.GetFloat();
+                    ActivePoops[playerId] = (poop, now, null);
                     break;
                 case Poop.Green:
-                    float radius = GreenPoopRadius.GetFloat();
-                    bool isKillerNearby = Main.EnumerateAlivePlayerControls().Any(x => x.PlayerId != pc.PlayerId && FastVector2.DistanceWithinRange(x.Pos(), pos, radius) && (x.IsImpostor() || x.IsNeutralKiller()));
+                    float greenPoopRadius = GreenPoopRadius.GetFloat();
+                    bool isKillerNearby = false;
+                    var alivePlayers = Main.CachedAlivePlayerControls();
+                    for (int aliveIndex = 0; aliveIndex < alivePlayers.Count; aliveIndex++)
+                    {
+                        PlayerControl alive = alivePlayers[aliveIndex];
+                        if (alive.PlayerId == playerId) continue;
+                        if (!FastVector2.DistanceWithinRange(alive.Pos(), pos, greenPoopRadius)) continue;
+
+                        if (alive.IsImpostor() || alive.IsNeutralKiller())
+                        {
+                            isKillerNearby = true;
+                            break;
+                        }
+                    }
                     Color color = isKillerNearby ? Color.red : Color.green;
                     string str = Translator.GetString(isKillerNearby ? "TM.GreenPoopKiller" : "TM.GreenPoop");
                     pc.Notify(Utils.ColorString(color, str));
                     break;
                 case Poop.Red:
                     int duration = RedPoopRoleBlockDuration.GetInt();
-                    List<PlayerControl> affectedPlayers = [];
-
-                    FastVector2.GetPlayersInRange(pos, RedPoopRadius.GetFloat()).Without(pc).Do(x =>
+                    float redPoopRadius = RedPoopRadius.GetFloat();
+                    var alivePlayers2 = Main.CachedAlivePlayerControls();
+                    AffectedPlayers = [];
+                    for (int aliveIndex2 = 0; aliveIndex2 < alivePlayers2.Count; aliveIndex2++)
                     {
+                        PlayerControl x = alivePlayers2[aliveIndex2];
+                        if (x.PlayerId == playerId) continue;
+                        if (!FastVector2.DistanceWithinRange(x.Pos(), pos, redPoopRadius)) continue;
+
                         x.BlockRole(duration);
                         Main.AllPlayerSpeed[x.PlayerId] = Main.MinSpeed;
                         x.MarkDirtySettings();
-                        affectedPlayers.Add(x);
 
-                        if (x.AmOwner)
-                            Achievements.Type.TooCold.CompleteAfterGameEnd();
-                    });
+                        AffectedPlayers.Add(x);
 
-                    ActivePoops[pc.PlayerId] = (poop, Utils.TimeStamp, affectedPlayers);
+                        if (x.AmOwner) Achievements.Type.TooCold.CompleteAfterGameEnd();
+                    }
+
+                    ActivePoops[playerId] = (poop, now, AffectedPlayers);
                     break;
                 case Poop.Blue:
                 case Poop.Purple:
-                    ActivePoops[pc.PlayerId] = (poop, Utils.TimeStamp, null);
+                    ActivePoops[playerId] = (poop, now, null);
                     break;
             }
 
-            PlayersUsingToilet.Remove(pc.PlayerId);
+            PlayersUsingToilet.Remove(playerId);
             Logger.Info($"{pc.GetNameWithRole()} used a toilet => {poop} poop", "ToiletMaster");
         }
-        catch { PlayersUsingToilet.Remove(pc.PlayerId); }
+        catch { PlayersUsingToilet.Remove(playerId); }
     }
 
     public override void AfterMeetingTasks()
@@ -262,29 +309,41 @@ public class ToiletMaster : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = Utils.TimeStamp;
-        if (LastUpdate >= now) return;
-        LastUpdate = now;
-
         int duration = ToiletDuration.GetInt();
         int maxUses = ToiletMaxUses.GetInt();
 
-        Toilets.DoIf(x => x.Value.PlaceTimeStamp + duration <= now || x.Value.Uses >= maxUses, x =>
+        ToRemove.Clear();
+        foreach (var pair in Toilets)
         {
-            Toilets.Remove(x.Key);
-            x.Value.NetObject.Despawn();
-        }, false);
+            (Toilet netObject, int uses, long placeTimeStamp) = pair.Value;
+            if (placeTimeStamp + duration <= now || uses >= maxUses)
+            {
+                netObject.Despawn();
+                ToRemove.Add(pair.Key);
+            }
+        }
+        if (ToRemove.Count == 0) return;
+
+        for (int index = 0; index < ToRemove.Count; index++)
+        {
+            Toilets.Remove(ToRemove[index]);
+        }
     }
 
     public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)
     {
-        foreach (ToiletMaster tm in Instances)
+        if (Instances != null)
         {
-            if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Blue)
+            foreach (ToiletMaster tm in Instances)
             {
-                killer.RpcCheckAndMurder(target);
-                return true;
+                if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Blue)
+                {
+                    killer.RpcCheckAndMurder(target);
+                    return true;
+                }
             }
         }
 
@@ -293,14 +352,17 @@ public class ToiletMaster : RoleBase
 
     public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        foreach (ToiletMaster tm in Instances)
+        if (Instances != null)
         {
-            if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Purple)
+            foreach (ToiletMaster tm in Instances)
             {
-                if (PurplePoopNotifyOnKillAttempt.GetBool())
-                    target.Notify(Translator.GetString("TM.TryKillNotify"));
+                if (tm.ActivePoops.TryGetValue(killer.PlayerId, out (Poop Poop, long TimeStamp, object Data) poop) && poop.Poop == Poop.Purple)
+                {
+                    if (PurplePoopNotifyOnKillAttempt.GetBool())
+                        target.Notify(Translator.GetString("TM.TryKillNotify"));
 
-                return false;
+                    return false;
+                }
             }
         }
 

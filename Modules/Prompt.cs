@@ -12,8 +12,9 @@ public static class Prompt
     private static SimpleButton YesButton;
     private static SimpleButton NoButton;
     private static string CurrentQuestion = string.Empty;
+    private static bool ShowBackButton;
 
-    public static void Show(string question, Action onYes, Action onNo)
+    public static void Show(string question, Action onYes, Action onNo, bool showBackButton = true)
     {
         try
         {
@@ -29,13 +30,16 @@ public static class Prompt
             }
 
             CurrentQuestion = question;
+            ShowBackButton = showBackButton;
             hud.ShowPopUp(question);
+            if (!ShowBackButton) hud.Dialogue.BackButton.gameObject.SetActive(false);
 
             Action closePromt = () =>
             {
+                CurrentQuestion = string.Empty;
                 HidePromt();
 
-                CurrentQuestion = string.Empty;
+                if (!ShowBackButton) hud.Dialogue.BackButton.gameObject.SetActive(true);
                 hud.Dialogue.Hide();
 
                 if (Queue.Count > 0)
@@ -87,14 +91,25 @@ public static class Prompt
     [HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Hide))]
     static class DialogueBoxHidePatch
     {
-        public static void Prefix()
+        public static bool Prefix()
         {
             if (CurrentQuestion != string.Empty)
             {
+                if (!ShowBackButton) return false;
+                
+                CurrentQuestion = string.Empty;
                 ClearQueue();
                 HidePromt();
-                CurrentQuestion = string.Empty;
             }
+
+            return true;
         }
+    }
+
+    public static void Reset()
+    {
+        CurrentQuestion = string.Empty;
+        ClearQueue();
+        HidePromt();
     }
 }

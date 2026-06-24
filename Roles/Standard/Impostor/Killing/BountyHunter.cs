@@ -82,15 +82,13 @@ public class BountyHunter : RoleBase
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public void ReceiveRPC(byte targetId)
+    public void ReceiveRPCTarget(byte targetId)
     {
         Target = targetId;
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
-
         if (GetTarget(killer) == target.PlayerId)
         {
             Logger.Info($"{killer.Data?.PlayerName}: Killed Target", "BountyHunter");
@@ -110,7 +108,7 @@ public class BountyHunter : RoleBase
 
     public byte GetTarget(PlayerControl player)
     {
-        if (player == null) return 0xff;
+        if (!player) return 0xff;
 
         byte targetId = Target == byte.MaxValue ? ResetTarget(player) : Target;
         return targetId;
@@ -129,7 +127,7 @@ public class BountyHunter : RoleBase
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: Utils.GetPlayerById(newTargetId));
         }, onTick: () =>
         {
-            if (player == null || !player.IsAlive())
+            if (!player || !player.IsAlive())
             {
                 Timer.Dispose();
                 Timer = null;
@@ -139,7 +137,7 @@ public class BountyHunter : RoleBase
             
             var currentTarget = GetTarget(player).GetPlayer();
 
-            if (currentTarget == null || !currentTarget.IsAlive())
+            if (!currentTarget || !currentTarget.IsAlive())
             {
                 byte newTargetId = ResetTarget(player);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: Utils.GetPlayerById(newTargetId));
@@ -151,7 +149,7 @@ public class BountyHunter : RoleBase
         }, onCanceled: () => Timer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, playerId, true);
 
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: Reset Target", "BountyHunter");
+        Logger.Info($"{player.GetNameWithRole()}: Reset Target", "BountyHunter");
 
         List<PlayerControl> cTargets = new(Main.EnumerateAlivePlayerControls().Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
 
@@ -168,7 +166,7 @@ public class BountyHunter : RoleBase
         Target = targetId;
         if (ShowTargetArrow) TargetArrow.Add(playerId, targetId);
 
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}'s New Target Is {target.GetNameWithRole().RemoveHtmlTags()}", "BountyHunter");
+        Logger.Info($"{player.GetNameWithRole()}'s New Target Is {target.GetNameWithRole()}", "BountyHunter");
 
         SendRPC();
         return targetId;
@@ -184,7 +182,7 @@ public class BountyHunter : RoleBase
         if (!Main.PlayerStates[BountyHunterId].IsDead)
         {
             PlayerControl bh = Utils.GetPlayerById(BountyHunterId);
-            if (bh == null) return;
+            if (!bh) return;
             
             ResetTarget(bh);
         }
@@ -195,11 +193,17 @@ public class BountyHunter : RoleBase
         Main.AllPlayerKillCooldown[BountyHunterId] = Options.AdjustedDefaultKillCooldown;
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (!AmongUsClient.Instance.AmHost) return string.Empty;
-        if (Timer.Remaining.TotalSeconds > 15) return base.GetProgressText(playerId, comms);
-        return $"{base.GetProgressText(playerId, comms)} <#777777>-</color> {string.Format(GetString("BountyHunterSwapTimer"), (int)Timer.Remaining.TotalSeconds)}";
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        base.GetProgressText(playerId, comms, resultText);
+
+        if (Timer is { Remaining.TotalSeconds: <= 15 })
+        {
+            resultText.Append(" <#777777>-</color> ")
+                .Append(string.Format(GetString("BountyHunterSwapTimer"), (int)Timer.Remaining.TotalSeconds));
+        }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -218,7 +222,7 @@ public class BountyHunter : RoleBase
 
     private static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
-        if ((target != null && seer.PlayerId != target.PlayerId) || !ShowTargetArrow || GameStates.IsMeeting || Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
+        if ((target && seer.PlayerId != target.PlayerId) || !ShowTargetArrow || GameStates.IsMeeting || Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
         byte targetId = bh.GetTarget(seer);
         return $"<color=#ffffff> {TargetArrow.GetArrows(seer, targetId)}</color>";

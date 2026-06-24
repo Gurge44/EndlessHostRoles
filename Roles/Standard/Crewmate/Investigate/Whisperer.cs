@@ -10,7 +10,7 @@ namespace EHR.Roles;
 public class Whisperer : RoleBase
 {
     public static bool On;
-    private static List<Whisperer> Instances = [];
+    private static List<Whisperer> Instances;
 
     public static OptionItem Cooldown;
     public static OptionItem Duration;
@@ -19,7 +19,7 @@ public class Whisperer : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private static DateTime LastMeetingStart;
-    private static Dictionary<byte, (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage)> DeathInfo = [];
+    private static Dictionary<byte, (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage)> DeathInfo;
 
     private int Count;
     private (string Name, int Percent) CurrentlyQuestioning;
@@ -58,8 +58,8 @@ public class Whisperer : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
-        DeathInfo = [];
+        Instances = null;
+        DeathInfo = null;
     }
 
     public override void Add(byte playerId)
@@ -68,6 +68,7 @@ public class Whisperer : RoleBase
         Count = 0;
         Souls = [];
         Info = [];
+        Instances ??= [];
         Instances.Add(this);
         WhispererId = playerId;
         CurrentlyQuestioning = (string.Empty, 0);
@@ -76,7 +77,7 @@ public class Whisperer : RoleBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override void OnPet(PlayerControl pc)
@@ -93,8 +94,18 @@ public class Whisperer : RoleBase
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
-        Soul soul = Souls.Find(x => x.IsQuestioning);
-        if (soul == null) return;
+        Soul soul = null;
+        bool found = false;
+        for (int index = 0; index < Souls.Count; index++)
+        {
+            soul = Souls[index];
+            if (soul.IsQuestioning)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found) return;
 
         byte soulPlayerId = soul.Player.PlayerId;
 
@@ -121,18 +132,18 @@ public class Whisperer : RoleBase
             try
             {
                 PlayerState state = Main.PlayerStates[soulPlayerId];
-                (DateTime TimeStamp, byte ID) killer = state.RealKiller;
+                (DateTime TimeStamp, byte ID) = state.RealKiller;
                 int next = IRandom.Instance.Next(7);
                 if (state.deathReason == PlayerState.DeathReason.Disconnected) next = 2;
                 (byte[] SameRoomPlayers, SystemTypes? ActiveSabotage) deathInfo = ([], null);
-                if (next > 3 && !DeathInfo.TryGetValue(soulPlayerId, out deathInfo)) next = IRandom.Instance.Next(4);
+                if (next > 3 && (DeathInfo == null || !DeathInfo.TryGetValue(soulPlayerId, out deathInfo))) next = IRandom.Instance.Next(4);
                 if (pc.Is(CustomRoles.Autopsy) || pc.Is(CustomRoles.Doctor) || Options.EveryoneSeesDeathReasons.GetBool()) next = IRandom.Instance.Next(6);
-                PlayerState killerState = Main.PlayerStates[killer.ID];
+                PlayerState killerState = Main.PlayerStates[ID];
 
                 info = next switch
                 {
-                    0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(GameData.Instance.GetPlayerById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
-                    1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - killer.TimeStamp).TotalSeconds)),
+                    0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(GameData.Instance.GetPlayerById(ID).DefaultOutfit.ColorId, out string colors), colors),
+                    1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - TimeStamp).TotalSeconds)),
                     2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString() + (state.SubRoles.Count == 0 ? string.Empty : string.Join(' ', state.SubRoles.ConvertAll(x => x.ToColoredString())))),
                     3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), killerState.MainRole.ToColoredString() + (killerState.SubRoles.Count == 0 ? string.Empty : string.Join(' ', killerState.SubRoles.ConvertAll(x => x.ToColoredString())))),
                     4 => string.Format(Translator.GetString(deathInfo.SameRoomPlayers.Length == 0 ? "WhispererInfo.AloneInRoomAtDeath" : "WhispererInfo.PlayersInSameRoomAtDeath"), string.Join(", ", deathInfo.SameRoomPlayers.Select(x => x.ColoredPlayerName()))),
@@ -186,16 +197,20 @@ public class Whisperer : RoleBase
 
     public static void OnAnyoneDied(PlayerControl target)
     {
-        foreach (Whisperer instance in Instances)
+        if (Instances != null)
         {
-            if (instance.Souls.Exists(x => x.Player.PlayerId == target.PlayerId)) continue;
+            foreach (Whisperer instance in Instances)
+            {
+                if (instance.Souls.Exists(x => x.Player.PlayerId == target.PlayerId)) continue;
 
-            instance.Souls.Add(new(target));
-            Utils.SendRPC(CustomRPC.SyncRoleData, instance.WhispererId, 5, target.PlayerId);
+                instance.Souls.Add(new(target));
+                Utils.SendRPC(CustomRPC.SyncRoleData, instance.WhispererId, 5, target.PlayerId);
+            }
         }
 
         var room = target.GetPlainShipRoom();
-        DeathInfo[target.PlayerId] = (room == null ? [] : Main.EnumerateAlivePlayerControls().Where(x => x.IsInRoom(room)).Select(x => x.PlayerId).ToArray(), new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage, (SystemTypes)SubmergedCompatibility.SubmergedSystemTypes.Ballast }.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
+        DeathInfo ??= [];
+        DeathInfo[target.PlayerId] = (!room ? [] : Main.EnumerateAlivePlayerControls().Where(x => x.IsInRoom(room)).Select(x => x.PlayerId).ToArray(), ShipStatusSystem.AllSabotage.FindFirst(Utils.IsActive, out var sabotage) ? sabotage : null);
     }
 
     public override void OnReportDeadBody()

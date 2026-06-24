@@ -16,7 +16,7 @@ public static class AutoHaunt
 
         return Options.CurrentGameMode switch
         {
-            CustomGameMode.Standard => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Workaholic or CustomRoles.Snitch && x.GetTaskState().RemainingTasksCount <= 2).ThenByDescending(x => x.Is(CustomRoleTypes.Coven)).ThenByDescending(x => x.IsNeutralKiller()).ThenByDescending(x => x.IsImpostor()).ThenByDescending(x => x.GetCustomRole().IsNeutral()).FirstOrDefault(),
+            CustomGameMode.Standard => validPCs.OrderByDescending(x => x.GetCustomRole() is CustomRoles.Workaholic or CustomRoles.Snitch && x.GetTaskState().RemainingTasksCount <= 2).ThenByDescending(x => x.IsNeutralKiller()).ThenByDescending(x => x.IsImpostor()).ThenByDescending(x => x.Is(CustomRoleTypes.Coven)).ThenByDescending(x => x.GetCustomRole().IsNeutral()).FirstOrDefault(),
             CustomGameMode.SoloPVP => validPCs.Where(x => x.SoloAlive()).MinBy(x => SoloPVP.GetRankFromScore(x.PlayerId)),
             CustomGameMode.FFA => validPCs.MaxBy(x => FreeForAll.KillCount.GetValueOrDefault(x.PlayerId, 0)),
             CustomGameMode.StopAndGo => validPCs.MaxBy(x => x.GetTaskState().CompletedTasksCount),
@@ -41,24 +41,32 @@ public static class AutoHaunt
         {
             while (Main.AutoHaunt.Value)
             {
-                if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost && !ExtendedPlayerControl.TempExiled.Contains(PlayerControl.LocalPlayer.PlayerId))
+                float waitTime = 5f;
+                
+                if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Data.RoleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost && !ExtendedPlayerControl.TempExiled.Contains(PlayerControl.LocalPlayer.PlayerId) && !GhostRolesManager.AssignedGhostRoles.ContainsKey(PlayerControl.LocalPlayer.PlayerId))
                 {
-                    if (HauntMenuMinigameStartPatch.Instance != null)
+                    if (HauntMenuMinigameStartPatch.Instance)
                     {
                         PlayerControl currentTarget = HauntMenuMinigameStartPatch.Instance.HauntTarget;
                         PlayerControl preferredTarget = GetPreferredHauntTarget();
 
-                        if (preferredTarget != null && currentTarget != preferredTarget)
+                        if (preferredTarget && currentTarget != preferredTarget)
                             HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, preferredTarget);
+
+                        if (Options.CurrentGameMode == CustomGameMode.HotPotato)
+                            waitTime = 0.5f;
                     }
                     else
+                    {
                         HudManager.Instance.AbilityButton.DoClick();
+                        waitTime = 1f;
+                    }
                 }
 
-                yield return new WaitForSecondsRealtime(5f);
+                yield return new WaitForSecondsRealtime(waitTime);
             }
 
-            if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance != null)
+            if (GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && !PlayerControl.LocalPlayer.IsAlive() && HauntMenuMinigameStartPatch.Instance)
                 HauntMenuMinigameSetHauntTargetPatch.Prefix(HauntMenuMinigameStartPatch.Instance, null);
         }
     }

@@ -30,6 +30,7 @@ public class Bandit : RoleBase
         "BanditStealMode.Instantly"
     ];
 
+    private static Color32 ShadeColor;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -67,6 +68,7 @@ public class Bandit : RoleBase
         Targets = [];
         TotalSteals = [];
         On = false;
+        ShadeColor = Utils.GetRoleColor(CustomRoles.Bandit).ShadeColor(0.25f);
     }
 
     public override void Add(byte playerId)
@@ -168,14 +170,14 @@ public class Bandit : RoleBase
             if (StealMode.GetValue() == 1)
             {
                 Main.PlayerStates[target.PlayerId].RemoveSubRole((CustomRoles)SelectedAddOn);
-                Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully removed {SelectedAddOn} addon from {target.GetNameWithRole()}", "Bandit");
                 killer.RpcSetCustomRole((CustomRoles)SelectedAddOn);
-                Logger.Info($"Successfully Added {SelectedAddOn} addon to {killer.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully Added {SelectedAddOn} addon to {killer.GetNameWithRole()}", "Bandit");
             }
             else
             {
                 Targets[killer.PlayerId][target.PlayerId] = (CustomRoles)SelectedAddOn;
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} will steal {SelectedAddOn} addon from {target.GetNameWithRole().RemoveHtmlTags()} after meeting starts", "Bandit");
+                Logger.Info($"{killer.GetNameWithRole()} will steal {SelectedAddOn} addon from {target.GetNameWithRole()} after meeting starts", "Bandit");
             }
 
             TotalSteals[killer.PlayerId]++;
@@ -195,26 +197,22 @@ public class Bandit : RoleBase
 
         if (StealMode.GetValue() == 1) return;
 
-        foreach (KeyValuePair<byte, Dictionary<byte, CustomRoles>> kvp1 in Targets)
+        foreach ((byte banditId, Dictionary<byte, CustomRoles> innerDictionary) in Targets)
         {
-            byte banditId = kvp1.Key;
             PlayerControl banditpc = Utils.GetPlayerById(banditId);
             if (banditpc == null || !banditpc.IsAlive()) continue;
 
-            Dictionary<byte, CustomRoles> innerDictionary = kvp1.Value;
             Utils.NotifyRoles(SpecifySeer: banditpc);
 
-            foreach (KeyValuePair<byte, CustomRoles> kvp2 in innerDictionary)
+            foreach ((byte targetId, CustomRoles role) in innerDictionary)
             {
-                byte targetId = kvp2.Key;
                 PlayerControl target = Utils.GetPlayerById(banditId);
                 if (target == null) continue;
 
-                CustomRoles role = kvp2.Value;
                 Main.PlayerStates[targetId].RemoveSubRole(role);
-                Logger.Info($"Successfully removed {role} addon from {target.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully removed {role} addon from {target.GetNameWithRole()}", "Bandit");
                 banditpc.RpcSetCustomRole(role);
-                Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole().RemoveHtmlTags()}", "Bandit");
+                Logger.Info($"Successfully Added {role} addon to {banditpc.GetNameWithRole()}", "Bandit");
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: banditpc);
             }
 
@@ -222,8 +220,20 @@ public class Bandit : RoleBase
         }
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return Utils.ColorString(TotalSteals[playerId] < MaxSteals.GetInt() ? Utils.GetRoleColor(CustomRoles.Bandit).ShadeColor(0.25f) : Color.gray, TotalSteals.TryGetValue(playerId, out int stealLimit) ? $"({MaxSteals.GetInt() - stealLimit})" : "Invalid");
+        int maxSteals = MaxSteals.GetInt();
+        if (!TotalSteals.TryGetValue(playerId, out int stealLimit))
+        {
+            resultText.Append("Invalid");
+            return;
+        }
+
+        int remaining = maxSteals - stealLimit;
+        Color32 color = remaining > 0 ? ShadeColor : Color.gray;
+        resultText.Append(Utils.ColorPrefix(color))
+            .Append('(')
+            .Append(remaining)
+            .Append(")</color>");
     }
 }

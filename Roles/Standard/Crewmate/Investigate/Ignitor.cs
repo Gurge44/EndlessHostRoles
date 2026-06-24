@@ -10,7 +10,7 @@ using static Options;
 public class Ignitor : RoleBase // Candle Lighter from TOHY
 {
     private const int Id = 5280;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     private static OptionItem OptionTaskStartVision;
     private static OptionItem OptionCountStartTime;
@@ -18,12 +18,12 @@ public class Ignitor : RoleBase // Candle Lighter from TOHY
     private static OptionItem OptionTaskEndVision;
     private static OptionItem OptionTaskTimeMoveMeeting;
     private static OptionItem OptionTasksFinishedVision;
+
     private bool Active = true;
     private float ElapsedTime;
-
     private float UpdateTime;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -57,21 +57,16 @@ public class Ignitor : RoleBase // Candle Lighter from TOHY
 
     public override void Init()
     {
-        PlayerIdList = [];
+        On = false;
         Active = true;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         Active = true;
         UpdateTime = 1.0f;
         ElapsedTime = OptionTaskEndVisionTime.GetInt() + OptionCountStartTime.GetInt();
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)

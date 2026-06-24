@@ -87,10 +87,13 @@ public class Exclusionary : RoleBase
                         sender.StartMessage(target.OwnerId);
                     }
 
-                    sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
-                        .Write("")
-                        .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                        .EndRpc();
+                    if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+                    {
+                        sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
+                            .Write("")
+                            .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                            .EndRpc();
+                    }
                     sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                         .WriteVector2(new Vector2(50f, 50f))
                         .Write(player.NetTransform.lastSequenceId)
@@ -109,8 +112,29 @@ public class Exclusionary : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!On || lowLoad || !pc.IsAlive() || !ExcludedPlayers.FindFirst(x => x.ID == pc.PlayerId, out var tuple) || tuple.TS > Utils.TimeStamp) return;
-        ExcludedPlayers.RemoveAll(x => x.ID == pc.PlayerId);
+        if (!On || lowLoad || !pc.IsAlive()) return;
+        
+        byte playerId = pc.PlayerId;
+        int foundIndex = -1;
+        long ts = 0;
+        for (int excludedindex = 0; excludedindex < ExcludedPlayers.Count; excludedindex++)
+        {
+            (byte ID, long TS) = ExcludedPlayers[excludedindex];
+
+            if (ID == playerId)
+            {
+                foundIndex = excludedindex;
+                ts = TS;
+                break;
+            }
+        }
+        if (foundIndex == -1 || ts > Utils.TimeStamp) return;
+
+        for (int index = ExcludedPlayers.Count - 1; index >= 0; index--)
+        {
+            if (ExcludedPlayers[index].ID == playerId)
+                ExcludedPlayers.RemoveAt(index);
+        }
         RevertExclusion(pc);
     }
 
@@ -129,7 +153,7 @@ public class Exclusionary : RoleBase
     {
         if (pc.AmOwner)
         {
-            foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+            foreach (PlayerControl player in Main.CachedAlivePlayerControls())
             {
                 if (player.AmOwner) continue;
                 if (Options.UsePets.GetBool()) PetsHelper.SetPet(player, PetsHelper.GetPetId());
@@ -155,7 +179,7 @@ public class Exclusionary : RoleBase
         var sender = CustomRpcSender.Create("Exclusionary Revert", SendOption.Reliable);
         sender.StartMessage(pc.OwnerId);
 
-        foreach (PlayerControl player in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl player in Main.CachedAlivePlayerControls())
         {
             if (pc == player) continue;
 
@@ -167,7 +191,7 @@ public class Exclusionary : RoleBase
                 sender.StartMessage(pc.OwnerId);
             }
 
-            if (Options.UsePets.GetBool())
+            if (Options.UsePets.GetBool() && GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
             {
                 sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
                     .Write(PetsHelper.GetPetId())

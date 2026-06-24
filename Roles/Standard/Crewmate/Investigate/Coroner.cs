@@ -10,9 +10,9 @@ using static Translator;
 public class Coroner : RoleBase
 {
     private const int Id = 6400;
-    private static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
-    public static List<byte> UnreportablePlayers = [];
+    public static List<byte> UnreportablePlayers;
 
     public static OptionItem ArrowsPointingToDeadBody;
     public static OptionItem UseLimitOpt;
@@ -24,7 +24,7 @@ public class Coroner : RoleBase
     private byte CoronerId;
     private List<byte> CoronerTargets = [];
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList is { Count: > 0 };
 
     public override bool SeesArrowsToDeadBodies => ArrowsPointingToDeadBody.GetBool();
 
@@ -56,13 +56,13 @@ public class Coroner : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        UnreportablePlayers = [];
-        CoronerTargets = [];
+        PlayerIdList = null;
+        UnreportablePlayers = null;
     }
 
     public override void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(UseLimitOpt.GetFloat());
         CoronerTargets = [];
@@ -71,15 +71,18 @@ public class Coroner : RoleBase
 
     public override void Remove(byte playerId)
     {
-        PlayerIdList.Remove(playerId);
+        PlayerIdList?.Remove(playerId);
     }
 
     public override void OnReportDeadBody()
     {
-        foreach (byte id in PlayerIdList)
+        if (PlayerIdList != null)
         {
-            TargetArrow.RemoveAllTarget(id);
-            LocateArrow.RemoveAllTarget(id);
+            foreach (byte id in PlayerIdList)
+            {
+                TargetArrow.RemoveAllTarget(id);
+                LocateArrow.RemoveAllTarget(id);
+            }
         }
 
         CoronerTargets.Clear();
@@ -93,7 +96,7 @@ public class Coroner : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (killer != null && !target.Object.Is(CustomRoles.Disregarded))
+        if (killer && !target.Object.Is(CustomRoles.Disregarded))
         {
             if (CoronerTargets.Contains(killer.PlayerId)) return false;
 
@@ -108,7 +111,11 @@ public class Coroner : RoleBase
                 pc.Notify(GetString("CoronerTrackRecorded"));
                 pc.RpcRemoveAbilityUse();
 
-                if (LeaveDeadBodyUnreportable.GetBool()) UnreportablePlayers.Add(target.PlayerId);
+                if (LeaveDeadBodyUnreportable.GetBool())
+                {
+                    UnreportablePlayers ??= [];
+                    UnreportablePlayers.Add(target.PlayerId);
+                }
 
                 if (NotifyKiller.GetBool()) killer.Notify(GetString("CoronerKillerNotify"));
             }

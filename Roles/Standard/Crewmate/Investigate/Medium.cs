@@ -7,16 +7,16 @@ namespace EHR.Roles;
 public class Medium : RoleBase
 {
     private const int Id = 7200;
-    public static List<byte> PlayerIdList = [];
+    private static bool On;
 
     private static OptionItem ContactLimitOpt;
     public static OptionItem OnlyReceiveMsgFromCrew;
     public static OptionItem MediumAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    public static Dictionary<byte, byte> ContactPlayer = [];
+    public static Dictionary<byte, byte> ContactPlayer;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -40,19 +40,14 @@ public class Medium : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        ContactPlayer = [];
+        On = false;
+        ContactPlayer = null;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         playerId.SetAbilityUseLimit(ContactLimitOpt.GetFloat());
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     public static void OnReportDeadBody(NetworkedPlayerInfo target)
@@ -60,19 +55,19 @@ public class Medium : RoleBase
         ContactPlayer = [];
         if (target == null || !target.Object) return;
 
-        foreach (PlayerControl pc in Main.EnumerateAlivePlayerControls())
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
         {
             if (!pc.Is(CustomRoles.Medium) || pc.PlayerId == target.PlayerId || pc.GetAbilityUseLimit() < 1) continue;
 
             pc.RpcRemoveAbilityUse();
             ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
-            Logger.Info($"Medium Connection: {pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Medium");
+            Logger.Info($"Medium Connection: {pc.GetNameWithRole()} => {target.PlayerName}", "Medium");
         }
     }
 
     public static bool MsMsg(PlayerControl pc, string msg)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsMeeting || !pc || pc.IsAlive() || !ContactPlayer.TryGetValue(pc.PlayerId, out var contact) || (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate())) return false;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsMeeting || !pc || pc.IsAlive() || ContactPlayer == null || !ContactPlayer.TryGetValue(pc.PlayerId, out var contact) || (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate())) return false;
 
         msg = msg.ToLower().Trim();
         if (!CheckCommand(ref msg, "通灵|ms|medium", false)) return false;
@@ -89,8 +84,8 @@ public class Medium : RoleBase
             return true;
         }
 
-        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), contact, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")), importance: MessageImportance.High);
-        Utils.SendMessage(GetString("MediumDone"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Medium), GetString("MediumTitle")));
+        Utils.SendMessage(GetString("Medium" + (ans ? "Yes" : "No")), contact, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")), importance: MessageImportance.High);
+        Utils.SendMessage(GetString("MediumDone"), pc.PlayerId, CustomRoles.Medium.ColoredTextByRole(GetString("MediumTitle")));
 
         ContactPlayer.Remove(pc.PlayerId);
 

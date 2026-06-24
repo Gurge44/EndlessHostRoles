@@ -126,10 +126,10 @@ public class Explosivist : RoleBase
         {
             PlayerControl pc = ExplosivistId.GetPlayer();
             pc.RevertFreeze(RealPosition);
-            Explosive.Despawn();
-            Explosive = null;
             RealPosition = Vector2.zero;
             ExplodeTS = 0;
+            Explosive.Despawn();
+            Explosive = null;
         }
     }
 

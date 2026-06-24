@@ -114,17 +114,20 @@ public class Mechanic : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        SystemTypes[] systemTypes = [SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.HeliSabotage, SystemTypes.Comms];
-        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !systemTypes.FindFirst(Utils.IsActive, out SystemTypes activeSystem) || PetLimit-- < 1) return;
+        if (!CanFixSabotageFromAnywhereWithPet.GetBool() || !ShipStatusSystem.AllSabotage.FindFirst(Utils.IsActive, out SystemTypes activeSystem) || PetLimit-- < 1) return;
 
         switch (activeSystem)
         {
             case SystemTypes.Electrical:
-                var switchSystem = ShipStatus.Instance.Systems[SystemTypes.Electrical].CastFast<SwitchSystem>();
+                var switchSystem = ShipStatusSystem.SwitchSystem;
                 if (switchSystem == null) break;
                 switchSystem.ActualSwitches = switchSystem.ExpectedSwitches;
                 switchSystem.IsDirty = true;
                 break;
+            case SystemTypes.Comms when Main.NormalOptions.MapId is 1 or 5:
+                ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
+                goto case SystemTypes.Reactor;
+            case SystemTypes.Comms:
             case SystemTypes.Reactor:
             case SystemTypes.Laboratory:
             case SystemTypes.LifeSupp:
@@ -133,13 +136,10 @@ public class Mechanic : RoleBase
             case SystemTypes.HeliSabotage:
                 ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
                 goto case SystemTypes.Reactor;
-            case SystemTypes.Comms:
-                if (Main.NormalOptions.MapId is 1 or 5) ShipStatus.Instance.UpdateSystem(activeSystem, pc, 17);
-                goto case SystemTypes.Reactor;
         }
     }
 
-    public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
+    public static void UpdateSystem(byte playerId, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[playerId].Role is not Mechanic m) return;
 
@@ -227,20 +227,20 @@ public class Mechanic : RoleBase
                 {
                     case 2: // Polus
                     {
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 71, 72);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 67, 68);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 64, 66);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 73, 74);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 71, 72);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 67, 68);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 64, 66);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 73, 74);
                         break;
                     }
                     case 4: // Airship
                     {
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 64, 67);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 71, 73);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 74, 75);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 76, 78);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 68, 70);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 83, 84);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 64, 67);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 71, 73);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 74, 75);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 76, 78);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 68, 70);
+                        UpdateSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 83, 84);
                         break;
                     }
                     case 5: // Fungle

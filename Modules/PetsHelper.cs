@@ -7,13 +7,19 @@ public static class PetsHelper
     public static void RpcRemovePet(PlayerControl pc)
     {
         const string petId = "";
-        if (!GameStates.IsInGame || !Options.RemovePetsAtDeadPlayers.GetBool() || pc == null || !pc.Data.IsDead || pc.IsAlive() || pc.CurrentOutfit.PetId == petId) return;
+        if (!GameStates.IsInGame || !Options.RemovePetsAtDeadPlayers.GetBool() || !pc || !pc.Data.IsDead || pc.IsAlive() || pc.CurrentOutfit.PetId == petId) return;
 
         SetPet(pc, petId);
     }
 
     public static void SetPet(PlayerControl pc, string petId)
     {
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            pc.RpcChangePet(petId);
+            return;
+        }
+
         var sender = CustomRpcSender.Create("PetsHelper.SetPet", SendOption.Reliable);
 
         try { pc.SetPet(petId); }

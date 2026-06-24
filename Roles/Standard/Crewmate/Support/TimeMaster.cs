@@ -72,7 +72,6 @@ internal class TimeMaster : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        BackTrack = [];
         DesyncCommsActive = false;
         playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetFloat());
     }
@@ -82,6 +81,7 @@ internal class TimeMaster : RoleBase
         On = false;
         Rewinding = false;
         RevivedPlayers = [];
+        BackTrack = [];
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -131,6 +131,8 @@ internal class TimeMaster : RoleBase
 
     private static IEnumerator Rewind()
     {
+        Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
+        
         try
         {
             Rewinding = true;
@@ -138,20 +140,22 @@ internal class TimeMaster : RoleBase
             const float delay = 0.3f;
             long now = Utils.TimeStamp;
             int length = TimeMasterRewindTimeLength.GetInt();
+            float duration = length * delay + 0.55f;
 
-            Dictionary<byte, float> originalSpeeds = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
             Main.AllPlayerSpeed.SetAllValues(Main.MinSpeed);
             ReportDeadBodyPatch.CanReport.SetAllValues(false);
 
             string notify = Utils.ColorString(Color.yellow, string.Format(Translator.GetString("TimeMasterRewindStart"), CustomRoles.TimeMaster.ToColoredString()));
-            
+
             foreach (PlayerControl player in Main.EnumeratePlayerControls())
             {
                 if (player.inVent || player.MyPhysics?.Animations?.IsPlayingEnterVentAnimation() == true) player.MyPhysics?.RpcExitVent(player.GetClosestVent().Id);
-                player.ReactorFlash(flashDuration: length * delay + 0.55f);
-                player.Notify(notify, Math.Max((length * delay) + 0.55f, 4f));
+                player.ReactorFlash(flashDuration: duration);
+                player.Notify(notify, Math.Max(duration, 4f));
                 player.MarkDirtySettings();
             }
+            
+            yield return PlayerGameOptionsSender.SendAllImmediately().Wait();
 
             yield return new WaitForSecondsRealtime(0.55f);
 
@@ -162,7 +166,7 @@ internal class TimeMaster : RoleBase
                 foreach ((byte playerId, Vector2 pos) in track)
                 {
                     PlayerControl player = playerId.GetPlayer();
-                    if (player == null || !player.IsAlive()) continue;
+                    if (!player || !player.IsAlive()) continue;
 
                     player.TP(pos);
                 }
@@ -181,6 +185,7 @@ internal class TimeMaster : RoleBase
                         ps.Player.RpcRevive();
                         ps.Player.TP(deadBody.TruePosition);
                         ps.Player.Notify(Translator.GetString("RevivedByTimeMaster"), 15f);
+                        RevivedPlayers.Add(deadBody.ParentId);
                     }
 
                     if (TimeMasterRevivedKillerAlert.GetBool())
@@ -195,17 +200,29 @@ internal class TimeMaster : RoleBase
                     }
                 }
             }
-
-            Main.AllPlayerSpeed = originalSpeeds;
-            ReportDeadBodyPatch.CanReport.SetAllValues(true);
-            Utils.MarkEveryoneDirtySettings();
         }
-        finally { Rewinding = false; }
+        finally
+        {
+            Rewinding = false;
+            Main.AllPlayerSpeed.AddRange(originalSpeeds);
+            Utils.MarkEveryoneDirtySettings();
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
+        }
+    }
+
+    public override void OnReportDeadBody()
+    {
+        AfterMeetingTasks();
     }
 
     public override void AfterMeetingTasks()
     {
-        Rewinding = false;
+        if (Rewinding)
+        {
+            Rewinding = false;
+            Main.AllPlayerSpeed.SetAllValues(Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+            ReportDeadBodyPatch.CanReport.SetAllValues(true);
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl player)
@@ -213,54 +230,68 @@ internal class TimeMaster : RoleBase
         if (GameStates.IsMeeting || ExileController.Instance || !player.IsAlive()) return;
 
         long now = Utils.TimeStamp;
-        if (BackTrack.ContainsKey(now)) return;
+        if (!BackTrack.TryAdd(now, null)) return;
 
-        BackTrack[now] = Main.EnumerateAlivePlayerControls().Where(x => !x.inVent && !x.onLadder && !x.inMovingPlat).ToDictionary(x => x.PlayerId, x => x.Pos());
+        Dictionary<byte, Vector2> targetPosition = [];
+
+        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
+        {
+            if (pc.inVent || pc.onLadder || pc.inMovingPlat) continue;
+
+            targetPosition[pc.PlayerId] = pc.Pos();
+        }
+        BackTrack[now] = targetPosition;
 
         if (TimeMasterCanUseVitals.GetBool()) return;
 
         var doComms = false;
         bool commsSaboActive = Utils.IsActive(SystemTypes.Comms);
         float usableDistance = DisableDevice.UsableDistance + 2f;
+        var mapId = Main.NormalOptions.MapId;
         Vector2 pos = player.Pos();
 
         if (!commsSaboActive)
         {
-            switch (Main.NormalOptions.MapId)
+            doComms = mapId switch
             {
-                case 2:
-                    doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["PolusVital"], usableDistance);
-                    break;
-                case 4:
-                    doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["AirshipVital"], usableDistance);
-                    break;
-                case 5:
-                    doComms |= FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["FungleVital"], usableDistance);
-                    break;
-            }
+                2 => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["PolusVital"], usableDistance),
+                4 => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["AirshipVital"], usableDistance),
+                5 => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["FungleVital"], usableDistance),
+                6 when SubmergedCompatibility.IsSubmerged() => FastVector2.DistanceWithinRange(pos, DisableDevice.DevicePos["SubmergedVital"], usableDistance),
+                _ => false
+            };
         }
 
-        var sender = CustomRpcSender.Create("DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
         var hasValue = false;
+        var activateSabComms = false;
 
         if (doComms && !player.inVent && !DisableDevice.DesyncComms.Contains(player.PlayerId))
         {
             DesyncCommsActive = true;
-            sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 128);
             hasValue = true;
+            activateSabComms = true;
         }
         else if (!commsSaboActive && DesyncCommsActive)
         {
             DesyncCommsActive = false;
-            sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 16);
-
-            if (Main.NormalOptions.MapId is 1 or 5) // Mira HQ or The Fungle
-                sender.RpcDesyncRepairSystem(player, SystemTypes.Comms, 17);
-
             hasValue = true;
         }
 
-        sender.SendMessage(!hasValue);
+        if (!hasValue) return;
+
+        var sender = CustomRpcSender.Create("TimeMaster.DisableDevice.FixedUpdate", SendOption.Reliable, log: false);
+
+        if (activateSabComms)
+            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 128);
+        else
+        {
+            sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 16);
+
+            if (mapId is 1 or 5) // Mira HQ or The Fungle
+                sender.RpcDesyncUpdateSystem(player, SystemTypes.Comms, 17);
+        }
+
+        sender.SendMessage();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

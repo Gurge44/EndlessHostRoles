@@ -24,12 +24,10 @@
   "SayTitle": "★[ Moderator message ]★",
   "announcementUpdate": "<size=3f>Update v{0}</size>\\n{1}",
   "announcementChangelog": "<size=3f>ChangeLogs v{0}</size>\\n{1}",
-  "Server": "<#00ffa5>سرور:</color> <b>{0}</b>",
+  "Server": "<#00ffa5>Server:</color>: ",
   "VersionMismatch": "{0} has a different version of the mod installed",
   "ModMismatch": "{0} has a different mod installed that isn't compatible with EHR",
-  "Kick": "Kick",
-  "Ban": "Ban",
-  "TempBan": "بن فقط برای این جلسه",
+  "PrivacyPolicy": "<size=200%>Have you read and agree to the Privacy Policy and Code Of Conduct available on the mod's official GitHub repository?</size>\\nYou must accept them to continue.",
   "Yes": "Yes",
   "No": "No",
   "None": "هیچکدام",
@@ -68,8 +66,6 @@
   "Preset_20": "Preset 20",
   "TabInfoTip": "<b>Tip:</b> Hold SHIFT to adjust number values by 5 or CTRL to adjust by 10! Switch game modes using the arrow button above this message!",
   "Alignments": "تیم‌ها (Alignments)",
-  "Crewmate": "Crewmate",
-  "Impostor": "Impostor",
   "Neutral": "خنثی",
   "Coven": "کاون",
   "Madmate": "مدمیت",
@@ -91,7 +87,6 @@
   "Alive": "Alive",
   "Dead": "مرده",
   "Kill": "کیل",
-  "Suicide": "خودکشی",
   "Vent": "ونت",
   "Report": "ریپورت",
   "Shapeshift": "Shapeshift",
@@ -118,6 +113,7 @@
     Role Prefixes    
   ============================== */
   "Prefix.Aide": "Aide",
+  "Prefix.Absorber": "Absorber",
   "Prefix.Allergic": "Allergic",
   "Prefix.Anchor": "Anchor",
   "Prefix.AntiTP": "Anti-TP",
@@ -142,16 +138,19 @@
   "Prefix.Compelled": "Compelled",
   "Prefix.Composter": "Composter",
   "Prefix.Concealer": "Concealer",
+  "Prefix.Constricted": "Constricted",
   "Prefix.Damocles": "Damocles",
   "Prefix.Deadlined": "Deadlined",
   "Prefix.DeadlyQuota": "Deadly Quota",
   "Prefix.Disco": "Disco",
   "Prefix.Diseased": "Diseased",
   "Prefix.Disregarded": "Disregarded",
+  "Prefix.Dizzy": "Dizzy",
   "Prefix.DoubleShot": "Double Shot",
   "Prefix.Dynamo": "Dynamo",
   "Prefix.Egoist": "Egoist",
   "Prefix.Energetic": "Energetic",
+  "Prefix.Entombed": "Entombed",
   "Prefix.EvilSpirit": "Evil Spirit",
   "Prefix.Examiner": "Examiner",
   "Prefix.Facilitator": "Facilitator",
@@ -177,6 +176,7 @@
   "Prefix.Lucky": "Lucky",
   "Prefix.Magnet": "Magnet",
   "Prefix.Mare": "Mare",
+  "Prefix.MeetingAngel": "Meeting Angel",
   "Prefix.Messenger": "Messenger",
   "Prefix.Mimic": "Mimic",
   "Prefix.Minion": "Minion",
@@ -190,6 +190,7 @@
   "Prefix.Physicist": "Physicist",
   "Prefix.Rascal": "Rascal",
   "Prefix.Reach": "Reach",
+  "Prefix.Reroll": "Reroll",
   "Prefix.Rookie": "Rookie",
   "Prefix.Schizophrenic": "Schizophrenic",
   "Prefix.Seer": "Seer",
@@ -204,6 +205,7 @@
   "Prefix.Stressed": "Stressed",
   "Prefix.Sunglasses": "Sunglasses",
   "Prefix.Swift": "Swift",
+  "Prefix.Talkative": "Talkative",
   "Prefix.TaskMaster": "Task Master",
   "Prefix.Taskcounter": "Taskcounter",
   "Prefix.Tiebreaker": "Tiebreaker",
@@ -215,27 +217,12 @@
   "Prefix.Undead": "Undead",
   "Prefix.Underdog": "Underdog",
   "Prefix.Unlucky": "Unlucky",
+  "Prefix.Urgent": "Urgent",
   "Prefix.Venom": "Venom",
   "Prefix.Warden": "Warden",
   "Prefix.Watcher": "Watcher",
   "Prefix.Workhorse": "Workhorse",
   "Prefix.Youtuber": "YouTuber",
-  /* ==============================
-    Host Suffixes           
-  ============================== */
-  "SuffixMode": "پسوند (Suffix)",
-  "SuffixMode.AutoHost": "هاست خودکار",
-  "SuffixMode.DoNotKillMe": "من را نکش",
-  "SuffixMode.NoAndroidPlz": "گوشی ممنوع",
-  "SuffixMode.None": "هیچ‌کدام",
-  "SuffixMode.OriginalName": "اسم اصلی",
-  "SuffixMode.Recording": "در حال ضبط (Recording)",
-  "SuffixMode.RoomHost": "هاست اتاق",
-  "SuffixMode.Streaming": "در حال استریم (Streaming)",
-  "SuffixMode.Version": "نسخه",
-  "SuffixModeText.AutoHost": "هاست خودکار (Auto-hosting)",
-  "SuffixModeText.DoNotKillMe": "من را نکش",
-  "SuffixModeText.NoAndroidPlz": "لطفاً گوشی ممنوع",
   /* ==============================
     TITLES           
   ============================== */
@@ -244,7 +231,6 @@
   "AnagramTitle": "<#888888>➡ ANAGRAM ⬅</color>",
   "BaitAliveTitle": "★[ Message about Bait ]★",
   "CleanserTitle": "CLEANSER",
-  "CompletedAchievementsTitle": "<#FAD101>COMPLETED ACHIEVEMENTS</color>",
   "DoomsayerGuessCountTitle": "[ ★ Doomsayer ★ ]",
   "EraserEraseMsgTitle": "★[ Eraser ]★",
   "EveryoneReadyTitle": "<#00ff00>همه آماده هستند!</color>",
@@ -260,20 +246,7 @@
   "JournalistNotesTitle": "<#fcba03>Journalist's Notes</color>",
   "MediumTitle": "[★ Voice of the Underworld ★]",
   "MeetingManagerMessageTitle": "★ Meeting Management ★",
-  "MenuTitle.AFKDetection": "★ تشخیص AFK ★",
-  "MenuTitle.AGMR.RandomGroup": "Random Group {index}",
-  "MenuTitle.AutoFactionMinMaxSettings": "Auto Team Sizes",
-  "MenuTitle.AutoGMRotation": "Automatic Game Mode Rotation",
-  "MenuTitle.CTA": "★ تخصیص تیم سفارشی ★",
   "MenuTitle.CrewAdvancedGameEndChecking": "Advanced Game End Checking",
-  "MenuTitle.Disable": "★ غیرفعال‌سازی ★",
-  "MenuTitle.Ejections": "★ اخراج‌ ★",
-  "MenuTitle.Ghost": "★ روح (Ghost) ★",
-  "MenuTitle.Guessers": "★ حالت Guesser ★",
-  "MenuTitle.MapsSettings": "★ مپ‌ها ★",
-  "MenuTitle.Meeting": "★ جلسه ★",
-  "MenuTitle.Other": "★ متفرقه ★",
-  "MenuTitle.Sabotage": "★ سابوتاژ ★",
   "MenuTitle.Settings": "★ تنظیمات ★",
   "MenuTitle.TaskSettings": "★ مدیریت تسک‌ ★",
   "MessageTitle.Attention": "<#ff0000><#ffa500>⚠</color> ATTENTION! <#ffa500>⚠</color></color>",
@@ -565,9 +538,11 @@
   "CoronerNoTrack": "Nothing to track",
   "CoronerNotifyKiller": "Notify Killer about being Tracked",
   "CoronerTrackRecorded": "Track recorded",
+  "Crewmate": "Crewmate",
   "CrewmateEHR": "Crewmate",
   "CrewmateEHRInfo": "تسک‌هایت را انجام بده",
   "CrewmateEHRInfoLong": "(کرومیت‌ها):\\nبه عنوان کرومیت (Crewmate)، هدف شما کاملاً ساده است. ایمپاسترها (Impostors) را پیدا و تبعید کنید. کرومیت‌ها با از بین بردن تمام قاتل‌ها یا با تمام کردن تمام تسک‌هایشان برنده می‌شوند.",
+  "AbilityButtonText.Crewmate": "Haunt",
   "Crusader": "Crusader",
   "CrusaderInfo": "حمله‌کننده به یک بازیکن را بکش",
   "CrusaderInfoLong": "(کرومیت‌ها):\\nبه عنوان جنگجوی مقدس (Crusader)، از دکمه کیل خود برای حمایت از یک بازیکن استفاده کنید. اگر آن بازیکن مورد حمله قرار گیرد، شما حمله‌کننده را خواهید کشت.",
@@ -646,9 +621,13 @@
   "DeputyHandcuffText": "Handcuff",
   "DeputyHandcuffedPlayer": "Handcuffed target",
   "DeputyInvalidTarget": "Target cannot be handcuffed",
+  "Detective": "کارآگاه",
+  "DetectiveSuspectLimit": "Suspects Per Case",
   "DetectiveEHR": "کارآگاه",
   "DetectiveEHRInfo": "Gather Info, Solve Murders",
   "DetectiveEHRInfoLong": "(Crewmates):\\nAs the Detective, you can write down notes about each crime scene and interrogate suspects.\n\n<color=#ff0000><size=75%>This role currently does not work due to a basis reset issue.</size></color>",
+  "AbilityButtonText.Detective": "Notes",
+  "SecondaryAbilityButtonText.Detective": "Interrogate",
   "Detour": "Detour",
   "DetourInfo": "Pass Kills Onto Nearest Player",
   "DetourInfoLong": "(Crewmate):\\nAs the Detour, all kill button related actions on you will be blocked and instead happen on the closest player to you.",
@@ -718,9 +697,11 @@
   "Electric": "Electric",
   "ElectricInfo": "Shock Players",
   "ElectricInfoLong": "(Crewmates):\\nAs the Electric, when you complete a task, a random killer gets frozen for a few seconds.",
+  "Engineer": "Engineer",
   "EngineerEHR": "Engineer",
   "EngineerEHRInfo": "برای غافلگیر کردن <color=#ff1919>ایمپاسترها</color> از ونت‌ها استفاده کن",
   "EngineerEHRInfoLong": "(کرومیت‌ها):\\nبه عنوان مهندس (Engineer)، شما می‌توانید به ونت‌ها دسترسی داشته باشید مادامی که ارتباطات (comms) سابوتاژ نشده باشد. ونت‌ها هنگام سابوتاژ غیرفعال می‌شوند.",
+  "AbilityButtonText.Engineer": "ونت",
   "Enigma": "Enigma",
   "EnigmaInfo": "Get Clues about Killers",
   "EnigmaInfoLong": "(Crewmates):\\nAs the Enigma, you get a random clue about the killer each meeting, depending on the setting, you may have to report the body to receive a clue. The more tasks you complete the preciser the clues get.\\n\\n<size=70%><u><b>Light colors:</b></u> Red, Pink, Orange, Yellow, White, Cyan, Lime, Rose, Banana, Coral\\n<u><b>Dark colors:</b></u> Blue, Green, Black, Purple, Brown, Maroon, Gray, Tan</size>",
@@ -901,13 +882,14 @@
   "GrenadierSkillMaxOfUsage": "(Initial) Max number of Grenades",
   "GrenadierSkillStop": "Ability expired, {0} uses remain",
   "GrenadierVentButtonText": "Flash",
+  "GuardianAngel": "Guardian Angel",
   "GuardianAngelEHR": "Guardian Angel",
   "GuardianAngelEHRInfo": "از کرومیت‌ها در برابر <color=#ff1919>ایمپاسترها</color> محافظت کن",
   "GuardianAngelEHRInfoLong": "(کرومیت‌ها):\\nبه عنوان فرشته نگهبان (Guardian Angel)، شما به عنوان یک روح (ghost) اسپاون می‌شوید و باید با محافظت از کرومیت‌ها (crewmates) در برابر ایمپاسترها (Impostors)، وظیفه خود را انجام دهید.",
+  "AbilityButtonText.GuardianAngel": "Protect",
   "Guardian": "Guardian",
   "GuardianInfo": "تسک‌هایت را کامل کن تا نامیرا شوی",
   "GuardianInfoLong": "(کرومیت‌ها):\\nبه عنوان نگهبان (Guardian)، شما پس از تکمیل تسک نامیرا می‌شوید. با این حال، نقش شما در جلسات قابل حدس زدن است.",
-  "GuardianAngel": "Guardian Angel",
   "Hacker": "Hacker",
   "HackerInfo": "Watch Admin Table from anywhere",
   "HackerInfoLong": "(Crewmates):\\nThis role allows you to see the admin map from anywhere, but is different for modded clients and vanilla clients.\\n\\nAs a modded client, whenever you open the map (and have ability uses left), the admin map will show up. You may be able to move while having the map open depending on settings.\\n\\nAs a vanilla client, you may enter a vent/pet to get a notification saying how many people are in different rooms on the ship (essentially admin map).",
@@ -957,11 +939,11 @@
   "InsightNotify": "<color=#ffffff>Someone in the game is</color> {0}",
   "Inspector": "Inspector",
   "InspectorInfo": "جبهه دو بازیکن را تأیید (validate) کن",
-  "InspectorInfoLong": "(Crewmates):\\nTo check if two players are on the same team, use the command /cp [player id 1] [player id 2]. Neutral killers are counted as part of the same team. Non-Killing Neutrals are counted as separate teams. The Trickster is counted as crew, and Madmates are counted as Impostor. The Lawyer/Follower and its target count as the same team. You will receive an affirmation message if they are in the same team or a denial message if they are not.",
+  "InspectorInfoLong": "(Crewmates):\\nTo check if two players are on the same team, use the command <b>/cmd cmp [player id 1] [player id 2]</b>. Neutral killers are counted as part of the same team. Non-Killing Neutrals are counted as separate teams. The Trickster is counted as crew, and Madmates are counted as Impostor. The Lawyer/Follower and its target count as the same team. You will receive an affirmation message if they are in the same team or a denial message if they are not.",
   "InspectorCheckBaitCountMode": "<color=#00f7ff>Bait</color> count as revealing role if <color=#00f7ff>Bait</color> reveal on first meeting is on",
   "InspectorCheckEgoistickCountMode": "<color=#5600ff>Egoist</color> counts as",
   "InspectorCheckFalse": "<b>{0}</b> and <b>{1}</b> are <color=#ff1919>NOT</color> in the same team!",
-  "InspectorCheckHelp": "Instructions: /cp [Player ID 1] [Player ID 2] \\nExample: /cp 1 5 \\nYou can see the player IDs before everyone's names \\n or use the /id command to list the player IDs",
+  "InspectorCheckHelp": "Instructions: <b>/cmd cmp [Player ID 1] [Player ID 2]</b>\\nExample: <b>/cmd cmp 1 5</b>\\nYou can see the player IDs before everyone's names\\n or use the <b>/cmd id</b> command to list the player IDs",
   "InspectorCheckLimitPerMeeting": "Max inspections per meeting",
   "InspectorCheckMax": "Max inspections per game reached!\\nYou can not use your power anymore.",
   "InspectorCheckNull": "Please select an ID of a living player to check their team",
@@ -1191,12 +1173,19 @@
   "Nightmare": "Nightmare",
   "NightmareInfo": "You cannot be killed during lights out",
   "NightmareInfoLong": "(Crewmates):\\nAs the Nightmare, you cannot be killed during the lights out sabotage.",
+  "Noisemaker": "Noisemaker",
   "NoisemakerEHR": "Noisemaker",
   "NoisemakerEHRInfo": "وقتی می‌میری، به کرومیت‌ها هشدار بده",
   "NoisemakerEHRInfoLong": "(کرومیت‌ها):\\nبه عنوان نویز میکر (Noisemaker)، وقتی شما می‌میرید، به تمام کرومیت‌ها (crewmates) هشدار داده می‌شود و یک فلش که به سمت جسد شما اشاره می‌کند، ظاهر خواهد شد.",
+  "NoisemakerAlertDuration": "مدت زمان هشدار (Alert)",
+  "NoisemakerImpostorAlert": "هشدار به <color=#ff1919>Impostors</color>",
+  "AbilityButtonText.Noisemaker": "Haunt",
   "Observer": "Observer",
   "ObserverInfo": "می‌توانی تمام انیمیشن‌های سپر را ببینی",
   "ObserverInfoLong": "(کرومیت‌ها):\\nناظر (The Observer) می‌تواند پس از اولین جلسه، تمام انیمیشن‌های سپری که توسط بازیکنان دیگر ایجاد می‌شود را ببیند.",
+  "Operative": "Operative",
+  "OperativeInfo": "Reset Sabotage Cooldowns",
+  "OperativeInfoLong": "(Crewmates):\\nAs the Operative, you can vent/pet to reset all critical sabotage cooldowns to 30s.",
   "Oracle": "Oracle",
   "OracleInfo": "به یک بازیکن رأی بده تا جبهه‌اش را ببینی",
   "OracleInfoLong": "(کرومیت‌ها):\\nبه عنوان مرشد (Oracle)، شما می‌توانید در طول یک جلسه به یک بازیکن رأی دهید. شما جبهه او را می‌بینید که کرومیت (crewmate)، خنثی (neutral)، یا ایمپاستر (Impostor) است.\\n\\n<color=#ff0000><b>اما مراقب باشید!\\nاین قابلیت شانس این را دارد که یک نتیجه اشتباه به شما بدهد!</b></color>\\n(هاست این شانس را تعیین می‌کند)",
@@ -1306,9 +1295,11 @@
   "ScannerTimeLimit": "Time Limit for invisible players on range to appear",
   "ScannerWarningInRange": "A <color=#42f5a7>Scanner</color> is near you! If you don't get away in {0}s, you will become visible again!",
   "ScannerNowVisible": "The <color=#42f5a7>Scanner</color> has made you visible again!",
+  "Scientist": "Scientist",
   "ScientistEHR": "Scientist",
   "ScientistEHRInfo": "دسترسی به ویتالز قابل حمل از هر کجا",
   "ScientistEHRInfoLong": "(کرومیت‌ها):\\nبه عنوان دانشمند (Scientist)، شما یک تبلت قابل حمل دارید که ویتالز (vitals) کرومیت‌ها (crew) روی آن است. از آن به هر شکلی که دوست دارید استفاده کنید. گرفتن گزارش از خود (self-reports)، اطلاعات اضافی در مورد سن جسد و غیره.",
+  "AbilityButtonText.Scientist": "Vitals",
   "Scout": "Scout",
   "ScoutInfo": "بازیکنان دیگر را ردیابی کن",
   "ScoutInfoLong": "(کرومیت‌ها):\\nبه عنوان دیده‌بان (Scout)، شما می‌توانید در جلسه به یک بازیکن رأی دهید، که این کار موقعیت او را در بازی با فلش‌هایی برای شما نشانه‌گذاری می‌کند. در ابتدای جلسه، به شما نشان داده می‌شود که در کدام اتاق، بازیکنی که آخرین بار به او رأی دادید، قرار دارد، در صورتی که آپشن فعال باشد.",
@@ -1418,7 +1409,7 @@
   "Spiritualist": "Spiritualist",
   "SpiritualistInfo": "تو می‌بینی که یک روح (ghost) کجاست",
   "SpiritualistInfoLong": "(کرومیت‌ها):\\nبه عنوان معنویت‌گرا (Spiritualist)، شما فلشی دریافت خواهید کرد که به سمت روح جسدی که در آخرین جلسه گزارش شده است، اشاره می‌کند.\\n\\nاگر بازیکن خوب بود، ممکن است شما را به سمت یک ایمپاستر (Impostor) یا قاتل خنثی (neutral killer) هدایت کند.\\nاگر بازیکن بد بود، ممکن است شما را فقط به سمت یک کرومیت دیگر (fellow crewmate) هدایت کند.",
-  "SpiritualistNoticeMessage": "The Spiritualist has an arrow pointing to you!\\nYou can use them to a killer or frame a crewmate",
+  "SpiritualistNoticeMessage": "The Spiritualist has an arrow pointing to you!\\nYou can use them to point out a killer or frame a crewmate",
   "SpiritualistShowGhostArrowEverySeconds": "Ghost arrow interval",
   "SpiritualistShowGhostArrowForSeconds": "Ghost arrow duration",
   "SpiritualistTargetMessage": "<color=#ffff00>The Spiritualist has an arrow pointing toward you</color>",
@@ -1430,6 +1421,15 @@
   "SuperStarInfo": "همه تو را می‌شناسند",
   "SuperStarInfoLong": "(کرومیت‌ها):\\nسوپر استار (Super Star) یک لوگوی ستاره کنار اسمش دارد و فقط زمانی می‌تواند کشته شود که قاتل (Murderer) با او تنها باشد. حدس‌زننده‌ها (Guessers) نمی‌توانند او را حدس بزنند.",
   "SuperStarDead": "Shock! Super Star <b>{0}</b> has unfortunately been mercilessly killed in the recent period of time!",
+  "Survivor": "Survivor",
+  "SurvivorInfo": "With each fallen crew, I get stronger",
+  "SurvivorInfoLong": "(Crewmates):\\nThe Survivor will get abilities with each set amount of players left in the game.\\n\\n- 1st Ability: See the number of alive players left in real time.\\n- 2nd Ability: Vent/Vanish to give yourself a temporary shield.\\n- 3rd Ability: An additional set amount of votes.\\n- Last Ability: Finish tasks to gain a Kill button.\\n\\nNote: All abilities are stackable, separated, and can shuffle their order if wanted, as well as disable them by set the required amount of players needed to 0 or 1.",
+  "SurvivorFirstAbility": "Number of players left to get 1st Ability",
+  "SurvivorSecondAbility": "Number of players left to get 2nd Ability",
+  "SurvivorThirdAbility": "Number of players left to get 3rd Ability",
+  "SurvivorLastAbility": "Number of players left to get Last Ability",
+  "SurvivorCurrentAlive": "- Alive Players:",
+  "SurvivorCantKillYet": "The current number of players is greater than your killing requirement, which means you cannot kill yet.",
   "Swapper": "Swapper",
   "SwapperInfo": "Swap players' votes",
   "SwapperInfoLong": "(Crewmates):\\nAs the Swapper, you can use the command <b>/sw <color=#0000ff>[ID]</color></b> twice to choose 2 players. Those votes received by those 2 players will be swapped.\\nYou can see everyone's <color=#0000ff>ID</color>s next to their name.\\n\\nFor example, if 3 players voted red, and 5 players voted yellow, and you swap red and yellows' IDs, then red will receive 5 votes, and yellow will receive 3 votes.\\n\\nDue to technical difficulties, the Host's original vote will seem unchanged, but it's only visual, their vote will still get swapped.",
@@ -1445,6 +1445,9 @@
   "SwapperManipulatedEjection": "Thanks to the {0}",
   "SwapperMax": "Initial Number of Swaps",
   "SwapperTrialMax": "Ability use limit reached",
+  "Tar": "Tar",
+  "TarInfo": "Avoid Kills",
+  "TarInfoLong": "(Crewmates):\\nAs the Tar, you can pet to activate your ability. This will freeze and blind you, and set your skin color to black for a set time. If someone tries to kill you during this time, it gets blocked, the killer gets teleported away, and your ability ends instantly.",
   "TaskManager": "تسک منیجر",
   "TaskManagerInfo": "تعداد کل تسک‌های انجام‌شده را به صورت زنده ببین",
   "TaskManagerInfoLong": "(کرومیت‌ها):\\nشما تعداد کل تسک‌های انجام شده (توسط همه با هم) را کنار اسم نقش خود می‌بینید که به صورت زنده آپدیت می‌شود.",
@@ -1517,9 +1520,17 @@
   "Tracefinder": "Tracefinder",
   "TracefinderInfo": "محل جسدهای مرده را پیدا کن",
   "TracefinderInfoLong": "(کرومیت‌ها):\\nبه عنوان ردیاب (Tracefinder)، شما به ویتالز (vitals) دسترسی دارید، بسیار شبیه به یک دانشمند (Scientist). علاوه بر این، شما فلش‌هایی دریافت می‌کنید که به سمت جسدهای مرده اشاره می‌کنند.",
+  "Tracker": "Tracker",
   "TrackerEHR": "Tracker",
   "TrackerEHRInfo": "بازیکنان را ردیابی کن",
   "TrackerEHRInfoLong": "(کرومیت‌ها):\\nبه عنوان ردیاب (Tracker)، شما می‌توانید با قرار دادن یک ردیاب روی بازیکنان با استفاده از دکمه ترک خود، آن‌ها را ردیابی کنید.",
+  "TrackerCanGetArrowColor": "می‌تواند پیکان‌های رنگی را ببیند",
+  "TrackerCooldown": "Track Cooldown",
+  "TrackerDelay": "تأخیر Track",
+  "TrackerDuration": "مدت زمان Track",
+  "TrackerHideVote": "Hide <color=#3CB371>Scout</color> Votes",
+  "TrackerLastRoomMessage": "The evaluation of your tracking showed that the last room in which your target was located was:<b>{0}</b>",
+  "AbilityButtonText.Tracker": "Track",
   "Transmitter": "Transmitter",
   "TransmitterInfo": "TP to nearest player by doing a task",
   "TransmitterInfoLong": "(Crewmates):\\nAs the Transmitter, when you complete a task, you teleport to the nearest player.",
@@ -1636,8 +1647,6 @@
   "Anonymous": "Anonymous",
   "AnonymousInfo": "یک بازیکن را مجبور کن تا یک جسد را گزارش کند",
   "AnonymousInfoLong": "(ایمپاسترها):\\nناشناس (Anonymous) می‌تواند از تغییرشکل (Shapeshift) برای هک کردن یک هدف استفاده کند. هدف هک‌شده، جسد کشته شده توسط ناشناس (Anonymous) را گزارش خواهد کرد، یا اگر جسدی نباشد، جسد خودش را. هک کردن، قابل گزارش بودن یا نبودن یک جسد را نادیده می‌گیرد. هک کردن نقش تنبل (Lazy Guy) اتلاف وقت است.",
-  "AnonymousBodies": "Anonymous Bodies",
-  "AnonymousKillerCount": "Anonymous <#ff1919>Evil</color> Player Count",
   "AnonymousShapeshiftText": "Hack",
   "AntiAdminer": "Anti-Adminer",
   "AntiAdminerInfo": "استفاده از دستگاه‌ها را ردیابی کن",
@@ -1649,7 +1658,6 @@
   "Arrogance": "Arrogance",
   "ArroganceInfo": "کول‌داون کشتن شما با هر کیلی که انجام می‌دهید کاهش می‌یابد",
   "ArroganceInfoLong": "(ایمپاسترها):\\nقابلیت تکبر (The Arrogance) با هر کیل موفق، کول‌داون کشتن‌شان را کاهش می‌دهد.",
-  "ArroganceDefaultKillCooldown": "کیل کولداون شروع",
   "ArroganceMinKillCooldown": "حداقل کیل کولداون",
   "ArroganceReduceKillCooldown": "کاهش کیل کولداون به اندازه",
   "ArroganceShowProgressText": "نمایش کاهش کیل کولداون زیر نام",
@@ -1718,6 +1726,19 @@
   "CentralizerInfo": "Centralize Players' Locations",
   "CentralizerInfoLong": "(Impostors):\\nAs the Centralizer, mark a position. Then use your ability again to teleport a certain number of players to that position. You may also be included.",
   "Centralizer.NumPlayersTeleported": "Number of Players Teleported",
+  "Chainbinder": "Chainbinder",
+  "ChainbinderInfo": "Chain nearby players together",
+  "ChainbinderInfoLong": "(Impostors):\\nAs the Chainbinder, use your ability to chain two nearby players together for a short time. When they move too far apart, they are pulled back toward each other. With shapeshift basis, the selected player becomes part of the chain; with pets enabled, the two nearest valid players around you are chained instead. You can still kill normally.",
+  "Chainbinder.NotEnoughTargets": "Not enough valid players nearby to form a chain",
+  "Chainbinder.PairBound": "Chain formed: {0} and {1}",
+  "Chainbinder.PairEnded": "Your chain ended",
+  "Chainbinder.PairSuffix": "Chain: {0} <> {1}",
+  "ChainbinderButtonText": "Chain",
+  "ChainbinderCooldown": "Chain Cooldown",
+  "ChainbinderDuration": "Chain Duration",
+  "ChainbinderBindRange": "Chain Range",
+  "ChainbinderMaxDistance": "Max Distance Before Pull",
+  "ChainbinderCanBindImpostors": "Can Chain Fellow Impostors",
   "Changeling": "Changeling",
   "ChangelingInfo": "Pick Your Impostor Role!",
   "ChangelingInfoLong": "(Impostors):\\nAs the Changeling, you can vent/pet to cycle between the available impostor roles. You can see the currently selected role below your name. Select the role you want to play as, then shapeshift to confirm your choice. Your role will be changed to the role you selected.",
@@ -1856,6 +1877,11 @@
   "Exclusionary.CooldownAfterExclusion": "Cooldown After Exclusion",
   "Exclusionary.ExclusionDelay": "Exclusion Delay",
   "Exclusionary.ExclusionDuration": "Exclusion Duration",
+  "Exorcist": "Exorcist",
+  "ExorcistInfo": "Kill Mindless Chatters",
+  "ExorcistInfoLong": "(Impostors):\\nAs the Exorcist, you can use <b>/cmd exo</b> in a meeting to activate your ability (everyone is notified about it). Anyone who sends a chat message during your ability dies instantly.",
+  "Exorcist.AbilityUsedMsg": "<b><#ff5555>Anyone who sends a message in the next <#000000>{0}</color> seconds will die!",
+  "Exorcist.AbilityEnded": "<#00bb00>Messages can be sent again!",
   "Fabricator": "Fabricator",
   "FabricatorInfo": "Change Death Reasons",
   "FabricatorInfoLong": "(Impostors):\\nAs the Fabricator, you can use <b>/fabricate {deathreason}</b> to set the death reason for your next kill. Replace '{deathreason}' with one of the available death reasons in the mod.",
@@ -1885,6 +1911,10 @@
   "Freezer": "Freezer",
   "FreezerInfo": "Freeze Players",
   "FreezerInfoLong": "(Impostors):\\nAs the Freezer, you can shapeshift into a player to freeze them. The frozen player cannot move for a set amount of time.",
+  "Frightener": "Frightener",
+  "FrightenerInfo": "Prevent Players From Reporting",
+  "FrightenerInfoLong": "(Impostors):\\nAs the Frightener, you can shapeshift into a player to alarm them for some time. Alarmed players can't report bodies (or even call meetings), else they die.",
+  "Frightener.KillOnEmergencyMeetingCall": "Alarmed Players Die When Calling an Emergency Meeting",
   "Gambler": "Gambler",
   "GamblerInfo": "Each Kill gets you an Effect",
   "GamblerInfoLong": "(Impostors):\\nAs the Gambler, a random event happens after each kill you get. These effects can be anywhere between a self-report and an extra sniper shot.",
@@ -1965,9 +1995,11 @@
   "Hypocrite.NonImpGetsNotifyWhenLowTasks": "Non-Impostors get notified when the <#ff1919>Hypocrite</color> has a low number of tasks remaining",
   "Hypocrite.NotifyAtXTasksLeft": "Tasks Remaining When Notifying",
   "HypocriteHasXTasksLeft": "<size=80%><#ffff44>{0} is the <#ff1919>Hypocrite</color> with <#ff1919>{1}</color> task(s) left!</color></size>",
+  "Impostor": "Impostor",
   "ImpostorEHR": "Impostor",
   "ImpostorEHRInfo": "بکش و سابوتاژ کن",
   "ImpostorEHRInfoLong": "(ایمپاسترها):\\nبه عنوان ایمپاستر (Impostor)، هدف شما این است که به سادگی کرومیت‌ها (crewmates) را از بین ببرید. شما می‌توانید سابوتاژ کنید و ونت کنید.",
+  "AbilityButtonText.Impostor": "Haunt",
   "Inhibitor": "بازدارنده",
   "InhibitorInfo": "شما نمی‌توانید در طول سابوتاژها بکشید",
   "InhibitorInfoLong": "(ایمپاسترها):\\nبه عنوان بازدارنده (Inhibitor)، شما فقط زمانی می‌توانید بکشید که یک سابوتاژ بحرانی (critical sabotage) فعال نباشد (مانند خرابکاری در برق (Lights) یا رآکتور (Reactor)).",
@@ -2069,6 +2101,10 @@
   "NullifierInfoLong": "(Impostors):\\nAs the Nullifier, clicking your kill button on a player once will remove 1 ability use from them, if they have any. Double click with your kill button on someone to kill them normally.\\n\\nNote: You won't know if the target had an ability use limit, but the target may notice the removal. Be careful!",
   "NullifierDelay": "Removal Delay",
   "NullifierUseRemoved": "Ability use removed",
+  "Obstructer": "Obstructer",
+  "ObstructerInfo": "Slow Players Down During Sabotages",
+  "ObstructerInfoLong": "(Impostors):\\nAs the Obstructer, whenever you cause a sabotage, everyone starts to slow down every second, and you have a reduced kill cooldown during the sabotage.",
+  "Obstructer.SpeedReductionPerSecond": "Speed Reduction Per Second",
   "Occultist": "Occultist",
   "OccultistInfo": "Revive Players To Your Team",
   "OccultistInfoLong": "(Impostors):\\nAs the Occultist, you have 2 modes: reporting and reviving. In report mode, you report bodies normally. In revive mode, when you press report on someone's body, you'll revive them and they'll turn into Renegade / get the Madmate add-on (if they weren't an impostor).",
@@ -2111,11 +2147,13 @@
   "Perplexer": "Perplexer",
   "PerplexerInfo": "Invert a player's movement controls",
   "PerplexerInfoLong": "(Impostors):\\nAs the Perplexer, use your shapeshift menu to select a player. That player will get their movement controls inverted for a certain amout of time.",
+  "Phantom": "Phantom",
   "PhantomEHR": "Phantom",
   "PhantomEHRInfo": "به طور موقت نامرئی شو",
   "PhantomEHRInfoLong": "(ایمپاسترها):\\nبه عنوان فانتوم (Phantom)، شما می‌توانید برای مدت کوتاهی نامرئی شوید. در این مدت، شما نمی‌توانید توسط کرومیت‌ها (Crewmates) دیده شوید.",
   "PhantomCooldown": "Invisibility Cooldown",
   "PhantomDuration": "مدت زمان Invisibility",
+  "AbilityButtonText.Phantom": "Vanish",
   "Postponer": "Postponer",
   "PostponerInfo": "Postpone Dead Body Spawning",
   "PostponerInfoLong": "(Impostors):\\nAs the Postponer, when you kill, no dead body spawns instantly. Instead, it will spawn after a delay (in the same place as the murder).",
@@ -2169,9 +2207,11 @@
   "ScavengerInfo": "کیل‌های تو غیرقابل گزارش هستند",
   "ScavengerInfoLong": "(Impostors):\\nScavenger kills do not leave dead bodies behind. To kill someone, you must click your kill button on them, then stay near that person for a few seconds, similar to an Arsonist douse.",
   "ScavengerKillDuration": "زمان پس از تکمیل کُشتن",
+  "Shapeshifter": "Shapeshifter",
   "ShapeshifterEHR": "Shapeshifter",
   "ShapeshifterEHRInfo": "به شکل کرومیت‌ها تغییر قیافه بده تا برایشان پاپوش درست کنی",
   "ShapeshifterEHRInfoLong": "(ایمپاسترها):\\nبه عنوان شیپ‌شیفتر (Shapeshifter)، شما یک قابلیت تغییرشکل دارید که می‌توانید از آن برای پاپوش درست کردن برای سایر کرومیت‌ها (crewmates) استفاده کنید. فقط آگاه باشید که هنگام شیفت کردن یک تخم مرغ وجود دارد و این تغییر قیافه موقتی است.",
+  "AbilityButtonText.Shapeshifter": "Shift",
   "Silencer": "Silencer",
   "SilencerInfo": "Shapeshift to Silence Players",
   "SilencerInfoLong": "(Impostors):\\nAs the Silencer, when you shift into a target you will blackmail that player, and the blackmailed player cannot speak.\\n\\nSpeaking by the blackmailed player will trigger the confusion command, please do not speak when the blackmailed player sees his icon.",
@@ -2273,9 +2313,12 @@
   "Vindicator": "ویندیکیتور",
   "VindicatorInfo": "از رأی‌های اضافی خود برای کشتن همه استفاده کن",
   "VindicatorInfoLong": "(ایمپاسترها):\\nبه عنوان ویندیکیتور (Vindicator)، شما مانند یک شهردار (Mayor) رأی اضافی دارید.",
+  "Viper": "Viper",
   "ViperEHR": "Viper",
   "ViperEHRInfo": "Kill to Dissolve Bodies",
   "ViperEHRInfoLong": "(Impostors):\\nAs the Viper, the bodies you leave behind slowly dissolve due to your acid, causing them to disappear and become unreportable.\n\n<color=#ff0000><size=75%>Currently, roles such as Sheriff may still be able to see dissolved bodies from their POV due to desync.</size></color>",
+  "ViperDissolveTime": "Body Dissolve Time",
+  "AbilityButtonText.Viper": "Acid",
   "Visionary": "آینده‌بین",
   "VisionaryInfo": "تو جبهه بازیکنان زنده را می‌بینی",
   "VisionaryInfoLong": "(ایمپاسترها):\\nبه عنوان آینده‌بین (Visionary)، شما تیم بازیکنانی که فاش کرده‌اید را می‌بینید. شما می‌توانید با انتخاب یک بازیکن به عنوان هدف تغییرشکل (shapeshifting)، جبهه او را فاش کنید؛ اگر حداقل یک قابلیت دارید، از آن استفاده کنید. شما بعد از هر کیلی که انجام می‌دهید، یک قابلیت برای استفاده به دست می‌آورید.\\n\\nرنگ اسم بازیکن فاش‌شده، تیم او را نشان خواهد داد (<#8cffff>کرومیت (Crewmate)</color>/<#ff1919>ایمپاستر (Impostor)</color>/<#ffab1b>خنثی (Neutral)</color>/<#7b3fbb>کاون (Coven)</color>).",
@@ -2467,6 +2510,10 @@
   "BerserkerInfo": "Go Berserk If Others Kill More Than You",
   "BerserkerInfoLong": "(Neutrals):\\nAs the Berserker, you get stronger each time someone other than you kills:\\n<size=80%>1: Long kill range\\n2: Lower kill cooldown\\n3: Impostor vision\\n4: Immunity\\n5: Suicide</size>\\nIf you kill, your strength goes down a level. Kill everyone to win!",
   "Berserker.LowerKillCooldown": "کاهش کیل کولداون",
+  "Blockade": "Blockade",
+  "BlockadeInfo": "Place Blockades",
+  "BlockadeInfoLong": "(Neutrals):\\nAs the Blockade, you can vanish/pet/shapeshift to place blockades. No one other than you can go through them. All blockades disappear when a meeting starts.",
+  "Blockade.BlockadeRadius": "Blockade Radius",
   "BloodKnight": "Blood Knight",
   "BloodKnightInfo": "کشتن به تو یک سپر موقتی می‌دهد",
   "BloodKnightInfoLong": "(خنثی‌ها):\\nشوالیه‌های خونین (Blood Knights) اگر آخرین نقش کشنده زنده در بازی باشند و تعدادشان با کرومیت‌ها برابر یا کمتر باشد، برنده می‌شوند. آن‌ها بعد از هر کیل، سپرهای موقتی به دست می‌آورند که برای چند ثانیه آن‌ها را نامیرا می‌کند.",
@@ -2600,7 +2647,7 @@
   "EndermanSecondsBeforeTP": "Seconds Before Teleporting",
   "Evolver": "Evolver",
   "EvolverInfo": "انتخاب یک آپگرید (Upgrade) پس از هر جلسه",
-  "EvolverInfoLong": "(Neutrals):\\nبه عنوان تکامل‌یابنده (Evolver)، شما می‌توانید پس از هر جلسه یک آپگرید انتخاب کنید. برای چرخیدن بین آپگریدهای موجود، از Pet استفاده کنید. هر آپگرید ممکن است چندین بار ظاهر شود. وقتی تایمر انتخاب تمام شود، آپگرید شما اعمال خواهد شد.\\n\\n<size=70%><b><u>آپگریدها:</u></b>\\n- کاهش کیل کولداون (به اندازه 2.5s)\\n- به دست آوردن دید Impostor (تحت تأثیر سابوتاژ برق قرار نمی‌گیرد)\\n- افزایش دید (به اندازه 0.4x)\\n- افزایش سرعت (به اندازه 0.25x)\\n- افزایش فاصله کشتن (کوتاه ← متوسط ← بلند)\\n- به دست آوردن قابلیت ونت (و 1 استفاده)\\n- افزایش محدودیت استفاده از ونت (به اندازه 3)\\n- به دست آوردن قابلیت سابوتاژ (و 1 استفاده)\\n- افزایش محدودیت استفاده از سابوتاژ (به اندازه 2)\\n- به دست آوردن شیلد (در راند فعلی نمی‌توان شما را کشت)</size>\\n\\n<u><b>ملاحظات:</b></u>\\nاگر قابلیت ونت داشته باشید، تعداد استفاده‌های باقی‌مانده از ونت کنار نام نقش شما به این شکل نمایش داده می‌شود: <b>(V: 1)</b> - همینطور برای محدودیت استفاده از سابوتاژ: <b>(S: 2)</b>",
+  "EvolverInfoLong": "(Neutrals):\\nAs the Evolver, you can choose an upgrade after each meeting. Pet to cycle between the available upgrades. The same upgrade can appear multiple times. Once the timer to pick ends, your upgrade will be applied.\\n\\n<size=70%><b><u>Upgrades:</u></b>\\n- Decrease Kill Cooldown (by 5s)\\n- Gain Impostor Vision (unaffected by lights sabotage)\\n- Increase Vision (by 0.6x)\\n- Increase Speed (by 0.5x)\\n- Increase Kill Distance (Short → Medium → Long)\\n- Gain Venting Ability (and 3 uses)\\n- Increase Venting Use Limit (by 10)\\n- Gain Sabotage Ability (and 2 uses)\\n- Increase Sabotage Use Limit (by 5)\\n- Gain Shield (cannot be killed in the current round)</size>\\n\\n<u><b>Remarks:</b></u>\\nIf you can vent, the number of vent uses you have is displayed next to your role name like this: <b>(V: 1)</b> - Same with the sabotage use limit: <b>(S: 2)</b>",
   "EvolverProgress.Sabotage": " (S: {0})",
   "EvolverProgress.Vent": " (V: {0})",
   "EvolverSuffix": "<size=85%>آپگرید انتخاب شده در <#00ffa5>{0}s</color> اعمال خواهد شد.\\nآپگرید انتخاب شده: <#00ffa5>{1}</color> (برای چرخش Pet کنید)\\n<size=70%>آپگریدهای موجود:\\n<#00ffa5>{2}</color></size></size>",
@@ -2653,7 +2700,7 @@
   "GaslighterWinCondition.LastStanding": "<#ffab1b>Last one standing</color>",
   "Glitch": "The Glitch",
   "GlitchInfo": "همه را هک و نابود کن",
-  "GlitchInfoLong": "(خنثی‌ها):\\nبه عنوان گلیچ (The Glitch)، هدف شما کشتن همه در کشتی است. شما می‌توانید کامپیوترها را هک کنید تا از کیل کردن، ونت کردن، سابوتاژ کردن و گزارش دادن جسدهای مرده برای مدت محدودی جلوگیری کنید. شما همچنین می‌توانید برای مدت محدودی خود را به عنوان یک بازیکن تصادفی جا بزنید (سابوتاژ رخ نخواهد داد).",
+  "GlitchInfoLong": "(Neutrals):\\nAs the Glitch, your goal is to kill everyone on the ship. You can hack players to prevent them from killing, venting, sabotaging, and reporting dead bodies for a limited time by single clicking on them with your kill button. Double click with it to kill them normally. You can also disguise by shapeshifting for a limited time. Additionally, your cooldowns go down while in vents.",
   "GlitchCanVote": "Can vote",
   "God": "God",
   "GodInfo": "همه چیز تحت کنترل توست",
@@ -2733,6 +2780,38 @@
   "JackalCanRecruitMadmates": "Can recruit <color=#ff1919>Madmates</color>",
   "JackalCanRecruitSidekick": "Can recruit <color=#00b4eb>Sidekick</color>",
   "JackalSidekick": "This Jackal/Sidekick/Recruit interaction is not allowed",
+  "Jackpot": "Jackpot",
+  "JackpotInfo": "Open a gambling domain and spin for a jackpot",
+  "JackpotInfoLong": "(Neutrals):\\nAs Jackpot, use the Jackpot button to open a domain where spins happen automatically every few seconds. A miss costs money and raises your next jackpot chance. A near miss gives you a short buff and raises the next jackpot chance even more. Hitting the jackpot gives you a short burst of overwhelming power: near-instant kills, boosted speed, boosted vision, and temporary kill immunity. If you run out of money before you hit, you die.",
+  "JackpotButtonText": "Jackpot",
+  "Jackpot.StartingMoney": "Starting Money",
+  "Jackpot.MoneyPerKill": "Money Gained Per Kill",
+  "Jackpot.MissCost": "Money Lost On Miss",
+  "Jackpot.SpinInterval": "Spin Interval",
+  "Jackpot.BaseChance": "Base Jackpot Chance",
+  "Jackpot.MissChanceIncrease": "Jackpot Chance Increase Per Miss",
+  "Jackpot.NearChance": "Near Miss Chance",
+  "Jackpot.NearChanceIncrease": "Jackpot Chance Increase On Near Miss",
+  "Jackpot.NearDuration": "Near Miss Buff Duration",
+  "Jackpot.NearSpeed": "Near Miss Speed",
+  "Jackpot.NearVision": "Near Miss Vision",
+  "Jackpot.Duration": "Jackpot Duration",
+  "Jackpot.Speed": "Jackpot Speed",
+  "Jackpot.Vision": "Jackpot Vision",
+  "Jackpot.GameRulesTransmitted": "GAME RULES HAVE BEEN TRANSMITTED",
+  "Jackpot.DomainStarted": "The domain is live. Spins will roll every {0}s.",
+  "Jackpot.DomainAlreadyActive": "Your jackpot sequence is already active",
+  "Jackpot.KillReward": "+${0} from that kill. Money: ${1}",
+  "Jackpot.Spin.Miss": "<size=120%>MISS</size>\\nLost ${0}. Money: ${1}. Next jackpot chance: {2}%",
+  "Jackpot.Spin.Near": "<size=120%>NEAR MISS</size>\\nBuffed for {0}s. Money: ${1}. Next jackpot chance: {2}%",
+  "Jackpot.Spin.Jackpot": "JACKPOT!",
+  "Jackpot.JackpotState": "Unlimited pressure for {0}s.",
+  "Jackpot.OutOfMoney": "You ran out of money and busted.",
+  "Jackpot.JackpotEnded": "The jackpot ended. You can start spinning again.",
+  "Jackpot.Progress.Ready": "${0} | {1}% | READY",
+  "Jackpot.Progress.Spin": "${0} | {1}% | SPIN",
+  "Jackpot.Progress.Near": "${0} | {1}% | NEAR",
+  "Jackpot.Progress.Jackpot": "${0} | JACKPOT {1}s",
   "Jester": "Jester",
   "JesterInfo": "کاری کن به تو رأی دهند و حذفت کنند",
   "JesterInfoLong": "(خنثی‌ها):\\nجستر (Jester) اگر رأی بیاورد و حذف شود، به تنهایی برنده می‌شود اما اگر در پایان هنوز زنده باشد، می‌بازد. جستر (Jester)، مأمور اعدام (Executioner) و بی‌گناه (Innocent) می‌توانند با هم برنده شوند.",
@@ -3398,6 +3477,16 @@
   "ReaperInfo": "Curse, collect souls, become Death",
   "ReaperInfoLong": "(Coven):\\nCurse a player; when a cursed player dies, you gain a soul. Upon reaching a specific number of souls (set by the host) (or if you're the last killer alive), you become Death. You cannot have the Necronomicon enhance your powers.",
   "Reaper.SoulsRequired": "Number of Souls required to transform into Death",
+  "Shadow": "Shadow",
+  "ShadowInfo": "Eliminate players from the shadows",
+  "ShadowInfoLong": "(Coven):\\nVanish to camouflage yourself. You may be able to camouflage your team using your kill button on them. With the Necronomicon, you can kill, and become invisible after doing so. Your camouflaging abilities may be switched to invisibility as well. (With the ability to camouflage your teammates, single click with your kill button to use it, and double click with it to kill normally.)",
+  "Shadow.SelfCamoCooldown": "Self Camouflage Cooldown",
+  "Shadow.SelfCamoDuration": "Self Camouflage Duration",
+  "Shadow.CanCamoOthersWithKillButton": "Can Camouflage Other <#7b3fbb>Coven Members</color> Via Kill Button",
+  "Shadow.OthersCooldown": "Cooldown For Camouflaging Others",
+  "Shadow.OthersCamoDuration": "Duration Of Others' Camouflage",
+  "Shadow.InvisDuration": "Invisibility Duration",
+  "Shadow.SwitchCamoAbilityToInvisWithNecronomicon": "Switch Camouflaging Ability To Invisibility Upon Gaining The Necronomicon",
   "Siren": "Siren",
   "SirenInfo": "Sing to convert with stages",
   "SirenInfoLong": "(Coven):\\nThe Siren has an entrancing voice. Use the Sing ability (via the Vanish button) to affect nearby players.\\n- On the first hearing, non-Coven players are blinded and slowed for a short time.\\n- On the second, they are again blinded and slowed, and cannot report bodies temporarily.\\n- On the third, they become Entranced, converting to the Coven.\\n\\nWith the Necronomicon, the Siren gains the ability to kill normally, and her Sing is boosted by two stages:\\n- Players who've heard no songs are treated as if they've heard two.\\n- Players who've heard one song are treated as if they've heard three and become Entranced.\\nThe Siren sees a tracker near each player's name showing their current stage (0/3, 1/3, 2/3, Entranced).",
@@ -3461,6 +3550,9 @@
   /* ==============================
     Roles (Add-ons)
   ============================== */
+  "Absorber": "Absorber",
+  "AbsorberInfo": "Report bodies to absorb Ability Uses",
+  "AbsorberInfoLong": "(Add-ons):\\nAs the Absorber, you can take at most 1 ability use from dead players by reporting their body.",
   "Aide": "Aide",
   "AideInfo": "You Can't Sabotage",
   "AideInfoLong": "(Add-ons):\\nYou cannot sabotage.",
@@ -3569,6 +3661,9 @@
   "Concealer": "Concealer",
   "ConcealerInfo": "Your Kills are Anonymous",
   "ConcealerInfoLong": "(Add-ons):\\nAs the Concealer, each body of yours will be camouflaged.",
+  "Constricted": "Constricted",
+  "ConstrictedInfo": "You have a shorter kill range",
+  "ConstrictedInfoLong": "(Add-ons):\\nOnly roles with a kill button can get this add-on. You have the shortest kill range possible in the game, unlike everyone else.",
   "Contagious": "Contagious",
   "ContagiousInfo": " تو توسط ویروس (Virus) آلوده شده‌ای",
   "ContagiousInfoLong": "(افزونه‌های خیانت):\\nوقتی ویروس (Virus) شما را آلوده می‌کند، شما واگیردار (contagious) می‌شوید. بازیکنان واگیردار در تیم ویروس (Virus) هستند.\\n\\nاینکه آیا شما بعد از یک جلسه می‌میرید یا نه، به تنظیمات ویروس (Virus) بستگی دارد.",
@@ -3607,6 +3702,9 @@
   "Disregarded": "Disregarded",
   "DisregardedInfo": "جسد تو قابل گزارش دادن نیست",
   "DisregardedInfoLong": "(افزونه‌ها):\\nبا افزونه نادیده‌گرفته‌شده (Disregarded)، جسد شما قابل گزارش دادن نیست.",
+  "Dizzy": "Dizzy",
+  "DizzyInfo": "You may hit someone else in the crowd....",
+  "DizzyInfoLong": "(Add-ons):\\nAs a Dizzy player, if there are multiple players in your kill range, the target of your kill button is randomized between the players inside the range.",
   "DoubleShot": "Double Shot",
   "DoubleShotInfo": "هنگام حدس زدن، یک جان اضافه داری",
   "DoubleShotInfoLong": "(افزونه‌ها):\\nوقتی یک بازیکن با دابل شات (Double Shot) نقشی را به اشتباه حدس بزند، یک شانس دوم برای حدس زدن به دست می‌آورد، اما حدس اشتباه بعدی منجر به خودکشی خواهد شد.",
@@ -3623,6 +3721,11 @@
   "Energetic": "Energetic",
   "EnergeticInfo": "کولداون قابلیت شما کمتر است",
   "EnergeticInfoLong": "(Add-ons):\\nبه عنوان پرانرژی (Energetic)، کولداون قابلیت شما ۲۵٪ کاهش می‌یابد.",
+  "Entombed": "Entombed",
+  "EntombedInfo": "Can't Enter a Specific Room",
+  "EntombedInfoLong": "(Add-ons):\\nAs the Entombed, you can't enter a specific room. Randomized every round. If you enter it regardless, you suicide.",
+  "Entombed.SuffixGracePeriod": "This round, you can't enter <#bb0000><b>{0}</b></color>\\nTakes effect in <#ffff44><b>{1}</b>s</color>",
+  "Entombed.SuffixActive": "<size=80%><#ff5555>X</color> <#bb0000>{0}</color></size>",
   "Entranced": "Entranced",
   "EntrancedInfo": "You're on the Coven team",
   "EntrancedInfoLong": "(Add-ons):\\nYou are a non-Coven player who has been entranced by the Siren. You are now on the Coven team and win with them at the end.",
@@ -3659,13 +3762,7 @@
   "GuesserInfo": "در جلسات، نقش بازیکنان را برای کشتن حدس بزن",
   "GuesserInfoLong": "(افزونه‌ها):\\nبه عنوان یک حدس‌زننده (guesser)، نقش بازیکنان را در جلسات برای کشتن حدس بزن. حدس اشتباه به جای آن، تو را می‌کشد.\\n\\nکامند حدس زدن این است: /bt [player id] [role]\\n\\nشما می‌توانید آی‌دی بازیکن را قبل از اسمش ببینید، یا از کامند /id برای مشاهده آی‌دی تمام بازیکنان استفاده کنید.",
   "GuesserCanGuessTimes": "حداکثر تعداد حدس‌ها",
-  "GuesserDoesntDieOnMisguess": "<color=#f3e304>Guesser با حدس اشتباه نمی‌میرد</color>",
-  "GuesserMaxKillsPerGame": "Max Kills Per Game",
-  "GuesserMaxKillsPerMeeting": "Max Kills Per Meeting",
-  "GuesserMode": "حالت حدس‌زننده",
-  "GuesserNumRestrictions": "Restrict the Number of Guessers on Each Team",
   "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
-  "GuessersKeepTheGameGoing": "Crewmate Guessers Keep The Game Going",
   "Haste": "Haste",
   "HasteInfo": "کول‌داون کشتن تو، وقتی داخل ونت هستی هم پیش می‌رود",
   "HasteInfoLong": "(افزونه‌ها):\\nبا افزونه عجله (Haste)، کول‌داون کشتن شما در همه حال به کاهش یافتن ادامه می‌دهد.",
@@ -3771,6 +3868,20 @@
   "Reach": "Reach",
   "ReachInfo": "تو محدوده کشتن طولانی‌تری داری",
   "ReachInfoLong": "(افزونه‌ها):\\nفقط نقش‌هایی که دکمه کیل دارند می‌توانند این افزونه را دریافت کنند. شما برخلاف بقیه، بیشترین محدوده کیل ممکن در بازی را دارید.",
+  "Reroll": "Reroll",
+  "RerollInfo": "You can reroll your role via /cmd reroll",
+  "RerollInfoLong": "(Add-ons):\\nIf you use /cmd reroll during a meeting, you reroll your role after the meeting ends. If you survive the meeting, you become a new role from the configured pool. If you are exiled, no reroll happens.",
+  "Reroll.SameFactionOnly": "Can only become a role from the same faction",
+  "Reroll.AnnounceReroll": "Notify everyone when a reroll happens",
+  "Reroll.OnlyHostEnabledRoles": "Only reroll into host-enabled roles",
+  "Reroll.IgnoreVanillaRoles": "Ignore vanilla roles when rerolling",
+  "Reroll.ConsumeOnSuccess": "Consume Reroll after a successful change",
+  "Reroll.Pending": "You will reroll roles after the meeting.",
+  "Reroll.AlreadyQueued": "Reroll is already queued for this meeting.",
+  "Reroll.CommandUnavailable": "You can't use /reroll right now.",
+  "Reroll.Announce": "<b>{0}</b> has rerolled their role.",
+  "Reroll.SuccessAlive": "You rerolled into a new role.",
+  "Reroll.Failed": "No eligible reroll role was available.",
   "Rookie": "Rookie",
   "RookieInfo": "You Can't Kill on the First Round",
   "RookieInfoLong": "(Add-ons):\\nYou can't kill on the first round.",
@@ -3824,6 +3935,14 @@
   "Swift": "Swift",
   "SwiftInfo": "کیل‌های تو باعث لانژ (lunge) نمی‌شوند",
   "SwiftInfoLong": "(افزونه‌ها):\\nبه عنوان سریع (Swift)، کیل‌های شما باعث لانژ (lunge) شما نخواهد شد.",
+  "Talkative": "Talkative",
+  "TalkativeInfo": "Talkative",
+  "TalkativeInfoLong": "(Add-ons):\\nAs the Talkative, if you send more messages in a meeting than the specified limit in the settings, you suicide.",
+  "Talkative.MaxMessagesPerMeeting": "Max Messages Per Meeting",
+  "Talkative.Died": "{0} talked too much and died.",
+  "Urgent": "Urgent",
+  "UrgentInfo": "You Have +1 Emergency Meeting",
+  "UrgentInfoLong": "(Add-ons):\\nAs the Urgent, you have an extra emergency meeting.",
   "TaskMaster": "Task Master",
   "TaskMasterInfo": "Auto-Completes 1 Task After Every Meeting",
   "TaskMasterInfoLong": "(Add-ons):\\nAs the Task Master, you automatically complete 1 task after every meeting.",
@@ -3921,6 +4040,18 @@
   "HaunterRevealedYou": "You have been revealed by the Haunter!",
   "HaunterStopped": "<#00ff00>The Haunter was successfully stopped!</color>",
   "HaunterStoppedSelf": "<#ff1313>An impostor came too close to you, your role was removed.</color>",
+  "MeetingAngel": "Meeting Angel",
+  "MeetingAngelInfo": "Remove Votes",
+  "MeetingAngelInfoLong": "(Crewmate Ghost):\\nAs the Meeting Angel, you can use your protect button on someone every X meetings (specified by settings) to remove a certain number of votes targeting them.",
+  "MeetingAngel.NumVotesNegated": "Number of Votes Removed",
+  "MeetingAngel.NumMeetingsCooldown": "Per how many meetings can someone be protected",
+  "MeetingAngel.CanProtectOptions.Crewmate": "Can Protect <#8cffff>Crewmates</color>",
+  "MeetingAngel.CanProtectOptions.Impostor": "Can Protect <#ff1919>Impostor</color>",
+  "MeetingAngel.CanProtectOptions.NeutralKilling": "Can Protect <#ffab1b>Neutral</color> <#ff1919>Killers</color>",
+  "MeetingAngel.CanProtectOptions.NeutralEvil": "Can Protect <#ffab1b>Neutral</color> <#ff5555>Evils</color>",
+  "MeetingAngel.CanProtectOptions.NeutralPariah": "Can Protect <#ffab1b>Neutral</color> <#ffff44>Pariahs</color>",
+  "MeetingAngel.CanProtectOptions.NeutralBenign": "Can Protect <#ffab1b>Neutral</color> <#00ffa5>Benigns</color>",
+  "MeetingAngel.CanProtectOptions.Coven": "Can Protect <#7b3fbb>Covens</color>",
   "Minion": "Minion",
   "MinionInfo": "به ایمپاسترها کمک کن",
   "MinionInfoLong": "(Impostor/Neutral Ghost):\\nAs the Minion, you can protect someone (optimally a crewmate) to blind them for a few seconds.",
@@ -3990,18 +4121,6 @@
     Ability           
   ============================== */
   "KillButtonText": "کُشتن (Kill)",
-  "AbilityButtonText.Crewmate": "Haunt",
-  "AbilityButtonText.Detective": "Notes",
-  "AbilityButtonText.Engineer": "ونت",
-  "AbilityButtonText.GuardianAngel": "Protect",
-  "AbilityButtonText.Impostor": "Haunt",
-  "AbilityButtonText.Noisemaker": "Haunt",
-  "AbilityButtonText.Phantom": "Vanish",
-  "AbilityButtonText.Scientist": "Vitals",
-  "AbilityButtonText.Shapeshifter": "Shift",
-  "AbilityButtonText.Tracker": "Track",
-  "AbilityButtonText.Viper": "Acid",
-  "SecondaryAbilityButtonText.Detective": "Interrogate",
   "AbilityChargesWhenFinishedTasks": "<color=#00ffff>Ability <color=#7FFFD2>Use Gains</color> <color=#ffa500>every 5s</color> when tasks are done</color>",
   "AbilityCooldown": "کولداون قابلیت",
   "AbilityDuration": "Ability Duration",
@@ -4107,7 +4226,6 @@
   Gamemodes  
   ============================== */
   "Mode": "حالت",
-  "GameMode": "Game Mode",
   "GameModeListTitle": "Game Modes",
   "DoingTasksIsPointlessInThisGameMode": "Look, I see that you're a very diligent crewmate, but....\\nDoing tasks is completely pointless in this game mode",
   "NToCheckGameModeSettings": "Type <b>/n</b> to view the settings for this game mode",
@@ -4365,6 +4483,7 @@
   "SeekerVision": "Seeker Vision",
   "HiderSpeed": "Hider Speed",
   "HiderVision": "Hider Vision",
+  "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
   // Hide And Seek Roles
   "Agent": "Agent",
   "AgentInfo": "You're an Impostor among Hiders",
@@ -4590,7 +4709,6 @@
   "ND_LimitMaximumDisastersAtOnce": "Limit Maximum Active Disasters at Once",
   "ND_MaximumDisastersAtOnce": "Maximum Active Disasters at Once",
   "ND_WhenLimitIsReached": "When the Limit is Reached",
-  "ND_LimitReachedOptions.OnlySpawnInstantDisasters": "Only Spawn Instant Disasters",
   "ND_LimitReachedOptions.RemoveOldest": "Remove Oldest Disaster",
   "ND_LimitReachedOptions.RemoveRandom": "Remove Random Disaster",
   "ND_DisasterSpawnMode": "Disaster Spawn Mode",
@@ -8036,7 +8154,7 @@
   "RR_DontKillPlayersOutsideRoomWhenTimeRunsOut": "Don't Kill Players Outside the Room When the Time Runs Out",
   "RR_DontLowerTimeLimitWhenTwoPlayersEnterCorrectRoom": "Don't Lower Time Limit When the First Two Players Enter the Correct Room",
   "RR_FirstPoints": "1st place: {0} with {1} points",
-  "RR_GlobalTimeMultiplier": "Global Time Multiplier (for adjusting the difficulty)",
+  "RR_GlobalTimeAddition": "Global Time Addition (to raw necessary time)",
   "RR_Points": "Points: {0}/{1}",
   "RR_PointsToWin": "Points to Win - Multiplied by how many players are in the game",
   "RR_ReadyQM": "Ready?\\nStarting in <#ffff44>{0}</color>",
@@ -8256,38 +8374,93 @@
   "8BallResponse.18": "Outlook not so good.",
   "8BallResponse.19": "Very doubtful.",
   /* ==============================
-  AFK Detector              
+  Used as a definition for the response numbers              
   ============================== */
-  "AFKActivateOnStart": "Activate AFK Detector on game start",
-  "AFKConsequence": "Consequence for AFK players",
-  "AFKConsequence.Kick": "Kick",
-  "AFKConsequence.Nothing": "Nothing",
-  "AFKConsequence.Shield": "Shield",
-  "AFKConsequence.Suicide": "خودکشی",
-  "AFKKick": "{0} was kicked because they went AFK",
-  "AFKMinPlayersToActivate": "Minimum alive players to activate AFK Detector",
-  "AFKShielded": "According to the Host's settings, AFK players cannot be killed",
-  "AFKSuffix": "<#ffa500>(AFK)</color>",
-  "AFKTooMany": "AFK detection was disabled for this round since there are too many AFK players",
-  "AFKWarning": "<#ffff00><size=90%>Please move to avoid being marked as AFK</color> <#ffffff>({0})</size></color>",
+  "8BallResponse.20": "\\n",
+  "8BallResponse.21": "\\n",
+  "8BallResponse.22": "\\n",
+  "8BallResponse.23": "\\n",
+  "8BallResponse.24": "\\n",
+  "8BallResponse.25": "\\n",
+  "8BallResponse.26": "\\n",
+  "8BallResponse.27": "\\n",
+  "8BallResponse.28": "\\n",
+  "8BallResponse.29": "\\n",
+  "8BallResponse.30": "\\n",
+  "8BallResponse.31": "\\n",
+  "8BallResponse.32": "\\n",
+  "8BallResponse.33": "\\n",
+  "8BallResponse.34": "\\n",
+  "8BallResponse.35": "\\n",
+  "8BallResponse.36": "\\n",
+  "8BallResponse.37": "\\n",
+  "8BallResponse.38": "\\n",
+  "8BallResponse.39": "\\n",
+  "8BallResponse.40": "\\n",
+  "8BallResponse.41": "\\n",
+  "8BallResponse.42": "\\n",
+  "8BallResponse.43": "\\n",
+  "8BallResponse.44": "\\n",
+  "8BallResponse.45": "\\n",
+  "8BallResponse.46": "\\n",
+  "8BallResponse.47": "\\n",
+  "8BallResponse.48": "\\n",
+  "8BallResponse.49": "\\n",
+  "8BallResponse.50": "\\n",
+  "8BallResponse.51": "\\n",
+  "8BallResponse.52": "\\n",
+  "8BallResponse.53": "\\n",
+  "8BallResponse.54": "\\n",
+  "8BallResponse.55": "\\n",
+  "8BallResponse.56": "\\n",
+  "8BallResponse.57": "\\n",
+  "8BallResponse.58": "\\n",
+  "8BallResponse.59": "\\n",
+  "8BallResponse.60": "\\n",
+  "8BallResponse.61": "\\n",
+  "8BallResponse.62": "\\n",
+  "8BallResponse.63": "\\n",
+  "8BallResponse.64": "\\n",
+  "8BallResponse.65": "\\n",
+  "8BallResponse.66": "\\n",
+  "8BallResponse.67": "\\n",
+  "8BallResponse.68": "\\n",
+  "8BallResponse.69": "\\n",
+  "8BallResponse.70": "\\n",
+  "8BallResponse.71": "\\n",
+  "8BallResponse.72": "\\n",
+  "8BallResponse.73": "\\n",
+  "8BallResponse.74": "\\n",
+  "8BallResponse.75": "\\n",
+  "8BallResponse.76": "\\n",
+  "8BallResponse.77": "\\n",
+  "8BallResponse.78": "\\n",
+  "8BallResponse.79": "\\n",
+  "8BallResponse.80": "\\n",
+  "8BallResponse.81": "\\n",
+  "8BallResponse.82": "\\n",
+  "8BallResponse.83": "\\n",
+  "8BallResponse.84": "\\n",
+  "8BallResponse.85": "\\n",
+  "8BallResponse.86": "\\n",
+  "8BallResponse.87": "\\n",
+  "8BallResponse.88": "\\n",
+  "8BallResponse.89": "\\n",
+  "8BallResponse.90": "\\n",
+  "8BallResponse.91": "\\n",
+  "8BallResponse.92": "\\n",
+  "8BallResponse.93": "\\n",
+  "8BallResponse.94": "\\n",
+  "8BallResponse.95": "\\n",
+  "8BallResponse.96": "\\n",
+  "8BallResponse.97": "\\n",
+  "8BallResponse.98": "\\n",
+  "8BallResponse.99": "\\n",
   "AAWarning": "<#ffff00>You must move away from this device or you die!</color>",
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
   "Admin": "Admin",
   "AdminTag": "<#ff0000>Admin</color>",
   "AdminUnmuted": "Admin {0} has unmuted {1}.",
-  "ApplyAdminList": "Apply Admin List",
-  "ApplyBanList": "اعمال لیست بن‌شده‌ها",
-  "ApplyModeratorList": "Apply Moderator List",
-  "ApplyVIPList": "Apply VIP List",
   "AprilFoolsMode": "April Fools Mode",
-  "AutoKickStart": "کیک کردن بازیکنانی که کلمه start را می‌نویسند",
-  "AutoKickStartAsBan": "بلاک کردن بازیکن پس از کیک شدن",
-  "AutoKickStartTimes": "تعداد هشدارها قبل از کیک کردن",
-  "AutoKickStopWords": "کیک کردن بازیکنانی که از کلمات ممنوعه استفاده می‌کنند",
-  "AutoKickStopWordsAsBan": "بلاک کردن بازیکن پس از کیک شدن",
-  "AutoKickStopWordsTimes": "تعداد هشدارها برای کلمات ممنوعه",
   /* ==============================
     Lobby Control        
   ============================== */
@@ -8298,10 +8471,6 @@
   "PlayerAlreadyAdmin": "This player is already an admin, nothing was changed.",
   "PlayerAlreadyMod": "This player is already a moderator, nothing was changed.",
   "PlayerAlreadyVIP": "This player is already a VIP, nothing was changed.",
-  "PlayerAutoStart": "آستانه حداقل بازیکنان برای شروع خودکار",
-  "PlayerCanSetColor": "بازیکنان می‌توانند از کامند /color استفاده کنند",
-  "PlayerCanSetName": "بازیکنان می‌توانند از کامند /rename استفاده کنند",
-  "PlayerCanTPInAndOut": "بازیکنان می‌توانند از کامند /tpin و /tpout استفاده کنند",
   "PlayerExemptedFromAFK": "{0} was exempted from AFK detection for 1 game",
   "PlayerExiled": "{0} was ejected...",
   "PlayerIdList": "List of player IDs: ",
@@ -8321,7 +8490,10 @@
   "YouMuted": "<#ffff00>You've been muted by <u>{0}</u> for <#ff0000>{1}</color> seconds.",
   /* ==============================
     Achievements           
-  ============================== */
+    ============================== */
+  "AchievementCompletedTitle": "<#FAD101>ACHIEVEMENT UNLOCKED</color>",
+  "CompletedAchievementsTitle": "<#FAD101>COMPLETED ACHIEVEMENTS</color>",
+  "IncompleteAchievementsTitle": "<#ff0000>ACHIEVEMENTS TO BE UNLOCKED</color>",
   "Achievement.ALightInTheShadows": "A Light In The Shadows",
   "Achievement.ALightInTheShadows.Description": "Walk near the Beacon during the lights sabotage",
   "Achievement.APerfectTimeToRewindIt": "A Perfect Time To Rewind It",
@@ -8570,19 +8742,550 @@
   "Achievement.YoureMyFriendNow.Description": "Recruit anyone as Gangster/Jackal/Infection/Virus/Cultist",
   "Achievement.YoureTooLate": "You're Too Late",
   "Achievement.YoureTooLate.Description": "As Pestilence, have a killer try to kill you, but unsuccessfully for them",
-  "AchievementCompletedTitle": "<#FAD101>ACHIEVEMENT UNLOCKED</color>",
   /* ==============================
-    Maps           
+    Vanilla Settings          
+  ============================== */
+  "TabGroup.VanillaSettings": "Vanilla Settings",
+  /* ==============================
+    System Settings          
+  ============================== */
+  "TabGroup.SystemSettings": "System Settings",
+  "ModLanguage": "Mod Language",
+  "UseGameLanguage": "Use Game Language",
+  "Hungarian": "Hungarian",
+  "Indonesian": "Indonesian",
+  "Persian": "Persian",
+  "Polish": "Polish",
+  "KickLowLevelPlayer": "کیک کردن بازیکنانی که سطحشان پایین‌تر است از",
+  "KickBecauseLowLevel": "<b>{0}</b> was kicked because their level was too low",
+  "KickMobilePlayer": "Kick mobile players",
+  "KickPlayerFriendCodeNotExist": "کیک کردن بازیکنانی که وارد نشده‌اند (لاگین نکرده‌اند)",
+  "ApplyDenyNameList": "اعمال لیست نام‌های ممنوعه",
+  "ApplyBanList": "اعمال لیست بن‌شده‌ها",
+  "ApplyModeratorList": "Apply Moderator List",
+  "ApplyVIPList": "Apply VIP List",
+  "ApplyAdminList": "Apply Admin List",
+  "AutoKickStart": "کیک کردن بازیکنانی که کلمه start را می‌نویسند",
+  "AutoKickStartTimes": "تعداد هشدارها قبل از کیک کردن",
+  "AutoKickStartAsBan": "بلاک کردن بازیکن پس از کیک شدن",
+  "AutoKickStopWords": "کیک کردن بازیکنانی که از کلمات ممنوعه استفاده می‌کنند",
+  "AutoKickStopWordsTimes": "تعداد هشدارها برای کلمات ممنوعه",
+  "AutoKickStopWordsAsBan": "بلاک کردن بازیکن پس از کیک شدن",
+  "MinWaitAutoStart": "تعداد دقایق انتظار قبل از شروع خودکار",
+  "MaxWaitAutoStart": "شروع اجباری وقتی تایمر لابی به کمتر از (دقیقه) برسد",
+  "PlayerAutoStart": "آستانه حداقل بازیکنان برای شروع خودکار",
+  "AutoStartTimer": "شمارش معکوس اولیه برای شروع خودکار",
+  "AutoPlayAgain": "ورود مجدد خودکار به لابی پس از پایان بازی",
+  "AutoPlayAgainCountdown": "تأخیر قبل از ورود مجدد خودکار به لابی",
+  "AutoGMPollCommandAfterJoin": "اجرای خودکار /gmpoll پس از پیوستن به لابی",
+  "AutoGMPollCommandCooldown": "تأخیر قبل از اجرای خودکار /gmpoll (پس از پیوستن به لابی)",
+  "AutoMPollCommandAfterJoin": "Auto Execute /mpoll After Joining The Lobby",
+  "AutoMPollCommandCooldown": "Delay Before Auto Executing /mpoll (After Joining The Lobby)",
+  "AutoDraftStartCommandAfterJoin": "اجرای خودکار /draftstart پس از پیوستن به لابی",
+  "AutoDraftStartCommandCooldown": "تأخیر قبل از اجرای خودکار /draftstart (پس از پیوستن به لابی)",
+  "AutoReadyCheckCommandAfterJoin": "Auto Execute /readycheck After Joining The Lobby",
+  "AutoReadyCheckCommandCooldown": "Delay Before Auto Executing /readycheck (After Joining The Lobby)",
+  "KickNotJoinedPlayersRegularly": "کیک کردن بازیکنانی که هنوز به بازی نپیوسته‌اند، هر 25 ثانیه در لابی",
+  "EnterKeyToStartGame": "Begin the starting countdown by pressing the Enter key",
+  "LowLoadMode": "Fix Lag",
+  "DeepLowLoad": "Prioritize Performance",
+  "DontUpdateDeadPlayers": "برای بهبود عملکرد، وضعیت بازیکنان مرده آپدیت نشود",
+  "DumpLogAfterGameEnd": "Dump Log After Each Game End (Recommended)",
+  "EndWhenPlayerBug": "پایان اجباری بازی در خطاهای بحرانی برای جلوگیری از صفحه سیاه",
+  "RemovePetsAtDeadPlayers": "حذف حیوانات خانگی (pets) از بازیکنان مرده",
+  "CheatResponses": "وقتی یک بازیکن متقلب پیدا می‌شود",
+  "OnlyCancel": "فقط لغو عملیات",
+  "TempBan": "بن فقط برای این جلسه",
+  "Ban": "Ban",
+  "Kick": "Kick",
+  "NoticeMe": "به من اطلاع بده",
+  "NoticeEveryone": "به همه اطلاع بده",
+  "EnableMovementChecking": "Enable EAC Checks for Invalid Movement (against speed hacks) (may cause false positives)",
+  "EnableEHRRateLimit": "Enable Custom Rate Limit (to prevent hackers from crashing your game)",
+  "KickOnInvalidRPC": "Kick Players on Invalid RPC (likely caused by other mods or hacks)",
+  "AutoDisplayKillLog": "نمایش کیل-لاگ",
+  "AutoDisplayLastRoles": "نمایش آخرین نقش‌ها",
+  "AutoDisplayLastAddOns": "نمایش آخرین افزونه‌ها",
+  "AutoDisplayLastResult": "نمایش خودکار آخرین نتیجه",
+  "SuffixMode": "پسوند (Suffix)",
+  "SuffixMode.AutoHost": "هاست خودکار",
+  "SuffixMode.DoNotKillMe": "من را نکش",
+  "SuffixMode.NoAndroidPlz": "گوشی ممنوع",
+  "SuffixMode.None": "هیچ‌کدام",
+  "SuffixMode.OriginalName": "اسم اصلی",
+  "SuffixMode.Recording": "در حال ضبط (Recording)",
+  "SuffixMode.RoomHost": "هاست اتاق",
+  "SuffixMode.Streaming": "در حال استریم (Streaming)",
+  "SuffixMode.Version": "نسخه",
+  "SuffixModeText.AutoHost": "هاست خودکار (Auto-hosting)",
+  "SuffixModeText.DoNotKillMe": "من را نکش",
+  "SuffixModeText.NoAndroidPlz": "لطفاً گوشی ممنوع",
+  "HideGameSettings": "مخفی کردن تنظیمات بازی",
+  "DIYGameSettings": "فعال کردن فقط پیام‌های سفارشی /n",
+  "PlayerCanSetColor": "بازیکنان می‌توانند از کامند /color استفاده کنند",
+  "PlayerCanSetName": "بازیکنان می‌توانند از کامند /rename استفاده کنند",
+  "PlayerCanTPInAndOut": "بازیکنان می‌توانند از کامند /tpin و /tpout استفاده کنند",
+  "FormatNameMode": "حالت اسم بازیکن",
+  "FormatNameModes.Color": "رنگ",
+  "FormatNameModes.None": "غیرفعال",
+  "FormatNameModes.Snacks": "تصادفی",
+  "DisableEmojiName": "غیرفعال کردن ایموجی در اسم‌ها",
+  "ChangeNameToRoleInfo": "نمایش اطلاعات نقش به کلاینت‌های بدون ماد در راند ۱",
+  "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
+  "SendRoleDescriptionFirstMeeting": "نمایش توضیحات نقش به کلاینت‌های بدون ماد در اولین جلسه",
+  "NoGameEnd": "بازی بدون پایان",
+  "AllowConsole": "کنسول",
+  "ShowAntiBlackoutWarning": "نمایش هشدار Anti-Blackout وقتی صفحه اخراج لغو می‌شود",
+  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
+  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
+  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
+  "AllCrewRolesHaveVanillaColor": "All <#8cffff>Crewmate</color> roles have <#8cffff>the vanilla Crewmate color</color> <#ffff00>(REQUIRES RESTART)</color>",
+  "MessageRpcSizeLimit": "Message RPC Size Limit (Higher limit = increased risk of disconnects but fewer message splits - DO NOT INCREASE THIS IF YOU'RE HOSTING ON VANILLA REGIONS)",
+  "KickSlowJoiningPlayers": "Kick Players Who Join Slowly To Prevent Disconnects (if they take more than 5 seconds to send their own data, they will be kicked automatically)",
+  "EnableAutoMessage": "Enable Auto-Message (sends the template with the 'Notification' tag on a given interval in lobby)",
+  "AutoMessageSendInterval": "The Auto-Message Is Sent Every",
+  "RoleAssigningAlgorithm": "الگوریتم تخصیص نقش",
+  "RoleAssigningAlgorithm.Default": "پیش‌فرض",
+  "RoleAssigningAlgorithm.HashRandom": "HashRandom",
+  "RoleAssigningAlgorithm.MersenneTwister": "MersenneTwister",
+  "RoleAssigningAlgorithm.NetRandom": ".NET System.Random",
+  "RoleAssigningAlgorithm.Xorshift": "Xorshift",
+  "KPDCamouflageMode": "ظاهر استتار (Camouflage)",
+  "CamouflageMode.Default": "پیش‌فرض",
+  "CamouflageMode.Gurge44": "<color=#ffe600>Gurge44</color>",
+  "CamouflageMode.Host": "<color=#FFFF00>Host</color>",
+  "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
+  "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
+  "MenuTitle.AutoFactionMinMaxSettings": "Auto Team Sizes",
+  "EnableAutoFactionMinMaxSettings": "Enable Automatic Team Size Adjustment Based on Player Count",
+  "AutoFactionMinMaxSettings.PlayerCap": "Minimum Player Threshold for These Settings to Apply (0 = unused)",
+  "AutoFactionMinMaxSettings.Applied": "[Auto Team Sizes] {0} players (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
+  "FactionLimits.Impostor.Min": "<#00ffa5>حداقل</color> <#ffffff>تعداد</color> نقش‌های ایمپاستر",
+  "FactionLimits.Impostor.Max": "<#00a5ff>حداکثر</color> <#ffffff>تعداد</color> نقش‌های ایمپاستر",
+  "FactionLimits.Coven.Min": "<#00ffa5>حداقل</color> <#ffffff>تعداد</color> نقش‌های کاون",
+  "FactionLimits.Coven.Max": "<#00a5ff>حداکثر</color> <#ffffff>تعداد</color> نقش‌های کاون",
+  "FactionLimits.Neutral.Min": "<#00ffa5>حداقل</color> <#ffffff>تعداد</color> نقش‌های خنثی",
+  "FactionLimits.Neutral.Max": "<#00a5ff>حداکثر</color> <#ffffff>تعداد</color> نقش‌های خنثی",
+  "MinNNKs": "<#00ffa5>حداقل</color> تعداد <#ffab1b>نقش‌های خنثی</color> <#ffff00>غیرکشنده</color> <#888888>(خوش‌خیم، شرور، منفور)</color>",
+  "MaxNNKs": "<#00a5ff>حداکثر</color> تعداد <#ffab1b>نقش‌های خنثی</color> <#ffff00>غیرکشنده</color> <#888888>(خوش‌خیم، شرور، منفور)</color>",
+  "MenuTitle.GMPoll": "Game Mode Poll",
+  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
+  "MPoll.Allow": "Show {m} in /mpoll choices",
+  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
+  "GuessersKeepTheGameGoing": "Crewmate Guessers Keep The Game Going",
+  "MenuTitle.AutoGMRotation": "Automatic Game Mode Rotation",
+  "EnableAutoGMRotation": "Automatically Rotate Game Modes",
+  "AutoGMRotationSlot": "Game Mode for Game {index} (Slot {index})",
+  "AGMR.Unused": "Unused/Skipped Slot",
+  "AGMR.Explicit": "Specified Explicitly",
+  "AGMR.Random": "Randomly Chosen From Group",
+  "AGMR.Poll": "Player-Voted (/gmpoll)",
+  "GameMode": "Game Mode",
+  "AGMR.Slot.RandomGroupId": "Number/ID of the random group to use for choosing the game mode for this slot/game",
+  "AGMR.Slot.Count": "How many times should we repeat this?",
+  "MenuTitle.AGMR.RandomGroup": "Random Group {index}",
+  "AGMR.RandomGroup.GMChance": "Chance of selecting {gm}",
+  /* ==============================
+  Mod Settings           
+  ============================== */
+  "TabGroup.GameSettings": "Mod Settings",
+  "MenuTitle.Ejections": "★ اخراج‌ ★",
+  "ConfirmEjectionsMode": "اعلام نقش پس از اخراج",
+  "ConfirmEjections.None": "هیچ‌کدام",
+  "ConfirmEjections.Role": "نقش",
+  "ConfirmEjections.Team": "تیم",
+  "ShowImpRemainOnEject": "نمایش <color=#ff1919>Impostors</color> باقی‌مانده هنگام اخراج",
+  "ShowNKRemainOnEject": "نمایش <color=#ffab1b>Neutral Killers</color> باقی‌مانده هنگام اخراج",
+  "ShowCovenRemainOnEject": "نمایش <color=#7b3fbb>Coven</color> باقی‌مانده هنگام اخراج",
+  "AnonymousKillerCount": "Anonymous <#ff1919>Evil</color> Player Count",
+  "ConfirmEgoistOnEject": "تأیید <color=#5600fb>Egoists</color> هنگام اخراج",
+  "ConfirmLoversOnEject": "تأیید <color=#ff9ace>Lovers</color> هنگام اخراج",
+  "ShowDifferentEjectionMessageForSomeRoles": "نمایش پیام اخراج متفاوت برای برخی نقش‌ها (Jester, Executioner, Innocent, و غیره)",
+  "ShowTeamNextToRoleNameOnEject": "نمایش تیمی که نقش بازیکن اخراج شده در آن است",
+  "MenuTitle.MapsSettings": "★ مپ‌ها ★",
+  "RandomMapsMode": "حالت مپ‌های تصادفی",
+  "SkeldChance": "Chance that the map is <color=#66a186>The Skeld</color>",
+  "MiraChance": "Chance that the map is <color=#e84b56>MIRA HQ</color>",
+  "PolusChance": "Chance that the map is <color=#a167c0>Polus</color>",
+  "DleksChance": "Chance that the map is <color=#66a186>dlekS ehT</color>",
+  "AirshipChance": "Chance that the map is <color=#ed0007>Airship</color>",
+  "FungleChance": "Chance that the map is <color=#ffa646>The Fungle</color>",
+  "OverrideSpeedForEachMap": "Override Speed For Each Map",
+  "SpeedForMap": "Player Speed on {map}",
+  "RandomSpawn": "اسپاون‌های تصادفی",
+  "AirshipAdditionalSpawn": "مکان‌های اسپاون اضافی (<color=#ed0007>Airship</color>)",
+  "AirshipVariableElectrical": "برق متغیر (<color=#ed0007>Airship</color>)",
+  "DisableAirshipMovingPlatform": "غیرفعال کردن پلتفرم متحرک (<color=#ed0007>Airship</color>)",
+  "DisableSporeTriggerOnFungle": "غیرفعال کردن فعال‌سازهای اسپور در <color=#ffa646>Fungle</color>",
+  "DisableZiplineOnFungle": "غیرفعال کردن زیپ‌لاین (<color=#ffa646>Fungle</color>)",
+  "DisableZiplineFromTop": "غیرفعال کردن استفاده از بالا",
+  "DisableZiplineFromUnder": "غیرفعال کردن استفاده از زیر",
+  "DisableZiplineForCrew": "غیرفعال کردن زیپ‌لاین برای <color=#8cffff>Crewmates</color>",
+  "DisableZiplineForImps": "غیرفعال کردن زیپ‌لاین برای <color=#ff1919>Impostors</color>",
+  "DisableZiplineForNeutrals": "غیرفعال کردن زیپ‌لاین برای <color=#ffab1b>Neutrals</color>",
+  "DisableZiplineForCoven": "غیرفعال کردن زیپ‌لاین برای <color=#7b3fbb>Coven</color>",
+  "ResetDoorsEveryTurns": "Reset All Doors After Meetings",
+  "DoorsResetMode": "حالت",
+  "RandomByDoor": "تصادفی",
+  "AllOpen": "باز کردن همه",
+  "AllClosed": "بستن همه",
+  "ChangeDecontaminationTime": "تغییر زمان رفع آلودگی (<color=#e84b56>MIRA HQ</color>/<color=#a167c0>Polus</color>)",
+  "DecontaminationTimeOnMiraHQ": "زمان رفع آلودگی در <color=#e84b56>MIRA HQ</color>",
+  "DecontaminationDoorOpenTimeOnMiraHQ": "زمان باز بودن درِ رفع آلودگی در <color=#e84b56>MIRA HQ</color>",
+  "DecontaminationTimeOnPolus": "زمان رفع آلودگی در <color=#a167c0>Polus</color>",
+  "DecontaminationDoorOpenTimeOnPolus": "زمان باز بودن درِ رفع آلودگی در <color=#a167c0>Polus</color>",
+  "ExtraKillCooldownOnPolus": "کول‌داون کشتن اضافی در <color=#a167c0>Polus</color>",
+  "ExtraKillCooldownOnAirship": "کول‌داون کشتن اضافی در <color=#ed0007>Airship</color>",
+  "ExtraKillCooldownOnFungle": "کول‌داون کشتن اضافی در <color=#ffa646>Fungle</color>",
+  "MenuTitle.Sabotage": "★ سابوتاژ ★",
+  "CommsCamouflage": "استتار در هنگام سابوتاژ Comms",
+  "CommsCamouflageDisableOnFungle": "غیرفعال کردن در مپ <color=#ffa646>Fungle</color>",
+  "CommsCamouflageDisableOnMira": "غیرفعال کردن در مپ <color=#e84b56>MIRA HQ</color>",
+  "CommsCamouflageLimit": "محدودیت",
+  "CommsCamouflageLimitSetChance": "تنظیم شانس استتار کردن (هر بار که Comms سابوتاژ می‌شود)",
+  "CommsCamouflageLimitChance": "شانس استتار کردن",
+  "CommsCamouflageLimitSetFrequency": "تنظیم فرکانس استتار کردن (= فقط هر x سابوتاژ یک بار استتار کن)",
+  "CommsCamouflageLimitFrequency": "فرکانس استتار کردن",
+  "CommsCamouflageLimitSetMaxTimes": "تنظیم حداکثر دفعات استتار کردن",
+  "CommsCamouflageLimitMaxTimesPerGame": "حداکثر دفعات استتار کردن در هر بازی",
+  "CommsCamouflageLimitMaxTimesPerRound": "حداکثر دفعات استتار کردن در هر راند",
+  "CommsCamouflageSetSameSpeed": "All Players Have the Same Speed During Camouflage",
+  "CommsCamouflagePreventRound1": "Don't Camouflage Round 1",
+  "DisableReportWhenCC": "غیرفعال کردن گزارش جسد در حالت استتار",
+  "SabotageCooldownControl": "Modify Sabotage Cooldown",
+  "SabotageCooldown": "Sabotage Cooldown",
+  "SabotageTimeControl": "Modify Sabotage Time Limit",
+  "SkeldReactorTimeLimit": "<color=#66a186>The Skeld</color> Reactor Time Limit",
+  "SkeldO2TimeLimit": "<color=#66a186>The Skeld</color> O2 Time Limit",
+  "MiraReactorTimeLimit": "<color=#e84b56>MIRA HQ</color> Reactor Time Limit",
+  "MiraO2TimeLimit": "<color=#e84b56>MIRA HQ</color> O2 Time Limit",
+  "PolusReactorTimeLimit": "<color=#a167c0>Polus</color> Reactor Time Limit",
+  "AirshipReactorTimeLimit": "<color=#ed0007>Airship</color> Reactor Time Limit",
+  "FungleReactorTimeLimit": "<color=#ffa646>The Fungle</color> Reactor Time Limit",
+  "FungleMushroomMixupDuration": "<color=#ffa646>The Fungle</color> Mushroom Mixup Duration",
+  "LightsOutSpecialSettings": "تنظیمات ویژه تعمیر برق",
+  "BlockDisturbancesToSwitches": "مسدود کردن سوییچ‌ها وقتی فعال هستند",
+  "DisableAirshipViewingDeckLightsPanel": "غیرفعال کردن پنل برق Viewing Deck (<color=#ed0007>Airship</color>)",
+  "DisableAirshipGapRoomLightsPanel": "غیرفعال کردن پنل برق Gap Room (<color=#ed0007>Airship</color>)",
+  "DisableAirshipCargoLightsPanel": "غیرفعال کردن پنل برق Cargo (<color=#ed0007>Airship</color>)",
+  "SabotageTimeLimitWinners.Imps": "<#ff1919>Impostors</color>",
+  "SabotageTimeLimitWinners.NKs": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>",
+  "SabotageTimeLimitWinners.Coven": "<#7b3fbb>Coven</color>",
+  "IfSelectedTeamIsDead": "If the selected team is dead, then the winning team is",
+  "EnableCustomSabotages": "Enable Custom Sabotages",
+  "EnableGrabOxygenMaskCustomSabotage": "Enable Grab Oxygen Mask  (call by sabotaging comms - to sabotage comms normally, click on the button twice)",
+  "MenuTitle.Disable": "★ غیرفعال‌سازی ★",
+  "DisableShieldAnimations": "غیرفعال کردن انیمیشن‌های غیرضروری سپر",
+  "DisableKillAnimationOnGuess": "غیرفعال کردن انیمیشن کیل در حدس‌ها",
+  "DisableShapeshiftAnimations": "غیرفعال کردن انیمیشن‌های Shapeshift",
+  "DisableAllShapeshiftAnimations": "غیرفعال کردن تمام انیمیشن‌های Shapeshift",
+  "DisableTaskWin": "غیرفعال کردن پیروزی با تسک",
+  "DisableTaskWinIfAllCrewsAreDead": "غیرفعال کردن پیروزی با تسک اگر تمام <#8cffff>Crewmates</color> مرده باشند",
+  "DisableTaskWinIfAllCrewsAreConverted": "غیرفعال کردن پیروزی با تسک اگر تمام <#8cffff>Crewmates</color> زنده، <#ffab1b>Converted</color> شده باشند",
+  "DisableMeeting": "غیرفعال کردن جلسات",
+  "DisableSabotage": "غیرفعال کردن سابوتاژها",
+  "DisableReactorOnSkeldAndMira": "غیرفعال کردن سابوتاژ رآکتور (<color=#66a186>The Skeld</color> و <color=#e84b56>MIRA HQ</color>)",
+  "DisableReactorOnPolus": "غیرفعال کردن سابوتاژ ریست کردن لرزه‌گیرها (<color=#a167c0>Polus</color>)",
+  "DisableReactorOnAirship": "غیرفعال کردن سابوتاژ جلوگیری از برخورد (<color=#ed0007>Airship</color>)",
+  "DisableO2": "غیرفعال کردن سابوتاژ O2 (<color=#66a186>The Skeld</color> و <color=#e84b56>MIRA HQ</color>)",
+  "DisableComms": "غیرفعال کردن سابوتاژ ارتباطات (Comms)",
+  "DisableLights": "غیرفعال کردن سابوتاژ برق (Lights)",
+  "DisableMushroomMixup": "غیرفعال کردن سابوتاژ درهم‌ریختگی قارچ‌ها (<color=#ffa646>Fungle</color>)",
+  "DisableCloseDoor": "غیرفعال کردن سابوتاژ درها",
+  "DisableWhisperCommand": "Disable /whisper command",
+  "DisableSpectateCommand": "Disable /spectate command",
+  "Disable8ballCommand": "Disable /8ball command",
+  "DisableVoteStartCommand": "Disable /votestart command",
+  "DisableVentingOn1v1": "Disable Venting in 1v1s",
+  "DisableSabotagingOn1v1": "Disable Sabotaging in 1v1s",
+  "DisableDevices": "غیرفعال کردن دستگاه‌ها",
+  "DisableSkeldDevices": "Disable <color=#66a186>Skeld</color> Devices",
+  "DisableSkeldAdmin": "غیرفعال کردن پنل ادمین The Skeld",
+  "DisableSkeldCamera": "غیرفعال کردن دوربین The Skeld",
+  "DisableMiraHQDevices": "Disable <color=#e84b56>MIRA HQ</color> Devices",
+  "DisableMiraHQAdmin": "غیرفعال کردن پنل ادمین Mira Hq",
+  "DisableMiraHQDoorLog": "غیرفعال کردن DoorLog در Mira Hq",
+  "DisableAirshipCamera": "غیرفعال کردن دوربین Airship",
+  "DisablePolusDevices": "غیرفعال کردن دستگاه‌های <color=#a167c0>Polus</color>",
+  "DisablePolusAdmin": "غیرفعال کردن پنل ادمین Polus",
+  "DisablePolusCamera": "غیرفعال کردن دوربین‌های Polus",
+  "DisablePolusVital": "غیرفعال کردن Vitals در Polus",
+  "DisableAirshipDevices": "غیرفعال کردن دستگاه‌های <color=#ed0007>Airship</color>",
+  "DisableAirshipCockpitAdmin": "غیرفعال کردن پنل ادمین Cockpit",
+  "DisableAirshipRecordsAdmin": "غیرفعال کردن پنل ادمین Records",
+  "DisableAirshipVital": "غیرفعال کردن Vitals در Airship",
+  "DisableFungleDevices": "غیرفعال کردن دستگاه‌های <color=#ffa646>Fungle</color>",
+  "DisableFungleCamera": "غیرفعال کردن Binoculars",
+  "DisableFungleVital": "غیرفعال کردن Vitals در Fungle",
+  "IgnoreConditions": "نادیده گرفتن شرایط",
+  "IgnoreImpostors": "نادیده گرفتن <color=#ff1919>Impostors</color>",
+  "IgnoreNeutrals": "نادیده گرفتن <color=#ffab1b>Neutrals</color>",
+  "IgnoreCrewmates": "نادیده گرفتن <color=#8cffff>Crewmates</color>",
+  "IgnoreAfterAnyoneDied": "نادیده گرفتن پس از اولین مرگ",
+  "MenuTitle.Meeting": "★ جلسه ★",
+  "SyncButtonMode": "حالت دکمه‌های Sync",
+  "SyncedButtonCount": "حداکثر تعداد جلسات اضطراری مجاز",
+  "AllAliveMeeting": "برگزاری جلسه وقتی کسی نمرده است",
+  "AllAliveMeetingTime": "زمان جلسه وقتی کسی نمرده است",
+  "EnableGameStateCommand": "Enable use of /gamestate command",
+  "GameStateCommand.ShowImpCount": "نمایش تعداد زنده‌های <#ff1919>Impostors</color>",
+  "GameStateCommand.ShowMadmateCount": "نمایش تعداد زنده‌های <#ff1919>Madmates</color>",
+  "GameStateCommand.ShowConvertedCount": "نمایش تعداد بازیکنان زنده <#ffab1b>Converted</color> (به استثنای <#ff1919>Madmates</color>)",
+  "GameStateCommand.ShowNNKCount": "نمایش تعداد زنده‌های <#ffab1b>Neutral</color> <#ffff00>Non-Killing</color>",
+  "GameStateCommand.ShowNKCount": "نمایش تعداد زنده‌های <#ff1919>Killer</color> <#ffab1b>Neutral</color>",
+  "GameStateCommand.ShowCovenCount": "نمایش تعداد زنده‌های <#7b3fbb>Coven</color>",
+  "GameStateCommand.ShowCrewCount": "نمایش تعداد زنده‌های <#8cffff>Crewmates</color>",
+  "GameStateCommand.ShowRomanticState": "نمایش وضعیت جفت <#ff1493>Romantic</color>",
+  "GameStateCommand.ShowLoversState": "نمایش وضعیت جفت <#ff9ace>Lovers</color>",
+  "GameStateCommand.ShowTasks": "نمایش تعداد تسک‌های انجام شده",
+  "MinPlayersForGameStateCommand": "حداقل بازیکنان زنده برای استفاده از این کامند",
+  "SeeEjectedRolesInMeeting": "دیدن نقش‌های حذف شده در جلسات",
+  "EveryoneSeesDeathReasons": "همه دلایل مرگ را می‌بینند",
+  "HostSeesCommandsEnteredByOthers": "هاست کامندهای وارد شده توسط دیگران را می‌بیند",
+  "AdditionalEmergencyCooldown": "کول‌داون اضطراری اضافی",
+  "AdditionalEmergencyCooldownThreshold": "آستانه حداقل تعداد بازیکنان زنده برای اعمال",
+  "AdditionalEmergencyCooldownTime": "کول‌داون اضافی",
+  "DisablePlayerVotedMessage": "غیرفعال کردن پیام 'X رأی داد. Y باقی مانده.' در جلسات",
+  "VoteMode": "حالت رأی‌گیری",
+  "WhenSkipVote": "اگر بازیکن رأی سفید (Skip) داد",
+  "WhenNonVote": "اگر بازیکن رأی نداد",
+  "WhenTie": "هنگام مساوی شدن آرا",
+  "TieMode.Default": "هیچ‌کس حذف نمی‌شود",
+  "TieMode.All": "حذف همه",
+  "TieMode.Random": "حذف تصادفی",
+  "Default": "بدون رأی",
+  "Suicide": "خودکشی",
+  "SelfVote": "رأی به خود",
+  "Skip": "رد کردن (رأی سفید)",
+  "WhenSkipVoteIgnoreFirstMeeting": "نادیده گرفتن اولین جلسه",
+  "WhenSkipVoteIgnoreNoDeadBody": "نادیده گرفتن وقتی جسد مرده‌ای نیست",
+  "WhenSkipVoteIgnoreEmergency": "نادیده گرفتن در جلسات اضطراری",
+  "MenuTitle.GameCommands": "Game Commands",
+  "AnagramLanguage": "Anagram Word Language",
+  "AnagramLang.Auto": "Auto (System Language)",
+  "AnagramLang.English": "English",
+  "AnagramLang.Spanish": "Spanish",
+  "AnagramLang.Italian": "Italian",
+  "AnagramLang.German": "German",
+  "AnagramLang.French": "French",
+  "AnagramLang.Chinese": "Chinese",
+  "AnagramLang.BrazilianPortuguese": "Brazilian Portuguese",
+  "AnagramLang.Romanian": "Romanian",
+  "AnagramWordLength": "Anagram Word Length",
+  "AnagramDifficulty": "Anagram Difficulty",
+  "AnagramDiff.Easy": "Easy",
+  "AnagramDiff.MediumEasy": "Medium-Easy",
+  "AnagramDiff.Medium": "Medium",
+  "AnagramDiff.MediumHard": "Medium-Hard",
+  "AnagramDiff.Hard": "Hard",
+  "EightballCommandIndexes": "Number of responses for /8ball command (Use the custom translate file to import additional responses. These responses will return blank if no definitions are made)",
+  "MenuTitle.Other": "★ متفرقه ★",
+  "LadderDeath": "افتادن از نردبان‌ها",
+  "LadderDeathChance": "شانس افتادن و مردن",
+  "FixFirstKillCooldown": "ریست کردن کول‌داون اولین کیل",
+  "ArroganceDefaultKillCooldown": "کیل کولداون شروع",
+  "KillCooldown": "Kill Cooldown",
+  "ShieldPersonDiedFirst": "به شخصی که در بازی قبل اولین نفر کشته شد، سپر بده",
+  "KillFlashDuration": "مدت زمان فلاش-کیل",
+  "UniqueNeutralRevealScreen": "Each <#ffab1b>Neutral</color> Role Has Its Own Reveal Screen",
+  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
+  "DraftAffectedByRoleSpawnChances": "Take Role Spawn Chances Into Account When Picking Draft Choices",
+  "LargerRoleTextSize": "Larger Role Text Size",
+  "DynamicTaskCountColor": "Dynamic Task Count Color",
+  "ShowTaskCountWhenAlive": "Show Task Count When Alive",
+  "ShowTaskCountWhenDead": "Show Task Count When Dead",
+  "IntegrateNaturalDisasters": "Integrate the Natural Disasters game mode into the current game mode",
+  "EnableGameTimeLimit": "Enable Game Time Limit (Expired = No One Wins)",
+  "GameTimeLimit": "Game Time Limit",
+  "GameTimerEnded": "Game Time Limit Ended",
+  "GameTimeLimitRunsDuringMeetings": "Game Time Limit Runs During Meetings",
+  "OverrideVisionInVents": "Override Vision While In Vent",
+  "InVentVisionForTeam": "Vision While In Vent For {team}",
+  "MenuTitle.Ghost": "★ روح (Ghost) ★",
+  "GhostCanSeeOtherRoles": "ارواح می‌توانند نقش‌های دیگر را ببینند",
+  "GhostCanSeeOtherVotes": "ارواح می‌توانند رنگ رأی‌ها را ببینند",
+  "GhostCanSeeDeathReason": "روح می‌تواند علت مرگ را ببیند",
+  "MenuTitle.AFKDetection": "★ تشخیص AFK ★",
+  "EnableAFKDetector": "Enable AFK Detector (Also Used To Detect And Fix Black Screens)",
+  "AFKConsequence": "Consequence for AFK players",
+  "AFKConsequence.Nothing": "Nothing",
+  "AFKConsequence.Shield": "Shield",
+  "AFKConsequence.Suicide": "خودکشی",
+  "AFKConsequence.Kick": "Kick",
+  "AFKMinPlayersToActivate": "Minimum alive players to activate AFK Detector",
+  "AFKActivateOnStart": "Activate AFK Detector on game start",
+  "AFKShielded": "According to the Host's settings, AFK players cannot be killed",
+  "AFKKick": "{0} was kicked because they went AFK",
+  "AFKSuffix": "<#ffa500>(AFK)</color>",
+  "AFKTooMany": "AFK detection was disabled for this round since there are too many AFK players",
+  "AFKWarning": "<#ffff00><size=90%>Please move to avoid being marked as AFK</color> <#ffffff>({0})</size></color>",
+  "MenuTitle.CTA": "★ تخصیص تیم سفارشی ★", 
+  /* ==============================
+  Game Modifiers           
+  ============================== */
+  "TabGroup.TaskSettings": "Game Modifiers",
+  "UsePets": "استفاده از دکمه Pet به جای Vent/Shapeshift",
+  "PetToAssign": "حیوان خانگی (Pet) برای تخصیص به همه",
+  "PetButtonText": "Pet",
+  "pet_Alien": "Headslug",
+  "pet_Bedcrab": "Bedcrab",
+  "pet_BredPet": "Breb",
+  "pet_Bush": "Bushfriend",
+  "pet_Charles": "Charles Chopper",
+  "pet_Charles_Red": "Toppat Chopper",
+  "pet_ChewiePet": "Chewie",
+  "pet_Creb": "Creb",
+  "pet_Crewmate": "Mini Crewmate",
+  "pet_Crow": "Mad Crow",
+  "pet_Cube": "Deitied Guy",
+  "pet_D2GhostPet": "Ghost",
+  "pet_D2PoukaPet": "Pouka",
+  "pet_D2WormPet": "Worm",
+  "pet_DancingSkeletonPet": "Bone Shaker",
+  "pet_Doggy": "Doggy",
+  "pet_Ellie": "E. Rose",
+  "pet_Goose": "A Goose",
+  "pet_GuiltySpark": "Guilty Spark",
+  "pet_HamPet": "Holiday Hammy",
+  "pet_Hamster": "Hampton",
+  "pet_Lava": "Magmate",
+  "pet_Mister": "Mister",
+  "pet_Pate": "Pâté",
+  "pet_Pip": "Pip",
+  "pet_Pusheen": "Pusheen",
+  "pet_RANDOM_FOR_EVERYONE": "<color=#ffff00>Random</color>",
+  "pet_Rammy": "Rammy",
+  "pet_Robot": "Ro-Bot",
+  "pet_Snow": "Snowball",
+  "pet_Squig": "Squig",
+  "pet_Stickmin": "H. Stickmin",
+  "pet_Stormy": "Stormy",
+  "pet_Strawb": "Flying Strawberry",
+  "pet_UFO": "UFO",
+  "pet_YuleGoatPet": "Bränt",
+  "pet_clank": "Clank",
+  "pet_coaltonpet": "Coalton",
+  "pet_frankendog": "Frankendog",
+  "pet_lny_dragon": "Desolation of Skeld",
+  "pet_nancy": "Nancy",
+  "pet_napstamate": "Napstamate",
+  "pet_nuggetPet": "The Nug",
+  "pet_pocketCircuitCar": "Pocket Circuit",
+  "pet_poro": "Heimerdinger's Poro",
+  "pet_spaceCat": "Space Cat",
+  "pet_test": "Glitch Pet",
+  "AnonymousBodies": "Anonymous Bodies",
+  "EveryoneSeesDeadPlayersRoles": "همه نقش بازیکنان مرده را می‌بینند",
+  "UsePhantomBasis": "Use Vanish Button (Phantom basis) as Ability Trigger",
+  "UsePhantomBasisForNKs": "Even for <#ffab1b>Neutral</color> <#ff1919>Killing</color> (Desynced) roles <#ffff00>(EXPERIMENTAL)</color>",
+  "UseMeetingShapeshift": "Use Shapeshift Menu in Meetings to Select Targets Instead of Commands/Votes",
+  "UseMeetingShapeshiftForGuessing": "Even For Guessing (may disconnect the host on vanilla servers)",
+  "EveryoneCanVent": "Everyone Can Vent",
+  "OverrideOtherCrewBasedRoles": "Override Other Crew Based Roles to Engineer (not just regular Crewmate)",
+  "WhackAMole": "Whack-A-Mole",
+  "SpawnAdditionalRenegadeOnImpsDead": "Random <#8cffff>Crewmate</color> Turns To <#ff1919>Renegade</color> When All <#ff1919>Impostors</color> Die",
+  "SpawnAdditionalRenegadeWhenNKAlive": "Spawn Even If a <#ffab1b>Neutral Killer</color> is Alive",
+  "SpawnAdditionalRenegadeMinAlivePlayers": "Minimum Number of Alive Players to Spawn",
+  "DisableShortTasks": "غیرفعال کردن تسک‌های کوتاه",
+  "DisableCleanVent": "غیرفعال کردن تسک Clean Vent",
+  "DisableCalibrateDistributor": "غیرفعال کردن تسک Calibrate Distributor",
+  "DisableChartCourse": "غیرفعال کردن تسک Chart Course",
+  "DisableStabilizeSteering": "غیرفعال کردن تسک Stabilize Steering",
+  "DisableCleanO2Filter": "غیرفعال کردن تسک Clean O2 Filter",
+  "DisableUnlockManifolds": "غیرفعال کردن تسک Unlock Manifolds",
+  "DisablePrimeShields": "غیرفعال کردن تسک Prime Shields",
+  "DisableMeasureWeather": "غیرفعال کردن تسک Measure Weather",
+  "DisableBuyBeverage": "غیرفعال کردن تسک Buy Beverage",
+  "DisableAssembleArtifact": "غیرفعال کردن تسک Assemble Artifact",
+  "DisableSortSamples": "غیرفعال کردن تسک Sort Samples",
+  "DisableProcessData": "غیرفعال کردن تسک Process Data",
+  "DisableRunDiagnostics": "غیرفعال کردن تسک Run Diagnostics",
+  "DisableRepairDrill": "غیرفعال کردن تسک Repair Drill",
+  "DisableAlignTelescope": "غیرفعال کردن تسک تنظیم تلسکوپ",
+  "DisableRecordTemperature": "غیرفعال کردن تسک Record Temperature",
+  "DisableFillCanisters": "غیرفعال کردن تسک Fill Canisters",
+  "DisableMonitorTree": "غیرفعال کردن تسک Monitor Tree",
+  "DisableStoreArtifacts": "غیرفعال کردن تسک Store Artifacts",
+  "DisablePutAwayPistols": "غیرفعال کردن تسک Put Away Pistols",
+  "DisablePutAwayRifles": "غیرفعال کردن تسک Put Away Rifles",
+  "DisableMakeBurger": "غیرفعال کردن تسک Make Burger",
+  "DisableCleanToilet": "غیرفعال کردن تسک Clean Toilet",
+  "DisableDecontaminate": "غیرفعال کردن تسک Decontaminate",
+  "DisableSortRecords": "غیرفعال کردن تسک Sort Records",
+  "DisableFixShower": "غیرفعال کردن تسک Fix Shower",
+  "DisablePickUpTowels": "غیرفعال کردن تسک Pick Up Towels",
+  "DisablePolishRuby": "غیرفعال کردن تسک Polish Ruby",
+  "DisableDressMannequin": "غیرفعال کردن تسک Dress Mannequin",
+  "DisableRoastMarshmallow": "غیرفعال کردن تسک Roast Marshmallow",
+  "DisableCollectSamples": "غیرفعال کردن تسک Collect Samples",
+  "DisableReplaceParts": "غیرفعال کردن تسک Replace Parts",
+  "DisableCommonTasks": "غیرفعال کردن Common Tasks",
+  "DisableSwipeCardTask": "غیرفعال کردن تسک Swipe Card",
+  "DisableFixWiring": "غیرفعال کردن تسک Fix Wiring",
+  "DisableEnterIdCode": "غیرفعال کردن تسک Enter ID Code",
+  "DisableInsertKeys": "غیرفعال کردن تسک Insert Keys",
+  "DisableScanBoardingPass": "غیرفعال کردن Common Tasks",
+  "DisableCollectVegetables": "غیرفعال کردن تسک Collect Vegetables",
+  "DisableMineOres": "غیرفعال کردن تسک Mine Ores",
+  "DisableExtractFuel": "غیرفعال کردن تسک Extract Fuel",
+  "DisableCatchFish": "غیرفعال کردن تسک Catch Fish",
+  "DisablePolishGem": "غیرفعال کردن تسک Polish Gem",
+  "DisableHelpCritter": "غیرفعال کردن تسک Help Critter",
+  "DisableHoistSupplies": "غیرفعال کردن تسک Hoist Supplies",
+  "DisableLongTasks": "غیرفعال کردن تسک‌های بلند",
+  "DisableSubmitScanTask": "غیرفعال کردن تسک Submit Scan",
+  "DisableUnlockSafeTask": "غیرفعال کردن تسک Unlock Safe",
+  "DisableStartReactorTask": "غیرفعال کردن تسک Start Reactor",
+  "DisableResetBreakerTask": "غیرفعال کردن تسک Reset Breakers",
+  "DisableAlignEngineOutput": "غیرفعال کردن تسک Align Engine Output",
+  "DisableInspectSample": "غیرفعال کردن تسک Inspect Sample",
+  "DisableEmptyChute": "غیرفعال کردن تسک Empty Chute",
+  "DisableClearAsteroids": "غیرفعال کردن تسک Clear Asteroids",
+  "DisableWaterPlants": "غیرفعال کردن تسک Water Plants",
+  "DisableOpenWaterways": "غیرفعال کردن تسک Open Waterways",
+  "DisableReplaceWaterJug": "غیرفعال کردن تسک Replace Water Jug",
+  "DisableRebootWifi": "غیرفعال کردن تسک Reboot Wifi",
+  "DisableDevelopPhotos": "غیرفعال کردن تسک Develop Photos",
+  "DisableRewindTapes": "غیرفعال کردن تسک Rewind Tapes",
+  "DisableStartFans": "غیرفعال کردن تسک Start Fans",
+  "DisableFixAntenna": "غیرفعال کردن تسک Fix Antenna",
+  "DisableBuildSandcastle": "غیرفعال کردن تسک Build Sandcastle",
+  "DisableCrankGenerator": "غیرفعال کردن تسک Crank Generator",
+  "DisableMonitorMushroom": "غیرفعال کردن تسک Monitor Mushroom",
+  "DisablePlayVideoGame": "غیرفعال کردن تسک Play Video Game",
+  "DisableFindSignal": "غیرفعال کردن تسک Find Signal",
+  "DisableThrowFisbee": "غیرفعال کردن تسک Throw Frisbee",
+  "DisableLiftWeights": "غیرفعال کردن تسک Lift Weights",
+  "DisableCollectShells": "غیرفعال کردن تسک Collect Shells",
+  "DisableOtherTasks": "غیرفعال کردن تسک‌های موقعیتی",
+  "DisableUploadDataTask": "غیرفعال کردن تسک Upload Data",
+  "DisableEmptyGarbage": "غیرفعال کردن تسک Empty Garbage",
+  "DisableFuelEngines": "غیرفعال کردن تسک Fuel Engines",
+  "DisableDivertPower": "غیرفعال کردن تسک Divert Power",
+  "DisableActivateWeatherNodes": "غیرفعال کردن تسک Activate Weather Nodes",
+  "MenuTitle.Guessers": "★ حالت Guesser ★",
+  "GuesserMode": "حالت حدس‌زننده",
+  "CrewmatesCanGuess": "<color=#8cffff>کرومیت‌ها</color> می‌توانند حدس بزنند",
+  "ImpostorsCanGuess": "<color=#ff1919>ایمپاسترها</color> می‌توانند حدس بزنند",
+  "NeutralKillersCanGuess": "<color=#ffab1b>قاتل‌های خنثی</color> می‌توانند حدس بزنند",
+  "PassiveNeutralsCanGuess": "<color=#ffab1b>خنثی‌های</color> بی‌آزار می‌توانند حدس بزنند",
+  "CovenCanGuess": "<color=#7b3fbb>کاون</color> می‌توانند حدس بزنند",
+  "BetrayalAddonsCanGuess": "Players With <#ffab1b>Betrayal Add-ons</color> Can Guess",
+  "CanGuessAddons": "امکان حدس زدن افزونه‌ها",
+  "CrewCanGuessCrew": "<color=#8cffff>کرومیت‌ها</color> می‌توانند نقش‌های <color=#8cffff>کرومیت</color> را حدس بزنند",
+  "ImpCanGuessImp": "<color=#ff1919>ایمپاسترها</color> می‌توانند نقش‌های <color=#ff1919>ایمپاستر</color> را حدس بزنند",
+  "GuesserMaxKillsPerMeeting": "Max Kills Per Meeting",
+  "GuesserMaxKillsPerGame": "Max Kills Per Game",
+  "GuesserNumRestrictions": "Restrict the Number of Guessers on Each Team",
+  "GuesserDoesntDieOnMisguess": "<color=#f3e304>Guesser با حدس اشتباه نمی‌میرد</color>",
+  "CanGuessDuringDiscussionTime": "<color=#f3e304>حدس‌زننده‌ها (Guessers) می‌توانند در طول زمان بحث حدس بزنند</color>",
+  "MisguessDeathReason": "'Misguess' Death Reason",
+  /* ==============================
+  Meeting Settings           
   ============================== */
   "AddedPolus": "مپ <color=#a167c0>Polus</color> شامل شود",
   "AddedTheAirship": "مپ <color=#ed0007>Airship</color> شامل شود",
   "AddedTheSkeld": "مپ <color=#66a186>The Skeld</color> شامل شود",
-  /* ==============================
-    Meeting Settings           
-  ============================== */
-  "AdditionalEmergencyCooldown": "کول‌داون اضطراری اضافی",
-  "AdditionalEmergencyCooldownThreshold": "آستانه حداقل تعداد بازیکنان زنده برای اعمال",
-  "AdditionalEmergencyCooldownTime": "کول‌داون اضافی",
   "AddonCanBeGuessed": "می‌تواند حدس زده شود",
   "AfterMeeting": "After Meeting",
   "AfterMeetingKillCooldown": "کیل کولداون پس از جلسات",
@@ -8592,37 +9295,18 @@
   "AddonSettingsCrew": "تنظیمات <color=#8cffff>کرومیت</color>",
   "AddonSettingsImp": "تنظیمات <color=#ff1919>ایمپاستر</color>",
   "AddonSettingsNeut": "تنظیمات <color=#ffab1b>خنثی</color>",
-  "AirshipAdditionalSpawn": "مکان‌های اسپاون اضافی (<color=#ed0007>Airship</color>)",
-  "AirshipReactorTimeLimit": "<color=#ed0007>Airship</color> Reactor Time Limit",
-  "AirshipVariableElectrical": "برق متغیر (<color=#ed0007>Airship</color>)",
   /* ==============================
     Meeting Settings         
   ============================== */
-  "AllAliveMeeting": "برگزاری جلسه وقتی کسی نمرده است",
-  "AllAliveMeetingTime": "زمان جلسه وقتی کسی نمرده است",
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} has guessed the anagram correctly (<b>{1}</b>)!",
-
+  "Sabotage": "سابوتاژ",
+  "SabotageButtonText": "سابوتاژ",
   /* ==============================
     General Settings           
   ============================== */
   "ArrowDelayMax": "حداکثر تأخیر در نمایش پیکان",
   "ArrowDelayMin": "حداقل تأخیر در نمایش پیکان",
-
-  /* ==============================
-  General Settings           
-  ============================== */
-  "AutoFactionMinMaxSettings.Applied": "[Auto Team Sizes] {0} players (>={1}) = {2} (<#ffff00>NNK</color>: <#ffffff>{3}-{4}</color>)",
-  "AutoFactionMinMaxSettings.PlayerCap": "Minimum Player Threshold for These Settings to Apply (0 = unused)",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "AutoPlayAgainCountdown": "تأخیر قبل از ورود مجدد خودکار به لابی",
-  "AutoReadyCheckCommandAfterJoin": "Auto Execute /readycheck After Joining The Lobby",
-  "AutoReadyCheckCommandCooldown": "Delay Before Auto Executing /readycheck (After Joining The Lobby)",
-  "AutoStartTimer": "شمارش معکوس اولیه برای شروع خودکار",
   "BKProtectDuration": "مدت زمان محافظت (Protection)",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -8630,7 +9314,6 @@
   "BMWSBP.Blackmailer": "<#990000>Blackmailer</color>",
   "BMWSBP.BlackmailerAndBlackmailed": "<#990000>Blackmailer</color> + <#ffa500>Blackmailed</color>",
   "BecomeMadmateCuzMadmateMode": "You became a Madmate because you died",
-  "BetrayalAddonsCanGuess": "Players With <#ffab1b>Betrayal Add-ons</color> Can Guess",
   "BlackHoleDespawnMode": "Black Hole Despawn Mode",
   "BlackHoleDespawnTime": "Time After Black Hole Despawns",
   "BlackHoleMoveSpeed": "Black Hole Moving Speed",
@@ -8643,13 +9326,7 @@
   ============================== */
   "BlackScreenFixCompleteNotify": "<#00ff00>Black Screen Fix Code Executed</color>",
   "BlackmailedSuffix": "<#ffa500>BLACKMAILED</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "BlockDisturbancesToSwitches": "مسدود کردن سوییچ‌ها وقتی فعال هستند",
   "BlockVentMovement": "مسدود کردن حرکت بین ونت‌ها (وقتی داخل یک ونت هستید)",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -8690,18 +9367,8 @@
   ============================== */
   "CamerasAndAdmin": "Cameras & Admin",
   "CamerasDisabledNotify": "<color=#ffff00>Cameras are globally disabled by the host</color>",
-
-  /* ==============================
-    Camouflage           
-  ============================== */
   "CamouflageCooldown": "Camouflage Cooldown",
   "CamouflageDuration": "Camouflage Duration",
-  "CamouflageMode.Default": "پیش‌فرض",
-  "CamouflageMode.Gurge44": "<color=#ffe600>Gurge44</color>",
-  "CamouflageMode.Host": "<color=#FFFF00>Host</color>",
-  "CamouflageMode.Karpe": "<color=#ffc0cb>KARPED1EM</color>",
-  "CamouflageMode.TommyXL": "<color=#EC7578>TommyXL</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -8720,8 +9387,6 @@
     Meeting Settings         
   ============================== */
   "CanGuess": "می‌تواند در حالت Guesser حدس بزند",
-  "CanGuessAddons": "امکان حدس زدن افزونه‌ها",
-  "CanGuessDuringDiscussionTime": "<color=#f3e304>حدس‌زننده‌ها (Guessers) می‌توانند در طول زمان بحث حدس بزنند</color>",
   "CanGuessTarget": "Can Guess their Target",
 
   /* ==============================
@@ -8825,12 +9490,6 @@
   ============================== */
   "ChargeInterval": "Charge Percentage Gained Each Second When Kill Cooldown Is Up",
   "ChargeLossInterval": "Charge Percentage Lost Each Second While Killing",
-
-  /* ==============================
-    EAC           
-  ============================== */
-  "CheatResponses": "وقتی یک بازیکن متقلب پیدا می‌شود",
-
   /* ==============================
     Combos           
   ============================== */
@@ -8843,20 +9502,9 @@
     Commands           
   ============================== */
   // Command Behaviour
-  "GameStateCommand.ShowConvertedCount": "نمایش تعداد بازیکنان زنده <#ffab1b>Converted</color> (به استثنای <#ff1919>Madmates</color>)",
-  "GameStateCommand.ShowCovenCount": "نمایش تعداد زنده‌های <#7b3fbb>Coven</color>",
-  "GameStateCommand.ShowCrewCount": "نمایش تعداد زنده‌های <#8cffff>Crewmates</color>",
-  "GameStateCommand.ShowImpCount": "نمایش تعداد زنده‌های <#ff1919>Impostors</color>",
-  "GameStateCommand.ShowLoversState": "نمایش وضعیت جفت <#ff9ace>Lovers</color>",
-  "GameStateCommand.ShowMadmateCount": "نمایش تعداد زنده‌های <#ff1919>Madmates</color>",
-  "GameStateCommand.ShowNKCount": "نمایش تعداد زنده‌های <#ff1919>Killer</color> <#ffab1b>Neutral</color>",
-  "GameStateCommand.ShowNNKCount": "نمایش تعداد زنده‌های <#ffab1b>Neutral</color> <#ffff00>Non-Killing</color>",
-  "GameStateCommand.ShowRomanticState": "نمایش وضعیت جفت <#ff1493>Romantic</color>",
-  "GameStateCommand.ShowTasks": "نمایش تعداد تسک‌های انجام شده",
   "GNoCommandInfo": "<b>This Command can only be used when in lobby or after you die.</b>\\n\\ntype <b>/gno X</b> to play guess a number. X can be a number between 0 and 99 (both included). \\n\\nYou get maximum of <color=#ff0000>7 tries</color> to guess the number.\\n\\n Example:- <b>/gno 10</b>",
   "HostKillSelfByCommand": "The lobby Host decided to commit suicide",
   "HostMayOmitCmdPrefix": "'cmd' prefix\\ncan be omitted",
-  "HostSeesCommandsEnteredByOthers": "هاست کامندهای وارد شده توسط دیگران را می‌بیند",
   "MyRoleCommandHelp": "<size=80%><#00ffa5>برای مشاهده توضیحات کامل نقش خود، در جلسه بعدی <#00a5ff>/m</color> را تایپ کنید</color></size>",
   "NoSpamAnymoreUseCmd": "<size=2.5><#ff0000>⚠ <#ffff00>USE THE '/cmd {command name} {arguments}' FORMAT <#ff0000>⚠</size>\\n<#ffa500>Otherwise your messages are exposed!",
   "SpectateCommand.ForcedSpectator": "<#00ff00>✓</color> {0} will spectate for the next game.",
@@ -8869,8 +9517,8 @@
   "CommandArgs.AFKExempt.Id": "The player's ID to exempt from AFK detection",
   "CommandArgs.AddAdmin.Id": "The player's ID to add to the list of admins",
   "CommandArgs.AddMod.Id": "The player's ID to make a moderator",
-  "CommandArgs.AddTag.Color": "The color of the tag (format: hex, without the leading # (example: 00ffa5))",
   "CommandArgs.AddTag.Id": "The player's ID to add a tag to",
+  "CommandArgs.AddTag.Color": "The color of the tag (format: hex, without the leading # (example: 00ffa5))",
   "CommandArgs.AddTag.Tag": "The tag to add (you can use HTML tags) (don't forget a separator at the end)",
   "CommandArgs.AddVIP.Id": "The player's ID to add to the VIP list",
   "CommandArgs.Answer.Number": "The answer to the question",
@@ -8880,7 +9528,7 @@
   "CommandArgs.Assume.Number": "The number of votes to assume",
   "CommandArgs.Ban.Id": "The player's ID to ban or kick",
   "CommandArgs.Ban.Reason": "The reason for the punishment",
-  "CommandArgs.CSD.Sound": "The sound to play",
+  "CommandArgs.ChangePreset.Preset": "The preset number (1-20) to switch to",
   "CommandArgs.ChangeRole.Role": "The role to change to",
   "CommandArgs.ChangeSetting.Name": "The setting's name to change (leave blank to view all settings)",
   "CommandArgs.ChangeSetting.UnknownValue": "(leave blank to view what to put here)",
@@ -8889,15 +9537,16 @@
   "CommandArgs.Check.Role": "The role or add-on to check for",
   "CommandArgs.Choose.Role": "The role to choose",
   "CommandArgs.Colour.Color": "The color to set (ex. red, blue, yellow)",
-  "CommandArgs.Combo.Addon": "The name of the add-on in 1 word",
-  "CommandArgs.Combo.All": "Whether to apply to all presets (all/[blank])",
   "CommandArgs.Combo.Mode": "add/ban/remove/allow (leave blank to view all combos)",
   "CommandArgs.Combo.Role": "The name of the main role in 1 word",
+  "CommandArgs.Combo.Addon": "The name of the add-on in 1 word",
+  "CommandArgs.Combo.All": "Whether to apply to all presets (all/[blank])",
   "CommandArgs.Compare.Id1": "The first player's ID to compare",
   "CommandArgs.Compare.Id2": "The second player's ID to compare",
   "CommandArgs.ConfirmAuth.UUID": "The unique token provided by the server",
   "CommandArgs.CopyPreset.SourcePreset": "The preset to copy all settings from",
   "CommandArgs.CopyPreset.TargetPreset": "The preset to paste all settings to",
+  "CommandArgs.CSD.Sound": "The sound to play",
   "CommandArgs.Death.Id": "The player's ID to view the killer of (leave blank for yourself)",
   "CommandArgs.DeathNote.Name": "The real name to guess. If it's correct, you kill the player with this name.",
   "CommandArgs.Decree.Number": "0/1/2/3/4/5 (leave blank to view all decrees)",
@@ -8927,19 +9576,19 @@
   "CommandArgs.Level.Level": "Your new level",
   "CommandArgs.Medium.Answer": "yes/no",
   "CommandArgs.MessageWait.Duration": "The duration in seconds",
-  "CommandArgs.Mute.Duration": "The duration in seconds (leaving blank => 60s)",
   "CommandArgs.Mute.Id": "The player's ID to mute",
+  "CommandArgs.Mute.Duration": "The duration in seconds (leaving blank => 60s)",
   "CommandArgs.Negotiation.Number": "The index of the picked negotiation method (0/1/2/3)",
   "CommandArgs.Note.Action": "add/remove/clear/view",
   "CommandArgs.Note.UnknownValue": "The note to add, the index of the note to remove, or blank",
   "CommandArgs.OS.Chance": "The spawn chance for the role",
   "CommandArgs.OS.Role": "The role to set the spawn chance for",
   "CommandArgs.PV.Vote": "A/B/C/D",
+  "CommandArgs.Poll.Question": "The question to ask. End it with a question mark (?)!",
   "CommandArgs.Poll.AnswerA": "The first answer",
   "CommandArgs.Poll.AnswerB": "The second answer",
   "CommandArgs.Poll.AnswerC": "The third answer (leave blank if not needed)",
   "CommandArgs.Poll.AnswerD": "The fourth answer (leave blank if not needed)",
-  "CommandArgs.Poll.Question": "The question to ask. End it with a question mark (?)!",
   "CommandArgs.PlayerInfo.Id": "The player's ID whose info you want to see (leave blank to show all)",
   "CommandArgs.QA.Letter": "The letter of the answer (A/B/C)",
   "CommandArgs.R.Role": "The role to view (leave blank to view all roles)",
@@ -8980,6 +9629,7 @@
   "CommandDescription.Ban": "Bans or kicks a player from the lobby",
   "CommandDescription.CSD": "Plays a custom sound",
   "CommandDescription.ChemistInfo": "Show all processes available for the Chemist role.",
+  "CommandDescription.ChangePreset": "Switch the active preset to the specified preset number.",
   "CommandDescription.ChangeRole": "Changes your role",
   "CommandDescription.ChangeSetting": "Change the game settings",
   "CommandDescription.Chat": "Make your target send a message as the Ventriloquist",
@@ -9010,6 +9660,7 @@
   "CommandDescription.EnableAllRoles": "Enables all roles and add-ons",
   "CommandDescription.End": "Ends the game",
   "CommandDescription.Exe": "Executes a player",
+  "CommandDescription.Exo": "Activate your ability as the Exorcist",
   "CommandDescription.Fabricate": "Set a fake death reason for your next kill as the Fabricator",
   "CommandDescription.Fix": "Fixes the black screen bug for a specific player.",
   "CommandDescription.Forge": "As the Forger, forge a fake role for a player.",
@@ -9042,6 +9693,7 @@
   "CommandDescription.OS": "Set the spawn chance of a role",
   "CommandDescription.PV": "Vote in a poll",
   "CommandDescription.Poll": "Starts a poll",
+  "CommandDescription.PresetPoll": "Start a poll to vote for the next preset.",
   "CommandDescription.PlayerInfo": "See a player's ID, friend code, hashed PUID, and platform info",
   "CommandDescription.QA": "Answer a question asked by the Quiz Master",
   "CommandDescription.QS": "View the current question asked by the Quiz Master",
@@ -9049,6 +9701,7 @@
   "CommandDescription.Ready": "Mark yourself as ready",
   "CommandDescription.ReadyCheck": "Start a ready check (check who is AFK) (results displayed after 30s)",
   "CommandDescription.Rename": "Gives you a new name",
+  "CommandDescription.Reroll": "Reroll your role as the Reroll. Takes effect after the meeting ends.",
   "CommandDescription.Retribute": "Guess who killed the player you camped as the Retributionist",
   "CommandDescription.Revenge": "Take revenge on (kill) a player as the Nemesis",
   "CommandDescription.Revive": "Revives a dead player. Requires special access or No Game End enabled.",
@@ -9090,6 +9743,7 @@
   "CommandForms.Ban": "ban,kick",
   "CommandForms.CSD": "csd",
   "CommandForms.ChemistInfo": "ci,chemistinfo",
+  "CommandForms.ChangePreset": "changepreset,presetchange,chp",
   "CommandForms.ChangeRole": "changerole",
   "CommandForms.ChangeSetting": "cs,changesetting",
   "CommandForms.Chat": "chat",
@@ -9097,9 +9751,9 @@
   "CommandForms.Choose": "choose,pick",
   "CommandForms.Colour": "colour,color",
   "CommandForms.Combo": "combo",
-  "CommandForms.Compare": "compare,cp,cmp",
+  "CommandForms.Compare": "compare,cmp",
   "CommandForms.ConfirmAuth": "confirmauth",
-  "CommandForms.CopyPreset": "copypreset,presetcopy",
+  "CommandForms.CopyPreset": "copypreset,presetcopy,cpp",
   "CommandForms.CosID": "cosid",
   "CommandForms.CovenInfo": "coveninfo",
   "CommandForms.DayBreak": "daybreak,db",
@@ -9120,6 +9774,7 @@
   "CommandForms.EnableAllRoles": "enableallroles",
   "CommandForms.End": "end",
   "CommandForms.Exe": "exe",
+  "CommandForms.Exo": "exo",
   "CommandForms.Fabricate": "fabricate",
   "CommandForms.Fix": "fix,blackscreenfix,fixblackscreen",
   "CommandForms.Forge": "forge",
@@ -9152,6 +9807,7 @@
   "CommandForms.OS": "os,optionset",
   "CommandForms.PV": "pv",
   "CommandForms.Poll": "poll",
+  "CommandForms.PresetPoll": "presetpoll,ppoll",
   "CommandForms.PlayerInfo": "pi,playerinfo",
   "CommandForms.QA": "qa",
   "CommandForms.QS": "qs",
@@ -9159,6 +9815,7 @@
   "CommandForms.Ready": "ready",
   "CommandForms.ReadyCheck": "rc,readycheck",
   "CommandForms.Rename": "rn,rename,name",
+  "CommandForms.Reroll": "reroll",
   "CommandForms.Retribute": "ret,retribute",
   "CommandForms.Revenge": "rv",
   "CommandForms.Revive": "revive",
@@ -9208,31 +9865,19 @@
   /* ==============================
     Polls and Draft
   ============================== */
-  "AGMR.Poll": "Player-Voted (/gmpoll)",
-  "AGMR.Slot.Count": "How many times should we repeat this?",
-  "AutoDraftStartCommandAfterJoin": "اجرای خودکار /draftstart پس از پیوستن به لابی",
-  "AutoDraftStartCommandCooldown": "تأخیر قبل از اجرای خودکار /draftstart (پس از پیوستن به لابی)",
-  "AutoGMPollCommandAfterJoin": "اجرای خودکار /gmpoll پس از پیوستن به لابی",
-  "AutoGMPollCommandCooldown": "تأخیر قبل از اجرای خودکار /gmpoll (پس از پیوستن به لابی)",
   "AutoGMRotationStatusText.CooldownTimer": "Jumping to the next game mode on the list in <b>{0}</b> seconds",
   "AutoGMRotationStatusText.GMPoll": "Player Vote (/gmpoll)",
-  "AutoMPollCommandAfterJoin": "Auto Execute /mpoll After Joining The Lobby",
-  "AutoMPollCommandCooldown": "Delay Before Auto Executing /mpoll (After Joining The Lobby)",
-  "AutoMessageSendInterval": "The Auto-Message Is Sent Every",
-  "DraftAffectedByRoleSpawnChances": "Take Role Spawn Chances Into Account When Picking Draft Choices",
   "DraftChosen": "You have chosen the <b>{0}</b> role for the next game.\\n<size=70%>You can still change your choice by typing /draft [index] again.</size>",
-  "DraftMaxRolesPerPlayer": "Max Roles For Each Player To Choose From When Drafting",
   "DraftNotEnoughRoles": "There are not enough roles enabled to choose from, so drafting cannot be started. Please enable more roles and try again.",
   "DraftResend": "<size=90%>Your drafting choices are:</size>\\n\\n{0}\\n\\n<size=90%>Chat commands to use:</size>\\n- Pick role: <b>/draft [index]</b>\\n- View description of role: <b>/dd [index]</b>\\n<size=90%>Replace [index] with the number of the role you want to pick. Example: <b>/draft 4</b></size>",
   "DraftStart": "<size=90%>Drafting has started! You now have a chance to pick a role from the list below if you'd like to get one of them for the next game. The roles you get to choose from, with their indexes, are:</size>\\n\\n{0}\\n\\n<size=90%>Chat commands to use:</size>\\n- Pick role: <b>/draft [index]</b>\\n- View description of role: <b>/dd [index]</b>\\nReplace [index] with the number of the role you want to pick. Example: <b>/draft 4</b>\\n<size=70%>If you don't pick a role, you get a random one like you normally would.</size>",
   "DraftTitle": "<#00a5ff>➡</color> <#00ffa5>Drafting</color> <#00a5ff>⬅</color>",
   "EveryoneDrafted": "<#00ffa5>✓</color> <#00ff00>Everyone has drafted their role!</color>",
-  "GMPoll.Allow": "Show {gm} in /gmpoll choices",
   "GameModePoll.Question": "Which game mode should we play next?",
-  "MPoll.Allow": "Show {m} in /mpoll choices",
   "MapPoll.Question": "Which map should we play next?",
-  "MenuTitle.GMPoll": "Game Mode Poll",
   "MenuTitle.MPoll": "Map Poll",
+  "PresetPoll.Question": "Which preset should we play next?",
+  "ChangePreset.Changed": "Preset has been changed to Preset {0}\\nPreset Name: {1}",
   "Poll.AlreadyVoted": "You already cast your vote, so it won't be counted.",
   "Poll.Begin": "You may vote using /pv A/B/C/D",
   "Poll.Inactive": "There isn't any active poll currently.",
@@ -9244,32 +9889,6 @@
   "Poll.YouVoted": "You have voted for {0}, which now has {1} votes.",
   "PollResultTitle": "Poll Results",
   "PollUsage": "Format:\\n<size=80%><b>/poll {Question}? <size=55%>{Answer A} {Answer B} \n[Answer C] [Answer D] [Answer E]</size></b></size>\n\n<size=50%>Note: The question should always end with a question mark (?)!</size>",
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "CommsCamouflage": "استتار در هنگام سابوتاژ Comms",
-  "CommsCamouflageDisableOnFungle": "غیرفعال کردن در مپ <color=#ffa646>Fungle</color>",
-  "CommsCamouflageDisableOnMira": "غیرفعال کردن در مپ <color=#e84b56>MIRA HQ</color>",
-  "CommsCamouflageLimit": "محدودیت",
-  "CommsCamouflageLimitChance": "شانس استتار کردن",
-  "CommsCamouflageLimitFrequency": "فرکانس استتار کردن",
-  "CommsCamouflageLimitMaxTimesPerGame": "حداکثر دفعات استتار کردن در هر بازی",
-  "CommsCamouflageLimitMaxTimesPerRound": "حداکثر دفعات استتار کردن در هر راند",
-  "CommsCamouflageLimitSetChance": "تنظیم شانس استتار کردن (هر بار که Comms سابوتاژ می‌شود)",
-  "CommsCamouflageLimitSetFrequency": "تنظیم فرکانس استتار کردن (= فقط هر x سابوتاژ یک بار استتار کن)",
-  "CommsCamouflageLimitSetMaxTimes": "تنظیم حداکثر دفعات استتار کردن",
-  "CommsCamouflagePreventRound1": "Don't Camouflage Round 1",
-  "CommsCamouflageSetSameSpeed": "All Players Have the Same Speed During Camouflage",
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ConfirmEgoistOnEject": "تأیید <color=#5600fb>Egoists</color> هنگام اخراج",
-  "ConfirmEjections.None": "هیچ‌کدام",
-  "ConfirmEjections.Role": "نقش",
-  "ConfirmEjections.Team": "تیم",
-  "ConfirmEjectionsMode": "اعلام نقش پس از اخراج",
-  "ConfirmLoversOnEject": "تأیید <color=#ff9ace>Lovers</color> هنگام اخراج",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -9297,23 +9916,15 @@
   "CovenCanBeInLove": "<color=#7b3fbb>Coven</color> can be <color=#ff9ace>in love</color>",
   "CovenCanBeRole": "<color=#7b3fbb>Coven</color> can become {role}",
   "CovenCanFindMarshall": "Reveal to <#7b3fbb>Coven</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "CovenCanGuess": "<color=#7b3fbb>کاون</color> می‌توانند حدس بزنند",
   "CovenReceiveNecronomiconAfterNumMeetings": "تعداد جلسات پس از آنکه <color=#7b3fbb>Coven</color> شروع به دریافت <color=#7b3fbb>Necronomicon</color> خواهد کرد",
-
   /* ==============================
-    General Settings           
+  General Settings           
   ============================== */
   "CrewCanBeEgoist": "<color=#8cffff>Crewmates</color> می‌توانند <color=#5600ff>Egoist</color> شوند",
   "CrewCanBeInLove": "<color=#8cffff>Crewmates</color> can be <color=#ff9ace>in love</color>",
   "CrewCanBeLoyal": "<color=#8cffff>Crewmates</color> can become <color=#B71556>Loyal</color>",
   "CrewCanBeRole": "<color=#8cffff>Crewmates</color> can become {role}",
-  "CrewCanGuessCrew": "<color=#8cffff>کرومیت‌ها</color> می‌توانند نقش‌های <color=#8cffff>کرومیت</color> را حدس بزنند",
   "CrewLoversWinWithCrew": "اگر هر دو <color=#ff9ace>Lovers</color> جزو <color=#8cffff>Crewmates</color> باشند، همیشه با <color=#8cffff>Crewmates</color> برنده می‌شوند",
-  "CrewmatesCanGuess": "<color=#8cffff>کرومیت‌ها</color> می‌توانند حدس بزنند",
   "CurrentActiveSettingsHelp": "Current Active Settings Help",
 
   /* ==============================
@@ -9357,24 +9968,16 @@
   ============================== */
   "DGResetMode": "Skin Reset Mode",
   "DGResetTimer": "If Resetting Skin by Timer, Reset Skin After",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "DIYGameSettings": "فعال کردن فقط پیام‌های سفارشی /n",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "DeactivationAfterMeeting": "After Meeting",
-
   /* ==============================
     Sabotage Settings           
   ============================== */
   "DeadCrewCantSabotage": "<color=#8cffff>Crewmates</color> پس از مردن نمی‌توانند سابوتاژ کنند",
   "DeadImpCantSabotage": "<color=#ff1919>Impostors</color> پس از مردن نمی‌توانند سابوتاژ کنند",
   "DeadNeutralCantSabotage": "<color=#ffab1b>Neutrals</color> پس از مردن نمی‌توانند سابوتاژ کنند",
-
   /* ==============================
     Death Reasons           
   ============================== */
@@ -9384,6 +9987,7 @@
   "DeathReason.Assumed": "Assumed",
   "DeathReason.Asthma": "Asthma",
   "DeathReason.BadLuck": "Bad Luck",
+  "DeathReason.Bankrupt": "Bankrupted",
   "DeathReason.Bite": "Bitten",
   "DeathReason.Bombed": "Exploded",
   "DeathReason.Collapsed": "Collapsed",
@@ -9402,6 +10006,7 @@
   "DeathReason.Execution": "Executed",
   "DeathReason.Fall": "Fall",
   "DeathReason.FollowingSuicide": "Heartbroken",
+  "DeathReason.Frightened": "Frightened",
   "DeathReason.Gambled": "Guessed",
   "DeathReason.Hack": "Hacked",
   "DeathReason.Hex": "Hexed",
@@ -9446,213 +10051,51 @@
   "DeathReason.WrongAnswer": "Wrong Answer",
   "DeathReason.YinYanged": "Yin Yanged",
   "DeathReason.etc": "Other",
-
   "DebugMode": "حالت Debug",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "DecontaminationDoorOpenTimeOnMiraHQ": "زمان باز بودن درِ رفع آلودگی در <color=#e84b56>MIRA HQ</color>",
-  "DecontaminationDoorOpenTimeOnPolus": "زمان باز بودن درِ رفع آلودگی در <color=#a167c0>Polus</color>",
-  "DecontaminationTimeOnMiraHQ": "زمان رفع آلودگی در <color=#e84b56>MIRA HQ</color>",
-  "DecontaminationTimeOnPolus": "زمان رفع آلودگی در <color=#a167c0>Polus</color>",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "DecreasedKillCooldown": "کول‌داون کشتن کاهش‌یافته",
   "DefaultShapeshiftCooldown": "کولداون پیش‌فرض برای تغییرشکل",
   "DeliverCooldown": "Deliver Cooldown",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "DetectiveSuspectLimit": "Suspects Per Case",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "DevourCooldown": "Devour Cooldown",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "DiedR1Warning": "<#ffff00>(Died First in Last Game)</color>",
-
   /* ==============================
     Task Settings          
   ============================== */
-  "Disable8ballCommand": "Disable /8ball command",
-  "DisableActivateWeatherNodes": "غیرفعال کردن تسک Activate Weather Nodes",
-  "DisableAirshipCamera": "غیرفعال کردن دوربین Airship",
-  "DisableAirshipCargoLightsPanel": "غیرفعال کردن پنل برق Cargo (<color=#ed0007>Airship</color>)",
-  "DisableAirshipCockpitAdmin": "غیرفعال کردن پنل ادمین Cockpit",
-  "DisableAirshipDevices": "غیرفعال کردن دستگاه‌های <color=#ed0007>Airship</color>",
-  "DisableAirshipGapRoomLightsPanel": "غیرفعال کردن پنل برق Gap Room (<color=#ed0007>Airship</color>)",
-  "DisableAirshipMovingPlatform": "غیرفعال کردن پلتفرم متحرک (<color=#ed0007>Airship</color>)",
-  "DisableAirshipRecordsAdmin": "غیرفعال کردن پنل ادمین Records",
-  "DisableAirshipViewingDeckLightsPanel": "غیرفعال کردن پنل برق Viewing Deck (<color=#ed0007>Airship</color>)",
-  "DisableAirshipVital": "غیرفعال کردن Vitals در Airship",
-  "DisableAlignEngineOutput": "غیرفعال کردن تسک Align Engine Output",
-  "DisableAlignTelescope": "غیرفعال کردن تسک تنظیم تلسکوپ",
-  "DisableAllShapeshiftAnimations": "غیرفعال کردن تمام انیمیشن‌های Shapeshift",
-  "DisableAssembleArtifact": "غیرفعال کردن تسک Assemble Artifact",
   "DisableBard": "Disable <color=#ff1919>Bard</color>",
-  "DisableBuildSandcastle": "غیرفعال کردن تسک Build Sandcastle",
-  "DisableBuyBeverage": "غیرفعال کردن تسک Buy Beverage",
-  "DisableCalibrateDistributor": "غیرفعال کردن تسک Calibrate Distributor",
-  "DisableCatchFish": "غیرفعال کردن تسک Catch Fish",
-  "DisableChartCourse": "غیرفعال کردن تسک Chart Course",
-  "DisableCleanO2Filter": "غیرفعال کردن تسک Clean O2 Filter",
-  "DisableCleanToilet": "غیرفعال کردن تسک Clean Toilet",
-  "DisableCleanVent": "غیرفعال کردن تسک Clean Vent",
-  "DisableClearAsteroids": "غیرفعال کردن تسک Clear Asteroids",
-  "DisableCloseDoor": "غیرفعال کردن سابوتاژ درها",
-  "DisableCollectSamples": "غیرفعال کردن تسک Collect Samples",
-  "DisableCollectShells": "غیرفعال کردن تسک Collect Shells",
-  "DisableCollectVegetables": "غیرفعال کردن تسک Collect Vegetables",
-  "DisableCommonTasks": "غیرفعال کردن Common Tasks",
-  "DisableComms": "غیرفعال کردن سابوتاژ ارتباطات (Comms)",
   "DisableCrackedGlass": "Disable Cracked Glass on Meeting Screen",
-  "DisableCrankGenerator": "غیرفعال کردن تسک Crank Generator",
-  "DisableDecontaminate": "غیرفعال کردن تسک Decontaminate",
-  "DisableDevelopPhotos": "غیرفعال کردن تسک Develop Photos",
-  "DisableDevices": "غیرفعال کردن دستگاه‌ها",
-  "DisableDivertPower": "غیرفعال کردن تسک Divert Power",
-  "DisableDressMannequin": "غیرفعال کردن تسک Dress Mannequin",
-  "DisableEmojiName": "غیرفعال کردن ایموجی در اسم‌ها",
-  "DisableEmptyChute": "غیرفعال کردن تسک Empty Chute",
-  "DisableEmptyGarbage": "غیرفعال کردن تسک Empty Garbage",
-  "DisableEnterIdCode": "غیرفعال کردن تسک Enter ID Code",
-  "DisableExtractFuel": "غیرفعال کردن تسک Extract Fuel",
-  "DisableFillCanisters": "غیرفعال کردن تسک Fill Canisters",
-  "DisableFindSignal": "غیرفعال کردن تسک Find Signal",
-  "DisableFixAntenna": "غیرفعال کردن تسک Fix Antenna",
-  "DisableFixShower": "غیرفعال کردن تسک Fix Shower",
-  "DisableFixWiring": "غیرفعال کردن تسک Fix Wiring",
-  "DisableFuelEngines": "غیرفعال کردن تسک Fuel Engines",
-  "DisableFungleCamera": "غیرفعال کردن Binoculars",
-  "DisableFungleDevices": "غیرفعال کردن دستگاه‌های <color=#ffa646>Fungle</color>",
-  "DisableFungleVital": "غیرفعال کردن Vitals در Fungle",
-  "DisableHelpCritter": "غیرفعال کردن تسک Help Critter",
   "DisableHiddenRoles": "غیرفعال کردن نقش‌های مخفی",
-  "DisableHoistSupplies": "غیرفعال کردن تسک Hoist Supplies",
-  "DisableInsertKeys": "غیرفعال کردن تسک Insert Keys",
-  "DisableInspectSample": "غیرفعال کردن تسک Inspect Sample",
-  "DisableKillAnimationOnGuess": "غیرفعال کردن انیمیشن کیل در حدس‌ها",
-  "DisableLiftWeights": "غیرفعال کردن تسک Lift Weights",
-  "DisableLights": "غیرفعال کردن سابوتاژ برق (Lights)",
   "DisableLobbyMusic": "غیرفعال کردن موسیقی لابی",
-  "DisableLongTasks": "غیرفعال کردن تسک‌های بلند",
-  "DisableMakeBurger": "غیرفعال کردن تسک Make Burger",
-  "DisableMeasureWeather": "غیرفعال کردن تسک Measure Weather",
-  "DisableMeeting": "غیرفعال کردن جلسات",
-  "DisableMineOres": "غیرفعال کردن تسک Mine Ores",
-  "DisableMiraHQAdmin": "غیرفعال کردن پنل ادمین Mira Hq",
-  "DisableMiraHQDevices": "Disable <color=#e84b56>MIRA HQ</color> Devices",
-  "DisableMiraHQDoorLog": "غیرفعال کردن DoorLog در Mira Hq",
-  "DisableMonitorMushroom": "غیرفعال کردن تسک Monitor Mushroom",
-  "DisableMonitorTree": "غیرفعال کردن تسک Monitor Tree",
-  "DisableMushroomMixup": "غیرفعال کردن سابوتاژ درهم‌ریختگی قارچ‌ها (<color=#ffa646>Fungle</color>)",
-  "DisableO2": "غیرفعال کردن سابوتاژ O2 (<color=#66a186>The Skeld</color> و <color=#e84b56>MIRA HQ</color>)",
-  "DisableOpenWaterways": "غیرفعال کردن تسک Open Waterways",
-  "DisableOtherTasks": "غیرفعال کردن تسک‌های موقعیتی",
-  "DisablePickUpTowels": "غیرفعال کردن تسک Pick Up Towels",
-  "DisablePlayVideoGame": "غیرفعال کردن تسک Play Video Game",
-  "DisablePlayerVotedMessage": "غیرفعال کردن پیام 'X رأی داد. Y باقی مانده.' در جلسات",
-  "DisablePolishGem": "غیرفعال کردن تسک Polish Gem",
-  "DisablePolishRuby": "غیرفعال کردن تسک Polish Ruby",
-  "DisablePolusAdmin": "غیرفعال کردن پنل ادمین Polus",
-  "DisablePolusCamera": "غیرفعال کردن دوربین‌های Polus",
-  "DisablePolusDevices": "غیرفعال کردن دستگاه‌های <color=#a167c0>Polus</color>",
-  "DisablePolusVital": "غیرفعال کردن Vitals در Polus",
-  "DisablePrimeShields": "غیرفعال کردن تسک Prime Shields",
-  "DisableProcessData": "غیرفعال کردن تسک Process Data",
-  "DisablePutAwayPistols": "غیرفعال کردن تسک Put Away Pistols",
-  "DisablePutAwayRifles": "غیرفعال کردن تسک Put Away Rifles",
-  "DisableReactorOnAirship": "غیرفعال کردن سابوتاژ جلوگیری از برخورد (<color=#ed0007>Airship</color>)",
-  "DisableReactorOnPolus": "غیرفعال کردن سابوتاژ ریست کردن لرزه‌گیرها (<color=#a167c0>Polus</color>)",
-  "DisableReactorOnSkeldAndMira": "غیرفعال کردن سابوتاژ رآکتور (<color=#66a186>The Skeld</color> و <color=#e84b56>MIRA HQ</color>)",
-  "DisableRebootWifi": "غیرفعال کردن تسک Reboot Wifi",
-  "DisableRecordTemperature": "غیرفعال کردن تسک Record Temperature",
-  "DisableRepairDrill": "غیرفعال کردن تسک Repair Drill",
-  "DisableReplaceParts": "غیرفعال کردن تسک Replace Parts",
-  "DisableReplaceWaterJug": "غیرفعال کردن تسک Replace Water Jug",
-  "DisableReportWhenCC": "غیرفعال کردن گزارش جسد در حالت استتار",
-  "DisableResetBreakerTask": "غیرفعال کردن تسک Reset Breakers",
-  "DisableRewindTapes": "غیرفعال کردن تسک Rewind Tapes",
-  "DisableRoastMarshmallow": "غیرفعال کردن تسک Roast Marshmallow",
-  "DisableRunDiagnostics": "غیرفعال کردن تسک Run Diagnostics",
-  "DisableSabotage": "غیرفعال کردن سابوتاژها",
-  "DisableSabotagingOn1v1": "Disable Sabotaging in 1v1s",
   "DisableSaboteur": "Disable <color=#ff1919>Saboteur</color>",
-  "DisableScanBoardingPass": "غیرفعال کردن Common Tasks",
-  "DisableShapeshiftAnimations": "غیرفعال کردن انیمیشن‌های Shapeshift",
-  "DisableShieldAnimations": "غیرفعال کردن انیمیشن‌های غیرضروری سپر",
-  "DisableShortTasks": "غیرفعال کردن تسک‌های کوتاه",
-  "DisableSkeldAdmin": "غیرفعال کردن پنل ادمین The Skeld",
-  "DisableSkeldCamera": "غیرفعال کردن دوربین The Skeld",
-  "DisableSkeldDevices": "Disable <color=#66a186>Skeld</color> Devices",
-  "DisableSortRecords": "غیرفعال کردن تسک Sort Records",
-  "DisableSortSamples": "غیرفعال کردن تسک Sort Samples",
-  "DisableSpectateCommand": "Disable /spectate command",
-  "DisableSporeTriggerOnFungle": "غیرفعال کردن فعال‌سازهای اسپور در <color=#ffa646>Fungle</color>",
-  "DisableStabilizeSteering": "غیرفعال کردن تسک Stabilize Steering",
-  "DisableStartFans": "غیرفعال کردن تسک Start Fans",
-  "DisableStartReactorTask": "غیرفعال کردن تسک Start Reactor",
-  "DisableStoreArtifacts": "غیرفعال کردن تسک Store Artifacts",
-  "DisableSubmitScanTask": "غیرفعال کردن تسک Submit Scan",
   "DisableSunnyboy": "Disable <color=#ff9902>Sunnyboy</color>",
-  "DisableSwipeCardTask": "غیرفعال کردن تسک Swipe Card",
-  "DisableTaskWin": "غیرفعال کردن پیروزی با تسک",
-  "DisableTaskWinIfAllCrewsAreConverted": "غیرفعال کردن پیروزی با تسک اگر تمام <#8cffff>Crewmates</color> زنده، <#ffab1b>Converted</color> شده باشند",
-  "DisableTaskWinIfAllCrewsAreDead": "غیرفعال کردن پیروزی با تسک اگر تمام <#8cffff>Crewmates</color> مرده باشند",
   "DisableTasks": "غیرفعال کردن تسک‌ها",
-  "DisableThrowFisbee": "غیرفعال کردن تسک Throw Frisbee",
-  "DisableUnlockManifolds": "غیرفعال کردن تسک Unlock Manifolds",
-  "DisableUnlockSafeTask": "غیرفعال کردن تسک Unlock Safe",
-  "DisableUploadDataTask": "غیرفعال کردن تسک Upload Data",
   "DisableUseCommand": "The Host's settings do not allow this command to be used.",
   "DisableVanillaRoles": "غیرفعال کردن نقش‌های ساده (Vanilla)",
-  "DisableVentingOn1v1": "Disable Venting in 1v1s",
-  "DisableVoteStartCommand": "Disable /votestart command",
-  "DisableWaterPlants": "غیرفعال کردن تسک Water Plants",
-  "DisableWhisperCommand": "Disable /whisper command",
-  "DisableZiplineForCoven": "غیرفعال کردن زیپ‌لاین برای <color=#7b3fbb>Coven</color>",
-  "DisableZiplineForCrew": "غیرفعال کردن زیپ‌لاین برای <color=#8cffff>Crewmates</color>",
-  "DisableZiplineForImps": "غیرفعال کردن زیپ‌لاین برای <color=#ff1919>Impostors</color>",
-  "DisableZiplineForNeutrals": "غیرفعال کردن زیپ‌لاین برای <color=#ffab1b>Neutrals</color>",
-  "DisableZiplineFromTop": "غیرفعال کردن استفاده از بالا",
-  "DisableZiplineFromUnder": "غیرفعال کردن استفاده از زیر",
-  "DisableZiplineOnFungle": "غیرفعال کردن زیپ‌لاین (<color=#ffa646>Fungle</color>)",
   "DisabledByProgram": "Public rooms have been disabled by the program",
   "DisabledBySettings": "Disabled by Settings",
-
   /* ==============================
     Maps           
   ============================== */
   "DoesntSpawnOnFungle": "Doesn't Spawn When the Map is <color=#ffa646>Fungle</color>",
-  "DoorsResetMode": "حالت",
   /* ==============================
     Task Settings           
   ============================== */
   "DoYourTasksPlease": "Please do your tasks!",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "DualVotes": "آراء تکراری",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
-  "DynamicTaskCountColor": "Dynamic Task Count Color",
-
   /* ==============================
     General Settings           
   ============================== */
   "E2Block": "Block Erase",
-
   /* ==============================
     EAC           
   ============================== */
@@ -9713,7 +10156,6 @@
   "InvalidArgs": "Invalid Args",
   "InvalidArguments": "Invalid Arguments",
   "InvalidUndeadTarget": "Target cannot be recruited",
-  "KickOnInvalidRPC": "Kick Players on Invalid RPC (likely caused by other mods or hacks)",
   "NotAssigned": "-",
   "NotAssignedInfo": "خطا، به هاست گزارش دهید!!",
   "RpcAntiBlackOutEndGame": "Because of <b>{0}</b>, an unknown error occurred, game will end to prevent black screen.",
@@ -9736,19 +10178,9 @@
   /* ==============================
     General Settings           
   ============================== */
-  "EnableAFKDetector": "Enable AFK Detector (Also Used To Detect And Fix Black Screens)",
-  "EnableAutoFactionMinMaxSettings": "Enable Automatic Team Size Adjustment Based on Player Count",
-  "EnableAutoGMRotation": "Automatically Rotate Game Modes",
-  "EnableAutoMessage": "Enable Auto-Message (sends the template with the 'Notification' tag on a given interval in lobby)",
-  "EnableCustomSabotages": "Enable Custom Sabotages",
   "EnableDarkTheme": "Dark Theme for Chat UI",
   "EnableDebugMode": "فعال کردن حالت Debug",
-  "EnableEHRRateLimit": "Enable Custom Rate Limit (to prevent hackers from crashing your game)",
   "EnableExtraAbility": "Enable Extra Ability",
-  "EnableGameTimeLimit": "Enable Game Time Limit (Expired = No One Wins)",
-  "EnableGrabOxygenMaskCustomSabotage": "Enable Grab Oxygen Mask  (call by sabotaging comms - to sabotage comms normally, click on the button twice)",
-  "EnableKillerLeftCommand": "فعال‌سازی استفاده از کامند /gs (که قبلاً /kcount بود)",
-  "EnableMovementChecking": "Enable EAC Checks for Invalid Movement (against speed hacks) (may cause false positives)",
   "EnableSpurtCharge": "Display The Charge",
   "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game. Due to an unknown issue, games may end with the 'Everyone died' reason instantly, if this happens, please disable Game Master.",
 
@@ -9763,12 +10195,6 @@
     Cooldowns and Timers           
   ============================== */
   "EvenKillCooldown": "کیل کولداون برای کیل‌های زوج",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "EveryoneCanVent": "Everyone Can Vent",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9777,60 +10203,20 @@
   "ExiledInnocentTargetAddBelow": "\\nAnd looking back, there's also the <color=#8f815e>Innocent</color> counting the money in their hands....",
   "ExiledInnocentTargetInOneLine": "{0} was the {1}.\\nBut looking back, there's the <color=#8f815e>Innocent</color> counting the money in their hands....\\nGG!",
   "ExiledJester": "You're all fools!\\n{0} the {1} laughing out loud tricked you into ejecting them.\\nGG!",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "ExtraKillCooldownOnAirship": "کول‌داون کشتن اضافی در <color=#ed0007>Airship</color>",
-  "ExtraKillCooldownOnFungle": "کول‌داون کشتن اضافی در <color=#ffa646>Fungle</color>",
-  "ExtraKillCooldownOnPolus": "کول‌داون کشتن اضافی در <color=#a167c0>Polus</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
   "ExtraVotesPT": "<#00a5ff>(<#00ffff>+<#00ffa5>{0}</color> votes</color>)</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "FactionLimits.Coven.Max": "<#00a5ff>حداکثر</color> <#ffffff>تعداد</color> نقش‌های کاون",
-  "FactionLimits.Coven.Min": "<#00ffa5>حداقل</color> <#ffffff>تعداد</color> نقش‌های کاون",
-  "FactionLimits.Impostor.Max": "<#00a5ff>حداکثر</color> <#ffffff>تعداد</color> نقش‌های ایمپاستر",
-  "FactionLimits.Impostor.Min": "<#00ffa5>حداقل</color> <#ffffff>تعداد</color> نقش‌های ایمپاستر",
-  "FactionLimits.Neutral.Max": "<#00a5ff>حداکثر</color> <#ffffff>تعداد</color> نقش‌های خنثی",
-  "FactionLimits.Neutral.Min": "<#00ffa5>حداقل</color> <#ffffff>تعداد</color> نقش‌های خنثی",
-
   /* ==============================
     Task Settings           
   ============================== */
   "FakeTask": "Fake Tasks:",
-
   /* ==============================
     AFK Detector              
   ============================== */
   "FixBlackScreenWaitForDead": "Everyone is alive, and the black screen fix requires a ghost, so it will wait until someone dies.",
-
-  /* ==============================
-    Cooldowns and Timers           
-  ============================== */
-  "FixFirstKillCooldown": "ریست کردن کول‌داون اولین کیل",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "FreezeCooldown": "Freeze Cooldown",
   "FreezeDuration": "Freeze Duration",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "FungleMushroomMixupDuration": "<color=#ffa646>The Fungle</color> Mushroom Mixup Duration",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "FungleReactorTimeLimit": "<color=#ffa646>The Fungle</color> Reactor Time Limit",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -9890,14 +10276,6 @@
   ============================== */
   "GanPresidentCanBeMadmate": "<color=#30916f>President</color> can be converted",
   "GanSheriffCanBeMadmate": "<color=#f8cd46>Sheriff</color> can be converted",
-  "GhostCanSeeDeathReason": "روح می‌تواند علت مرگ را ببیند",
-  "GhostCanSeeOtherRoles": "ارواح می‌توانند نقش‌های دیگر را ببینند",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "GhostCanSeeOtherVotes": "ارواح می‌توانند رنگ رأی‌ها را ببینند",
-
   /* ==============================
     Task Settings           
   ============================== */
@@ -9954,22 +10332,10 @@
     Meeting Settings         
   ============================== */
   "HideDualVotes": "مخفی کردن آراء تکراری",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "HideGameSettings": "مخفی کردن تنظیمات بازی",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "HnSUnloadWarning": "<#ffff00><b>هشدار:</b></color> EHR از حالت Hide And Seek ساده (vanilla) پشتیبانی نمی‌کند و در صورت فعال کردن آن، ماد غیرفعال خواهد شد.\\n\\nشما می‌توانید به جای آن از حالت بازی Custom Hide And Seek خود EHR با نقش‌های منحصر به فرد استفاده کنید.",
-
-  /* ==============================
-    Teams / Alignments           
-  ============================== */
-  "IfSelectedTeamIsDead": "If the selected team is dead, then the winning team is",
-
   /* ==============================
     General Settings           
   ============================== */
@@ -9978,80 +10344,29 @@
   "ImpCanBeLoyal": "<color=#ff1919>Impostors</color> can become <color=#B71556>Loyal</color>",
   "ImpCanBeRole": "<color=#ff1919>Impostors</color> can become {role}",
   "ImpCanFindMarshall": "Reveal to <#ff1919>Impostors</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ImpCanGuessImp": "<color=#ff1919>ایمپاسترها</color> می‌توانند نقش‌های <color=#ff1919>ایمپاستر</color> را حدس بزنند",
-
   /* ==============================
     General Settings           
   ============================== */
   "ImpCanKillMadmate": "<color=#ff1919>Impostors</color> می‌توانند <color=#ff1919>Madmates</color> را بکشن",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ImpostorsCanGuess": "<color=#ff1919>ایمپاسترها</color> می‌توانند حدس بزنند",
-
   /* ==============================
     Teams / Alignments           
   ============================== */
-  "InVentVisionForTeam": "Vision While In Vent For {team}",
-
   "IncompatibleMod": "Incompatible Mod",
   "IncompatibleNeutralMode": "If neutral is incompatible, turn into",
-
-  /* ==============================
-    Achievements           
-  ============================== */
-  "IncompleteAchievementsTitle": "<#ff0000>ACHIEVEMENTS TO BE UNLOCKED</color>",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "IncreasedSpeedDuration": "مدت زمانِ سرعت افزایش‌یافته",
   "IncreasedVisionDuration": "مدت زمانِ دید افزایش‌یافته",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "KCD": "<color=#ff1919>کیل کولداون:</color> <color=#ffffff><b>{0}</b>s</color>",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KPDCamouflageMode": "ظاهر استتار (Camouflage)",
-  "KickAndriodPlayer": "<b>{0}</b> was kicked due to playing on mobile.",
-  "KickAndroidPlayer": "کیک کردن بازیکنان موبایل",
-  "KickBecauseDiffrentVersionOrMod": "<b>{0}</b> was kicked because they had a different version of the mod",
-  "KickBecauseLowLevel": "<b>{0}</b> was kicked because their level was too low",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
   "KickCommandDisabled": "The kick command is currently disabled.",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KickLowLevelPlayer": "کیک کردن بازیکنانی که سطحشان پایین‌تر است از",
-  "KickNintendoPlayer": "<b>{0}</b> was kicked due to playing on Nintendo Switch.",
-  "KickNotJoinedPlayersRegularly": "کیک کردن بازیکنانی که هنوز به بازی نپیوسته‌اند، هر 25 ثانیه در لابی",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "KickPlayStationPlayer": "<b>{0}</b> was kicked due to playing on PlayStation.",
-  "KickPlayerFriendCodeNotExist": "کیک کردن بازیکنانی که وارد نشده‌اند (لاگین نکرده‌اند)",
-  "KickSlowJoiningPlayers": "Kick Players Who Join Slowly To Prevent Disconnects (if they take more than 5 seconds to send their own data, they will be kicked automatically)",
-  "KickXboxPlayer": "<b>{0}</b> was kicked due to playing on Xbox.",
-
   /* ==============================
   Cooldowns and Timers           
   ============================== */
   "KillBaitNotify": "<color=#ffff00>You'll self-report in <color=#ffab1b>{0}</color>s</color>",
-  "KillCooldown": "Kill Cooldown",
   "KillCooldownAfterCleaning": "Kill Cooldown On Clean",
   "KillCooldownAfterStoneGazing": "Kill Cooldown On Stone Gaze",
   "KillCooldownNormally": "کیل کولداون بدون سابوتاژ",
@@ -10060,12 +10375,6 @@
     General Settings           
   ============================== */
   "KillCount": " Kills: {0}",
-
-  /* ==============================
-    Cooldowns and Timers           
-  ============================== */
-  "KillFlashDuration": "مدت زمان فلاش-کیل",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10077,18 +10386,11 @@
     Lovers           
   ============================== */
   "LegacyLovers": "<color=#ff9ace>Lovers</color> قدیمی (Legacy)",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "LightsOutSpecialSettings": "تنظیمات ویژه تعمیر برق",
-
   /* ==============================
     General Settings           
   ============================== */
   "LimitPerGame": "Limit Per Game",
   "LimitPerRounds": "Limit Per Rounds",
-
   /* ==============================
     Loading Hints           
   ============================== */
@@ -10147,13 +10449,6 @@
   ============================== */
   "LobbyCloseTimer": "Lobby Closing Timer: {0}",
   "LobbyTimer": "Lobby closes in {0}m {1}s",
-  "LobbyUpdateInterval": "Always update the lobby info (player count, map, game mode, etc.) on the server at least every",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "LowLoadMode": "Fix Lag",
-
   /* ==============================
     Task Settings           
   ============================== */
@@ -10223,18 +10518,7 @@
   "MaxInVentTime": "حداکثر زمان ماندن در ونت",
   "MaxInspectorCheckLimit": "Max inspections per game",
   "MaxMadmateRoles": "<#00a5ff>حداکثر</color> تعداد نقش‌های <#ff1919>مدمیت</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MaxNNKs": "<#00a5ff>حداکثر</color> تعداد <#ffab1b>نقش‌های خنثی</color> <#ffff00>غیرکشنده</color> <#888888>(خوش‌خیم، شرور، منفور)</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MaxWaitAutoStart": "شروع اجباری وقتی تایمر لابی به کمتر از (دقیقه) برسد",
   "Maximum": "Max",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
@@ -10265,7 +10549,6 @@
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>The lobby code has been sent to the EHR website. This will help others find EHR lobbies.</color></size>\\n<size=70%>You can disable this feature in the settings (System Settings tab).</size>",
   "Message.LobbyShareFailed": "EHR-Chan does not seem to be online (failed to share lobby)",
   "Message.LobbyShared": "The lobby has successfully been shared!",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10302,7 +10585,6 @@
   "Message.YTPlanNotice": "Note: The [YouTuber Plan] is enabled in this lobby, which means the Host can specify their role in the next game to make it easier to get content. In case the Host abuses this feature, please exit the game or report it.\\nCurrent Creator Credentials:",
   "Message.YTPlanSelectFailed": "You cannot be assigned as <b>{0}</b>.\\nIt may be because you don't have this role enabled, or this role does not support being assigned.",
   "Message.YTPlanSelected": "In the next game, your role will be <b>{0}</b>",
-  "MessageRpcSizeLimit": "Message RPC Size Limit (Higher limit = increased risk of disconnects but fewer message splits - if you never disconnect randomly, up to 15000 can be safe)",
   "MessageTooLong": "Failed to send chat message. The size of the RPC would've exceeded the limit specified in System Settings.",
 
   /* ==============================
@@ -10310,51 +10592,24 @@
   ============================== */
   "MinMadmateRoles": "<#00ffa5>حداقل</color> تعداد نقش‌های <#ff1919>مدمیت</color>",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>Modded Min/Max Impostors Automatically Set To </color><#ffffff>{0}</color></b>\\n<size=80%>Because you only changed the vanilla setting, which gets overridden by the modded ones.</size>",
-  "MinNNKs": "<#00ffa5>حداقل</color> تعداد <#ffab1b>نقش‌های خنثی</color> <#ffff00>غیرکشنده</color> <#888888>(خوش‌خیم، شرور، منفور)</color>",
   "MinPlayersForAirship": "Minimum Players for <color=#ed0007>Airship</color>",
   "MinPlayersForFungle": "Minimum Players for <color=#ffa646>The Fungle</color>",
-  "MinPlayersForGameStateCommand": "حداقل بازیکنان زنده برای استفاده از این کامند",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
   "MinTasksToActivateAbility": "Minimum Number of Tasks Completed to Activate Ability",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MinWaitAutoStart": "تعداد دقایق انتظار قبل از شروع خودکار",
-  "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "MiraO2TimeLimit": "<color=#e84b56>MIRA HQ</color> O2 Time Limit",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "MiraReactorTimeLimit": "<color=#e84b56>MIRA HQ</color> Reactor Time Limit",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "ModBrokenMessage": "The MOD file is damaged.\\nPlease reinstall.",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
-  "ModLanguage": "Mod Language",
   "ModdedClient": "کلاینت ماد شده",
   "ModeratorMuted": "Moderator {0} has muted {1} for <#00ffa5>{2}</color> seconds.",
   "ModeratorTag": "<#8000ff>Moderator</color>",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "Modifier": "\nModifier: ",
   "Modifiers": "\nModifiers: ",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10407,11 +10662,6 @@
   "NeutralCanBeRole": "<color=#ffab1b>Neutrals</color> can become {role}",
 
   /* ==============================
-    Meeting Settings         
-  ============================== */
-  "NeutralKillersCanGuess": "<color=#ffab1b>قاتل‌های خنثی</color> می‌توانند حدس بزنند",
-
-  /* ==============================
     General Settings           
   ============================== */
   "NoLimitAddonsNumMax": "حداکثر Add-ons برای هر بازیکن",
@@ -10421,32 +10671,25 @@
     Meeting Settings         
   ============================== */
   "NoMoreEmergencyMeetingsLeft": "You have no more emergency meetings left",
-
   /* ==============================
     Task Settings           
   ============================== */
   "NoPetActionMsgCrewTaskDone": "You are free",
   "NoPetActionMsgCrewWithTasksLeft": "You realize you still have tasks to do",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "NoWhisperAsRole": "<#ff0000>X</color> You cannot use the 'whisper' command as this role.",
   "NoWhisperDuringCourt": "<#ff0000>X</color> The /whisper command is disabled during court.",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
-  "NoisemakerAlertDuration": "مدت زمان هشدار (Alert)",
-  "NoisemakerImpostorAlert": "هشدار به <color=#ff1919>Impostors</color>",
   "NotifyGameEnding": "<#ff0000>GAME END NOTIFY</color>\\n<#ffff00>This game has already ended. If it didn't end for you, please leave the game and rejoin the lobby. This is a vanilla bug. Sorry for the inconvenience.</color>",
   "NotifyGodAlive": "در جلسات به بازیکنان اطلاع بده که God هنوز زنده است",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "NukeCooldown": "Nuke Cooldown",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10473,40 +10716,15 @@
     Cooldowns and Timers           
   ============================== */
   "OddKillCooldown": "کیل کولداون برای کیل‌های فرد",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "OnlyCancel": "فقط لغو عملیات",
   "OnlyShowPart": "Shown only part",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "OverrideOtherCrewBasedRoles": "Override Other Crew Based Roles to Engineer (not just regular Crewmate)",
-  "OverrideSpeedForEachMap": "Override Speed For Each Map",
-  "OverrideVisionInVents": "Override Vision While In Vent",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "PassiveNeutralsCanGuess": "<color=#ffab1b>خنثی‌های</color> بی‌آزار می‌توانند حدس بزنند",
-
   /* ==============================
     General Settings           
   ============================== */
   "PetsForceEnabled": "The Speedrun game mode requires pets to be enabled, so they are forced on. You can disable it for future games under Game Modifiers.",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "PoisonCooldown": "Poison Cooldown",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "PolusReactorTimeLimit": "<color=#a167c0>Polus</color> Reactor Time Limit",
-
   /* ==============================
     General Settings           
   ============================== */
@@ -10518,18 +10736,6 @@
   "Promt.EnableAllRoles": "Enable all roles and add-ons?<size=80%>\\n\\n<b>Yes</b> - Enable all roles and add-ons\\n<b>No</b> - Enter the quick setup dialog of roles and add-ons</size>",
   "Promt.EnableRole": "<size=60%>({0}/{1}) {2}\\n</size><size=80%>Enable {3}?</size><size=60%>\\n\\n{4}</size>",
   "Promt.ResetAllOptions": "Are you sure you want to reset all options? This action is irreversible and may take few minutes.",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "RandomMapsMode": "حالت مپ‌های تصادفی",
-  "SkeldChance": "Chance that the map is <color=#66a186>The Skeld</color>",
-  "MiraChance": "Chance that the map is <color=#e84b56>MIRA HQ</color>",
-  "PolusChance": "Chance that the map is <color=#a167c0>Polus</color>",
-  "DleksChance": "Chance that the map is <color=#66a186>dlekS ehT</color>",
-  "AirshipChance": "Chance that the map is <color=#ed0007>Airship</color>",
-  "FungleChance": "Chance that the map is <color=#ffa646>The Fungle</color>",
-
   /* ==============================
     Rates and Percentages
   ============================== */
@@ -10558,13 +10764,6 @@
     Notifications and Messages           
   ============================== */
   "ReadyCheckMessage": "The Host/an Admin is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the Host/Admins know you're not AFK.",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "RemainingText.AnonymousEvilCount.Plural": "Evil Players",
-  "RemainingText.AnonymousEvilCount.Single": "Evil Player",
-
   /* ==============================
     Client Settings
   ============================== */
@@ -10576,7 +10775,6 @@
   "EnableCustomButton": "فعال کردن تصاویر دکمه سفارشی",
   "EnableCustomSoundEffect": "فعال کردن افکت‌های صوتی سفارشی",
   "SwitchVanilla": "تغییر به حالت ساده (Vanilla)",
-
   "DarkThemeForMeetingUI": "Dark Theme for Meeting UI",
   "HorseMode": "Horse Mode",
   "LongMode": "Long Mode",
@@ -10604,31 +10802,10 @@
   "RestEHRSetting": "EHR settings have been restored to default",
   "RevealMaxCount": "Maximum Reveals",
   "RitualMaxCount": "Maximum Reveals",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "Sabotage": "سابوتاژ",
-  "SabotageButtonText": "سابوتاژ",
-  "SabotageCooldown": "Sabotage Cooldown",
-  "SabotageCooldownControl": "Modify Sabotage Cooldown",
-  "SabotageTimeControl": "Modify Sabotage Time Limit",
-  "SabotageTimeLimitWinners.Coven": "<#7b3fbb>Coven</color>",
-  "SabotageTimeLimitWinners.Imps": "<#ff1919>Impostors</color>",
-  "SabotageTimeLimitWinners.NKs": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>",
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "SeeEjectedRolesInMeeting": "دیدن نقش‌های حذف شده در جلسات",
-  "SelfVote": "رأی به خود",
-  "SendRoleDescriptionFirstMeeting": "نمایش توضیحات نقش به کلاینت‌های بدون ماد در اولین جلسه",
-  "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
-
   /* ==============================
     General Settings           
   ============================== */
   "SettingsForRoleText": "Settings for",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
@@ -10657,50 +10834,16 @@
   "ShortTeamName.Crewmate": "کرو",
   "ShortTeamName.Impostor": "ایمپ",
   "ShortTeamName.Neutral": "خنثی",
-
-  /* ==============================
-    Notifications and Messages           
-  ============================== */
-  "ShowAntiBlackoutWarning": "نمایش هشدار Anti-Blackout وقتی صفحه اخراج لغو می‌شود",
-
   /* ==============================
     General Settings           
   ============================== */
   "ShowArrows": "دارای پیکان‌هایی به سمت اجساد",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowCovenRemainOnEject": "نمایش <color=#7b3fbb>Coven</color> باقی‌مانده هنگام اخراج",
-  "ShowDifferentEjectionMessageForSomeRoles": "نمایش پیام اخراج متفاوت برای برخی نقش‌ها (Jester, Executioner, Innocent, و غیره)",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowImpRemainOnEject": "نمایش <color=#ff1919>Impostors</color> باقی‌مانده هنگام اخراج",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowNKRemainOnEject": "نمایش <color=#ffab1b>Neutral Killers</color> باقی‌مانده هنگام اخراج",
-
   /* ==============================
     General Settings           
   ============================== */
   "ShowResults": "Show Results",
   "ShowSpecificRole": "دانستن نقش‌های خاص با تکمیل تسک",
-
-  /* ==============================
-    Task Settings           
-  ============================== */
-  "ShowTaskCountWhenAlive": "Show Task Count When Alive",
-  "ShowTaskCountWhenDead": "Show Task Count When Dead",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "ShowTeamNextToRoleNameOnEject": "نمایش تیمی که نقش بازیکن اخراج شده در آن است",
-
+  "SpectateDisabled": "<#ff0000>X</color> The /spectate command is disabled in this lobby.",
   /* ==============================
     Maps           
   ============================== */
@@ -10710,33 +10853,6 @@
   "Dleks": "<#66a186>Dleks Eht</color>",
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "SkeldO2TimeLimit": "<color=#66a186>The Skeld</color> O2 Time Limit",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "SkeldReactorTimeLimit": "<color=#66a186>The Skeld</color> Reactor Time Limit",
-  "SpawnAdditionalRenegadeMinAlivePlayers": "Minimum Number of Alive Players to Spawn",
-
-  /* ==============================
-    Sabotage Settings           
-  ============================== */
-  "SpectateDisabled": "<#ff0000>X</color> The /spectate command is disabled in this lobby.",
-
-  /* ==============================
-    Maps           
-  ============================== */
-  "SpeedForMap": "Player Speed on {map}",
-
-  /* ==============================
-    Achievements           
-  ============================== */
-  "StoreCompletedAchievementsOnEHRDatabase": "Store completed achievements on the EHR database (to maintain progress in case of a reinstall or an update)",
-
   /* ==============================
     Submerged           
   ============================== */
@@ -10749,73 +10865,25 @@
   "SubmergedRoomName.133": "Ballast",
   "SubmergedRoomName.134": "Lower Central",
   "SubmergedRoomName.135": "Lower Lobby",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
   "SupportsPetMessage": "\\n\\n<#00ff00>[✓] This role supports Pet button usage for ability triggers or other actions, maybe replacing venting, shapeshifting or killing.</color>",
-
-  /* ==============================
-    Moderator / Admin / VIP         
-  ============================== */
-  "SyncButtonMode": "حالت دکمه‌های Sync",
-
   /* ==============================
     General Settings           
   ============================== */
   "SyncCustomSettingsRPC": "Synchronized RPC",
-  "SyncedButtonCount": "حداکثر تعداد جلسات اضطراری مجاز",
-
   /* ==============================
     General Settings           
   ============================== */
-  "TabGroup.GameSettings": "Mod Settings",
   "TabGroup.PresetSettings": "Preset Settings",
-  "TabGroup.SystemSettings": "System Settings",
-  "TabGroup.TaskSettings": "Game Modifiers",
-  "TabGroup.VanillaSettings": "Vanilla Settings",
-  "TabInfo.GameSettings": "Modded settings that affect the gameplay in general",
-  "TabInfo.PresetSettings": "Pre-set game settings, made by you",
-  "TabInfo.SystemSettings": "Base settings for the mod itself",
-  "TabInfo.TaskSettings": "Modded, specific settings that have a major impact on the game",
-  "TabInfo.VanillaSettings": "Base game settings",
   "TargetCannotBeTeleported": "Target cannot be teleported",
-
   /* ==============================
     Task Settings           
   ============================== */
   "TaskBasedCrewCanBeLazy": "Task based <color=#8cffff>crewmates</color> can be <color=#A4DFFE>Lazy</color>",
   "TasklessCrewCanBeLazy": "<color=#8cffff>Crewmates</color> without tasks can be <color=#A4DFFE>Lazy</color>",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "TieMode.All": "حذف همه",
-  "TieMode.Default": "هیچ‌کس حذف نمی‌شود",
-  "TieMode.Random": "حذف تصادفی",
-
-  /* ==============================
-    General Settings           
-  ============================== */
-  "TrackerCanGetArrowColor": "می‌تواند پیکان‌های رنگی را ببیند",
-
-  /* ==============================
-    Cooldowns and Timers           
-  ============================== */
-  "TrackerCooldown": "Track Cooldown",
-  "TrackerDuration": "مدت زمان Track",
-
-  /* ==============================
-    Meeting Settings         
-  ============================== */
-  "TrackerHideVote": "Hide <color=#3CB371>Scout</color> Votes",
-
-  /* ==============================
-    Notifications and Messages           
-  ============================== */
-  "TrackerLastRoomMessage": "The evaluation of your tracking showed that the last room in which your target was located was:<b>{0}</b>",
   "TransformationAnnouncementMessage": "The ship has been infected with a powerful disease, turning the <#e5f6b4>Plaguebearer</color> into <color=#343136>Pestilence</color>!",
-
   /* ==============================
     Meeting Settings         
   ============================== */
@@ -10843,8 +10911,6 @@
   /* ==============================
     Meeting Settings         
   ============================== */
-  "UseMeetingShapeshift": "Use Shapeshift Menu in Meetings to Select Targets Instead of Commands/Votes",
-  "UseMeetingShapeshiftForGuessing": "Even For Guessing (may disconnect the host on vanilla servers)",
   "UsePetInsteadOfKillButton": "استفاده از دکمه Pet به عنوان دکمه Kill",
   "UseVoteCancelling": "استفاده از روش لغو رأی به جای کامندها (Commands)",
   "UseVoteCancellingAfterVote": "می‌تواند پس از استفاده از قابلیت، به طور عادی رأی دهد (Vote)",
@@ -10854,12 +10920,10 @@
     Moderator / Admin / VIP         
   ============================== */
   "VIPTag": "<#ffff00>VIP</color>",
-
   /* ==============================
     Meeting Settings         
   ============================== */
   "VanillaCrewmateCannotBeGuessed": "نقش Crewmate عادی (Vanilla) قابل حدس زدن نیست",
-
   "VengefulCanVent": "<color=#ba2749>Vengeful Romantic</color> Can Vent",
   "VengefulKCD": "<color=#ba2749>Vengeful Romantic</color> Kill Cooldown",
   "VentBlockSuccess": "This vent is now blocked",
@@ -10867,26 +10931,21 @@
   "VentCooldown": "کولداون ونت",
   "VentLimit": "Vent Entering Limit",
   "VentPreventionMode": "Vent Prevention Mode",
-
   /* ==============================
     Cooldowns and Timers           
   ============================== */
   "VitalsCooldown": "کولداون Vitals",
   "VitalsDuration": "مدت زمان Vitals",
-
   /* ==============================
     Meeting Settings         
   ============================== */
-  "VoteMode": "حالت رأی‌گیری",
   "VoteStartDisabled": "<#ff0000>X</color> The /votestart command is disabled in this lobby.",
   "VotedToStart": "<size=80%>If more than 50% of the lobby uses it, the starting countdown begins.\\nCurrently, {0}/{1} ({2}%) players have used it. {3} uses are required.</size>",
   "VotesPerKill": "Votes gained for each kill",
-
   /* ==============================
     Moderator / Admin / VIP         
   ============================== */
   "WMMode": "<color=#00ffa5>Mode:</color> <color=#ffffff><b>{0}</b></color>",
-
   /* ==============================
     Notifications and Messages           
   ============================== */
@@ -10901,12 +10960,6 @@
   ============================== */
   "WhenNextMeetingEnds": "جلسه بعدی تمام می‌شود",
   "WhenNextMeetingStarts": "جلسه بعدی شروع می‌شود",
-  "WhenNonVote": "اگر بازیکن رأی نداد",
-  "WhenSkipVote": "اگر بازیکن رأی سفید (Skip) داد",
-  "WhenSkipVoteIgnoreEmergency": "نادیده گرفتن در جلسات اضطراری",
-  "WhenSkipVoteIgnoreFirstMeeting": "نادیده گرفتن اولین جلسه",
-  "WhenSkipVoteIgnoreNoDeadBody": "نادیده گرفتن وقتی جسد مرده‌ای نیست",
-  "WhenTie": "هنگام مساوی شدن آرا",
   "WhisperDisabled": "<#ff0000>X</color> The /whisper command is disabled in this lobby.",
   /* ==============================
     Combos           
@@ -10927,57 +10980,6 @@
   "assignCommonTasks": "%role% has Common Tasks",
   "doOverride": "Override %role%'s Tasks",
   /* ==============================
-    Pets           
-  ============================== */
-  "PetButtonText": "Pet",
-  "pet_Alien": "Headslug",
-  "pet_Bedcrab": "Bedcrab",
-  "pet_BredPet": "Breb",
-  "pet_Bush": "Bushfriend",
-  "pet_Charles": "Charles Chopper",
-  "pet_Charles_Red": "Toppat Chopper",
-  "pet_ChewiePet": "Chewie",
-  "pet_Creb": "Creb",
-  "pet_Crewmate": "Mini Crewmate",
-  "pet_Crow": "Mad Crow",
-  "pet_Cube": "Deitied Guy",
-  "pet_D2GhostPet": "Ghost",
-  "pet_D2PoukaPet": "Pouka",
-  "pet_D2WormPet": "Worm",
-  "pet_DancingSkeletonPet": "Bone Shaker",
-  "pet_Doggy": "Doggy",
-  "pet_Ellie": "E. Rose",
-  "pet_Goose": "A Goose",
-  "pet_GuiltySpark": "Guilty Spark",
-  "pet_HamPet": "Holiday Hammy",
-  "pet_Hamster": "Hampton",
-  "pet_Lava": "Magmate",
-  "pet_Mister": "Mister",
-  "pet_Pate": "Pâté",
-  "pet_Pip": "Pip",
-  "pet_Pusheen": "Pusheen",
-  "pet_RANDOM_FOR_EVERYONE": "<color=#ffff00>Random</color>",
-  "pet_Rammy": "Rammy",
-  "pet_Robot": "Ro-Bot",
-  "pet_Snow": "Snowball",
-  "pet_Squig": "Squig",
-  "pet_Stickmin": "H. Stickmin",
-  "pet_Stormy": "Stormy",
-  "pet_Strawb": "Flying Strawberry",
-  "pet_UFO": "UFO",
-  "pet_YuleGoatPet": "Bränt",
-  "pet_clank": "Clank",
-  "pet_coaltonpet": "Coalton",
-  "pet_frankendog": "Frankendog",
-  "pet_lny_dragon": "Desolation of Skeld",
-  "pet_nancy": "Nancy",
-  "pet_napstamate": "Napstamate",
-  "pet_nuggetPet": "The Nug",
-  "pet_pocketCircuitCar": "Pocket Circuit",
-  "pet_poro": "Heimerdinger's Poro",
-  "pet_spaceCat": "Space Cat",
-  "pet_test": "Glitch Pet",
-  /* ==============================
     Task Settings           
   ============================== */
   "roleLongTasksNum": "Amount of Long Tasks for %role%",
@@ -10995,14 +10997,11 @@
   "Format.Seconds": "{0}s",
   "Format.Times": "{0}",
   "Format.Votes": "{0}",
-  "FormatNameMode": "حالت اسم بازیکن",
-  "FormatNameModes.Color": "رنگ",
-  "FormatNameModes.None": "غیرفعال",
-  "FormatNameModes.Snacks": "تصادفی",
-
   /* ==============================
     Remaining Text           
   ============================== */
+  "RemainingText.AnonymousEvilCount.Plural": "Evil Players",
+  "RemainingText.AnonymousEvilCount.Single": "Evil Player",
   "RemainingText.CovenPlural": "Covens",
   "RemainingText.CovenSingle": "Coven",
   "RemainingText.ImpPlural": "Impostors",
@@ -11038,17 +11037,11 @@
   "ROT.Neutral_Killing": "★ نقش‌های کشنده",
   "ROT.Neutral_Pariah": "★ نقش‌های منفور",
   "ROT.Vanilla": "★ نقش‌های ساده",
-  "AllCrewRolesHaveVanillaColor": "All <#8cffff>Crewmate</color> roles have <#8cffff>the vanilla Crewmate color</color> <#ffff00>(REQUIRES RESTART)</color>",
   "ColoredOff": "<color=#ff4c6f><b>╳</b></color>",
   "ColoredOn": "<color=#00fefe><b>✓</b></color>",
   "IllegalColor": "Please enter the correct color",
   "AADelay": "Time to Leave Device",
   "AADone": "The process has finished",
-  "AGMR.Explicit": "Specified Explicitly",
-  "AGMR.Random": "Randomly Chosen From Group",
-  "AGMR.RandomGroup.GMChance": "Chance of selecting {gm}",
-  "AGMR.Slot.RandomGroupId": "Number/ID of the random group to use for choosing the game mode for this slot/game",
-  "AGMR.Unused": "Unused/Skipped Slot",
   "AbilityCD": "کولداون قابلیت",
   "AbilityUseGainWithEachKill": "<color=#00ffff>با هر کیل، قابلیت <color=#7FFFD2>یک استفاده جدید</color> به دست می‌آورد</color>",
   "ActiveRolesList": "Active Roles List",
@@ -11059,10 +11052,7 @@
   "Addons": "Add-Ons",
   "After1PlayerEaten": "After 1 Player Was Eaten",
   "AfterTime": "After Time",
-  "AllClosed": "بستن همه",
-  "AllOpen": "باز کردن همه",
   "AlliesKnowCrewpostor": "برای <color=#ff1919>Impostors</color> شناخته‌شده است",
-  "AllowConsole": "کنسول",
   "AmOblivious": "You are <color=#424242>Oblivious</color>, meaning you cannot report bodies",
   "Anagram": "The scrambled word is <b>{0}</b>! Guess the original word! (Hint: It starts with the letter <b>{1}</b>!)",
   "AnalyzeCD": "Analyze Cooldown",
@@ -11076,17 +11066,9 @@
   "AnalyzerSeeVentCount": "Result Shows Vent Count",
   "AnnounceTransformation": "Announce Transformation (from <#e5f6b4>Plaguebearer</color> to <color=#343136>Pestilence</color>)",
   "AppIDAdded": "Since there was no steam_appid.txt file, a new one was created to prevent errors. \\nPlease restart the game to apply changes.",
-  "ApplyDenyNameList": "اعمال لیست نام‌های ممنوعه",
   "AssignOnlyToCrewmate": "تخصیص فقط به <color=#8cffff>Crewmates</color>",
-  "AutoDisplayKillLog": "نمایش کیل-لاگ",
-  "AutoDisplayLastAddOns": "نمایش آخرین افزونه‌ها",
-  "AutoDisplayLastResult": "نمایش خودکار آخرین نتیجه",
-  "AutoDisplayLastRoles": "نمایش آخرین نقش‌ها",
-  "ChangeNameToRoleInfo": "نمایش اطلاعات نقش به کلاینت‌های بدون ماد در راند ۱",
-  "AutoGMRotationSlot": "Game Mode for Game {index} (Slot {index})",
   "AutoGMRotationStatusText": "<u>AUTOMATIC GAME MODE ROTATION IS ENABLED!</u>",
   "AutoGMRotationStatusText.NextGM": "Next",
-  "AutoPlayAgain": "ورود مجدد خودکار به لابی پس از پایان بازی",
   "AutoWarnStopWords": "هشدار به کسانی که از کلمات ممنوعه استفاده می‌کنند",
   "AvailableRoles": "Available Impostor-Teamed Role List to Choose From",
   "AwkwardPotion": "Awkward Potion",
@@ -11115,14 +11097,12 @@
   "CKEO.SirenOnly": "<#7b3fbb>Siren</color> Only",
   "CL.All": "All",
   "Cameras": "Cameras",
-  "ChangeDecontaminationTime": "تغییر زمان رفع آلودگی (<color=#e84b56>MIRA HQ</color>/<color=#a167c0>Polus</color>)",
   "ChristmasGreeting": "Merry Christmas!",
   "ConfirmAuth.Success": "<#00ff00>✓ <#00ffa5>Successfully sent the verification request to the server.",
   "CopyCrewVar": "Can copy evil variants of crew roles",
   "CovenKillEachOther": "As a Coven member, you cannot (and shouldn't) kill other Coven members",
   "CovenKillEntranced": "Coven members cannot kill Entranced players",
   "CovenKnowSuperStarDead": "<color=#7b3fbb>Coven</color> می‌دانند چه زمانی <color=#f6f657>Super Star</color> می‌میرد",
-  "CrewAdvancedGameEndChecking": "Enable Advanced Game End Checking For {role}",
   "CrewKillingRed": "کشتارهای (Killings) <color=#8cffff>Crewmate</color> می‌توانند قرمز باشند",
   "DGRM.AfterTime": "Timer",
   "DGRM.None": "هیچکدام",
@@ -11130,18 +11110,13 @@
   "DeactivationImmediately": "بلافاصله",
   "DeactivationIsVisibleOFF": "<color=#ff4c6f>OFF</color>",
   "DecreasedSpeed": "سرعت کاهش‌یافته",
-  "DeepLowLoad": "Prioritize Performance",
-  "Default": "بدون رأی",
   "DefaultRevertShapeshiftText": "Revert",
   "DefaultShapeshiftText": "Shift",
   "Delayed": "Delayed",
   "DeleteTagSuccess": "<#00ffa5>✓</color> Successfully deleted {0}'s tag.",
-  "Detective": "کارآگاه",
   "DevouredName": "Devoured",
-  "DontUpdateDeadPlayers": "برای بهبود عملکرد، وضعیت بازیکنان مرده آپدیت نشود",
   "DoorLog": "Door Log",
   "DoorLogAndBinoculars": "Door Log & Binoculars",
-  "DumpLogAfterGameEnd": "Dump Log After Each Game End (Recommended)",
   "E2Kill": "Kill Target",
   "ECMO.Coven": "<#7b3fbb>Coven</color>",
   "ECMO.Nothing": "Nothing",
@@ -11150,9 +11125,6 @@
   "EatenByDevourer": "Your skin was eaten by the Devourer",
   "EatenByPelican": "You're swallowed, waiting for the Pelican to die or a meeting",
   "Ego-": "Ego-",
-  "EndWhenPlayerBug": "پایان اجباری بازی در خطاهای بحرانی برای جلوگیری از صفحه سیاه",
-  "Engineer": "Engineer",
-  "EnterKeyToStartGame": "Begin the starting countdown by pressing the Enter key",
   "EnterVentToWin": "Enter a Vent to Ignite!",
   "EraseMethod": "Erase Method",
   "EraserEraseNeutralNotice": "Your target is Neutral and can't be erased!",
@@ -11162,8 +11134,6 @@
   "EvenAfterWinning": "حتی پس از برآورده کردن شرط پیروزی",
   "EveryOneKnowSuperStar": "همه <color=#f6f657>Super Star</color> را می‌شناسند",
   "EveryoneDied": "Everyone died",
-  "EveryoneSeesDeadPlayersRoles": "همه نقش بازیکنان مرده را می‌بینند",
-  "EveryoneSeesDeathReasons": "همه دلایل مرگ را می‌بینند",
   "ExperimentalRoleIndicator": "    <color=#ffff00>آزمایشی (EXPERIMENTAL)</color>",
   "FPSGame": "FPS ",
   "FPSSetTo": "FPS Set To: {0}",
@@ -11189,12 +11159,6 @@
   "HideGameCodes": "Hide Game Code",
   "HideResults": "Hide Results",
   "HolidayGreeting": "Happy Holidays!",
-  "Hungarian": "Hungarian",
-  "IgnoreAfterAnyoneDied": "نادیده گرفتن پس از اولین مرگ",
-  "IgnoreConditions": "نادیده گرفتن شرایط",
-  "IgnoreCrewmates": "نادیده گرفتن <color=#8cffff>Crewmates</color>",
-  "IgnoreImpostors": "نادیده گرفتن <color=#ff1919>Impostors</color>",
-  "IgnoreNeutrals": "نادیده گرفتن <color=#ffab1b>Neutrals</color>",
   "Immediately": "بلافاصله",
   "ImpEgoistVisibalToAllies": "<color=#ff1919>Impostors</color> می‌توانند سایر <color=#ff1919>Impostor</color>های <color=#5600ff>Egoist</color> را ببینند",
   "ImpKnowAlliesRole": "<color=#ff1919>Impostors</color> نقش <color=#ff1919>Impostors</color> دیگر را می‌دانند",
@@ -11206,7 +11170,6 @@
   "IncorrectMarks": "\\n<color=#ffff00>Your 2 marks are too close to each other, they won't work</color>\\nYour marks were discarded.",
   "IncreasedSpeed": "سرعت افزایش‌یافته",
   "IncreasedVision": "دید افزایش‌یافته",
-  "Indonesian": "Indonesian",
   "InfectDelay": "Infect Delay",
   "InfectRadius": "Infect Radius",
   "Infected": "Infected",
@@ -11219,10 +11182,7 @@
   "KilledByScavenger": "You were killed by the Scavenger and thus teleported off-map",
   "KnowTargetRole": "Knows role of target",
   "LIRoleForOtherImps": "سایر <color=#ff1919>Impostors</color>، <color=#ff1919>Impostorِ</color> <color=#ff9ace>Loving</color> را می‌بینند به عنوان",
-  "LadderDeath": "افتادن از نردبان‌ها",
-  "LadderDeathChance": "شانس افتادن و مردن",
   "Lance": "Lance",
-  "LargerRoleTextSize": "Larger Role Text Size",
   "Last-": "Last ",
   "LastEndReason": "★ <u>End Reason:</u>",
   "LastResult": "★ <u>Match Results:</u>",
@@ -11242,7 +11202,6 @@
   "MarkDone": "Position Marked",
   "MarksCleared": "Marks cleared",
   "MisguessButNoSuicide": "You guessed incorrectly so you.... WOULD have died if the host wasn't kind enough to disable guesser suicides!",
-  "MisguessDeathReason": "'Misguess' Death Reason",
   "NBareRed": "<color=#ffab1b>Neutrals</color> خوب (Nice) می‌توانند قرمز باشند",
   "NEareRed": "<color=#ffab1b>Neutrals</color> شرور (Evil) می‌توانند قرمز باشند",
   "NKWC.LastStanding": "Last One Standing",
@@ -11255,33 +11214,24 @@
   "NeutralsKnowEachOther": "<color=#ffab1b>Neutrals</color> همدیگر را می‌شناسند",
   "NewUpdateAvailable": "<size=400%><b>New Update Available!</b></size>\n<size=200%><b>{0}</b></size>",
   "NewYearGreeting": "Happy New Year!",
-  "NoGameEnd": "بازی بدون پایان",
   "NoInfoExists": "No Info Exists",
   "NoPetActionMsgCrew": "You imagine yourself as the impostor in a parallel universe.",
   "NoVenting": "Block Venting",
-  "Noisemaker": "Noisemaker",
-  "NoticeEveryone": "به همه اطلاع بده",
-  "NoticeMe": "به من اطلاع بده",
   "NukeRadius": "Nuke radius (12x is very large)",
   "NullCD": "کولداون قابلیت",
   "NumOfRolesToKill": "Amount of Roles to Choose From",
   "NumRolesListedForEachPlayer": "Number of roles listed for each player",
   "OnDemolitionistDead": "You killed Demolitionist! Vent or die!",
-  "OnlinePresetInfo": "<b>{0}</b>\\n<size=70%>by {1}\\n{2} downloads</size>",
+  "OnlinePresetInfo": "<b>{0}</b>\\n<size=70%>by {1}  •  {2} days ago  •  {3} downloads</size>",
   "OnSuperStarDead": "Warning: Super Star death!",
   "OtherRoles.Addons": "★ Add-Ons",
   "OtherRoles.CrewmateRoles": "★ Crewmate Roles",
   "OtherRoles.ImpostorRoles": "★ Impostor Roles",
   "OtherRoles.NeutralRoles": "★ Neutral Roles",
   "Outside": "Outside",
-  "Persian": "Persian",
-  "PetToAssign": "حیوان خانگی (Pet) برای تخصیص به همه",
   "PetToWin": "Pet to Ignite!",
-  "Phantom": "Phantom",
   "PingText": "Ping",
   "PleaseStopBeingDumb": "<size=90%><#dd00ff>The shield-animation does <#ff0000>NOT</color> mean someone tried to kill you!</color>\\n<#ffff00>Shield-animations are required to reset cooldows!</color></size>",
-  "Polish": "Polish",
-  "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
   "PotionInStore": "Potion in store",
   "PressTabToNextPage": "Press <color=#ff1919>Tab</color> or <color=#ff1919>Number</color> for Next Page...",
   "PrivateChat": "فعال کردن چت خصوصی برای <color=#ff9ace>Lovers</color>",
@@ -11296,44 +11246,32 @@
   "QuickFixPotion": "Quick Fix Potion",
   "QuickFixPotionWaitForUse": "Quick Fix Potion, wait for use",
   "RNGHasSpoken": "RNG has spoken",
-  "RandomByDoor": "تصادفی",
   "RandomONImpRole": "نقش Imp (ایمپاستر) فعال‌شده به صورت تصادفی",
-  "RandomSpawn": "اسپاون‌های تصادفی",
   "RecruitedByDeathknight": "You've been recruited to the Undead faction!",
   "RecruitedToDeathknight": "The Necromancer recruited you to be their Deathknight!",
   "RejoinRequiredDueToVanillaSwitch": "شما تصمیم گرفتید به حالت ساده (vanilla) بروید، بنابراین لازم بود که شما از بازی فعلی قطع شوید، وگرنه باعث ایجاد مشکل می‌شد. لطفاً دوباره به بازی بپیوندید.",
-  "RemovePetsAtDeadPlayers": "حذف حیوانات خانگی (pets) از بازیکنان مرده",
   "ReportBaitAtAllCost": "Report <#00f7ff>Bait</color> at All Cost",
   "ReportButtonText": "ریپورت",
-  "RequiresPetIndicator": "  <#ffab1b>PET</color>",
-  "ResetDoorsEveryTurns": "Reset All Doors After Meetings",
-  "Reverie": "Reverie",
+  "RequiresPetIndicator": "  <#ffab1b>PET</color>", 
   "RevivedByAltruist": "<#ffff00><size=150%>You've been revived by the <color=#300000>Altruist</color>!</size></color>",
   "RevivedByOccultist": "<#ffff00><size=150%>You've been revived by the <color=#ff1919>Occultist</color>!</size>\\nYou are now on the <color=#ff1919>Impostor</color> team.</color>",
   "RevivedByTimeMaster": "<size=150%><#ffff00>You were revived during the rewind!</color></size>",
   "SKPromotesToJackal": "<color=#00b4eb>Sidekick</color> gets promoted to <color=#00b4eb>Jackal</color> on <color=#00b4eb>Jackal</color> death",
-  "Scientist": "Scientist",
   "SearchNoResult": "No results found",
   "SeeMedic": "<color=#00ff97>Medic</color>",
   "SeeMedicAndTarget": "<color=#00ff97>Medic</color>+<color=#8cffff>Shielded</color>",
   "SeeNoone": "Nothing",
   "SeeTarget": "<color=#8cffff>Shielded</color>",
-  "SendHashedPuidToUseLinkedAccount": "I have an EHR account linked to my discord account, send my hashed PUID to let discord users identify me",
   "SewedBySeamstress": "<#ffff44>You were sewed together with someone by the {0}!</color>",
-  "Shapeshifter": "Shapeshifter",
   "ShareLobby": "اجازه به EHR-Chan برای به اشتراک گذاشتن کد لابی در دیسکورد",
   "Shield": "Shield",
-  "ShieldPersonDiedFirst": "به شخصی که در بازی قبل اولین نفر کشته شد، سپر بده",
   "ShieldPotion": "Shield Potion",
   "ShotBlank": "You shot a blank!",
   "SightPotion": "Sight Potion",
   "SkillUsedLeft": "You have activated your skill to call a meeting. \\nRemaining amount of uses left:",
-  "Skip": "رد کردن (رأی سفید)",
   "SnatchWin": "Snatches Win (Win With Winning Team if Off)",
   "SnatchesWin": "پیروزی را می‌رباید",
   "SomeSortOfProtection": "This player is shielded due to a role-specific action",
-  "SpawnAdditionalRenegadeOnImpsDead": "Random <#8cffff>Crewmate</color> Turns To <#ff1919>Renegade</color> When All <#ff1919>Impostors</color> Die",
-  "SpawnAdditionalRenegadeWhenNKAlive": "Spawn Even If a <#ffab1b>Neutral Killer</color> is Alive",
   "SpectatorsList": "<#888888>بازیکنان زیر در حال تماشا هستند: </color>{0}<#888888></color>",
   "SpeedPotion": "Speed Potion",
   "Stored": "Stored",
@@ -11375,14 +11313,11 @@
   "TeleportedByTransporter": "Swapping places with: {0}",
   "TeleportedByTwister": "Swapping places with: {0}",
   "TeleportedInRndVentByDisperser": "Everyone was teleported to vents",
-  "IntegrateNaturalDisasters": "Integrate the Natural Disasters game mode into the current game mode",
   "TeleportedByTornado": "\\nOh no! You just got caught up in a tornado,\\nand you flew to over here!",
   "Temp.Blank": "",
   "TextBelowVersionText": "",
   "TimeDecreased": "Time was decreased by {0}s",
   "TimeLeft": "Time Left",
-  "Tracker": "Tracker",
-  "TrackerDelay": "تأخیر Track",
   "TrapConsecutiveBodies": "Trap Consecutive Bodies",
   "TrapOnlyWorksOnTheBodyTrapster": "Trap only works on <color=#ff1919>Trapster</color>'s body",
   "TriedToKillLastGameFirstKill": "Your target was the first to die in the last game.\\nLet them play!",
@@ -11397,26 +11332,18 @@
   "TypeImpostor": "ایمپاسترها",
   "TypeNeutral": "خنثی‌ها",
   "UIScaleFactor": "Button UI Scale Factor",
-  "UniqueNeutralRevealScreen": "Each <#ffab1b>Neutral</color> Role Has Its Own Reveal Screen",
   "UnreportableBody": "This body is unreportable due to a role-specific action",
   "UntilNextReveal": "Until Next Reveal",
   "Untouched": "تنظیمات کلی تصمیم می‌گیرد",
   "UploadPreset": "Upload current preset to database",
   "UploadPresetHeader": "Upload & Publish",
-  "UseGameLanguage": "Use Game Language",
   "UseLegacyVersion": "استفاده از نسخه قدیمی",
-  "UsePets": "استفاده از دکمه Pet به جای Vent/Shapeshift",
-  "UsePhantomBasis": "Use Vanish Button (Phantom basis) as Ability Trigger",
-  "UsePhantomBasisForNKs": "Even for <#ffab1b>Neutral</color> <#ff1919>Killing</color> (Desynced) roles <#ffff00>(EXPERIMENTAL)</color>",
   "UsesPetInsteadOfKillNotice": "<#ffff00>⚠ As this role, you need to use your pet button as your kill button!</color>",
   "VengefulHasImpVision": "<color=#ba2749>Vengeful Romantic</color> Has <#ff1919>Impostor</color> Vision",
-  "Viper": "Viper",
-  "ViperDissolveTime": "Body Dissolve Time",
   "WMRadius": "Axe Mode Death Radius",
   "WMShieldAlreadyUsed": "Your shield was already used",
   "WaitFor1Kill": "تایمر خودکشی (Suicide) پس از اولین کیل (Kill) شروع می‌شود",
   "Website": "Website",
-  "WhackAMole": "Whack-A-Mole",
   "WhenTargetIsNeutral": "When Target is Neutral (& erasing via kill button)",
   "YouAreHostSuffix": "YOU!",
   "YouReceivedTheNecronomicon": "You have received the <{0}>Necronomicon</color>! This grants you the ability to kill normally, and other abilities based on your role.",
@@ -11463,9 +11390,6 @@
   "GameOverReason.ImpostorDisconnect": "<color=#777777>Impostors disconnected</color>",
   "GameOverReason.ImpostorsByKill": "<color=#ff1919>The Impostors killed everyone</color>",
   "GameOverReason.ImpostorsBySabotage": "<color=#ff1919><color=#8cffff>Crewmates</color> failed to fix a critical sabotage</color>",
-  "GameTimeLimit": "Game Time Limit",
-  "GameTimerEnded": "Game Time Limit Ended",
-  "GameTimeLimitRunsDuringMeetings": "Game Time Limit Runs During Meetings",
   "Infectious": "عفونی",
   "InfectiousInfo": "همه را آلوده کن",
   "InfectiousBiteCooldown": "Infect Cooldown",
@@ -11474,12 +11398,6 @@
   "InfectiousKillButtonText": "Infect",
   "NtrInfo": "همه تو را به عنوان عاشق خود می‌بینند",
   "ReadyClientsInfo": "\\nReady clients: {0} (Timeout in {1}s)",
-  "RoleAssigningAlgorithm": "الگوریتم تخصیص نقش",
-  "RoleAssigningAlgorithm.Default": "پیش‌فرض",
-  "RoleAssigningAlgorithm.HashRandom": "HashRandom",
-  "RoleAssigningAlgorithm.MersenneTwister": "MersenneTwister",
-  "RoleAssigningAlgorithm.NetRandom": ".NET System.Random",
-  "RoleAssigningAlgorithm.Xorshift": "Xorshift",
   "RoleBlockCooldown": "کولداون رول بلاک (Role Block)",
   "RoleBlockDuration": "مدت زمان رول بلاک (Role Block)",
   "RoleBlockNotify": "شما رول بلاک (Role Block) شده‌اید، نمی‌توانید {0} کنید",

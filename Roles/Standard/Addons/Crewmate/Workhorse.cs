@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
@@ -8,7 +9,7 @@ public class Workhorse : IAddon
 {
     private const int Id = 15700;
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
-    private static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList;
 
     private static OptionItem SpawnChance;
     private static OptionItem OptionAssignOnlyToCrewmate;
@@ -47,7 +48,7 @@ public class Workhorse : IAddon
 
     public static void Init()
     {
-        PlayerIdList = [];
+        PlayerIdList = null;
 
         AssignOnlyToCrewmate = OptionAssignOnlyToCrewmate.GetBool();
         NumLongTasks = OptionNumLongTasks.GetInt();
@@ -56,12 +57,13 @@ public class Workhorse : IAddon
 
     private static void Add(byte playerId)
     {
+        PlayerIdList ??= [];
         PlayerIdList.Add(playerId);
     }
 
     public static bool IsThisRole(byte playerId)
     {
-        return PlayerIdList.Contains(playerId);
+        return PlayerIdList != null && PlayerIdList.Contains(playerId);
     }
 
     private static bool IsAssignTarget(PlayerControl pc)
@@ -79,31 +81,31 @@ public class Workhorse : IAddon
         return canBeTarget;
     }
 
-    public static bool OnCompleteTask(PlayerControl pc)
+    public static void OnCompleteTask(PlayerControl pc)
     {
-        if (!CustomRoles.Workhorse.IsEnable() || PlayerIdList.Count >= CustomRoles.Workhorse.GetCount()) return false;
-
-        if (CurrentGameMode != CustomGameMode.Standard) return false;
-
-        if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return false;
-
-        if (!IsAssignTarget(pc)) return false;
-
-        if (IRandom.Instance.Next(100) >= SpawnChance.GetInt()) return false;
-
-        pc.RpcSetCustomRole(CustomRoles.Workhorse);
-        TaskState taskState = pc.GetTaskState();
-        taskState.AllTasksCount += NumLongTasks + NumShortTasks;
-        taskState.CompletedTasksCount++;
-
-        if (AmongUsClient.Instance.AmHost)
+        try
         {
-            Add(pc.PlayerId);
-            pc.RpcResetTasks();
-            pc.SyncSettings();
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
+            if (!CustomRoles.Workhorse.IsEnable()) return;
+            if (PlayerIdList != null && PlayerIdList.Count >= CustomRoles.Workhorse.GetCount()) return;
+            if (CurrentGameMode != CustomGameMode.Standard) return;
+            if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return;
+            if (!IsAssignTarget(pc)) return;
+            if (IRandom.Instance.Next(100) >= SpawnChance.GetInt()) return;
 
-        return true;
+            pc.RpcSetCustomRole(CustomRoles.Workhorse);
+            TaskState taskState = pc.GetTaskState();
+            taskState.AllTasksCount += NumLongTasks + NumShortTasks;
+            taskState.CompletedTasksCount++;
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                Add(pc.PlayerId);
+                pc.RpcResetTasks(false);
+                pc.SyncSettings();
+                Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = pc.Data.Tasks.Count;
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
+        }
+        catch (Exception e) { Utils.ThrowException(e); }
     }
 }

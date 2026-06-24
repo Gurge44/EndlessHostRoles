@@ -1,11 +1,11 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
-using Il2CppInterop.Runtime.Attributes;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
+using Il2CppInterop.Runtime.Attributes;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using TMPro;
 using UnityEngine;
 using static EHR.GameStates;
@@ -98,7 +98,7 @@ internal static class Crowded
                     playerButton.OnClick.AddListener((Action)(() =>
                     {
                         byte maxPlayers = byte.Parse(text.text);
-                        int maxImp = Math.Clamp(Mathf.Min(__instance.GetTargetOptions().NumImpostors, maxPlayers / 2), 1, 3);
+                        int maxImp = Mathf.Min(__instance.GetTargetOptions().NumImpostors, maxPlayers / 2);
                         __instance.GetTargetOptions().SetInt(Int32OptionNames.NumImpostors, maxImp);
                         __instance.ImpostorButtons[1].TextMesh.text = maxImp.ToString();
                         __instance.SetMaxPlayersButtons(maxPlayers);
@@ -379,10 +379,7 @@ internal static class Crowded
                 if (CurrentGameOptions.MaxPlayers > 15)
                     CurrentGameOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
 
-                if (CurrentGameOptions.NumImpostors > 3)
-                    CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, 3);
-
-                if (CurrentGameOptions.NumImpostors < 1)
+                if (CurrentGameOptions.NumImpostors < 0)
                     CurrentGameOptions.SetInt(Int32OptionNames.NumImpostors, 1);
             }
         }

@@ -29,12 +29,12 @@ public class Stressed : IAddon
     private static int TimeMinusAfterCrewEject;
     private static int StartingTime;
 
-    private static Dictionary<byte, int> Timers = [];
-    private static Dictionary<byte, long> LastUpdates = [];
+    private static Dictionary<byte, int> Timers;
+    private static Dictionary<byte, long> LastUpdates;
 
     public static bool CountRepairSabotage;
 
-    private static bool IsEnable => Timers.Count > 0;
+    private static bool IsEnable => Timers is { Count: > 0 };
     public AddonTypes Type => AddonTypes.Harmful;
 
     public void SetupCustomOption()
@@ -85,8 +85,8 @@ public class Stressed : IAddon
         TimeAfterReport = StressedExtraTimeAfterReporting.GetInt();
         TimeMinusAfterCrewEject = StressedTimePenaltyAfterCrewmateEjected.GetInt();
 
-        Timers = [];
-        LastUpdates = [];
+        Timers = null;
+        LastUpdates = null;
         CountRepairSabotage = true;
     }
 
@@ -106,6 +106,9 @@ public class Stressed : IAddon
                         continue;
                     }
 
+                    Timers ??= [];
+                    LastUpdates ??= [];
+
                     Timers[pc.PlayerId] = StartingTime;
                     LastUpdates[pc.PlayerId] = now + 1;
                 }
@@ -117,9 +120,10 @@ public class Stressed : IAddon
 
     public static void Update(PlayerControl pc)
     {
+        if (!IsEnable) return;
+        
         long now = Utils.TimeStamp;
-        if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out long x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
-
+        if (!LastUpdates.TryGetValue(pc.PlayerId, out long x) || x >= now || !Timers.ContainsKey(pc.PlayerId)) return;
         LastUpdates[pc.PlayerId] = now;
 
         TaskState ts = pc.GetTaskState();
@@ -172,6 +176,8 @@ public class Stressed : IAddon
 
     private static void LogTimer(byte id = byte.MaxValue, [CallerMemberName] string action = "")
     {
+        if (Timers == null) return;
+        
         if (Timers.TryGetValue(id, out int time))
             Logger.Info($"{action} - Timer: {time} for {id.ColoredPlayerName()}", "Stressed");
         else
@@ -241,9 +247,10 @@ public class Stressed : IAddon
         LogTimer();
     }
 
-    public static string GetProgressText(byte playerId)
+    public static void GetProgressText(byte playerId, StringBuilder resultText)
     {
-        return Timers.TryGetValue(playerId, out int x) ? string.Format(GetString("DamoclesTimeLeft"), x) : string.Empty;
+        if (Timers != null && Timers.TryGetValue(playerId, out int x))
+            resultText.AppendFormat(GetString("DamoclesTimeLeft"), x);
     }
 
     private static void AdjustTime(int change)

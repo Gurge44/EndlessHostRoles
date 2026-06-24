@@ -22,8 +22,8 @@ public class Dad : RoleBase
     }
 
     public static bool On;
-    private static List<Dad> Instances = [];
-    private static List<Vector2> AllDeadBodies = [];
+    private static List<Dad> Instances;
+    private static List<Vector2> AllDeadBodies;
 
     private static OptionItem AlcoholDecreaseOnKilled;
     private static OptionItem AlcoholDecreaseOnVotedOut;
@@ -54,6 +54,8 @@ public class Dad : RoleBase
     private float StartingSpeed;
     private long SuperVisionTS;
     public HashSet<Ability> UsingAbilities;
+    private readonly StringBuilder Suffix = new();
+    private static readonly Ability[] AllAbility = Enum.GetValues<Ability>();
 
     public override bool IsEnable => On;
 
@@ -116,16 +118,14 @@ public class Dad : RoleBase
             .SetParent(parent)
             .SetValueFormat(OptionFormat.Percent);
 
-        Ability[] abilities = Enum.GetValues<Ability>();
-
-        foreach (Ability ability in abilities)
+        foreach (Ability ability in AllAbility)
         {
             AbilityAlcoholDecreaseOptions[ability] = new IntegerOptionItem(++id, $"Dad.{ability}.AlcoholDecrease", new(0, 100, 1), 10, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
         }
 
-        foreach (Ability ability in abilities)
+        foreach (Ability ability in AllAbility)
         {
             AbilityAlcoholRequirement[ability] = new IntegerOptionItem(++id, $"Dad.{ability}.AlcoholRequirement", new(0, 100, 1), ability == Ability.BecomeGodOfAlcohol ? 40 : (int)ability * 5, tab)
                 .SetParent(parent)
@@ -136,12 +136,13 @@ public class Dad : RoleBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
+        Instances ??= [];
         Instances.Add(this);
         Main.AllPlayerSpeed[playerId] *= -1;
         DadId = playerId;
@@ -163,7 +164,7 @@ public class Dad : RoleBase
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
         if (!AmongUsClient.Instance.AmHost) return;
         Main.AllPlayerSpeed[playerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
         PlayerGameOptionsSender.SetDirty(playerId);
@@ -191,7 +192,7 @@ public class Dad : RoleBase
 
     public override void OnReportDeadBody()
     {
-        AllDeadBodies = [];
+        AllDeadBodies = null;
         Arrows = string.Empty;
         Main.AllPlayerSpeed[DadId] = StartingSpeed;
 
@@ -227,7 +228,7 @@ public class Dad : RoleBase
 
     public override void OnPet(PlayerControl pc)
     {
-        SelectedAbility = (Ability)(((int)SelectedAbility + 1) % Enum.GetValues<Ability>().Length);
+        SelectedAbility = (Ability)(((int)SelectedAbility + 1) % AllAbility.Length);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
@@ -254,7 +255,7 @@ public class Dad : RoleBase
                 pc.MarkDirtySettings();
                 break;
             case Ability.Sniffing:
-                AllDeadBodies.Do(x => LocateArrow.Add(DadId, x));
+                AllDeadBodies?.Do(x => LocateArrow.Add(DadId, x));
                 Arrows = LocateArrow.GetArrows(pc);
                 LocateArrow.RemoveAllTarget(DadId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -341,7 +342,7 @@ public class Dad : RoleBase
             if (MilkTimer <= 0)
             {
                 pc.TPToRandomVent();
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Crewmate);
                 CustomWinnerHolder.WinnerIds.UnionWith(Main.EnumeratePlayerControls().Where(x => x.Is(Team.Crewmate)).Select(x => x.PlayerId));
             }
         }
@@ -386,7 +387,7 @@ public class Dad : RoleBase
 
     public static bool OnVotedOut(byte id)
     {
-        Dad dad = Instances.FirstOrDefault(d => d.DadId == id);
+        Dad dad = Instances?.FirstOrDefault(d => d.DadId == id);
         if (dad == null) return false;
 
         dad.Alcohol -= AlcoholDecreaseOnVotedOut.GetInt();
@@ -397,11 +398,13 @@ public class Dad : RoleBase
 
     public static void OnAnyoneDeath(PlayerControl target)
     {
+        AllDeadBodies ??= [];
         AllDeadBodies.Add(target.Pos());
     }
 
     public static bool OnAnyoneCheckMurderStart(PlayerControl target)
     {
+        if (Instances == null) return false;
         Dad dad = Instances.FirstOrDefault(d => d.DadId == target.PlayerId);
         return dad != null && dad.UsingAbilities.Contains(Ability.Sleep);
     }
@@ -437,37 +440,36 @@ public class Dad : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || meeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
-        var sb = new StringBuilder();
+        Suffix.Clear();
 
         if (FastVector2.DistanceWithinRange(seer.Pos(), Shop.transform.position, 2f))
         {
             float canBuyAmount = seer.GetAbilityUseLimit() / AlcoholCost.GetInt();
-            sb.Append(string.Format(Translator.GetString("Dad.ShopSuffix"), canBuyAmount));
+            Suffix.AppendFormat(Translator.GetString("Dad.ShopSuffix"), canBuyAmount);
         }
 
         if (Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
         {
-            if (sb.Length > 0) sb.Append('\n');
-            sb.Append(string.Format(Translator.GetString("Dad.LowAlcoholSuffix"), Alcohol));
+            if (Suffix.Length > 0) Suffix.Append('\n');
+            Suffix.AppendFormat(Translator.GetString("Dad.LowAlcoholSuffix"), Alcohol);
         }
 
         if (Arrows.Length > 0)
         {
-            if (sb.Length > 0) sb.Append('\n');
-
-            sb.Append(Arrows);
+            if (Suffix.Length > 0) Suffix.Append('\n');
+            Suffix.Append(Arrows);
         }
 
-        if (sb.Length > 0) sb.Append("\n\n<size=70%>");
+        if (Suffix.Length > 0) Suffix.Append("\n\n<size=70%>");
 
-        sb.Append(string.Format(Translator.GetString("Dad.ShopLocation"), Shop.name));
-        sb.Append('\n');
-        sb.Append(string.Format(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}")));
-        sb.Append('\n');
-        sb.Append(Translator.GetString($"Dad.{SelectedAbility}.Description"));
-        sb.Append("</size>");
+        Suffix.AppendFormat(Translator.GetString("Dad.ShopLocation"), Shop.name)
+            .Append('\n')
+            .AppendFormat(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}"))
+            .Append('\n')
+            .Append(Translator.GetString($"Dad.{SelectedAbility}.Description"))
+            .Append("</size>");
 
-        return sb.ToString().Trim();
+        return Suffix.ToString().Trim();
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

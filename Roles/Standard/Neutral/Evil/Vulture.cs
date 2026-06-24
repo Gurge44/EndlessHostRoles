@@ -154,7 +154,7 @@ public class Vulture : RoleBase
 
         if (TotalEaten >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
+            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Vulture);
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
             return false;
         }
@@ -200,7 +200,7 @@ public class Vulture : RoleBase
             var pc = x.GetPlayer();
             if (!pc || !pc.IsAlive()) return;
 
-            if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Count - 1 <= NumberOfReportsToWin.GetInt() - vulture.TotalEaten)
+            if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControlsCount - 1 <= NumberOfReportsToWin.GetInt() - vulture.TotalEaten)
             {
                 CustomRoles role = ChangeRoles[ChangeRole.GetValue()];
                 pc.RpcSetCustomRole(role);

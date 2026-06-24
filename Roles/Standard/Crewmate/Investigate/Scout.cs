@@ -11,7 +11,7 @@ namespace EHR.Roles;
 public class Scout : RoleBase
 {
     private const int Id = 8300;
-    private static List<byte> PlayerIdList = [];
+    private static bool On;
 
     private static OptionItem TrackLimitOpt;
     private static OptionItem OptionCanSeeLastRoomInMeeting;
@@ -23,10 +23,10 @@ public class Scout : RoleBase
 
     public static bool CanSeeLastRoomInMeeting;
 
-    private static Dictionary<byte, List<byte>> TrackerTarget = [];
+    private static Dictionary<byte, List<byte>> TrackerTarget;
     private byte TrackerId;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
@@ -58,22 +58,18 @@ public class Scout : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
-        TrackerTarget = [];
+        On = false;
+        TrackerTarget = null;
         CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        On = true;
         playerId.SetAbilityUseLimit(TrackLimitOpt.GetFloat());
+        TrackerTarget ??= [];
         TrackerTarget.Add(playerId, []);
         TrackerId = playerId;
-    }
-
-    public override void Remove(byte playerId)
-    {
-        PlayerIdList.Remove(playerId);
     }
 
     public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
@@ -98,13 +94,13 @@ public class Scout : RoleBase
 
     public static string GetTargetMark(PlayerControl seer, PlayerControl target)
     {
-        return !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
+        return TrackerTarget != null && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return false;
-        if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+        if (!player || !target || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget == null || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
         player.RpcRemoveAbilityUse();
 
@@ -124,28 +120,27 @@ public class Scout : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || seer.PlayerId != TrackerId || target != null && seer.PlayerId != target.PlayerId || !TrackerTarget.ContainsKey(seer.PlayerId) || meeting || hud) return string.Empty;
+        if (seer.PlayerId != TrackerId || seer.PlayerId != target.PlayerId || TrackerTarget == null || !TrackerTarget.ContainsKey(seer.PlayerId) || meeting || hud) return string.Empty;
         return TrackerTarget[seer.PlayerId].Aggregate(string.Empty, (current, trackTarget) => current + Utils.ColorString(CanGetColoredArrow.GetBool() ? Main.PlayerColors[trackTarget] : Color.white, TargetArrow.GetArrows(seer, trackTarget))) + LocateArrow.GetArrows(seer);
     }
 
     public static bool IsTrackTarget(PlayerControl seer, PlayerControl target)
     {
-        return seer.IsAlive() && PlayerIdList.Contains(seer.PlayerId)
+        return seer.IsAlive() && seer.Is(CustomRoles.Scout)
+                              && TrackerTarget != null
                               && TrackerTarget[seer.PlayerId].Contains(target.PlayerId)
                               && target.IsAlive();
     }
 
     public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
     {
-        if (seer == null || target == null) return string.Empty;
-
         Color roleColor = Utils.GetRoleColor(CustomRoles.Scout);
         string text = Utils.ColorString(roleColor, TargetArrow.GetArrows(seer, target.PlayerId));
         text += Utils.ColorString(roleColor, LocateArrow.GetArrows(seer));
 
         PlainShipRoom room = Main.PlayerStates[target.PlayerId].LastRoom;
 
-        if (room == null)
+        if (!room)
             text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
         else
             text += Utils.ColorString(roleColor, "@" + GetString(room.RoomId.ToString()));
@@ -155,7 +150,7 @@ public class Scout : RoleBase
 
     public static void OnPlayerDeath(PlayerControl player)
     {
-        if (player == null) return;
+        if (TrackerTarget == null || !player) return;
 
         foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
         {
@@ -170,6 +165,8 @@ public class Scout : RoleBase
 
     public override void AfterMeetingTasks()
     {
+        if (TrackerTarget == null) return;
+
         foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
         {
             LocateArrow.RemoveAllTarget(kvp.Key);
@@ -178,7 +175,7 @@ public class Scout : RoleBase
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
 
-                if (pc == null || !pc.IsAlive())
+                if (!pc || !pc.IsAlive())
                 {
                     kvp.Value.Remove(id);
                     TargetArrow.Remove(kvp.Key, id);

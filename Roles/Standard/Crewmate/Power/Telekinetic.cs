@@ -16,7 +16,6 @@ public class Telekinetic : RoleBase
     private static OptionItem IncreasedSpeed;
 
     private Mode CurrentMode;
-    private long LastUpdate;
     private bool Shielded;
     private PlayerControl TelekineticPC;
     private int Timer;
@@ -69,11 +68,7 @@ public class Telekinetic : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Main.HasJustStarted) return;
-
-        long now = Utils.TimeStamp;
-        if (now == LastUpdate) return;
-
-        LastUpdate = now;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         switch (Timer)
         {
@@ -97,7 +92,7 @@ public class Telekinetic : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
-        bool hasTarget = target != null;
+        bool hasTarget = target;
 
         switch (CurrentMode)
         {
@@ -204,9 +199,13 @@ public class Telekinetic : RoleBase
         return string.Format(Translator.GetString("Telekinetic.Suffix"), Translator.GetString($"Telekinetic.Mode.{CurrentMode}"));
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        return $"<#ffffff>{Timer}</color>{base.GetProgressText(playerId, comms)}";
+        resultText.Append("<#ffffff>")
+            .Append(Timer)
+            .Append("</color>");
+
+        base.GetProgressText(playerId, comms, resultText);
     }
 
     public override bool CanUseVent(PlayerControl pc, int ventId)

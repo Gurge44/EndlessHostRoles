@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -86,7 +85,7 @@ internal class Crewpostor : RoleBase
                 if (target.AmOwner)
                     Achievements.Type.YoureTooLate.Complete();
 
-                Logger.Info($"Crewpostor tried to kill Pestilence: {target.GetNameWithRole()} => {player.GetNameWithRole().RemoveHtmlTags()}", "Pestilence Reflect");
+                Logger.Info($"Crewpostor tried to kill Pestilence: {target.GetNameWithRole()} => {player.GetNameWithRole()}", "Pestilence Reflect");
             }
         }
     }

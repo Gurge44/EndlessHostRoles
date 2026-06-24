@@ -1,13 +1,10 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AmongUs.GameOptions;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using InnerNet;
 using UnityEngine;
-using static EHR.GameStates;
 
 namespace EHR.Modules;
 
@@ -15,11 +12,9 @@ public abstract class GameOptionsSender
 {
     protected abstract bool IsDirty { get; set; }
 
-    protected virtual int TargetClientId => -1;
-
     private Il2CppStructArray<byte> BuildOptionArray()
     {
-        IGameOptions opt = BuildSendableGameOptions();
+        IGameOptions opt = BuildGameOptions();
         var currentGameMode = AprilFoolsMode.IsAprilFoolsModeToggledOn ? opt.AprilFoolsOnMode : opt.GameMode;
 
         // option => byte[]
@@ -61,7 +56,7 @@ public abstract class GameOptionsSender
         for (byte i = 0; i < count; i++)
         {
             Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[i];
-            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, TargetClientId);
+            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i);
         }
     }
 
@@ -72,96 +67,15 @@ public abstract class GameOptionsSender
         for (byte i = 0; i < count; i++)
         {
             Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[i];
-            if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, TargetClientId);
+            if (logicComponent.TryCast<LogicOptions>(out _)) yield return SendOptionsArrayAsync(optionArray, i);
             yield return WaitFrameIfNecessary();
         }
     }
 
-    private static void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex, int targetClientId)
-    {
-        try
-        {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
-            writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
-            {
-                writer.Write(AmongUsClient.Instance.GameId);
-                if (targetClientId != -1) writer.WritePacked(targetClientId);
-
-                writer.StartMessage(1);
-                {
-                    writer.WritePacked(GameManager.Instance.NetId);
-                    writer.StartMessage(logicOptionsIndex);
-                    {
-                        writer.WriteBytesAndSize(optionArray);
-                    }
-                    writer.EndMessage();
-                }
-                writer.EndMessage();
-            }
-
-            writer.EndMessage();
-
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-        }
-        catch (Exception ex) { Logger.Fatal(ex.ToString(), "GameOptionsSender.SendOptionsArray"); }
-    }
+    protected abstract void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex);
+    protected abstract IEnumerator SendOptionsArrayAsync(Il2CppStructArray<byte> optionArray, byte logicOptionsIndex);
 
     public abstract IGameOptions BuildGameOptions();
-
-    protected IGameOptions BuildSendableGameOptions()
-    {
-        return SanitizeForOfficialServer(BuildGameOptions());
-    }
-
-    protected static IGameOptions SanitizeForOfficialServer(IGameOptions opt)
-    {
-        if (CurrentServerType != ServerType.Vanilla || opt == null || !opt.TryCast(out NormalGameOptionsV10 normalOpt))
-            return opt;
-
-        int originalMaxPlayers = normalOpt.MaxPlayers;
-        int originalImpostors = normalOpt.NumImpostors;
-        int originalKillDistance = normalOpt.KillDistance;
-        float originalPlayerSpeed = normalOpt.PlayerSpeedMod;
-        bool changed = false;
-
-        if (normalOpt.MaxPlayers > 15)
-        {
-            normalOpt.SetInt(Int32OptionNames.MaxPlayers, 15);
-            changed = true;
-        }
-
-        int impostors = Mathf.Clamp(normalOpt.NumImpostors, 1, 3);
-        if (impostors != normalOpt.NumImpostors)
-        {
-            normalOpt.SetInt(Int32OptionNames.NumImpostors, impostors);
-            changed = true;
-        }
-
-        int killDistance = Mathf.Clamp(normalOpt.KillDistance, 0, 2);
-        if (killDistance != normalOpt.KillDistance)
-        {
-            normalOpt.SetInt(Int32OptionNames.KillDistance, killDistance);
-            changed = true;
-        }
-
-        float playerSpeed = Mathf.Clamp(normalOpt.PlayerSpeedMod, Main.MinSpeed, 3f);
-        if (!Mathf.Approximately(playerSpeed, normalOpt.PlayerSpeedMod))
-        {
-            normalOpt.SetFloat(FloatOptionNames.PlayerSpeedMod, playerSpeed);
-            changed = true;
-        }
-
-        if (changed)
-        {
-            Logger.Warn(
-                $"Clamped outgoing official game options: MaxPlayers={originalMaxPlayers}->{normalOpt.MaxPlayers}, NumImpostors={originalImpostors}->{normalOpt.NumImpostors}, KillDistance={originalKillDistance}->{normalOpt.KillDistance}, PlayerSpeedMod={originalPlayerSpeed:0.###}->{normalOpt.PlayerSpeedMod:0.###}",
-                nameof(GameOptionsSender));
-        }
-
-        return normalOpt.CastFast<IGameOptions>();
-    }
 
     protected virtual bool AmValid()
     {
@@ -172,12 +86,26 @@ public abstract class GameOptionsSender
 
     public static readonly List<GameOptionsSender> AllSenders = [new NormalGameOptionsSender()];
 
+    protected static MessageWriter PackedWriter;
+    protected static int PackedWriterMessages;
+    
+    // Currently, a LogicOptions serialize is 155-156 bytes. 11 bytes are needed for the packet headers.
+    // Safe to pack until the length is over 1000, as it's impossible to exceed 1200 with 156 bytes per message.
+
     public static IEnumerator SendDirtyGameOptionsContinuously()
     {
         try
         {
             while (GameStates.InGame || GameStates.IsLobby)
             {
+                if (GameStates.InGame)
+                {
+                    PackedWriterMessages = 0;
+                    PackedWriter = MessageWriter.Get(SendOption.Reliable);
+                    PackedWriter.StartMessage(26);
+                    PackedWriter.WritePacked(AmongUsClient.Instance.GameId);
+                }
+                
                 for (var index = 0; index < AllSenders.Count; index++)
                 {
                     yield return WaitFrameIfNecessary();
@@ -198,6 +126,19 @@ public abstract class GameOptionsSender
                     sender.IsDirty = false;
                 }
 
+                yield return WaitFrameIfNecessary();
+
+                if (PackedWriterMessages > 0 && PackedWriter != null)
+                {
+                    PackedWriter.EndMessage();
+                    yield return DataFlagRateLimiter.Enqueue(() => AmongUsClient.Instance.SendOrDisconnect(PackedWriter)).Wait();
+                    Logger.Info($"PackedWriter flush finished - Length: {PackedWriter.Length}, Messages: {PackedWriterMessages}", "SendDirtyGameOptionsContinuously");
+                }
+
+                PackedWriter?.Recycle();
+                PackedWriter = null;
+                PackedWriterMessages = 0;
+
                 ForceWaitFrame = true;
                 yield return WaitFrameIfNecessary();
             }
@@ -205,6 +146,9 @@ public abstract class GameOptionsSender
         finally
         {
             ActiveCoroutine = null;
+            PackedWriter?.Recycle();
+            PackedWriter = null;
+            PackedWriterMessages = 0;
         }
     }
 

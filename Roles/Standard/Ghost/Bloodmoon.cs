@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using Hazel;
+using EHR.Modules;
 
 namespace EHR.Roles;
 
@@ -13,27 +13,28 @@ internal class Bloodmoon : IGhostRole
     private static OptionItem DieOnMeetingCall;
     private static OptionItem CDIncreasePerUse;
 
-    private static readonly Dictionary<byte, long> ScheduledDeaths = [];
+    private static readonly Dictionary<byte, (long TimeStamp, byte KillerId)> ScheduledDeaths = [];
 
-    private long LastUpdate;
     private byte BloodmoonID;
     
     public Team Team => Team.Impostor | Team.Neutral;
     public RoleTypes RoleTypes => RoleTypes.GuardianAngel;
-    public int Cooldown => CD.GetInt() + Main.PlayerStates.Values.Count(x => x.GetRealKiller() == BloodmoonID && x.deathReason == PlayerState.DeathReason.LossOfBlood) * CDIncreasePerUse.GetInt();
+    public int Cooldown => CD.GetInt() + (Main.PlayerStates.Values.Count(x => x.GetRealKiller() == BloodmoonID && x.deathReason == PlayerState.DeathReason.LossOfBlood) + ScheduledDeaths.Values.Count(v => v.KillerId == BloodmoonID)) * CDIncreasePerUse.GetInt();
 
     public void OnAssign(PlayerControl pc)
     {
         Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
         pc.MarkDirtySettings();
-        LastUpdate = Utils.TimeStamp;
         BloodmoonID = pc.PlayerId;
     }
 
     public void OnProtect(PlayerControl pc, PlayerControl target)
     {
-        if (target.Is(CustomRoles.Pestilence) || !pc.RpcCheckAndMurder(target, true)) return;
-        ScheduledDeaths.TryAdd(target.PlayerId, Utils.TimeStamp);
+        if (target.Is(CustomRoles.Pestilence) || (target.Is(Team.Impostor) && pc.Is(Team.Impostor)) || !pc.RpcCheckAndMurder(target, true)) return;
+        ScheduledDeaths.TryAdd(target.PlayerId, (Utils.TimeStamp, pc.PlayerId));
+        Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
+        pc.MarkDirtySettings(); // failsafe check
+        pc.AddAbilityCD(Cooldown + Duration.GetInt());
     }
 
     public void SetupCustomOption()
@@ -48,7 +49,7 @@ internal class Bloodmoon : IGhostRole
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Seconds);
 
-        Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 3f, 0.05f), 0.5f, TabGroup.OtherRoles)
+        Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 3f, 0.05f), 0.25f, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Multiplier);
 
@@ -60,52 +61,64 @@ internal class Bloodmoon : IGhostRole
             .SetValueFormat(OptionFormat.Seconds);
     }
 
-    public static void Update(PlayerControl pc, Bloodmoon instance)
+    public static void Update(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks) return;
+        if (!GameStates.IsInTask || ExileController.Instance || AntiBlackout.SkipTasks || ScheduledDeaths.Count == 0) return;
+        if (!PerSecondUpdateScheduler.ShouldRunUpdate(pc.PlayerId)) return;
 
         long now = Utils.TimeStamp;
-        if (now == instance.LastUpdate) return;
-        instance.LastUpdate = now;
+        List<byte> toRemove = null;
 
-        foreach (KeyValuePair<byte, long> death in ScheduledDeaths)
+        foreach ((byte id, (long markTS, byte killerId)) in ScheduledDeaths)
         {
-            PlayerControl player = Utils.GetPlayerById(death.Key);
-            if (!player || !player.IsAlive()) continue;
+            PlayerControl player = Utils.GetPlayerById(id);
+            
+            if (!player || !player.IsAlive())
+            {
+                toRemove ??= [];
+                toRemove.Add(id);
+                continue;
+            }
 
-            if (now - death.Value < Duration.GetInt())
+            if (now - markTS < Duration.GetInt())
             {
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 continue;
             }
 
-            if (pc.RpcCheckAndMurder(player, true)) player.Suicide(PlayerState.DeathReason.LossOfBlood, pc);
+            if (pc.RpcCheckAndMurder(player, true))
+            {
+                player.Suicide(PlayerState.DeathReason.LossOfBlood, killerId.GetPlayer());
+                toRemove ??= [];
+                toRemove.Add(id);
+            }
         }
-
-        FastVector2.GetPlayersInRange(pc.Pos(), 4f, x => !x.Is(Team.Impostor)).Do(x => x.Notify(string.Format(Translator.GetString("BloodmoonNearYou"), CustomRoles.Bloodmoon.ToColoredString()), sendOption: SendOption.None));
+        
+        toRemove?.ForEach(x => ScheduledDeaths.Remove(x));
     }
 
     public static void OnMeetingStart()
     {
         if (DieOnMeetingCall.GetBool())
         {
-            foreach (byte id in ScheduledDeaths.Keys)
+            foreach (var kvp in ScheduledDeaths)
             {
-                PlayerControl pc = Utils.GetPlayerById(id);
+                PlayerControl pc = Utils.GetPlayerById(kvp.Key);
                 if (!pc || !pc.IsAlive()) continue;
 
-                pc.Suicide(PlayerState.DeathReason.LossOfBlood);
+                pc.Suicide(PlayerState.DeathReason.LossOfBlood, Utils.GetPlayerById(kvp.Value.KillerId));
             }
         }
 
         ScheduledDeaths.Clear();
-    }
+    }  
 
     public static string GetSuffix(PlayerControl seer)
     {
-        if (!ScheduledDeaths.TryGetValue(seer.PlayerId, out long ts)) return string.Empty;
+        if (!ScheduledDeaths.TryGetValue(seer.PlayerId, out var deathInfo)) return string.Empty;
 
-        long timeLeft = Duration.GetInt() - (Utils.TimeStamp - ts) + 1;
+        long timeLeft = Duration.GetInt() - (Utils.TimeStamp - deathInfo.TimeStamp) + 1;
+
         (string TextColor, string TimeColor) colors = GetColors();
         return string.Format(Translator.GetString("Bloodmoon.Suffix"), timeLeft, colors.TextColor, colors.TimeColor);
 

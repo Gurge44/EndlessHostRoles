@@ -89,16 +89,16 @@ public class Councillor : RoleBase
         MeetingKillLimit[CouncillorId] = MurderLimitPerMeeting.GetInt();
     }
 
-    public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false, bool sendCmdWarn = true)
+    public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || !pc || !pc.Is(CustomRoles.Councillor)) return false;
 
         int operate; // 1:ID 2:Kill
         msg = msg.ToLower().TrimStart().TrimEnd();
 
-        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true, out bool spamRequired))
+        if (GuessManager.CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id", true))
             operate = 1;
-        else if (GuessManager.CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|审判|判|审", false, out spamRequired))
+        else if (GuessManager.CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|审判|判|审", false))
             operate = 2;
         else
             return false;
@@ -116,9 +116,6 @@ public class Councillor : RoleBase
                 break;
             case 2:
             {
-                if (!isUI && spamRequired && sendCmdWarn)
-                    Utils.SendMessage("\n", pc.PlayerId, GetString("NoSpamAnymoreUseCmd"));
-
                 if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                 {
                     Utils.SendMessage(error, pc.PlayerId);
@@ -129,7 +126,7 @@ public class Councillor : RoleBase
 
                 if (target)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} murdered {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
+                    Logger.Info($"{pc.GetNameWithRole()} murdered {target.GetNameWithRole()}", "Councillor");
                     var councillorSuicide = true;
 
                     if (pc.GetAbilityUseLimit() < 1)
@@ -165,9 +162,9 @@ public class Councillor : RoleBase
                     if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
                     {
                         if (!isUI)
-                            Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                            Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")));
                         else
-                            pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
+                            pc.ShowPopUp(CustomRoles.Jailor.ColoredTextByRole(GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
 
                         return true;
                     }
@@ -209,9 +206,9 @@ public class Councillor : RoleBase
                         LateTask.New(() =>
                         {
                             if (!MakeEvilJudgeClear.GetBool())
-                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), GetString("TrialKillTitle")), importance: MessageImportance.High);
+                                Utils.SendMessage(string.Format(GetString("TrialKill"), name), 255, CustomRoles.Judge.ColoredTextByRole(GetString("TrialKillTitle")), importance: MessageImportance.High);
                             else
-                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Councillor), GetString("MurderKillTitle")), importance: MessageImportance.High);
+                                Utils.SendMessage(string.Format(GetString("MurderKill"), name), 255, CustomRoles.Councillor.ColoredTextByRole(GetString("MurderKillTitle")), importance: MessageImportance.High);
                         }, 0.6f, "Guess Msg");
                         
                     }, 0.2f, "Murder Kill");
@@ -262,7 +259,7 @@ public class Councillor : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (Starspawn.IsDayBreak) return;
-        MurderMsg(shapeshifter, $"/tl {target.PlayerId}", sendCmdWarn: false);
+        MurderMsg(shapeshifter, $"/tl {target.PlayerId}");
     }
 
     private static void SendRPC(byte playerId)
@@ -292,7 +289,7 @@ public class Councillor : RoleBase
 
     public static void CreateCouncillorButton(MeetingHud __instance)
     {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (!pc || !pc.IsAlive()) continue;

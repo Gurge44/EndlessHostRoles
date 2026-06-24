@@ -7,9 +7,12 @@ internal class Kidnapper : RoleBase
 {
     public static bool On;
 
-    public static OptionItem KCD;
-    public static OptionItem SSCD;
-    private static int Id => 643300;
+    private static OptionItem KCD;
+    private static OptionItem SSCD;
+    private static OptionItem AbilityUseLimit;
+    private static OptionItem AbilityUseGainWithEachKill;
+    
+    private const int Id = 643300;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
@@ -23,6 +26,14 @@ internal class Kidnapper : RoleBase
         KCD = new FloatOptionItem(Id + 3, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
             .SetValueFormat(OptionFormat.Seconds);
+        
+        AbilityUseLimit = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
+            .SetValueFormat(OptionFormat.Times);
+
+        AbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
+            .SetValueFormat(OptionFormat.Times);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -40,8 +51,12 @@ internal class Kidnapper : RoleBase
     {
         if (!kidnapper || !target || !shapeshifting) return true;
 
+        if (kidnapper.GetAbilityUseLimit() < 1f) return false;
+
         if (!target.TP(kidnapper))
             kidnapper.Notify(Utils.ColorString(Color.yellow, Translator.GetString("TargetCannotBeTeleported")));
+        else
+            kidnapper.RpcRemoveAbilityUse();
 
         return false;
     }
@@ -54,5 +69,6 @@ internal class Kidnapper : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
     }
 }

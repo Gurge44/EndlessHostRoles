@@ -4,6 +4,7 @@ using AmongUs.Data;
 using EHR.Modules;
 using EHR.Roles;
 using Hazel;
+using UnityEngine;
 
 namespace EHR;
 
@@ -46,7 +47,6 @@ public static class Camouflage
     public static bool IsCamouflage;
     public static bool BlockCamouflage;
     public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
-    public static List<byte> ResetSkinAfterDeathPlayers = [];
     private static HashSet<byte> WaitingForSkinChange = [];
 
     private static int SkippedCamoTimes;
@@ -57,7 +57,6 @@ public static class Camouflage
     {
         IsCamouflage = false;
         PlayerSkins = [];
-        ResetSkinAfterDeathPlayers = [];
         WaitingForSkinChange = [];
 
         SkippedCamoTimes = 0;
@@ -153,15 +152,16 @@ public static class Camouflage
 
             RpcSetSkin(pc);
 
-            yield return null;
+            yield return new WaitForSecondsRealtime(0.1f);
         }
 
+        yield return new WaitForSecondsRealtime(0.5f);
         yield return Utils.NotifyEveryoneAsync();
     }
 
     public static void RpcSetSkin(PlayerControl target, bool forceRevert = false, bool revertToDefault = false, bool gameEnd = false, bool revive = false, bool notCommsOrCamo = false, CustomRpcSender sender = null)
     {
-        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !revive && !notCommsOrCamo) || target == null || (BlockCamouflage && !forceRevert && !revertToDefault && !gameEnd && !revive && !notCommsOrCamo)) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On && !revive && !notCommsOrCamo) || !target || (BlockCamouflage && !forceRevert && !revertToDefault && !gameEnd && !revive && !notCommsOrCamo)) return;
 
         Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
 
@@ -202,7 +202,7 @@ public static class Camouflage
         {
             var killer = target.GetRealKiller();
 
-            if (Options.AnonymousBodies.GetBool() || target.Is(CustomRoles.Hidden) || (killer != null && killer.Is(CustomRoles.Concealer)))
+            if (Options.AnonymousBodies.GetBool() || target.Is(CustomRoles.Hidden) || (killer && killer.Is(CustomRoles.Concealer)))
                 newOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set(Translator.GetString("Dead"), 15, "", "", "", "", "");
             else if (Options.RemovePetsAtDeadPlayers.GetBool())
                 newOutfit.PetId = string.Empty;
@@ -216,6 +216,12 @@ public static class Camouflage
         }
 
         Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
+
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        {
+            target.RpcChangeOutfitByData(newOutfit);
+            return;
+        }
 
         bool noSender = sender == null;
         if (noSender) sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})", SendOption.Reliable);

@@ -9,7 +9,7 @@ namespace EHR.Roles;
 public class Banshee : CovenBase
 {
     public static bool On;
-    public static List<Banshee> Instances = [];
+    public static List<Banshee> Instances;
 
     private static OptionItem AbilityCooldown;
     private static OptionItem Radius;
@@ -36,7 +36,7 @@ public class Banshee : CovenBase
     public override void Init()
     {
         On = false;
-        Instances = [];
+        Instances = null;
     }
 
     public override void Add(byte playerId)
@@ -44,12 +44,13 @@ public class Banshee : CovenBase
         On = true;
         ScreechedPlayers = [];
         BansheeId = playerId;
+        Instances ??= [];
         Instances.Add(this);
     }
 
     public override void Remove(byte playerId)
     {
-        Instances.Remove(this);
+        Instances?.Remove(this);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -74,7 +75,7 @@ public class Banshee : CovenBase
                 w.Write(BansheeId);
                 w.WritePacked(1);
                 w.WritePacked(ScreechedPlayers.Count);
-                ScreechedPlayers.Do(x => w.Write(x));
+                ScreechedPlayers.Do(w.Write);
                 Utils.EndRPC(w);
             }
 
@@ -113,7 +114,7 @@ public class Banshee : CovenBase
 
     public override void OnReportDeadBody()
     {
-        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().DoIf(x => x.IsAlive(), x => x.SetChatVisible(false)), 4f, "Set Chat Hidden For Banshee Victims");
+        LateTask.New(() => Instances.SelectMany(x => x.ScreechedPlayers).Distinct().ToValidPlayers().Where(x => x.IsAlive()).ToArray().SetChatVisible(false), 4f, "Set Chat Hidden For Banshee Victims");
 
         PlayerControl pc = BansheeId.GetPlayer();
         

@@ -126,7 +126,7 @@ public class Arrogance : RoleBase
 
     public override bool CanUseKillButton(PlayerControl pc)
     {
-        return pc.IsAlive();
+        return true;
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
@@ -135,6 +135,9 @@ public class Arrogance : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, ArroganceID, NowCooldown);
         killer?.ResetKillCooldown();
         killer?.SyncSettings();
+
+        if (UsedRole == CustomRoles.Juggernaut && target)
+            Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Destroyed;
         
         if (killer?.AmOwner == true && Mathf.Approximately(NowCooldown, MinKCD))
             Achievements.Type.Bloodthirsty.Complete();
@@ -148,13 +151,24 @@ public class Arrogance : RoleBase
         Utils.SendRPC(CustomRPC.SyncRoleData, ArroganceID, NowCooldown);
     }
 
-    public override string GetProgressText(byte playerId, bool comms)
+    public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
     {
-        if (!ShowProgressTxt) return base.GetProgressText(playerId, comms);
+        if (!ShowProgressTxt)
+        {
+            base.GetProgressText(playerId, comms, resultText);
+            return;
+        }
+
+        base.GetProgressText(playerId, comms, resultText);
         
         double reduction = Math.Round(DefaultKCD - NowCooldown, 1);
         string nowKCD = string.Format(Translator.GetString("KCD"), Math.Round(NowCooldown, 1));
-        return $"{base.GetProgressText(playerId, comms)} <#ffffff>-</color> {nowKCD} <#8B0000>(-{reduction}s)</color>";
+
+        resultText.Append(" <#ffffff>-</color> ")
+            .Append(nowKCD)
+            .Append(" <#8B0000>(-")
+            .Append(reduction)
+            .Append("s)</color>");
     }
 
     public void ReceiveRPC(MessageReader reader)
