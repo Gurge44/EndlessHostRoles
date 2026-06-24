@@ -73,15 +73,14 @@ public static class FixedUpdateCaller
                 if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
                 {
 
-                    Predicate = AmongUsClient.AmHost
-                        ? Options.CurrentGameMode switch
-                        {
-                            CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
-                            CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
-                            CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
-                            _ => ExtendedPlayerControl.IsValidTargetForKillButton
-                        }
-                        : ExtendedPlayerControl.IsValidTargetForKillButton;
+                    Predicate = Options.CurrentGameMode switch
+                    {
+                        CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
+                        CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
+                        CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
+                        CustomGameMode.LoopWanted => p => p.IsAlive() && p.PlayerId != PlayerControl.LocalPlayer.PlayerId,
+                        _ => ExtendedPlayerControl.IsValidTargetForKillButton
+                    };
 
                     PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetKillDistance(), out PlayerControl closestPlayer, Predicate) ? closestPlayer : null;
 
