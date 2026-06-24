@@ -4541,7 +4541,8 @@ public static class Utils
             if (finish) CustomLogger.Instance.Finish();
 
             var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            bool isDesktop = Main.LogDirectoryMode?.Value ?? true;
+            var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : (isDesktop ? Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) : Main.DataPath);
             var f = Path.Combine(basePath, "EHR_Logs", t);
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
@@ -4553,7 +4554,7 @@ public static class Utils
             if (!open) return;
 
             if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
-                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString(isDesktop ? "Message.DumpfileSaved" : "Message.DumpfileSavedNoDesktop"), "EHR" + filename.Split("EHR")[1]));
 
             if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
         }
