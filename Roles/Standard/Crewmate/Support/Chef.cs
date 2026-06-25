@@ -209,7 +209,7 @@ public class Chef : RoleBase
     public override void OnReportDeadBody()
     {
         ActiveEvents.Clear();
-        RottenFood.Keys.Do(x => Utils.GetPlayerById(x).Suicide());
+        RottenFood.Keys.ToValidPlayers().Do(x => x.Suicide());
         RottenFood.Clear();
     }
 

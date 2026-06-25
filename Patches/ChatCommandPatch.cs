@@ -2773,6 +2773,8 @@ internal static class ChatCommands
         if (args.Length < 2) return;
 
         string name = Regex.Replace(string.Join(' ', args[1..]), "<size=[^>]*>", string.Empty).Trim();
+        
+        if (BanManager.CheckDenyNamePlayer(player, name)) return;
 
         if (name.RemoveHtmlTags().Length is > 15 or < 1)
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId, importance: MessageImportance.Low);
