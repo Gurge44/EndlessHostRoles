@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using EHR.Modules;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -67,9 +65,6 @@ internal class Butcher : RoleBase
                     return;
                 }
 
-
-                RPCHandlerPatch.WhiteListFromRateLimitUntil(target.PlayerId, Utils.TimeStamp + 5);
-
                 Vector2 ops = target.Pos();
                 var rd = IRandom.Instance;
 
@@ -83,7 +78,7 @@ internal class Butcher : RoleBase
                         Vector2 location = new(ops.x + ((float)(rd.Next(0, 201) - 100) / 100), ops.y + ((float)(rd.Next(0, 201) - 100) / 100));
                         location += new Vector2(0, 0.3636f);
 
-                        Utils.RpcCreateDeadBody(location, (byte)target.CurrentOutfit.ColorId, target, SendOption.None);
+                        Utils.RpcCreateDeadBody(location, (byte)target.CurrentOutfit.ColorId, target);
 
                         yield return new WaitForSecondsRealtime(0.2f);
                     }

@@ -1500,7 +1500,7 @@ internal static class ExtendedPlayerControl
             if (phantom && Options.CurrentGameMode != CustomGameMode.Standard) return;
             if (!Main.Invisible.Add(player.PlayerId)) return;
 
-            if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla) player.RpcSetPet("");
+            player.RpcSetPet("");
 
             if (!(phantom && PlayerControl.LocalPlayer.IsImpostor()))
                 player.MakeInvisible();
@@ -2392,6 +2392,12 @@ internal static class ExtendedPlayerControl
         public void RpcChangePet(string petId)
         {
             if (player.Data.DefaultOutfit.PetId == petId) return;
+
+            if (string.IsNullOrWhiteSpace(petId))
+            {
+                player.RpcSetPet(petId);
+                return;
+            }
             
             player.Data.DefaultOutfit.PetId = petId;
             player.SyncOutfitData();
@@ -2401,8 +2407,7 @@ internal static class ExtendedPlayerControl
         {
             if (player.Data.DefaultOutfit.ColorId == colorId) return;
 
-            player.Data.DefaultOutfit.ColorId = colorId;
-            player.SyncOutfitData();
+            player.RpcSetColor(colorId);
         }
         
         public bool RpcChangeOutfitByData(NetworkedPlayerInfo.PlayerOutfit outfit, MessageWriter writer = null, SendOption sendOption = SendOption.Reliable, bool revertShapeshiftIfAlreadyShifted = true)

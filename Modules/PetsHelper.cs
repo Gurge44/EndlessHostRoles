@@ -14,7 +14,7 @@ public static class PetsHelper
 
     public static void SetPet(PlayerControl pc, string petId)
     {
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !string.IsNullOrWhiteSpace(petId))
         {
             pc.RpcChangePet(petId);
             return;

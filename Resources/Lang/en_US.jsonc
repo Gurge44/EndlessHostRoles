@@ -8784,6 +8784,7 @@
   "KickMobilePlayer": "Kick mobile players",
   "KickPlayerFriendCodeNotExist": "Kick players who are not logged in",
   "ApplyDenyNameList": "Apply DenyName List",
+  "BanDenyNameListPlayers": "Ban instead of kick on trigger",
   "ApplyBanList": "Apply BanList",
   "ApplyModeratorList": "Apply Moderator List",
   "ApplyVIPList": "Apply VIP List",

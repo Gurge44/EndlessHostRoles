@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using BepInEx.Logging;
 using EHR.Modules;
 using EHR.Patches;
 using UnityEngine;
@@ -155,6 +156,30 @@ internal static class Logger
     }
 }
 
+public sealed class HtmlLogListener : ILogListener
+{
+    public void LogEvent(object sender, LogEventArgs eventArgs)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append('[');
+        sb.Append(eventArgs.Source.SourceName);
+        sb.Append(']');
+        sb.Append(' ');
+        sb.Append(System.Net.WebUtility.HtmlEncode(eventArgs.Data.ToString()));
+        sb.Replace("\r\n", "<br>");
+        sb.Replace("\n", "<br>");
+
+        CustomLogger.Instance.Log(eventArgs.Level.ToString(), sb, multiLine: true);
+    }
+
+    public LogLevel LogLevelFilter => LogLevel.All;
+
+    public void Dispose()
+    {
+    }
+}
+
 public class CustomLogger
 {
     public static readonly string LOGFilePath = Path.Combine(Main.DataPath, OperatingSystem.IsAndroid() ? "EHR_Logs" : "BepInEx", "log.html");
@@ -192,7 +217,7 @@ public class CustomLogger
         """;
 
     private static CustomLogger PrivateInstance;
-    private float timer = 1f;
+    private float timer = 0.5f;
 
     private readonly StringBuilder Builder;
 
@@ -262,6 +287,8 @@ public class CustomLogger
 
 #if DEBUG
         Finish(false);
+#else
+        timer = 0.5f;
 #endif
     }
 

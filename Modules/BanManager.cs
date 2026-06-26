@@ -166,7 +166,7 @@ public static class BanManager
 
                 if (Regex.IsMatch(name, line))
                 {
-                    AmongUsClient.Instance.KickPlayer(player.OwnerId, false);
+                    AmongUsClient.Instance.KickPlayer(player.OwnerId, Options.BanDenyNameListPlayers.GetBool());
                     Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), name, line), Color.yellow);
                     Logger.Info($"{name} was kicked because their name matched \"{line}\".", "Kick");
                     return true;
