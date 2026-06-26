@@ -9,7 +9,6 @@ using BepInEx.Logging;
 using EHR.Modules;
 using EHR.Patches;
 using UnityEngine;
-using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace EHR;
 
@@ -162,6 +161,9 @@ public sealed class HtmlLogListener : ILogListener
     {
         var sb = new StringBuilder();
 
+        sb.Append('[');
+        sb.Append(DateTime.Now.ToString("HH:mm:ss"));
+        sb.Append(']');
         sb.Append('[');
         sb.Append(eventArgs.Source.SourceName);
         sb.Append(']');
