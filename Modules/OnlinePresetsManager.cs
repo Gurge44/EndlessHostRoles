@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.Networking;
 
 namespace EHR.Modules;
@@ -54,7 +53,7 @@ public static class OnlinePresetsManager
 
             upload.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
             upload.MinusBtn.OnClick = new();
-            upload.MinusBtn.OnClick.AddListener((UnityAction)(() => Main.Instance.StartCoroutine(UploadCurrentPreset())));
+            upload.MinusBtn.OnClick.AddListener((Action)(() => Main.Instance.StartCoroutine(UploadCurrentPreset())));
             TextMeshPro text = upload.MinusBtn.GetComponentInChildren<TextMeshPro>();
             text.DestroyTranslator();
             text.text = "↸";
@@ -105,7 +104,7 @@ public static class OnlinePresetsManager
             plusText.DestroyTranslator();
             plusText.text = "ⓘ";
             row.PlusBtn.OnClick = new();
-            row.PlusBtn.OnClick.AddListener((UnityAction)(() =>
+            row.PlusBtn.OnClick.AddListener((Action)(() =>
             {
                 bool b = plusText.text == "ⓘ";
                 GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(b);
@@ -116,7 +115,7 @@ public static class OnlinePresetsManager
 
             row.MinusBtn.transform.localPosition += new Vector3(1.7f, 0f, 0f);
             row.MinusBtn.OnClick = new();
-            row.MinusBtn.OnClick.AddListener((UnityAction)(() =>
+            row.MinusBtn.OnClick.AddListener((Action)(() =>
             {
                 LateTask.New(() => { }, 0.01f);
                 GameSettingMenu.Instance.Close();

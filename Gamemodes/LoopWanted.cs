@@ -232,8 +232,11 @@ internal static class LoopWanted
             TargetMap[hunterId] = nextTarget;
             if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, nextTarget);
 
-            PlayerControl hunter = Utils.GetPlayerById(hunterId);
-            if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
+            LateTask.New(() =>
+            {
+                PlayerControl hunter = Utils.GetPlayerById(hunterId);
+                if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
+            }, 0.2f);
         }
         else if (hunterId != byte.MaxValue)
         {
@@ -334,7 +337,7 @@ internal static class LoopWanted
         if (!AmongUsClient.Instance.AmHost) return;
 
         var writer = Utils.CreateRPC(CustomRPC.LoopWantedSync);
-        writer.Write(2);
+        writer.WritePacked(2);
         writer.Write(TargetMap.Count);
         foreach (var kvp in TargetMap)
         {

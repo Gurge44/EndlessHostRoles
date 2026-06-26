@@ -14,9 +14,9 @@ public sealed class CountdownTimer : IDisposable
     private readonly bool _cancelOnMeeting;
     private readonly bool _cancelOnGameEnd;
 
-    private event Action OnElapsed;
-    private event Action OnTick;
-    private event Action OnCanceled;
+    private Action OnElapsed;
+    private Action OnTick;
+    private Action OnCanceled;
     
     private readonly bool _hasTickEvent;
 
@@ -31,16 +31,10 @@ public sealed class CountdownTimer : IDisposable
         _cancelOnMeeting = cancelOnMeeting;
         _cancelOnGameEnd = cancelOnGameEnd;
 
-        if (onElapsed != null)
-            OnElapsed += onElapsed;
-
         _hasTickEvent = onTick != null;
-        
-        if (_hasTickEvent)
-            OnTick += onTick;
-        
-        if (onCanceled != null)
-            OnCanceled += onCanceled;
+        OnElapsed = onElapsed;
+        OnTick = onTick;
+        OnCanceled = onCanceled;
         
         if (autoStart)
             Start();

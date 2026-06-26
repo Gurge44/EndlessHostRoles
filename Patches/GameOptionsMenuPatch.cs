@@ -10,7 +10,6 @@ using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 
 // ReSharper disable PossibleLossOfFraction
 
@@ -169,7 +168,7 @@ public static class GameOptionsMenuPatch
                         chmButton.ClickSound = __instance.BackButton.GetComponent<PassiveButton>().ClickSound;
                         chmButton.OnMouseOver = new();
                         chmButton.OnMouseOut = new();
-                        chmButton.OnClick.AddListener((UnityAction)(() =>
+                        chmButton.OnClick.AddListener((Action)(() =>
                         {
                             toi.CollapsesSection = !toi.CollapsesSection;
                             ReCreateSettings(__instance);

@@ -34,17 +34,18 @@ public static class LobbySharingAPI
         string hostName = Main.AllPlayerNames[PlayerControl.LocalPlayer.PlayerId].RemoveHtmlTags();
         string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
         string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Options.CurrentGameMode.ToString();
+        int maxPlayers = Main.NormalOptions.MaxPlayers;
         const string version = $"{Main.ModName} v{Main.PluginVersion}";
-        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode));
+        Main.Instance.StartCoroutine(SendLobbyCreatedRequest(roomCode, serverName, language, version, gameId, hostName, map, gameMode, maxPlayers));
     }
 
-    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode)
+    private static IEnumerator SendLobbyCreatedRequest(string roomCode, string serverName, string language, string version, int gameId, string hostName, string map, string gameMode, int maxPlayers)
     {
         long timeSinceLastRequest = Utils.TimeStamp - LastRequestTimeStamp;
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"serverName\":\"{serverName}\",\"language\":\"{language}\",\"version\":\"{version}\",\"gameId\":\"{gameId}\",\"hostName\":\"{hostName}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\",\"maxPlayers\":\"{maxPlayers}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
         var request = new UnityWebRequest("https://app.gurge44.eu/lobby_created", "POST")
@@ -104,11 +105,13 @@ public static class LobbySharingAPI
         {
             string map = Options.RandomMapsMode.GetBool() ? "Random" : SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6 ? "Submerged" : Main.CurrentMap.ToString();
             string gameMode = Options.EnableAutoGMRotation.GetBool() ? "Rotating" : Translator.GetString(Options.CurrentGameMode.ToString(), SupportedLangs.English).ToUpper();
-            Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), PlayerControl.AllPlayerControls.Count, map, gameMode));
+            int playerCount = PlayerControl.AllPlayerControls.Count;
+            int maxPlayers = Main.NormalOptions.MaxPlayers;
+            Main.Instance.StartCoroutine(SendLobbyStatusChangedRequest(LastRoomCode, status.ToString().Replace('_', ' '), playerCount, maxPlayers, map, gameMode));
         }
     }
 
-    private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus, int players, string map, string gameMode)
+    private static IEnumerator SendLobbyStatusChangedRequest(string roomCode, string newStatus, int playerCount, int maxPlayers, string map, string gameMode)
     {
         if (string.IsNullOrWhiteSpace(Token)) yield break;
 
@@ -116,7 +119,7 @@ public static class LobbySharingAPI
         if (timeSinceLastRequest < BufferTime) yield return new WaitForSecondsRealtime(BufferTime);
         LastRequestTimeStamp = Utils.TimeStamp;
 
-        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"players\":\"{players}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
+        var jsonData = $"{{\"roomCode\":\"{roomCode}\",\"token\":\"{Token}\",\"newStatus\":\"{newStatus}\",\"playerCount\":\"{playerCount}\",\"maxPlayers\":\"{maxPlayers}\",\"map\":\"{map}\",\"gameMode\":\"{gameMode}\"}}";
         byte[] jsonToSend = new UTF8Encoding().GetBytes(jsonData);
 
         var request = new UnityWebRequest("https://app.gurge44.eu/update_status", "POST")
