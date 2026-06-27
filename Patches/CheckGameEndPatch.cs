@@ -605,9 +605,9 @@ internal static class GameEndChecker
         Predicate = new SnowdownGameEndPredicate();
     }
 
-    public static void SetPredicateToLoopWanted()
+    public static void SetPredicateToDoomTag()
     {
-        Predicate = new LoopWantedGameEndPredicate();
+        Predicate = new DoomTagGameEndPredicate();
     }
 
     private class NormalGameEndPredicate : GameEndPredicate
@@ -1386,7 +1386,7 @@ internal static class GameEndChecker
         }
     }
 
-    private class LoopWantedGameEndPredicate : GameEndPredicate
+    private class DoomTagGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForGameEnd(out GameOverReason reason)
         {

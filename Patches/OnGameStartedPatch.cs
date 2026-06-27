@@ -1028,7 +1028,7 @@ internal static class StartGameHostPatch
                     GameEndChecker.SetPredicateToSnowdown();
                     break;
                 case CustomGameMode.DoomTag:
-                    GameEndChecker.SetPredicateToLoopWanted();
+                    GameEndChecker.SetPredicateToDoomTag();
                     break;
             }
 

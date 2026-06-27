@@ -8193,7 +8193,7 @@
   "SnowdownButtonText": "THROW",
   // DoomTag - Cycle Hunt Order
   "DoomTag": "DOOM TAG",
-  "ModeLoopWanted": "Gamemode: Doom Tag",
+  "ModeDoomTag": "Gamemode: Doom Tag",
   "ModeDescribe.DoomTag": "In the Doom Tag gamemode, every player is assigned a target, shown by an arrow. You can only kill your assigned target. Killing the wrong player will result in a punishment, such as death or reduced vision.\\nWhen you eliminate your target, you inherit their target and continue the hunt. As more players are eliminated, the circle grows smaller and the pressure increases.\\nWhen only a few players remain, Carnival Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.\\nBe the last player standing to win!",
   "GameModeTutorial.DoomTag": "<size=90%>The current game mode is <#D9BAA5>Doom Tag</color>.</size>\\n<size=80%>Each player is assigned a target, shown by an arrow.\\nYou can only kill your assigned target.\\nKilling the wrong player will result in a punishment.\\nWhen you eliminate your target, you inherit their target.\\nCarnival Mode activates when few remain!</size>",
   "DoomTag.BaseKillCooldown": "Base Kill Cooldown",
