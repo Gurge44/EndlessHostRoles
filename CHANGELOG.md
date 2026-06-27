@@ -30,13 +30,14 @@
 ## Additions
 - New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
 
-### New game mode: Loop Wanted - by HayashiUme
-- Every player has an assigned assassination target marked with an arrow.
-- You can ONLY kill your designated target.
-- Killing the wrong target results in a punishment (suicide / lower vision).
-- When you kill your target, you inherit their target.
-- When only a few players remain, Carnival Mode activates: everyone gets a speed boost and reduced kill cooldown.
-- Last player alive wins!
+### New game mode: Doom Tag - by HayashiUme
+- In the Doom Tag gamemode, every player is assigned a target, shown by an arrow.
+- You can only kill your assigned target.
+- Killing the wrong player will result in a punishment, such as death or reduced vision.
+- When you eliminate your target, you inherit their target and continue the hunt.
+- As more players are eliminated, the circle grows smaller and the pressure increases.
+- When only a few players remain, Carnival Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.
+- Be the last player standing to win!
 
 > [!WARNING]
 > If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")
