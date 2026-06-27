@@ -317,7 +317,7 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleText.text = GetString("Tagger");
                 __instance.RoleText.color = color;
                 __instance.RoleBlurbText.color = color;
-                __instance.RoleBlurbText.text = GetString("LoopHunterInfo");
+                __instance.RoleBlurbText.text = GetString("TaggerInfo");
                 break;
             }
             default:
@@ -1033,7 +1033,7 @@ internal static class BeginCrewmatePatch
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Tagger);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("LoopHunterInfo");
+                __instance.ImpostorText.text = GetString("TaggerInfo");
                 break;
             }
         }
