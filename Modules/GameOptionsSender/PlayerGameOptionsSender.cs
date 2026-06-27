@@ -389,9 +389,9 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     Snowdown.ApplyGameOptions();
                     goto case CustomGameMode.RoomRush;
                 }
-                case CustomGameMode.LoopWanted:
+                case CustomGameMode.DoomTag:
                 {
-                    LoopWanted.ApplyGameOptions(opt, player.PlayerId);
+                    DoomTag.ApplyGameOptions(opt, player.PlayerId);
                     break;
                 }
                 case CustomGameMode.NaturalDisasters:

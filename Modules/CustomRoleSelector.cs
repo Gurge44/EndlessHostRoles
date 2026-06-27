@@ -37,7 +37,7 @@ internal static class CustomRoleSelector
         { CustomGameMode.Deathrace, CustomRoles.Racer },
         { CustomGameMode.Mingle, CustomRoles.MinglePlayer },
         { CustomGameMode.Snowdown, CustomRoles.SnowdownPlayer },
-        { CustomGameMode.LoopWanted, CustomRoles.LoopHunter }
+        { CustomGameMode.DoomTag, CustomRoles.Tagger }
     };
 
     public static void SelectCustomRoles()

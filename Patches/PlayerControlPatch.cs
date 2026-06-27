@@ -258,8 +258,8 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.OnCheckMurder(killer, target);
                     return false;
-                case CustomGameMode.LoopWanted:
-                    LoopWanted.OnCheckMurder(killer, target);
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnCheckMurder(killer, target);
                     return false;
             }
 
@@ -2130,9 +2130,6 @@ internal static class FixedUpdatePatch
                 case CustomGameMode.Snowdown:
                     AdditionalSuffixes.Add(Snowdown.GetSuffix(seer, target));
                     break;
-                case CustomGameMode.LoopWanted when self:
-                    AdditionalSuffixes.Add(LoopWanted.GetSuffix(seer, target, false));
-                    break;
             }
 
             if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrWhiteSpace(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloPVP or CustomGameMode.FFA)
@@ -2314,7 +2311,7 @@ internal static class EnterVentPatch
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }

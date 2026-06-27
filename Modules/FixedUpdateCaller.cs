@@ -78,7 +78,7 @@ public static class FixedUpdateCaller
                         CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
                         CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
                         CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
-                        CustomGameMode.LoopWanted => p => p.IsAlive() && p.PlayerId != PlayerControl.LocalPlayer.PlayerId,
+                        CustomGameMode.DoomTag => p => p.IsAlive() && p.PlayerId != PlayerControl.LocalPlayer.PlayerId,
                         _ => ExtendedPlayerControl.IsValidTargetForKillButton
                     };
 
@@ -161,8 +161,8 @@ public static class FixedUpdateCaller
                             case CustomGameMode.Snowdown:
                                 Snowdown.FixedUpdatePatch.Postfix(pc);
                                 break;
-                            case CustomGameMode.LoopWanted:
-                                LoopWanted.FixedUpdatePatch.Postfix();
+                            case CustomGameMode.DoomTag:
+                                DoomTag.FixedUpdatePatch.Postfix();
                                 break;
                         }
 
@@ -201,8 +201,8 @@ public static class FixedUpdateCaller
                         case CustomGameMode.Mingle:
                             Mingle.FixedUpdatePatch.Postfix();
                             goto default;
-                        case CustomGameMode.LoopWanted:
-                            LoopWanted.FixedUpdatePatch.Postfix();
+                        case CustomGameMode.DoomTag:
+                            DoomTag.FixedUpdatePatch.Postfix();
                             goto default;
                         default:
                             if (Options.IntegrateNaturalDisasters.GetBool()) goto case CustomGameMode.NaturalDisasters;

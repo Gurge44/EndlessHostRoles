@@ -1396,7 +1396,7 @@ internal static class GameEndChecker
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
-            return LoopWanted.CheckForGameEnd(out reason);
+            return DoomTag.CheckForGameEnd(out reason);
         }
     }
 

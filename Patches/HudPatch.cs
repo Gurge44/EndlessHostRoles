@@ -332,7 +332,7 @@ internal static class HudManagerPatch
                         CustomGameMode.NaturalDisasters when AmongUsClient.Instance.AmHost => NaturalDisasters.SuffixText,
                         CustomGameMode.Deathrace => Deathrace.GetSuffix(player, player, true),
                         CustomGameMode.Snowdown => Snowdown.GetHudText(),
-                        CustomGameMode.LoopWanted => LoopWanted.GetSuffix(player, player, true),
+                        CustomGameMode.DoomTag => DoomTag.GetSuffix(player, player, true),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
@@ -695,7 +695,7 @@ internal static class SetHudActivePatch
             case CustomGameMode.Speedrun:
             case CustomGameMode.TheMindGame:
             case CustomGameMode.NaturalDisasters:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
