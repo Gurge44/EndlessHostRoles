@@ -232,8 +232,11 @@ internal static class DoomTag
             TargetMap[hunterId] = nextTarget;
             if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, nextTarget);
 
-            PlayerControl hunter = Utils.GetPlayerById(hunterId);
-            if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
+            LateTask.New(() =>
+            {
+                PlayerControl hunter = Utils.GetPlayerById(hunterId);
+                if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
+            }, 0.3f);
         }
         else if (hunterId != byte.MaxValue)
         {
@@ -298,7 +301,7 @@ internal static class DoomTag
 
     public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false)
     {
-        if (seer.PlayerId != target.PlayerId || GameStates.IsMeeting) return string.Empty;
+        if (seer.PlayerId != target.PlayerId || GameStates.IsMeeting || (seer.IsModdedClient() && !hud)) return string.Empty;
 
         byte targetId = GetTarget(seer.PlayerId);
         if (targetId == byte.MaxValue) return string.Empty;
@@ -334,7 +337,7 @@ internal static class DoomTag
         if (!AmongUsClient.Instance.AmHost) return;
 
         var writer = Utils.CreateRPC(CustomRPC.DoomTagSync);
-        writer.Write(2);
+        writer.WritePacked(2);
         writer.Write(TargetMap.Count);
         foreach (var kvp in TargetMap)
         {
