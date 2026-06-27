@@ -798,6 +798,7 @@ public static class Options
     public static OptionItem AutoKickStopWordsTimes;
     public static OptionItem KickMobilePlayer;
     public static OptionItem ApplyDenyNameList;
+    public static OptionItem BanDenyNameListPlayers;
     public static OptionItem KickPlayerFriendCodeNotExist;
     public static OptionItem KickLowLevelPlayer;
     public static OptionItem ApplyBanList;
@@ -1643,6 +1644,10 @@ public static class Options
         KickMobilePlayer = new BooleanOptionItem(19301, "KickMobilePlayer", false, TabGroup.SystemSettings);
         KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
+        
+        BanDenyNameListPlayers = new BooleanOptionItem(19320, "BanDenyNameListPlayers", false, TabGroup.SystemSettings, true)
+            .SetParent(ApplyDenyNameList);
+        
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
         ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
         ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);

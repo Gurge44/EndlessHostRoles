@@ -45,7 +45,7 @@ public class Exclusionary : RoleBase
 
             LateTask.New(() =>
             {
-                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || GameStates.IsEnded || GameStates.IsLobby || AntiBlackout.SkipTasks || target == null || !target.IsAlive() || ExcludedPlayers.Exists(x => x.ID == target.PlayerId)) return;
+                if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || GameStates.IsEnded || GameStates.IsLobby || AntiBlackout.SkipTasks || !target || !target.IsAlive() || ExcludedPlayers.Exists(x => x.ID == target.PlayerId)) return;
                 
                 ExcludedPlayers.Add((target.PlayerId, Utils.TimeStamp + ExclusionDuration.GetInt()));
                 
@@ -87,13 +87,10 @@ public class Exclusionary : RoleBase
                         sender.StartMessage(target.OwnerId);
                     }
 
-                    if (GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
-                    {
-                        sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
-                            .Write("")
-                            .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                            .EndRpc();
-                    }
+                    sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
+                        .Write("")
+                        .Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                        .EndRpc();
                     sender.StartRpc(player.NetTransform.NetId, RpcCalls.SnapTo)
                         .WriteVector2(new Vector2(50f, 50f))
                         .Write(player.NetTransform.lastSequenceId)
@@ -191,7 +188,7 @@ public class Exclusionary : RoleBase
                 sender.StartMessage(pc.OwnerId);
             }
 
-            if (Options.UsePets.GetBool() && GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+            if (Options.UsePets.GetBool())
             {
                 sender.StartRpc(player.NetId, RpcCalls.SetPetStr)
                     .Write(PetsHelper.GetPetId())

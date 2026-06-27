@@ -98,7 +98,7 @@ internal static class LoadingScreen
                 if (LoadingAnimation.transform.position != new Vector3(x, y, z))
                     LoadingAnimation.transform.position = new(x, y, z);
 
-                LoadingAnimation.transform.Rotate(Vector3.forward, 200f * Time.deltaTime);
+                LoadingAnimation.transform.Rotate(Vector3.back, 200f * Time.deltaTime);
             }
 
             visible &= !GameStates.IsEnded;

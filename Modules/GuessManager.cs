@@ -12,7 +12,6 @@ using HarmonyLib;
 using Hazel;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using static EHR.Translator;
 
 namespace EHR;
@@ -895,7 +894,7 @@ public static class GuessManager
                 {
                     var passiveButton = teambutton.GetComponent<PassiveButton>();
                     passiveButton.OnClick.RemoveAllListeners();
-                    passiveButton.OnClick.AddListener((UnityAction)(() =>
+                    passiveButton.OnClick.AddListener((Action)(() =>
                     {
                         GuesserSelectRole(type);
                         ReloadPage();
