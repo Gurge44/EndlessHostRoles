@@ -43,7 +43,7 @@ public static class NameColorManager
                     color = FreeForAll.TeamColors.GetValueOrDefault(team, "#00ffff");
                 return true;
             case CustomGameMode.Snowdown:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
             case CustomGameMode.Mingle:
             case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
