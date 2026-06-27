@@ -26,6 +26,8 @@
 - Improved the detection of 'start' spam
 - Impostors don't see each other's progress texts when there is a Double Agent
 - Pestilence is now immune to after-meeting deaths
+- Chat character limit lowered to 1000 characters due to packet size limits
+- New loading spinner icon
 
 ## Additions
 - New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
