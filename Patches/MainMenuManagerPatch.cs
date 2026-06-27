@@ -3,7 +3,6 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace EHR;
 
@@ -48,7 +47,7 @@ public static class MainMenuManagerPatch
         ShowingPanel = true;
         TitleLogoPatch.RightPanel.transform.localPosition = TitleLogoPatch.RightPanelOp;
         Instance.OpenGameModeMenu();
-        Instance.playButton.OnClick.AddListener((UnityAction)ShowRightPanelImmediately);
+        Instance.playButton.OnClick.AddListener((Action)ShowRightPanelImmediately);
     }
 
     [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline))]
@@ -183,7 +182,7 @@ public static class MainMenuManagerPatch
             buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
         }
 
-        __instance.PlayOnlineButton.OnClick.AddListener((UnityAction)(() =>
+        __instance.PlayOnlineButton.OnClick.AddListener((Action)(() =>
         {
             GameOptionsManager.Instance.Initialize();
             

@@ -231,7 +231,6 @@ public static class GameStartManagerPatch
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                 Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-                Main.NormalOptions.KillCooldown = 0f;
                 AURoleOptions.SetOpt(opt);
                 Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
                 AURoleOptions.ShapeshifterCooldown = 0f;
@@ -559,13 +558,10 @@ public static class GameStartRandomMap
         if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
             Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
 
-        if (__instance.startState == GameStartManager.StartingStates.Countdown)
-            Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
-        else
+        if (__instance.startState != GameStartManager.StartingStates.Countdown)
         {
             Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
             Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-            Main.NormalOptions.KillCooldown = 0f;
         }
 
         var opt = Main.NormalOptions.CastFast<IGameOptions>();
@@ -615,13 +611,6 @@ internal static class ResetStartStatePatch
     {
         SoundManager.Instance.StopSound(__instance.gameStartSound);
         GameStartManagerPatch.UpdateSpriteStartButton = true;
-
-        if (__instance.startState == GameStartManager.StartingStates.Countdown)
-        {
-            Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
-            GameManager.Instance.LogicOptions.SetDirty();
-            OptionItem.SyncAllOptions();
-        }
     }
 }
 

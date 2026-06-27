@@ -1694,7 +1694,7 @@ public static class BedWars
 
                 if (count > 1)
                 {
-                    sb.Append(vanillaServer ? "X" : "<sub>");
+                    sb.Append(vanillaServer ? "x" : "<sub>");
                     sb.Append(count);
                     if (!vanillaServer) sb.Append("</sub>");
                 }

@@ -217,7 +217,7 @@ public static class Camouflage
 
         Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
 
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
+        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !string.IsNullOrWhiteSpace(newOutfit.PetId))
         {
             target.RpcChangeOutfitByData(newOutfit);
             return;

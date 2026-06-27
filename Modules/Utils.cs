@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using AmongUs.InnerNet.GameDataMessages;
-using BepInEx;
 using EHR.Gamemodes;
 using EHR.Modules;
 using EHR.Patches;
@@ -1796,8 +1795,8 @@ public static class Utils
 
     private const int RpcBaseOverhead = 16;
     public static bool TempReviveHostRunning;
-    private static Stopwatch TempReviveHostRevertStopwatch = new();
-    private static Stopwatch TempReviveHostTimeSinceRevivalStopwatch = new();
+    /*private static Stopwatch TempReviveHostRevertStopwatch = new();
+    private static Stopwatch TempReviveHostTimeSinceRevivalStopwatch = new();*/
     private static string[] CachedLetterOnlyHexColors = [];
     private static readonly Regex ColorTagRegex = new(@"<\s*(?:color\s*=\s*)?#([0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)\s*>", RegexOptions.Compiled);
     private static readonly Dictionary<(int R, int G, int B), string> CachedColorReplacements = [];
@@ -1866,7 +1865,7 @@ public static class Utils
                     title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
             }
 
-            PlayerControl sender = !addToHistory || vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+            PlayerControl sender = !addToHistory || Main.AllAlivePlayerControlsCount == 0 ? PlayerControl.LocalPlayer : Main.CachedAlivePlayerControls().MinBy(x => x.PlayerId);
 
             if (sendTo != byte.MaxValue && receiver.AmOwner)
             {
@@ -1876,7 +1875,7 @@ public static class Utils
                 return writer;
             }
 
-            if (sender.AmOwner && sender.Data.IsDead && (sendTo == byte.MaxValue || !receiver.Data.IsDead))
+            /*if (sender.AmOwner && sender.Data.IsDead && (sendTo == byte.MaxValue || !receiver.Data.IsDead))
             {
                 bool delayMessage = false;
                 
@@ -1947,7 +1946,7 @@ public static class Utils
                         TempReviveHostRunning = false;
                     }
                 }
-            }
+            }*/
             
             if (vanilla && !noSplit && !noNumberSplit)
             {
@@ -4311,9 +4310,6 @@ public static class Utils
         CustomNetObject.AfterMeeting();
 
         RPCHandlerPatch.RemoveExpiredWhiteList();
-        
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive())
-            PlayerControl.LocalPlayer.RpcMakeInvisible();
     }
 
     public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)
@@ -4545,10 +4541,8 @@ public static class Utils
             var f = Path.Combine(basePath, "EHR_Logs", t);
             if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG";
-            
-            FileInfo[] files = [new(Path.Combine(Paths.BepInExRootPath, "LogOutput.log")), new(CustomLogger.LOGFilePath)];
-            files.Do(x => x.CopyTo($"{filename}{x.Extension}"));
+            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG.html";
+            new FileInfo(CustomLogger.LOGFilePath).CopyTo(filename);
 
             if (!open) return;
 
@@ -5223,7 +5217,7 @@ public static class Utils
         deadBodyParent.Data.DefaultOutfit.ColorId = baseColorId;
     }
 
-    public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent, SendOption sendOption = SendOption.Reliable)
+    public static void RpcCreateDeadBody(Vector3 position, byte colorId, PlayerControl deadBodyParent)
     {
         if (!deadBodyParent || !Main.IntroDestroyed || !AmongUsClient.Instance.AmHost) return;
         
@@ -5237,7 +5231,7 @@ public static class Utils
             playerControl.notRealPlayer = true;
             playerControl.NetTransform.SnapTo(position);
             AmongUsClient.Instance.NetIdCnt += 1U;
-            var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", sendOption, true, false);
+            var sender = CustomRpcSender.Create("Utils.RpcCreateDeadBody", SendOption.Reliable, true, false);
             MessageWriter writer = sender.stream;
             sender.StartMessage();
             writer.StartMessage(4);
