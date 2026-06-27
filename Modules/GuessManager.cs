@@ -796,7 +796,7 @@ public static class GuessManager
         }
     }
 
-    private static void GuesserOnClick(byte playerId, MeetingHud __instance)
+    public static void GuesserOnClick(byte playerId, MeetingHud __instance, bool specificRoleChoosing = false)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
         if (!pc || !pc.IsAlive() || GuesserUI || MeetingHud.Instance.state is MeetingHud.VoteStates.Results or MeetingHud.VoteStates.Proceeding || Starspawn.IsDayBreak) return;
@@ -856,6 +856,13 @@ public static class GuessManager
                     case (CustomRoles.EvilGuesser, 4) when !Options.EGCanGuessAdt.GetBool():
                     case (CustomRoles.NiceGuesser, 0) when !Options.GGCanGuessCrew.GetBool() && !PlayerControl.LocalPlayer.IsMadmate():
                     case (CustomRoles.NiceGuesser, 4) when !Options.GGCanGuessAdt.GetBool():
+                    case (CustomRoles.Loner, 0) when specificRoleChoosing:
+                    case (CustomRoles.Loner, 2) when specificRoleChoosing:
+                    case (CustomRoles.Loner, 3) when specificRoleChoosing:
+                    case (CustomRoles.Loner, 4) when specificRoleChoosing:
+                    case (CustomRoles.Inquirer, 4) when specificRoleChoosing:
+                    case (CustomRoles.Forger, 4) when specificRoleChoosing:
+                    case (CustomRoles.Pawn, 4) when specificRoleChoosing:
                         continue;
                 }
 
@@ -972,7 +979,7 @@ public static class GuessManager
 
             foreach (CustomRoles role in Main.CustomRoleValues)
             {
-                if (!ShowRoleOnUI(role)) continue;
+                if (!ShowRoleOnUI(role, specificRoleChoosing)) continue;
 
                 CreateRole(role);
             }
@@ -1025,8 +1032,35 @@ public static class GuessManager
 
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
-                            if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
-                            else SendRPC(playerId, role);
+                            if (specificRoleChoosing) 
+                                switch(PlayerControl.LocalPlayer.GetCustomRole())
+                                {
+                                    case CustomRoles.Loner:
+                                    {
+                                        Loner.ProcessGuesserUI(playerId, role);
+                                        break;
+                                    }
+                                    case CustomRoles.Inquirer:
+                                    {
+                                        Inquirer.ProcessGuesserUI(playerId, role);
+                                        break;
+                                    }
+                                    case CustomRoles.Forger:
+                                    {
+                                        Forger.ProcessGuesserUI(playerId, role);
+                                        break;
+                                    }
+                                    case CustomRoles.Pawn:
+                                    {
+                                        Pawn.ProcessGuesserUI(role);
+                                        break;
+                                    }
+                                }
+                            else
+                            {
+                                if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);
+                                else SendRPC(playerId, role);
+                            }
 
                             // Reset the GUI
                             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
@@ -1040,7 +1074,7 @@ public static class GuessManager
             }
 
             container.transform.localScale *= 0.75f;
-            GuesserSelectRole(CustomRoleTypes.Neutral);
+            GuesserSelectRole(specificRoleChoosing ? CustomRoleTypes.Impostor : CustomRoleTypes.Neutral);
             ReloadPage();
         }
         catch (Exception ex)
@@ -1052,10 +1086,12 @@ public static class GuessManager
         CustomSoundsManager.Play("Gunload");
     }
 
-    private static bool ShowRoleOnUI(CustomRoles role)
+    private static bool ShowRoleOnUI(CustomRoles role, bool specificRoleChoosing = false)
     {
+        if (role is CustomRoles.GM or CustomRoles.NotAssigned )
+            return false;
+
         if (role is
-                CustomRoles.GM or
                 CustomRoles.Ankylosaurus or
                 CustomRoles.BananaMan or
                 CustomRoles.Car or
@@ -1063,12 +1099,11 @@ public static class GuessManager
                 CustomRoles.Flash or
                 CustomRoles.Giant or
                 CustomRoles.LastImpostor or
-                CustomRoles.NotAssigned or
                 CustomRoles.Shifter or
                 CustomRoles.Specter or
                 CustomRoles.SuperStar
             )
-            return false;
+            return specificRoleChoosing;
 
         if (role.IsForOtherGameMode()) return false;
         if (!role.IsEnable() && !role.RoleExist(true) && !CanMakeRoleSpawn(role)) return false;

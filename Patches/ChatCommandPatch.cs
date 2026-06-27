@@ -658,7 +658,7 @@ internal static class ChatCommands
         HudManagerStartPatch.TryResizeUI(scale);
     }
     
-    private static void SelectCommand(PlayerControl player, string text, string[] args)
+    public static void SelectCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -900,7 +900,7 @@ internal static class ChatCommands
         }
     }
     
-    private static void ChooseCommand(PlayerControl player, string text, string[] args)
+    public static void ChooseCommand(PlayerControl player, string text, string[] args)
     {
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || state.IsDead || state.Role is not Pawn pawn) return;
         
@@ -916,7 +916,7 @@ internal static class ChatCommands
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
 
-    private static void ForgeCommand(PlayerControl player, string text, string[] args)
+    public static void ForgeCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 
@@ -2196,7 +2196,7 @@ internal static class ChatCommands
         AmongUsClient.Instance.KickPlayer(kickedPlayer.OwnerId, args[0] == "/ban");
     }
 
-    private static void CheckCommand(PlayerControl player, string text, string[] args)
+    public static void CheckCommand(PlayerControl player, string text, string[] args)
     {
         if (Starspawn.IsDayBreak) return;
 

@@ -33,7 +33,7 @@ public static class HudSpritePatch
             PlayerControl player = PlayerControl.LocalPlayer;
             if (!player) return;
 
-            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance || GameStates.IsMeeting) return;
+            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance) return;
             if (!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame || IntroCutsceneDestroyPatch.PreventKill) return;
 
@@ -51,9 +51,132 @@ public static class HudSpritePatch
             {
                 if (!GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole)) return;
                 if (!GhostRolesWithSprites.Contains(ghostRole.Role)) return;
-                
+
                 newAbilityButton = CustomButton.Get(ghostRole.Role.ToString());
                 goto Skip;
+            }
+
+            if (GameStates.IsMeeting)
+            {
+                if (player.UsesMeetingShapeshift())
+                {
+                    switch (player.GetCustomRole())
+                    {
+                        case CustomRoles.Starspawn:
+                        {
+                            newAbilityButton = CustomButton.Get("StarlightIcon");
+                            break;
+                        }
+                        case CustomRoles.Loner:
+                        {
+                            newAbilityButton = CustomButton.Get("Sidekick");
+                            break;
+                        }
+                        case CustomRoles.Exorcist: // temp
+                        {
+                            newAbilityButton = CustomButton.Get("Assassinate");
+                            break;
+                        }
+                        case CustomRoles.Ventriloquist:
+                        {
+                            newAbilityButton = CustomButton.Get("Hack");
+                            break;
+                        }
+                        case CustomRoles.Cleanser:
+                        {
+                            newAbilityButton = CustomButton.Get("Drink");
+                            break;
+                        }
+                        case CustomRoles.Clerk: // temp
+                        {
+                            newAbilityButton = CustomButton.Get("AmnesiacKill");
+                            break;
+                        }
+                        case CustomRoles.Godfather:
+                        {
+                            newAbilityButton = CustomButton.Get("EvilNearby");
+                            break;
+                        }
+                        case CustomRoles.EvilEraser: // temp
+                        case CustomRoles.NiceEraser:
+                        {
+                            newAbilityButton = CustomButton.Get("AmnesiacKill");
+                            break;
+                        }
+                        case CustomRoles.Councillor:
+                        {
+                            newAbilityButton = CustomButton.Get("Assassinate");
+                            break;
+                        }
+                        case CustomRoles.Negotiator: // temp
+                        {
+                            newAbilityButton = CustomButton.Get("Attack");
+                            break;
+                        }
+                        case CustomRoles.Swapper:
+                        {
+                            newAbilityButton = CustomButton.Get("PetToSwap");
+                            break;
+                        }
+                        case CustomRoles.President:
+                        {
+                            newAbilityButton = CustomButton.Get("Sidekick");
+                            break;
+                        }
+                        case CustomRoles.Tether:
+                        {
+                            newAbilityButton = CustomButton.Get("TPToLoca");
+                            break;
+                        }
+                        case CustomRoles.Ricochet:
+                        {
+                            newAbilityButton = CustomButton.Get("Shield");
+                            break;
+                        }
+                        case CustomRoles.Retributionist:
+                        {
+                            newAbilityButton = CustomButton.Get("Kill");
+                            break;
+                        }
+                        case CustomRoles.Judge:
+                        {
+                            newAbilityButton = CustomButton.Get("JudgeIcon");
+                            break;
+                        }
+                        case CustomRoles.Socialite:
+                        {
+                            newAbilityButton = CustomButton.Get("Bestower");
+                            break;
+                        }
+                        case CustomRoles.Soothsayer:
+                        case CustomRoles.Oracle:
+                        case CustomRoles.Markseeker:
+                        case CustomRoles.FortuneTeller:
+                        {
+                            newAbilityButton = CustomButton.Get("prophecies");
+                            break;
+                        }
+                        case CustomRoles.Scout:
+                        case CustomRoles.Captain:
+                        {
+                            newAbilityButton = CustomButton.Get("Track");
+                            break;
+                        }
+                        case CustomRoles.Inspector:
+                        case CustomRoles.Inquisitor:
+                        {
+                            newAbilityButton = CustomButton.Get("InspectorIcon");
+                            break;
+                        }
+                        case CustomRoles.Empress:
+                        {
+                            newAbilityButton = CustomButton.Get("Facilitator");
+                            break;
+                        }
+                    }
+                    goto Skip;
+                }
+                else return;
             }
 
             bool usesPetInsteadOfKill = player.UsesPetInsteadOfKill();
