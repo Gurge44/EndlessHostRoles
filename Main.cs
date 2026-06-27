@@ -884,7 +884,7 @@ public class Main : BasePlugin
                 { CustomRoles.MinglePlayer, "#FE9900" },
                 // Snowdown
                 { CustomRoles.SnowdownPlayer, "#e4fdff" },
-                // Loop Wanted
+                // Doom Tag
                 { CustomRoles.Tagger, "#D9BAA5" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },

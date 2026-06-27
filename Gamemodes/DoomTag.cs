@@ -12,15 +12,15 @@ internal static class DoomTag
 {
     private static Dictionary<byte, byte> TargetMap = [];
     private static Dictionary<byte, long> LowerVisionList = [];
-    private static bool CarnivalMode;
+    private static bool FrenzyMode;
     private static float DefaultSpeed;
 
     public static OptionItem BaseKillCooldown;
     private static OptionItem PunishmentMode;
     private static OptionItem LowerVisionMultiplier;
-    private static OptionItem CarnivalPlayerCount;
-    private static OptionItem CarnivalKillCooldown;
-    private static OptionItem CarnivalSpeedMultiplier;
+    private static OptionItem FrenzyPlayerCount;
+    private static OptionItem FrenzyKillCooldown;
+    private static OptionItem FrenzySpeedMultiplier;
     private static OptionItem ShowTargetArrow;
 
     private static readonly string[] PunishmentModeOptions = ["DoomTag.PunishSuicide", "DoomTag.PunishLowerVision"];
@@ -48,17 +48,17 @@ internal static class DoomTag
             .SetColor(color)
             .SetValueFormat(OptionFormat.Multiplier);
 
-        CarnivalPlayerCount = new IntegerOptionItem(id++, "DoomTag.CarnivalPlayerCount", new(1, 127, 1), 3, tab)
+        FrenzyPlayerCount = new IntegerOptionItem(id++, "DoomTag.FrenzyPlayerCount", new(1, 127, 1), 3, tab)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Players);
 
-        CarnivalKillCooldown = new FloatOptionItem(id++, "DoomTag.CarnivalKillCooldown", new(2.5f, 60f, 2.5f), 5f, tab)
+        FrenzyKillCooldown = new FloatOptionItem(id++, "DoomTag.FrenzyKillCooldown", new(2.5f, 60f, 2.5f), 5f, tab)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Seconds);
 
-        CarnivalSpeedMultiplier = new FloatOptionItem(id++, "DoomTag.CarnivalSpeedMultiplier", new(0.25f, 10f, 0.25f), 2.0f, tab)
+        FrenzySpeedMultiplier = new FloatOptionItem(id++, "DoomTag.FrenzySpeedMultiplier", new(0.25f, 10f, 0.25f), 2.0f, tab)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Multiplier);
@@ -73,7 +73,7 @@ internal static class DoomTag
         Suffix.Clear();
         TargetMap = [];
         LowerVisionList = [];
-        CarnivalMode = false;
+        FrenzyMode = false;
 
         if (Options.CurrentGameMode != CustomGameMode.DoomTag) return;
 
@@ -119,7 +119,7 @@ internal static class DoomTag
         }
 
         SyncTargetMapRPC();
-        CarnivalMode = false;
+        FrenzyMode = false;
     }
 
     private static byte GetTarget(byte playerId)
@@ -161,11 +161,11 @@ internal static class DoomTag
 
             TargetMap.Remove(targetId);
 
-            CheckCarnivalMode();
+            CheckFrenzyMode();
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
 
             SyncTargetMapRPC();
-            Utils.SendRPC(CustomRPC.DoomTagSync, 1, CarnivalMode);
+            Utils.SendRPC(CustomRPC.DoomTagSync, 1, FrenzyMode);
 
             killer.Kill(target);
         }
@@ -244,32 +244,32 @@ internal static class DoomTag
             TargetArrow.RemoveAllTarget(hunterId);
         }
 
-        CheckCarnivalMode();
+        CheckFrenzyMode();
         SyncTargetMapRPC();
     }
 
-    private static void CheckCarnivalMode()
+    private static void CheckFrenzyMode()
     {
         int aliveCount = Main.AllAlivePlayerControlsCount;
-        int threshold = CarnivalPlayerCount.GetInt();
+        int threshold = FrenzyPlayerCount.GetInt();
 
-        if (!CarnivalMode && aliveCount <= threshold && aliveCount > 1)
+        if (!FrenzyMode && aliveCount <= threshold && aliveCount > 1)
         {
-            CarnivalMode = true;
+            FrenzyMode = true;
             Utils.SendRPC(CustomRPC.DoomTagSync, 1, true);
 
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
-                Main.AllPlayerSpeed[pc.PlayerId] = DefaultSpeed * CarnivalSpeedMultiplier.GetFloat();
-                Main.AllPlayerKillCooldown[pc.PlayerId] = CarnivalKillCooldown.GetFloat();
+                Main.AllPlayerSpeed[pc.PlayerId] = DefaultSpeed * FrenzySpeedMultiplier.GetFloat();
+                Main.AllPlayerKillCooldown[pc.PlayerId] = FrenzyKillCooldown.GetFloat();
                 if (!pc.AmOwner) pc.ReactorFlash();
                 pc.MarkDirtySettings();
-                pc.Notify(GetString("DoomTag.CarnivalModeActivated"));
+                pc.Notify(GetString("DoomTag.FrenzyModeActivated"));
             }
 
             SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
             Utils.FlashColor(new(1f, 0.5f, 0f, 0.4f), 1.4f);
-            Logger.Info($"Carnival Mode activated! {aliveCount} players remaining.", "DoomTag");
+            Logger.Info($"Frenzy Mode activated! {aliveCount} players remaining.", "DoomTag");
         }
     }
 
@@ -322,10 +322,10 @@ internal static class DoomTag
 
         Suffix.Append("</color>");
 
-        if (CarnivalMode)
+        if (FrenzyMode)
         {
             Suffix.Append("\n<#ff6600>");
-            Suffix.Append(GetString("DoomTag.CarnivalModeHUD"));
+            Suffix.Append(GetString("DoomTag.FrenzyModeHUD"));
             Suffix.Append("</color>");
         }
 
@@ -352,7 +352,7 @@ internal static class DoomTag
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                CarnivalMode = reader.ReadBoolean();
+                FrenzyMode = reader.ReadBoolean();
                 break;
             case 2:
                 TargetMap = [];
@@ -415,7 +415,7 @@ internal static class DoomTag
             }
             deadPlayersInMap?.ForEach(HandleDeadPlayer);
 
-            CheckCarnivalMode();
+            CheckFrenzyMode();
         }
     }
 }
