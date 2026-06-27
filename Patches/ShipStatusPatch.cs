@@ -260,7 +260,7 @@ internal static class CloseDoorsPatch
 {
     public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown and not CustomGameMode.LoopWanted;
+        bool allow = !AntiBlackout.SkipTasks && Options.CurrentGameMode is not CustomGameMode.SoloPVP and not CustomGameMode.FFA and not CustomGameMode.StopAndGo and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush and not CustomGameMode.KingOfTheZones and not CustomGameMode.Quiz and not CustomGameMode.TheMindGame and not CustomGameMode.BedWars and not CustomGameMode.Deathrace and not CustomGameMode.Mingle and not CustomGameMode.Snowdown and not CustomGameMode.DoomTag;
 
         if (Doorjammer.JammedRooms.Contains(room)) allow = false;
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;

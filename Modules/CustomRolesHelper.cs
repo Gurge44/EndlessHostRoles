@@ -75,7 +75,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Racer or
                 CustomRoles.MinglePlayer or
                 CustomRoles.SnowdownPlayer or
-                CustomRoles.LoopHunter;
+                CustomRoles.Tagger;
         }
 
         public RoleBase GetRoleClass()
@@ -435,7 +435,6 @@ internal static class CustomRolesHelper
                 CustomRoles.TMGPlayer => CustomRoles.Crewmate,
                 // Mingle
                 CustomRoles.MinglePlayer => CustomRoles.Crewmate,
-
                 _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
             };
         }
@@ -487,8 +486,8 @@ internal static class CustomRolesHelper
                 CustomRoles.Racer => RoleTypes.Phantom,
                 // Snowdown
                 CustomRoles.SnowdownPlayer => RoleTypes.Phantom,
-                // LoopWanted
-                CustomRoles.LoopHunter => RoleTypes.Impostor,
+                // DoomTag
+                CustomRoles.Tagger => RoleTypes.Impostor,
                 // Standard
                 CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
                 CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

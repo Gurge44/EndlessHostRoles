@@ -258,8 +258,8 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.OnCheckMurder(killer, target);
                     return false;
-                case CustomGameMode.LoopWanted:
-                    LoopWanted.OnCheckMurder(killer, target);
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnCheckMurder(killer, target);
                     return false;
             }
 
@@ -2311,7 +2311,7 @@ internal static class EnterVentPatch
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }
