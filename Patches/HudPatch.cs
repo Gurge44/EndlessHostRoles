@@ -695,7 +695,6 @@ internal static class SetHudActivePatch
             case CustomGameMode.Speedrun:
             case CustomGameMode.TheMindGame:
             case CustomGameMode.NaturalDisasters:
-            case CustomGameMode.DoomTag:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
@@ -707,6 +706,7 @@ internal static class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 goto case CustomGameMode.HideAndSeek;
             case CustomGameMode.KingOfTheZones:
+            case CustomGameMode.DoomTag:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);

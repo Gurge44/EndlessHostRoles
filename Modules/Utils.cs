@@ -3046,6 +3046,9 @@ public static class Utils
                     case CustomGameMode.Snowdown:
                         AdditionalSuffixes.Add(Snowdown.GetSuffix(seer, seer));
                         break;
+                    case CustomGameMode.DoomTag:
+                        AdditionalSuffixes.Add(DoomTag.GetSuffix(seer, seer));
+                        break;
                 }
 
                 for (int i = AdditionalSuffixes.Count - 1; i >= 0; i--)

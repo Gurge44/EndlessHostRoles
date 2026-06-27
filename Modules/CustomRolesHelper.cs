@@ -435,9 +435,6 @@ internal static class CustomRolesHelper
                 CustomRoles.TMGPlayer => CustomRoles.Crewmate,
                 // Mingle
                 CustomRoles.MinglePlayer => CustomRoles.Crewmate,
-                // DoomTag
-                CustomRoles.Tagger => CustomRoles.Impostor,
-
                 _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
             };
         }

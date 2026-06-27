@@ -79,9 +79,6 @@ internal static class DoomTag
 
         DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
 
-        foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
-            ReportDeadBodyPatch.CanReport[pc.PlayerId] = false;
-
         Utils.SendRPC(CustomRPC.DoomTagSync, 1, false);
     }
 

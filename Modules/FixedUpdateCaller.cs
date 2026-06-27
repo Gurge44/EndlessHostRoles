@@ -73,14 +73,15 @@ public static class FixedUpdateCaller
                 if (HudManager.InstanceExists && GameStates.IsInTask && !ExileController.Instance && !AntiBlackout.SkipTasks && PlayerControl.LocalPlayer.CanUseKillButton())
                 {
 
-                    Predicate = Options.CurrentGameMode switch
-                    {
-                        CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
-                        CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
-                        CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
-                        CustomGameMode.DoomTag => p => p.IsAlive() && p.PlayerId != PlayerControl.LocalPlayer.PlayerId,
-                        _ => ExtendedPlayerControl.IsValidTargetForKillButton
-                    };
+                    Predicate = AmongUsClient.AmHost
+                        ? Options.CurrentGameMode switch
+                        {
+                            CustomGameMode.BedWars => BedWars.IsNotInLocalPlayersTeam,
+                            CustomGameMode.CaptureTheFlag => CaptureTheFlag.IsNotInLocalPlayersTeam,
+                            CustomGameMode.KingOfTheZones => KingOfTheZones.IsNotInLocalPlayersTeam,
+                            _ => ExtendedPlayerControl.IsValidTargetForKillButton
+                        }
+                        : ExtendedPlayerControl.IsValidTargetForKillButton;
 
                     PlayerControl closest = FastVector2.TryGetClosestPlayerInRangeTo(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetKillDistance(), out PlayerControl closestPlayer, Predicate) ? closestPlayer : null;
 
@@ -160,9 +161,6 @@ public static class FixedUpdateCaller
                                 break;
                             case CustomGameMode.Snowdown:
                                 Snowdown.FixedUpdatePatch.Postfix(pc);
-                                break;
-                            case CustomGameMode.DoomTag:
-                                DoomTag.FixedUpdatePatch.Postfix();
                                 break;
                         }
 
