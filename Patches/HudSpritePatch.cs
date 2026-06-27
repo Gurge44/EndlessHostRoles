@@ -64,7 +64,7 @@ public static class HudSpritePatch
                     {
                         case CustomRoles.Starspawn:
                         {
-                            newAbilityButton = CustomButton.Get("StarlightIcon");
+                            newAbilityButton = CustomButton.Get("StarspawnShift");
                             break;
                         }
                         case CustomRoles.Loner:
@@ -89,7 +89,7 @@ public static class HudSpritePatch
                         }
                         case CustomRoles.Clerk: // temp
                         {
-                            newAbilityButton = CustomButton.Get("AmnesiacKill");
+                            newAbilityButton = CustomButton.Get("Clerk");
                             break;
                         }
                         case CustomRoles.Godfather:
@@ -100,7 +100,7 @@ public static class HudSpritePatch
                         case CustomRoles.EvilEraser: // temp
                         case CustomRoles.NiceEraser:
                         {
-                            newAbilityButton = CustomButton.Get("AmnesiacKill");
+                            newAbilityButton = CustomButton.Get("Erase");
                             break;
                         }
                         case CustomRoles.Councillor:
@@ -118,21 +118,17 @@ public static class HudSpritePatch
                             newAbilityButton = CustomButton.Get("PetToSwap");
                             break;
                         }
-                        case CustomRoles.President:
-                        {
-                            newAbilityButton = CustomButton.Get("Sidekick");
-                            break;
-                        }
                         case CustomRoles.Tether:
                         {
-                            newAbilityButton = CustomButton.Get("TPToLoca");
+                            newAbilityButton = CustomButton.Get("Track");
                             break;
                         }
-                        case CustomRoles.Ricochet:
+                        case CustomRoles.Ricochet: // temp
                         {
                             newAbilityButton = CustomButton.Get("Shield");
                             break;
                         }
+                        case CustomRoles.President:
                         case CustomRoles.Retributionist:
                         {
                             newAbilityButton = CustomButton.Get("Kill");
@@ -143,7 +139,7 @@ public static class HudSpritePatch
                             newAbilityButton = CustomButton.Get("JudgeIcon");
                             break;
                         }
-                        case CustomRoles.Socialite:
+                        case CustomRoles.Socialite: // temp
                         {
                             newAbilityButton = CustomButton.Get("Bestower");
                             break;
@@ -163,7 +159,7 @@ public static class HudSpritePatch
                             break;
                         }
                         case CustomRoles.Inspector:
-                        case CustomRoles.Inquisitor:
+                        case CustomRoles.Inquisitor: // temp
                         {
                             newAbilityButton = CustomButton.Get("InspectorIcon");
                             break;
@@ -216,6 +212,12 @@ public static class HudSpritePatch
                 {
                     newAbilityButton = CustomButton.Get("Up");
                     newPetButton = CustomButton.Get("PetToSwap");
+                    newKillButton = CustomButton.Get("Wand");
+                    break;
+                }
+                case CustomRoles.Tar:
+                {
+                    newPetButton = CustomButton.Get("Tar");
                     break;
                 }
                 case CustomRoles.Socialite:
@@ -244,6 +246,13 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("GlitchMimic");
                     if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("PetToSwap");
                     else newVentButton = CustomButton.Get("PetToSwap");
+                    break;
+                }
+                case CustomRoles.Silencer:
+                case CustomRoles.Blackmailer:
+                {
+                    if (Silencer.SilenceMode.GetValue() >= 1 && player.Is(CustomRoles.Silencer)) newAbilityButton = CustomButton.Get("Blackmail");
+                    else newKillButton = CustomButton.Get("Blackmail");
                     break;
                 }
                 case CustomRoles.Vulture:
@@ -813,7 +822,7 @@ public static class HudSpritePatch
                 case CustomRoles.Swooper:
                 case CustomRoles.Wraith:
                 {
-                    if (Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("Swoop");
+                    if (Options.UsePhantomBasis.GetBool()) newAbilityButton = CustomButton.Get("invisible");
                     else if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("invisible");
                     else newVentButton = CustomButton.Get("invisible");
                     break;
@@ -858,7 +867,7 @@ public static class HudSpritePatch
                 }
                 default:
                 {
-                    if (ForceUpdate || usesPetInsteadOfKill) break;
+                    if (player.Is(CustomRoles.Sleuth) || player.Is(CustomRoles.Bloodlust) || ForceUpdate || usesPetInsteadOfKill) break;
                     SetButtonColors();
                     return;
                 }
@@ -868,12 +877,15 @@ public static class HudSpritePatch
                 newPetButton = newKillButton;
 
             // shows default pet button if the ability can't be used yet due to cooldowns or if they no longer have uses left
-            if (player.HasAbilityCD() || player.GetAbilityUseLimit() < 1) // conditions with float.NaN always evaluate to false, which is good in this case
+            if (!Options.UsePets.GetBool() || player.HasAbilityCD() || player.GetAbilityUseLimit() < 1) // conditions with float.NaN always evaluate to false, which is good in this case
                 newPetButton = DefaultIcons[4];
 
             // for Bloodlust, due to it using the impostor vent button instead of the engineer vent button, show it on the vent button instead of the ability button, and only if the ability button is not the default button
-            if (Main.PlayerStates[player.PlayerId].SubRoles.Contains(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && !player.Is(CustomRoles.Scanner) && !player.Is(CustomRoles.Transporter))
+            if (player.Is(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && !player.Is(CustomRoles.Scanner) && !player.Is(CustomRoles.Transporter))
                 newVentButton = newAbilityButton;
+
+            if (player.Is(CustomRoles.Sleuth) && newReportButton == DefaultIcons[5])
+                newReportButton = CustomButton.Get("ExamineBody");
 
             Skip:
 

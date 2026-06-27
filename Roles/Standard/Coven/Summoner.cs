@@ -290,7 +290,7 @@ public class Summoner : CovenBase
             targetBox.name = "SummonerButton";
             targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
             var renderer = targetBox.GetComponent<SpriteRenderer>();
-            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.TargetIcon.png", 130f);
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Summon.png", 130f);
             var button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => SummonerOnClick(pva.TargetPlayerId)));

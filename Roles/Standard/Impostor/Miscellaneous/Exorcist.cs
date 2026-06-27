@@ -71,7 +71,7 @@ public class Exorcist : RoleBase
         exorcistButton.transform.localPosition = new(3.46f, 0f, 45f);
         exorcistButton.SetActive(true);
         var renderer = exorcistButton.GetComponent<SpriteRenderer>();
-        renderer.sprite = CustomButton.Get("MeetingKillButton");
+        renderer.sprite = CustomButton.Get("ExorcistIcon");
         renderer.color = Color.white;
         GameObject Text_TMP = exorcistButton.GetComponentInChildren<TextMeshPro>().gameObject;
         Text_TMP.SetActive(false);
