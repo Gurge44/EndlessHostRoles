@@ -3589,8 +3589,8 @@ internal static class UpdateCharCountPatch
 
         __instance.charCountText.color = length switch
         {
-            < 1000 => Color.black,
-            < 1200 => new(1f, 1f, 0f, 1f),
+            < 800 => Color.black,
+            < 1000 => Color.yellow,
             _ => Color.red
         };
     }

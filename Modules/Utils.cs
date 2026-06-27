@@ -4958,6 +4958,29 @@ public static class Utils
         float b = (color.b + weight) / (darkness + 1);
         return new(r, g, b, color.a);
     }
+    
+    /// <summary>
+    /// Calculates whether the text color should be black or white based on the given background color.
+    /// </summary>
+    /// <param name="background"></param>
+    /// <returns>Color.black or Color.white, whichever has higher contrast compared to the background color.</returns>
+    public static Color GetTextColor(Color32 background)
+    {
+        float r = background.r / 255f;
+        float g = background.g / 255f;
+        float b = background.b / 255f;
+
+        r = r <= 0.03928f ? r / 12.92f : Mathf.Pow((r + 0.055f) / 1.055f, 2.4f);
+        g = g <= 0.03928f ? g / 12.92f : Mathf.Pow((g + 0.055f) / 1.055f, 2.4f);
+        b = b <= 0.03928f ? b / 12.92f : Mathf.Pow((b + 0.055f) / 1.055f, 2.4f);
+
+        float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+
+        float contrastWhite = (1.05f) / (luminance + 0.05f);
+        float contrastBlack = (luminance + 0.05f) / 0.05f;
+
+        return contrastBlack > contrastWhite ? Color.black : Color.white;
+    }
 
     public static void SetChatVisible(this IReadOnlyList<PlayerControl> players, bool visible)
     {
