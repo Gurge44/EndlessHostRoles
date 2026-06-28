@@ -1182,6 +1182,7 @@ internal static class MeetingHudStartPatch
         // -------------------------------------------------------------------------------------------
 
         CovenBase.CovenMeetingStartPatch.Postfix();
+
         GuessManager.StartMeetingPatch.Postfix(__instance);
         Inspector.StartMeetingPatch.Postfix(__instance);
         Judge.StartMeetingPatch.Postfix(__instance);
@@ -1192,6 +1193,13 @@ internal static class MeetingHudStartPatch
         Retributionist.StartMeetingPatch.Postfix(__instance);
         Starspawn.StartMeetingPatch.Postfix(__instance);
         Ventriloquist.StartMeetingPatch.Postfix(__instance);
+        Exorcist.StartMeetingPatch.Postfix(__instance);
+        Summoner.StartMeetingPatch.Postfix(__instance);
+        Loner.StartMeetingPatch.Postfix(__instance);
+        Forger.StartMeetingPatch.Postfix(__instance);
+        Inquirer.StartMeetingPatch.Postfix(__instance);
+        Pawn.StartMeetingPatch.Postfix(__instance);
+
         ShowHostMeetingPatch.Setup_Postfix(__instance);
         Crowded.MeetingHudStartPatch.Postfix(__instance);
         
