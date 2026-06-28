@@ -4071,6 +4071,7 @@ public static class Utils
         {
             var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.AdjustedDefaultKillCooldown);
             Main.AbilityCD[playerId] = (TimeStamp, kcd);
+            if (playerId == 0 || !playerId.IsPlayerModdedClient()) return;
             SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
         }
@@ -4156,6 +4157,7 @@ public static class Utils
             cd -= (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
+        if (playerId == 0 || !playerId.IsPlayerModdedClient()) return;
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);
     }
 

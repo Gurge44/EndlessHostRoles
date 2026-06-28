@@ -324,7 +324,7 @@ public static class KingOfTheZones
                     notify = notify.Insert(0, tutorial + "\n\n");
                 }
 
-                hasData |= writer.Notify(player, $"<#ffffff>{notify}</color>", 100f);
+                hasData |= CustomRpcSenderExtensions.Notify(ref writer, player, $"<#ffffff>{notify}</color>", 100f);
                 Logger.Info($"{name} assigned to {team} team", "KOTZ");
 
                 if (!player.AmOwner)

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles;
@@ -579,7 +580,7 @@ public static class CustomRpcSenderExtensions
 
         static int GetSetNameRpcSize(uint netId, string playerName)
         {
-            int byteCount = System.Text.Encoding.UTF8.GetByteCount(playerName);
+            int byteCount = Encoding.UTF8.GetByteCount(playerName);
             return 3 + PackedUIntSize(netId) + 1 + 4 + PackedUIntSize((uint)byteCount) + byteCount + 1;
         }
 
@@ -594,6 +595,39 @@ public static class CustomRpcSenderExtensions
                 _ => 5
             };
         }
+    }
+
+    public static bool Notify(ref CustomRpcSender sender, PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
+    {
+        if (!AmongUsClient.Instance.AmHost || !pc) return false;
+        if (!GameStates.IsInTask) return false;
+        if (!text.Contains('#') && !text.Contains("<color=")) text = Utils.ColorString(Color.white, text);
+        if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
+
+        long expireTS = Utils.TimeStamp + (long)time;
+        bool alreadyContainsKey = false;
+
+        if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
+            NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
+        else
+        {
+            alreadyContainsKey = notifies.ContainsKey(text);
+            notifies[text] = expireTS;
+        }
+
+        bool returnValue = pc.IsNonHostModdedClient();
+        if (returnValue) NameNotifyManager.SendRPC(sender, pc, text, expireTS, overrideAll);
+
+        if (alreadyContainsKey)
+        {
+            if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
+            return returnValue;
+        }
+
+        if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
+        if (log) Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
+
+        return returnValue;
     }
 
     extension(CustomRpcSender sender)
@@ -673,7 +707,7 @@ public static class CustomRpcSenderExtensions
                 sender.EndRpc();
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !AntiBlackout.SkipTasks && !ExileController.Instance && GameStates.IsInTask && killer.IsBeginner() && Main.GotShieldAnimationInfoThisGame.Add(killer.PlayerId))
-                    sender.Notify(killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
+                    Notify(ref sender, killer, Translator.GetString("PleaseStopBeingDumb"), 10f);
 
                 returnValue = true;
             }
@@ -795,39 +829,6 @@ public static class CustomRpcSenderExtensions
             sender.WriteNetObject(target);
             sender.Write((byte)amount);
             sender.EndRpc();
-        }
-
-        public bool Notify(PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
-        {
-            if (!AmongUsClient.Instance.AmHost || !pc) return false;
-            if (!GameStates.IsInTask) return false;
-            if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
-            if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
-
-            long expireTS = Utils.TimeStamp + (long)time;
-            bool alreadyContainsKey = false;
-
-            if (overrideAll || !NameNotifyManager.Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
-                NameNotifyManager.Notifies[pc.PlayerId] = new() { { text, expireTS } };
-            else
-            {
-                alreadyContainsKey = notifies.ContainsKey(text);
-                notifies[text] = expireTS;
-            }
-
-            bool returnValue = pc.IsNonHostModdedClient();
-            if (returnValue) NameNotifyManager.SendRPC(sender, pc, text, expireTS, overrideAll);
-
-            if (alreadyContainsKey)
-            {
-                if (log) Logger.Info($"Extended name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
-                return returnValue;
-            }
-
-            if (setName) returnValue |= Utils.WriteSetNameRpcsToSender(ref sender, false, false, false, false, false, false, pc, [pc], [], out bool senderWasCleared) && !senderWasCleared;
-            if (log) Logger.Info($"New name notify for {pc.GetNameWithRole()}: {text} ({time}s)", "Name Notify");
-
-            return returnValue;
         }
 
         public bool TP(PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)

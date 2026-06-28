@@ -384,7 +384,7 @@ public static class GameStartManagerPatch
                         }
                     }
 
-                    if (!canStartGame) __instance.StartButton.gameObject.SetActive(false);
+                    if (!canStartGame && __instance.StartButton) __instance.StartButton.gameObject.SetActive(false);
                 }
                 else
                 {
@@ -406,12 +406,15 @@ public static class GameStartManagerPatch
                     }
                 }
 
-                if (warningMessage == "")
-                    WarningText.gameObject.SetActive(false);
-                else
+                if (WarningText)
                 {
-                    WarningText.text = warningMessage;
-                    WarningText.gameObject.SetActive(true);
+                    if (warningMessage == "")
+                        WarningText.gameObject.SetActive(false);
+                    else
+                    {
+                        WarningText.text = warningMessage;
+                        WarningText.gameObject.SetActive(true);
+                    }
                 }
 
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
@@ -443,21 +446,24 @@ public static class GameStartManagerPatch
 
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
-                if (tmp.text == string.Empty)
+                if (tmp)
                 {
-                    tmp.name = "LobbyInfoText";
-                    tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
-                    tmp.autoSizeTextContainer = true;
-                    tmp.alignment = TextAlignmentOptions.Center;
-                    tmp.color = Color.cyan;
-                    tmp.outlineColor = Color.black;
-                    tmp.outlineWidth = LangHasSensitiveOutlineText() ? 0.1f : 0.4f;
-                    tmp.transform.localPosition += new Vector3(-0.625f, -0.12f, 0f);
-                    tmp.transform.localScale = new(0.6f, 0.6f, 1f);
-                }
+                    if (tmp.text == string.Empty)
+                    {
+                        tmp.name = "LobbyInfoText";
+                        tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
+                        tmp.autoSizeTextContainer = true;
+                        tmp.alignment = TextAlignmentOptions.Center;
+                        tmp.color = Color.cyan;
+                        tmp.outlineColor = Color.black;
+                        tmp.outlineWidth = LangHasSensitiveOutlineText() ? 0.1f : 0.4f;
+                        tmp.transform.localPosition += new Vector3(-0.625f, -0.12f, 0f);
+                        tmp.transform.localScale = new(0.6f, 0.6f, 1f);
+                    }
 
-                tmp.text = suffix;
-                tmp.gameObject.SetActive(true);
+                    tmp.text = suffix;
+                    tmp.gameObject.SetActive(true);
+                }
 
                 // Lobby timer
                 if (GameData.Instance && HudManager.InstanceExists && AmongUsClient.Instance.NetworkMode != NetworkModes.LocalGame && GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
@@ -472,7 +478,7 @@ public static class GameStartManagerPatch
                     {
                         Warned = true;
                         LobbyTimerExtensionUI lobbyTimerExtensionUI = HudManager.Instance.LobbyTimerExtensionUI;
-                        lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon").gameObject.SetActive(true);
+                        lobbyTimerExtensionUI.timerText.transform.parent.transform.Find("Icon")?.gameObject.SetActive(true);
                         SoundManager.Instance.PlaySound(lobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
                         Utils.FlashColor(new(1f, 1f, 0f, 0.4f), 1.4f);
                     }

@@ -139,7 +139,7 @@ public class Quarry : RoleBase
 
         var sender = CustomRpcSender.Create("QuarryTarget", SendOption.Reliable);
         var hasValue = false;
-        hasValue |= sender.Notify(target, string.Format(Translator.GetString("Quarry.TargetSeekBeginNotify"), CustomRoles.Quarry.ToColoredString()));
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, string.Format(Translator.GetString("Quarry.TargetSeekBeginNotify"), CustomRoles.Quarry.ToColoredString()));
         hasValue |= sender.RpcSetRole(target, RoleTypes.Impostor, target.OwnerId);
         hasValue |= sender.RpcSetRole(shapeshifter, RoleTypes.Crewmate, target.OwnerId);
         hasValue |= sender.SetKillCooldown(target, 0.01f);

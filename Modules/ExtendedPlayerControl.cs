@@ -584,7 +584,7 @@ internal static class ExtendedPlayerControl
                             bool self = player.PlayerId == seer.PlayerId;
 
                             if (!self && seer.HasDesyncRole() && !seerIsHost)
-                                rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                                rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Crewmate;
                             else
                                 rememberRoleType = newRoleType;
 
@@ -598,10 +598,7 @@ internal static class ExtendedPlayerControl
 
                             if (seer.IsAlive())
                             {
-                                if (seerCustomRole.IsDesyncRole())
-                                    rememberRoleType = seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
-                                else
-                                    rememberRoleType = seerRoleType;
+                                rememberRoleType = seerCustomRole.IsDesyncRole() ? RoleTypes.Crewmate : seerRoleType;
                             }
                             else
                             {
@@ -610,7 +607,7 @@ internal static class ExtendedPlayerControl
                                 rememberRoleType = RoleTypes.CrewmateGhost;
                                 if (!playerIsKiller && seer.Is(Team.Impostor)) rememberRoleType = RoleTypes.ImpostorGhost;
 
-                                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (seerCustomRole.IsDesyncRole() ? seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist : seerRoleType, seerCustomRole);
+                                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (seerCustomRole.IsDesyncRole() ? RoleTypes.Crewmate : seerRoleType, seerCustomRole);
                                 seer.RpcSetRoleDesync(rememberRoleType, player.OwnerId);
                                 continue;
                             }
@@ -642,7 +639,7 @@ internal static class ExtendedPlayerControl
                                     rememberRoleType = newRoleDY;
                             }
                             else
-                                rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                                rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Crewmate;
 
                             StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, player.PlayerId)] = (rememberRoleType, newCustomRole);
                             player.RpcSetRoleDesync(rememberRoleType, seerClientId);
@@ -652,12 +649,12 @@ internal static class ExtendedPlayerControl
                             CustomRoles seerCustomRole = seer.GetRoleMap().CustomRole;
 
                             if (seer.IsAlive())
-                                rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                                rememberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Crewmate;
                             else
                             {
                                 rememberRoleType = RoleTypes.CrewmateGhost;
 
-                                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (seerCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist, seerCustomRole);
+                                StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(player.PlayerId, seer.PlayerId)] = (seerCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Crewmate, seerCustomRole);
                                 seer.RpcSetRoleDesync(rememberRoleType, player.OwnerId);
                                 continue;
                             }
@@ -856,12 +853,14 @@ internal static class ExtendedPlayerControl
         public void AddAbilityCD(int cd)
         {
             Main.AbilityCD[player.PlayerId] = (TimeStamp, cd);
+            if (!player.IsNonHostModdedClient()) return;
             SendRPC(CustomRPC.SyncAbilityCD, 1, player.PlayerId, cd);
         }
 
         public void RemoveAbilityCD()
         {
-            if (Main.AbilityCD.Remove(player.PlayerId)) SendRPC(CustomRPC.SyncAbilityCD, 3, player.PlayerId);
+            if (Main.AbilityCD.Remove(player.PlayerId) && player.IsNonHostModdedClient())
+                SendRPC(CustomRPC.SyncAbilityCD, 3, player.PlayerId);
         }
 
         public float GetAbilityUseLimit()
@@ -1225,7 +1224,7 @@ internal static class ExtendedPlayerControl
                 {
                     sender.TP(player, pcPos, noCheckState: true);
                     sender.SetKillCooldown(player, timer);
-                    sender.Notify(player, GetString("BlackScreenFixCompleteNotify"));
+                    CustomRpcSenderExtensions.Notify(ref sender, player, GetString("BlackScreenFixCompleteNotify"));
 
                     dummyGhost.NetTransform.SnapTo(ghostPos, (ushort)(dummyGhost.NetTransform.lastSequenceId + 328));
                     dummyGhost.NetTransform.SetDirtyBit(uint.MaxValue);

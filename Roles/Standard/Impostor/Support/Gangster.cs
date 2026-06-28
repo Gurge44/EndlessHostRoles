@@ -88,13 +88,13 @@ public class Gangster : RoleBase
             var hasValue = false;
 
             killer.ResetKillCooldown();
-            hasValue |= sender.Notify(killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, killer, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("GangsterSuccessfullyRecruited")), setName: false);
             hasValue |= sender.SyncSettings(killer);
             hasValue |= sender.SetKillCooldown(killer);
             hasValue |= sender.NotifyRolesSpecific(killer, target, out sender, out bool cleared);
             if (cleared) hasValue = false;
 
-            hasValue |= sender.Notify(target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, Utils.ColorString(Utils.GetRoleColor(convertedAddon), GetString("BeRecruitedByGangster")), setName: false);
             hasValue |= sender.RpcGuardAndKill(target, killer);
             hasValue |= sender.RpcGuardAndKill(target, target);
             hasValue |= sender.NotifyRolesSpecific(target, killer, out sender, out cleared);
