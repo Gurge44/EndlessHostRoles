@@ -948,7 +948,8 @@ public class Main : BasePlugin
         if (!OperatingSystem.IsAndroid())
         {
             // there are some issues with TextBoxPatch and DiscordRPC on Android
-            Harmony.PatchAll(typeof(TextBoxPatch));
+            if (Translator.GetUserTrueLang() is not (SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Korean))
+                Harmony.PatchAll(typeof(TextBoxPatch));
             Harmony.PatchAll(typeof(DiscordRPC));
         }
 

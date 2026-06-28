@@ -21,8 +21,6 @@ public static class TextBoxPatch
     [HarmonyPrefix]
     public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
     {
-        if (Translator.GetUserTrueLang() is SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Korean) return true;
-        
         if (!__instance.IpMode && i is '\'' or '"' or '’' or '`' or '-' or '–' or '—' or '‐' or '.' or ',' or ':' or ';' or '!' or '?' or '(' or ')' or '[' or ']' or '{' or '}' or '<' or '>' or '+' or '=' or '~' or '^' or '*' or '%' or '&' or '|' or '$' or '€' or '£' or '¥' or '₽' or >= '\u0100' and <= '\u024F' or >= '\u0370' and <= '\u03FF')
         {
             __result = true;
