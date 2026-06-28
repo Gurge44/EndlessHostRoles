@@ -16,6 +16,7 @@ public static class TextBoxPatch
     private static TextMeshPro AdditionalInfoText;
 
     public static bool IsInvalidCommand;
+    
     private static int CurrentCharPos;
     public static bool Pasting;
 
