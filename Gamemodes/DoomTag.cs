@@ -8,62 +8,62 @@ using static EHR.Translator;
 
 namespace EHR.Gamemodes;
 
-internal static class LoopWanted
+internal static class DoomTag
 {
     private static Dictionary<byte, byte> TargetMap = [];
     private static Dictionary<byte, long> LowerVisionList = [];
-    private static bool CarnivalMode;
+    private static bool FrenzyMode;
     private static float DefaultSpeed;
 
     public static OptionItem BaseKillCooldown;
     private static OptionItem PunishmentMode;
     private static OptionItem LowerVisionMultiplier;
-    private static OptionItem CarnivalPlayerCount;
-    private static OptionItem CarnivalKillCooldown;
-    private static OptionItem CarnivalSpeedMultiplier;
+    private static OptionItem FrenzyPlayerCount;
+    private static OptionItem FrenzyKillCooldown;
+    private static OptionItem FrenzySpeedMultiplier;
     private static OptionItem ShowTargetArrow;
 
-    private static readonly string[] PunishmentModeOptions = ["LoopWanted.PunishSuicide", "LoopWanted.PunishLowerVision"];
+    private static readonly string[] PunishmentModeOptions = ["DoomTag.PunishSuicide", "DoomTag.PunishLowerVision"];
 
     public static void SetupCustomOption()
     {
         var id = 69_226_001;
-        Color color = Utils.GetRoleColor(CustomRoles.LoopHunter);
-        const CustomGameMode gameMode = CustomGameMode.LoopWanted;
+        Color color = Utils.GetRoleColor(CustomRoles.Tagger);
+        const CustomGameMode gameMode = CustomGameMode.DoomTag;
         const TabGroup tab = TabGroup.GameSettings;
 
-        BaseKillCooldown = new FloatOptionItem(id++, "LoopWanted.BaseKillCooldown", new(2.5f, 60f, 2.5f), 15f, tab)
+        BaseKillCooldown = new FloatOptionItem(id++, "DoomTag.BaseKillCooldown", new(2.5f, 60f, 2.5f), 15f, tab)
             .SetHeader(true)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Seconds);
 
-        PunishmentMode = new StringOptionItem(id++, "LoopWanted.PunishmentMode", PunishmentModeOptions, 0, tab)
+        PunishmentMode = new StringOptionItem(id++, "DoomTag.PunishmentMode", PunishmentModeOptions, 0, tab)
             .SetGameMode(gameMode)
             .SetColor(color);
 
-        LowerVisionMultiplier = new FloatOptionItem(id++, "LoopWanted.LowerVisionMultiplier", new(0f, 10f, 0.5f), 0.5f, tab)
+        LowerVisionMultiplier = new FloatOptionItem(id++, "DoomTag.LowerVisionMultiplier", new(0f, 10f, 0.5f), 0.5f, tab)
             .SetParent(PunishmentMode)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Multiplier);
 
-        CarnivalPlayerCount = new IntegerOptionItem(id++, "LoopWanted.CarnivalPlayerCount", new(1, 127, 1), 3, tab)
+        FrenzyPlayerCount = new IntegerOptionItem(id++, "DoomTag.FrenzyPlayerCount", new(1, 127, 1), 3, tab)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Players);
 
-        CarnivalKillCooldown = new FloatOptionItem(id++, "LoopWanted.CarnivalKillCooldown", new(2.5f, 60f, 2.5f), 5f, tab)
+        FrenzyKillCooldown = new FloatOptionItem(id++, "DoomTag.FrenzyKillCooldown", new(2.5f, 60f, 2.5f), 5f, tab)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Seconds);
 
-        CarnivalSpeedMultiplier = new FloatOptionItem(id++, "LoopWanted.CarnivalSpeedMultiplier", new(0.25f, 10f, 0.25f), 2.0f, tab)
+        FrenzySpeedMultiplier = new FloatOptionItem(id++, "DoomTag.FrenzySpeedMultiplier", new(0.25f, 10f, 0.25f), 2.0f, tab)
             .SetGameMode(gameMode)
             .SetColor(color)
             .SetValueFormat(OptionFormat.Multiplier);
 
-        ShowTargetArrow = new BooleanOptionItem(id, "LoopWanted.ShowTargetArrow", false, tab)
+        ShowTargetArrow = new BooleanOptionItem(id, "DoomTag.ShowTargetArrow", false, tab)
             .SetGameMode(gameMode)
             .SetColor(color);
     }
@@ -73,18 +73,18 @@ internal static class LoopWanted
         Suffix.Clear();
         TargetMap = [];
         LowerVisionList = [];
-        CarnivalMode = false;
+        FrenzyMode = false;
 
-        if (Options.CurrentGameMode != CustomGameMode.LoopWanted) return;
+        if (Options.CurrentGameMode != CustomGameMode.DoomTag) return;
 
         DefaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
 
-        Utils.SendRPC(CustomRPC.LoopWantedSync, 1, false);
+        Utils.SendRPC(CustomRPC.DoomTagSync, 1, false);
     }
 
     public static void OnGameStart()
     {
-        if (Options.CurrentGameMode != CustomGameMode.LoopWanted) return;
+        if (Options.CurrentGameMode != CustomGameMode.DoomTag) return;
         AssignTargets();
     }
 
@@ -102,7 +102,7 @@ internal static class LoopWanted
 
         if (playerIds.Count < 2)
         {
-            Logger.Warn("Not enough players for LoopWanted", "LoopWanted");
+            Logger.Warn("Not enough players for DoomTag", "DoomTag");
             return;
         }
 
@@ -115,11 +115,11 @@ internal static class LoopWanted
                 TargetMap.Remove(TargetMap.GetKeyByValue(targetId));
             TargetMap[hunterId] = targetId;
             if (ShowTargetArrow.GetBool()) TargetArrow.Add(hunterId, targetId);
-            Logger.Info($"{hunterId.ColoredPlayerName()} 2 targets 2 {targetId.ColoredPlayerName()}", "LoopWanted");
+            Logger.Info($"{hunterId.ColoredPlayerName()} 2 targets 2 {targetId.ColoredPlayerName()}", "DoomTag");
         }
 
         SyncTargetMapRPC();
-        CarnivalMode = false;
+        FrenzyMode = false;
     }
 
     private static byte GetTarget(byte playerId)
@@ -138,7 +138,7 @@ internal static class LoopWanted
 
         if (expectedTarget == targetId)
         {
-            Logger.Info($"{killer.GetRealName()} correctly killed their target {target.GetRealName()}", "LoopWanted");
+            Logger.Info($"{killer.GetRealName()} correctly killed their target {target.GetRealName()}", "DoomTag");
 
             byte nextTarget = GetTarget(targetId);
 
@@ -151,7 +151,7 @@ internal static class LoopWanted
                     TargetMap.Remove(TargetMap.GetKeyByValue(nextTarget));
                 TargetMap[killerId] = nextTarget;
                 if (ShowTargetArrow.GetBool()) TargetArrow.Add(killerId, nextTarget);
-                Logger.Info($"{killer.GetRealName()}'s new target is {nextTarget.ColoredPlayerName()}", "LoopWanted");
+                Logger.Info($"{killer.GetRealName()}'s new target is {nextTarget.ColoredPlayerName()}", "DoomTag");
             }
             else
             {
@@ -161,17 +161,17 @@ internal static class LoopWanted
 
             TargetMap.Remove(targetId);
 
-            CheckCarnivalMode();
+            CheckFrenzyMode();
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
 
             SyncTargetMapRPC();
-            Utils.SendRPC(CustomRPC.LoopWantedSync, 1, CarnivalMode);
+            Utils.SendRPC(CustomRPC.DoomTagSync, 1, FrenzyMode);
 
             killer.Kill(target);
         }
         else
         {
-            Logger.Info($"{killer.GetRealName()} killed wrong target {target.GetRealName()} (expected: {expectedTarget.ColoredPlayerName()})", "LoopWanted");
+            Logger.Info($"{killer.GetRealName()} killed wrong target {target.GetRealName()} (expected: {expectedTarget.ColoredPlayerName()})", "DoomTag");
 
             if (PunishmentMode.GetInt() == 0)
                 killer.Kill(target);
@@ -194,21 +194,21 @@ internal static class LoopWanted
         switch (PunishmentMode.GetInt())
         {
             case 0:
-                Logger.Info($"{killer.GetRealName()} is committing suicide for wrong kill", "LoopWanted");
-                killer.Notify(GetString("LoopWanted.WrongKillSuicide"));
+                Logger.Info($"{killer.GetRealName()} is committing suicide for wrong kill", "DoomTag");
+                killer.Notify(GetString("DoomTag.WrongKillSuicide"));
                 LateTask.New(() =>
                 {
                     if (!killer || !killer.IsAlive() || GameStates.IsEnded) return;
                     killer.Suicide();
                     HandleDeadPlayer(killer.PlayerId);
-                }, 0.5f, "LoopWanted Suicide Punishment");
+                }, 0.5f, "DoomTag Suicide Punishment");
                 break;
 
             case 1:
                 float visionMultiplier = LowerVisionMultiplier.GetFloat();
                 LowerVisionList[killer.PlayerId] = Utils.TimeStamp;
                 killer.MarkDirtySettings();
-                killer.Notify(string.Format(GetString("LoopWanted.WrongKillLowerVision"), visionMultiplier));
+                killer.Notify(string.Format(GetString("DoomTag.WrongKillLowerVision"), visionMultiplier));
                 break;
         }
     }
@@ -236,7 +236,7 @@ internal static class LoopWanted
             {
                 PlayerControl hunter = Utils.GetPlayerById(hunterId);
                 if (hunter) Utils.NotifyRoles(SpecifySeer: hunter, SpecifyTarget: hunter);
-            }, 0.2f);
+            }, 0.3f);
         }
         else if (hunterId != byte.MaxValue)
         {
@@ -244,32 +244,32 @@ internal static class LoopWanted
             TargetArrow.RemoveAllTarget(hunterId);
         }
 
-        CheckCarnivalMode();
+        CheckFrenzyMode();
         SyncTargetMapRPC();
     }
 
-    private static void CheckCarnivalMode()
+    private static void CheckFrenzyMode()
     {
         int aliveCount = Main.AllAlivePlayerControlsCount;
-        int threshold = CarnivalPlayerCount.GetInt();
+        int threshold = FrenzyPlayerCount.GetInt();
 
-        if (!CarnivalMode && aliveCount <= threshold && aliveCount > 1)
+        if (!FrenzyMode && aliveCount <= threshold && aliveCount > 1)
         {
-            CarnivalMode = true;
-            Utils.SendRPC(CustomRPC.LoopWantedSync, 1, true);
+            FrenzyMode = true;
+            Utils.SendRPC(CustomRPC.DoomTagSync, 1, true);
 
             foreach (PlayerControl pc in Main.CachedAlivePlayerControls())
             {
-                Main.AllPlayerSpeed[pc.PlayerId] = DefaultSpeed * CarnivalSpeedMultiplier.GetFloat();
-                Main.AllPlayerKillCooldown[pc.PlayerId] = CarnivalKillCooldown.GetFloat();
+                Main.AllPlayerSpeed[pc.PlayerId] = DefaultSpeed * FrenzySpeedMultiplier.GetFloat();
+                Main.AllPlayerKillCooldown[pc.PlayerId] = FrenzyKillCooldown.GetFloat();
                 if (!pc.AmOwner) pc.ReactorFlash();
                 pc.MarkDirtySettings();
-                pc.Notify(GetString("LoopWanted.CarnivalModeActivated"));
+                pc.Notify(GetString("DoomTag.FrenzyModeActivated"));
             }
 
             SoundManager.Instance.PlaySound(HudManager.Instance.LobbyTimerExtensionUI.lobbyTimerPopUpSound, false);
             Utils.FlashColor(new(1f, 0.5f, 0f, 0.4f), 1.4f);
-            Logger.Info($"Carnival Mode activated! {aliveCount} players remaining.", "LoopWanted");
+            Logger.Info($"Frenzy Mode activated! {aliveCount} players remaining.", "DoomTag");
         }
     }
 
@@ -286,11 +286,11 @@ internal static class LoopWanted
             case 1:
                 PlayerControl winner = alivePlayers[0];
                 CustomWinnerHolder.WinnerIds = [winner.PlayerId];
-                Logger.Info($"LoopWanted Winner: {winner.GetRealName()}", "LoopWanted");
+                Logger.Info($"DoomTag Winner: {winner.GetRealName()}", "DoomTag");
                 return true;
             case 0:
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                Logger.Info("No players alive, force ending the game", "LoopWanted");
+                Logger.Info("No players alive, force ending the game", "DoomTag");
                 return true;
             default:
                 return false;
@@ -309,7 +309,7 @@ internal static class LoopWanted
         Suffix.Clear();
 
         Suffix.Append("<#D9BAA5>");
-        Suffix.Append(hud ? GetString("LoopWanted.CurrentTarget") : GetString("Target"));
+        Suffix.Append(hud ? GetString("DoomTag.CurrentTarget") : GetString("Target"));
         Suffix.Append(": <b>");
         Suffix.Append(targetId.ColoredPlayerName());
         Suffix.Append("</b>");
@@ -322,10 +322,10 @@ internal static class LoopWanted
 
         Suffix.Append("</color>");
 
-        if (CarnivalMode)
+        if (FrenzyMode)
         {
             Suffix.Append("\n<#ff6600>");
-            Suffix.Append(GetString("LoopWanted.CarnivalModeHUD"));
+            Suffix.Append(GetString("DoomTag.FrenzyModeHUD"));
             Suffix.Append("</color>");
         }
 
@@ -336,7 +336,7 @@ internal static class LoopWanted
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        var writer = Utils.CreateRPC(CustomRPC.LoopWantedSync);
+        var writer = Utils.CreateRPC(CustomRPC.DoomTagSync);
         writer.WritePacked(2);
         writer.Write(TargetMap.Count);
         foreach (var kvp in TargetMap)
@@ -352,7 +352,7 @@ internal static class LoopWanted
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                CarnivalMode = reader.ReadBoolean();
+                FrenzyMode = reader.ReadBoolean();
                 break;
             case 2:
                 TargetMap = [];
@@ -391,7 +391,7 @@ internal static class LoopWanted
 
         public static void Postfix()
         {
-            if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.LoopWanted || !AmongUsClient.Instance.AmHost) return;
+            if (!Main.IntroDestroyed || !GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.DoomTag || !AmongUsClient.Instance.AmHost) return;
 
             long now = Utils.TimeStamp;
             if (IntroCutsceneDestroyPatch.IntroDestroyTS + 10 > now || LastFixedUpdate == now) return;
@@ -415,7 +415,7 @@ internal static class LoopWanted
             }
             deadPlayersInMap?.ForEach(HandleDeadPlayer);
 
-            CheckCarnivalMode();
+            CheckFrenzyMode();
         }
     }
 }

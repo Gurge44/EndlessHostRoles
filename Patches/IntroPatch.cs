@@ -310,14 +310,14 @@ internal static class SetUpRoleTextPatch
                 __instance.RoleBlurbText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
             {
-                Color color = Utils.GetRoleColor(CustomRoles.LoopHunter);
+                Color color = Utils.GetRoleColor(CustomRoles.Tagger);
                 __instance.YouAreText.transform.gameObject.SetActive(false);
-                __instance.RoleText.text = GetString("LoopHunter");
+                __instance.RoleText.text = GetString("Tagger");
                 __instance.RoleText.color = color;
                 __instance.RoleBlurbText.color = color;
-                __instance.RoleBlurbText.text = GetString("LoopHunterInfo");
+                __instance.RoleBlurbText.text = GetString("TaggerInfo");
                 break;
             }
             default:
@@ -1027,13 +1027,13 @@ internal static class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("SnowdownPlayerInfo");
                 break;
             }
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
             {
-                __instance.TeamTitle.text = GetString("LoopHunter");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.LoopHunter);
+                __instance.TeamTitle.text = GetString("Tagger");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Tagger);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
-                __instance.ImpostorText.text = GetString("LoopHunterInfo");
+                __instance.ImpostorText.text = GetString("TaggerInfo");
                 break;
             }
         }
@@ -1388,8 +1388,8 @@ internal static class IntroCutsceneDestroyPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.GameStart();
                     break;
-                case CustomGameMode.LoopWanted:
-                    LoopWanted.OnGameStart();
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnGameStart();
                     break;
             }
 

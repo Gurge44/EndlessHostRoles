@@ -60,7 +60,7 @@ internal static class ChatControllerUpdatePatch
 
         if (!__instance.freeChatField.textArea.hasFocus) return;
 
-        __instance.freeChatField.textArea.characterLimit = 1200;
+        __instance.freeChatField.textArea.characterLimit = 1000;
 
         if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 

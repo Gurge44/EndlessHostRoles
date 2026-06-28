@@ -323,6 +323,6 @@ public static class TextBoxPatch
     public static void ModifyCharacterLimit(TextBoxTMP __instance)
     {
         if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
-        __instance.characterLimit = 1200;
+        __instance.characterLimit = 1000;
     }
 }

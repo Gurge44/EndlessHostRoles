@@ -1098,6 +1098,20 @@ public static class GameSettingMenuPatch
         presetTmp.fontSizeMax = presetTmp.fontSizeMin = size;
 
 
+        var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
+        gameSettingsLabel.DestroyTranslator();
+        gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
+        gameSettingsLabel.transform.localPosition += new Vector3(0f, 0.1f, 0f);
+
+        if (russian)
+        {
+            gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
+            gameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
+        }
+
+        Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
+
+        
         GameObject tempMinus = GameObject.Find("MinusButton").gameObject;
         cached = ExtraObjectsCache.TryGetValue(1, out cache);
         GameObject gMinus = cached ? cache : ModGameOptionsMenu.Track(Object.Instantiate(__instance.GamePresetsButton.gameObject, preset.transform));
@@ -1127,6 +1141,7 @@ public static class GameSettingMenuPatch
             GameOptionsMenuPatch.RefreshSettingValues();
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
+            gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
             ChangingPreset = false;
             NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset);
@@ -1144,8 +1159,8 @@ public static class GameSettingMenuPatch
         selectedSprites.sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
 
         inactiveSprites.color = new Color32(55, 59, 60, 255);
-        activeSprites.color = new Color32(0, 255, 165, 255);
-        selectedSprites.color = new Color32(0, 165, 255, 255);
+        activeSprites.color = new Color32(0, 165, 255, 255);
+        selectedSprites.color = new Color32(0, 255, 165, 255);
 
 
         cached = ExtraObjectsCache.TryGetValue(2, out cache);
@@ -1176,6 +1191,7 @@ public static class GameSettingMenuPatch
             GameOptionsMenuPatch.RefreshSettingValues();
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
+            gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
             ChangingPreset = false;
             NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset);
@@ -1187,30 +1203,16 @@ public static class GameSettingMenuPatch
 
         GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false);
 
-        var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
-        gameSettingsLabel.DestroyTranslator();
-        gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
-        gameSettingsLabel.transform.localPosition += new Vector3(0f, 0.1f, 0f);
-
-        if (russian)
-        {
-            gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
-            gameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
-        }
-
-        Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
-
         var gms = Main.CustomGameModeValues[..^1].ToList();
         gms.Remove(CustomGameMode.TheMindGame);
-        
+
         if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6)
-            gms.RemoveAll(SubmergedCompatibility.IsNotSupported);
+            gms.Remove(CustomGameMode.NaturalDisasters);
 
         if (Main.LIMap)
         {
             gms.Remove(CustomGameMode.CaptureTheFlag);
             gms.Remove(CustomGameMode.Quiz);
-            gms.Remove(CustomGameMode.TheMindGame);
             gms.Remove(CustomGameMode.BedWars);
             gms.Remove(CustomGameMode.Deathrace);
         }
@@ -1232,12 +1234,13 @@ public static class GameSettingMenuPatch
                 gmButton.SetActive(true);
             }
             gmButton.transform.localPosition = new Vector3((((index / itemsPerCol) - ((totalCols - 1) / 2f)) * 1.4f) + 0.16f, gameSettingsLabelPos.y - 1.9f - (0.17f * (index % itemsPerCol)), -1f);
-            gmButton.transform.localScale = new(0.35f, 0.22f, 1f);
+            gmButton.transform.localScale = new(0.4f, 0.22f, 1f);
+            var color = Main.GameModeColors[gm];
             var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             gmButtonTmp.alignment = TextAlignmentOptions.Center;
             gmButtonTmp.DestroyTranslator();
             gmButtonTmp.SetText(Translator.GetString(gm.ToString()).ToUpper());
-            gmButtonTmp.color = Main.GameModeColors[gm];
+            gmButtonTmp.color = color;
             gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + 3.35f, gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
             gmButtonTmp.transform.localScale = new(1f, 1f, 1f);
 
@@ -1259,7 +1262,9 @@ public static class GameSettingMenuPatch
                 GameOptionsMenuPatch.RefreshCheckMarkColors();
                 gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
             }));
-            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = Main.GameModeColors[gm];
+            gmPassiveButton.activeTextColor = Utils.GetTextColor(color);
+            gmPassiveButton.inactiveTextColor = color;
+            gmPassiveButton.activeSprites.GetComponent<SpriteRenderer>().color = color;
 
             GMButtons[gm] = gmButton;
         }
@@ -1276,9 +1281,10 @@ public static class GameSettingMenuPatch
             field.gameObject.SetActive(true);
         }
         field.transform.localScale = new(0.3f, 0.59f, 1);
-        field.transform.localPosition = new(-0.7f, -2.5f, -5f);
+        field.transform.localPosition = new(-0.47f, 2.15f, -5f);
         field.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
         field.textArea.outputText.font = plusLabel.font;
+        field.charCountText.enabled = false;
 
         InputField = field;
 

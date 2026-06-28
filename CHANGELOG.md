@@ -26,6 +26,8 @@
 - Improved the detection of 'start' spam
 - Impostors don't see each other's progress texts when there is a Double Agent
 - Pestilence is now immune to after-meeting deaths
+- Chat character limit lowered to 1000 characters due to packet size limits
+- New loading spinner icon
 
 ## Additions
 - New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
@@ -36,7 +38,7 @@
 - Killing the wrong player will result in a punishment, such as death or reduced vision.
 - When you eliminate your target, you inherit their target and continue the hunt.
 - As more players are eliminated, the circle grows smaller and the pressure increases.
-- When only a few players remain, Carnival Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.
+- When only a few players remain, Frenzy Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.
 - Be the last player standing to win!
 
 > [!WARNING]
