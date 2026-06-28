@@ -502,10 +502,10 @@ public static class GameOptionsMenuPatch
                     string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(stringOption.Value)];
                     if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
                     stringOption.ValueText.SetText(selection);
-                    if (!StringOptionPatch.NameCache.ContainsKey(stringOption))
+                    if (!StringOptionPatch.NameCache.TryGetValue(stringOption, out string name))
                         stringOption.Initialize();
                     else
-                        stringOption.TitleText.SetText(StringOptionPatch.NameCache[stringOption]);
+                        stringOption.TitleText.SetText(name);
                     break;
                 case FloatOptionItem or IntegerOptionItem when optionBehaviour is NumberOption numberOption:
                     numberOption.Value = optionItem.GetFloat();
@@ -970,10 +970,10 @@ public static class StringOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt(), doSave: true, doSync: false);
             NotificationPopperPatch.AddSettingsChangeMessage(item);
-            if (!NameCache.ContainsKey(__instance))
+            if (!NameCache.TryGetValue(__instance, out string name))
                 __instance.Initialize();
             else
-                __instance.TitleText.SetText(NameCache[__instance]);
+                __instance.TitleText.SetText(name);
             return false;
         }
 

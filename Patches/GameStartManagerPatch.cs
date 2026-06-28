@@ -45,6 +45,8 @@ public static class GameStartManagerPatch
         {
             try
             {
+                try { GameStartManagerUpdatePatch.DiscordManagerBridge.Init(); } catch (Exception e) { Utils.ThrowException(e); }
+                
                 if (!__instance) return;
 
                 UpdateSpriteStartButton = true;
@@ -128,12 +130,40 @@ public static class GameStartManagerPatch
         private static int MinPlayer;
         private static SpriteRenderer LobbyTimerBg;
         public static bool Warned;
-        
-        private static readonly Type DiscordManagerType = AccessTools.TypeByName("DiscordManager");
-        private static readonly PropertyInfo InstanceExistsProperty = DiscordManagerType?.GetProperty("InstanceExists");
-        private static readonly PropertyInfo InstanceProperty = DiscordManagerType?.GetProperty("Instance");
-        private static readonly MethodInfo SetInLobbyHostMethod = DiscordManagerType?.GetMethod("SetInLobbyHost");
-        private static readonly MethodInfo SetInLobbyClientMethod = DiscordManagerType?.GetMethod("SetInLobbyClient");
+
+        public static class DiscordManagerBridge
+        {
+            private static bool Initialized;
+            public static bool Enabled;
+
+            public static Func<bool> InstanceExistsGetter;
+            public static Func<object> InstanceGetter;
+            public static MethodInfo SetInLobbyHost;
+            public static MethodInfo SetInLobbyClient;
+
+            public static void Init()
+            {
+                if (Initialized) return;
+                Initialized = true;
+
+                var discordType = AppDomain.CurrentDomain.GetAssemblies().Select(a =>
+                {
+                    try { return a.GetType("DiscordManager"); }
+                    catch { return null; }
+                }).FirstOrDefault(t => t != null);
+                
+                if (discordType == null) return;
+
+                var instanceProp = discordType.BaseType!.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                InstanceGetter = (Func<object>)Delegate.CreateDelegate(typeof(Func<object>), instanceProp!.GetGetMethod()!);
+                var existsProp = discordType.BaseType.GetProperty("InstanceExists", BindingFlags.Public | BindingFlags.Static);
+                InstanceExistsGetter = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), existsProp!.GetGetMethod()!);
+                SetInLobbyHost = discordType.GetMethod("SetInLobbyHost", BindingFlags.Public | BindingFlags.Instance);
+                SetInLobbyClient = discordType.GetMethod("SetInLobbyClient", BindingFlags.Public | BindingFlags.Instance);
+
+                Enabled = true;
+            }
+        }
 
         public static bool Prefix(GameStartManager __instance)
         {
@@ -290,10 +320,10 @@ public static class GameStartManagerPatch
                 ActionMapGlyphDisplay startButtonGlyph = instance.StartButtonGlyph;
                 startButtonGlyph?.SetColor(instance.LastPlayerCount >= instance.MinPlayers ? Palette.EnabledColor : Palette.DisabledClear);
 
-                if (DiscordManagerType != null && ((bool?)InstanceExistsProperty?.GetValue(null) ?? false))
+                if (DiscordManagerBridge.Enabled && DiscordManagerBridge.InstanceExistsGetter())
                 {
-                    MethodInfo method = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame ? SetInLobbyHostMethod : SetInLobbyClientMethod;
-                    method?.Invoke(InstanceProperty?.GetValue(null), [instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId]);
+                    var method = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame ? DiscordManagerBridge.SetInLobbyHost : DiscordManagerBridge.SetInLobbyClient;
+                    method.Invoke(DiscordManagerBridge.InstanceGetter(), [instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId]);
                 }
             }
 
