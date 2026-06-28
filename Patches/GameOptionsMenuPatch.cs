@@ -56,13 +56,6 @@ public static class GameOptionsMenuPatch
     {
         if (ModGameOptionsMenu.TabIndex < 3) return true;
 
-        // Cancel any in-progress build coroutine before re-initializing
-        if (_buildCoroutines.TryGetValue(__instance, out Coroutine existing) && existing != null)
-        {
-            __instance.StopCoroutine(existing);
-            _buildCoroutines.Remove(__instance);
-        }
-
         if (__instance.Children == null || __instance.Children.Count == 0)
         {
             __instance.MapPicker.gameObject.SetActive(false);
@@ -410,17 +403,13 @@ public static class GameOptionsMenuPatch
         _reCreateGeneration++;
         int generation = _reCreateGeneration;
 
-        // Use a persistent GameOptionsMenu as the coroutine host - these are never destroyed
-        GameOptionsMenu host = GameSettingMenuPatch.ModSettingsTabs.Values.FirstOrDefault(m => m && m.gameObject.activeInHierarchy);
-        if (!host) return;
-
         if (_reCreateAllCoroutine != null)
         {
-            host.StopCoroutine(_reCreateAllCoroutine);
+            Main.Instance.StopCoroutine(_reCreateAllCoroutine);
             _reCreateAllCoroutine = null;
         }
 
-        _reCreateAllCoroutine = host.StartCoroutine(CoReCreateAll(generation).WrapToIl2Cpp());
+        _reCreateAllCoroutine = Main.Instance.StartCoroutine(CoReCreateAll(generation).WrapToIl2Cpp());
 
         IEnumerator CoReCreateAll(int gen)
         {
@@ -449,7 +438,7 @@ public static class GameOptionsMenuPatch
     public static void ReCreateSettings(GameOptionsMenu __instance, TabGroup? modTab = null)
     {
         if (!modTab.HasValue && ModGameOptionsMenu.TabIndex < 3) return;
-        if (!__instance || !__instance.gameObject.activeInHierarchy) return;
+        if (!__instance) return;
 
         modTab ??= (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
 
@@ -1601,8 +1590,7 @@ public static class GameSettingMenuPatch
 
         if (GameOptionsMenuPatch._reCreateAllCoroutine != null)
         {
-            GameOptionsMenu host = ModSettingsTabs.Values.FirstOrDefault();
-            if (host) host.StopCoroutine(GameOptionsMenuPatch._reCreateAllCoroutine);
+            Main.Instance.StopCoroutine(GameOptionsMenuPatch._reCreateAllCoroutine);
             GameOptionsMenuPatch._reCreateAllCoroutine = null;
         }
 
@@ -1702,4 +1690,4 @@ public static class FixDarkThemeForSearchBar
             field.textArea.outputText.color = Color.white;
         }
     }
-}
+    
