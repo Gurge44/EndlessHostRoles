@@ -1,5 +1,4 @@
-{
-  
+﻿{
   "LanguageID": "102",
   "HostText": "EHR - Host",
   "HostColor": "#00ffa5",
@@ -92,7 +91,6 @@
   "Cooldown": "Durasi Rehat",
   "Speed": "Speed",
   "Vision": "Vision",
-  
   "In%team%": "(Team %team%)",
   "RoleHistoryText": "<u>Role History:</u>",
   "RoleInfo": "Role Info",
@@ -105,7 +103,6 @@
   "RoleSelected": "<b>{0}'s role in the next game will be {1}</b>",
   "RoleSummaryText": "<u>Role Summary:</u>",
   "Roles": "Peran",
-  
   "Prefix.Aide": "Aide",
   "Prefix.Absorber": "Absorber",
   "Prefix.Allergic": "Allergic",
@@ -217,7 +214,6 @@
   "Prefix.Watcher": "Watcher",
   "Prefix.Workhorse": "Workhorse",
   "Prefix.Youtuber": "YouTuber",
-  
   "AddonListTitle": "<b><u>Your Add-ons:</u></b>",
   "AlwaysComboListTitle": "<u>Roles and Add-ons that Always Spawn Together:</u>",
   "AnagramTitle": "<#888888>➡ ANAGRAM ⬅</color>",
@@ -268,7 +264,6 @@
   "WinsCountTitle": "Number of wins in this game mode",
   "XORListTitle": "<#00a5ff>➡ XOR Combinations ⬅</color>",
   "YouCanGuessTitle": "<#00ffff>You can guess!</color>",
-  
   "Addict": "Addict",
   "AddictInfo": "Vent to become invulnerable, or you'll die",
   "AddictInfoLong": "(Crewmates):\\nThe Addict has a suicide timer indicated by the vent cooldown. If the timer expires, the Addict dies. After venting, the Addict is immortal for a certain time. The Addict is also frozen for a defined time after freezing and cannot report any bodies.",
@@ -1616,7 +1611,6 @@
   "Wizard.SpeedStep": "Step in which Speed is increased",
   "Wizard.Vision": "Vision",
   "Wizard.VisionStep": "Step in which Vision is increased",
-  
   "Abyssbringer": "Abyssbringer",
   "AbyssbringerInfo": "Pasang Lubang Hitam",
   "AbyssbringerInfoLong": "(Impostor):\\nSelaku Abyssbringer, kamu dapat menempatkan lubang hitam yang menghisap pemain di sekelilingnya. Pemain yang bersentuhan dengan lubang hitam tersebut akan langsung tereliminasi.",
@@ -2366,7 +2360,6 @@
   "ZombieMinimumSpeed": "Minimum Speed",
   "ZombieSpeedReduce": "After a certain time, decrease the speed of <color=#ff1919>Zombie</color> by",
   "ZombieSpeedReduceInterval": "Speed Reduction Interval",
-  
   "Accumulator": "Accumulator",
   "AccumulatorInfo": "Do Tasks For Low Kill Cooldown",
   "AccumulatorInfoLong": "(Neutrals):\\nAs the Accumulator, you start with a crewmate basis, and you can do tasks. Each task you complete lowers your kill cooldown (that you'll eventually have). You can pet or finish all tasks to turn into a killing neutral with the kill cooldown you accumulated.\\nKill everyone to win!",
@@ -3394,7 +3387,6 @@
   "WraithRevertVentButtonText": "Ekspos",
   "WraithVentButtonText": "Hilang",
   "WraithVentNormallyOnCooldown": "Bisa mengakses ventilasi secara normal",
-  
   "Augur": "Augur",
   "AugurInfo": "Tebak peran pemain",
   "AugurInfoLong": "(Coven):\\nYou can guess players' roles during meetings. If you misguess, you don't die, but you can't guess again until the next meeting. You cannot gain the Necronomicon, similar to a Reaper.",
@@ -3531,7 +3523,6 @@
   "Wyrd.Suffix.SuicideWarningOnAction.Task": "Completing a task",
   "Wyrd.Suffix.SuicideWarnings": "<#ffff00><size=80%>⚠ The following actions will cause you to suicide: ⚠\\n{0}</size></color>",
   "Wyrd.TimeAdditionOnMoreMark": "Time Addition On More Marks",
-  
   "Absorber": "Absorber",
   "AbsorberInfo": "Report bodies to absorb Ability Uses",
   "AbsorberInfoLong": "(Add-ons):\\nAs the Absorber, you can take at most 1 ability use from dead players by reporting their body.",
@@ -3989,7 +3980,6 @@
   "Youtuber": "YouTuber",
   "YoutuberInfo": "Get killed first to win",
   "YoutuberInfoLong": "(Add-ons):\\nIf the YouTuber is the first player killed, they win. If not, they follow the Crewmate to win. Note: Indirect killing methods don't trigger the YouTuber's skills.",
-  
   "Bloodmoon": "Bloodmoon",
   "BloodmoonInfo": "Help the Impostors Kill!",
   "BloodmoonInfoLong": "(Impostor Ghost):\\nAs the Bloodmoon, you can use your protect button on someone to make them die after a set amount of seconds. They know about this.",
@@ -4032,6 +4022,7 @@
   "MeetingAngel.CanProtectOptions.NeutralPariah": "Can Protect <#ffab1b>Neutral</color> <#ffff44>Pariahs</color>",
   "MeetingAngel.CanProtectOptions.NeutralBenign": "Can Protect <#ffab1b>Neutral</color> <#00ffa5>Benigns</color>",
   "MeetingAngel.CanProtectOptions.Coven": "Can Protect <#7b3fbb>Covens</color>",
+  "MeetingAngel.NegatedMsg": "Removed <b>{0}</b> votes targeting {1}",
   "Minion": "Minion",
   "MinionInfo": "Help the Impostors",
   "MinionInfoLong": "(Impostor Ghost):\\nAs the Minion, you can protect someone (optimally a crewmate) to blind them for a few seconds.",
@@ -4048,7 +4039,6 @@
   "WardenAdditionalSpeed": "Penambahan Laju Jalan",
   "WardenNotify": "The Warden warns you that you're in danger!",
   "WardenNotifyTarget": "Notify Target About Danger",
-  
   "BedWarsPlayer": "BED WARS",
   "BedWarsPlayerInfo": "DESTROY ALL BEDS TO WIN",
   "BedWarsPlayerInfoLong": "DESTROY ALL BEDS TO WIN",
@@ -4089,13 +4079,15 @@
   "SnowdownPlayer": "SNOWDOWN",
   "SnowdownPlayerInfo": "THROW SNOWBALLS AT PLAYERS",
   "SnowdownPlayerInfoLong": "THROW SNOWBALLS AT PLAYERS",
+  "Tagger": "TAGGER",
+  "TaggerInfo": "KILL YOUR ASSIGNED TARGET AND SURVIVE",
+  "TaggerInfoLong": "KILL YOUR ASSIGNED TARGET AND SURVIVE",
   "TMGPlayer": "THE MIND GAME",
   "TMGPlayerInfo": "THINK WITH OTHERS' BRAINS TO WIN",
   "TMGPlayerInfoLong": "THINK WITH OTHERS' BRAINS TO WIN",
   "Tasker": "Tasker",
   "TaskerInfo": "FINISH TASKS FIRST TO WIN",
   "TaskerInfoLong": "FINISH TASKS FIRST TO WIN",
-  
   "KillButtonText": "Jagal",
   "AbilityChargesWhenFinishedTasks": "<color=#7FFFD2>Tambahan penggunaan</color> <color=#00ffff>kemampuan <color=#ffa500>per 5 detik</color> setelah misi tuntas</color>",
   "AbilityCooldown": "Durasi rehat kemampuan",
@@ -4104,7 +4096,6 @@
   "AbilityUseGainWithEachTaskCompleted": "<color=#7FFFD2>Tambahan penggunaan</color> <color=#00ffff>kemampuan seiring penyelesaian misi</color>",
   "AbilityUseLimit": "Initial Ability Uses",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>Out of ability uses! Do tasks to get more!</color>",
-  
   "AdditionalWinnerRoleText.AliveNeutrals": "Living Neutrals win along",
   "AdditionalWinnerRoleText.Default": "{0} wins along",
   "AdditionalWinnerRoleText.Executioner": "Executioner menang bersama",
@@ -4196,15 +4187,12 @@
   "WinnerRoleText.Workaholic": "Workaholic Wins!",
   "WinnerRoleText.Wraith": "Wraith Menang!",
   "WinnerRoleText.Youtuber": "YouTuber Wins!",
-  
   "Mode": "Mode",
   "GameModeListTitle": "Game Modes",
   "DoingTasksIsPointlessInThisGameMode": "Look, I see that you're a very diligent crewmate, but....\\nDoing tasks is completely pointless in this game mode",
   "NToCheckGameModeSettings": "Type <b>/n</b> to view the settings for this game mode",
-  
   "Standard": "Standard",
   "ModeStandard": "Gamemode: Standard",
-  
   "BedWars": "BED WARS",
   "ModeBedWars": "Gamemode: Bed Wars",
   "ModeDescribe.BedWars": "In the Bed Wars gamemode, players are split into teams. Each team has a bed. If a team's bed is destroyed, all players in that team can no longer respawn. The goal is to destroy all other teams' beds (via Pet button) and be the last team alive.\\n\\nYou can buy items (blocks, weapons, tool, etc.) and team upgrades (heal pool, haste, trap, etc.) in shops from the resources (iron, gold, diamond, emerald) you can collect from the generators on the map. These are useful for protecting the bed with various layers to make it harder to break it, increase your attack damage, increase your defense, or give you or your team various abilities.\\n\\nIn the beginning, there's a grace period, where no attacks are allowed, and players can't leave their own base.\\n\\nEach player has an inventory with all of their items. Cycle through the slots using the Vanish button or by typing the number of the slot in the chat (ex. '5'). Use weapons through the kill button, other items via Pet. To start breaking someone's bed, Pet. Make sure to always have the correct item selected in your inventory (blocks when you protect the bed, tools when you break beds, etc.).\\nYou can break beds with anything, but using the correct tool for each layer will make the process significantly faster.\\n\\nIf you die, you will respawn after a few seconds, unless your bed is broken. If your bed is broken, you will not respawn anymore.",
@@ -4324,7 +4312,6 @@
   "BedWars.UpgradeDescription.Trap": "Alerts the team when an enemy enters the base and slows/blinds the enemy.",
   "BedWars.WoodenSwordDamageMultiplierOption": "Wooden Sword Damage Multiplier",
   "Bedwars.YouCannotLeaveRoomInGracePeriod": "<#ff0000>You cannot leave your room during the grace period!</color>",
-  
   "CaptureTheFlag": "Rebut Bendera",
   "ModeCaptureTheFlag": "Gamemode: Capture The Flag",
   "ModeDescribe.CaptureTheFlag": "Dalam mode Capture the Flag, tujuan utama setiap tim adalah untuk mengambil bendera tim lawan dan membawanya kembali ke benteng sendiri. Pemain akan dibagi menjadi dua tim, yaitu tim kuning dan tim biru. Setiap tim memiliki bendera yang ditempatkan di suatu area tertentu dari map. Pemain harus masuk ke wilayah tim lawan untuk mengambil bendera tersebut. Tim yang berhasil merebut bendera tim lawan dan membawanya ke benteng sendiri akan dinobatkan sebagai pemenang.\\n\\n- Tombol Shapeshift: Mengambil bendera\\n- Tombol Kill: Mengusir pemain",
@@ -4366,7 +4353,6 @@
   "CTF_WhenFlagCarrierGetsTagged.FlagIsReturned": "Kembali",
   "CTF_YellowTeamWins": "Tim Kuning menang!",
   "CTF_YellowTeamWonThisRound": "The <#ffff00>Yellow</color> team won this round!",
-  
   "Deathrace": "DEATHRACE",
   "ModeDeathrace": "Gamemode: Deathrace",
   "ModeDescribe.Deathrace": "In the Deathrace gamemode, there is a specific track you need to follow on the map, repeatedly. If you enter a room that isn't the next one on the track, you die! You must complete all laps first to win.\\n\\nSome power-ups are available next to the track, go near them to pick them up. It will tell you what they do and how to use them when you pick them up. You can store multiple power-ups and use them one at a time.",
@@ -4400,7 +4386,6 @@
   "Deathrace.SmokeSpeedReductionOption": "Smoke Speed Reduction",
   "Deathrace.SpawnPowerUpsOption": "Spawn Power-Ups",
   "Deathrace.VentUse": "Vent to the next room!",
-  
   "FFA": "FREE FOR ALL",
   "ModeFFA": "Gamemode: FFA",
   "ModeDescribe.FFA": "In the FFA (Free For All) gamemode, everyone is a killer and everyone can kill anyone. The last player alive wins!\\n\\nSome random events make this even more fun in the mean time!",
@@ -4434,7 +4419,6 @@
   "FFA_TargetIsShielded": "<color=#ffff00>The player you tried to kill is shielded!</color>",
   "FFA_TeamMode": "Enable Team Mode",
   "FFA_TeamNumber": "Number of Teams",
-  
   "HideAndSeek": "HIDE AND SEEK",
   "ModeHideAndSeek": "Gamemode: Hide And Seek",
   "ModeDescribe.HideAndSeek": "In the Hide And Seek gamemode, seekers have to kill all hiders, while hiders have to complete all tasks without being killed in order to win.\\nIf the time limit reaches 0, hiders win.\\nIf everyone apart from the Seekers die, the Seekers win.\\n\\nRoles: Hider, Seeker, Fox, Troll, Jumper, Detector, Jet, Dasher, Locator, Venter, Agent, Taskinator",
@@ -4456,7 +4440,6 @@
   "HiderSpeed": "Hider Speed",
   "HiderVision": "Hider Vision",
   "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",
-  
   "Agent": "Agent",
   "AgentInfo": "You're an Impostor among Hiders",
   "AgentInfoLong": "You're an Impostor among Hiders",
@@ -4526,7 +4509,6 @@
   "VenterInfoLong": "Use vents to catch Hiders",
   "VenterSpeed": "Venter Speed",
   "VenterVision": "Venter Vision",
-  
   "HotPotato": "Player",
   "ModeHotPotato": "Gamemode: Hot Potato",
   "ModeDescribe.HotPotato": "In the Hot Potato gamemode, one player always has the hot potato, and they can pass it to anyone by going near someone. Each X seconds (X is set by the host), the player who holds the hot potato dies. The last player alive wins!\\n\\nNote: You cannot pass the hot potato to the player that just gave it to you (their name is colored in cyan, it means they cannot get the hot potato) unless there are only 2 players left.",
@@ -4540,7 +4522,6 @@
   "HotPotato_Range": "Pass Range",
   "HotPotato_Time": "The Holder of the Hot Potato is Killed Every",
   "HotPotato_TimeLeftSuffix": "Kill in ",
-  
   "KingOfTheZones": "KING OF THE ZONES",
   "ModeKingOfTheZones": "Gamemode: King Of The Zones",
   "ModeDescribe.KingOfTheZones": "In the King Of The Zones gamemode, players are split into teams. Some rooms on the map represent a zone. If a team has more players in a room than all other teams, they control the zone. Every second, each team gets 1 point for each zone controlled. Gain as many points as possible, since the team with the highest score wins!\\n\\nPlayers can tag others using the kill button. Tagged players are teleported outside of the map for a few seconds, then teleport back.\\n\\nDepending on the settings, zones may move during the game. If so, this will be indicated by a timer. When a zone moves, it may have a downtime. This is the case if the timer is gray.",
@@ -4593,7 +4574,6 @@
   "KingOfTheZones.TagCooldown": "Waktu jeda rekrut",
   "KingOfTheZones.ZoneMoveTime": "Zones Move Every",
   "KingOfTheZones.ZonesMove": "Zones Move",
-  
   "Mingle": "MINGLE",
   "ModeMingle": "Gamemode: Mingle",
   "ModeDescribe.Mingle": "In the Mingle gamemode, the game assigns a certain number of players to certain rooms on the map. At the end of the time limit, exactly that number of players need to be in the rooms. If there are too many or too few players in a room, all players in that room die. If you are not in any of the assigned rooms, you die. Oh, and if no one dies in a round, the time limit permanently decreases. The last player alive wins!",
@@ -4607,7 +4587,6 @@
   "Mingle.NotInRequiredRoom": "Not in any assigned room",
   "Mingle.TimeDecreaseOnNoDeathOption": "Time Decrease on No Death",
   "Mingle.TimeLimitOption": "Starting Time Limit",
-  
   "NaturalDisasters": "Natural Disasters",
   "ModeNaturalDisasters": "Gamemode: Natural Disasters",
   "ModeDescribe.NaturalDisasters": "In the Natural Disasters gamemode, the map is filled with natural disasters. You have to survive them all and be the last player alive to win!\\n\\n<size=80%>List of all Natural Disasters and their effects:</size><size=70%>\\n- Earthquake: The ground shakes, making it hard to move.\\n- Meteor: A meteor falls from the sky, killing players in a certain range.\\n- Volcano Eruption: Lava flows from one spot, killing players.\\n- Tornado: Players are sucked into the tornado and die.\\n- Thunderstorm: Lightning strikes outside of rooms, killing players that it hits.\\n- Sandstorm: Sand blows, making it hard to see.\\n- Tsunami: A giant wave comes moving in a specific direction, drowning players that are on the way.\\n- Sinkhole: The ground collapses, killing players in range and any players that enter this range in the future.\\n- Building Collapse: A building on the ship collapses, killing everyone inside it. Collapsed rooms cannot be entered in the future.</size>",
@@ -4707,7 +4686,6 @@
   "ND_VolcanoEruption.DurationAfterFlowComplete": "Time Before Despawning After Lava Flow is Complete",
   "ND_VolcanoEruption.FlowStepDelay": "Delay Between Lava Flowing Steps",
   "OngoingThunderstorm": "<#ffff44>⚠ Ongoing Thunderstorm ⚠</color>",
-  
   "Quiz": "QUIZ",
   "ModeQuiz": "Gamemode: Quiz",
   "ModeDescribe.Quiz": "In the Quiz game mode, you must answer questions correctly to survive. There are various difficulties with varying time limits. Each question has 5 answer choices: A, B, C, D, E. Each choice has a room name next to the answer. To pick an answer, you must enter the room corresponding to the answer. If you answer correctly, you survive. If you don't answer enough questions correctly, you eventually die or compete in a Free For All (FFA) match with the other players who got the questions wrong.",
@@ -8104,7 +8082,6 @@
   "Quiz.Settings.TimeLimit.Medium": "Time Limit to Answer Each Question in Medium Rounds",
   "Quiz.Suffix.Invisible": "You cannot see where other people go\\nOther people cannot see where you go",
   "Quiz.TaskBarText": "---- GAME DATA ----\\n\\nDifficulty: {0}\\nRound: {1}\\nQuestion: {2}\\n\\nNumber of correct answers\\nfrom everyone so far:\\n\\n{3}",
-  
   "RoomRush": "Room Rush",
   "ModeRoomRush": "Gamemode: Room Rush",
   "ModeDescribe.RoomRush": "In the Room Rush gamemode, everyone has to get to a specific room as fast as possible. The last player to get there dies. The last player alive wins!\\nOh yeah, and there's also a time limit. Everyone who doesn't get to the room in the specified time dies. Seems easy, right? Well.... When the first 2 players enter the correct room, the time limit gets set to a lower amount, like a few seconds! Good luck!\\n\\nYou can see the room you have to get to below your name.\\nDepending on the settings, everyone may be able to vent limited times.",
@@ -8137,7 +8114,6 @@
   "RR_WinByPointsInsteadOfDeaths": "Instead of deaths, count the places each time in points and the first player to get a certain amount of points wins",
   "RR_YouAreFirst": "You are in the 1st place",
   "RR_YouWereLast": "<#ff1919>You were the last to get to the room</color>",
-  
   "Snowdown": "SNOWDOWN",
   "ModeSnowdown": "Gamemode: Snowdown",
   "ModeDescribe.Snowdown": "In the Snowdown gamemode, the player that successfully throws the most snowballs at other players wins! You get 1 coin for every hit. You can spend coins on powerups in the shop, or turn pet to turn 20 coins into 1 point. Highest <u>points</u> (not coins) wins! Triggers:\\n- Vanish: Throw a snowball in your movement direction / Cycle between powerups while in shop\\n- Calling a ciritical Sabotage: Enter/Exit shop\\n- Pet: Turn 20 coins into 1 point / Buy selected powerup in shop\\n- Kill: Give the target one of your snowballs",
@@ -8159,7 +8135,24 @@
   "Snowdown.SnowballGainFrequencyOption": "Initial Snowball Gaining Frequency",
   "Snowdown.SnowballThrowSpeedOption": "Snowball Throwing Speed",
   "SnowdownButtonText": "THROW",
-  
+  "DoomTag": "DOOM TAG",
+  "ModeDoomTag": "Gamemode: Doom Tag",
+  "ModeDescribe.DoomTag": "In the Doom Tag gamemode, every player has an assigned assassination target marked with an arrow. You can ONLY kill your designated target. Killing the wrong target results in a punishment (suicide / lower vision). When you kill your target, you inherit their target. When only a few players remain, Frenzy Mode activates: everyone gets a speed boost and reduced kill cooldown. Last player alive wins!",
+  "GameModeTutorial.DoomTag": "<size=90%>The current game mode is <#D9BAA5>Doom Tag</color>.</size>\\n<size=80%>Each player has a target marked with an arrow.\\nYou can ONLY kill your target.\\nKilling the wrong target will punish you.\\nYour target transfers when you kill correctly.\\nFrenzy mode activates when few remain!</size>",
+  "DoomTag.BaseKillCooldown": "Base Kill Cooldown",
+  "DoomTag.PunishmentMode": "Wrong Kill Punishment",
+  "DoomTag.PunishSuicide": "Suicide",
+  "DoomTag.PunishLowerVision": "Lower Vision",
+  "DoomTag.LowerVisionMultiplier": "Lowered Vision Multiplier",
+  "DoomTag.FrenzyPlayerCount": "Players to Trigger Frenzy Mode",
+  "DoomTag.FrenzyKillCooldown": "Frenzy Mode Kill Cooldown",
+  "DoomTag.FrenzySpeedMultiplier": "Frenzy Mode Speed Multiplier",
+  "DoomTag.ShowTargetArrow": "Show Target Arrow",
+  "DoomTag.CurrentTarget": "Current Target",
+  "DoomTag.FrenzyModeActivated": "<color=#ff6600>Frenzy Mode! Speed up and kill faster!</color>",
+  "DoomTag.FrenzyModeHUD": "FRENZY",
+  "DoomTag.WrongKillSuicide": "<color=#ff0000>Wrong target! You committed suicide.</color>",
+  "DoomTag.WrongKillLowerVision": "<color=#ff0000>Wrong target! Your vision has been reduced.</color>",
   "SoloPVP": "Penantang",
   "ModeSoloPVP": "Gamemode: Solo PVP",
   "ModeDescribe.SoloPVP": "Dalam mode Solo PVP, setiap pemain dibekali sejumlah HP tertentu. Serangan dilancarkan dengan menggunakan tombol 'bunuh' yang akan mengurangi HP lawan. Pemain yang HP-nya mencapai nol akan dikeluarkan sementara dari arena permainan dan akan muncul kembali beberapa saat kemudian. Setelah durasi permainan berakhir, pemain dengan total serangan terbanyak akan dinobatkan sebagai pemenang.",
@@ -8183,7 +8176,6 @@
   "SoloPVP_RecoverAfterSecond": "Durasi pemulihan",
   "SoloPVP_RecoverPerSecond": "Pemulihan per detik",
   "SoloPVP_ResurrectionWaitingTime": "Masa tunggu pengembalian",
-  
   "Speedrun": "Speedrunner",
   "ModeSpeedrun": "Gamemode: Speedrun",
   "ModeDescribe.Speedrun": "In the Speedrun gamemode, everything is about speed. Everyone has to complete all tasks as fast as possible, then kill everyone else as fast as possible!\\n\\nWhen someone finishes all their tasks, they become a killer and can kill everyone else. The last player alive wins!\\nBut to make this a bit harder, you have a time limit to complete a task or kill someone! The timer resets when you do so. If your time runs out, you die!\\n\\nThis gamemode is a hybrid of the Stop And Go and Free For All gamemodes.",
@@ -8196,7 +8188,6 @@
   "Speedrun_TaskFinishWins": "First to Finish Tasks Wins Immediately (skips killing phase)",
   "Speedrun_TimeLimit": "Time Limit to Do a Task or Kill",
   "Speedrun_TimeStacksUp": "Time Remainder Adds to Next Time Limit (time stacks up)",
-  
   "StopAndGo": "Tasker",
   "ModeStopAndGo": "Mode: Squid Game",
   "ModeDescribe.StopAndGo": "Dalam mode Squid Game, setiap pemain berperan sebagai Crewmate dan dibekali tiga timer beserta simbol panah sebagai petunjuk arah pergerakan: kiri (←), kanan (→), dan atas/bawah (⇅). Setiap simbol dilengkapi dengan lampu indikator berwarna merah atau hijau yang saling berganti setelah detik timer mencapai angka 0. Pemain hanya boleh bergerak ke arah yang lampunya berwarna hijau. Jika lampu timer berwarna merah, pemain tidak boleh bergerak ke arah tersebut, dan jika nekat melanggar, pemain tersebut akan gugur. Pemain yang lebih dulu berhasil menyelesaikan seluruh misi akan dinobatkan sebagai pemenang.",
@@ -8240,7 +8231,6 @@
   "StopAndGo_RightCounterGreenMin": "Durasi Minimum Hijau Arah Kanan",
   "StopAndGo_RightCounterRedMax": "Durasi Maksimum Merah Arah Kanan",
   "StopAndGo_RightCounterRedMin": "Durasi Minimum Merah Arah Kanan",
-  
   "TheMindGame": "THE MIND GAME",
   "ModeTheMindGame": "Gamemode: The Mind Game",
   "ModeDescribe.TheMindGame": "The Mind Game is a 4-round elimination game focused on strategy, bluffing, and item use. Players compete for points across rounds, with only one emerging victorious.\\nRound 1: Demand Points - Pick a number. If someone else picks the same, both get nothing. Reach the point goal first to advance. Lowest scorers in each group are eliminated.\\nRound 2: Super Point Auctions - Bid normal points in hidden auctions for super points. Highest bidders win. Lowest super point holders are eliminated.\\nRound 2.5: Merchant Intermission - Spend super points on powerful items. Items can blind, block, steal, or enhance. Use commands to buy and activate them.\\nRound 3: Demand + Items - Same as Round 1, but items are active. Everyone plays together. Lowest scorers are eliminated until only a few remain.\\nRound 4: The Briefcase Game - One player holds the winning briefcase. Get ejected while holding it to lock in placement. Briefcases shuffle after each ejection. If only 2 remain, the briefcase holder loses. Use Lasso to steal.\\nFinal Scoring: Total score = points from rounds + super points bonus + placement bonus. Highest total wins.",
@@ -8321,7 +8311,6 @@
   "TMG.Suffix.YourBid": "Your Bid: {0} Normal Points",
   "TMG.Suffix.YourItems": "<u>Your items:</u>",
   "TMG.Suffix.YourPick": "Picking Number: {0}",
-  
   "8BallResponseTitle": "<#000000>➇ 8-BALL ➇</color>",
   "8BallResponse.0": "It is certain.",
   "8BallResponse.1": "It is decidedly so.",
@@ -8343,93 +8332,11 @@
   "8BallResponse.17": "My sources say no.",
   "8BallResponse.18": "Outlook not so good.",
   "8BallResponse.19": "Very doubtful.",
-  
-  "8BallResponse.20": "\\n",
-  "8BallResponse.21": "\\n",
-  "8BallResponse.22": "\\n",
-  "8BallResponse.23": "\\n",
-  "8BallResponse.24": "\\n",
-  "8BallResponse.25": "\\n",
-  "8BallResponse.26": "\\n",
-  "8BallResponse.27": "\\n",
-  "8BallResponse.28": "\\n",
-  "8BallResponse.29": "\\n",
-  "8BallResponse.30": "\\n",
-  "8BallResponse.31": "\\n",
-  "8BallResponse.32": "\\n",
-  "8BallResponse.33": "\\n",
-  "8BallResponse.34": "\\n",
-  "8BallResponse.35": "\\n",
-  "8BallResponse.36": "\\n",
-  "8BallResponse.37": "\\n",
-  "8BallResponse.38": "\\n",
-  "8BallResponse.39": "\\n",
-  "8BallResponse.40": "\\n",
-  "8BallResponse.41": "\\n",
-  "8BallResponse.42": "\\n",
-  "8BallResponse.43": "\\n",
-  "8BallResponse.44": "\\n",
-  "8BallResponse.45": "\\n",
-  "8BallResponse.46": "\\n",
-  "8BallResponse.47": "\\n",
-  "8BallResponse.48": "\\n",
-  "8BallResponse.49": "\\n",
-  "8BallResponse.50": "\\n",
-  "8BallResponse.51": "\\n",
-  "8BallResponse.52": "\\n",
-  "8BallResponse.53": "\\n",
-  "8BallResponse.54": "\\n",
-  "8BallResponse.55": "\\n",
-  "8BallResponse.56": "\\n",
-  "8BallResponse.57": "\\n",
-  "8BallResponse.58": "\\n",
-  "8BallResponse.59": "\\n",
-  "8BallResponse.60": "\\n",
-  "8BallResponse.61": "\\n",
-  "8BallResponse.62": "\\n",
-  "8BallResponse.63": "\\n",
-  "8BallResponse.64": "\\n",
-  "8BallResponse.65": "\\n",
-  "8BallResponse.66": "\\n",
-  "8BallResponse.67": "\\n",
-  "8BallResponse.68": "\\n",
-  "8BallResponse.69": "\\n",
-  "8BallResponse.70": "\\n",
-  "8BallResponse.71": "\\n",
-  "8BallResponse.72": "\\n",
-  "8BallResponse.73": "\\n",
-  "8BallResponse.74": "\\n",
-  "8BallResponse.75": "\\n",
-  "8BallResponse.76": "\\n",
-  "8BallResponse.77": "\\n",
-  "8BallResponse.78": "\\n",
-  "8BallResponse.79": "\\n",
-  "8BallResponse.80": "\\n",
-  "8BallResponse.81": "\\n",
-  "8BallResponse.82": "\\n",
-  "8BallResponse.83": "\\n",
-  "8BallResponse.84": "\\n",
-  "8BallResponse.85": "\\n",
-  "8BallResponse.86": "\\n",
-  "8BallResponse.87": "\\n",
-  "8BallResponse.88": "\\n",
-  "8BallResponse.89": "\\n",
-  "8BallResponse.90": "\\n",
-  "8BallResponse.91": "\\n",
-  "8BallResponse.92": "\\n",
-  "8BallResponse.93": "\\n",
-  "8BallResponse.94": "\\n",
-  "8BallResponse.95": "\\n",
-  "8BallResponse.96": "\\n",
-  "8BallResponse.97": "\\n",
-  "8BallResponse.98": "\\n",
-  "8BallResponse.99": "\\n",
   "AAWarning": "<#ffff00>Segera menjauh dari perangkat atau nyawamu jadi taruhannya!</color>",
   "Admin": "Admin",
   "AdminTag": "<#ff0000>Admin</color>",
   "AdminUnmuted": "Admin {0} has unmuted {1}.",
   "AprilFoolsMode": "April Fools Mode",
-  
   "PlayerInfo": "Player Info",
   "PlayerAddedToAdminList": "Player successfully added to the admin list.",
   "PlayerAddedToModList": "Player successfully added to the moderator list.",
@@ -8454,7 +8361,6 @@
   "PlayerWasRevived": "The player whose body you tried to report was revived",
   "AccurateCheckMode": "Can know specific role when tasks are not done",
   "YouMuted": "<#ffff00>You've been muted by <u>{0}</u> for <#ff0000>{1}</color> seconds.",
-  
   "AchievementCompletedTitle": "<#FAD101>ACHIEVEMENT UNLOCKED</color>",
   "CompletedAchievementsTitle": "<#FAD101>COMPLETED ACHIEVEMENTS</color>",
   "IncompleteAchievementsTitle": "<#ff0000>ACHIEVEMENTS TO BE UNLOCKED</color>",
@@ -8706,9 +8612,7 @@
   "Achievement.YoureMyFriendNow.Description": "Rekrut pemain sebagai Gangster/Jackal/Infection/Virus/Cultist",
   "Achievement.YoureTooLate": "You're Too Late",
   "Achievement.YoureTooLate.Description": "Sebagai Pestilence, membuat pembunuh gagal setelah mencoba membunuhmu",
-  
   "TabGroup.VanillaSettings": "Vanilla Settings",
-  
   "TabGroup.SystemSettings": "System Settings",
   "ModLanguage": "Bahasa Mod",
   "UseGameLanguage": "Bahasa Gim",
@@ -8721,6 +8625,7 @@
   "KickMobilePlayer": "Kick mobile players",
   "KickPlayerFriendCodeNotExist": "Kick players who are not logged in",
   "ApplyDenyNameList": "Apply DenyName List",
+  "BanDenyNameListPlayers": "Ban instead of kick on trigger",
   "ApplyBanList": "Apply BanList",
   "ApplyModeratorList": "Apply Moderator List",
   "ApplyVIPList": "Apply VIP List",
@@ -8845,7 +8750,6 @@
   "AGMR.Slot.Count": "How many times should we repeat this?",
   "MenuTitle.AGMR.RandomGroup": "Random Group {index}",
   "AGMR.RandomGroup.GMChance": "Chance of selecting {gm}",
-  
   "TabGroup.GameSettings": "Mod Settings",
   "MenuTitle.Ejections": "★ Ejection ★",
   "ConfirmEjectionsMode": "Confirm Ejections Mode",
@@ -9036,7 +8940,6 @@
   "AnagramDiff.Medium": "Medium",
   "AnagramDiff.MediumHard": "Medium-Hard",
   "AnagramDiff.Hard": "Hard",
-  "EightballCommandIndexes": "Number of responses for /8ball command (Use the custom translate file to import additional responses. These responses will return blank if no definitions are made)",
   "MenuTitle.Other": "★ Different ★",
   "LadderDeath": "Fall From Ladders",
   "LadderDeathChance": "Fall To Death Chance",
@@ -9077,8 +8980,7 @@
   "AFKSuffix": "<#ffa500>(AFK)</color>",
   "AFKTooMany": "Pendeteksi AFK telah dinonaktifkan untuk ronde ini dikarenakan tingginya jumlah pemain yang terdeteksi AFK",
   "AFKWarning": "<#ffff00><size=90%>Mohon bergerak agar tidak dianggap AFK</color> <#ffffff>({0})</size></color>",
-  "MenuTitle.CTA": "★ Custom Team Assignment ★", 
-  
+  "MenuTitle.CTA": "★ Custom Team Assignment ★",
   "TabGroup.TaskSettings": "Game Modifiers",
   "UsePets": "Use Pet button instead of Vent/Shapeshift",
   "PetToAssign": "Pet to Assign to Everyone",
@@ -9236,26 +9138,21 @@
   "GuesserDoesntDieOnMisguess": "<color=#f3e304>Penebak Tidak Mati Ketika Salah Tebak</color>",
   "CanGuessDuringDiscussionTime": "<color=#f3e304>Guessers Can Guess During Discussion Time</color>",
   "MisguessDeathReason": "'Misguess' Death Reason",
-  
   "AddedPolus": "Include <color=#a167c0>Polus</color>",
   "AddedTheAirship": "Include <color=#ed0007>Airship</color>",
   "AddedTheSkeld": "Include <color=#66a186>The Skeld</color>",
   "AddonCanBeGuessed": "Bisa tertebak",
   "AfterMeeting": "Setelah Rapat",
   "AfterMeetingKillCooldown": "Durasi rehat serangan setelah rapat",
-  
   "AddonSettingsCrew": "Konfigurasi <color=#8cffff>Crewmate</color>",
   "AddonSettingsImp": "Konfigurasi <color=#ff1919>Impostor</color>",
   "AddonSettingsNeut": "Konfigurasi <color=#ffab1b>Netral</color>",
-  
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} has guessed the anagram correctly (<b>{1}</b>)!",
   "Sabotage": "Sabotage",
   "SabotageButtonText": "Sabotage",
-  
   "ArrowDelayMax": "Maksimum Jeda Muncul Panah",
   "ArrowDelayMin": "Minimum Jeda Muncul Panah",
   "BKProtectDuration": "Durasi Proteksi",
-  
   "BMAE.AfterMeeting": "Setelah Rapat",
   "BMWSBP.Blackmailer": "<#990000>Blackmailer</color>",
   "BMWSBP.BlackmailerAndBlackmailed": "<#990000>Blackmailer</color> + Target",
@@ -9266,19 +9163,12 @@
   "BlackHoleMovesTowardsNearestPlayer": "Lubang hitam bergerak menuju pemain terdekat",
   "BlackHolePlaceCooldown": "Durasi rehat penempatan lubang hitam",
   "BlackHoleRadius": "Radius Jangkauan",
-
-  
   "BlackScreenFixCompleteNotify": "<#00ff00>Black Screen Fix Code Executed</color>",
   "BlackmailedSuffix": "<#ffa500>BLACKMAILED</color>",
   "BlockVentMovement": "Blokir Perpindahan Antar Ventilasi",
-  
   "BombCooldown": "Bomb Cooldown",
   "BombExplodeCooldown": "Bomb explode cooldown",
-
-  
   "CL.Enabled": "Hanya Peran yang Diaktifkan",
-
-  
   "CustomTeamHelp": "You are in the {0}! ({1})\\nWork with your team members to win together!",
   "CTA.Arrows": "Pemain Mempunyai Panah Saling Tertuju",
   "CTA.GuessEachOther": "Pemain Bisa Saling Menebak",
@@ -9300,26 +9190,18 @@
   "CTA.TeamEnabled.Suffix": " ",
   "CTA.WinWithOriginalTeam": "Pemain Bisa Menang Bersama Tim Asal",
   "SameCTATeam": "The player you attacked is in the same custom team as you",
-  
   "CamerasAndAdmin": "Cameras & Admin",
   "CamerasDisabledNotify": "<color=#ffff00>Cameras are globally disabled by the host</color>",
   "CamouflageCooldown": "Durasi Rehat Mode Kamuflase",
   "CamouflageDuration": "Durasi Mode Kamuflase",
-  
   "CanBeGuessed": "Can Be Guessed",
-
-  
   "CanBeInLove": "Can be <color=#ff9ace>in love</color>",
   "CanBeSoldByMerchant": "Can be sold by <color=#D27D2D>Merchant</color>",
   "CanCheckCamera": "Bisa lacak penggunaan CCTV",
   "CanCountNeutralKiller": "Bisa merebut kemenangan saat <color=#8cffff>Crewmate</color> menang dengan membunuh pemain <color=#ffab1b>Netral</color>",
   "CanGetImpostorOnlyAddons": "Bisa mendapat add-on khusus <#ff1919>Impostor</color>",
-
-  
   "CanGuess": "Bisa menebak dalam mode tebak",
   "CanGuessTarget": "Bisa menebak target",
-
-  
   "CanHandcuffSheriff": "Can Handcuff <color=#f8cd46>Sheriff</color>",
   "CanIgniteBeforePlacingAllFireworks": "Can Blow Up Installed Fireworks Before Placing Them All",
   "CanKill": "Bisa Membunuh",
@@ -9332,72 +9214,41 @@
   "CanNotJoinPublicRoomNoLatest": "You can't join public rooms without the latest version.\\nPlease update.",
   "CanNotTrialJailed": "You can not trial the target.",
   "CanNotTrialProtected": "You can not trial protected players.",
-
-  
   "CanOnlyUseWhileAnyWatch": "Hanya dapat menggunakan kemampuan saat ada notifikasi penggunaan perangkat",
   "CanPickPartnerRole": "Bisa memilih peran yang sudah ada dalam permainan",
-
-  
   "CanSabotage": "Bisa Sabotase",
-
-  
   "CanShapeshift": "Bisa <color=#ff1919>Shapeshift</color>",
-
-  
   "CanSwapSelfVotes": "Penukaran bisa berlaku untuk <color=#922348>Swapper</color> sendiri",
-
-  
   "CanTargetCoven": "<color=#7b3fbb>Coven</color> bisa menjadi target",
   "CanTargetNeutralBenign": "<color=#ffab1b>Netral</color> <color=#046300>Jinak</color> bisa menjadi target",
   "CanTargetNeutralEvil": "<color=#ffab1b>Netral</color> <color=#912900>Durjana</color> bisa menjadi target",
   "CanTerroristSuicideWin": "Bisa menang dengan bunuh diri",
   "CantGuessJailed": "You can not guess the target",
-
-  
   "CanUseSabotage": "Bisa Sabotase",
-
-  
   "CanVent": "Bisa Akses Ventilasi",
   "CanVentAfterNecronomicon": "Can Vent <#00ffff>After</color> Receiving The <#7b3fbb>Necronomicon</color>",
   "CanVentBeforeNecronomicon": "Can Vent <#00a5ff>Before</color> Receiving The <#7b3fbb>Necronomicon</color>",
-
-  
   "CanVote": "Bisa Voting",
-
-  
   "CanWinAfterDeath": "Bisa menang setelah mati",
   "CancelStartCountDown": "The starting countdown was cancelled",
   "CancelSwap1": "Target Pertukaran Pertama Dibatalkan",
   "CancelSwap2": "Target Pertukaran Kedua Dibatalkan",
-
-  
   "CannotCallEmergencyMeetingWhileSabotage": "Emergency meetings cannot be called during crisis",
-
-  
   "CannotCleanWhenKCDIsntUp": "Tidak dapat membersihkan mayat saat dalam durasi rehat serangan",
   "CannotSpawnAsSoloImp": "Cannot Spawn as Solo Impostor",
   "CannotStoneGazeWhenKCDIsntUp": "Cannot Stone Gaze Bodies When Kill Cooldown Isn't Up",
-
-  
   "CantSwapSelf": "Penukaran vote tidak berlaku untuk diri sendiri",
   "CantUse.killlog": "Unable to use /killlog during a game.",
   "CantUse.lastresult": "Unable to use /lastresult during a game.",
   "CantUse.lastroles": "Unable to use /lastroles during a game.",
-
-  
   "ChanceOfSeeingAllAlignmentsOnStart": "Probabilitas Mengetahui Basis Tim di Awal",
-
-  
   "ChargeInterval": "Charge Percentage Gained Each Second When Kill Cooldown Is Up",
   "ChargeLossInterval": "Charge Percentage Lost Each Second While Killing",
-  
   "ComboAdd": "{0} and {1} will now always spawn together.",
   "ComboAllow": "{0} and {1} can now spawn together.",
   "ComboBan": "{0} and {1} will never spawn together.",
   "ComboRemove": "{0} and {1} will no longer spawn together.",
   "ComboUsage": "\n<b><u>Usage Format:</u></b>\n/combo {add/ban/remove/allow} {main role} {addon} [all]\n\n<size=60%>By default, the combo is added to the current preset. If you want it to be added for all presets, type 'all' at the end.\nExample: /combo add Niceguesser Doubleshot all</size>",
-  
-  
   "GNoCommandInfo": "<b>This Command can only be used when in lobby or after you die.</b>\\n\\ntype <b>/gno X</b> to play guess a number. X can be a number between 0 and 99 (both included). \\n\\nYou get maximum of <color=#ff0000>7 tries</color> to guess the number.\\n\\n Example:- <b>/gno 10</b>",
   "HostKillSelfByCommand": "The lobby Host decided to commit suicide",
   "HostMayOmitCmdPrefix": "'cmd' prefix\\ncan be omitted",
@@ -9409,7 +9260,6 @@
   "SpectateCommand.Success": "<#00ff00>✓</color> You are now spectating for the next game.",
   "SpectateCommand.WasSpectatingLastRound": "<#ff0000>X</color> You were spectating last round. You can't spectate again.",
   "TerminateCommand": "Abort Command",
-  
   "CommandArgs.AFKExempt.Id": "ID pemain yang dikecualikan dari pendeteksian AFK",
   "CommandArgs.AddAdmin.Id": "The player's ID to add to the list of admins",
   "CommandArgs.AddMod.Id": "The player's ID to make a moderator",
@@ -9511,7 +9361,6 @@
   "CommandArgs.Whisper.Ids": "The players' IDs to whisper to, separated by commas (no space)",
   "CommandArgs.Whisper.Message": "The message to whisper",
   "CommandArgs.XOR.Role": "A main role that will never spawn in the same game with the other role",
-  
   "CommandDescription.AFKExempt": "Mengecualikan pemain dari deteksi status AFK",
   "CommandDescription.Achievements": "See which achievements you have unlocked and which you haven't",
   "CommandDescription.AddAdmin": "Add a player to the list of admins",
@@ -9625,7 +9474,6 @@
   "CommandDescription.Whisper": "Whisper a message privately to the specified players.",
   "CommandDescription.Winner": "View the winners of the last game",
   "CommandDescription.XOR": "Specify 2 roles that will never spawn in the same game.",
-  
   "CommandForms.AFKExempt": "afkexempt",
   "CommandForms.Achievements": "achievements",
   "CommandForms.AddAdmin": "addadmin",
@@ -9739,7 +9587,6 @@
   "CommandForms.Whisper": "w,whisper",
   "CommandForms.Winner": "win,winner",
   "CommandForms.XOR": "xor",
-  
   "CommandList": "★ Command list:",
   "Commands.ChangeSettingHelp": "<b><u>Arguments:</u></b><size=70%>\\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\\n- impostors (number)\\n- players (number)\\n- recommended (on/off)\\n- confirmejects (on/off)\\n- emergencymeetings (number)\\n- anonymousvotes (on/off)\\n- emergencycooldown (number)\\n- discussiontime (number)\\n- votingtime (number)\\n- playerspeed (float)\\n- crewmatevision (float)\\n- impostorvision (float)\\n- killcooldown (float)\\n- killdistance (short/medium/long/custom)\\n- taskbarupdates (always/meetings/never)\\n- visualtasks (on/off)\\n- commontasks (number)\\n- longtasks (number)\\n- shorttasks (number)\\n- scientistcount (number)\\n- scientistchance (number)\\n- vitalsdisplaycooldown (float)\\n- batteryduration (float)\\n- engineercount (number)\\n- engineerchance (number)\\n- ventusecooldown (float)\\n- maxtimeinvents (float)\\n- guardianangelcount (number)\\n- guardianangelchance (number)\\n- protectcooldown (float)\\n- protectduration (float)\\n- protectvisibletoimpostors (on/off)\\n- shapeshiftercount (number)\\n- shapeshifterchance (number)\\n- shapeshiftduration (float)\\n- shapeshiftcooldown (float)\\n- leaveshapeshiftevidence (on/off)\\n- phantomcount (number)\\n- phantomchance (number)\\n- inviscooldown (float)\\n- invisduration (float)\\n- noisemakercount (number)\\n- noisemakerchance (number)\\n- noisemakerimpostoralert (on/off)\\n- noisemakeralertduration (number)\\n- trackercount (number)\\n- trackerchance (number)\\n- trackduration (float)\\n- trackcooldown (float)\\n- trackdelay (float)\\n- ghostdotasks (on/off)\\n\\n<u><b>Notes:</b></u>\\n1. Upper and lowercase matters\\n2. Where it says custom, you obviously put a number argument after it\\n3. A float is a single precision floating number, like 1.7\\n4. \"ghostdotasks\" causes issues if you set it\\n5. Example uses:\\n   - \"/cs map polus\"\\n   - \"/cs killdistance custom 4\"\\n   - \"/cs trackdelay 1,7\"\\n   - \"/cs confirmejects on\"",
   "Commands.NoAccess.Level.Host": "<#ff5555>X <#bb0000>This command can only be used by <#ffffff>The Host",
@@ -9758,7 +9605,6 @@
   "KickCommandKickedReason": "Reason:",
   "KickCommandKickedRole": "Their role was",
   "KickCommandNoAccess": "You do not have access to the kick command.",
-  
   "AutoGMRotationStatusText.CooldownTimer": "Jumping to the next game mode on the list in <b>{0}</b> seconds",
   "AutoGMRotationStatusText.GMPoll": "Player Vote (/gmpoll)",
   "DraftChosen": "You have chosen the <b>{0}</b> role for the next game.\\n<size=70%>You can still change your choice by typing /draft [index] again.</size>",
@@ -9783,39 +9629,24 @@
   "Poll.YouVoted": "You have voted for {0}, which now has {1} votes.",
   "PollResultTitle": "Poll Results",
   "PollUsage": "Format:\\n<size=80%><b>/poll {Question}? <size=55%>{Answer A} {Answer B} \n[Answer C] [Answer D] [Answer E]</size></b></size>\n\n<size=50%>Note: The question should always end with a question mark (?)!</size>",
-  
   "ControlCooldown": "Control Cooldown",
-
-  
   "ConvertedAddonCanBeGuessed": "{role} can be guessed",
-
-  
   "CooldownsResetEachOther": "Ability Cooldown and Kill Cooldown Reset Each Other",
-
-  
   "CopyCrewVarEvenIfDisabled": "Can copy the crew variant even if that role is disabled",
-
-  
   "CountdownText": "<color=#00ffa5>Re-Entering Lobby in</color> <b>{0}</b>s",
   "CovenCanBeInLove": "<color=#7b3fbb>Coven</color> can be <color=#ff9ace>in love</color>",
   "CovenCanBeRole": "<color=#7b3fbb>Coven</color> can become {role}",
   "CovenCanFindMarshall": "<#7b3fbb>Coven</color> bisa tahu",
   "CovenReceiveNecronomiconAfterNumMeetings": "Jumlah Rapat untuk Memperkuat <color=#7b3fbb>Coven</color> dengan <color=#7b3fbb>Necronomicon</color>",
-  
   "CrewCanBeEgoist": "<color=#8cffff>Crewmates</color> can become <color=#5600ff>Egoist</color>",
   "CrewCanBeInLove": "<color=#8cffff>Crewmates</color> can be <color=#ff9ace>in love</color>",
   "CrewCanBeLoyal": "<color=#8cffff>Crewmates</color> can become <color=#B71556>Loyal</color>",
   "CrewCanBeRole": "<color=#8cffff>Crewmates</color> can become {role}",
   "CrewLoversWinWithCrew": "If Both <color=#ff9ace>Lovers</color> are <color=#8cffff>Crewmates</color>, they always win with <color=#8cffff>Crewmates</color>",
   "CurrentActiveSettingsHelp": "Current Active Settings Help",
-
-  
   "CurseCooldown": "Curse Cooldown",
-
-  
   "CustomSabotage.GrabOxygenMask": "Grab Oxygen Mask",
   "CustomSabotage.GrabOxygenMask.Done": "<#00ff00>Oxygen Mask Grabbed! You are safe.</color>",
-  
   "DCNotify.Auth": "You are not authenticated.\\n\\nYou may need to restart your game.",
   "DCNotify.Banned": "You were <color=#ff1919>banned</color> from this lobby.\\n\\nContact the host if this was a mistake.",
   "DCNotify.DCFromServer": "You disconnected from the server.\\r\\nThis could be an issue with either the servers or your network.",
@@ -9828,25 +9659,18 @@
   "DCNotify.IncorrectVersion": "This lobby does not support your Among Us version.",
   "DCNotify.InvalidSettings": "Game settings have been detected to be invalid.\\n\\nEnter local play to reset them, then try again.",
   "DCNotify.Kicked": "You were <color=#ffff00>kicked</color> from this lobby.\\n\\nYou may still rejoin.",
-
-  
   "DCanGuessAdt": "Bisa Tebak Add-On",
   "DCanGuessCoven": "Bisa Tebak <color=#7b3fbb>Coven</color>",
   "DCanGuessCrewmates": "Bisa Tebak <color=#8cffff>Crewmate</color>",
   "DCanGuessImpostors": "Bisa Tebak <color=#ff1919>Impostor</color>",
   "DCanGuessNeutrals": "Bisa Tebak <color=#ffab1b>Netral</color>",
   "DGRM.OnMeeting": "Saat Rapat",
-
-  
   "DGResetMode": "Skin Reset Mode",
   "DGResetTimer": "If Resetting Skin by Timer, Reset Skin After",
-  
   "DeactivationAfterMeeting": "Setelah Rapat",
-  
   "DeadCrewCantSabotage": "<color=#8cffff>Crewmate</color> tidak dapat melakukan sabotase setelah gugur",
   "DeadImpCantSabotage": "<color=#ff1919>Impostor</color> tidak dapat melakukan sabotase setelah mati",
   "DeadNeutralCantSabotage": "<color=#ffab1b>Netral</color> tidak dapat melakukan sabotase setelah mati",
-  
   "DeathReason.AFK": "AFK",
   "DeathReason.Allergy": "Allergy",
   "DeathReason.Ashamed": "Ashamed",
@@ -9855,15 +9679,18 @@
   "DeathReason.BadLuck": "Bad Luck",
   "DeathReason.Bankrupt": "Bankrupted",
   "DeathReason.Bite": "Bitten",
+  "DeathReason.Bugged": "Bugged",
   "DeathReason.Bombed": "Exploded",
   "DeathReason.Collapsed": "Collapsed",
   "DeathReason.Consumed": "Consumed",
   "DeathReason.Curse": "Cursed",
   "DeathReason.Cursed": "Cursed",
   "DeathReason.Deafened": "Deafened",
+  "DeathReason.Destroyed": "Destroyed",
   "DeathReason.Demolished": "Demolished",
   "DeathReason.DidntVote": "Didn't Vote",
   "DeathReason.Disconnected": "Disconnected",
+  "DeathReason.Diseased": "Diseased",
   "DeathReason.Dismembered": "Dismembered",
   "DeathReason.Dragged": "Dragged",
   "DeathReason.Drowned": "Drowned",
@@ -9900,9 +9727,11 @@
   "DeathReason.Revenge": "Revenge",
   "DeathReason.Sacrifice": "Sacrifice",
   "DeathReason.Scavenged": "Scavenged",
+  "DeathReason.Shot": "Shot",
   "DeathReason.SkippedVote": "Skipped Voting",
   "DeathReason.Sniped": "Sniped",
   "DeathReason.Spell": "Spelled",
+  "DeathReason.Stoned": "Stoned",
   "DeathReason.Stung": "Stung",
   "DeathReason.Suicide": "Bunuh Diri",
   "DeathReason.Sunken": "Sunken",
@@ -9918,15 +9747,11 @@
   "DeathReason.YinYanged": "Yin Yang",
   "DeathReason.etc": "Other",
   "DebugMode": "Debug Mode",
-  
   "DecreasedKillCooldown": "Decreased Kill Cooldown",
   "DefaultShapeshiftCooldown": "Durasi Rehat Shapeshift Bawaan",
   "DeliverCooldown": "Durasi Rehat Pengiriman",
-  
   "DevourCooldown": "Durasi Rehat Pengubahan Wujud",
-  
   "DiedR1Warning": "<#ffff00>(Died First in Last Game)</color>",
-  
   "DisableBard": "Disable <color=#ff1919>Bard</color>",
   "DisableCrackedGlass": "Disable Cracked Glass on Meeting Screen",
   "DisableHiddenRoles": "Disable Hidden Roles",
@@ -9938,29 +9763,18 @@
   "DisableVanillaRoles": "Nonaktifkan Peran Vanilla",
   "DisabledByProgram": "Public rooms have been disabled by the program",
   "DisabledBySettings": "Disabled by Settings",
-  
   "DoesntSpawnOnFungle": "Doesn't Spawn When the Map is <color=#ffa646>Fungle</color>",
-  
   "DoYourTasksPlease": "Kerjakan misi!",
-  
   "DualVotes": "Duplicate votes",
-  
   "E2Block": "Block Erase",
-  
   "EAC.CheatDetected.EAC": "Cheating usage detected (Using AUM)",
   "EAC.CheatDetected.HighLevel": "Warning: EAC detected High Level of cheats.",
   "EAC.CheatDetected.LowLevel": "Warning: EAC detected Low Level of cheats. One of the players is hacking.",
-
-  
   "ECMO.OriginalTeam": "Tim Asal",
-
-  
   "EGCanGuessAdt": "Bisa Tebak Add-On",
   "EGCanGuessImp": "Can Guess <color=#ff1919>Impostor</color> Roles",
   "EGCanGuessTaskDoneSnitch": "Can guess <color=#b8fb4f>Snitch</color> with All Tasks Done",
   "EGGuessSnitchTaskDone": "You thought you could guess the Snitch when all of their tasks are done? Nice try.... You're not getting out of this that easily.",
-
-  
   "AntiBlackOutHostRejectForceEnd": "Kamu adalah sumber penyebab layar menjadi hitam, dan pemilik lobi tidak akan mengakhiri permainan. Koneksimu akan segera diputus.",
   "AntiBlackOutLoggerSendInGame": "Because of an unknown error, the game will end to prevent black screen.",
   "AntiBlackOutNotifyInLobby": "An unknown error occurred, to prevent black screen. Sadly, this error exists in all host-only mods and even vanilla Among Us. Automatic ending game is required, or the game will not start.",
@@ -10007,41 +9821,27 @@
   "UnsupportedVersion": "Unsupported Among Us version.\\nPlease update Among Us.",
   "downloadFailed": "Failed to upload file! \\nPlease try again later or restart the game...",
   "updateFailed": "Update failed.",
-  
   "EVote": "Vote",
-
-  
   "EightBallDisabled": "<#ff0000>X</color> The /8ball command is disabled in this lobby.",
-
-  
   "EnableDarkTheme": "Dark Theme for Chat UI",
   "EnableDebugMode": "Enable Debug Mode",
   "EnableExtraAbility": "Aktifkan Kemampuan Tambahan",
   "EnableSpurtCharge": "Display The Charge",
   "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game. Due to an unknown issue, games may end with the 'Everyone died' reason instantly, if this happens, please disable Game Master.",
-
-  
   "EnterVentWinCountDown": "Enter vent within <b>{0}</b> seconds to win!",
   "EnteredBlockedVent": "<color=#ffff00>This vent is blocked by the Ventguard</color>",
   "EraseLimit": "Max Erases",
-
-  
   "EvenKillCooldown": "Durasi rehat serangan rentang genap",
-  
   "ExiledExeTarget": "{0} adalah {1}.\\nTapi ia juga merupakan target dari <color=#611c3a>Executioner</color>!\\nMantap!",
   "ExiledExeTargetAddBelow": "\\nAnd they were also the <color=#611c3a>Executioner</color>'s target!",
   "ExiledInnocentTargetAddBelow": "\\nAnd looking back, there's also the <color=#8f815e>Innocent</color> counting the money in their hands....",
   "ExiledInnocentTargetInOneLine": "{0} was the {1}.\\nBut looking back, there's the <color=#8f815e>Innocent</color> counting the money in their hands....\\nGG!",
   "ExiledJester": "Kalian semua tertipu!\\n{0}, si {1}, tertawa terbahak-bahak karena berhasil mengakali kalian hingga membuangnya.\\nMantap!",
   "ExtraVotesPT": "<#00a5ff>(<#00ffff>+<#00ffa5>{0}</color> votes</color>)</color>",
-  
   "FakeTask": "Fake Tasks:",
-  
   "FixBlackScreenWaitForDead": "Everyone is alive, and the black screen fix requires a ghost, so it will wait until someone dies.",
-  
   "FreezeCooldown": "Durasi Rehat Pembekuan",
   "FreezeDuration": "Durasi Pembekuan",
-  
   "GCanGuessAdt": "Can guess Add-ons",
   "GCanGuessCrew": "<color=#8cffff>Crewmate</color> can guess <color=#8cffff>Crewmate</color> roles",
   "GCanGuessImp": "<color=#ff1919>Impostor</color> can guess <color=#ff1919>Impostor</color> roles",
@@ -10049,46 +9849,25 @@
   "GGCanGuessAdt": "Bisa Tebak Add-On",
   "GGCanGuessCrew": "Can Guess <color=#8cffff>Crewmate</color> Roles",
   "GGGuessMax": "You've reached the limit of maximum guesses, you can't guess anymore!",
-
-  
   "GSInfo.ConvertedCount": "<#ffab1b>Converted Players</color> <size=70%>(excluding <#ff1919>Madmates</color>)</size>: {0}",
   "GSInfo.CovenCount": "<#7b3fbb>Coven:</color> {0}",
   "GSInfo.CrewCount": "<#8cffff>Crewmates:</color> {0}",
   "GSInfo.ImpCount": "<#ff1919>Impostors:</color> {0}",
-
-  
   "GSInfo.LoversState": "Number of <#ff9ace>Lovers</color> Alive: {0}",
-
-  
   "GSInfo.MadmateCount": "<#ff1919>Madmates:</color> {0}",
   "GSInfo.NKCount": "<#ffab1b>Neutral</color> <#ff1919>Killers</color>: {0}",
   "GSInfo.NNKCount": "<#ffff00>Non-Killing</color> <#ffab1b>Neutrals</color>: {0}",
-
-  
   "GSInfo.RomanticState": "{0}",
-
-  
   "GSInfo.Tasks": "<#00ffa5>Completed Tasks:</color> {0}/{1}",
-
-  
   "GanInvestigatorCanBeMadmate": "<color=#BA55D3>Investigator</color> can be converted",
   "GanJudgeCanBeMadmate": "<color=#f8d85a>Judge</color> can be converted",
   "GanMarshallCanBeMadmate": "<color=#5573AA>Marshall</color> bisa berbelot",
   "GanMayorCanBeMadmate": "<color=#204d42>Mayor</color> bisa berbelot",
-
-  
   "GanNGuesserCanBeMadmate": "<color=#eede26>Nice Guesser</color> can be converted",
-
-  
   "GanPresidentCanBeMadmate": "<color=#30916f>President</color> can be converted",
   "GanSheriffCanBeMadmate": "<color=#f8cd46>Sheriff</color> bisa berbelot",
-  
   "GhostIgnoreTasks": "Hantu Bebas Dari Misi",
-
-  
   "GotGhostRoleNotify": "<#ffff00>You were assigned a ghost role!</color>",
-
-  
   "GuessAbility": "Guessers Can Guess <color=#ff9ace>Lovers</color>",
   "GuessAdtRole": "Unfortunately, the Host's settings do not allow you to guess add-ons",
   "GuessAnkylosaurus": "Kamu tidak dapat menebak Ankylosaurus",
@@ -10128,49 +9907,37 @@
   "GuessTeamMate": "Sorry, you can't guess your teammates.",
   "GuessVanillaCrewmate": "Host settings don't allow to guess someone as the vanilla Crewmate",
   "GuessWorkaholic": "Sorry, you can't guess a revealed Workaholic as that would be unfair.",
-  
   "HideDualVotes": "Hide duplicated votes",
-  
   "HnSUnloadWarning": "<#ffff00><b>WARNING:</b></color>\\nEHR doesn't support vanilla Hide And Seek and will unload if you enable it.\\nYou can use EHR's Custom Hide And Seek game mode with unique roles instead.",
-  
   "ImpCanBeEgoist": "An <color=#ff1919>Impostor</color> can become Egoist",
   "ImpCanBeInLove": "<color=#ff1919>Impostors</color> can be <color=#ff9ace>in love</color>",
   "ImpCanBeLoyal": "<color=#ff1919>Impostors</color> can become <color=#B71556>Loyal</color>",
   "ImpCanBeRole": "<color=#ff1919>Impostors</color> can become {role}",
   "ImpCanFindMarshall": "<#ff1919>Impostor</color> bisa tahu",
-  
   "ImpCanKillMadmate": "<color=#ff1919>Impostor</color> bisa bunuh <color=#ff1919>Madmate</color>",
-  
   "IncompatibleMod": "Incompatible Mod",
   "IncompatibleNeutralMode": "Jika posisi netral nirkompatibel, beralih menjadi?",
-  
   "IncreasedSpeedDuration": "Durasi Peningkatan Laju Jalan",
   "IncreasedVisionDuration": "Increased Vision Duration",
-  
   "KCD": "<color=#ff1919>Kill CD:</color> <color=#ffffff><b>{0}</b>s</color>",
   "KickCommandDisabled": "The kick command is currently disabled.",
-  
   "KillBaitNotify": "<color=#ffff00>You'll self-report in <color=#ffab1b>{0}</color>s</color>",
   "KillCooldownAfterCleaning": "Durasi Rehat Serangan Setelah Pembersihan",
   "KillCooldownAfterStoneGazing": "Kill Cooldown On Stone Gaze",
   "KillCooldownNormally": "Kill Cooldown Without Sabotage",
-
-  
   "KillCount": " Kills: {0}",
-  
   "LaughToWhoGuessSelf": "Tried to guess, who tried to self-guess! It's you! Ahah!",
   "LaughToWhoMurderSelf": "Hahaha, who would've thought someone was stupid enough to murder themselves?\\n\\nGuess it happens to be... YOU!",
   "LaughToWhoTrialSelf": "God, I didn't think the Judges would be so blind that they wouldn't even see that they had sentenced themselves.",
-
-  
   "LegacyLovers": "Legacy <color=#ff9ace>Lovers</color>",
-  
   "LimitPerGame": "Limit Per Game",
   "LimitPerRounds": "Limit Per Rounds",
-  
   "Loading": "<b><color=#ffff00>Loading....</color></b>\\n<size=2>This may take a minute.</size>",
   "LoadingBarText.1": "Setting up your game....",
   "LoadingBarText.2": "{0}/{1} Clients Ready ({2})",
+  "LoadingBarText.3": "Opening The Gate....",
+  "LoadingBarText.4": "Heading Off....",
+  "LoadingBarText.5": "Landing....",
   "LoadingHint.0": "Did you know?\nYou can put roles of your choice into custom teams!\nView instructions on our website (link on main menu)!",
   "LoadingHint.1": "Did you know?\nYou can force or ban certain role and add-on combos using /combo in lobby!\nGive it a try after this game!",
   "LoadingHint.2": "Did you know?\nYou can change roles', add-ons', settings', etc. names using custom translation files!",
@@ -10218,50 +9985,28 @@
   "LoadingHint.44": "Did you know?\nThe Dev's favorite number is 44",
   "LoadingHint.45": "Did you know that you can use the yield statement in an iterator to provide the next value or signal the end of an iteration in a loop since async doesn't work in BepInEx?\nYeah, me neither",
   "LoadingWithPercentage": "<b><color=#ffff00>{0}%</color></b>\\n<size=2>{1}</size>\\n<size=1>{2}</size>",
-  
   "LobbyCloseTimer": "Lobby Closing Timer: {0}",
   "LobbyTimer": "Lobby closes in {0}m {1}s",
-  
   "MadSnitchTasks": "Misi <color=#b8fb4f>Snitch</color>",
-
-  
   "MadTimeManagerLimitMeetingTime": "<color=#ff1919>Mad</color> <color=#6495ed>Time Manager</color> - Minimum Voting Time",
-
-  
   "MadmateCanFindMarshall": "<#ff1919>Madmate</color> bisa tahu",
-
-  
   "MadmateCanFixSabotage": "<color=#ff1919>Madmate</color> Bisa Memperbaiki Sabotase",
-
-  
   "MadmateCanKillImp": "<color=#ff1919>Madmate</color> bisa bunuh <color=#ff1919>Impostor</color>",
   "MadmateCountMode": "<color=#ff1919>Madmates</color> count as",
   "MadmateCountMode.Crew": "<color=#8cffff>Crewmates</color>",
   "MadmateCountMode.Imp": "<color=#ff1919>Impostors</color>",
   "MadmateCountMode.None": "Tidak Ada",
-
-  
   "MadmateSpawnMode": "<color=#ff1919>Madmate</color> spawning mode",
   "MadmateSpawnMode.Assign": "Ikat",
   "MadmateSpawnMode.FirstKill": "First Kill",
-
-  
   "MadmateSpawnMode.SelfVote": "Self Vote",
   "MainMenu.CreditsButton": "Credits",
   "MainMenu.ExitGameButton": "Quit",
   "MainMenu.InventoryButton": "Inventory",
-
-  
   "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Show Only Enabled Roles",
   "LobbyViewSettings_ShowAlldRolesButtonText": "Show All Roles",
-
-  
   "MainMenu.SettingsButton": "Settings",
-
-  
   "ManipulateNotify": "\\n<color=#ff1919>You were manipulated by the Mastermind!</color>\\n<color=#ffff00>You must kill someone within <color=#ffa500>{0}s</color> or you die!</color>",
-
-  
   "MaxAttemptsBlocked": "Maximum Distinct Guessing Attempts Blocked",
   "MaxCleanserUses": "Max cleanses",
   "MaxImpRolePicks": "Maksimum peran <#ff1919>Impostor</color> yang tercantum",
@@ -10269,7 +10014,6 @@
   "MaxInspectorCheckLimit": "Max inspections per game",
   "MaxMadmateRoles": "Jumlah <#00a5ff>Maksimum</color> Peran <#ff1919>Madmate</color>",
   "Maximum": "Max",
-  
   "Message.AddedPlayerToBanList": "Added <b>{0}</b> to the ban list",
   "Message.AllowLevelRange": "The game level can be set in the range: 0-100",
   "Message.AllowNameLength": "Nickname can be set length: 1-10",
@@ -10297,10 +10041,7 @@
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>The lobby code has been sent to the EHR website. This will help others find EHR lobbies.</color></size>\\n<size=70%>You can disable this feature in the settings (System Settings tab).</size>",
   "Message.LobbyShareFailed": "EHR-Chan does not seem to be online (failed to share lobby)",
   "Message.LobbyShared": "The lobby has successfully been shared!",
-  
   "Message.MadmateSelfVoteModeNotify": "Please note: The current Madness generation mode is <b>{0}</b>\\n Voting for yourself means you want to be Madmate. If you meet the conditions to become Madmate and there are still spaces left, you will immediately become Madmate",
-
-  
   "Message.MessageWaitHelp": "Specify the first argument in seconds.",
   "Message.NoDescription": "No description",
   "Message.NoPermissionSetRoleOthers": "You don't have permission to set roles for others. Please contribute to the mod or upload EHR content to YouTube to get this permission. If you're eligible, contact the developer on discord.",
@@ -10330,73 +10071,42 @@
   "Message.YTPlanSelectFailed": "You cannot be assigned as <b>{0}</b>.\\nIt may be because you don't have this role enabled, or this role does not support being assigned.",
   "Message.YTPlanSelected": "In the next game, your role will be <b>{0}</b>",
   "MessageTooLong": "Failed to send chat message. The size of the RPC would've exceeded the limit specified in System Settings.",
-
-  
   "MinMadmateRoles": "Jumlah <#00ffa5>Minimum</color> Peran <#ff1919>Madmate</color>",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>Modded Min/Max Impostors Automatically Set To </color><#ffffff>{0}</color></b>\\n<size=80%>Because you only changed the vanilla setting, which gets overridden by the modded ones.</size>",
   "MinPlayersForAirship": "Minimum Players for <color=#ed0007>Airship</color>",
   "MinPlayersForFungle": "Minimum Players for <color=#ffa646>The Fungle</color>",
   "MinTasksToActivateAbility": "Syarat Minimum Misi untuk Mengaktifkan Kemampuan",
-  
   "ModBrokenMessage": "The MOD file is damaged.\\nPlease reinstall.",
-  
   "ModdedClient": "Klien yang di modifikasi",
   "ModeratorMuted": "Moderator {0} has muted {1} for <#00ffa5>{2}</color> seconds.",
   "ModeratorTag": "<#8000ff>Moderator</color>",
-  
   "Modifier": "\nModifier: ",
   "Modifiers": "\nModifiers: ",
-  
   "MurderHelp": "Command: /tl [player ID]\\nYou can see the players' IDs before the players' names.\\nOr use /id to view the list of all player IDs.",
   "MurderKill": "<b>{0}</b> was murdered.",
   "MurderLimitPerGame": "Maximum Total Murders Per Game",
   "MurderLimitPerMeeting": "Maximum Meeting Kills Per Meeting",
   "MurderMaxGame": "You've reached your maximum murders limit for this game, so it was blocked.",
   "MurderNull": "Please choose a living player to murder.",
-
-  
   "MuteMessage": "<#ff0000>You're muted and cannot send messages. The mute will expire in <#ffff00>{0}</color> seconds.</color>",
-
-  
   "NGuesserCanBeMadmate": "<color=#eede26>Nice Guesser</color> can become <color=#ff1919>Madmate</color>",
-
-  
   "NKCanFindMarshall": "<#ffab1b>Netral Pembunuh</color> bisa tahu",
-
-  
   "NKWinsBySabotageIfNoImpAlive": "The team that wins by critical sabotage time limit if there are no <#ff1919>Impostors</color> alive",
-
-  
   "NNKCanFindMarshall": "<#ffff00>Netral Non-Pembunuh</color> bisa tahu",
-
-  
   "NameDisplayAddonsOnlyInMeetings": "Display Add-Ons next to the role name only in meetings (if the above setting is off)",
-
-  
   "NegativeEffectDuration": "Durasi Penurunan Laju Jalan / Jarak Pandang",
-
-  
   "NeutralCanBeInLove": "<color=#ffab1b>Neutrals</color> can be <color=#ff9ace>in love</color>",
   "NeutralCanBeRole": "<color=#ffab1b>Neutrals</color> can become {role}",
-
-  
   "NoLimitAddonsNumMax": "Maksimal add-on per pemain",
   "AddonAssigningRolesIgnoreMaxAddonsLimit": "Add-on Assigning Roles Ignore Max Add-ons Limit",
-
-  
   "NoMoreEmergencyMeetingsLeft": "You have no more emergency meetings left",
-  
   "NoPetActionMsgCrewTaskDone": "You are free",
   "NoPetActionMsgCrewWithTasksLeft": "You realize you still have tasks to do",
-  
   "NoWhisperAsRole": "<#ff0000>X</color> You cannot use the 'whisper' command as this role.",
   "NoWhisperDuringCourt": "<#ff0000>X</color> The /whisper command is disabled during court.",
-  
   "NotifyGameEnding": "<#ff0000>GAME END NOTIFY</color>\\n<#ffff00>This game has already ended. If it didn't end for you, please leave the game and rejoin the lobby. This is a vanilla bug. Sorry for the inconvenience.</color>",
   "NotifyGodAlive": "Informasikan dalam rapat jika God masih hidup",
-  
   "NukeCooldown": "Nuke Cooldown",
-  
   "NumGuessersOn.Coven.Max": "Maksimum Jumlah Penebak Coven",
   "NumGuessersOn.Coven.Min": "Minimum Jumlah Penebak Coven",
   "NumGuessersOn.Crewmate.Max": "Maximum Number of Crewmate Guessers",
@@ -10405,21 +10115,12 @@
   "NumGuessersOn.Impostor.Min": "Minimum Number of Impostor Guessers",
   "NumGuessersOn.Neutral.Max": "Maximum Number of Neutral Guessers",
   "NumGuessersOn.Neutral.Min": "Minimum Number of Neutral Guessers",
-
-  
   "NumOfTasks": "Number of Tasks to Finish",
-
-  
   "NumberOfLovers": "Number of <color=#ff9ace>Lover Pairs</color> (x2 members)",
-
-  
   "OddKillCooldown": "Durasi rehat serangan rentang ganjil",
   "OnlyShowPart": "Shown only part",
-  
   "PetsForceEnabled": "The Speedrun game mode requires pets to be enabled, so they are forced on. You can disable it for future games under Game Modifiers.",
-  
   "PoisonCooldown": "Poison Cooldown",
-  
   "PressF1ShowMainRoleDes": "F1: Show Full Role/Add-ons Info\\n<size=60%>On the joystick use the right stick (R3/RSB)</size>",
   "PromotedSKCanRecruit": "<color=#00b4eb>Jackal</color> baru bisa rekrut <color=#00b4eb>Sidekick</color> baru",
   "DownloadingPreset": "Downloading preset....",
@@ -10428,7 +10129,6 @@
   "Promt.EnableAllRoles": "Enable all roles and add-ons?<size=80%>\\n\\n<b>Yes</b> - Enable all roles and add-ons\\n<b>No</b> - Enter the quick setup dialog of roles and add-ons</size>",
   "Promt.EnableRole": "<size=60%>({0}/{1}) {2}\\n</size><size=80%>Enable {3}?</size><size=60%>\\n\\n{4}</size>",
   "Promt.ResetAllOptions": "Are you sure you want to reset all options? This action is irreversible and may take few minutes.",
-  
   "Rate0": "<#662222>0%</color>",
   "Rate5": "<#00ffff>5%</color>",
   "Rate10": "<#00fffb>10%</color>",
@@ -10450,9 +10150,7 @@
   "Rate90": "<#00ffac>90%</color>",
   "Rate95": "<#00ffa6>95%</color>",
   "Rate100": "<#ffff44>100%</color>",
-  
   "ReadyCheckMessage": "The Host/an Admin is checking how many players are ready to start the game.\\nPlease type <b>/ready</b> to let the Host/Admins know you're not AFK.",
-  
   "UnlockFPS": "Buka FPS",
   "ShowFPS": "Tampilkan FPS",
   "AutoStart": "Mulai Otomatis",
@@ -10477,8 +10175,6 @@
   "GM": "Game Master",
   "GMInfo": "Saksikan huru-hara!",
   "GMInfoLong": "(None):\\nThe Game Master is an observer role. Their presence does not affect the game; all players know who the Game Master is. The Game Master role will be assigned to the host, who will automatically become a ghost at the start of the game.",
-
-  
   "ResetKillCooldownOn": "Reset Durasi Rehat Serangan",
   "ResetKillCooldownWhenPlayerGetKilled": "Reset durasi rehat serangan jika ada yang terbunuh oleh pemain lain",
   "ResetToNormalCooldownAfterMeetings": "Reset Rampage Cooldown to Normal After Meetings",
@@ -10486,40 +10182,26 @@
   "RestEHRSetting": "EHR settings have been restored to default",
   "RevealMaxCount": "Maksimum Pengungkapan",
   "RitualMaxCount": "Maksimum Pengungkapan",
-  
   "SettingsForRoleText": "Settings for",
-  
   "ShapeshiftCooldown": "Durasi Rehat <color=#ff1919>Shapeshift</color>",
   "ShapeshiftDuration": "Durasi <color=#ff1919>Shapeshift</color>",
-
-  
   "ShareLobbyMinPlayer": "Share Lobby Code When The Number Of Players Reaches",
-
-  
   "ShieldDuration": "Durasi Proteksi",
-
-  
   "ShipHasNoMoreMeetingsLeft": "The ship has no more emergency meetings left",
-
-  
   "ShortTeamName.Coven": "Coven",
   "ShortTeamName.Crewmate": "Crew",
   "ShortTeamName.Impostor": "Imp",
   "ShortTeamName.Neutral": "Neut",
-  
   "ShowArrows": "Ada Panah Tertuju Pada Mayat",
-  
   "ShowResults": "Show Results",
   "ShowSpecificRole": "Know specific roles on Task Completion",
   "SpectateDisabled": "<#ff0000>X</color> The /spectate command is disabled in this lobby.",
-  
   "Skeld": "<#66a186>The Skeld</color>",
   "MiraHQ": "<#e84b56>Mira HQ</color>",
   "Polus": "<#a167c0>Polus</color>",
   "Dleks": "<#66a186>Dleks Eht</color>",
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
-  
   "Submerged": "<##3064FF>Submerged</color>",
   "SubmergedRoomName.128": "Research",
   "SubmergedRoomName.129": "Observatory",
@@ -10529,42 +10211,26 @@
   "SubmergedRoomName.133": "Ballast",
   "SubmergedRoomName.134": "Lower Central",
   "SubmergedRoomName.135": "Lower Lobby",
-  
   "SupportsPetMessage": "\\n\\n<#00ff00>[✓] This role supports Pet button usage for ability triggers or other actions, maybe replacing venting, shapeshifting or killing.</color>",
-  
   "SyncCustomSettingsRPC": "Synchronized RPC",
-  
   "TabGroup.PresetSettings": "Preset Settings",
   "TargetCannotBeTeleported": "Target cannot be teleported",
-  
   "TaskBasedCrewCanBeLazy": "Task based <color=#8cffff>crewmates</color> can be <color=#A4DFFE>Lazy</color>",
   "TasklessCrewCanBeLazy": "<color=#8cffff>Crewmates</color> without tasks can be <color=#A4DFFE>Lazy</color>",
   "TransformationAnnouncementMessage": "The ship has been infected with a powerful disease, turning the <#e5f6b4>Plaguebearer</color> into <color=#343136>Pestilence</color>!",
-  
   "TrialHelp": "Command: /tl [player ID]\\nYou can see the players' IDs before the players' names.\\nOr use /id to view the list of all player IDs.",
   "TrialKill": "<b>{0}</b> was judged.",
   "TrialLimitPerGame": "Max Trials per Game",
   "TrialLimitPerMeeting": "Max Trials per Meeting",
   "TrialNull": "Please choose a living player for the trial",
-
-  
   "TryFixBlackScreen": "Coba Atasi Black Screen",
-
-  
   "UntilNextMeeting": "Until Next Meeting",
-
-  
   "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
-
-  
   "UsePetInsteadOfKillButton": "Gunakan tombol Pet sebagai tombol Kill",
   "UseVoteCancelling": "Use Vote Cancelling Method instead of Commands",
   "UseVoteCancellingAfterVote": "Bisa Vote Normal Setelah Menggunakan Kemampuan",
   "UsesMeetingShapeshiftNotice": "<#ffff00>⚠ As this role, instead of commands and votes, you need to use the shapeshift menu in meetings to select your target!</color>",
-
-  
   "VIPTag": "<#ffff00>VIP</color>",
-  
   "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed",
   "VengefulCanVent": "<color=#ba2749>Vengeful Romantic</color> Can Vent",
   "VengefulKCD": "<color=#ba2749>Vengeful Romantic</color> Kill Cooldown",
@@ -10573,43 +10239,31 @@
   "VentCooldown": "Durasi rehat akses ventilasi",
   "VentLimit": "Vent Entering Limit",
   "VentPreventionMode": "Vent Prevention Mode",
-  
   "VitalsCooldown": "Durasi Rehat Vital",
   "VitalsDuration": "Durasi Vital",
-  
   "VoteStartDisabled": "<#ff0000>X</color> The /votestart command is disabled in this lobby.",
   "VotedToStart": "<size=80%>If more than 50% of the lobby uses it, the starting countdown begins.\\nCurrently, {0}/{1} ({2}%) players have used it. {3} uses are required.</size>",
   "VotesPerKill": "Votes gained for each kill",
-  
   "WMMode": "<color=#00ffa5>Mode:</color> <color=#ffffff><b>{0}</b></color>",
-  
   "Warning.AutoExitAtMismatchedVersion": "The host has no or a different version of {0}\\nYou will be kicked in {1}",
   "Warning.InvalidRpc": "Kicked <b>{0}</b> because an invalid RPC was received. Please check that no mods other than EHR are installed.",
   "Warning.MismatchedVersion": "<b>{0}</b> has a different version than <b>{1}</b>",
   "Warning.NoModHost": "EHR is not installed on the host",
   "Warning.TooManyRPCs": "Kicked <b>{0}</b> because too many RPCs were received from them.",
-
-  
   "WhenNextMeetingEnds": "Next Meeting Ends",
   "WhenNextMeetingStarts": "Next Meeting Starts",
   "WhisperDisabled": "<#ff0000>X</color> The /whisper command is disabled in this lobby.",
-  
   "XORAdded": "<#00ffa5>✓</color> XOR combination added successfully.",
   "XORAdditionRole": "<#ff0000>X</color> XOR combinations don't support add-ons. Use <#ffff00>/combo</color> for that.",
   "XORRemoved": "<#00ffa5>✓</color> XOR combination removed successfully.",
   "XORSameRole": "<#ff0000>X</color> XOR combinations must have 2 different roles.",
-  
   "YouCanGuess": "Use the <b>/bt [player id] [role]</b> command to guess someone's role. You can see everyone's IDs next to their name, or type <b>/id</b>.",
   "YouCanGuessMeetingSS": "Use the shapeshift menu to select the player you want to guess, then follow the instructions in the chat for further selections.",
   "YourLawyerIsNotify": "{0} adalah Lawyer kamu. Beliau akan menang jika kamu menang.",
-  
   "assignCommonTasks": "%role% mendapat Misi Umum",
   "doOverride": "Perpanjang misi %role%",
-  
   "roleLongTasksNum": "Jumlah Misi Berat untuk %role%",
   "roleShortTasksNum": "Jumlah Misi Ringan untuk %role%",
-
-  
   "Format.Health": "{0}",
   "Format.Level": "{0}",
   "Format.Multiplier": "{0}x",
@@ -10619,7 +10273,6 @@
   "Format.Seconds": "{0}s",
   "Format.Times": "{0}",
   "Format.Votes": "{0}",
-  
   "RemainingText.AnonymousEvilCount.Plural": "Evil Players",
   "RemainingText.AnonymousEvilCount.Single": "Evil Player",
   "RemainingText.CovenPlural": "Covens",
@@ -10631,8 +10284,6 @@
   "RemainingText.Prefix.Plural": "​",
   "RemainingText.Prefix.Single": "​",
   "RemainingText.Suffix": " left",
-
-  
   "ROT.AddonType.Harmful": "★ Add-on Merugikan",
   "ROT.AddonType.Helpful": "★ Add-on Bermanfaat",
   "ROT.AddonType.ImpOnly": "★ Add-on Khusus Impostor",
@@ -10870,7 +10521,7 @@
   "RejoinRequiredDueToVanillaSwitch": "You've decided to switch to vanilla mode, so it was required to disconnect you from the current game, or it would've caused issues. Please rejoin the game.",
   "ReportBaitAtAllCost": "Report <#00f7ff>Bait</color> at All Cost",
   "ReportButtonText": "Lapor",
-  "RequiresPetIndicator": "  <#ffab1b>PET</color>", 
+  "RequiresPetIndicator": "  <#ffab1b>PET</color>",
   "RevivedByAltruist": "<#ffff00><size=150%>Kamu telah dihidupkan kembali oleh <color=#300000>Altruist</color>!</size></color>",
   "RevivedByOccultist": "<#ffff00><size=150%>Kamu telah dihidupkan oleh <color=#ff1919>Occultist</color>!</size>\\nKamu kini berpihak kepada tim <color=#ff1919>Impostor</color>.</color>",
   "RevivedByTimeMaster": "<size=150%><#ffff00>You were revived during the rewind!</color></size>",
@@ -11065,9 +10716,6 @@
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>Alter the number of</color> Neutral Pariah <#ffffff>roles in the game</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "Maximum Neutral Pariah Roles",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Minimum Neutral Pariah Roles",
-
-  
-
   "CovenInfoDescription": "The Coven is a Team of 1-4 people, after 3 meetings (amount replaced with hosts settings) a random Member of the Coven will gain the Necronomicon. With the Necronomicon, that Coven Member may kill normally and also has a stronger ability. After the Necronomicon was given to the first member, every meeting after will give it to another until all members of the Coven have it. Most roles in this faction are also Support oriented, meaning that they need Teamwork and coordination to work perfectly together.\n\nThe Necronomicon is an ability buff owned by a single member of the Coven. The Necronomicon goes to a different Coven member after every meeting, and for that round will buff their role's ability. Most Coven roles will state in their description what the Necronomicon buffs in their role.\n\n<size=50%>Credit to mystic_haze2 on Discord for writing the first paragraph</size>",
   "NeutralInfoDescription": "Neutrals do not belong to Crewmates or Impostors, and they win on their own terms. Each type of neutral wins in a different way. Neutrals work for themselves and have specific conditions depending on their role on how to win.\n\n<b>Neutral Benigns</b> win when their specific conditions are completed, each role having different conditions necessary to win. They do not trigger the game to end, meaning they must wait until the Crewmates, Impostors, Coven, or another Neutral to win the game and win along with them. \n\n<b>Neutral Evils</b> also have their own specific conditions to win, much like the Neutral Benigns. However, when they complete their objectives to win the game, they end the game and win without Crewmates, Coven, or Impostors- also called 'stealing the win'.\n\n<b>Neutral Killers</b> are neutrals who can kill, much like Impostors, but do not work with the Impostors. Most of the Neutral killers work on their own, although some can recruit other players to work with them. They win the game by killing off all the Impostors, Cremwates, Coven, and other Neutrals, until they are the only player remaining.\n\n<b>Neutral Pariah</b> roles are much like Neutral Benign roles, however their main objective is to make sure Crewmates do not win. If any team other than the Crewmates win, said Neutral Pariah role will win along with the winning team. They have special abilities to try and harm the crewmates."
 }
