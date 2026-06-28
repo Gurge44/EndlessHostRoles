@@ -60,7 +60,7 @@ internal static class ChatControllerUpdatePatch
 
         if (!__instance.freeChatField.textArea.hasFocus) return;
 
-        __instance.freeChatField.textArea.characterLimit = 1200;
+        __instance.freeChatField.textArea.characterLimit = 1000;
 
         if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 
@@ -321,7 +321,7 @@ public static class ChatManager
     public static void ClearChat(params IReadOnlyList<PlayerControl> targets)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        PlayerControl player = GameStates.CurrentServerType == GameStates.ServerType.Vanilla ? PlayerControl.LocalPlayer : Main.EnumerateAlivePlayerControls().MinBy(x => x.PlayerId) ?? Main.EnumeratePlayerControls().MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        PlayerControl player = Main.AllAlivePlayerControlsCount == 0 ? PlayerControl.LocalPlayer : Main.CachedAlivePlayerControls().MinBy(x => x.PlayerId);
         if (!player) return;
         if (targets.Count == 0 || targets.Count >= Main.AllAlivePlayerControlsCount) SendEmptyMessage(null);
         else targets.Do(SendEmptyMessage);
@@ -333,19 +333,10 @@ public static class ChatManager
             bool toLocalPlayer = !toEveryone && receiver.AmOwner;
             if (HudManager.InstanceExists && (toLocalPlayer || toEveryone)) HudManager.Instance.Chat.AddChat(player, "<size=32767>.");
             if (toLocalPlayer) return;
-
-            if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla)
-            {
-                byte to = toEveryone ? byte.MaxValue : receiver.PlayerId;
-                Utils.SendMessage("<size=32767>.", to, "\n", force: true, addToHistory: false, importance: MessageImportance.High);
-            }
-            else
-            {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
-                writer.Write("<size=32767>.");
-                writer.Write(true);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SendChat, SendOption.Reliable, toEveryone ? -1 : receiver.OwnerId);
+            writer.Write("<size=32767>.");
+            writer.Write(true);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
 }

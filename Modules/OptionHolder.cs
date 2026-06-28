@@ -35,7 +35,7 @@ public enum CustomGameMode
     Deathrace = 0x0F,
     Mingle = 0x10,
     Snowdown = 0x11,
-    LoopWanted = 0x12,
+    DoomTag = 0x12,
     All = int.MaxValue
 }
 
@@ -91,7 +91,7 @@ public static class Options
         "Deathrace",
         "Mingle",
         "Snowdown",
-        "LoopWanted"
+        "DoomTag"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -798,6 +798,7 @@ public static class Options
     public static OptionItem AutoKickStopWordsTimes;
     public static OptionItem KickMobilePlayer;
     public static OptionItem ApplyDenyNameList;
+    public static OptionItem BanDenyNameListPlayers;
     public static OptionItem KickPlayerFriendCodeNotExist;
     public static OptionItem KickLowLevelPlayer;
     public static OptionItem ApplyBanList;
@@ -930,7 +931,7 @@ public static class Options
         14 => CustomGameMode.Deathrace,
         15 => CustomGameMode.Mingle,
         16 => CustomGameMode.Snowdown,
-        17 => CustomGameMode.LoopWanted,
+        17 => CustomGameMode.DoomTag,
         _ => CustomGameMode.Standard
     };
 
@@ -1643,6 +1644,10 @@ public static class Options
         KickMobilePlayer = new BooleanOptionItem(19301, "KickMobilePlayer", false, TabGroup.SystemSettings);
         KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
+        
+        BanDenyNameListPlayers = new BooleanOptionItem(19320, "BanDenyNameListPlayers", false, TabGroup.SystemSettings, true)
+            .SetParent(ApplyDenyNameList);
+        
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
         ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
         ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);
@@ -1857,8 +1862,8 @@ public static class Options
         Mingle.SetupCustomOption();
         // Snowdown
         Snowdown.SetupCustomOption();
-        // LoopWanted
-        LoopWanted.SetupCustomOption();
+        // DoomTag
+        DoomTag.SetupCustomOption();
 
         yield return null;
 

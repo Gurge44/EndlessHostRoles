@@ -37,7 +37,7 @@ internal static class CustomRoleSelector
         { CustomGameMode.Deathrace, CustomRoles.Racer },
         { CustomGameMode.Mingle, CustomRoles.MinglePlayer },
         { CustomGameMode.Snowdown, CustomRoles.SnowdownPlayer },
-        { CustomGameMode.LoopWanted, CustomRoles.LoopHunter }
+        { CustomGameMode.DoomTag, CustomRoles.Tagger }
     };
 
     public static void SelectCustomRoles()
@@ -104,11 +104,9 @@ internal static class CustomRoleSelector
 
             switch (role)
             {
-                case CustomRoles.Butcher when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Bargainer when Main.LIMap:
                 case CustomRoles.AntiAdminer when Main.LIMap:
                 case CustomRoles.CameraMan when Main.LIMap:
-                case CustomRoles.Ventriloquist when GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Weatherman when Main.LIMap || GameStates.CurrentServerType == GameStates.ServerType.Vanilla:
                 case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !loversData.Spawning:

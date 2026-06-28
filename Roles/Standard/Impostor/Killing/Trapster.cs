@@ -45,7 +45,6 @@ internal class Trapster : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        if (GameStates.CurrentServerType == GameStates.ServerType.Vanilla) LegacyTrapster.SetValue(1);
     }
 
     public override void Init()

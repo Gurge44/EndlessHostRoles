@@ -41,9 +41,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.5.2";
-    public const string PluginDisplayVersion = "7.5.2";
-    public const bool TestBuild = true;
+    public const string PluginVersion = "7.6.0";
+    public const string PluginDisplayVersion = "7.6.0";
+    public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
@@ -148,7 +148,7 @@ public class Main : BasePlugin
         [CustomGameMode.CaptureTheFlag] = [],
         [CustomGameMode.NaturalDisasters] = [],
         [CustomGameMode.Snowdown] = [],
-        [CustomGameMode.LoopWanted] = []
+        [CustomGameMode.DoomTag] = []
     };
 
     public static Dictionary<CustomGameMode, Color> GameModeColors = [];
@@ -884,8 +884,8 @@ public class Main : BasePlugin
                 { CustomRoles.MinglePlayer, "#FE9900" },
                 // Snowdown
                 { CustomRoles.SnowdownPlayer, "#e4fdff" },
-                // Loop Wanted
-                { CustomRoles.LoopHunter, "#D9BAA5" },
+                // Doom Tag
+                { CustomRoles.Tagger, "#D9BAA5" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -977,12 +977,13 @@ public class Main : BasePlugin
             [CustomGameMode.Deathrace] = Utils.GetRoleColor(CustomRoles.Racer),
             [CustomGameMode.Mingle] = Utils.GetRoleColor(CustomRoles.MinglePlayer),
             [CustomGameMode.Snowdown] = Utils.GetRoleColor(CustomRoles.SnowdownPlayer),
-            [CustomGameMode.LoopWanted] = Utils.GetRoleColor(CustomRoles.LoopHunter)
+            [CustomGameMode.DoomTag] = Utils.GetRoleColor(CustomRoles.Tagger)
         };
 
         IL2CPPChainloader.Instance.Finished += () =>
         {
             CustomLogger.ClearLog();
+            BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
 
             StartCoroutine(ModNewsFetcher.FetchNews());
 

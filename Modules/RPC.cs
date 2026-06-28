@@ -180,7 +180,7 @@ public enum CustomRPC
     TMGSync,
     BedWarsSync,
     DeathraceSync,
-    LoopWantedSync
+    DoomTagSync
 
     // The total number of RPCs must not exceed 255
     // Because HandleRpc accepts Rpc in byte (max 255) system, and it will be impossible to use int
@@ -1275,9 +1275,9 @@ internal static class RPCHandlerPatch
                     
                     break;
                 }
-                case CustomRPC.LoopWantedSync:
+                case CustomRPC.DoomTagSync:
                 {
-                    LoopWanted.ReceiveRPC(reader);
+                    DoomTag.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.InspectorCommand:

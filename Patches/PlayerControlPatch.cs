@@ -258,8 +258,8 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.OnCheckMurder(killer, target);
                     return false;
-                case CustomGameMode.LoopWanted:
-                    LoopWanted.OnCheckMurder(killer, target);
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnCheckMurder(killer, target);
                     return false;
             }
 
@@ -1313,7 +1313,7 @@ internal static class ReportDeadBodyPatch
         }); }
         catch (Exception e) { ThrowException(e); }
 
-        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Count > 0) LateTask.New(() => ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()), GameStates.CurrentServerType == GameStates.ServerType.Vanilla && !PlayerControl.LocalPlayer.IsAlive() ? 1.5f : 0f); }
+        try { if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Count > 0) ChatManager.ClearChat(Main.EnumerateAlivePlayerControls().ExceptBy(Main.LoversPlayers.ConvertAll(x => x.PlayerId), x => x.PlayerId).ToArray()); }
         catch (Exception e) { ThrowException(e); }
 
         CustomSabotage.Reset();
@@ -2311,7 +2311,7 @@ internal static class EnterVentPatch
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }
