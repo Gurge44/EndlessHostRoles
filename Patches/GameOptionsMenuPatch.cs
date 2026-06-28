@@ -496,14 +496,15 @@ public static class GameOptionsMenuPatch
                     toggleOption.CheckMark.transform.parent.FindChild("ActiveSprite").GetComponent<SpriteRenderer>().color = color;
                     break;
                 case StringOptionItem stringOptionItem when optionBehaviour is StringOption stringOption:
-                    // Set Value directly without calling UpdateValue() to avoid re-entering the patch pipeline
                     stringOption.Value = stringOptionItem.GetInt();
                     stringOption.oldValue = stringOption.Value;
                     string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(stringOption.Value)];
                     if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
                     stringOption.ValueText.SetText(selection);
-                    // Re-initialize to restore styled role name (size, color) after preset switch
-                    stringOption.Initialize();
+                    if (!StringOptionPatch.NameCache.ContainsKey(stringOption))
+                        stringOption.Initialize();
+                    else
+                        stringOption.TitleText.SetText(StringOptionPatch.NameCache[stringOption]);
                     break;
                 case FloatOptionItem or IntegerOptionItem when optionBehaviour is NumberOption numberOption:
                     numberOption.Value = optionItem.GetFloat();
@@ -808,7 +809,7 @@ public static class NumberOptionPatch
 public static class StringOptionPatch
 {
     private static long HelpShowEndTS;
-    private static readonly Dictionary<StringOption, string> NameCache = new();
+    internal static readonly Dictionary<StringOption, string> NameCache = new();
 
     [HarmonyPatch(nameof(StringOption.Initialize))]
     [HarmonyPrefix]
