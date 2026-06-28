@@ -33,7 +33,7 @@ public static class HudSpritePatch
             PlayerControl player = PlayerControl.LocalPlayer;
             if (!player) return;
 
-            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance) return;
+            if (!Main.EnableCustomButton.Value || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId) || ExileController.Instance) return;
             if (!SetHudActivePatch.IsActive && !MeetingStates.FirstMeeting) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed || GameStates.IsLobby || GameStates.IsNotJoined || !GameStates.InGame || IntroCutsceneDestroyPatch.PreventKill) return;
 
