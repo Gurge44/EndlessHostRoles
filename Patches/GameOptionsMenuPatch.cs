@@ -1690,4 +1690,4 @@ public static class FixDarkThemeForSearchBar
             field.textArea.outputText.color = Color.white;
         }
     }
-    
+}
