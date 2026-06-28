@@ -22,8 +22,8 @@ public static class ModGameOptionsMenu
     public static readonly Dictionary<OptionBehaviour, int> OptionList = new();
     public static readonly Dictionary<int, OptionBehaviour> BehaviourList = new();
     public static readonly Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
-    public static readonly Dictionary<CustomRoles, Transform> HelpIconList = new();
-    public static readonly Dictionary<OptionItem, BaseGameSetting> BaseGameSettingCache = new();
+    public static readonly System.Collections.Generic.Dictionary<CustomRoles, Transform> HelpIconList = [];
+    public static readonly System.Collections.Generic.Dictionary<OptionItem, BaseGameSetting> BaseGameSettingCache = [];
 
     public static T Track<T>(T obj) where T : Object
     {
