@@ -251,6 +251,7 @@ public static class GameOptionsMenuPatch
                 __instance.ControllerSelectable.Add(x);
             
             Canvas.ForceUpdateCanvases();
+            _buildCoroutines.Remove(__instance);
         }
 
         float CalculateScrollBarYBoundsMax()
@@ -418,13 +419,13 @@ public static class GameOptionsMenuPatch
             {
                 if (gen != _reCreateGeneration) yield break;
 
-                // Stop any build coroutine that started during the yield before touching this tab
+                // Wait for any in-progress build coroutine on this tab to finish before recreating
                 if (GameSettingMenuPatch.ModSettingsTabs.TryGetValue(tab, out GameOptionsMenu menu) && menu)
                 {
-                    if (_buildCoroutines.TryGetValue(menu, out Coroutine existing) && existing != null)
+                    while (_buildCoroutines.TryGetValue(menu, out Coroutine existing) && existing != null)
                     {
-                        menu.StopCoroutine(existing);
-                        _buildCoroutines.Remove(menu);
+                        if (gen != _reCreateGeneration) yield break;
+                        yield return null;
                     }
                 }
 
