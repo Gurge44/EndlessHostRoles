@@ -48,7 +48,7 @@ public static class ModGameOptionsMenu
 [HarmonyPatch(typeof(GameOptionsMenu))]
 public static class GameOptionsMenuPatch
 {
-    internal static readonly Dictionary<GameOptionsMenu, Coroutine> _buildCoroutines = new();
+    private static readonly Dictionary<GameOptionsMenu, Coroutine> BuildCoroutines = new();
 
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
@@ -133,13 +133,13 @@ public static class GameOptionsMenuPatch
         __instance.scrollBar.SetYBoundsMax(CalculateScrollBarYBoundsMax());
 
         // Cancel any in-progress build coroutine on this instance before starting a new one
-        if (_buildCoroutines.TryGetValue(__instance, out Coroutine existing) && existing != null)
+        if (BuildCoroutines.TryGetValue(__instance, out Coroutine existing) && existing != null)
         {
             __instance.StopCoroutine(existing);
-            _buildCoroutines.Remove(__instance);
+            BuildCoroutines.Remove(__instance);
         }
 
-        _buildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
+        BuildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
         return false;
 
         IEnumerator CoRoutine()
@@ -251,7 +251,7 @@ public static class GameOptionsMenuPatch
                 __instance.ControllerSelectable.Add(x);
             
             Canvas.ForceUpdateCanvases();
-            _buildCoroutines.Remove(__instance);
+            BuildCoroutines.Remove(__instance);
         }
 
         float CalculateScrollBarYBoundsMax()
@@ -396,43 +396,47 @@ public static class GameOptionsMenuPatch
         ReCreateSettings(menu, tab);
     }
 
-    internal static int _reCreateGeneration;
-    internal static Coroutine _reCreateAllCoroutine;
+    internal static int ReCreateGeneration;
+    internal static Coroutine ReCreateAllCoroutine;
 
     public static void ReCreateAllSettings()
     {
-        _reCreateGeneration++;
-        int generation = _reCreateGeneration;
+        ReCreateGeneration++;
+        int generation = ReCreateGeneration;
 
-        if (_reCreateAllCoroutine != null)
+        if (ReCreateAllCoroutine != null)
         {
-            Main.Instance.StopCoroutine(_reCreateAllCoroutine);
-            _reCreateAllCoroutine = null;
+            Main.Instance.StopCoroutine(ReCreateAllCoroutine);
+            ReCreateAllCoroutine = null;
         }
 
-        _reCreateAllCoroutine = Main.Instance.StartCoroutine(CoReCreateAll(generation).WrapToIl2Cpp());
+        ReCreateAllCoroutine = Main.Instance.StartCoroutine(CoReCreateAll(generation).WrapToIl2Cpp());
+        return;
 
         IEnumerator CoReCreateAll(int gen)
         {
             TabGroup[] tabs = Main.TabGroupValues;
             foreach (TabGroup tab in tabs)
             {
-                if (gen != _reCreateGeneration) yield break;
+                if (gen != ReCreateGeneration) yield break;
 
                 // Wait for any in-progress build coroutine on this tab to finish before recreating
                 if (GameSettingMenuPatch.ModSettingsTabs.TryGetValue(tab, out GameOptionsMenu menu) && menu)
                 {
-                    while (_buildCoroutines.TryGetValue(menu, out Coroutine existing) && existing != null)
+                    while (BuildCoroutines.TryGetValue(menu, out Coroutine existing) && existing != null)
                     {
-                        if (gen != _reCreateGeneration) yield break;
+                        if (gen != ReCreateGeneration) yield break;
                         yield return null;
                     }
                 }
 
+                // Check again after the wait - Close_Prefix may have fired while we were waiting
+                if (gen != ReCreateGeneration) yield break;
+
                 ReCreateSettings(tab);
                 yield return null;
             }
-            _reCreateAllCoroutine = null;
+            ReCreateAllCoroutine = null;
         }
     }
 
@@ -626,7 +630,7 @@ public static class ToggleOptionPatch
             __instance.CheckMark.enabled = !__instance.CheckMark.enabled;
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetBool() ? 1 : 0, doSave: true, doSync: false);
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             NotificationPopperPatch.AddSettingsChangeMessage(item);
             return false;
         }
@@ -763,7 +767,7 @@ public static class NumberOptionPatch
         {
             __instance.Value = __instance.ValidRange.min;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -773,7 +777,7 @@ public static class NumberOptionPatch
         {
             __instance.Value += increment;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -788,7 +792,7 @@ public static class NumberOptionPatch
         {
             __instance.Value = __instance.ValidRange.max;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -798,7 +802,7 @@ public static class NumberOptionPatch
         {
             __instance.Value -= increment;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -1588,12 +1592,12 @@ public static class GameSettingMenuPatch
             TempParent = go.transform;
         }
 
-        GameOptionsMenuPatch._reCreateGeneration++;
+        GameOptionsMenuPatch.ReCreateGeneration++;
 
-        if (GameOptionsMenuPatch._reCreateAllCoroutine != null)
+        if (GameOptionsMenuPatch.ReCreateAllCoroutine != null)
         {
-            Main.Instance.StopCoroutine(GameOptionsMenuPatch._reCreateAllCoroutine);
-            GameOptionsMenuPatch._reCreateAllCoroutine = null;
+            Main.Instance.StopCoroutine(GameOptionsMenuPatch.ReCreateAllCoroutine);
+            GameOptionsMenuPatch.ReCreateAllCoroutine = null;
         }
 
         // Clear GMButton listeners before hiding them so they can't fire stale callbacks
