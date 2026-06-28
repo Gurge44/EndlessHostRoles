@@ -2,7 +2,7 @@ name: Build & Release EHR
 
 permissions:
   actions: read
-  contents: read
+  contents: write
 
 on:
   workflow_dispatch:
