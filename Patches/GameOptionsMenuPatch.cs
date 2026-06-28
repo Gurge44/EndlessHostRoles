@@ -49,6 +49,7 @@ public static class ModGameOptionsMenu
 public static class GameOptionsMenuPatch
 {
     private static readonly Dictionary<GameOptionsMenu, Coroutine> BuildCoroutines = new();
+    private static readonly Dictionary<GameOptionsMenu, int> BuildGenerations = new();
 
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
@@ -139,10 +140,14 @@ public static class GameOptionsMenuPatch
             BuildCoroutines.Remove(__instance);
         }
 
-        BuildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
+        BuildGenerations.TryGetValue(__instance, out int currentGen);
+        currentGen++;
+        BuildGenerations[__instance] = currentGen;
+
+        BuildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine(currentGen).WrapToIl2Cpp());
         return false;
 
-        IEnumerator CoRoutine()
+        IEnumerator CoRoutine(int gen)
         {
             var num = 2.0f;
             const float posX = 0.952f;
@@ -243,6 +248,13 @@ public static class GameOptionsMenuPatch
                 {
                     yield return null;
                 }
+            }
+
+            // Bail if a newer build coroutine was started on this instance while we were running
+            if (!BuildGenerations.TryGetValue(__instance, out int latestGen) || latestGen != gen)
+            {
+                BuildCoroutines.Remove(__instance);
+                yield break;
             }
 
             __instance.ControllerSelectable.Clear();
