@@ -724,7 +724,6 @@ public static class Options
     public static OptionItem AnagramLanguage;
     public static OptionItem AnagramWordLength;
     public static OptionItem AnagramDifficulty;
-    public static OptionItem EightballCommandIndexes;
 
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
@@ -3037,9 +3036,6 @@ public static class Options
             "AnagramDiff.MediumHard",
             "AnagramDiff.Hard"
         ], 0, TabGroup.GameSettings)
-            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
-
-        EightballCommandIndexes = new IntegerOptionItem(23820, "EightballCommandIndexes", new(1, 100, 1), 20, TabGroup.GameSettings)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
 
