@@ -457,11 +457,11 @@ public static class CollectionExtensions
 
         foreach (PlayerControl player in players)
         {
-            hasValue |= sender.Notify(player, text, time, overrideAll, log, setName);
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, player, text, time, overrideAll, log, setName);
             // RpcSetName will handle oversized packets
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 11);
     }
     public static void NotifyPlayers(this List<PlayerControl> players, string text, float time = 6f, bool overrideAll = false, bool log = true, bool setName = true)
     {
@@ -470,11 +470,11 @@ public static class CollectionExtensions
 
         for (int index = 0; index < players.Count; index++)
         {
-            hasValue |= sender.Notify(players[index], text, time, overrideAll, log, setName);
+            hasValue |= CustomRpcSenderExtensions.Notify(ref sender, players[index], text, time, overrideAll, log, setName);
             // RpcSetName will handle oversized packets
         }
 
-        sender.SendMessage(dispose: !hasValue);
+        sender.SendMessage(dispose: !hasValue || sender.stream.Length <= 11);
     }
 
     #region ToValidPlayers

@@ -258,8 +258,8 @@ internal static class CheckMurderPatch
                 case CustomGameMode.Snowdown:
                     Snowdown.OnCheckMurder(killer, target);
                     return false;
-                case CustomGameMode.LoopWanted:
-                    LoopWanted.OnCheckMurder(killer, target);
+                case CustomGameMode.DoomTag:
+                    DoomTag.OnCheckMurder(killer, target);
                     return false;
             }
 
@@ -588,7 +588,7 @@ internal static class CheckMurderPatch
             target.RpcSetCustomRole(CustomRoles.Madmate);
             ExtendedPlayerControl.RpcSetCustomRole(target.PlayerId, CustomRoles.Madmate);
             var sender = CustomRpcSender.Create("RpcCheckAndMurder - Madmate", SendOption.Reliable);
-            sender.Notify(target, CustomRoles.Madmate.ColoredTextByRole(GetString("BecomeMadmateCuzMadmateMode")));
+            CustomRpcSenderExtensions.Notify(ref sender, target, CustomRoles.Madmate.ColoredTextByRole(GetString("BecomeMadmateCuzMadmateMode")));
             sender.RpcGuardAndKill(target, killer);
             sender.RpcGuardAndKill(target, target);
             sender.RpcGuardAndKill(killer, target);
@@ -666,11 +666,7 @@ internal static class MurderPlayerPatch
                 if (!Options.UsePets.GetBool() || Options.UsePhantomBasis.GetBool())
                     killer.RpcResetAbilityCooldown();
                 else
-                {
-                    int cd = Options.DefaultShapeshiftCooldown.GetInt();
-                    Main.AbilityCD[killer.PlayerId] = (TimeStamp, cd);
-                    SendRPC(CustomRPC.SyncAbilityCD, 1, killer.PlayerId, cd);
-                }
+                    killer.AddAbilityCD(Options.DefaultShapeshiftCooldown.GetInt());
             }
         }
         catch (Exception e) { ThrowException(e); }
@@ -2311,7 +2307,7 @@ internal static class EnterVentPatch
             case CustomGameMode.TheMindGame:
             case CustomGameMode.Quiz:
             case CustomGameMode.SoloPVP when !SoloPVP.CanVent:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 break;
         }

@@ -48,6 +48,9 @@ public static class ModGameOptionsMenu
 [HarmonyPatch(typeof(GameOptionsMenu))]
 public static class GameOptionsMenuPatch
 {
+    private static readonly Dictionary<GameOptionsMenu, Coroutine> BuildCoroutines = new();
+    private static readonly Dictionary<GameOptionsMenu, int> BuildGenerations = new();
+
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize))]
     [HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
@@ -117,7 +120,9 @@ public static class GameOptionsMenuPatch
     private static bool CreateSettingsPrefix(GameOptionsMenu __instance)
     {
         if (ModGameOptionsMenu.TabIndex < 3) return true;
-
+        
+        if (!__instance.gameObject.activeInHierarchy) return false;
+        
         var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
         
         if (modTab == TabGroup.PresetExplorer)
@@ -128,17 +133,28 @@ public static class GameOptionsMenuPatch
 
         __instance.scrollBar.SetYBoundsMax(CalculateScrollBarYBoundsMax());
 
-        __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
+        // Cancel any in-progress build coroutine on this instance before starting a new one
+        if (BuildCoroutines.TryGetValue(__instance, out Coroutine existing) && existing != null)
+        {
+            __instance.StopCoroutine(existing);
+            BuildCoroutines.Remove(__instance);
+        }
+
+        BuildGenerations.TryGetValue(__instance, out int currentGen);
+        currentGen++;
+        BuildGenerations[__instance] = currentGen;
+
+        BuildCoroutines[__instance] = __instance.StartCoroutine(CoRoutine(currentGen).WrapToIl2Cpp());
         return false;
 
-        IEnumerator CoRoutine()
+        IEnumerator CoRoutine(int gen)
         {
             var num = 2.0f;
             const float posX = 0.952f;
             const float posZ = -2.0f;
 
             TextOptionItem header = null;
-
+            
             for (var index = 0; index < OptionItem.AllOptions.Count; index++)
             {
                 try
@@ -227,8 +243,18 @@ public static class GameOptionsMenuPatch
                     if (enabledOrNotCollapsed) num -= 0.45f;
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
+                
+                if (index % 100 == 0)
+                {
+                    yield return null;
+                }
+            }
 
-                if (index % 100 == 0) yield return null;
+            // Bail if a newer build coroutine was started on this instance while we were running
+            if (!BuildGenerations.TryGetValue(__instance, out int latestGen) || latestGen != gen)
+            {
+                BuildCoroutines.Remove(__instance);
+                yield break;
             }
 
             __instance.ControllerSelectable.Clear();
@@ -237,6 +263,7 @@ public static class GameOptionsMenuPatch
                 __instance.ControllerSelectable.Add(x);
             
             Canvas.ForceUpdateCanvases();
+            BuildCoroutines.Remove(__instance);
         }
 
         float CalculateScrollBarYBoundsMax()
@@ -349,6 +376,7 @@ public static class GameOptionsMenuPatch
             }
         }
     }
+
     [HarmonyPatch(nameof(GameOptionsMenu.Update))]
     [HarmonyPrefix]
     public static void UpdatePostfix(GameOptionsMenu __instance)
@@ -358,6 +386,7 @@ public static class GameOptionsMenuPatch
 
         __instance.scrollBar.enabled = !HudManager.Instance.Chat.IsOpenOrOpening;
     }
+
     [HarmonyPatch(nameof(GameOptionsMenu.ValueChanged))]
     [HarmonyPrefix]
     private static bool ValueChangedPrefix(GameOptionsMenu __instance, OptionBehaviour option)
@@ -379,9 +408,54 @@ public static class GameOptionsMenuPatch
         ReCreateSettings(menu, tab);
     }
 
+    internal static int ReCreateGeneration;
+    internal static Coroutine ReCreateAllCoroutine;
+
+    public static void ReCreateAllSettings()
+    {
+        ReCreateGeneration++;
+        int generation = ReCreateGeneration;
+
+        if (ReCreateAllCoroutine != null)
+        {
+            Main.Instance.StopCoroutine(ReCreateAllCoroutine);
+            ReCreateAllCoroutine = null;
+        }
+
+        ReCreateAllCoroutine = Main.Instance.StartCoroutine(CoReCreateAll(generation).WrapToIl2Cpp());
+        return;
+
+        IEnumerator CoReCreateAll(int gen)
+        {
+            TabGroup[] tabs = Main.TabGroupValues;
+            foreach (TabGroup tab in tabs)
+            {
+                if (gen != ReCreateGeneration) yield break;
+
+                // Wait for any in-progress build coroutine on this tab to finish before recreating
+                if (GameSettingMenuPatch.ModSettingsTabs.TryGetValue(tab, out GameOptionsMenu menu) && menu)
+                {
+                    while (BuildCoroutines.TryGetValue(menu, out Coroutine existing) && existing != null)
+                    {
+                        if (gen != ReCreateGeneration) yield break;
+                        yield return null;
+                    }
+                }
+
+                // Check again after the wait - Close_Prefix may have fired while we were waiting
+                if (gen != ReCreateGeneration) yield break;
+
+                ReCreateSettings(tab);
+                yield return null;
+            }
+            ReCreateAllCoroutine = null;
+        }
+    }
+
     public static void ReCreateSettings(GameOptionsMenu __instance, TabGroup? modTab = null)
     {
         if (!modTab.HasValue && ModGameOptionsMenu.TabIndex < 3) return;
+        if (!__instance) return;
 
         modTab ??= (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
 
@@ -395,7 +469,7 @@ public static class GameOptionsMenuPatch
             bool enabledOrNotCollapsed = !option.IsCurrentlyHidden() && AllParentsEnabledAndVisible(option.Parent);
             bool enabled = !option.IsCurrentlyHidden(checkCollapsedSection: false) && AllParentsEnabledAndVisible(option.Parent, checkCollapsedSection: false);
 
-            if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out CategoryHeaderMasked categoryHeaderMasked))
+            if (ModGameOptionsMenu.CategoryHeaderList.TryGetValue(index, out CategoryHeaderMasked categoryHeaderMasked) && categoryHeaderMasked)
             {
                 categoryHeaderMasked.transform.localPosition = new(-0.903f, num, -2f);
                 categoryHeaderMasked.gameObject.SetActive(enabled);
@@ -403,7 +477,7 @@ public static class GameOptionsMenuPatch
             }
             else if (option.IsHeader && enabledOrNotCollapsed) num -= 0.18f;
 
-            if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour))
+            if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour) && optionBehaviour)
             {
                 optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
                 optionBehaviour.gameObject.SetActive(enabledOrNotCollapsed);
@@ -411,6 +485,7 @@ public static class GameOptionsMenuPatch
             }
         }
 
+        if (!__instance.scrollBar) return;
         __instance.ControllerSelectable.Clear();
 
         foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
@@ -425,6 +500,8 @@ public static class GameOptionsMenuPatch
         foreach (KeyValuePair<OptionBehaviour, int> kvp in ModGameOptionsMenu.OptionList)
         {
             OptionBehaviour optionBehaviour = kvp.Key;
+            if (!optionBehaviour) continue;
+
             OptionItem optionItem = OptionItem.AllOptions[kvp.Value];
 
             switch (optionItem)
@@ -435,9 +512,16 @@ public static class GameOptionsMenuPatch
                     toggleOption.CheckMark.enabled = optionItem.GetBool();
                     toggleOption.CheckMark.transform.parent.FindChild("ActiveSprite").GetComponent<SpriteRenderer>().color = color;
                     break;
-                case StringOptionItem when optionBehaviour is StringOption stringOption:
-                    stringOption.Value = optionItem.GetInt();
-                    stringOption.UpdateValue();
+                case StringOptionItem stringOptionItem when optionBehaviour is StringOption stringOption:
+                    stringOption.Value = stringOptionItem.GetInt();
+                    stringOption.oldValue = stringOption.Value;
+                    string selection = stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(stringOption.Value)];
+                    if (!stringOptionItem.noTranslation) selection = Translator.GetString(selection);
+                    stringOption.ValueText.SetText(selection);
+                    if (!StringOptionPatch.NameCache.TryGetValue(stringOption, out string name))
+                        stringOption.Initialize();
+                    else
+                        stringOption.TitleText.SetText(name);
                     break;
                 case FloatOptionItem or IntegerOptionItem when optionBehaviour is NumberOption numberOption:
                     numberOption.Value = optionItem.GetFloat();
@@ -558,7 +642,7 @@ public static class ToggleOptionPatch
             __instance.CheckMark.enabled = !__instance.CheckMark.enabled;
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetBool() ? 1 : 0, doSave: true, doSync: false);
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             NotificationPopperPatch.AddSettingsChangeMessage(item);
             return false;
         }
@@ -695,7 +779,7 @@ public static class NumberOptionPatch
         {
             __instance.Value = __instance.ValidRange.min;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -705,7 +789,7 @@ public static class NumberOptionPatch
         {
             __instance.Value += increment;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -720,7 +804,7 @@ public static class NumberOptionPatch
         {
             __instance.Value = __instance.ValidRange.max;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -730,7 +814,7 @@ public static class NumberOptionPatch
         {
             __instance.Value -= increment;
             __instance.UpdateValue();
-            __instance.OnValueChanged.Invoke(__instance);
+            __instance.OnValueChanged?.Invoke(__instance);
             return false;
         }
 
@@ -742,7 +826,7 @@ public static class NumberOptionPatch
 public static class StringOptionPatch
 {
     private static long HelpShowEndTS;
-    private static readonly Dictionary<StringOption, string> NameCache = new();
+    internal static readonly Dictionary<StringOption, string> NameCache = new();
 
     [HarmonyPatch(nameof(StringOption.Initialize))]
     [HarmonyPrefix]
@@ -855,7 +939,9 @@ public static class StringOptionPatch
 
         gameOptionButton.interactableColor = Color.black;
         gameOptionButton.interactableHoveredColor = ModGameOptionsMenu.GetCurrentThemeColor();
-        icon.localPosition += new Vector3(-0.8f, 0f, 0f);
+        // Only apply position offset on first creation, not on reuse (prevents icon drifting left on switching presets)
+        if (!cached)
+            icon.localPosition += new Vector3(-0.8f, 0f, 0f);
         icon.SetAsLastSibling();
         ModGameOptionsMenu.HelpIconList[role] = icon;
     }
@@ -900,7 +986,10 @@ public static class StringOptionPatch
             OptionItem item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt(), doSave: true, doSync: false);
             NotificationPopperPatch.AddSettingsChangeMessage(item);
-            __instance.TitleText.SetText(NameCache[__instance]);
+            if (!NameCache.TryGetValue(__instance, out string name))
+                __instance.Initialize();
+            else
+                __instance.TitleText.SetText(name);
             return false;
         }
 
@@ -1098,6 +1187,20 @@ public static class GameSettingMenuPatch
         presetTmp.fontSizeMax = presetTmp.fontSizeMin = size;
 
 
+        var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
+        gameSettingsLabel.DestroyTranslator();
+        gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
+        gameSettingsLabel.transform.localPosition += new Vector3(0f, 0.1f, 0f);
+
+        if (russian)
+        {
+            gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
+            gameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
+        }
+
+        Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
+
+        
         GameObject tempMinus = GameObject.Find("MinusButton").gameObject;
         cached = ExtraObjectsCache.TryGetValue(1, out cache);
         GameObject gMinus = cached ? cache : ModGameOptionsMenu.Track(Object.Instantiate(__instance.GamePresetsButton.gameObject, preset.transform));
@@ -1123,10 +1226,11 @@ public static class GameSettingMenuPatch
             ChangingPreset = true;
             LastPresetChange = Utils.TimeStamp;
             Options.Preset--;
-            Main.TabGroupValues.Do(GameOptionsMenuPatch.ReCreateSettings);
+            GameOptionsMenuPatch.ReCreateAllSettings();
             GameOptionsMenuPatch.RefreshSettingValues();
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
+            gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
             ChangingPreset = false;
             NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset);
@@ -1144,8 +1248,8 @@ public static class GameSettingMenuPatch
         selectedSprites.sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
 
         inactiveSprites.color = new Color32(55, 59, 60, 255);
-        activeSprites.color = new Color32(0, 255, 165, 255);
-        selectedSprites.color = new Color32(0, 165, 255, 255);
+        activeSprites.color = new Color32(0, 165, 255, 255);
+        selectedSprites.color = new Color32(0, 255, 165, 255);
 
 
         cached = ExtraObjectsCache.TryGetValue(2, out cache);
@@ -1172,10 +1276,11 @@ public static class GameSettingMenuPatch
             ChangingPreset = true;
             LastPresetChange = Utils.TimeStamp;
             Options.Preset++;
-            Main.TabGroupValues.Do(GameOptionsMenuPatch.ReCreateSettings);
+            GameOptionsMenuPatch.ReCreateAllSettings();
             GameOptionsMenuPatch.RefreshSettingValues();
             GameOptionsMenuPatch.RefreshTabButtons();
             presetTmp.SetText(Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}"));
+            gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
             Logger.Info($"Current preset: {OptionItem.CurrentPreset + 1}", "GameOptionsMenuPatch");
             ChangingPreset = false;
             NotificationPopperPatch.AddSettingsChangeMessage(Options.Preset);
@@ -1187,30 +1292,16 @@ public static class GameSettingMenuPatch
 
         GameObject.Find("PlayerOptionsMenu(Clone)").transform.FindChild("What Is This?").gameObject.SetActive(false);
 
-        var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
-        gameSettingsLabel.DestroyTranslator();
-        gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
-        gameSettingsLabel.transform.localPosition += new Vector3(0f, 0.1f, 0f);
-
-        if (russian)
-        {
-            gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
-            gameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
-        }
-
-        Vector3 gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
-
         var gms = Main.CustomGameModeValues[..^1].ToList();
         gms.Remove(CustomGameMode.TheMindGame);
-        
+
         if (SubmergedCompatibility.Loaded && Main.NormalOptions.MapId == 6)
-            gms.RemoveAll(SubmergedCompatibility.IsNotSupported);
+            gms.Remove(CustomGameMode.NaturalDisasters);
 
         if (Main.LIMap)
         {
             gms.Remove(CustomGameMode.CaptureTheFlag);
             gms.Remove(CustomGameMode.Quiz);
-            gms.Remove(CustomGameMode.TheMindGame);
             gms.Remove(CustomGameMode.BedWars);
             gms.Remove(CustomGameMode.Deathrace);
         }
@@ -1232,12 +1323,13 @@ public static class GameSettingMenuPatch
                 gmButton.SetActive(true);
             }
             gmButton.transform.localPosition = new Vector3((((index / itemsPerCol) - ((totalCols - 1) / 2f)) * 1.4f) + 0.16f, gameSettingsLabelPos.y - 1.9f - (0.17f * (index % itemsPerCol)), -1f);
-            gmButton.transform.localScale = new(0.35f, 0.22f, 1f);
+            gmButton.transform.localScale = new(0.4f, 0.22f, 1f);
+            var color = Main.GameModeColors[gm];
             var gmButtonTmp = gmButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             gmButtonTmp.alignment = TextAlignmentOptions.Center;
             gmButtonTmp.DestroyTranslator();
             gmButtonTmp.SetText(Translator.GetString(gm.ToString()).ToUpper());
-            gmButtonTmp.color = Main.GameModeColors[gm];
+            gmButtonTmp.color = color;
             gmButtonTmp.transform.localPosition = new(gameSettingsLabelPos.x + 3.35f, gameSettingsLabelPos.y - 1.62f, gameSettingsLabelPos.z);
             gmButtonTmp.transform.localScale = new(1f, 1f, 1f);
 
@@ -1259,7 +1351,9 @@ public static class GameSettingMenuPatch
                 GameOptionsMenuPatch.RefreshCheckMarkColors();
                 gameSettingsLabel.SetText($"<size=50%>{Translator.GetString($"Mode{Options.CurrentGameMode}")}</size>\n");
             }));
-            gmPassiveButton.activeTextColor = gmPassiveButton.inactiveTextColor = gmPassiveButton.disabledTextColor = gmPassiveButton.selectedTextColor = Main.GameModeColors[gm];
+            gmPassiveButton.activeTextColor = Utils.GetTextColor(color);
+            gmPassiveButton.inactiveTextColor = color;
+            gmPassiveButton.activeSprites.GetComponent<SpriteRenderer>().color = color;
 
             GMButtons[gm] = gmButton;
         }
@@ -1276,9 +1370,10 @@ public static class GameSettingMenuPatch
             field.gameObject.SetActive(true);
         }
         field.transform.localScale = new(0.3f, 0.59f, 1);
-        field.transform.localPosition = new(-0.7f, -2.5f, -5f);
+        field.transform.localPosition = new(-0.47f, 2.15f, -5f);
         field.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
         field.textArea.outputText.font = plusLabel.font;
+        field.charCountText.enabled = false;
 
         InputField = field;
 
@@ -1426,7 +1521,8 @@ public static class GameSettingMenuPatch
                 {
                     OnlinePresetsManager.CachedPresets = list;
                     OnlinePresetsManager.PresetsLoaded = true;
-                    OnlinePresetsManager.CreatePresetExplorerUI(ModSettingsTabs[tabGroup]);
+                    if (ModSettingsTabs.TryGetValue(tabGroup, out settingsTab) && settingsTab)
+                        OnlinePresetsManager.CreatePresetExplorerUI(settingsTab);
                 }).WrapToIl2Cpp()
             );
         }
@@ -1507,7 +1603,23 @@ public static class GameSettingMenuPatch
             go.SetActive(true);
             TempParent = go.transform;
         }
-        
+
+        GameOptionsMenuPatch.ReCreateGeneration++;
+
+        if (GameOptionsMenuPatch.ReCreateAllCoroutine != null)
+        {
+            Main.Instance.StopCoroutine(GameOptionsMenuPatch.ReCreateAllCoroutine);
+            GameOptionsMenuPatch.ReCreateAllCoroutine = null;
+        }
+
+        // Clear GMButton listeners before hiding them so they can't fire stale callbacks
+        foreach (var x in GMButtons.Values)
+        {
+            var pb = x.GetComponent<PassiveButton>();
+            if (pb) pb.OnClick.RemoveAllListeners();
+            SetTempParent(x);
+        }
+
         foreach (var x in ModSettingsTabs.Values) SetTempParent(x.gameObject);
         foreach (var x in ModSettingsButtons.Values) SetTempParent(x.gameObject);
         foreach (var x in ExtraObjectsCache.Values) SetTempParent(x);

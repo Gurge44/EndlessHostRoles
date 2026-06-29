@@ -849,7 +849,7 @@ public static class Utils
             case CustomGameMode.Deathrace:
             case CustomGameMode.Mingle:
             case CustomGameMode.Snowdown:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 return false;
             case CustomGameMode.HideAndSeek:
                 return CustomHnS.HasTasks(p);
@@ -1517,7 +1517,7 @@ public static class Utils
 
                 break;
             case CustomGameMode.Snowdown:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
             case CustomGameMode.Mingle:
             case CustomGameMode.Deathrace:
             case CustomGameMode.BedWars:
@@ -2546,7 +2546,7 @@ public static class Utils
                     CustomGameMode.Deathrace => CustomRoles.Racer.ColoredTextByRole($"{modeText}\r\n") + name,
                     CustomGameMode.Mingle => CustomRoles.MinglePlayer.ColoredTextByRole($"{modeText}\r\n") + name,
                     CustomGameMode.Snowdown => CustomRoles.SnowdownPlayer.ColoredTextByRole($"{modeText}\r\n") + name,
-                    CustomGameMode.LoopWanted => CustomRoles.LoopHunter.ColoredTextByRole($"{modeText}\r\n") + name,
+                    CustomGameMode.DoomTag => CustomRoles.Tagger.ColoredTextByRole($"{modeText}\r\n") + name,
                     _ => name
                 };
             }
@@ -3045,8 +3045,8 @@ public static class Utils
                     case CustomGameMode.Snowdown:
                         AdditionalSuffixes.Add(Snowdown.GetSuffix(seer, seer));
                         break;
-                    case CustomGameMode.LoopWanted:
-                        AdditionalSuffixes.Add(LoopWanted.GetSuffix(seer, seer));
+                    case CustomGameMode.DoomTag:
+                        AdditionalSuffixes.Add(DoomTag.GetSuffix(seer, seer));
                         break;
                 }
 
@@ -3115,7 +3115,7 @@ public static class Utils
                     SelfSuffix.Append($"\n\n<#ffffff>{GetString($"GameModeTutorial.{Options.CurrentGameMode}")}</color>\n");
             }
 
-            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.LoopWanted;
+            bool noRoleText = GameStates.IsLobby || Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag;
 
             // Combine the seer's job title and SelfTaskText with the seer's player name and SelfMark
             string selfRoleName = noRoleText ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{selfTaskText}</size>";
@@ -3207,7 +3207,7 @@ public static class Utils
                 CustomGameMode.Quiz => true,
                 CustomGameMode.Deathrace => true,
                 CustomGameMode.Mingle => true,
-                CustomGameMode.LoopWanted => true,
+                CustomGameMode.DoomTag => true,
                 _ => false
             };
 
@@ -3315,7 +3315,7 @@ public static class Utils
                             if (IsRevivingRoleAlive() && Main.DiedThisRound.Contains(seer.PlayerId))
                                 targetRoleText = string.Empty;
 
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.LoopWanted)
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush or CustomGameMode.KingOfTheZones or CustomGameMode.Quiz or CustomGameMode.TheMindGame or CustomGameMode.BedWars or CustomGameMode.Deathrace or CustomGameMode.Mingle or CustomGameMode.Snowdown or CustomGameMode.DoomTag)
                                 targetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
@@ -3651,7 +3651,7 @@ public static class Utils
             case CustomGameMode.Deathrace:
             case CustomGameMode.Mingle:
             case CustomGameMode.Snowdown:
-            case CustomGameMode.LoopWanted:
+            case CustomGameMode.DoomTag:
                 return local.Is(CustomRoles.GM);
 
             case CustomGameMode.Standard:
@@ -4071,6 +4071,7 @@ public static class Utils
         {
             var kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out float killCd) ? killCd : Options.AdjustedDefaultKillCooldown);
             Main.AbilityCD[playerId] = (TimeStamp, kcd);
+            if (playerId == 0 || !playerId.IsPlayerModdedClient()) return;
             SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
         }
@@ -4156,6 +4157,7 @@ public static class Utils
             cd -= (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
+        if (playerId == 0 || !playerId.IsPlayerModdedClient()) return;
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, cd);
     }
 
@@ -4957,6 +4959,29 @@ public static class Utils
         float g = (color.g + weight) / (darkness + 1);
         float b = (color.b + weight) / (darkness + 1);
         return new(r, g, b, color.a);
+    }
+    
+    /// <summary>
+    /// Calculates whether the text color should be black or white based on the given background color.
+    /// </summary>
+    /// <param name="background"></param>
+    /// <returns>Color.black or Color.white, whichever has higher contrast compared to the background color.</returns>
+    public static Color GetTextColor(Color32 background)
+    {
+        float r = background.r / 255f;
+        float g = background.g / 255f;
+        float b = background.b / 255f;
+
+        r = r <= 0.03928f ? r / 12.92f : Mathf.Pow((r + 0.055f) / 1.055f, 2.4f);
+        g = g <= 0.03928f ? g / 12.92f : Mathf.Pow((g + 0.055f) / 1.055f, 2.4f);
+        b = b <= 0.03928f ? b / 12.92f : Mathf.Pow((b + 0.055f) / 1.055f, 2.4f);
+
+        float luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+
+        float contrastWhite = (1.05f) / (luminance + 0.05f);
+        float contrastBlack = (luminance + 0.05f) / 0.05f;
+
+        return contrastBlack > contrastWhite ? Color.black : Color.white;
     }
 
     public static void SetChatVisible(this IReadOnlyList<PlayerControl> players, bool visible)

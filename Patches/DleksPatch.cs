@@ -15,25 +15,29 @@ internal static class AllMapIconsPatch
     [HarmonyPrefix]
     public static void GameStartManagerStart_Prefix(GameStartManager __instance)
     {
-        if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
+        try
         {
-            __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
+            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != MapNames.Dleks)))
             {
-                Name = MapNames.Dleks,
-                MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f)
-            });
-        }
-        if (SubmergedCompatibility.Loaded)
-        {
-            if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
-            {
-                __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
+                __instance.AllMapIcons.Insert((int)MapNames.Dleks, new MapIconByName
                 {
-                    Name = (MapNames)6,
-                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f)
+                    Name = MapNames.Dleks,
+                    MapIcon = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f)
                 });
             }
+            if (SubmergedCompatibility.Loaded)
+            {
+                if (__instance.AllMapIcons.TrueForAll((Predicate<MapIconByName>)(x => x.Name != (MapNames)6)))
+                {
+                    __instance.AllMapIcons.Insert((int)(MapNames)6, new MapIconByName
+                    {
+                        Name = (MapNames)6,
+                        MapIcon = Utils.LoadSprite("EHR.Resources.Images.Submerged-Wordart.png", 380f)
+                    });
+                }
+            }
         }
+        catch { }
     }
     [HarmonyPatch(nameof(GameStartManager.Start))]
     [HarmonyPostfix]

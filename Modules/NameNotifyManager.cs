@@ -24,7 +24,7 @@ public static class NameNotifyManager
         if (!GameStates.IsInTask) return;
 
         text = text.Trim();
-        if (!text.Contains("<color=") && !text.Contains("</color>") && !text.Contains("<#")) text = Utils.ColorString(Color.white, text);
+        if (!text.Contains('#') && !text.Contains("<color=")) text = Utils.ColorString(Color.white, text);
         if (!text.Contains("<size=")) text = "<size=1.9>" + text + "</size>";
 
         long expireTS = Utils.TimeStamp + (long)time;

@@ -1,5 +1,4 @@
-{
-  
+﻿{
   "LanguageID": "2",
   "HostText": "EHR - Anfitrião",
   "HostColor": "#00ffa5",
@@ -92,7 +91,6 @@
   "Cooldown": "Recarga",
   "Speed": "Velocidade",
   "Vision": "Visão",
-  
   "In%team%": "(Facção %team%)",
   "RoleHistoryText": "<u>Resumo do Jogo:</u>",
   "RoleInfo": "Informações da Função",
@@ -105,7 +103,6 @@
   "RoleSelected": "<b>A função de {0} no próximo jogo será {1}</b>",
   "RoleSummaryText": "<u>Resumo do Jogo:</u>",
   "Roles": "Funções",
-  
   "Prefix.Aide": "Assessor",
   "Prefix.Absorber": "Absorvedor",
   "Prefix.Allergic": "Alérgico",
@@ -217,7 +214,6 @@
   "Prefix.Watcher": "Visão de Voto",
   "Prefix.Workhorse": "Burro de Carga",
   "Prefix.Youtuber": "YouTuber",
-  
   "AddonListTitle": "<b><u>Seus Atributos:</u></b>",
   "AlwaysComboListTitle": "<u>Funções e Atributos que sempre aparecem juntos:</u>",
   "AnagramTitle": "<#888888>➡ ANAGRAMA ⬅</color>",
@@ -268,7 +264,6 @@
   "WinsCountTitle": "Número de vitórias neste modo de jogo",
   "XORListTitle": "<#00a5ff>➡ Combinações XOR ⬅</color>",
   "YouCanGuessTitle": "<#00ffff>Você pode adivinhar!</color>",
-  
   "Addict": "Invulnerável",
   "AddictInfo": "Use ventilações para tornar-se invulnerável, ou você morrerá",
   "AddictInfoLong": "(Tripulantes):\\nO Invulnerável tem um temporizador de suicídio indicado pelo tempo de recarga do duto. Se o temporizador expirar, o Invulnerável morre. Após usar os dutos, o Invulnerável fica imortal por um certo tempo. O Invulnerável também fica congelado por um tempo definido após o congelamento e também não poderá reportar corpos.",
@@ -1616,7 +1611,6 @@
   "Wizard.SpeedStep": "Etapa em que a Velocidade é aumentada",
   "Wizard.Vision": "Visão",
   "Wizard.VisionStep": "Etapa em que visão aumenta",
-  
   "Abyssbringer": "Vácuo",
   "AbyssbringerInfo": "Posicione buracos negros pelo mapa",
   "AbyssbringerInfoLong": "(Impostores):\\nComo Vácuo, você pode posicionar buracos negros pelo mapa. Buracos negros vão sugar e matar jogadores que colidirem com eles.",
@@ -2366,7 +2360,6 @@
   "ZombieMinimumSpeed": "Velocidade Mínima",
   "ZombieSpeedReduce": "Após certo tempo, reduza a velocidade da <color=#ff1919>Zumbi</color> em",
   "ZombieSpeedReduceInterval": "Intervalo da redução de velocidade",
-  
   "Accumulator": "Acumulador",
   "AccumulatorInfo": "Faça tarefas para recarga de abate baixa",
   "AccumulatorInfoLong": "(Neutros):\\nComo Acumulador, você começa com uma base de Tripulante, e pode fazer tarefas. Cada tarefa que você completar reduz sua recarga de abate (que você terá eventualmente). Você pode acariciar seu pet ou completar todas as suas tarefas para se tornar um neutro assassino com a recarga de abate acumulada.\\nMate todos para vencer!",
@@ -2791,13 +2784,13 @@
   "Jackpot.Spin.Miss": "<size=120%>ERRO</size>\\nPerdeu ${0}. Dinheiro: ${1}. Chance do próximo jackpot: {2}%",
   "Jackpot.Spin.Near": "<size=120%>QUASE ACERTO</size>\\nImpulsionado por {0}s. Dinheiro: ${1}. Chance do próximo Jackpot: {2}%",
   "Jackpot.Spin.Jackpot": "JACKPOT!",
-  "Jackpot.JackpotState": "Pressão ilimitada por {0}s.",
+  "Jackpot.JackpotState": "Pressão ilimitada por {0}seg.",
   "Jackpot.OutOfMoney": "Você ficou sem dinheiro e morreu.",
   "Jackpot.JackpotEnded": "O Jackpot acabou. Você pode começar a girar novamente.",
   "Jackpot.Progress.Ready": "${0} | {1}% | PRONTO",
   "Jackpot.Progress.Spin": "${0} | {1}% | GIRO",
   "Jackpot.Progress.Near": "${0} | {1}% | QUASE",
-  "Jackpot.Progress.Jackpot": "${0} | JACKPOT {1}s",
+  "Jackpot.Progress.Jackpot": "${0} | JACKPOT {1}seg",
   "Jester": "Palhaço",
   "JesterInfo": "Seja ejetado!",
   "JesterInfoLong": "(Neutros):\\nO Palhaço vence sozinho se for expulso na reunião, mas perde se ainda estiver vivo no final. O Palhaço, o Executor e o Inocente podem vencer juntos.",
@@ -3394,7 +3387,6 @@
   "WraithRevertVentButtonText": "Visível",
   "WraithVentButtonText": "Invisibilidade",
   "WraithVentNormallyOnCooldown": "<color=#4b0082>Invisível</color> abre normalmente quando o Invisível está em recarga",
-  
   "Augur": "Áugure",
   "AugurInfo": "Adivinhe Funções",
   "AugurInfoLong": "(Membros do Conventículo):\\nVocê pode adivinhar as funções dos jogadores nas reuniões. Caso adivinhar incorretamente, você não morre, mas você não pode adivinhar novamente até a próxima reunião. Você não pode receber o Necronomicone, parecido com um Colhedor.",
@@ -3518,7 +3510,7 @@
   "VoodooMasterInfoLong": "(Conventículo):\\nForce alguém a usar a habilidade nele mesmo ou em geral (como Tornado ou Camuflador). Ao receber o Necronomícone, você também matará o alvo.",
   "Wyrd": "Fado",
   "WyrdInfo": "Marque os jogadores; a desgraça é acionada na ação.",
-  "WyrdInfoLong": "",
+  "WyrdInfoLong": "(Coventículo):\\nO Fado manipula o destino ao marcar jogadores com a Contagem do Destino. Jogadores marcados compartilham uma contagem regressiva oculta que inicia quando o primeiro jogador é marcado. Quando a contagem termina, qualquer jogador marcado que tente completar uma tarefa, reportar um corpo, ou chamar uma reunião de emergência morrerá instantaneamente.\\n\\nO Fado apenas pode marcar um certo número de jogadores num tempo. Para marcar alguém, se transforme nele.\\nQuando 2 ou mais jogadores são marcados, eles podem ver a contagem.\\n\\nCom o Necronomícone, o Fado pode matar diretamente com o botão de matar.\\n\\nNotas:\\nTodos os jogadores marcados têm a mesma contagem.\\nUm pequeno bônus para a contagem é adicionado para cada jogador marcado adicional.\\nA contagem pausa durante as reuniões.",
   "Wyrd.BlockMeetingOnDeath": "Bloquear Reunião se o Jogador Marcado Morrer devido às configurações acima",
   "Wyrd.CountdownTime": "Contagem Regressiva",
   "Wyrd.MarkedDiesOnButton": "Apertar o Botão Causa Morte",
@@ -3531,7 +3523,6 @@
   "Wyrd.Suffix.SuicideWarningOnAction.Task": "Concluindo uma tarefa",
   "Wyrd.Suffix.SuicideWarnings": "<#ffff00>\\<size=80%>⚠ As seguintes ações farão você se suicidar: ⚠\\n{0}</size></color>",
   "Wyrd.TimeAdditionOnMoreMark": "Adição de Tempo com Mais Marcas",
-  
   "Absorber": "Absorvedor",
   "AbsorberInfo": "Reporte corpos para absorver usos de habilidade",
   "AbsorberInfoLong": "(Atributos):\\nComo Absorvedor, você pode pegar pelo menos 1 uso de habilidade de jogadores mortos ao reportar o corpo deles.",
@@ -3989,7 +3980,6 @@
   "Youtuber": "YouTuber",
   "YoutuberInfo": "Seja o primeiro a ser morto para ganhar",
   "YoutuberInfoLong": "(Atributos):\nSe o YouTuber for o primeiro jogador a ser morto, ele vence. Caso contrário, ele seguirá como Tripulante para vencer. Nota: Métodos de matar indiretos não ativam as habilidades do YouTuber.",
-  
   "Bloodmoon": "Lua Sanguinária",
   "BloodmoonInfo": "Ajude os <color=#ff1919>Impostores</color> a matar!",
   "BloodmoonInfoLong": "(Impostores Fantasmas):\\nComo a Lua Sanguinária, você pode usar seu botão de proteção em alguém para fazê-los morrer após um conjunto de segundos. Eles vão saber disso.",
@@ -4032,6 +4022,7 @@
   "MeetingAngel.CanProtectOptions.NeutralPariah": "Pode proteger <#ffab1b>Neutros</color> <#ffff44>Párias</color>",
   "MeetingAngel.CanProtectOptions.NeutralBenign": "Pode proteger <#ffab1b>Neutros</color> <#00ffa5>Passivos</color>",
   "MeetingAngel.CanProtectOptions.Coven": "Pode proteger <#7b3fbb>Membros do Conventículo</color>",
+  "MeetingAngel.NegatedMsg": "Removidos <b>{0}</b> votos em {1}",
   "Minion": "Lacaio",
   "MinionInfo": "Ajude os <color=#ff1919>Impostores</color>",
   "MinionInfoLong": "(Impostores Fantasmas):\\nComo Lacaio, você pode proteger alguém (de preferência um Tripulante) para deixá-lo cego por alguns segundos.",
@@ -4048,7 +4039,6 @@
   "WardenAdditionalSpeed": "Velocidade Adicional",
   "WardenNotify": "O Defensor está te alertando sobre perigo!",
   "WardenNotifyTarget": "Notificar alvo sobre Perigo",
-  
   "BedWarsPlayer": "BED WARS",
   "BedWarsPlayerInfo": "DESTRUA TODAS AS CAMAS PARA GANHAR",
   "BedWarsPlayerInfoLong": "DESTRUA TODAS AS CAMAS PARA GANHAR",
@@ -4089,13 +4079,15 @@
   "SnowdownPlayer": "Briga de Bolas de Neve",
   "SnowdownPlayerInfo": "ARREMESSE BOLAS DE NEVE EM JOGADORES",
   "SnowdownPlayerInfoLong": "ARREMESSE BOLAS DE NEVE EM JOGADORES",
+  "Tagger": "MARCADOR",
+  "TaggerInfo": "MATE O SEU ALVO MARCADO E SOBREVIVA",
+  "TaggerInfoLong": "MATE O SEU ALVO MARCADO E SOBREVIVA",
   "TMGPlayer": "O JOGO DA MENTE",
   "TMGPlayerInfo": "PENSE COM O CÉREBRO DOS OUTROS PARA VENCER",
   "TMGPlayerInfoLong": "PENSE COM O CÉREBRO DOS OUTROS PARA VENCER",
   "Tasker": "Tarefador",
   "TaskerInfo": "Seja o Primeiro a Terminar as Tarefas para vencer!",
   "TaskerInfoLong": "Seja o Primeiro a Terminar as Tarefas para vencer!",
-  
   "KillButtonText": "Matar",
   "AbilityChargesWhenFinishedTasks": "<color=#7FFFD2>Usos de Habilidade</color> <color=#00ffff>Obtidos <color=#ffa500>a cada 5 segundos</color> quando as tarefas estiverem completas</color>",
   "AbilityCooldown": "Recarga da Habilidade",
@@ -4104,7 +4096,6 @@
   "AbilityUseGainWithEachTaskCompleted": "Ganho de usos de habilidades a cada tarefa concluída",
   "AbilityUseLimit": "Limite de Uso da Habilidade Inicial",
   "OutOfAbilityUsesDoMoreTasks": "<color=#ffff00>Usos de habilidade esgotados! Faça tarefas para conseguir mais!</color>",
-  
   "AdditionalWinnerRoleText.AliveNeutrals": "Os Neutros Vivos vencem",
   "AdditionalWinnerRoleText.Default": "{0} Venceu Junto",
   "AdditionalWinnerRoleText.Executioner": "O Executor venceu junto",
@@ -4196,15 +4187,12 @@
   "WinnerRoleText.Workaholic": "Trabalho feito!",
   "WinnerRoleText.Wraith": "Vitória do Espectro!",
   "WinnerRoleText.Youtuber": "Vitória do YouTuber!",
-  
   "Mode": "Modo",
   "GameModeListTitle": "Modos de Jogo",
   "DoingTasksIsPointlessInThisGameMode": "Olha, vejo que você é um tripulante muito diligente, mas....\\nFazer tarefas é completamente inútil neste modo de jogo",
   "NToCheckGameModeSettings": "Digite <b>/n</b> para ver as configurações deste modo de jogo",
-  
   "Standard": "Padrão",
   "ModeStandard": "Modo de Jogo: Padrão",
-  
   "BedWars": "BED WARS",
   "ModeBedWars": "Modo de Jogo: Bed Wars",
   "ModeDescribe.BedWars": "No modo de jogo Bed Wars, os jogadores são divididos em equipes. Cada equipe tem uma cama. Se a cama de uma equipe for destruída, todos os jogadores dessa equipe não poderão mais renascer. O objetivo é destruir as camas das outras equipes (usando o botão de Pet) e ser a última equipe viva.\\n\\nVocê pode comprar itens (blocos, armas, ferramentas, etc.) e melhorias de equipe (piscina de cura, rapidez, armadilha, etc.) nas lojas usando os recursos (ferro, ouro, diamante, esmeralda) que você pode coletar nos geradores espalhados pelo mapa. Esses itens são úteis para proteger a cama com várias camadas, dificultando sua destruição, aumentar seu dano de ataque, sua defesa ou conceder habilidades para você ou sua equipe.\\n\\nNo início, há um período de graça, durante o qual ataques não são permitidos e os jogadores não podem sair de suas próprias bases.\\n\\nCada jogador possui um inventário com todos os seus itens. Altere os slots usando o botão de Desaparecer ou digitando o número do slot no chat (ex: '5'). Use armas com o botão de matar e outros itens pelo botão de Pet. Para começar a quebrar a cama de alguém, use o botão de Pet. Certifique-se de sempre ter o item correto selecionado no inventário (blocos ao proteger a cama, ferramentas ao quebrar camas, etc.).\\nVocê pode quebrar camas com qualquer coisa, mas usar a ferramenta correta para cada camada tornará o processo significativamente mais rápido.\\n\\nSe você morrer, renascerá após alguns segundos — a menos que sua cama tenha sido destruída. Se sua cama for destruída, você não poderá mais renascer.",
@@ -4324,7 +4312,6 @@
   "BedWars.UpgradeDescription.Trap": "Alerta o time quando um inimigo entra na base e atrasa/cega o inimigo.",
   "BedWars.WoodenSwordDamageMultiplierOption": "Multiplicador de Dano da Espada de Madeira",
   "Bedwars.YouCannotLeaveRoomInGracePeriod": "<#ff0000>Você não pode sair da sua sala durante o período de espera!</color>",
-  
   "CaptureTheFlag": "CAPTURE A BANDEIRA",
   "ModeCaptureTheFlag": "Modo de Jogo: Capture a Bandeira",
   "ModeDescribe.CaptureTheFlag": "No modo de jogo Capture a Bandeira, há duas equipes: Amarela e Azul. Cada equipe tem uma bandeira em sua base. O objetivo é capturar a bandeira inimiga e trazê-la de volta para sua base. A primeira equipe a fazer isso vence!\\nOs jogadores podem ser marcados pela equipe inimiga, que os enviará de volta para sua base ou os matará, dependendo das configurações. Jogadores que estiverem carregando uma bandeira não podem marcar outros jogadores.\\n\\nVocê pode pegar a bandeira clicando no botão <b>Desaparecer</b> próximo a ela.",
@@ -4366,7 +4353,6 @@
   "CTF_WhenFlagCarrierGetsTagged.FlagIsReturned": "Devolvida",
   "CTF_YellowTeamWins": "O Time Amarelo Venceu!",
   "CTF_YellowTeamWonThisRound": "O time <#ff00>Amarelo</color> ganhou esta rodada!",
-  
   "Deathrace": "CORRIDA MORTAL",
   "ModeDeathrace": "Modo de Jogo: Corrida Mortal",
   "ModeDescribe.Deathrace": "No Modo de Jogo Corrida Mortal, há um caminho específico que você precisa seguir no mapa, repetidamente. Se você entrar em uma sala que não for a próxima no caminho, você morre! Você deve completar todas as voltas primeiro para vencer.\\n\\nAlguns power-ups estão disponíveis próximo ao caminho, chegue perto deles para pegá-los. Eles vão te dizer o que eles fazem e como usá-los após pegá-los. Você pode armazenar múltiplos power-ups e usar-los um de cada vez.",
@@ -4400,7 +4386,6 @@
   "Deathrace.SmokeSpeedReductionOption": "Redução de Velocidade da fumaça",
   "Deathrace.SpawnPowerUpsOption": "Spawnar Power-Ups",
   "Deathrace.VentUse": "Use o Duto para a próxima sala!",
-  
   "FFA": "MATAR OU MORRER",
   "ModeFFA": "Modo de Jogo: MOM",
   "ModeDescribe.FFA": "No modo de jogo MOM (Matar ou Morrer), todos os jogadores serão assassinos e todos podem matar qualquer um. O último jogador vivo vence!\n\nAlguns eventos aleatórios vão tornar isso ainda mais divertido!",
@@ -4434,7 +4419,6 @@
   "FFA_TargetIsShielded": "<color=#ffff00>O jogador que você tentou matar está protegido!</color>",
   "FFA_TeamMode": "Habilitar Modo de Equipes",
   "FFA_TeamNumber": "Número de Equipes",
-  
   "HideAndSeek": "ESCONDE ESCONDE",
   "ModeHideAndSeek": "Modo de Jogo: Esconde Esconde",
   "ModeDescribe.HideAndSeek": "No modo de jogo Esconde-Esconde, os caçadores têm que matar todos que estão escondidos, enquanto os que estão escondidos precisam completar todas as tarefas sem serem mortos para vencer.\\nSe o limite de tempo chegar a 0, os escondedores vencem.\\nSe todos, exceto os Caçadores, morrerem, os Caçadores vencem.\\n\\nFunções: Escondedor, Caçador, Raposa, Trollador, Pulador, Detector, Foguete, Corredor, Localizador, Engenheiro, Agente, Faz-Tudo",
@@ -4456,7 +4440,6 @@
   "HiderSpeed": "Velocidade do Escondido",
   "HiderVision": "Visão do Escondido",
   "MinutesLeft": "{0}<color=#00ffa5>Minutos Restantes</color>",
-  
   "Agent": "Agente",
   "AgentInfo": "Você é um Impostor entre os Escondidos",
   "AgentInfoLong": "Você é um Impostor entre os Escondidos",
@@ -4526,7 +4509,6 @@
   "VenterInfoLong": "Use dutos para encontrar Escondidos",
   "VenterSpeed": "Velocidade do Usuário de Dutos",
   "VenterVision": "Visão do Usuario de Dutos",
-  
   "HotPotato": "BATATA QUENTE",
   "ModeHotPotato": "Modo de Jogo: Batata Quente",
   "ModeDescribe.HotPotato": "No modo de jogo de Batata Quente, um jogador sempre tem a batata quente e ele pode passá-la para qualquer um indo perto de alguém. A cada X segundos (X é definido pelo host), o jogador que segura a batata quente morre. O último jogador vivo vence!\n\nNota: Você não pode passar a batata quente para o jogador que a deu para você (seu nome é colorido em ciana, significa que eles não podem pegar a batata quente) a não ser que faltem apenas 2 jogadores.",
@@ -4540,7 +4522,6 @@
   "HotPotato_Range": "Alcance para passar a Batata Quente",
   "HotPotato_Time": "O jogador com a batata quente é morto a cada",
   "HotPotato_TimeLeftSuffix": "Morte em ",
-  
   "KingOfTheZones": "REI DAS ZONAS",
   "ModeKingOfTheZones": "Modo de jogo: Rei das Zonas",
   "ModeDescribe.KingOfTheZones": "No modo de jogo Rei das Zonas, os jogadores são divididos em times. Algumas salas no mapa representam uma zona. Se um time tiver mais jogadores em uma sala do que todos os outros times, ele controla a zona. A cada segundo, cada time ganha 1 ponto para cada zona controlada. Ganhe o máximo de pontos possível, pois o time com a maior pontuação vence!\\n\\nOs jogadores podem marcar outros usando o botão de matar. Jogadores marcados são teleportados para fora do mapa por alguns segundos e depois retornam.\\n\\nDependendo das configurações, as zonas podem se mover durante o jogo. Se for o caso, isso será indicado por um temporizador. Quando uma zona se move, pode haver um tempo de inatividade. Isso acontece quando o temporizador está cinza.",
@@ -4593,7 +4574,6 @@
   "KingOfTheZones.TagCooldown": "Recarga de Marcação",
   "KingOfTheZones.ZoneMoveTime": "Zonas Movem a Cada",
   "KingOfTheZones.ZonesMove": "Zona Move",
-  
   "Mingle": "MINGLE",
   "ModeMingle": "Modo de Jogo: Mingle",
   "ModeDescribe.Mingle": "No modo de jogo Mingle, o jogo atribui um certo número de jogadores a certas salas no mapa. No final do prazo, é preciso que esse número de jogadores esteja nas salas. Se houver muitos ou poucos jogadores em uma sala, todos os jogadores naquela sala morrem. Se não estiver em nenhuma das salas atribuídas, morrerá. Ah, e se ninguém morrer em uma rodada, o limite de tempo diminui permanentemente. O último jogador vivo vence!",
@@ -4607,7 +4587,6 @@
   "Mingle.NotInRequiredRoom": "Não está em nenhuma sala atribuída",
   "Mingle.TimeDecreaseOnNoDeathOption": "Redução de tempo caso não houver mortes",
   "Mingle.TimeLimitOption": "Tempo máximo inicial",
-  
   "NaturalDisasters": "DESASTRES NATURAIS",
   "ModeNaturalDisasters": "Modo de Jogo: Desastres Naturais",
   "ModeDescribe.NaturalDisasters": "No modo de jogo Desastres Naturais, o mapa está cheio de desastres naturais. Você tem que sobreviver a todos eles e ser o último jogador vivo a vencer!\\n\\n<size=80%>Lista de todos os desastres naturais e seus efeitos:</size><size=70%>\\n- Terremoto: O chão treme, dificultando a movimentação.\\n- Meteoro: Um meteoro cai do céu, matando jogadores em um determinado alcance.\\n- Erupção vulcânica: Lava flui de um ponto, matando jogadores.\\n- Tornado: Jogadores são sugados para dentro do tornado e morrem.\\n- Tempestade: Raios atingem o lado de fora das salas, matando jogadores que ele atinge.\\n- Tempestade de areia: Areia sopra, dificultando a visão.\\n- Tsunami: Uma onda gigante vem se movendo em uma direção específica, afogando jogadores que estão no caminho.\\n- Buraco: O chão desaba, matando jogadores dentro do alcance e todos os jogadores que entrarem nesse alcance no futuro.\\n- Desabamento de prédio: Um prédio no navio desaba, matando todos dentro dele. Salas desabadas não podem ser acessadas no futuro.</size>",
@@ -4707,7 +4686,6 @@
   "ND_VolcanoEruption.DurationAfterFlowComplete": "Tempo para desaparecer após o fluxo da lava for completo",
   "ND_VolcanoEruption.FlowStepDelay": "Atraso entre passos do fluxo da lava",
   "OngoingThunderstorm": "<#ffff44>⚠ Tempestade em andamento ⚠</color>",
-  
   "Quiz": "QUIZ",
   "ModeQuiz": "Modo de Jogo: Quiz",
   "ModeDescribe.Quiz": "No modo de jogo Quiz, você deve responder às perguntas corretamente para sobreviver. Existem várias dificuldades com diferentes limites de tempo. Cada pergunta tem 5 opções de resposta: A, B, C, D, E. Cada opção tem o nome de uma sala ao lado da resposta. Para escolher uma resposta, você deve entrar na sala correspondente à resposta. Se responder corretamente, você sobrevive. Se não responder corretamente a perguntas suficientes, você acaba morrendo ou competindo em uma partida de Matar ou Morrer (MOM) com os outros jogadores que erraram as perguntas.",
@@ -8104,7 +8082,6 @@
   "Quiz.Settings.TimeLimit.Medium": "Tempo limite para responder cada pergunta nas rodadas médias",
   "Quiz.Suffix.Invisible": "Você não pode ver aonde outras pessoas vão\\nOutras pessoas não podem ver aonde você vai",
   "Quiz.TaskBarText": "---- DADOS DO JOGO ----\\n\\nDificuldade: {0}\\nRodada: {1}\\nQuestão: {2}\\n\\nNúmero de acertos\\nde todos até este momento:\\n\\n{3}",
-  
   "RoomRush": "CORRIDA ENTRE SALAS",
   "ModeRoomRush": "Modo de Jogo: Corrida entre Salas",
   "ModeDescribe.RoomRush": "No modo de jogo \"Corrida entre Salas\", todos precisam chegar a uma sala específica o mais rápido possível. O último jogador a chegar lá morre. O último jogador vivo vence!\\nAh, e também há um limite de tempo. Todos que não chegarem à sala dentro do tempo especificado morrem. Parece fácil, certo? Bem.... Quando os primeiros 2 jogadores entram na sala correta, o limite de tempo é reduzido para apenas alguns segundos! Boa sorte!\\n\\nVocê pode ver a sala para a qual precisa ir abaixo do seu nome.\\nDependendo das configurações, todos podem usar os dutos um número limitado de vezes.",
@@ -8137,7 +8114,6 @@
   "RR_WinByPointsInsteadOfDeaths": "Em vez de mortes, conte os lugares de cada vez em pontos e o primeiro jogador a conseguir uma certa quantidade de pontos vence",
   "RR_YouAreFirst": "Você está em primeiro lugar",
   "RR_YouWereLast": "<#ff1919>Você foi o último a chegar à sala</color>",
-  
   "Snowdown": "Briga de Bolas de Neve",
   "ModeSnowdown": "Modo de Jogo: Briga de Bolas de Neve",
   "ModeDescribe.Snowdown": "In the Snowdown gamemode, the player that successfully throws the most snowballs at other players wins! You get 1 coin for every hit. You can spend coins on powerups in the shop, or turn pet to turn 20 coins into 1 point. Highest <u>points</u> (not coins) wins! Triggers:\\n- Vanish: Throw a snowball in your movement direction / Cycle between powerups while in shop\\n- Calling a ciritical Sabotage: Enter/Exit shop\\n- Pet: Turn 20 coins into 1 point / Buy selected powerup in shop\\n- Kill: Give the target one of your snowballs",
@@ -8159,7 +8135,24 @@
   "Snowdown.SnowballGainFrequencyOption": "Frequência inicial de ganho de Bola de Neve",
   "Snowdown.SnowballThrowSpeedOption": "Velocidade de Arremesso de Bola de Neve",
   "SnowdownButtonText": "ARREMESSAR",
-  
+  "DoomTag": "MARCA-MORTE",
+  "ModeDoomTag": "Modo de Jogo: Marca-Morte",
+  "ModeDescribe.DoomTag": "No modo de jogo Marca-Morte, cada jogador tem um alvo marcado com uma seta. Você só pode matar APENAS o seu alvo. Matar o alvo errado resulta em uma punição (suicídio / menor visão). Quando você mata seu alvo, você herda o alvo deles. Quando apenas alguns jogadores permanecem, o Modo Frenesi ativa: todos recebem um boost de velocidade e recarga de abate reduzida. O último jogador vivo vence!",
+  "GameModeTutorial.DoomTag": "<size=90%>O Modo de Jogo é <#D9BAA5>Marca-Morte</color>.</size>\\n<size=80%>Cada jogador tem um alvo marcado com uma seta.\\nVocê pode APENAS matar o seu alvo.\\nMatar o alvo errado irá te punir.\\nO seu alvo muda quando você mata corretamente.\\nO Modo Frenesi ativa quando apenas alguns jogadores permanecem!</size>",
+  "DoomTag.BaseKillCooldown": "Recarga de Abate Reduzida",
+  "DoomTag.PunishmentMode": "Punição de Abate Errado",
+  "DoomTag.PunishSuicide": "Suicídio",
+  "DoomTag.PunishLowerVision": "Menor Visão",
+  "DoomTag.LowerVisionMultiplier": "Multiplicador de Visão Reduzida",
+  "DoomTag.FrenzyPlayerCount": "Jogadores para ativar o Modo Frenesi",
+  "DoomTag.FrenzyKillCooldown": "Recarga de Abate do Modo Frenesi",
+  "DoomTag.FrenzySpeedMultiplier": "Multiplicador de Velocidade no Modo Frenesi",
+  "DoomTag.ShowTargetArrow": "Mostrar Seta no Alvo",
+  "DoomTag.CurrentTarget": "Alvo Atual",
+  "DoomTag.FrenzyModeActivated": "<color=#ff6600>Modo Frenesi! Acelere e mate mais rápido!</color>",
+  "DoomTag.FrenzyModeHUD": "FRENESI",
+  "DoomTag.WrongKillSuicide": "<color=#ff0000>Alvo Errado! Você cometeu suicídio.</color>",
+  "DoomTag.WrongKillLowerVision": "<color=#ff0000>Alvo errado! A sua visão foi reduzida.</color>",
   "SoloPVP": "Desafiante",
   "ModeSoloPVP": "Modo de Jogo: PVP Solo",
   "ModeDescribe.SoloPVP": "No modo de jogo Solo PVP, todos têm HP e podem usar seu botão de matar para causar dano em outros jogadores. Quando a saúde de um jogador chega a 0, ele \"morre\" e reaparece após alguns segundos. O(s) jogador(es) com o maior número de mortes vence(m) no final do jogo.",
@@ -8183,7 +8176,6 @@
   "SoloPVP_RecoverAfterSecond": "Recarga de Recuperação",
   "SoloPVP_RecoverPerSecond": "Recuperar por Segundo",
   "SoloPVP_ResurrectionWaitingTime": "Tempo de Espera para Ressurreição",
-  
   "Speedrun": "SpeedRunner",
   "ModeSpeedrun": "Modo de Jogo: Speedrun",
   "ModeDescribe.Speedrun": "No modo Speedrun, tudo gira em torno da velocidade. Todos têm que completar todas as tarefas o mais rápido possível e depois matar todos os outros o mais rápido possível!\n\nQuando alguém termina todas as suas tarefas, ele se torna um assassino e pode matar todos os outros. O último jogador vivo vence!\nMas para tornar isso um pouco mais difícil, você tem um limite de tempo para completar uma tarefa ou matar alguém! O cronômetro é reiniciado quando você faz isso. Se o seu tempo acabar, você morre!\n\nEste modo de jogo é um híbrido dos modos Luz Vermelha, Luz Verde e Matar ou Morrer.",
@@ -8196,7 +8188,6 @@
   "Speedrun_TaskFinishWins": "Primeiro a terminar as Tarefas Ganha Imediatamente (ignora a fase para matar)",
   "Speedrun_TimeLimit": "Limite de Tempo para Fazer uma Tarefa ou Matar",
   "Speedrun_TimeStacksUp": "Tempo Restante Adicionado ao Próximo Limite de Tempo (o tempo se acumula)",
-  
   "StopAndGo": "Tarefador",
   "ModeStopAndGo": "Modo de Jogo: Luz Vermelha, Luz Verde",
   "ModeDescribe.StopAndGo": "Em Luz Vermelha, Luz Verde, todos têm 3 cronômetros com símbolos para direções de movimento: ← (esquerda) 17s, → (direita) 5s, ⇅ (cima/baixo) 9s. Cada símbolo é vermelho ou verde. Quando um cronômetro chega a 0, sua cor troca.\\nConceito: Você não pode se mover em direções com um símbolo vermelho, ou você morre. Todos são tripulantes. O primeiro a terminar todas as tarefas vence!",
@@ -8240,7 +8231,6 @@
   "StopAndGo_RightCounterGreenMin": "Tempo Minimo para Direita estar Verde",
   "StopAndGo_RightCounterRedMax": "Tempo Máximo para Direita estar Vermelho",
   "StopAndGo_RightCounterRedMin": "Tempo Mínimo para Direita estar Vermelho",
-  
   "TheMindGame": "O JOGO DA MENTE",
   "ModeTheMindGame": "Modo de Jogo: O Jogo da Mente",
   "ModeDescribe.TheMindGame": "O Jogo da Mente é um jogo de eliminação em 4 rodadas focado em estratégia, blefe e uso de itens. Os jogadores competem por pontos ao longo das rodadas, com apenas um saindo vencedor.\\nRodada 1: Demanda de Pontos - Escolha um número. Se alguém escolher o mesmo, ambos não ganham nada. Alcance a meta de pontos primeiro para avançar. Os com menor pontuação em cada grupo são eliminados.\\nRodada 2: Leilões de Super Pontos - Dê lances com pontos normais em leilões ocultos para ganhar super pontos. Os maiores licitantes vencem. Os que tiverem menos super pontos são eliminados.\\nRodada 2.5: Intervalo do Mercador - Gaste super pontos em itens poderosos. Itens podem cegar, bloquear, roubar ou melhorar. Use comandos para comprar e ativar.\\nRodada 3: Demanda + Itens - Igual à Rodada 1, mas com itens ativados. Todos jogam juntos. Os com menor pontuação são eliminados até restarem poucos.\\nRodada 4: O Jogo da Maleta - Um jogador segura a maleta vencedora. Ser ejetado com ela trava sua colocação. Maletas são embaralhadas após cada ejeção. Se restarem 2, quem tiver a maleta perde. Use Laço para roubar.\\nPontuação Final: Pontuação total = pontos das rodadas + bônus de super pontos + bônus de colocação. Quem tiver a maior pontuação vence.",
@@ -8321,7 +8311,6 @@
   "TMG.Suffix.YourBid": "Seu Lance: {0} Pontos Normais",
   "TMG.Suffix.YourItems": "<u>Seus itens:</u>",
   "TMG.Suffix.YourPick": "Número selecionado: {0}",
-  
   "8BallResponseTitle": "<#000000>➇ 8-BALL ➇</color>",
   "8BallResponse.0": "É certo.",
   "8BallResponse.1": "É decididamente assim.",
@@ -8343,93 +8332,11 @@
   "8BallResponse.17": "Minhas fontes dizem que não.",
   "8BallResponse.18": "Resultado não tão bom.",
   "8BallResponse.19": "Muito duvidoso.",
-  
-  "8BallResponse.20": "\\n",
-  "8BallResponse.21": "\\n",
-  "8BallResponse.22": "\\n",
-  "8BallResponse.23": "\\n",
-  "8BallResponse.24": "\\n",
-  "8BallResponse.25": "\\n",
-  "8BallResponse.26": "\\n",
-  "8BallResponse.27": "\\n",
-  "8BallResponse.28": "\\n",
-  "8BallResponse.29": "\\n",
-  "8BallResponse.30": "\\n",
-  "8BallResponse.31": "\\n",
-  "8BallResponse.32": "\\n",
-  "8BallResponse.33": "\\n",
-  "8BallResponse.34": "\\n",
-  "8BallResponse.35": "\\n",
-  "8BallResponse.36": "\\n",
-  "8BallResponse.37": "\\n",
-  "8BallResponse.38": "\\n",
-  "8BallResponse.39": "\\n",
-  "8BallResponse.40": "\\n",
-  "8BallResponse.41": "\\n",
-  "8BallResponse.42": "\\n",
-  "8BallResponse.43": "\\n",
-  "8BallResponse.44": "\\n",
-  "8BallResponse.45": "\\n",
-  "8BallResponse.46": "\\n",
-  "8BallResponse.47": "\\n",
-  "8BallResponse.48": "\\n",
-  "8BallResponse.49": "\\n",
-  "8BallResponse.50": "\\n",
-  "8BallResponse.51": "\\n",
-  "8BallResponse.52": "\\n",
-  "8BallResponse.53": "\\n",
-  "8BallResponse.54": "\\n",
-  "8BallResponse.55": "\\n",
-  "8BallResponse.56": "\\n",
-  "8BallResponse.57": "\\n",
-  "8BallResponse.58": "\\n",
-  "8BallResponse.59": "\\n",
-  "8BallResponse.60": "\\n",
-  "8BallResponse.61": "\\n",
-  "8BallResponse.62": "\\n",
-  "8BallResponse.63": "\\n",
-  "8BallResponse.64": "\\n",
-  "8BallResponse.65": "\\n",
-  "8BallResponse.66": "\\n",
-  "8BallResponse.67": "\\n",
-  "8BallResponse.68": "\\n",
-  "8BallResponse.69": "\\n",
-  "8BallResponse.70": "\\n",
-  "8BallResponse.71": "\\n",
-  "8BallResponse.72": "\\n",
-  "8BallResponse.73": "\\n",
-  "8BallResponse.74": "\\n",
-  "8BallResponse.75": "\\n",
-  "8BallResponse.76": "\\n",
-  "8BallResponse.77": "\\n",
-  "8BallResponse.78": "\\n",
-  "8BallResponse.79": "\\n",
-  "8BallResponse.80": "\\n",
-  "8BallResponse.81": "\\n",
-  "8BallResponse.82": "\\n",
-  "8BallResponse.83": "\\n",
-  "8BallResponse.84": "\\n",
-  "8BallResponse.85": "\\n",
-  "8BallResponse.86": "\\n",
-  "8BallResponse.87": "\\n",
-  "8BallResponse.88": "\\n",
-  "8BallResponse.89": "\\n",
-  "8BallResponse.90": "\\n",
-  "8BallResponse.91": "\\n",
-  "8BallResponse.92": "\\n",
-  "8BallResponse.93": "\\n",
-  "8BallResponse.94": "\\n",
-  "8BallResponse.95": "\\n",
-  "8BallResponse.96": "\\n",
-  "8BallResponse.97": "\\n",
-  "8BallResponse.98": "\\n",
-  "8BallResponse.99": "\\n",
   "AAWarning": "<#ffff00>Você deve sair de perto deste dispositivo ou você morrerá!</color>",
   "Admin": "Admin",
   "AdminTag": "<#ff0000>Admin</color>",
   "AdminUnmuted": "O Administrador {0} desmutou {1}.",
   "AprilFoolsMode": "Modo Primeiro de Abril",
-  
   "PlayerInfo": "Informações do Jogador",
   "PlayerAddedToAdminList": "Jogador adicionado com sucesso à lista de administradores.",
   "PlayerAddedToModList": "Jogador adicionado a lista de moderadores.",
@@ -8454,7 +8361,6 @@
   "PlayerWasRevived": "O jogador cujo corpo você tentou reportar foi revivido",
   "AccurateCheckMode": "Pode saber a função específica quando as tarefas não estão concluídas",
   "YouMuted": "<#ff00>Você foi mutado por <u>{0}</u> por <#ff0000>{1}</color> segundos.",
-  
   "AchievementCompletedTitle": "<#FAD101>CONQUISTA DESBLOQUEADA</color>",
   "CompletedAchievementsTitle": "<#FAD101>CONQUISTAS CONCLUÍDAS</color>",
   "IncompleteAchievementsTitle": "<#ff0000>CONQUISTAS PARA SEREM DESBLOQUEADAS</color>",
@@ -8706,9 +8612,7 @@
   "Achievement.YoureMyFriendNow.Description": "Recrute qualquer um como Gangster/Chacal/Maldição/Virus/Cultista",
   "Achievement.YoureTooLate": "Você está atrasado demais",
   "Achievement.YoureTooLate.Description": "Como a Peste, faça um assassino tentar lhe matar, mas sem sucesso para eles",
-  
   "TabGroup.VanillaSettings": "Configurações padrão",
-  
   "TabGroup.SystemSettings": "<color=#ffffff>Configurações do Mod</color>",
   "ModLanguage": "Idioma do Mod",
   "UseGameLanguage": "Usar idioma do jogo",
@@ -8721,6 +8625,7 @@
   "KickMobilePlayer": "Expulsar jogadores de Celular",
   "KickPlayerFriendCodeNotExist": "Expulsar jogadores sem código de amigo",
   "ApplyDenyNameList": "Aplicar Lista de Nomes Bloqueados",
+  "BanDenyNameListPlayers": "Banir ao invés de expulsar ao detectar",
   "ApplyBanList": "Aplicar Lista de Banidos",
   "ApplyModeratorList": "Aplicar Lista de Moderadores",
   "ApplyVIPList": "Aplicar Lista VIP",
@@ -8845,7 +8750,6 @@
   "AGMR.Slot.Count": "Quantas vezes devemos repetir isso?",
   "MenuTitle.AGMR.RandomGroup": "Grupo Aleatório {index}",
   "AGMR.RandomGroup.GMChance": "Chance de selecionar {gm}",
-  
   "TabGroup.GameSettings": "<color=#ffffff>Configurações de Jogo</color>",
   "MenuTitle.Ejections": "★ Ejeção ★",
   "ConfirmEjectionsMode": "Modo de Confirmação das Ejeções",
@@ -9036,7 +8940,6 @@
   "AnagramDiff.Medium": "Médio",
   "AnagramDiff.MediumHard": "Médio-Difícil",
   "AnagramDiff.Hard": "Difícil",
-  "EightballCommandIndexes": "Número de respostas para o comando /8ball (Use o arquivo de tradução personalizado para importar respostas adicionais. Essas respostas aparecerão em branco se nenhuma definição for feita)",
   "MenuTitle.Other": "★ Outro ★",
   "LadderDeath": "Cair de Escadas",
   "LadderDeathChance": "Chance de Cair Para a Morte",
@@ -9077,8 +8980,7 @@
   "AFKSuffix": "<#ffa500>(AFK)</color>",
   "AFKTooMany": "Detecção de AFK foi desativada nesta rodada porque há muitos jogadores AFK",
   "AFKWarning": "<#ffff00><size=90%>Por favor se mova para evitar ser marcado como AFK</color> <#ffffff>({0})</size></color>",
-  "MenuTitle.CTA": "★ Atribuição de Times Personalizado ★", 
-  
+  "MenuTitle.CTA": "★ Atribuição de Times Personalizado ★",
   "TabGroup.TaskSettings": "<color=#ffffff>Gerenciamento de Tarefas</color>",
   "UsePets": "Usar Botão Acariciar ao invés de Dutar/Metamorfo",
   "PetToAssign": "Pet para Atribuir a todos",
@@ -9236,26 +9138,21 @@
   "GuesserDoesntDieOnMisguess": "Adivinhador não morre ao adivinhar errado",
   "CanGuessDuringDiscussionTime": "<color=#f3e304>Adivinhadores podem adivinhar durante o tempo de discussão</color>",
   "MisguessDeathReason": "Razão de morte de 'Adivinhação Incorreta'",
-  
   "AddedPolus": "Incluir <color=#a167c0>Polus</color>",
   "AddedTheAirship": "Incluir <color=#ed0007>Airship</color>",
   "AddedTheSkeld": "Incluir <color=#66a186>The Skeld</color>",
   "AddonCanBeGuessed": "Pode ser adivinhado",
   "AfterMeeting": "Após Reunião",
   "AfterMeetingKillCooldown": "Recarga para matar após Reuniões",
-  
   "AddonSettingsCrew": "Configuração de <color=#8cffff>Tripulantes</color>",
   "AddonSettingsImp": "Configuração de <color=#ff1919>Impostor</color>",
   "AddonSettingsNeut": "Configuração de <color=#ffab1b>Neutro</color>",
-  
   "Anagram.CorrectGuess": "<#00ffa5>✓</color> {0} adivinhou o anagrama corretamente (<b>{1}</b>)!",
   "Sabotage": "Sabotar",
   "SabotageButtonText": "Sabotar",
-  
   "ArrowDelayMax": "Atraso Máximo de Exibição da Seta",
   "ArrowDelayMin": "Atraso Mínimo de Exibição da Seta",
   "BKProtectDuration": "Duração de Proteção",
-  
   "BMAE.AfterMeeting": "Após Reunião",
   "BMWSBP.Blackmailer": "<#990000>Chantageado</color>",
   "BMWSBP.BlackmailerAndBlackmailed": "<#990000>Chantagista</color> + <#ffa500>Chantageado</color>",
@@ -9266,19 +9163,12 @@
   "BlackHoleMovesTowardsNearestPlayer": "Buracos negros se movem na direção do jogador mais próximo",
   "BlackHolePlaceCooldown": "Recarga para posicionar um buraco negro",
   "BlackHoleRadius": "Raio de Consumo do Buraco Negro",
-
-  
   "BlackScreenFixCompleteNotify": "<#00ff00>Código de Correção da Tela Preta Executado</color>",
   "BlackmailedSuffix": "<#ffa500>CHANTAGEADO</color>",
   "BlockVentMovement": "Bloquear Movimentos Entre os Dutos (enquanto está no duto)",
-  
   "BombCooldown": "Recarga de Bomba",
   "BombExplodeCooldown": "Tempo para a bomba explodir",
-
-  
   "CL.Enabled": "Ativado",
-
-  
   "CustomTeamHelp": "Você está no {0}!{1}\nTrabalhe com os Membros do seu time para vencer!",
   "CTA.Arrows": "Jogadores tem setas apontando para parceiros do time",
   "CTA.GuessEachOther": "Jogadores podem adivinhar uns aos outros",
@@ -9300,26 +9190,18 @@
   "CTA.TeamEnabled.Suffix": " ",
   "CTA.WinWithOriginalTeam": "Jogadores podem vencer com o Time Original",
   "SameCTATeam": "O jogador que você atacou está no mesmo time personalizado que você",
-  
   "CamerasAndAdmin": "Câmeras e Admin",
   "CamerasDisabledNotify": "<color=#ffff00>As Cameras foram Globalmente Desabilitadas pelo Anfitrião</color>",
   "CamouflageCooldown": "Recarga de Camuflagem",
   "CamouflageDuration": "Duração de Camuflagem",
-  
   "CanBeGuessed": "Pode ser adivinhado",
-
-  
   "CanBeInLove": "Pode estar em um <color=#ff9ace>romance</color>",
   "CanBeSoldByMerchant": "Pode ser vendido pelo <color=#D27D2D>Mercador</color>",
   "CanCheckCamera": "Pode rastrear o uso das câmeras",
   "CanCountNeutralKiller": "Quando os <color=#8cffff>Tripulantes</color> vencem matando um jogador <color=#ffab1b>Neutro</color>, eles podem roubar a vitória",
   "CanGetImpostorOnlyAddons": "Pode obter Atributos <#ff1919>apenas para impostores</color>",
-
-  
   "CanGuess": "Pode adivinhar no Modo Adivinhador",
   "CanGuessTarget": "Pode adivinhar seu alvo",
-
-  
   "CanHandcuffSheriff": "Pode algemar <color=#f8cd46>Xerife</color>",
   "CanIgniteBeforePlacingAllFireworks": "Pode explodir os fogos de artifício instalados antes de usar todos",
   "CanKill": "Pode assassinar",
@@ -9332,72 +9214,41 @@
   "CanNotJoinPublicRoomNoLatest": "Você não pode entrar em salas públicas com essa versão.\nPor favor atualize.",
   "CanNotTrialJailed": "Você não pode Adivinhar o Alvo.",
   "CanNotTrialProtected": "Você não pode julgar jogadores protegidos.",
-
-  
   "CanOnlyUseWhileAnyWatch": "Só pode usar a habilidade quando houver um alerta de uso de dispositivo",
   "CanPickPartnerRole": "Pode escolher funções que já existem no jogo",
-
-  
   "CanSabotage": "Pode Sabotar",
-
-  
   "CanShapeshift": "Pode Can <color=#ff1919>Metamorfar</color>",
-
-  
   "CanSwapSelfVotes": "Pode trocar seus próprios votos.",
-
-  
   "CanTargetCoven": "O alvo pode ser um <color=#7b3fbb>Membro do Conventículo</color>",
   "CanTargetNeutralBenign": "O seu alvo pode ser um <color=#ffab1b>Neutro</color> <color=#046300>Passivo</color>",
   "CanTargetNeutralEvil": "O seu alvo pode ser um <color=#ffab1b>Neutro</color> <color=#912900>Malvado</color>",
   "CanTerroristSuicideWin": "Pode vencer pelo suicídio",
   "CantGuessJailed": "Você não pode Adivinhar o Alvo",
-
-  
   "CanUseSabotage": "Pode Sabotar",
-
-  
   "CanVent": "Pode usar os dutos",
   "CanVentAfterNecronomicon": "Pode usar dutos <#00a5ff>Depois</color> de receber o <#7b3fbb>Necronomícone</color>",
   "CanVentBeforeNecronomicon": "Pode usar dutos <#00a5ff>Antes</color> de receber o <#7b3fbb>Necronomícone</color>",
-
-  
   "CanVote": "Pode Votar",
-
-  
   "CanWinAfterDeath": "Pode vencer após a morte",
   "CancelStartCountDown": "A contagem para começar o jogo foi cancelada",
   "CancelSwap1": "Alvo 1 Desmarcado",
   "CancelSwap2": "Alvo 2 Desmarcado",
-
-  
   "CannotCallEmergencyMeetingWhileSabotage": "Reuniões de emergência não podem ser chamadas durante a sabotagem",
-
-  
   "CannotCleanWhenKCDIsntUp": "Não é possível limpar os corpos quando o tempo de resfriamento não subir",
   "CannotSpawnAsSoloImp": "Não pode aparecer como Impostor Solo",
   "CannotStoneGazeWhenKCDIsntUp": "Não é possível olhar os corpos de pedra quando o assassinato não subir",
-
-  
   "CantSwapSelf": "Não é possível trocar o próprio voto",
   "CantUse.killlog": "Não está habilitado o /killlog durante o jogo.",
   "CantUse.lastresult": "Não está habilitado o /lastresult durante o jogo.",
   "CantUse.lastroles": "Não está habilitado o /lastroles durante o jogo.",
-
-  
   "ChanceOfSeeingAllAlignmentsOnStart": "Chance de ver todos os Times no início do jogo",
-
-  
   "ChargeInterval": "Porcentagem de carga obtida a cada segundo em que a regarga de abate estiver zerada",
   "ChargeLossInterval": "Porcentagem de carga gasta por segundo enquanto matando",
-  
   "ComboAdd": "{0} e {1} agora vão sempre aparecer juntos.",
   "ComboAllow": "{0} e {1} podem agora aparecer juntos.",
   "ComboBan": "{0} e {1} nunca aparecerão juntos.",
   "ComboRemove": "{0} e {1} não aparecerão mais juntos.",
   "ComboUsage": "\n<b><u>Formato de uso:</u></b>\n/combo {add/ban/remove/allow} {main role} {addon} [all]\n\n<size=60%>Por padrão, o combo é adicionado à predefinição atual. Se você quiser que seja adicionado para todas as predefinições, digite 'all' no final.\nExemplo: /combo add Justiceiro Tiro Duplo all</size>",
-  
-  
   "GNoCommandInfo": "<b>Esse comando só pode ser usado no lobby ou depois que você morrer.</b>\n\nDigite <b>/gno X</b> para jogar e adivinhar um número. X pode ser um número entre 0 e 99 (ambos incluídos). \n\nVocê tem um máximo de <color=#ff0000>7 tentativas</color> para adivinhar o número.\n\n Exemplo:- <b>/gno 10</b>",
   "HostKillSelfByCommand": "O anfitrião da sala decidiu cometer suicídio.",
   "HostMayOmitCmdPrefix": "O prefixo 'cmd'\\npode ser omitido",
@@ -9409,7 +9260,6 @@
   "SpectateCommand.Success": "<#ff0000>X</color> Você agora está assistindo o próximo jogo.",
   "SpectateCommand.WasSpectatingLastRound": "<#ff0000>X</color> Você estava assistindo na última rodada. Você não pode assistir novamente.",
   "TerminateCommand": "Abortar Comando",
-  
   "CommandArgs.AFKExempt.Id": "O ID do jogador para isentar da detecção AFK",
   "CommandArgs.AddAdmin.Id": "ID do jogador para adicionar à lista de administradores",
   "CommandArgs.AddMod.Id": "O ID do jogador que você quer adicionar como moderador",
@@ -9511,7 +9361,6 @@
   "CommandArgs.Whisper.Ids": "Os IDs dos jogadores para sussurrar, separados por vírgulas (sem espaço)",
   "CommandArgs.Whisper.Message": "A mensagem para sussurrar",
   "CommandArgs.XOR.Role": "Uma função principal que nunca aparecerá no mesmo jogo com a outra função",
-  
   "CommandDescription.AFKExempt": "Exclui um jogador de ser verificado pela Detecção AFK",
   "CommandDescription.Achievements": "Veja quais conquistas você desbloqueou e quais você não conseguiu",
   "CommandDescription.AddAdmin": "Adicionar um jogador à lista de administradores",
@@ -9625,7 +9474,6 @@
   "CommandDescription.Whisper": "Sussurra uma mensagem em particular para os jogadores especificados.",
   "CommandDescription.Winner": "Veja os vencedores da última partida",
   "CommandDescription.XOR": "Especifique 2 funções que nunca aparecerão no mesmo jogo.",
-  
   "CommandForms.AFKExempt": "afkexempt",
   "CommandForms.Achievements": "achievements",
   "CommandForms.AddAdmin": "addadmin",
@@ -9639,7 +9487,7 @@
   "CommandForms.Ban": "ban,kick",
   "CommandForms.CSD": "csd",
   "CommandForms.ChemistInfo": "ci,chemistinfo",
-  "CommandForms.ChangePreset": "changepreset,presetchange,chp",
+  "CommandForms.ChangePreset": "mudarpredefinicao,mudarpred,mpd",
   "CommandForms.ChangeRole": "changerole",
   "CommandForms.ChangeSetting": "cs,changesetting",
   "CommandForms.Chat": "chat",
@@ -9647,11 +9495,11 @@
   "CommandForms.Choose": "choose,pick",
   "CommandForms.Colour": "colour,color",
   "CommandForms.Combo": "combo",
-  "CommandForms.Compare": "compare,cmp",
+  "CommandForms.Compare": "comparar,cmp",
   "CommandForms.ConfirmAuth": "confirmauth",
-  "CommandForms.CopyPreset": "copypreset,presetcopy,cpp",
+  "CommandForms.CopyPreset": "copiarpreset,presetcopia,cpp",
   "CommandForms.CosID": "cosid",
-  "CommandForms.CovenInfo": "coveninfo",
+  "CommandForms.CovenInfo": "infocoventiculo",
   "CommandForms.DayBreak": "daybreak,db",
   "CommandForms.Death": "death,d",
   "CommandForms.DeathNote": "dn,deathnote",
@@ -9697,21 +9545,21 @@
   "CommandForms.Mute": "mute",
   "CommandForms.MyRole": "m,myrole",
   "CommandForms.Negotiation": "negotiation,neg",
-  "CommandForms.NeutralInfo": "neutralinfo",
+  "CommandForms.NeutralInfo": "infoneutros",
   "CommandForms.Note": "note",
   "CommandForms.Now": "n,now",
   "CommandForms.OS": "os,optionset",
   "CommandForms.PV": "pv",
   "CommandForms.Poll": "poll",
-  "CommandForms.PresetPoll": "presetpoll,ppoll",
-  "CommandForms.PlayerInfo": "pi,playerinfo",
+  "CommandForms.PresetPoll": "preenquete,penquete",
+  "CommandForms.PlayerInfo": "ij,infojogador",
   "CommandForms.QA": "qa",
   "CommandForms.QS": "qs",
   "CommandForms.R": "r",
   "CommandForms.Ready": "ready",
   "CommandForms.ReadyCheck": "rc,readycheck",
   "CommandForms.Rename": "rn,rename,name",
-  "CommandForms.Reroll": "reroll",
+  "CommandForms.Reroll": "rerolar",
   "CommandForms.Retribute": "ret,retribute",
   "CommandForms.Revenge": "rv",
   "CommandForms.Revive": "revive",
@@ -9722,7 +9570,7 @@
   "CommandForms.SetRole": "setrole,setaddon",
   "CommandForms.Spectate": "spectate",
   "CommandForms.Start": "start",
-  "CommandForms.Summon": "summon",
+  "CommandForms.Summon": "invocar",
   "CommandForms.Swap": "sw,swap,st",
   "CommandForms.TimeLimit": "tl,timelimit",
   "CommandForms.TPIn": "tpin",
@@ -9739,7 +9587,6 @@
   "CommandForms.Whisper": "w,whisper",
   "CommandForms.Winner": "win,winner",
   "CommandForms.XOR": "xor",
-  
   "CommandList": "★ Lista de Comandos Disponíveis:",
   "Commands.ChangeSettingHelp": "<b><u>Argumentos:</u></b><size=70%>\n- map (theskeld/mirahq/polus/dlekseht/airship/thefungle/custom)\n- impostors (número)\n- players (número)\n- recommended (on/off)\n- confirmejects (on/off)\n- emergencymeetings (número)\n- anonymousvotes (on/off)\n- emergencycooldown (número)\n- discussiontime (número)\n- votingtime (número)\n- playerspeed (valor)\n- crewmatevision (valor)\n- impostorvision (valor)\n- killcooldown (número)\n- killdistance (short/medium/long/custom)\n- taskbarupdates (always/meetings/never)\n- visualtasks (on/off)\n- commontasks (número)\n- longtasks (número)\n- shorttasks (número)\n- scientistcount (número)\n- scientistchance (chance)\n- vitalsdisplaycooldown (número)\n- batteryduration (número)\n- engineercount (número)\n- engineerchance (chance)\n- ventusecooldown (número)\n- maxtimeinvents (número)\n- guardianangelcount (número)\n- guardianangelchance (chance)\n- protectcooldown (número)\n- protectduration (número)\n- protectvisibletoimpostors (on/off)\n- shapeshiftercount (número)\n- shapeshifterchance (chance)\n- shapeshiftduration (número)\n- shapeshiftcooldown (número)\n- leaveshapeshiftevidence (on/off)\n- phantomcount (número)\n- phantomchance (chance)\n- inviscooldown (número)\n- invisduration (número)\n- noisemakercount (número)\n- noisemakerchance (chance)\n- noisemakerimpostoralert (on/off)\n- noisemakeralertduration (número)\n- trackercount (número)\n- trackerchance (chance)\n- trackduration (número)\n- trackcooldown (número)\n- trackdelay (número)\n- ghostdotasks (on/off)\n\n<u><b>Notas:</b></u>\n1. Letras maiusculas e minusicular importam\n2. Onde a configuração houver um custom, você obviamente deve colocar um número após o custom\n3. onde um argumentos for valor, você deve colocar um número no formato float, como por exemplo, 1.7\n4. \\\"ghostdotasks\\\" causa alguns problemas caso definido por comando\n5. Exemplos de uso:\n   - \\\"/cs map polus\\\"\n   - \\\"/cs killdistance custom 4\\\"\n   - \\\"/cs trackdelay 1,7\\\"\n   - \\\"/cs confirmejects on\\\"",
   "Commands.NoAccess.Level.Host": "<#ff5555>X <#bb0000>Este comando só pode ser usado pelo <#ffffff>Anfitrião",
@@ -9758,7 +9605,6 @@
   "KickCommandKickedReason": "Motivo:",
   "KickCommandKickedRole": "Sua função era",
   "KickCommandNoAccess": "Você não tem acesso ao comando de expulsar.",
-  
   "AutoGMRotationStatusText.CooldownTimer": "Pulando para o próximo modo de jogo na lista em <b>{0}</b> segundos",
   "AutoGMRotationStatusText.GMPoll": "Voto do Jogador (/gmpoll)",
   "DraftChosen": "Você escolheu a função <b>{0}</b> para o próximo jogo.\\n<size=70%> Você ainda pode mudar sua escolhe ao digitar /draft [número] novamente</size>",
@@ -9783,39 +9629,24 @@
   "Poll.YouVoted": "Você votou em {0}, que agora tem {1} votos.",
   "PollResultTitle": "Resultados da Votação",
   "PollUsage": "Formato:\n<size=80%><b>/poll {Questão}? <size=55%>{Resposta A} {Resposta B} \n[Resposta C] [Resposta D] [Resposta E]</size></b></size>\n\n<size=50%>Nota: A questão deve sempre terminar com um ponto de interrogação (?)!</size>",
-  
   "ControlCooldown": "Recarga de Controle",
-
-  
   "ConvertedAddonCanBeGuessed": "{role} pode ser adivinhado",
-
-  
   "CooldownsResetEachOther": "Recarga de Habilidade e Recarga de Abate redefinem uma a outra",
-
-  
   "CopyCrewVarEvenIfDisabled": "Pode copiar a variante de Tripulante mesmo que essa função esteja desativada",
-
-  
   "CountdownText": "<color=#00ffa5>Voltando para o lobby em</color> <b>{0}</b> segundo(s)",
   "CovenCanBeInLove": "<color=#7b3fbb>Membros do Conventículo</color> podem estar em um <color=#ff9ace>romance</color>",
   "CovenCanBeRole": "<color=#7b3fbb>Membros do Conventículo</color> podem ser {role}",
   "CovenCanFindMarshall": "Revelar aos <#7b3fbb>Membros do Conventículo</color>",
   "CovenReceiveNecronomiconAfterNumMeetings": "Número de reuniões até que os <color=#7b3fbb>Membros do Conventículo</color> comecem a receber o <color=#7b3fbb>Necronomícone</color>",
-  
   "CrewCanBeEgoist": "<color=#8cffff>Tripulantes</color> podem se tornar <color=#5600ff>Egoístas</color>",
   "CrewCanBeInLove": "<color=#8cffff>Tripulantes</color> podem estar em um <color=#ff9ace>romance</color>",
   "CrewCanBeLoyal": "<color=#8cffff>Tripulantes</color> podem ser <color=#B71556>Leal</color>",
   "CrewCanBeRole": "<color=#8cffff>Tripulantes</color> podem ser {role}",
   "CrewLoversWinWithCrew": "Se <color=#ff9ace>Amantes</color> forem <color=#8cffff>Tripulantes</color>, eles sempre vencem com os <color=#8cffff>Tripulantes</color>",
   "CurrentActiveSettingsHelp": "Ajuda nas configurações atuais",
-
-  
   "CurseCooldown": "Recarga para Amaldiçoar",
-
-  
   "CustomSabotage.GrabOxygenMask": "Pegue a Máscara de Oxigênio",
   "CustomSabotage.GrabOxygenMask.Done": "<#00ff00>Você pegou a Máscara de Oxigênio! Você está seguro.</color>",
-  
   "DCNotify.Auth": "Você não está autenticado.\n\nVocê talvez precise reiniciar o jogo.",
   "DCNotify.Banned": "Você foi <color=#ff1919>banido</color> dessa sala.\n\nConfira com o Anfitrião se foi um erro.",
   "DCNotify.DCFromServer": "Você desconectou do servidor.\nIsso pode ser um erro dos servidores ou da sua internet.",
@@ -9828,25 +9659,18 @@
   "DCNotify.IncorrectVersion": "Essa sala não suporta essa versão do Among Us.",
   "DCNotify.InvalidSettings": "Foram detectadas configurações invalidas.\n\nEntre em uma partida local e tente de novo.",
   "DCNotify.Kicked": "Você foi <color=#ffff00>expulso</color> dessa sala.\n\nVocê pode entrar novamente.",
-
-  
   "DCanGuessAdt": "Pode adivinhar Atributos",
   "DCanGuessCoven": "Consegue adivinhar Membros do <color=#7b3fbb>Conventículo</color>",
   "DCanGuessCrewmates": "Pode adivinhar <color=#8cffff>Tripulantes</color>",
   "DCanGuessImpostors": "Pode adivinhar <color=#ff1919>Impostores</color>",
   "DCanGuessNeutrals": "Pode adivinhar <color=#ffab1b>Neutros</color>",
   "DGRM.OnMeeting": "Na Reunião",
-
-  
   "DGResetMode": "Modo de Redefinição de Aparência",
   "DGResetTimer": "Se redefinir a skin pelo temporizador, redefina a skin após",
-  
   "DeactivationAfterMeeting": "Após Reunião",
-  
   "DeadCrewCantSabotage": "<color=#8cffff>Tripulantes</color> não podem sabotar após morrerem",
   "DeadImpCantSabotage": "<color=#ff1919>Impostors</color> não podem sabotar após morrerem",
   "DeadNeutralCantSabotage": "<color=#ffab1b>Neutros</color> não podem sabotar após morrerem",
-  
   "DeathReason.AFK": "AFK",
   "DeathReason.Allergy": "Alergia",
   "DeathReason.Ashamed": "Envergonhado",
@@ -9855,15 +9679,18 @@
   "DeathReason.BadLuck": "Má Sorte",
   "DeathReason.Bankrupt": "Falido",
   "DeathReason.Bite": "Mordido",
+  "DeathReason.Bugged": "Bugado",
   "DeathReason.Bombed": "Explodido",
   "DeathReason.Collapsed": "Colapso",
   "DeathReason.Consumed": "Consumido",
   "DeathReason.Curse": "Amaldiçoado",
   "DeathReason.Cursed": "Amaldiçoado",
   "DeathReason.Deafened": "Ensurdecido",
+  "DeathReason.Destroyed": "Destruído",
   "DeathReason.Demolished": "Demolido",
   "DeathReason.DidntVote": "Não Votou",
   "DeathReason.Disconnected": "Desconectou",
+  "DeathReason.Diseased": "Doente",
   "DeathReason.Dismembered": "Desmembrado",
   "DeathReason.Dragged": "Arrastado",
   "DeathReason.Drowned": "Afogado",
@@ -9900,9 +9727,11 @@
   "DeathReason.Revenge": "Vingança",
   "DeathReason.Sacrifice": "Sacrifício",
   "DeathReason.Scavenged": "Enterrado",
+  "DeathReason.Shot": "Atirado",
   "DeathReason.SkippedVote": "Pulou o Voto",
   "DeathReason.Sniped": "Atirado",
   "DeathReason.Spell": "Enfeitiçado",
+  "DeathReason.Stoned": "Petrificado",
   "DeathReason.Stung": "Picado",
   "DeathReason.Suicide": "Suicídio",
   "DeathReason.Sunken": "Submerso",
@@ -9918,15 +9747,11 @@
   "DeathReason.YinYanged": "Vinculado",
   "DeathReason.etc": "Outros",
   "DebugMode": "Modo de Depuração",
-  
   "DecreasedKillCooldown": "Recarga de abate reduzida",
   "DefaultShapeshiftCooldown": "Recarga Padrão de Metamorfose",
   "DeliverCooldown": "Recarga para entrega",
-  
   "DevourCooldown": "Recarga para Devorar",
-  
   "DiedR1Warning": "<#ffff00>(Morto primeiro na última jogo)</color>",
-  
   "DisableBard": "Desabilitar <color=#ff1919>Bardo</color>",
   "DisableCrackedGlass": "Desabilitar Vidro Quebrado nas Reuniões",
   "DisableHiddenRoles": "Desabilitar Funções Escondidas",
@@ -9938,29 +9763,18 @@
   "DisableVanillaRoles": "Desabilitar Funções Báscias (Vanilla)",
   "DisabledByProgram": "Salas Públicas foram desabilitadas",
   "DisabledBySettings": "Desabilitado pelas Configurações",
-  
   "DoesntSpawnOnFungle": "Não aparece quando o mapa é <color=#ffa646>Fungle</color>",
-  
   "DoYourTasksPlease": "Faça as suas tarefas!",
-  
   "DualVotes": "Votos Duplicados",
-  
   "E2Block": "Bloquear Apagamento",
-  
   "EAC.CheatDetected.EAC": "Uso de Trapaças Detectado (Usando AUM)",
   "EAC.CheatDetected.HighLevel": "Aviso: EAC detectou altos níveis de trapaças.",
   "EAC.CheatDetected.LowLevel": "Aviso: EAC detectou baixo nível de trapaças. Um dos jogadores está hackeando.",
-
-  
   "ECMO.OriginalTeam": "Facção Original",
-
-  
   "EGCanGuessAdt": "Pode Adivinhar Atributos",
   "EGCanGuessImp": "Pode Adivinhar Funções de <color=#ff1919>Impostor</color>",
   "EGCanGuessTaskDoneSnitch": "Pode Adivinhar <color=#b8fb4f>Agente</color> com suas Tarefas Concluídas",
   "EGGuessSnitchTaskDone": "Você pensou que poderia adivinhar o Agente com todas as suas tarefas concluídas? Haha! Boa tentativa... Você não vai sair dessa tão facilmente.",
-
-  
   "AntiBlackOutHostRejectForceEnd": "Você foi o motivo pra tela preta, e o Anfitrião não irá encerrar o jogo, você será desconectado em breve.",
   "AntiBlackOutLoggerSendInGame": "Por causa de um erro desconhecido, o Jogo será encerrado para evitar telas pretas.",
   "AntiBlackOutNotifyInLobby": "Um erro desconhecido ocorreu, para evitar telas pretas. Infelizmente esse erro existe em todos os mods tipo o Town of Host. Encerrar o jogo automaticamente é necessário, ou a partida não irá começar.",
@@ -10007,41 +9821,27 @@
   "UnsupportedVersion": "Versão não suportada do Among Us.\nPor favor atualize o Among Us",
   "downloadFailed": "Falha em baixar o arquivo! \nTente de novo mais tarde ou reinicie o jogo...",
   "updateFailed": "Falha na Atualização.",
-  
   "EVote": "Votar",
-
-  
   "EightBallDisabled": "<#ff0000>X</color> O comando /8ball está desativado neste lobby.",
-
-  
   "EnableDarkTheme": "Tema Escuro para IU do Chat",
   "EnableDebugMode": "Habilitar Modo de Depuração",
   "EnableExtraAbility": "Ativar Habilidade Extra",
   "EnableSpurtCharge": "Mostrar a carga",
   "EnabledGMWarning": "Você ativou o Modo Mestre. Isso fará com que você comece cada partida como um fantasma. Devido a um problema desconhecido, as partidas podem terminar instantaneamente com a mensagem \"Todos morreram\". Se isso acontecer, desative o Modo Mestre, por favor.",
-
-  
   "EnterVentWinCountDown": "Entre na ventilação em <b>{0}</b> segundos para ganhar!",
   "EnteredBlockedVent": "<color=#ffff00>Este duto está bloqueado pelo Guarda-Dutos</color>",
   "EraseLimit": "Limite Máximo de Apagamentos",
-
-  
   "EvenKillCooldown": "Recarga para Assassinato em Números Pares",
-  
   "ExiledExeTarget": "{0} era o {1}.\nMas parece que era o alvo do <color=#611c3a>Executor</color>!\nGG!",
   "ExiledExeTargetAddBelow": "\\nMas também era o alvo do <color=#611c3a>Executor</color>!",
   "ExiledInnocentTargetAddBelow": "\\nMas também era o alvo de um <color=#8f815e>Inocente</color>!",
   "ExiledInnocentTargetInOneLine": "{0} era o {1}.\\nMas olhando bem, o <color=#8f815e>Inocente</color> estava planejando isso....\nGG!",
   "ExiledJester": "Você foi enganado!\n{0} era o {1} rindo da maneira que enganou vocês.\nGG!",
   "ExtraVotesPT": "<#00a5ff>(<#00ffff>+<#00ffa5>{0}</color> votos</color>)</color>",
-  
   "FakeTask": "Tarefas falsas:",
-  
   "FixBlackScreenWaitForDead": "Todo mundo está vivo, e a correção de tela preta requer um fantasma, então vai esperar até que alguém morra.",
-  
   "FreezeCooldown": "Recarga para Congelar",
   "FreezeDuration": "Duração do Congelamento",
-  
   "GCanGuessAdt": "Pode Adivinhar Atributos",
   "GCanGuessCrew": "<color=#8cffff>Tripulante</color> pode adivinhar as funções de <color=#8cffff>Tripulante</color>",
   "GCanGuessImp": "<color=#ff1919>Impostor</color> pode adivinhar as funções de <color=#ff1919>Impostor</color>",
@@ -10049,46 +9849,25 @@
   "GGCanGuessAdt": "Pode Adivinhar Atributos",
   "GGCanGuessCrew": "Pode Adivinhar Funções de <color=#8cffff>Tripulante</color>",
   "GGGuessMax": "Você atingiu o limite máximo de palpites, não poderá mais adivinhar!",
-
-  
   "GSInfo.ConvertedCount": "<#ffab1b>Jogadores Convertidos</color> <size=70%>(excluindo <#ff1919>Cúmplices</color>)</size>: {0}",
   "GSInfo.CovenCount": "<#7b3fbb>Membros do Conventículo:</color> {0}",
   "GSInfo.CrewCount": "<#8cffff>Tripulantes:</color> {0}",
   "GSInfo.ImpCount": "<#ff1919>Impostores:</color> {0}",
-
-  
   "GSInfo.LoversState": "Número de <#ff9ace>Amantes</color> Vivos: {0}",
-
-  
   "GSInfo.MadmateCount": "<#ff1919>Cúmplices</color>: {0}",
   "GSInfo.NKCount": "<#ffab1b>Neutros</color> <#ff1919>Assassinos</color>: {0}",
   "GSInfo.NNKCount": "<#ffab1b>Neutros</color> <#ffff00>Não-Assassinos</color>: {0}",
-
-  
   "GSInfo.RomanticState": "{0}",
-
-  
   "GSInfo.Tasks": "<#00ffa5>Tarefas Concluídas:</color> {0}/{1}",
-
-  
   "GanInvestigatorCanBeMadmate": "<color=#BA55D3>Profeta</color> pode ser convertido",
   "GanJudgeCanBeMadmate": "<color=#f8d85a>Juíz</color> pode ser convertido",
   "GanMarshallCanBeMadmate": "<color=#5573AA>Marechal</color> pode ser convertido",
   "GanMayorCanBeMadmate": "<color=#204d42>Prefeito</color> pode ser convertido",
-
-  
   "GanNGuesserCanBeMadmate": "<color=#f0e68c>Justiceiro</color> pode ser convertido",
-
-  
   "GanPresidentCanBeMadmate": "<color=#30916f>Presidente</color> pode ser convertido",
   "GanSheriffCanBeMadmate": "<color=#f8cd46>Xerife</color> pode ser convertido",
-  
   "GhostIgnoreTasks": "Fantasmas não precisam fazer tarefas",
-
-  
   "GotGhostRoleNotify": "<#ff00>Foi atribuído um cargo de fantasma!</color>",
-
-  
   "GuessAbility": "Adivinhadores podem adivinhar <color=#ff9ace>Amantes</color>",
   "GuessAdtRole": "Infelizmente, as configurações do anfitrião não permitem que você adivinhe Atributos.",
   "GuessAnkylosaurus": "Você não pode adivinhar o Anquilossauro",
@@ -10128,49 +9907,37 @@
   "GuessTeamMate": "Desculpe, você não pode adivinhar seus colegas de equipe.",
   "GuessVanillaCrewmate": "As configurações do Anfitrião não permitem que alguém seja adivinhado com Tripulante Vanilla",
   "GuessWorkaholic": "Desculpe, você não pode adivinhar um Trabalhador revelado, pois isso seria injusto.",
-  
   "HideDualVotes": "Ocultar Votos Duplicados",
-  
   "HnSUnloadWarning": "<#ffff00><b>AVISO:</b>\\</color>\\nEHR não suporta o modo Esconde-Esconde original e será descarregado se você o ativar.\\nVocê pode usar o modo Esconde-Esconde Personalizado do EHR com funções exclusivas.",
-  
   "ImpCanBeEgoist": "Um <color=#ff1919>Impostor</color> pode se tornar <color=#5600ff>Egoísta</color>",
   "ImpCanBeInLove": "<color=#ff1919>Impostores</color> podem estar em um <color=#ff9ace>romance</color>",
   "ImpCanBeLoyal": "<color=#ff1919>Impostores</color> podem ser <color=#B71556>Leal</color>",
   "ImpCanBeRole": "<color=#ff1919>Impostores</color> podem ser {role}",
   "ImpCanFindMarshall": "Mostrar aos <#ff1919>Impostores</color>",
-  
   "ImpCanKillMadmate": "<color=#ff1919>Impostores</color> podem assassinar <color=#ff1919>Cúmplices</color>",
-  
   "IncompatibleMod": "Mod Incompatível",
   "IncompatibleNeutralMode": "Se o Neutro for incompatível, vira:",
-  
   "IncreasedSpeedDuration": "Duração do Impulso de Velocidade",
   "IncreasedVisionDuration": "Duração da visão aumentada",
-  
   "KCD": "<color=#ff1919>Recarga para Matar:</color> {0}s",
   "KickCommandDisabled": "O comando de expulsar está atualmente desativado.",
-  
   "KillBaitNotify": "<color=#ffff00>Você fará um auto-denúncia em <color=#ffab1b>{0}</color>s</color>",
   "KillCooldownAfterCleaning": "Recarga para matar após Limpar um corpo",
   "KillCooldownAfterStoneGazing": "Recarga para matar após Petrificar um corpo",
   "KillCooldownNormally": "Recarga de abate sem sabotagem",
-
-  
   "KillCount": "Abates: {0}",
-  
   "LaughToWhoGuessSelf": "Tentei adivinhar, quem tentou adivinhar é... É você! Ah...",
   "LaughToWhoMurderSelf": "Hahaha, quais pessoas seriam tão burras pra se matarem?\n\nBom, acho que... VOCÊS!",
   "LaughToWhoTrialSelf": "Meu Deus, não pensei que o Juiz seria tão cego a ponto de nem perceber que havia se sentenciado.",
-
-  
   "LegacyLovers": "Versão Antiga dos <color=#ff9ace>Amantes</color>",
-  
   "LimitPerGame": "Limite por Jogo",
   "LimitPerRounds": "Limite por Rodadas",
-  
   "Loading": "Carregando...",
   "LoadingBarText.1": "Configurando seu jogo....",
   "LoadingBarText.2": "{0}/{1} Clientes Prontos ({2})",
+  "LoadingBarText.3": "Abrindo o Portão....",
+  "LoadingBarText.4": "Saindo....",
+  "LoadingBarText.5": "Aterrando....",
   "LoadingHint.0": "<color=#08FA99>Você sabia?</color>\nVocê pode colocar funções de sua escolha em times personalizados!\nVeja as instruções na nossa pagina (link no menu principal)!",
   "LoadingHint.1": "<color=#08FA99>Você sabia?</color>\nVocê pode forçar ou banir certos combos de função e atributo usando /combo no lobby!\nTente após esse jogo!",
   "LoadingHint.2": "<color=#08FA99>Você sabia?</color>\nVocê pode mudar o nome de funções, atributos, configurações, etc usando arquivos de tradução personalizados!",
@@ -10218,50 +9985,28 @@
   "LoadingHint.44": "<color=#08FA99>Você sabia?</color>\nO número favorito do desenvolvedor é 44",
   "LoadingHint.45": "Você sabia que pode usar a declaração yield em um iterador para providenciar o próximo valor ou sinal no fim de uma iteração em loop ja que async não funciona no BepInEx?\nÉ, eu também",
   "LoadingWithPercentage": "<b><color=#ffff00>{0}%</color></b>\n<size=2>{1}</size>\n<size=1>{2}</size>",
-  
   "LobbyCloseTimer": "Este Lobby irá fechar automaticamente em: {0}",
   "LobbyTimer": "A sala fecha em {0}m {1}s",
-  
   "MadSnitchTasks": "Tarefas do <color=#b8fb4f>Agente</color>",
-
-  
   "MadTimeManagerLimitMeetingTime": "<color=#6495ed>Gerente do Tempo</color> <color=#ff1919>Cúmplice</color>  - Tempo Mínimo de Votação",
-
-  
   "MadmateCanFindMarshall": "Mostrar para os <#ff1919>Cúmplices</color>",
-
-  
   "MadmateCanFixSabotage": "<color=#ff1919>Cúmplices</color> podem arrumar sabotagens",
-
-  
   "MadmateCanKillImp": "<color=#ff1919>Cúmplices</color> podem assassinar <color=#ff1919>Impostores</color>",
   "MadmateCountMode": "<color=#ff1919>Cúmplices</color> contam como",
   "MadmateCountMode.Crew": "<color=#8cffff>Tripulantes</color>",
   "MadmateCountMode.Imp": "<color=#ff1919>Impostores</color>",
   "MadmateCountMode.None": "Nada",
-
-  
   "MadmateSpawnMode": "Modo de Geração de <color=#ff1919>Cúmplices</color>",
   "MadmateSpawnMode.Assign": "Atribuição",
   "MadmateSpawnMode.FirstKill": "Primeiro Abate",
-
-  
   "MadmateSpawnMode.SelfVote": "Voto Próprio",
   "MainMenu.CreditsButton": "Créditos",
   "MainMenu.ExitGameButton": "Sair",
   "MainMenu.InventoryButton": "Inventário",
-
-  
   "LobbyViewSettings_ShowOnlyEnabledRolesButtonText": "Mostrar apenas funções habilitadas",
   "LobbyViewSettings_ShowAlldRolesButtonText": "Mostrar todas as funções",
-
-  
   "MainMenu.SettingsButton": "Configurações",
-
-  
   "ManipulateNotify": "Mate alguém em {0}s ou morra!",
-
-  
   "MaxAttemptsBlocked": "Máximo de Tentativas de Adivinhação Distinta Bloqueadas",
   "MaxCleanserUses": "Número Máximo de Limpezas",
   "MaxImpRolePicks": "Número máximo de funções de impostor para escolher",
@@ -10269,7 +10014,6 @@
   "MaxInspectorCheckLimit": "Máximo de inspeções por Jogo",
   "MaxMadmateRoles": "<#00a5ff>Quantidade</color> máxima de funções <#ff1919>Madmate</color>",
   "Maximum": "Máximo",
-  
   "Message.AddedPlayerToBanList": "Adicionado <b>{0}</b> à lista de banimento",
   "Message.AllowLevelRange": "O nível do jogo só pode ter até: 0-100",
   "Message.AllowNameLength": "O apelido só pode ter comprimento definido: 1-10",
@@ -10297,10 +10041,7 @@
   "Message.LobbyCodeSent": "<size=90%><#00ffa5>✓</color> <#00a5ff>O código da sala foi enviado para o servidor Discord do EHR.</color></size>\\n<size=70%>Você pode desativar esse recurso nas configurações (aba Configurações do Sistema).</size>",
   "Message.LobbyShareFailed": "EHR-Chan não parece estar online (falha ao compartilhar o lobby)",
   "Message.LobbyShared": "O lobby foi compartilhado com sucesso!",
-  
   "Message.MadmateSelfVoteModeNotify": "Observação: O modo atual de geração de Cúmplices é [{0}]\n Votar em si mesmo significa que você quer ser um Cúmplice. Se você reunir as condições para se tornar um Cúmplice e ainda restar vagas, você se tornará um Cúmplice imediatamente",
-
-  
   "Message.MessageWaitHelp": "Especifique o primeiro argumento em segundos.",
   "Message.NoDescription": "Sem descrição",
   "Message.NoPermissionSetRoleOthers": "Você não tem permissão para setar a função de outros jogadores. Por favor, contribua para o mod ou poste vídeos sobre ele no YouTube para você obter essa permissão. Se você for elegível a isto, por favor, entre em contato com o desenvolvedor pelo Discord.",
@@ -10330,73 +10071,42 @@
   "Message.YTPlanSelectFailed": "Você não pode ser designado como {0}.\nIsso pode acontecer porque você não possui essa função habilitada ou porque essa função não suporta ser atribuída.",
   "Message.YTPlanSelected": "No próximo jogo, sua função será <b>{0}</b>.",
   "MessageTooLong": "Falha ao enviar a mensagem de bate-papo. O tamanho do RPC teria excedido o limite especificado nas Configurações de Sistema.",
-
-  
   "MinMadmateRoles": "<#00ffa5>Quantidade</color> mínima de funções <#ff1919>Madmate</color>",
   "MinMaxModdedImpCountsSettingsChangedAuto": "<#ffff00><b>Mín/Máx de Impostores Modificados Definidos Automaticamente para </color><#ffffff>{0}</color></b>\\n\\<size=80%>Porque você só alterou a configuração vanilla, que é sobrescrita pelas configurações modificadas.</size>",
   "MinPlayersForAirship": "Mínimo de jogadores para <color=#ed0007>Airship</color>",
   "MinPlayersForFungle": "Mínimo de Jogadores para <color=#ffa646>The Fungle</color>",
   "MinTasksToActivateAbility": "Número mínimo de tarefas concluídas para ativar a habilidade",
-  
   "ModBrokenMessage": "O Arquivo do Mod está corrompido.\nPor favor Reinstale.",
-  
   "ModdedClient": "Cliente Modificado",
   "ModeratorMuted": "O moderador {0} mutou {1} por <#00ffa5>{2}</color> segundos.",
   "ModeratorTag": "<color=#8000ff>Moderador</color>",
-  
   "Modifier": "\nModificador: ",
   "Modifiers": "\nModificadores: ",
-  
   "MurderHelp": "Comando: /tl [ID do Jogador]\n★ Você pode ver o ID dos jogadores ao lado de seus nomes.\n★ Ou use /id para ver uma lista com o ID de todos.",
   "MurderKill": "<b>{0}</b> foi morto.",
   "MurderLimitPerGame": "Máximo Total de Mortes por jogo",
   "MurderLimitPerMeeting": "Máximo de Mortes por Reunião",
   "MurderMaxGame": "Você atingiu o limite máximo de mortes para este jogo, por isso seu abate foi bloqueado.",
   "MurderNull": "Escolha um Jogador vivo para julgar.",
-
-  
   "MuteMessage": "<#ff0000>Você está mutado e não pode enviar mensagens. O silenciamento irá expirar em <#ffff00>{0}</color> segundos.</color>",
-
-  
   "NGuesserCanBeMadmate": "<color=#ff1919>Justiceiro</color> pode virar <color=#ff1919>Cúmplice</color>",
-
-  
   "NKCanFindMarshall": "Revelar a <#ffab1b>Assassinos Neutros</color>",
-
-  
   "NKWinsBySabotageIfNoImpAlive": "O time que vence por tempo limite te sabotagem crítica caso não houver <#ff1919>Impostores</color> vivos no jogo",
-
-  
   "NNKCanFindMarshall": "Revelar a <#ffff00>Não-Matadores Neutros</color>",
-
-  
   "NameDisplayAddonsOnlyInMeetings": "Exibir Atributos próximo ao nome da função apenas em reuniões (caso a configuração acima estiver desligada)",
-
-  
   "NegativeEffectDuration": "Duração da Visão/Velocidade Reduzida",
-
-  
   "NeutralCanBeInLove": "<color=#ffab1b>Neutros</color> podem estar em um <color=#ff9ace>romance</color>",
   "NeutralCanBeRole": "<color=#ffab1b>Neutros</color> podem ser {role}",
-
-  
   "NoLimitAddonsNumMax": "Número Máximo de Atributos por Jogador",
   "AddonAssigningRolesIgnoreMaxAddonsLimit": "Funções de Atribuição de Atributos ignoram Limite máximo de Atributos",
-
-  
   "NoMoreEmergencyMeetingsLeft": "Você não tem mais reuniões de emergência sobrando",
-  
   "NoPetActionMsgCrewTaskDone": "Você está livre",
   "NoPetActionMsgCrewWithTasksLeft": "Você percebe que ainda tem tarefas para fazer",
-  
   "NoWhisperAsRole": "<#ff0000>X</color> Você não pode usar o comando 'whisper' como esta função.",
   "NoWhisperDuringCourt": "<#ff0000>X</color> O comando /whisper está desativado durante o Tribunal.",
-  
   "NotifyGameEnding": "<#ff0000>NOTIF. DE FIM DE JOGO</color>\\n<#ffff00>Essa partida já terminou. Se não terminou para você, por favor, saia da sala e entre novamente na sala. Isso é um bug vanilla. Desculpe pelo inconveniente.</color>",
   "NotifyGodAlive": "Informar jogadores nas reuniões que Deus ainda está vivo",
-  
   "NukeCooldown": "Recarga da Bomba Nuclear",
-  
   "NumGuessersOn.Coven.Max": "Número máximo de Adivinhadores do Conventículo",
   "NumGuessersOn.Coven.Min": "Número mínimo de Adivinhadores do Conventículo",
   "NumGuessersOn.Crewmate.Max": "Número máximo de tripulantes adivinhadores",
@@ -10405,21 +10115,12 @@
   "NumGuessersOn.Impostor.Min": "Número mínimo de impostores adivinhadores",
   "NumGuessersOn.Neutral.Max": "Número máximo de adivinhadores neutros",
   "NumGuessersOn.Neutral.Min": "Número mínimo de adivinhadores neutros",
-
-  
   "NumOfTasks": "Número de tarefas para finalizar",
-
-  
   "NumberOfLovers": "Número de <color=#ff9ace>Pares de Amantes</color> (membros x2)",
-
-  
   "OddKillCooldown": "Recarga para Assassinato em Números Ímpares",
   "OnlyShowPart": "Mostrar apenas parte",
-  
   "PetsForceEnabled": "O modo de jogo Speedrun requer que os pets estejam habilitados, então eles foram ativados a força. Você pode desabilitá-los para jogos futuros nos Modificadores do Jogo.",
-  
   "PoisonCooldown": "Recarga de Veneno",
-  
   "PressF1ShowMainRoleDes": "F1: Mostrar informação completa da função/atributos\\n<size=60%>No Controle, use o Joystick Direito (R3/RSB)</size>",
   "PromotedSKCanRecruit": "Novo <color=#00b4eb>Chacal</color> pode recrutar um novo <color=#00b4eb>Ajudante</color>",
   "DownloadingPreset": "Baixando Predefinição....",
@@ -10428,7 +10129,6 @@
   "Promt.EnableAllRoles": "Habilitar todas as funções e Atributos?<size=80%>\\n\\n<b>Sim</b> - Habilitar todas as funções e Atributos\\n<b>Não</b> - Entrar na caixa de diálogo de configuração rápida de funções e Atributos</size>",
   "Promt.EnableRole": "<size=60%>({0}/{1}) {2}\\n</size><size=80%>Habilitar {3}?</size><size=60%>\\n\\n{4}</size>",
   "Promt.ResetAllOptions": "Tem certeza de que deseja redefinir todas as opções? Esta ação é irreversível e pode levar alguns minutos.",
-  
   "Rate0": "<#662222>0%</color>",
   "Rate5": "<#00ffff>5%</color>",
   "Rate10": "<#00fffb>10%</color>",
@@ -10450,9 +10150,7 @@
   "Rate90": "<#00ffac>90%</color>",
   "Rate95": "<#00FFFF>95%</color>",
   "Rate100": "<#ff44>100%</color>",
-  
   "ReadyCheckMessage": "O Anfitrião/Um Moderador esta verificando quantos jogadores estão prontos para começar o jogo.\\nPor favor, digite <b>/ready</b> para o anfitrião/moderador saber que você não está AFK.",
-  
   "UnlockFPS": "Desbloquear FPS",
   "ShowFPS": "Mostrar FPS",
   "AutoStart": "Início automático",
@@ -10477,8 +10175,6 @@
   "GM": "Espectador",
   "GMInfo": "Especte o caos!",
   "GMInfoLong": "(Nenhum):\nO Espectador é uma função observadora. Sua presença não faz diferença no jogo, e todos os jogadores sabem quem o Espectador é. A função do Espectador vai ser atribuída para o Anfitrião, o qual irá se tornar um fantasma no início da partida.",
-
-  
   "ResetKillCooldownOn": "Recarga de Assassinato na Reinicialização",
   "ResetKillCooldownWhenPlayerGetKilled": "Redefinir o tempo de recarga de abate se alguém for morto por outro jogador",
   "ResetToNormalCooldownAfterMeetings": "Redefinir o tempo de recarga para matar rapidamente para o normal após as reuniões",
@@ -10486,40 +10182,26 @@
   "RestEHRSetting": "Configurações EHR restauradas ao padrão",
   "RevealMaxCount": "Máximo de Revelações",
   "RitualMaxCount": "Máximo de Revelações",
-  
   "SettingsForRoleText": "Configurações para",
-  
   "ShapeshiftCooldown": "Recarga da <color=#ff1919>Metamorfose</color>",
   "ShapeshiftDuration": "Duração da <color=#ff1919>Metamorfose</color>",
-
-  
   "ShareLobbyMinPlayer": "Compartilhar o código da sala quando o número de jogadores atingir",
-
-  
   "ShieldDuration": "Duração do Escudo",
-
-  
   "ShipHasNoMoreMeetingsLeft": "A tripulação não tem mais reuniões de emergência sobrando",
-
-  
   "ShortTeamName.Coven": "Conventículo",
   "ShortTeamName.Crewmate": "Tripu",
   "ShortTeamName.Impostor": "Imp",
   "ShortTeamName.Neutral": "Neutr",
-  
   "ShowArrows": "Tem setas apontando para corpos",
-  
   "ShowResults": "Mostrar resultados",
   "ShowSpecificRole": "Conhecer funções específicas na conclusão de tarefas",
   "SpectateDisabled": "<#ff0000>X</color> O Comando /spectate está desabilitado neste lobby.",
-  
   "Skeld": "<#66a186>The Skeld</color>",
   "MiraHQ": "<#e84b56>Mira HQ</color>",
   "Polus": "<#a167c0>Polus</color>",
   "Dleks": "<#66a186>Dleks Eht</color>",
   "Airship": "<#ed0007>The Airship</color>",
   "Fungle": "<#ffa646>The Fungle</color>",
-  
   "Submerged": "<##3064FF>Submerged</color>",
   "SubmergedRoomName.128": "Pesquisar",
   "SubmergedRoomName.129": "Observatório",
@@ -10529,42 +10211,26 @@
   "SubmergedRoomName.133": "Lastro",
   "SubmergedRoomName.134": "Central Inferior",
   "SubmergedRoomName.135": "Sala Inferior",
-  
   "SupportsPetMessage": "\n\n<#00ff00>[✓] Esta função suporta o uso do botão de pet para acionar habilidades ou outras ações, podendo substituir usar os dutos, metamorfar ou matar.</color>",
-  
   "SyncCustomSettingsRPC": "RPC Sincronizado",
-  
   "TabGroup.PresetSettings": "Ajustes de Preset",
   "TargetCannotBeTeleported": "Alvo não pode ser teleportado",
-  
   "TaskBasedCrewCanBeLazy": "<color=#8cffff>Tripulantes </color>com tarefas</color> podem ser o <color=#A4DFFE>Preguiçoso</color>",
   "TasklessCrewCanBeLazy": "<color=#8cffff>Tripulantes</color> sem tarefas podem ser o <color=#A4DFFE>Preguiçoso</color>",
   "TransformationAnnouncementMessage": "A nave foi infectada com uma doença poderosa, transformando o <#e5f6b4>Porta-Pragas</color> em <color=#343136>Pestilência</color>!",
-  
   "TrialHelp": "Comando: /tl [ID do Jogador]\nVocê pode ver o ID dos jogadores antes dos nomes dos jogadores.\nOu use /id para ver a lista de todos o ID dos jogadores.",
   "TrialKill": "<b>{0}</b> foi julgado.",
   "TrialLimitPerGame": "Máximo de Testes por Jogo",
   "TrialLimitPerMeeting": "Máximo de julgamentos por reunião",
   "TrialNull": "Escolha um jogador vivo para julgar",
-
-  
   "TryFixBlackScreen": "Tentar corrigir telas pretas",
-
-  
   "UntilNextMeeting": "Até a próxima reunião",
-
-  
   "UpReplacedMessage": "O /up foi substituído por /setrole que permite definir a função de qualquer um em qualquer jogo usando '/setrole (ID) (FUNÇÂO)'. Você pode ver os IDs com /id. \nPara definir sua própria função como /up, você precisa usar '/setrole 0 (FUNÇÃO)'.",
-
-  
   "UsePetInsteadOfKillButton": "Usar botão Acariciar ao inves do Botão de Matar",
   "UseVoteCancelling": "Usar Método de Cancelamento de Voto ao invés de Comandos",
   "UseVoteCancellingAfterVote": "Usar o botão de acariciar como botão de matar",
   "UsesMeetingShapeshiftNotice": "<#ffff00>⚠ Como esta função, ao invés de comandos e votos, você precisa usar o menu de metamorfose nas reuniões para escolher seu alvo!</color>",
-
-  
   "VIPTag": "<#ffff00>VIP</color>",
-  
   "VanillaCrewmateCannotBeGuessed": "Tripulante Vanilla não pode ser adivinhado",
   "VengefulCanVent": "<color=#8B0000>Romântico Vingativo</color> Pode usar Ventilações",
   "VengefulKCD": "</color>Recarga de ataque do<color=#8B0000> Romântico Vingativo",
@@ -10573,43 +10239,31 @@
   "VentCooldown": "Recarga de Duto",
   "VentLimit": "Limite de Entrada em dutos",
   "VentPreventionMode": "Modo de Prevenção de Uso de Dutos",
-  
   "VitalsCooldown": "Recarga do Vitals",
   "VitalsDuration": "Duração do Vitals",
-  
   "VoteStartDisabled": "<#ff0000>X</color> O Comando /votestart está desabilitado neste lobby.",
   "VotedToStart": "<size=80%>If more than 50% of the lobby uses it, the starting countdown begins.\\nCurrently, {0}/{1} ({2}%) players have used it. {3} uses are required.</size>",
   "VotesPerKill": "Votos ganhos por abate",
-  
   "WMMode": "<color=#00ffa5>Modo:</color> <color=#ffffff><b>{0}</b></color>",
-  
   "Warning.AutoExitAtMismatchedVersion": "O anfitrião não possui ou tem uma versão diferente de {0}\nVocê será expulso em {1}",
   "Warning.InvalidRpc": "<b>{0}</b> foi expulso pois ele enviou uma RPC que não está no jogo base nem no EHR (usando um mod diferente?)",
   "Warning.MismatchedVersion": "<b>{0}</b> tem uma versão diferente de <b>{1}</b>",
   "Warning.NoModHost": "Mod EHR não está instalado no anfitrião.",
   "Warning.TooManyRPCs": "<b>{0}</b> foi expulso porque muitos RPCs foram recebidos dele.",
-
-  
   "WhenNextMeetingEnds": "Término da Próxima Reunião",
   "WhenNextMeetingStarts": "Início da próxima reunião",
   "WhisperDisabled": "<#ff0000>X</color> O comando /whisper está desativado neste lobby.",
-  
   "XORAdded": "<#00ffa5>✓</color> Combinação XOR removida com sucesso.",
   "XORAdditionRole": "<#ff0000>X</color> Combinações XOR não suportam atributos. Use <#ffff00>/combo</color> para isso.",
   "XORRemoved": "<#00ffa5>✓</color> combinação XOR removida com sucesso.",
   "XORSameRole": "<#ff0000>X</color> Combinações XOR devem ter 2 funções diferentes.",
-  
   "YouCanGuess": "Use o comando <b>/bt [ID do Jogador] [função]</b> para adivinhar a função de alguém. Você pode ver os IDs de todos ao lado do nome deles, ou digitando <b>/id</b>.",
   "YouCanGuessMeetingSS": "Use o menu de metamorfose para selecionar o jogador que você quer adivinhar, então siga as instruções no chat para seleções futuras.",
   "YourLawyerIsNotify": "O seu <color=#008080>Advogado</color> é {0}. Eles ganham se você vencer.",
-  
   "assignCommonTasks": "%role% tem Tarefas Comuns",
   "doOverride": "Sobrepor Tarefas do %role%",
-  
   "roleLongTasksNum": "Tarefas Longas para %role%",
   "roleShortTasksNum": "Tarefas Curtas para %role%",
-
-  
   "Format.Health": "{0}",
   "Format.Level": "{0}",
   "Format.Multiplier": "{0}x",
@@ -10619,7 +10273,6 @@
   "Format.Seconds": "{0}s",
   "Format.Times": "{0}",
   "Format.Votes": "{0}",
-  
   "RemainingText.AnonymousEvilCount.Plural": "Jogadores Malignos",
   "RemainingText.AnonymousEvilCount.Single": "Jogador Maligno",
   "RemainingText.CovenPlural": "Membros do Conventículo",
@@ -10631,8 +10284,6 @@
   "RemainingText.Prefix.Plural": "​",
   "RemainingText.Prefix.Single": "​",
   "RemainingText.Suffix": " restante",
-
-  
   "ROT.AddonType.Harmful": "★ Atributos Prejudiciais",
   "ROT.AddonType.Helpful": "★ Atributos Ajudantes",
   "ROT.AddonType.ImpOnly": "★ Atributos de Impostor",
@@ -10870,7 +10521,7 @@
   "RejoinRequiredDueToVanillaSwitch": "Você decidiu alternar para o modo vanilla, por isso era necessário desconectá-lo do jogo atual ou isso teria causado problemas. Por favor, volte ao jogo.",
   "ReportBaitAtAllCost": "Reporte <#00f7ff>Armador</color> a Todo Custo",
   "ReportButtonText": "Reportar",
-  "RequiresPetIndicator": "  <#ff0000>PET</color>", 
+  "RequiresPetIndicator": "  <#ff0000>PET</color>",
   "RevivedByAltruist": "<#ffff00><size=150%>Você foi revivido pela <color=#300000>Altruísta</color>!</size></color>",
   "RevivedByOccultist": "<#ffff00><size=150%>Você foi revivido pelo <color=#ff1919>Ocultista</color>!</size>\\nAgora você está na equipe dos <color=#ff1919>Impostores</color>.</color>",
   "RevivedByTimeMaster": "<size=150%><#ffff00>Você foi revivido durante o retrocesso!</color></size>",
@@ -11065,9 +10716,6 @@
   "RoleSubCategoryLimitOptions.Neutral_Pariah.EnableLimit": "<#ffffff>Alterar o número de</color> funções Pariá <#ffffff>no jogo</color>",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Max": "Máximo de funções Pária",
   "RoleSubCategoryLimitOptions.Neutral_Pariah.Min": "Mínimo de funções Pária",
-
-  
-
   "CovenInfoDescription": "O Conventículo é um time entre 1-4 pessoas, após 3 reuniões (quantidade substituída pelas configurações do anfitrião) um Membro aleatório do Conventículo receberá o Necronomicone. Com o Necronomicone, esse Membro do Conventículo pode matar normalmente e também possui uma habilidade mais forte. Após o Necronomicone ser dado ao primeiro membro, cada reunião seguinte o dará a outro até que todos os membros do Coventículo o tenham recebido. A maioria das funções nessa facção também são voltadas para Suporte, o que significa que precisam de trabalho em equipe e coordenação para funcionar perfeitamente juntos.\n\nO Necronomicone é um buff de habilidade possuído por um único membro do Coventículo. O Necronomicone passa para um membro diferente do Conventículo após cada reunião, e naquela rodada irá fortalecer a habilidade da função desse membro. A maioria das funções do Conventículo irá indicar em sua descrição o que o Necronomicone melhora em sua função.\n\n<size=50%>Crédito para mystic_haze2 no Discord por escrever o primeiro parágrafo</size>",
   "NeutralInfoDescription": "Neutros não pertencem aos Tripulantes nem aos Impostores, e vencem sob suas próprias condições. Cada tipo de neutro vence de uma forma diferente. Neutros trabalham por si mesmos e possuem condições específicas dependendo da sua função para vencer.\n\n<b>Neutros Passivos</b> vencem quando suas condições específicas são concluídas, cada função tendo requisitos diferentes para vencer. Eles não encerram o jogo, o que significa que precisam esperar até que os Tripulantes, Impostores, Conventículo ou outro Neutro vençam a partida para vencer junto com eles.\n\n<b>Neutros Malignos</b> também possuem suas próprias condições específicas de vitória, assim como os Neutros Benignos. Porém, quando completam seus objetivos, eles encerram o jogo e vencem sem Tripulantes, Conventículo ou Impostores — também chamado de \"roubar a vitória\".\n\n<b>Neutros Assassinos</b> são neutros que podem matar, assim como os Impostores, mas não trabalham com eles. A maioria dos Neutros Assassinos atua sozinho, embora alguns possam recrutar outros jogadores para trabalhar com eles. Eles vencem eliminando todos os Impostores, Tripulantes, Conventículo e outros Neutros, até restarem como o único jogador.\n\n<b>Neutro Pária</b> são funções semelhantes aos Neutros Passivos, porém seu principal objetivo é garantir que os Tripulantes não vençam. Se qualquer equipe que não seja os Tripulantes vencer, esse Neutro Pária também vencerá junto com a equipe vencedora. Eles possuem habilidades especiais para prejudicar os tripulantes."
 }

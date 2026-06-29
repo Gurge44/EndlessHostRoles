@@ -16,22 +16,46 @@ public static class TextBoxPatch
     private static TextMeshPro AdditionalInfoText;
 
     public static bool IsInvalidCommand;
+    
+    private static int CurrentCharPos;
+    public static bool Pasting;
 
+    // from https://github.com/scp222thj/MalumMenu/blob/main/src/Patches/TextBoxTMPPatches.cs
+    // Well I guess cheat menus sometimes have useful code too....
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.IsCharAllowed))]
     [HarmonyPrefix]
-    public static bool AllowAllCharacters(TextBoxTMP __instance, [HarmonyArgument(0)] char i, ref bool __result)
+    public static bool AllowAllCharacters(TextBoxTMP __instance, ref bool __result)
     {
-        if (Translator.GetUserTrueLang() is SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Korean) return true;
-        
-        if (!__instance.IpMode && i is '\'' or '"' or '’' or '`' or '-' or '–' or '—' or '‐' or '.' or ',' or ':' or ';' or '!' or '?' or '(' or ')' or '[' or ']' or '{' or '}' or '<' or '>' or '+' or '=' or '~' or '^' or '*' or '%' or '&' or '|' or '$' or '€' or '£' or '¥' or '₽' or >= '\u0100' and <= '\u024F' or >= '\u0370' and <= '\u03FF')
+        string compositionString = Input.compositionString;
+        if (compositionString.Length > 0)
         {
             __result = true;
             return false;
         }
 
-        return true;
+        var input = Pasting ? GUIUtility.systemCopyBuffer.Trim() : Input.inputString;
+        Pasting = false;
+
+        if (input.Length == 0)
+        {
+            __result = true;
+            return false;
+        }
+
+        string currentText = __instance.text ?? string.Empty;
+        int caretPos = Mathf.Clamp(__instance.caretPos, 0, currentText.Length);
+        string text = currentText.Insert(caretPos, input);
+        CurrentCharPos = Mathf.Clamp(CurrentCharPos, 0, text.Length - 1);
+        char currentChar = text[CurrentCharPos];
+
+        if (CurrentCharPos >= text.Length - 1) CurrentCharPos = 0;
+        else CurrentCharPos++;
+
+        __result = currentChar is not ('\b' or '\r' or '[');
+        return false;
     }
 
+    
     [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
     [HarmonyPostfix]
     public static void ShowCommandHelp(TextBoxTMP __instance)
@@ -323,6 +347,6 @@ public static class TextBoxPatch
     public static void ModifyCharacterLimit(TextBoxTMP __instance)
     {
         if (!__instance.gameObject.HasParentInHierarchy("ChatScreenRoot/ChatScreenContainer")) return;
-        __instance.characterLimit = 1200;
+        __instance.characterLimit = 1000;
     }
 }

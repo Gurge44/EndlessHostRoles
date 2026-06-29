@@ -60,7 +60,7 @@ internal static class ChatControllerUpdatePatch
 
         if (!__instance.freeChatField.textArea.hasFocus) return;
 
-        __instance.freeChatField.textArea.characterLimit = 1200;
+        __instance.freeChatField.textArea.characterLimit = 1000;
 
         if (Input.GetKeyDown(KeyCode.Tab)) TextBoxPatch.OnTabPress(__instance);
 
@@ -68,7 +68,10 @@ internal static class ChatControllerUpdatePatch
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
+        {
+            TextBoxPatch.Pasting = true;
             __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
+        }
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
         {

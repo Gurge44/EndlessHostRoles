@@ -7,7 +7,8 @@
 > While at the time of releasing this, the mod should more-less work on InnerSloth's regions, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
 
 ## Bug Fixes
-- **Fixed most of the memory leaks introduced by the latest Among Us update**
+- **Fixed crashes caused by the settings UI** - by Zypherus
+- **Fixed the memory leaks introduced by the settings UI in the latest Among Us update**
 - CTA data is now synced with non-host modded clients
 - Fixed Generator not seeing its charge
 - Fixed forged roles having incorrect colors
@@ -15,7 +16,7 @@
 - + Mostly internal code-wise fixes
 
 ## Changes
-- **The HTML log file now contains all data from the other log file (LogOutput.log)**
+- **The HTML log file now contains all data from the other log file (LogOutput.log)** (that means you'll only need the HTML log to make bug reports from now on, and only the HTML log will be dumped!)
 - More compatibility with [BAU](https://github.com/D1GQ/BetterAmongUs) - by Limeau
 - Ghost roles use manual cooldown tracking instead of the protect button cooldown (fixes inconsistencies)
 - Renaming commands now check the DenyName list
@@ -26,17 +27,21 @@
 - Improved the detection of 'start' spam
 - Impostors don't see each other's progress texts when there is a Double Agent
 - Pestilence is now immune to after-meeting deaths
+- Chat character limit lowered to 1000 characters due to packet size limits
+- New loading spinner icon
 
 ## Additions
 - New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
+- More ability button icons - by Newholiday
 
-### New game mode: Loop Wanted - by HayashiUme
-- Every player has an assigned assassination target marked with an arrow.
-- You can ONLY kill your designated target.
-- Killing the wrong target results in a punishment (suicide / lower vision).
-- When you kill your target, you inherit their target.
-- When only a few players remain, Carnival Mode activates: everyone gets a speed boost and reduced kill cooldown.
-- Last player alive wins!
+### New game mode: Doom Tag - by HayashiUme
+- In the Doom Tag gamemode, every player is assigned a target, shown by an arrow.
+- You can only kill your assigned target.
+- Killing the wrong player will result in a punishment, such as death or reduced vision.
+- When you eliminate your target, you inherit their target and continue the hunt.
+- As more players are eliminated, the circle grows smaller and the pressure increases.
+- When only a few players remain, Frenzy Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.
+- Be the last player standing to win!
 
 > [!WARNING]
 > If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")

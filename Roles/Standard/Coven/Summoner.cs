@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Modules.Extensions;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles;
 
@@ -261,5 +262,48 @@ public class Summoner : CovenBase
         if (seer.PlayerId != target.PlayerId || (seer.IsModdedClient() && !hud)) return string.Empty;
         if (seer.PlayerId == SummonerId) return string.Format(Translator.GetString("Summoner.SelfSuffix"), SummonedPlayerId.ColoredPlayerName(), (int)SummonedPlayerTimer.Remaining.TotalSeconds);
         return seer.PlayerId == SummonedPlayerId ? string.Format(Translator.GetString("Summoner.SummonedPlayerSuffix"), SummonerId.ColoredPlayerName(), CustomRoles.Summoner.ToColoredString(), (int)SummonedPlayerTimer.Remaining.TotalSeconds) : string.Empty;
+    }
+
+    private static void SummonerOnClick(byte playerId /*, MeetingHud __instance*/)
+    {
+        Logger.Msg($"Click: ID {playerId}", "Summoner UI");
+        PlayerControl pc = Utils.GetPlayerById(playerId);
+        if (pc == null || pc.IsAlive() || !GameStates.IsVoting || Starspawn.IsDayBreak) return;
+
+        var command = $"/summon {playerId}";
+
+        if (AmongUsClient.Instance.AmHost)
+            ChatCommands.SummonCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+        else
+            ChatCommands.RequestCommandProcessingFromHost(command, "Summon");
+    }
+
+    private static void CreateSummonerButton(MeetingHud __instance)
+    {
+        foreach (PlayerVoteArea pva in __instance.playerStates)
+        {
+            PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+            if (!pc || pc.IsAlive()) continue;
+
+            GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
+            GameObject targetBox = Object.Instantiate(template, pva.transform);
+            targetBox.name = "SummonerButton";
+            targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
+            var renderer = targetBox.GetComponent<SpriteRenderer>();
+            renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.Summon.png", 130f);
+            var button = targetBox.GetComponent<PassiveButton>();
+            button.OnClick.RemoveAllListeners();
+            button.OnClick.AddListener((Action)(() => SummonerOnClick(pva.TargetPlayerId)));
+        }
+    }
+
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Summoner))
+                CreateSummonerButton(__instance);
+        }
     }
 }

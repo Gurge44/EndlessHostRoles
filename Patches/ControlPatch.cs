@@ -230,6 +230,12 @@ internal static class ControllerManagerUpdatePatch
                         {
                             yield return new WaitForSecondsRealtime(0.1f);
 
+                            if (GameSettingMenu.Instance)
+                            {
+                                GameSettingMenu.Instance.Close();
+                                yield return new WaitForSecondsRealtime(0.5f);
+                            }
+
                             string format = GetString("ResettingOptions");
                             HudManager hudManager = HudManager.Instance;
                             hudManager.ShowPopUp(string.Format(format, 0, OptionItem.AllOptions.Count));
@@ -254,6 +260,10 @@ internal static class ControllerManagerUpdatePatch
                             OptionSaver.Save();
 
                             IsResetting = false;
+                            
+                            GameOptionsMenuPatch.ReCreateAllSettings();
+                            GameOptionsMenuPatch.RefreshSettingValues();
+                            GameOptionsMenuPatch.RefreshTabButtons();
                         }
                     }
                 }
