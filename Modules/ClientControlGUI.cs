@@ -70,6 +70,12 @@ public class ClientControlGUI : MonoBehaviour
     /// </summary>
     private float _zoomValue = 3.0f;
 
+    /// <summary>
+    /// Whether the next /r command sent will broadcast to all players
+    /// <remarks>Deactivates automatically after being used</remarks>
+    /// </summary>
+    internal static bool BroadcastRoleInfo;
+
     // Scale helpers - everything is relative to a 1080px-wide reference screen
     // On PC the UI is scaled down to 50% but on Android we keep it slightly larger (60%) for better readability
     private static float PlatformScale  => OperatingSystem.IsAndroid() ? 0.6f : 0.5f;
@@ -453,6 +459,11 @@ public class ClientControlGUI : MonoBehaviour
             LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
         );
 
+        Btn(ref y, BroadcastRoleInfo ? "Broadcast: ON" : "Broadcast: OFF", BroadcastRoleInfo ? _sHost : _sAction, () =>
+        {
+            BroadcastRoleInfo = !BroadcastRoleInfo;
+        });
+
         if (inGame || inMeeting)
             Btn(ref y, Label("Fix Blackscreen", "SHIFT + CTRL + X"), _sAction, () =>
                 ExileController.Instance?.ReEnableGameplay()
@@ -509,7 +520,7 @@ public class ClientControlGUI : MonoBehaviour
             {
                 // Reads live state every frame for correct label/colour; lambda also reads it on click to avoid stale values
                 bool noclipOn = ControllerManagerUpdatePatch.NoClipEnabled;
-                Btn(ref y, noclipOn ? "No-clip: ON" : "No-clip: OFF", noclipOn ? _sHost : _sAction, () =>
+                Btn(ref y, noclipOn ? "Noclip: ON" : "Noclip: OFF", noclipOn ? _sHost : _sAction, () =>
                 {
                     ControllerManagerUpdatePatch.NoClipEnabled = !ControllerManagerUpdatePatch.NoClipEnabled;
                     if (OperatingSystem.IsAndroid()) PlayerControl.LocalPlayer.Collider.offset = ControllerManagerUpdatePatch.NoClipEnabled ? new Vector2(0f, 127f) : new Vector2(0f, -0.3636f);
