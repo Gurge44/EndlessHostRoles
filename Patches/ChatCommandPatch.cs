@@ -2685,6 +2685,7 @@ internal static class ChatCommands
         string subArgs = text.Remove(0, 2);
         byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo)
             ? byte.MaxValue : player.PlayerId;
+            ClientControlGUI.BroadcastRoleInfo = false;
         SendRolesInfo(subArgs, to);
     }
 

@@ -459,7 +459,7 @@ public class ClientControlGUI : MonoBehaviour
             LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
         );
 
-        Btn(ref y, BroadcastRoleInfo ? "Broadcast: ON" : "Broadcast: OFF", BroadcastRoleInfo ? _sHost : _sAction, () =>
+        Btn(ref y, BroadcastRoleInfo ? "Broadcast Role Info: ON" : "Broadcast Role Info: OFF", BroadcastRoleInfo ? _sHost : _sAction, () =>
         {
             BroadcastRoleInfo = !BroadcastRoleInfo;
         });
