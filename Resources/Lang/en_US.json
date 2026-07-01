@@ -8738,6 +8738,7 @@
   "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
   "SendRoleDescriptionFirstMeeting": "Show Role Descriptions to Unmodded Clients on First Meeting",
   "NoGameEnd": "No Game End",
+  "NoGameEndInfo": "'No Game End' is enabled. The game will not end automatically when it normally would. Only the host can end the game manually.",
   "AllowConsole": "Console",
   "ShowAntiBlackoutWarning": "Show Anti-Blackout Warning When the Ejection Screen is Overridden",
   "PostLobbyCodeToEHRDiscordServer": "Post the lobby code to the EHR Website",
