@@ -74,7 +74,7 @@ public class Inquirer : RoleBase
     public static void ProcessGuesserUI(byte playerId, CustomRoles role)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || Starspawn.IsDayBreak) return;
+        if (!pc || !pc.IsAlive() || !pc.Is(CustomRoles.Inquirer) || Starspawn.IsDayBreak) return;
 
         var command = $"/check {playerId} {GetString(role.ToString())}";
 

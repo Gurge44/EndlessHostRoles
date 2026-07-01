@@ -3554,6 +3554,7 @@ public static class Utils
         }
         if (target.Is(CustomRoles.GM)) return true;
         if (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) return true;
+        if (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) return true;
         if (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) return true;
         if (seer.Is(CustomRoles.Mimic) && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool()) return true;
         if (!target.IsAlive() && target.Is(CustomRoles.Gravestone)) return true;
@@ -3754,6 +3755,7 @@ public static class Utils
         }
 
         if (local.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) return true;
+        if (local.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) return true;
         if (local.Is(CustomRoles.GM)) return true;
         if (Main.GodMode.Value) return true;
 
