@@ -82,6 +82,7 @@ public class Main : BasePlugin
     public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
     public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
 
+    public static bool Loaded;
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static OptionBackupData RealOptionsData;
@@ -981,6 +982,8 @@ public class Main : BasePlugin
 
         IL2CPPChainloader.Instance.Finished += () =>
         {
+            Loaded = true;
+            
             CustomLogger.ClearLog();
             BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
 
