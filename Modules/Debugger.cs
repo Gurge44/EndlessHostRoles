@@ -103,6 +103,12 @@ internal static class Logger
 
             if (level == LogLevel.Message) NowDetailedErrorLog.Clear();
         }
+        
+        if (!Main.Loaded)
+        {
+            LateTask.New(() => CustomLogger.Instance.Log(level.ToString(), LogText, multiLine), 1f, "Log Retry");
+            return;
+        }
 
         CustomLogger.Instance.Log(level.ToString(), LogText, multiLine);
     }

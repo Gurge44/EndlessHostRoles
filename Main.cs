@@ -982,11 +982,10 @@ public class Main : BasePlugin
 
         IL2CPPChainloader.Instance.Finished += () =>
         {
-            Loaded = true;
-            
             CustomLogger.ClearLog();
+            Loaded = true;
             BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
-
+            
             StartCoroutine(ModNewsFetcher.FetchNews());
 
             try { DevManager.StartFetchingTags(); }
