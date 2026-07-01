@@ -245,7 +245,7 @@ public class CustomLogger
         if (!check || (File.Exists(LOGFilePath) && new FileInfo(LOGFilePath).Length > 0))
         {
             PrivateInstance?.Finish();
-            Utils.DumpLog(false, false);
+            try { Utils.DumpLog(false, false); } catch (Exception e) { LateTask.New(() => Logger.Fatal(e.ToString(), "ClearLog.DumpLog"), 0.1f); }
         }
 
         File.WriteAllText(LOGFilePath, HtmlHeader);

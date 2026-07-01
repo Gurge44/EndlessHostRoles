@@ -4534,26 +4534,22 @@ public static class Utils
 
     public static void DumpLog(bool open = true, bool finish = true)
     {
-        try
-        {
-            if (finish) CustomLogger.Instance.Finish();
+        if (finish) CustomLogger.Instance.Finish();
 
-            var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            var f = Path.Combine(basePath, "EHR_Logs", t);
-            if (!Directory.Exists(f)) Directory.CreateDirectory(f);
+        var t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+        var basePath = OperatingSystem.IsAndroid() ? Main.DataPath : Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        var f = Path.Combine(basePath, "EHR_Logs", t);
+        if (!Directory.Exists(f)) Directory.CreateDirectory(f);
 
-            var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG.html";
-            new FileInfo(CustomLogger.LOGFilePath).CopyTo(filename);
+        var filename = $"{f}/EHR-v{Main.PluginVersion}-LOG.html";
+        new FileInfo(CustomLogger.LOGFilePath).CopyTo(filename);
 
-            if (!open) return;
+        if (!open) return;
 
-            if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
-                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
+        if (PlayerControl.LocalPlayer && HudManager.InstanceExists)
+            HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.DumpfileSaved"), "EHR" + filename.Split("EHR")[1]));
 
-            if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
-        }
-        catch (Exception e) { ThrowException(e); }
+        if (OperatingSystem.IsWindows()) Process.Start("explorer.exe", f.Replace("/", "\\"));
     }
 
     public static (int Doused, int All) GetDousedPlayerCount(byte playerId)

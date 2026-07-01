@@ -2683,7 +2683,9 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) ? byte.MaxValue : player.PlayerId;
+        byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo)
+            ? byte.MaxValue : player.PlayerId;
+            ClientControlGUI.BroadcastRoleInfo = false;
         SendRolesInfo(subArgs, to);
     }
 
