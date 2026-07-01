@@ -19,7 +19,7 @@
 <p align="center">
   <img src="https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3" alt="Discord Banner"/>
 </p>
-<p align="left" style="font-size: 10px"><i>Image by oCelestino & Seleneous on Discord</i></p>
+<p align="left" style="font-size: 10px"><i>Image by thecelestrinity & Seleneous on Discord</i></p>
 </div>
 
 ---
