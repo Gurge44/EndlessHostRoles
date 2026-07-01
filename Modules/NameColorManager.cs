@@ -181,6 +181,7 @@ public static class NameColorManager
             CustomRoles.Dad when ((Dad)seerRoleClass).DrunkPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
             CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam().GetTextColor(),
+            CustomRoles.Revenant when Revenant.KnowInfo.GetValue() == 0 => target.GetTeam().GetTextColor(),
             CustomRoles.Curser when ((Curser)seerRoleClass).KnownFactionPlayers.Contains(target.PlayerId) => target.GetTeam().GetTextColor(),
             CustomRoles.Poache when Poache.PoachedPlayers != null && Poache.PoachedPlayers.Contains(target.PlayerId) => "000000",
             CustomRoles.Reaper when ((Reaper)seerRoleClass).CursedPlayers.Contains(target.PlayerId) => "000000",
@@ -247,6 +248,7 @@ public static class NameColorManager
             || target.Is(CustomRoles.GM)
             || seer.Is(CustomRoles.GM)
             || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
+            || (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1)
             || (seer.Is(CustomRoleTypes.Coven) && target.Is(CustomRoleTypes.Coven))
             || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && CustomTeamManager.ArentInCustomTeam(seer.PlayerId, target.PlayerId))
             || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))

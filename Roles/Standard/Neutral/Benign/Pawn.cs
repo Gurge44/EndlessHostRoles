@@ -94,6 +94,7 @@ public class Pawn : RoleBase
     public static void ProcessGuesserUI(CustomRoles role)
     {
         PlayerControl pc = PlayerControl.LocalPlayer;
+        if (!pc || !pc.Is(CustomRoles.Pawn)) return;
 
         var command = $"/choose {GetString(role.ToString())}";
 

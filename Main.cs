@@ -592,6 +592,7 @@ public class Main : BasePlugin
                 { CustomRoles.Deputy, "#df9026" },
                 { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
+                { CustomRoles.Revenant, "#811a7a" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
