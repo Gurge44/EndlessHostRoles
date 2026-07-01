@@ -222,7 +222,7 @@ internal static class ChatCommands
             new("ChemistInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
             new("Forge", "{id} {role}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
             new("Choose", "{role}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
-            new("Mark", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, MarkCommand, true, true, [GetString("CommandArgs.Mark.Role")]),
+            new("Mark", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, MarkCommand, true, true, [GetString("CommandArgs.Mark.Id")]),
             new("CopyPreset", "{sourcepreset} {targetpreset}", Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
             new("AddAdmin", "{id}", Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new("DeleteAdmin", "{id}", Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
