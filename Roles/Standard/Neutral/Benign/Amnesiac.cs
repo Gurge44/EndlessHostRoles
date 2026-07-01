@@ -233,8 +233,8 @@ public class Amnesiac : RoleBase
         
         if (RememberAddons.GetBool()) target.GetCustomSubRoles().ForEach(x => amnesiac.RpcSetCustomRole(x));
 
-        hasValue |= sender.Notify(amnesiac, amneNotifyString);
-        hasValue |= sender.Notify(target, CustomRoles.Amnesiac.ColoredTextByRole(GetString("AmnesiacRemembered")));
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, amnesiac, amneNotifyString);
+        hasValue |= CustomRpcSenderExtensions.Notify(ref sender, target, CustomRoles.Amnesiac.ColoredTextByRole(GetString("AmnesiacRemembered")));
 
         hasValue |= sender.RpcGuardAndKill(target, amnesiac);
         hasValue |= sender.RpcGuardAndKill(target, target);

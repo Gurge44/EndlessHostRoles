@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 
 namespace EHR;
 
@@ -64,16 +65,61 @@ public static class AntiBlackout
         }
 
         // Reset the role types for all players.
-        foreach (((byte seerId, byte targetId), (RoleTypes roleType, CustomRoles _)) in CachedRoleMap)
+        // First group all entries by target.
+        foreach (var targetGroup in CachedRoleMap.GroupBy(x => x.Key.TargetID))
         {
             try
             {
-                PlayerControl seer = seerId.GetPlayer();
+                byte targetId = targetGroup.Key;
                 PlayerControl target = targetId.GetPlayer();
-                if (!seer || !target || (seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning)) continue;
+                if (!target) continue;
 
-                if (target.IsAlive() && !Main.AfterMeetingDeathPlayers.ContainsKey(targetId) && Main.LastVotedPlayerInfo != target.Data) target.RpcSetRoleDesync(roleType, seer.OwnerId);
-                else target.RpcSetRoleDesync(GhostRolesManager.AssignedGhostRoles.TryGetValue(targetId, out var ghostRole) ? ghostRole.Instance.RoleTypes : seerId == targetId && !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) && Main.PlayerStates.TryGetValue(targetId, out var state) && state.Role.CanUseSabotage(target) ? RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost, seer.OwnerId);
+                // Compute the role every seer should see.
+                Dictionary<byte, RoleTypes> rolesForSeers = [];
+
+                foreach (var entry in targetGroup)
+                {
+                    byte seerId = entry.Key.SeerID;
+
+                    RoleTypes role = target.IsAlive() && !Main.AfterMeetingDeathPlayers.ContainsKey(targetId) && Main.LastVotedPlayerInfo != target.Data
+                        ? entry.Value.RoleType
+                        : GhostRolesManager.AssignedGhostRoles.TryGetValue(targetId, out var ghostRole)
+                            ? ghostRole.Instance.RoleTypes
+                            : seerId == targetId &&
+                              !(target.Is(CustomRoleTypes.Impostor) && Options.DeadImpCantSabotage.GetBool()) &&
+                              Main.PlayerStates.TryGetValue(targetId, out var state) &&
+                              state.Role.CanUseSabotage(target)
+                                ? RoleTypes.ImpostorGhost
+                                : RoleTypes.CrewmateGhost;
+
+                    rolesForSeers[seerId] = role;
+                }
+
+                // Are they all identical?
+                RoleTypes firstRole = rolesForSeers.Values.First();
+                bool identical = rolesForSeers.Values.All(r => r == firstRole);
+
+                if (identical)
+                {
+                    // Only 1 RPC is needed if the role type is the same for everyone.
+                    target.RpcSetRoleGlobal(firstRole);
+                }
+                else
+                {
+                    foreach ((byte seerId, RoleTypes roleTypes) in rolesForSeers)
+                    {
+                        try
+                        {
+                            PlayerControl seer = seerId.GetPlayer();
+
+                            if (!seer || (seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning))
+                                continue;
+
+                            target.RpcSetRoleDesync(roleTypes, seer.OwnerId);
+                        }
+                        catch (Exception e) { Utils.ThrowException(e); }
+                    }
+                }
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
@@ -85,6 +131,8 @@ public static class AntiBlackout
         LateTask.New(() =>
         {
             var elapsedSeconds = (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
+            var sender = CustomRpcSender.Create("Exile Dead Players After Meeting", SendOption.Reliable);
+            var hasValue = false;
             
             foreach (PlayerControl pc in Main.EnumeratePlayerControls())
             {
@@ -109,7 +157,8 @@ public static class AntiBlackout
                         if (pc.AmOwner && Utils.TempReviveHostRunning) continue;
 
                         // Ensure that the players who are considered dead by the mod are actually dead in the game.
-                        pc.RpcExiled();
+                        sender.RpcExiled(pc);
+                        hasValue = true;
 
                         if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole.Instance.RoleTypes == RoleTypes.GuardianAngel)
                             pc.AddAbilityCD(ghostRole.Instance.Cooldown);
@@ -117,6 +166,8 @@ public static class AntiBlackout
                 }
                 catch (Exception e) { Utils.ThrowException(e); }
             }
+            
+            sender.SendMessage(dispose: !hasValue);
 
             // Only execute AfterMeetingTasks after everything is reset.
             LateTask.New(() =>

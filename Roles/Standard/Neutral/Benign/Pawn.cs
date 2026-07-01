@@ -1,4 +1,8 @@
-﻿using EHR.Modules;
+﻿using System.Linq;
+using EHR.Modules;
+using System;
+using UnityEngine;
+using static EHR.Translator;
 
 namespace EHR.Roles;
 
@@ -48,13 +52,54 @@ public class Pawn : RoleBase
     {
         var pc = PawnId.GetPlayer();
         if (pc == null || !pc.IsAlive()) return;
-        
+
         if (!pc.AllTasksCompleted() || ChosenRole == CustomRoles.NotAssigned || ChosenRole.IsAdditionRole() || ChosenRole.IsForOtherGameMode()) return;
 
         pc.RpcSetCustomRole(ChosenRole);
         pc.RpcChangeRoleBasis(ChosenRole);
-        
+
         if (pc.AmOwner && ChosenRole is CustomRoles.Crewmate or CustomRoles.CrewmateEHR)
             Achievements.Type.Why.Complete();
+    }
+
+    public static void CreatePawnButton(MeetingHud __instance)
+    {
+        PlayerVoteArea localPva = __instance.playerStates
+            .FirstOrDefault(pva => pva.TargetPlayerId == PlayerControl.LocalPlayer.PlayerId);
+
+        PlayerControl pc = Utils.GetPlayerById(localPva.TargetPlayerId);
+        if (!pc || !pc.IsAlive()) return;
+
+        GameObject template = localPva.Buttons.transform.Find("CancelButton").gameObject;
+        GameObject targetBox = Object.Instantiate(template, localPva.transform);
+        targetBox.name = "ShootButton";
+        targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
+        var renderer = targetBox.GetComponent<SpriteRenderer>();
+        renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.Skills.PawnPromotion.png", 160f);
+        var button = targetBox.GetComponent<PassiveButton>();
+        button.OnClick.RemoveAllListeners();
+        button.OnClick.AddListener((Action)(() => GuessManager.GuesserOnClick(localPva.TargetPlayerId, __instance, true)));
+    }
+
+    //[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    public static class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Pawn) && PlayerControl.LocalPlayer.IsAlive())
+                CreatePawnButton(__instance);
+        }
+    }
+
+    public static void ProcessGuesserUI(CustomRoles role)
+    {
+        PlayerControl pc = PlayerControl.LocalPlayer;
+
+        var command = $"/choose {GetString(role.ToString())}";
+
+        if (AmongUsClient.Instance.AmHost)
+            ChatCommands.ChooseCommand(PlayerControl.LocalPlayer, command, command.Split(' '));
+        else
+            ChatCommands.RequestCommandProcessingFromHost(command, "Choose");
     }
 }

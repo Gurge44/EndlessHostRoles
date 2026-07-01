@@ -7,7 +7,8 @@
 > While at the time of releasing this, the mod should more-less work on InnerSloth's regions, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
 
 ## Bug Fixes
-- **Fixed most of the memory leaks introduced by the latest Among Us update**
+- **Fixed crashes caused by the settings UI** - by Zypherus
+- **Fixed the memory leaks introduced by the settings UI in the latest Among Us update**
 - CTA data is now synced with non-host modded clients
 - Fixed Generator not seeing its charge
 - Fixed forged roles having incorrect colors
@@ -15,7 +16,7 @@
 - + Mostly internal code-wise fixes
 
 ## Changes
-- **The HTML log file now contains all data from the other log file (LogOutput.log)**
+- **The HTML log file now contains all data from the other log file (LogOutput.log)** (that means you'll only need the HTML log to make bug reports from now on, and only the HTML log will be dumped!)
 - More compatibility with [BAU](https://github.com/D1GQ/BetterAmongUs) - by Limeau
 - Ghost roles use manual cooldown tracking instead of the protect button cooldown (fixes inconsistencies)
 - Renaming commands now check the DenyName list
@@ -31,6 +32,7 @@
 
 ## Additions
 - New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
+- More ability button icons - by Newholiday
 
 ### New game mode: Doom Tag - by HayashiUme
 - In the Doom Tag gamemode, every player is assigned a target, shown by an arrow.

@@ -68,7 +68,10 @@ internal static class ChatControllerUpdatePatch
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
+        {
+            TextBoxPatch.Pasting = true;
             __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer.Trim());
+        }
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
         {

@@ -122,6 +122,8 @@ prawnbest#4791 | e05be117f |  | n word, inappropriate name, sexist speech |
 pianochief#9094 | 8c9d396f5 |  | slur in name | 
 spottyhill#7614 | 5b273d541 | BITTU | Making pedo & general inappropriate comments in game | 
 batspicy#0693 | 765e0c882 | umeye | Spamming | Inappropriate chat spam
+gamejewel#8750 | bbb5f1d30 | PatMyBalls | Inappropriate Name | 
+brownapex#1378 | 0926b55a8 | igoonalot | slurs in game | 
 
 ## Griefers, Toxic, Harrasing, Racist
 setmolar#4374 |  | 藏族顶针 | Toxic | 
@@ -220,8 +222,13 @@ satedtower#0536 | 79f7b13e9 | Jaranimate | racist | n word in game
 fainthobby#2639 | b79320bd9 | Gay | Racist | n word in game 
 crunchdark#6287 | dee925463 | GET SHREKT | Racist | n word in game 
 sunscalar#4098 | 6ee3eaf43 | miguel | Racist | n word in game 
-
-
+orerife#7134 | f5350e7b2 | baby n word | Racist | n word in game name
+lushmeal#1892 | 94e2564af | aizen | Racist | n word in game 
+bookyogic#3571 | 82ac75df1 | green | Racist | n word in game 
+budfore#5752 | b3672c491 | i hate iphone |  Racist | n word in game 
+massifpink#4006 | ba0e09419 | ciansom13 | Racist | n word in game 
+brownnest#1548 | 954f82d96 | jimmy o1 | Racist | n word in game 
+tiaragold#0846 | edf2bc4e8 | cyan | Racist | n word in game 
 
 
 
