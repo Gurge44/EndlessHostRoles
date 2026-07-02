@@ -8686,7 +8686,7 @@
   "MaxWaitAutoStart": "Force start when Lobby Timer goes below (in minutes)",
   "PlayerAutoStart": "Minimum Player Threshold to auto-start",
   "AutoStartTimer": "Initial Countdown for auto-starting",
-  "AutoPlayAgain": "Auto Rejoin Lobby after Game End",
+  "AutoPlayAgain": "Auto Rejoin",
   "AutoPlayAgainCountdown": "Delay before Auto Rejoining Lobby (Only works as the Host)",
   "AutoGMPollCommandAfterJoin": "Auto Execute /gmpoll After Joining The Lobby",
   "AutoGMPollCommandCooldown": "Delay Before Auto Executing /gmpoll (After Joining The Lobby)",
