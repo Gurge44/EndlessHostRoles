@@ -1847,11 +1847,11 @@ public static class Utils
             {
                 // if (importance != MessageImportance.High && GameStates.InGame && !title.Contains("#ffff00") && !title.Contains('⚠') && !text.Contains('⚠') && title != GetString("NoSpamAnymoreUseCmd"))
                 //     sendOption = SendOption.None;
-                
+
                 text = ReplaceHexColorsWithSafeColors(text);
                 text = ReplaceDigitsOutsideRichText(text);
             }
-            
+
             if (importance == MessageImportance.Low)
                 sendOption = SendOption.None;
 
@@ -1878,7 +1878,7 @@ public static class Utils
             /*if (sender.AmOwner && sender.Data.IsDead && (sendTo == byte.MaxValue || !receiver.Data.IsDead))
             {
                 bool delayMessage = false;
-                
+
                 if (!TempReviveHostRunning)
                 {
                     delayMessage = true;
@@ -1888,7 +1888,7 @@ public static class Utils
                 {
                     if (TempReviveHostTimeSinceRevivalStopwatch.ElapsedMilliseconds < 250)
                         delayMessage = true;
-                    
+
                     TempReviveHostRevertStopwatch.Restart();
                 }
 
@@ -1896,7 +1896,7 @@ public static class Utils
                 {
                     Main.Instance.StartCoroutine(DelaySend());
                     return writer;
-                    
+
                     IEnumerator DelaySend()
                     {
                         yield return new WaitForSecondsRealtime(0.3f);
@@ -1911,18 +1911,18 @@ public static class Utils
                         TempReviveHostRunning = true;
                         TempReviveHostRevertStopwatch = Stopwatch.StartNew();
                         TempReviveHostTimeSinceRevivalStopwatch = Stopwatch.StartNew();
-                    
+
                         Logger.Msg("Temporarily reviving host to send message....", "TempReviveHost");
 
                         sender.RpcSetRoleGlobal(RoleTypes.Crewmate);
-                    
+
                         while (TempReviveHostRevertStopwatch.ElapsedMilliseconds < 1000)
                             yield return null;
-                    
+
                         Logger.Msg("Re-killing host after message sent.", "TempReviveHost");
-                    
+
                         TempReviveHostTimeSinceRevivalStopwatch.Reset();
-                    
+
                         if (!AmongUsClient.Instance.AmHost || GameStates.IsEnded || GameStates.IsLobby)
                         {
                             TempReviveHostRunning = false;
@@ -1947,7 +1947,7 @@ public static class Utils
                     }
                 }
             }*/
-            
+
             if (vanilla && !noSplit && !noNumberSplit)
             {
                 var parts = SplitByNumberLimit(text);
@@ -1979,6 +1979,7 @@ public static class Utils
             static int GetPackedUInt32Size(uint value)
             {
                 int count = 0;
+
                 do
                 {
                     value >>= 7;
@@ -2122,10 +2123,7 @@ public static class Utils
                     string pureTitle = tempTitle.RemoveHtmlTags();
                     Logger.Info($" Message: \\n - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{GetPlayerById(sendTo)?.GetRealName()}")} - Title: {pureTitle[..Math.Min(pureTitle.Length, 300)]}", "SendMessage");
                 }
-                catch
-                {
-                    Logger.Info(" Message sent", "SendMessage");
-                }
+                catch { Logger.Info(" Message sent", "SendMessage"); }
 
                 if (addToHistory)
                     ChatUpdatePatch.LastMessages.Add(("\n", sendTo, tempTitle, TimeStamp));
