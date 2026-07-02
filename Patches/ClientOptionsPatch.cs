@@ -15,6 +15,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem UnlockFPS;
     private static ClientOptionItem ShowFPS;
     private static ClientOptionItem AutoStart;
+    private static ClientOptionItem AutoPlayAgain;
     private static ClientOptionItem ForceOwnLanguage;
     private static ClientOptionItem ForceOwnLanguageRoleName;
     private static ClientOptionItem EnableCustomButton;
@@ -87,6 +88,9 @@ public static class OptionsMenuBehaviourStartPatch
                 }
             }
         }
+
+        if (AutoPlayAgain == null || !AutoPlayAgain.ToggleButton)
+            AutoPlayAgain = ClientOptionItem.Create("AutoPlayAgain", Main.AutoPlayAgain, __instance);
 
         if (ForceOwnLanguage == null || !ForceOwnLanguage.ToggleButton)
             ForceOwnLanguage = ClientOptionItem.Create("ForceOwnLanguage", Main.ForceOwnLanguage, __instance);
