@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Linq;
 using HarmonyLib;
 using InnerNet;
@@ -9,74 +10,121 @@ using static EHR.Translator;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.ShowButtons))]
-public static class EndGameManagerPatch 
+public static class EndGameManagerPatch
 {
     private static GameObject CountdownText;
-    private static bool IsRestarting { get; set; }
+    private static bool IsRestarting;
+    private static Coroutine CountdownCoroutine;
 
-    public static void Postfix(EndGameManager __instance) 
+    public static void Postfix(EndGameManager __instance)
     {
         GameEndChecker.LoadingEndScreen = false;
         if (!Main.AutoPlayAgain.Value) return;
 
-        if (CountdownText != null) GameObject.Destroy(CountdownText);
+        CleanupText();
         IsRestarting = true;
-        
-        int startSeconds = AmongUsClient.Instance.AmHost ? Options.AutoPlayAgainCountdown.GetInt() : 10;
-        
-        LateTask.New(() => {
-            Logger.Msg("Beginning Auto Play Again Countdown!", "AutoPlayAgain");
-            BeginAutoPlayAgainCountdown(__instance, startSeconds);
-        }, AmongUsClient.Instance.AmHost ? 0.5f : 1.5f, "Auto Play Again");
+        int time = AmongUsClient.Instance.AmHost ? Options.AutoPlayAgainCountdown.GetInt() : 10;
+        CountdownCoroutine = Main.Instance.StartCoroutine(AutoPlayAgainCountdown(__instance, time));
     }
 
-    private static void BeginAutoPlayAgainCountdown(EndGameManager endGameManager, int seconds) 
+    private static IEnumerator AutoPlayAgainCountdown(EndGameManager endGameManager, int seconds)
     {
-        if (!IsRestarting || endGameManager == null || endGameManager.Navigation == null) { CleanupText(); return; }
+        float initialDelay = AmongUsClient.Instance.AmHost ? 0.5f : 1.5f;
+        yield return new WaitForSecondsRealtime(initialDelay);
 
-        if (CountdownText == null) 
+        Logger.Msg("Beginning Auto Play Again Countdown!", "AutoPlayAgain");
+
+        TextMeshPro tmp = null;
+        string format = GetString("CountdownText");
+
+        while (IsRestarting)
         {
-            CountdownText = new GameObject("CountdownText") { transform = { position = new Vector3(0f, 2.5f, 10f) } };
-            var tmp = CountdownText.AddComponent<TextMeshPro>();
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.fontSize = 3f;
+            if (!endGameManager || !endGameManager.Navigation)
+            {
+                CleanupText();
+                yield break;
+            }
+
+            if (!CountdownText)
+            {
+                CountdownText = new GameObject("CountdownText")
+                {
+                    transform =
+                    {
+                        position = new Vector3(0f, 2.5f, 10f)
+                    }
+                };
+
+                tmp = CountdownText.AddComponent<TextMeshPro>();
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.fontSize = 3f;
+            }
+            else if (!tmp)
+            {
+                tmp = CountdownText.GetComponent<TextMeshPro>();
+            }
+
+            tmp.text = string.Format(format, seconds);
+
+            if (seconds <= 0)
+            {
+                if (AmongUsClient.Instance.AmHost)
+                    endGameManager.Navigation.NextGame();
+                else
+                    ClickPlayAgain();
+
+                CleanupText();
+                yield break;
+            }
+
+            seconds--;
+            yield return new WaitForSecondsRealtime(1f);
         }
-
-        CountdownText.GetComponent<TextMeshPro>().text = string.Format(GetString("CountdownText"), seconds);
-
-        if (seconds <= 0) 
-        {
-            if (AmongUsClient.Instance.AmHost) endGameManager.Navigation.NextGame(); 
-            else ClickPlayAgain();
-            
-            CleanupText();
-        } 
-        else LateTask.New(() => BeginAutoPlayAgainCountdown(endGameManager, seconds - 1), 1f, log: false);
     }
 
     private static void ClickPlayAgain()
     {
         var btn = Object.FindObjectsOfType<PassiveButton>().FirstOrDefault(x => x.gameObject.name == "PlayAgainButton");
-        if (btn == null) { Logger.Warn("PlayAgainButton not found.", "AutoPlayAgain"); return; }
 
-        try 
-        { 
-            btn.OnClick.Invoke(); 
+        if (!btn)
+        {
+            Logger.Warn("PlayAgainButton not found.", "AutoPlayAgain");
+            return;
+        }
+
+        try
+        {
+            btn.OnClick.Invoke();
             Logger.Info("Successfully invoked PlayAgainButton click event.", "AutoPlayAgain");
         }
         catch (Exception ex)
         {
             Logger.Warn($"Direct click invocation failed: {ex.Message}. Attempting mechanical click fallback.", "AutoPlayAgain");
-            try { btn.ReceiveClickDown(); btn.ReceiveClickUp(); } catch { }
+
+            try
+            {
+                btn.ReceiveClickDown();
+                btn.ReceiveClickUp();
+            }
+            catch { }
         }
     }
 
-    private static void CleanupText()
+    public static void CleanupText()
     {
         IsRestarting = false;
-        if (CountdownText == null) return;
-        GameObject.Destroy(CountdownText);
-        CountdownText = null;
+
+        if (CountdownCoroutine != null)
+        {
+            Main.Instance.StopCoroutine(CountdownCoroutine);
+            CountdownCoroutine = null;
+        }
+
+        if (CountdownText)
+        {
+            Object.Destroy(CountdownText);
+            CountdownText = null;
+        }
     }
 }
 
@@ -85,6 +133,8 @@ internal static class EndGameNavigationNextGamePatch
 {
     public static void Postfix()
     {
+        EndGameManagerPatch.CleanupText();
+        
         if (!AmongUsClient.Instance.AmHost || !Options.KickSlowJoiningPlayers.GetBool()) return;
 
         LateTask.New(() =>
