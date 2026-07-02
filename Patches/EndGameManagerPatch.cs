@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using HarmonyLib;
 using InnerNet;
 using TMPro;
@@ -7,62 +9,74 @@ using static EHR.Translator;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.ShowButtons))]
-public static class EndGameManagerPatch
+public static class EndGameManagerPatch 
 {
     private static GameObject CountdownText;
     private static bool IsRestarting { get; set; }
 
-    public static void Postfix(EndGameManager __instance)
+    public static void Postfix(EndGameManager __instance) 
     {
         GameEndChecker.LoadingEndScreen = false;
-        if (!AmongUsClient.Instance.AmHost || !Options.AutoPlayAgain.GetBool()) return;
+        if (!Main.AutoPlayAgain.Value) return;
 
-        IsRestarting = false;
-
-        LateTask.New(() =>
-        {
+        if (CountdownText != null) GameObject.Destroy(CountdownText);
+        IsRestarting = true;
+        
+        int startSeconds = AmongUsClient.Instance.AmHost ? Options.AutoPlayAgainCountdown.GetInt() : 10;
+        
+        LateTask.New(() => {
             Logger.Msg("Beginning Auto Play Again Countdown!", "AutoPlayAgain");
-            IsRestarting = true;
-            BeginAutoPlayAgainCountdown(__instance, Options.AutoPlayAgainCountdown.GetInt());
-        }, 0.5f, "Auto Play Again");
+            BeginAutoPlayAgainCountdown(__instance, startSeconds);
+        }, AmongUsClient.Instance.AmHost ? 0.5f : 1.5f, "Auto Play Again");
     }
 
-    private static void BeginAutoPlayAgainCountdown(EndGameManager endGameManager, int seconds)
+    private static void BeginAutoPlayAgainCountdown(EndGameManager endGameManager, int seconds) 
     {
-        if (!IsRestarting) return;
+        if (!IsRestarting || endGameManager == null || endGameManager.Navigation == null) { CleanupText(); return; }
 
-        if (endGameManager == null) return;
-
-        EndGameNavigation navigation = endGameManager.Navigation;
-        if (navigation == null) return;
-
-        if (seconds == Options.AutoPlayAgainCountdown.GetInt())
+        if (CountdownText == null) 
         {
-            CountdownText = new("CountdownText")
-            {
-                transform =
-                {
-                    position = new(0f, 2.5f, 10f)
-                }
-            };
-
-            var countdownTextTMP = CountdownText.AddComponent<TextMeshPro>();
-            countdownTextTMP.text = string.Format(GetString("CountdownText"), seconds);
-            countdownTextTMP.alignment = TextAlignmentOptions.Center;
-            countdownTextTMP.fontSize = 3f;
-        }
-        else
-        {
-            var countdownTextTMP = CountdownText.GetComponent<TextMeshPro>();
-            countdownTextTMP.text = string.Format(GetString("CountdownText"), seconds);
+            CountdownText = new GameObject("CountdownText") { transform = { position = new Vector3(0f, 2.5f, 10f) } };
+            var tmp = CountdownText.AddComponent<TextMeshPro>();
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.fontSize = 3f;
         }
 
-        if (seconds == 0)
+        CountdownText.GetComponent<TextMeshPro>().text = string.Format(GetString("CountdownText"), seconds);
+
+        if (seconds <= 0) 
         {
-            navigation.NextGame();
-            CountdownText.transform.DestroyChildren();
+            if (AmongUsClient.Instance.AmHost) endGameManager.Navigation.NextGame(); 
+            else ClickPlayAgain();
+            
+            CleanupText();
+        } 
+        else LateTask.New(() => BeginAutoPlayAgainCountdown(endGameManager, seconds - 1), 1f, log: false);
+    }
+
+    private static void ClickPlayAgain()
+    {
+        var btn = Object.FindObjectsOfType<PassiveButton>().FirstOrDefault(x => x.gameObject.name == "PlayAgainButton");
+        if (btn == null) { Logger.Warn("PlayAgainButton not found.", "AutoPlayAgain"); return; }
+
+        try 
+        { 
+            btn.OnClick.Invoke(); 
+            Logger.Info("Successfully invoked PlayAgainButton click event.", "AutoPlayAgain");
         }
-        else LateTask.New(() => { BeginAutoPlayAgainCountdown(endGameManager, seconds - 1); }, 1f, log: false);
+        catch (Exception ex)
+        {
+            Logger.Warn($"Direct click invocation failed: {ex.Message}. Attempting mechanical click fallback.", "AutoPlayAgain");
+            try { btn.ReceiveClickDown(); btn.ReceiveClickUp(); } catch { }
+        }
+    }
+
+    private static void CleanupText()
+    {
+        IsRestarting = false;
+        if (CountdownText == null) return;
+        GameObject.Destroy(CountdownText);
+        CountdownText = null;
     }
 }
 
