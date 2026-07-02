@@ -220,6 +220,7 @@ public static class GuessManager
                         case CustomRoles.Terrorist when !Terrorist.TerroristCanGuess.GetBool():
                         case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
                         case CustomRoles.God when !God.GodCanGuess.GetBool():
+                        case CustomRoles.Revenant:
                         case CustomRoles.Executioner when Executioner.Target[pc.PlayerId] == target.PlayerId && Executioner.KnowTargetRole.GetBool() && !Executioner.CanGuessTarget.GetBool():
                             ShowMessage("GuessDisabled");
                             return true;
@@ -859,6 +860,10 @@ public static class GuessManager
                     case (CustomRoles.Loner, 2) when specificRoleChoosing:
                     case (CustomRoles.Loner, 3) when specificRoleChoosing:
                     case (CustomRoles.Loner, 4) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 0) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 2) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 3) when specificRoleChoosing:
+                    case (CustomRoles.Changeling, 4) when specificRoleChoosing:
                     case (CustomRoles.Inquirer, 4) when specificRoleChoosing:
                     case (CustomRoles.Forger, 4) when specificRoleChoosing:
                     case (CustomRoles.Pawn, 4) when specificRoleChoosing:
@@ -1032,29 +1037,13 @@ public static class GuessManager
                             Logger.Msg($"Click: {pc.GetNameWithRole()} => {role}", "Guesser UI");
 
                             if (specificRoleChoosing) 
-                                switch(PlayerControl.LocalPlayer.GetCustomRole())
-                                {
-                                    case CustomRoles.Loner:
-                                    {
-                                        Loner.ProcessGuesserUI(playerId, role);
-                                        break;
-                                    }
-                                    case CustomRoles.Inquirer:
-                                    {
-                                        Inquirer.ProcessGuesserUI(playerId, role);
-                                        break;
-                                    }
-                                    case CustomRoles.Forger:
-                                    {
-                                        Forger.ProcessGuesserUI(playerId, role);
-                                        break;
-                                    }
-                                    case CustomRoles.Pawn:
-                                    {
-                                        Pawn.ProcessGuesserUI(role);
-                                        break;
-                                    }
-                                }
+                            {
+                                Loner.ProcessGuesserUI(playerId, role);
+                                Changeling.ProcessGuesserUI(role);
+                                Inquirer.ProcessGuesserUI(playerId, role);
+                                Forger.ProcessGuesserUI(playerId, role);
+                                Pawn.ProcessGuesserUI(role);
+                            }
                             else
                             {
                                 if (AmongUsClient.Instance.AmHost) GuesserMsg(PlayerControl.LocalPlayer, $"/bt {playerId} {GetString(role.ToString())}", true);

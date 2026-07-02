@@ -306,6 +306,7 @@ internal static class CustomRolesHelper
                 CustomRoles.EvilGuesser => CustomRoles.Impostor,
                 CustomRoles.Forensic => CustomRoles.Crewmate,
                 CustomRoles.God => CustomRoles.Crewmate,
+                CustomRoles.Revenant => CustomRoles.Crewmate,
                 CustomRoles.Tank => CustomRoles.Engineer,
                 CustomRoles.Technician => Technician.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
                 CustomRoles.GuardianAngelEHR => CustomRoles.GuardianAngel,
@@ -963,7 +964,6 @@ internal static class CustomRolesHelper
                 CustomRoles.Cleanser when Cleanser.CancelVote.GetBool() => true,
                 CustomRoles.NiceEraser when NiceEraser.CancelVote.GetBool() => true,
                 CustomRoles.Scout when Scout.CancelVote.GetBool() => true,
-                CustomRoles.Markseeker when Markseeker.CancelVote.GetBool() => true,
                 CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool() => true,
                 CustomRoles.Socialite when Socialite.CancelVote.GetBool() => true,
                 CustomRoles.Negotiator when Negotiator.CancelVote.GetBool() => true,
@@ -1009,6 +1009,7 @@ internal static class CustomRolesHelper
                 CustomRoles.CTFPlayer or
                 CustomRoles.Challenger or
                 CustomRoles.BedWarsPlayer or
+                CustomRoles.Revenant or
                 CustomRoles.Weatherman;
         }
 
@@ -1017,6 +1018,7 @@ internal static class CustomRolesHelper
             return role is
                 CustomRoles.Helper or
                 CustomRoles.Snitch or
+                CustomRoles.Revenant or
                 CustomRoles.Speedrunner or
                 CustomRoles.Marshall or
                 CustomRoles.TimeManager or
@@ -1405,6 +1407,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Perceiver => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Psychic => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Rabbit => RoleOptionType.Crewmate_Investigate,
+                CustomRoles.Revenant => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Scout => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Sensor => RoleOptionType.Crewmate_Investigate,
                 CustomRoles.Sentry => RoleOptionType.Crewmate_Investigate,

@@ -254,6 +254,7 @@ public enum CustomRoles
     Rabbit,
     Randomizer,
     Retributionist,
+    Revenant,
     Rhapsode,
     Ricochet,
     Safeguard,

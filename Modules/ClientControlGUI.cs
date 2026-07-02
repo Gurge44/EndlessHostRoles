@@ -74,7 +74,7 @@ public class ClientControlGUI : MonoBehaviour
     /// Whether the next /r command sent will broadcast to all players
     /// <remarks>Deactivates automatically after being used</remarks>
     /// </summary>
-    internal static bool BroadcastRoleInfo;
+    internal static bool BroadcastRoleInfo { get; set; }
 
     // Scale helpers - everything is relative to a 1080px-wide reference screen
     // On PC the UI is scaled down to 50% but on Android we keep it slightly larger (60%) for better readability
@@ -433,53 +433,113 @@ public class ClientControlGUI : MonoBehaviour
         bool canMove    = GameStates.IsCanMove;
         bool noGameEnd  = Options.NoGameEnd.GetBool();
 
-        Section(ref y, "General");
-
-        Btn(ref y, Label("Dump Log", "CTRL + F1"), _sAction, () =>
+        if (inLobby)
         {
-            Logger.Info("Log dumped", "ClientControlGUI");
-            Utils.DumpLog();
-        });
-        Btn(ref y, Label("Reload Translations", "F5 + T"), _sAction, () =>
-        {
-            Logger.Info("Reloading Custom Translation File", "ClientControlGUI");
-            LoadLangs();
-            Logger.SendInGame("Reloaded Custom Translation File");
-        });
-        Btn(ref y, Label("Export Translations", "F5 + X"), _sAction, () =>
-        {
-            Logger.Info("Exported Custom Translation File", "ClientControlGUI");
-            ExportCustomTranslation();
-            Logger.SendInGame("Exported Custom Translation File");
-        });
-        if (!notJoined)
-            Btn(ref y, Label("Copy Settings", "ALT + C"), _sAction, Utils.CopyCurrentSettings);
+            Section(ref y, "Lobby");
 
-        Btn(ref y, Label("Fix Button Positions", "ALT + ENTER"), _sAction, () =>
-            LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
-        );
-
-        Btn(ref y, BroadcastRoleInfo ? "Broadcast Role Info: ON" : "Broadcast Role Info: OFF", BroadcastRoleInfo ? _sHost : _sAction, () =>
-        {
-            BroadcastRoleInfo = !BroadcastRoleInfo;
-        });
-
-        if (inGame || inMeeting)
-            Btn(ref y, Label("Fix Blackscreen", "SHIFT + CTRL + X"), _sAction, () =>
-                ExileController.Instance?.ReEnableGameplay()
-            );
-
-        if (inGame && (canMove || inMeeting))
-            Btn(ref y, Label(InGameRoleInfoMenu.Showing ? "Hide Role Info" : "Show Role Info", "F1 (hold)"), _sAction, () =>
-            {
-                if (InGameRoleInfoMenu.Showing)
-                    InGameRoleInfoMenu.Hide();
-                else
+            if (amHost && !countdown)
+                Btn(ref y, Label("Start Game", "ENTER"), _sHost, () =>
                 {
-                    InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
-                    InGameRoleInfoMenu.Show();
-                }
-            });
+                    if (GameStartManager.InstanceExists)
+                    {
+                        Logger.Info("Start game via ClientControlGUI", "ClientControlGUI");
+                        GameStartManager.Instance.BeginGame();
+                    }
+                });
+
+            if (amHost && countdown)
+            {
+                Btn(ref y, Label("Start Immediately", "SHIFT"), _sHost, () =>
+                {
+                    Logger.Info("Starting game immediately via ClientControlGUI", "ClientControlGUI");
+                    GameStartManager.Instance.countDownTimer = 0;
+                });
+                Btn(ref y, Label("Cancel Countdown", "C"), _sDanger, () =>
+                {
+                    GameStartManager.Instance.ResetStartState();
+                    Logger.SendInGame(GetString("CancelStartCountDown"));
+                });
+            }
+
+            if (amHost)
+            {
+                Btn(ref y, Label("Show Active Settings", "CTRL + N"), _sHost, () =>
+                {
+                    Main.IsChatCommand = true;
+                    Utils.ShowActiveSettings();
+                });
+                Btn(ref y, Label("Show Settings Help", "CTRL + SHIFT + N"), _sHost, () =>
+                {
+                    Main.IsChatCommand = true;
+                    Utils.ShowActiveSettingsHelp();
+                });
+                BroadcastRoleInfoBtn(ref y);
+            }
+        }
+
+        if ((inGame || inMeeting) && amHost)
+        {
+            Section(ref y, "Host Controls");
+
+            if (!inMeeting)
+                Btn(ref y, Label("Call Meeting", "SHIFT + ENTER + M"), _sHost, () =>
+                    PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true)
+                );
+            else
+            {
+                Btn(ref y, Label("End Meeting", "SHIFT + ENTER + M"), _sHost, () =>
+                {
+                    MeetingHudRpcClosePatch.AllowClose = true;
+                    MeetingHud.Instance.RpcClose();
+                });
+                Btn(ref y, Label("End By Votes", "F6"), _sHost, () =>
+                {
+                    CheckForEndVotingPatch.ShouldSkip = true;
+                    MeetingHud.Instance.CheckForEndVoting();
+                });
+            }
+
+            Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
+                HudManager.Instance.Chat.SetVisible(true)
+            );
+            Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, () => Main.AllAlivePlayerControlsToList.SetChatVisible(true));
+
+            BroadcastRoleInfoBtn(ref y);
+
+            if (inGame && (canMove || inMeeting))
+                Btn(ref y, Label(InGameRoleInfoMenu.Showing ? "Hide Role Info" : "Show Role Info", "F1 (hold)"), _sAction, () =>
+                {
+                    if (InGameRoleInfoMenu.Showing)
+                        InGameRoleInfoMenu.Hide();
+                    else
+                    {
+                        InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
+                        InGameRoleInfoMenu.Show();
+                    }
+                });
+
+            if (inGame && localAlive)
+                Btn(ref y, Label("Kill Self", "SHIFT + ENTER + E"), _sDanger, () =>
+                {
+                    var state = Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId];
+                    state.deathReason = PlayerState.DeathReason.etc;
+                    PlayerControl.LocalPlayer.RpcExileV2();
+                    PlayerControl.LocalPlayer.Data.IsDead = true;
+                    state.SetDead();
+                    Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, inMeeting);
+                    Utils.SendMessage(
+                        GetString("HostKillSelfByCommand"),
+                        title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>"
+                    );
+                });
+
+            if (noGameEnd)
+                Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                    GameEndChecker.CheckCustomEndCriteria();
+                });
+        }
 
         bool canZoom = Zoom.CanZoom;
         bool canNoClip = canMove && Main.IntroDestroyed && (!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && (!GameStartManager.Instance || GameStartManager.Instance.startState == GameStartManager.StartingStates.NotStarting);
@@ -549,112 +609,48 @@ public class ClientControlGUI : MonoBehaviour
             }
         }
 
-        if (inLobby)
+        Section(ref y, "Utilities");
+
+        if (!notJoined)
+            Btn(ref y, Label("Copy Settings", "ALT + C"), _sAction, Utils.CopyCurrentSettings);
+
+        Btn(ref y, Label("Dump Log", "CTRL + F1"), _sAction, () =>
         {
-            Section(ref y, "Lobby");
+            Logger.Info("Log dumped", "ClientControlGUI");
+            Utils.DumpLog();
+        });
+        Btn(ref y, Label("Fix Button Positions", "ALT + ENTER"), _sAction, () =>
+            LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position")
+        );
 
-            if (amHost && !countdown)
-                Btn(ref y, Label("Start Game", "ENTER"), _sHost, () =>
-                {
-                    if (GameStartManager.InstanceExists)
-                    {
-                        Logger.Info("Start game via ClientControlGUI", "ClientControlGUI");
-                        GameStartManager.Instance.BeginGame();
-                    }
-                });
+        if (inGame || inMeeting)
+            Btn(ref y, Label("Fix Blackscreen", "SHIFT + CTRL + X"), _sAction, () =>
+                ExileController.Instance?.ReEnableGameplay()
+            );
 
-            if (amHost && countdown)
-            {
-                Btn(ref y, Label("Start Immediately", "SHIFT"), _sHost, () =>
-                {
-                    Logger.Info("Starting game immediately via ClientControlGUI", "ClientControlGUI");
-                    GameStartManager.Instance.countDownTimer = 0;
-                });
-                Btn(ref y, Label("Cancel Countdown", "C"), _sDanger, () =>
-                {
-                    GameStartManager.Instance.ResetStartState();
-                    Logger.SendInGame(GetString("CancelStartCountDown"));
-                });
-            }
-
-            if (amHost)
-            {
-                Btn(ref y, Label("Show Active Settings", "CTRL + N"), _sHost, () =>
-                {
-                    Main.IsChatCommand = true;
-                    Utils.ShowActiveSettings();
-                });
-                Btn(ref y, Label("Show Settings Help", "CTRL + SHIFT + N"), _sHost, () =>
-                {
-                    Main.IsChatCommand = true;
-                    Utils.ShowActiveSettingsHelp();
-                });
-                Btn(ref y, Label("Reset All Options", "CTRL + SHIFT + DEL"), _sDanger, () =>
-                    Prompt.Show(GetString("Promt.ResetAllOptions"), () =>
-                    {
-                        foreach (var opt in OptionItem.AllOptions)
-                            if (opt.Id > 0) opt.SetValue(opt.DefaultValue, false, false);
-                        OptionItem.SyncAllOptions();
-                        OptionSaver.Save();
-                    }, () => { })
-                );
-            }
-        }
-
-        if (inGame)
+        Btn(ref y, Label("Reload Translations", "F5 + T"), _sAction, () =>
         {
-            Section(ref y, "In Game");
+            Logger.Info("Reloading Custom Translation File", "ClientControlGUI");
+            LoadLangs();
+            Logger.SendInGame("Reloaded Custom Translation File");
+        });
+        Btn(ref y, Label("Export Translations", "F5 + X"), _sAction, () =>
+        {
+            Logger.Info("Exported Custom Translation File", "ClientControlGUI");
+            ExportCustomTranslation();
+            Logger.SendInGame("Exported Custom Translation File");
+        });
 
-            if (amHost && localAlive)
-                Btn(ref y, Label("Kill Self", "SHIFT + ENTER + E"), _sDanger, () =>
+        if (inLobby && amHost)
+            Btn(ref y, Label("Reset All Options", "CTRL + SHIFT + DEL"), _sDanger, () =>
+                Prompt.Show(GetString("Promt.ResetAllOptions"), () =>
                 {
-                    var state = Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId];
-                    state.deathReason = PlayerState.DeathReason.etc;
-                    PlayerControl.LocalPlayer.RpcExileV2();
-                    PlayerControl.LocalPlayer.Data.IsDead = true;
-                    state.SetDead();
-                    Utils.AfterPlayerDeathTasks(PlayerControl.LocalPlayer, inMeeting);
-                    Utils.SendMessage(
-                        GetString("HostKillSelfByCommand"),
-                        title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>"
-                    );
-                });
-
-            if (amHost)
-            {
-                Section(ref y, "Host Controls");
-
-                if (!inMeeting)
-                    Btn(ref y, Label("Call Meeting", "SHIFT + ENTER + M"), _sHost, () =>
-                        PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true)
-                    );
-                else
-                {
-                    Btn(ref y, Label("End Meeting", "SHIFT + ENTER + M"), _sHost, () =>
-                    {
-                        MeetingHudRpcClosePatch.AllowClose = true;
-                        MeetingHud.Instance.RpcClose();
-                    });
-                    Btn(ref y, Label("End By Votes", "F6"), _sHost, () =>
-                    {
-                        CheckForEndVotingPatch.ShouldSkip = true;
-                        MeetingHud.Instance.CheckForEndVoting();
-                    });
-                }
-
-                Btn(ref y, Label("Open Your Chat", "SHIFT + ENTER + C"), _sHost, () =>
-                    HudManager.Instance.Chat.SetVisible(true)
-                );
-                Btn(ref y, Label("Open Chat for All", "CTRL + SHIFT + ENTER + C"), _sHost, () => Main.AllAlivePlayerControlsToList.SetChatVisible(true));
-
-                if (noGameEnd)
-                    Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>
-                    {
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                        GameEndChecker.CheckCustomEndCriteria();
-                    });
-            }
-        }
+                    foreach (var opt in OptionItem.AllOptions)
+                        if (opt.Id > 0) opt.SetValue(opt.DefaultValue, false, false);
+                    OptionItem.SyncAllOptions();
+                    OptionSaver.Save();
+                }, () => { })
+            );
 
         return;
 
@@ -665,6 +661,13 @@ public class ClientControlGUI : MonoBehaviour
             GUI.Label(new Rect(0, sy, w, ButtonHeight * 0.50f), title, _sSection);
             sy += ButtonHeight * 0.52f + Padding * 0.4f;
         }
+
+        // Draws the "Broadcast Role Info" toggle button in the Lobby and Host Controls sections
+        void BroadcastRoleInfoBtn(ref float by) =>
+            Btn(ref by, BroadcastRoleInfo ? "Broadcast Role Info: ON" : "Broadcast Role Info: OFF", BroadcastRoleInfo ? _sHost : _sAction, () =>
+            {
+                BroadcastRoleInfo = !BroadcastRoleInfo;
+            });
 
         // Draws a button and moves the cursor; try/catch stops one bad action from crashing the GUI
         void Btn(ref float by, string label, GUIStyle style, Action action)

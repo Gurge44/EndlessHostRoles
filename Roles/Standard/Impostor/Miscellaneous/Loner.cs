@@ -90,7 +90,7 @@ public class Loner : RoleBase
     public static void ProcessGuesserUI(byte playerId, CustomRoles role)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || Starspawn.IsDayBreak) return;
+        if (!pc || !pc.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Loner) || Starspawn.IsDayBreak) return;
 
         var command = $"/select {playerId} {GetString(role.ToString())}";
 

@@ -201,6 +201,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> UnlockFps { get; private set; }
     public static ConfigEntry<bool> ShowFps { get; private set; }
     public static ConfigEntry<bool> AutoStart { get; private set; }
+    public static ConfigEntry<bool> AutoPlayAgain { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
     public static ConfigEntry<bool> EnableCustomButton { get; private set; }
@@ -359,6 +360,7 @@ public class Main : BasePlugin
         UnlockFps = Config.Bind("Client Options", "UnlockFPS", false);
         ShowFps = Config.Bind("Client Options", "ShowFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
+        AutoPlayAgain = Config.Bind("Client Options", "AutoPlayAgain", false);
         ForceOwnLanguage = Config.Bind("Client Options", "ForceOwnLanguage", false);
         ForceOwnLanguageRoleName = Config.Bind("Client Options", "ForceOwnLanguageRoleName", false);
         EnableCustomButton = Config.Bind("Client Options", "EnableCustomButton", true);
@@ -593,6 +595,7 @@ public class Main : BasePlugin
                 { CustomRoles.Deputy, "#df9026" },
                 { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
+                { CustomRoles.Revenant, "#811a7a" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
