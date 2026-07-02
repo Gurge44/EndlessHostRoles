@@ -540,7 +540,7 @@ public enum CustomRoles
     Circumvent,
     Cleansed,
     Clumsy,
-    Commited,
+    Committed,
     Compelled,
     Composter,
     Concealer,

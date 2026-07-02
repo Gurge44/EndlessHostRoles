@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace EHR.Roles;
 
-public class Commited : IAddon
+public class Committed : IAddon
 {
     public AddonTypes Type => AddonTypes.Helpful;
 
@@ -16,17 +16,17 @@ public class Commited : IAddon
 
     public void SetupCustomOption()
     {
-        Options.SetupAdtRoleOptions(653600, CustomRoles.Commited, canSetNum: true, teamSpawnOptions: true);
+        Options.SetupAdtRoleOptions(653600, CustomRoles.Committed, canSetNum: true, teamSpawnOptions: true);
 
-        PermanentReduction = new BooleanOptionItem(653610, "Commited.PermanentReduction", false, TabGroup.Addons)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commited]);
+        PermanentReduction = new BooleanOptionItem(653610, "Committed.PermanentReduction", false, TabGroup.Addons)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Committed]);
 
-        Reduction = new FloatOptionItem(653611, "Commited.Reduction", new(0.5f, 30f, 0.5f), 5f, TabGroup.Addons)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commited])
+        Reduction = new FloatOptionItem(653611, "Committed.Reduction", new(0.5f, 30f, 0.5f), 5f, TabGroup.Addons)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Committed])
             .SetValueFormat(OptionFormat.Seconds);
 
-        IgnoreSkips = new BooleanOptionItem(653612, "Commited.IgnoreSkips", true, TabGroup.Addons)
-            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commited]);
+        IgnoreSkips = new BooleanOptionItem(653612, "Committed.IgnoreSkips", true, TabGroup.Addons)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Committed]);
     }
 
     public static void Init()
@@ -46,10 +46,10 @@ public class Commited : IAddon
 
         foreach (PlayerControl pc in aapc)
         {
-            if (pc.Is(CustomRoles.Commited))
+            if (pc.Is(CustomRoles.Committed))
             {
                 Target ??= [];
-                Target[pc.PlayerId] = aapc.Where(x => !x.Is(CustomRoles.Commited)).RandomElement().PlayerId;
+                Target[pc.PlayerId] = aapc.Where(x => !x.Is(CustomRoles.Committed)).RandomElement().PlayerId;
             }
         }
     }
@@ -74,7 +74,7 @@ public class Commited : IAddon
 
     public static string GetMark(PlayerControl seer, PlayerControl target)
     {
-        if (!seer.Is(CustomRoles.Commited) || Target == null || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
-        return CustomRoles.Commited.ColoredTextByRole("⌆");
+        if (!seer.Is(CustomRoles.Committed) || Target == null || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
+        return CustomRoles.Committed.ColoredTextByRole("⌆");
     }
 }

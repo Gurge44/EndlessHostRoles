@@ -1441,7 +1441,7 @@ internal static class ReportDeadBodyPatch
 
             Bloodmoon.OnMeetingStart();
             Deadlined.OnMeetingStart();
-            Commited.OnMeetingStart();
+            Committed.OnMeetingStart();
             Reroll.OnMeetingStart();
         }
         catch (Exception e) { ThrowException(e); }

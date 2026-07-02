@@ -103,7 +103,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Catcher           | Cleaner         | Deathknight       | Wyrd          | Circumvent     |
 | Chameleon         | Clock Blocker   | Demon             |               | Cleansed       |
 | Chef              | Commander       | Doppelganger      |               | Clumsy         |
-| Clairvoyant       | Consigliere     | Doomsayer         |               | Commited       |
+| Clairvoyant       | Consigliere     | Doomsayer         |               | Committed       |
 | Cleanser          | Consort         | Duality           |               | Compelled      |
 | Convener          | Councillor      | Eclipse           |               | Composter      |
 | Copycat           | Crewpostor      | Enderman          |               | Concealer      |

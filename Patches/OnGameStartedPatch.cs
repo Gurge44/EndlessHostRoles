@@ -303,7 +303,7 @@ internal static class ChangeRoleSettings
                 Asthmatic.Init();
                 DoubleShot.Init();
                 Circumvent.Init();
-                Commited.Init();
+                Committed.Init();
                 Reroll.Init();
             }
             catch (Exception ex) { Logger.Exception(ex, "Init Roles"); }

@@ -235,7 +235,7 @@ internal static class CheckForEndVotingPatch
                     });
             }
 
-            Commited.OnVotingResultsShown(StatesList);
+            Committed.OnVotingResultsShown(StatesList);
             Summoner.OnMeetingEnd();
             QuizMaster.OnMeetingEnd();
 
@@ -1144,7 +1144,7 @@ internal static class MeetingHudStartPatch
                 .Append(Witch.GetSpelledMark(target.PlayerId, true))
                 .Append(Wasp.GetStungMark(target.PlayerId))
                 .Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty)
-                .Append(Commited.GetMark(seer, target));
+                .Append(Committed.GetMark(seer, target));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 NameText.Append(CustomRoles.SuperStar.ColoredTextByRole("★"));

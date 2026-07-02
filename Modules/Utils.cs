@@ -3247,7 +3247,7 @@ public static class Utils
                             TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, forMeeting));
                             if (forMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
                             if (forMeeting) TargetMark.Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty);
-                            if (forMeeting) TargetMark.Append(Commited.GetMark(seer, target));
+                            if (forMeeting) TargetMark.Append(Committed.GetMark(seer, target));
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(CustomRoles.SuperStar.ColoredTextByRole("★"));
