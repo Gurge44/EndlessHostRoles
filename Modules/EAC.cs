@@ -1254,6 +1254,12 @@ internal static class InitializePlayerTimeoutPatch
         AssertWithTimeoutPatch.AllowCall = true;
         yield return player.AssertWithTimeout((Func<bool>)(() => GameData.Instance != null && player.Data != null && !player.Data.IsIncomplete), (Action)(() =>
         {
+            if (player == null || player.Pointer == IntPtr.Zero)
+            {
+                exit = true;
+                return;
+            }
+            
             if (AmongUsClient.Instance.AmHost)
             {
                 AmongUsClient.Instance.KickPlayer(player.OwnerId, true);
@@ -1262,7 +1268,7 @@ internal static class InitializePlayerTimeoutPatch
             }
             else
             {
-                if (GameData.Instance != null && player.Data != null)
+                if (GameData.Instance != null && player.Data != null && player.Data.Pointer != IntPtr.Zero)
                 {
                     var outfit = player.Data.DefaultOutfit;
                     outfit.PlayerName = "???";
