@@ -24,10 +24,7 @@ public static class CrashReporter
     public static void Init()
     {
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-        UnityEngine.Application.quitting += new Action(OnCleanShutdown);
-
         CheckPendingCrash();
-        CheckPreviousCrash();
     }
 
     // called by CrashErrorListener for every Error/Fatal log event
@@ -71,28 +68,6 @@ public static class CrashReporter
         }
     }
 
-    // if the HTML log has no </html> footer => the previous session crashed
-    private static void CheckPreviousCrash()
-    {
-        try
-        {
-            string logPath = CustomLogger.LOGFilePath;
-            if (!File.Exists(logPath)) return;
-
-            string content = ReadLogFile(logPath);
-            if (content.TrimEnd().EndsWith("</html>")) return;
-            if (content.Length <= 200) return;
-
-            string json = BuildPayload("Previous session did not exit cleanly", "previous_session_html_log", content);
-            _ = Task.Run(() => SendReport(json));
-        }
-        catch (Exception e)
-        {
-            BepInEx.Logging.Logger.CreateLogSource("EHR.CrashReporter")
-                .LogWarning($"CheckPreviousCrash failed: {e.Message}");
-        }
-    }
-
     private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         string logContent = ReadLogFile(CustomLogger.LOGFilePath);
@@ -106,12 +81,6 @@ public static class CrashReporter
         // write to disk first in case the POST doesn't finish before the process dies
         WritePending(json);
         try { SendReport(json).Wait(TimeSpan.FromSeconds(5)); } catch { }
-    }
-
-    private static void OnCleanShutdown()
-    {
-        // writes </html> so next boot's CheckPreviousCrash knows this was clean
-        try { CustomLogger.Instance.Finish(); } catch { }
     }
 
     private static string BuildPayload(string errorMessage, string source, string logContent)
@@ -197,6 +166,6 @@ public static class CrashReporter
     private static string TryGet(Func<string> getter)
     {
         try { return getter() ?? "unknown"; }
-        catch { return "unavailable"; }
+        catch (Exception ex) { return $"unavailable ({ex.GetType().Name}: {ex.Message})"; }
     }
 }
