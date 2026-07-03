@@ -324,3 +324,16 @@ public class CustomLogger
 #endif
     }
 }
+
+public sealed class CrashErrorListener : ILogListener
+{
+    public LogLevel LogLevelFilter => LogLevel.Error | LogLevel.Fatal;
+
+    public void LogEvent(object sender, LogEventArgs eventArgs)
+    {
+        string line = $"[{DateTime.Now:HH:mm:ss}][{eventArgs.Level}][{eventArgs.Source.SourceName}] {eventArgs.Data}";
+        CrashReporter.BufferError(line);
+    }
+
+    public void Dispose() { }
+}

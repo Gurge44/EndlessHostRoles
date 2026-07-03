@@ -349,6 +349,10 @@ public class Main : BasePlugin
     public override void Load()
     {
         // EmbeddedDeps.Install();
+
+        // Reads previous session log before ClearLog() wipes it
+        CrashReporter.Init();
+
         Instance = this;
 
         //Client Options
@@ -988,6 +992,7 @@ public class Main : BasePlugin
             CustomLogger.ClearLog();
             Loaded = true;
             BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
+            BepInEx.Logging.Logger.Listeners.Add(new CrashErrorListener());
             
             StartCoroutine(ModNewsFetcher.FetchNews());
 
