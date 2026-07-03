@@ -9908,6 +9908,7 @@
   "EAC.CheatDetected.EAC": "Cheating usage detected (Using AUM)",
   "EAC.CheatDetected.HighLevel": "Warning: EAC detected High Level of cheats.",
   "EAC.CheatDetected.LowLevel": "Warning: EAC detected Low Level of cheats. One of the players is hacking.",
+  "EAC.ClientTimeout": "{0}|{1} didn't send their full data within 25s, most likely a hacker",
 
   
   "ECMO.OriginalTeam": "Original Team",

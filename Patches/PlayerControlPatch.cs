@@ -2603,9 +2603,13 @@ internal static class PlayerControlLocalSetRolePatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AssertWithTimeout))]
 internal static class AssertWithTimeoutPatch
 {
+    public static bool AllowCall;
+    
     public static bool Prefix()
     {
-        return false;
+        bool allow = AllowCall;
+        AllowCall = false;
+        return allow;
     }
 }
 
