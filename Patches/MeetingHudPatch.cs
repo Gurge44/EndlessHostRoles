@@ -235,7 +235,7 @@ internal static class CheckForEndVotingPatch
                     });
             }
 
-            Commited.OnVotingResultsShown(StatesList);
+            Committed.OnVotingResultsShown(StatesList);
             Summoner.OnMeetingEnd();
             QuizMaster.OnMeetingEnd();
 
@@ -934,6 +934,7 @@ internal static class MeetingHudStartPatch
                 (Markseeker.PlayerIdList != null && Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId)) ||
                 seer.IsRevealedPlayer(target) ||
                 (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2) ||
+                (seer.Is(CustomRoles.Revenant) && Revenant.KnowInfo.GetValue() == 1) ||
                 seer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
@@ -1143,7 +1144,7 @@ internal static class MeetingHudStartPatch
                 .Append(Witch.GetSpelledMark(target.PlayerId, true))
                 .Append(Wasp.GetStungMark(target.PlayerId))
                 .Append(SpellCaster.HasSpelledMark(seer.PlayerId) ? Utils.ColorString(Team.Coven.GetColor(), "\u25c0") : string.Empty)
-                .Append(Commited.GetMark(seer, target));
+                .Append(Committed.GetMark(seer, target));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 NameText.Append(CustomRoles.SuperStar.ColoredTextByRole("★"));
@@ -1196,6 +1197,8 @@ internal static class MeetingHudStartPatch
         Exorcist.StartMeetingPatch.Postfix(__instance);
         Summoner.StartMeetingPatch.Postfix(__instance);
         Loner.StartMeetingPatch.Postfix(__instance);
+        Changeling.StartMeetingPatch.Postfix(__instance);
+        Markseeker.StartMeetingPatch.Postfix(__instance);
         Forger.StartMeetingPatch.Postfix(__instance);
         Inquirer.StartMeetingPatch.Postfix(__instance);
         Pawn.StartMeetingPatch.Postfix(__instance);

@@ -67,7 +67,7 @@ public class Forger : RoleBase
     public static void ProcessGuesserUI(byte playerId, CustomRoles role)
     {
         PlayerControl pc = Utils.GetPlayerById(playerId);
-        if (pc == null || !pc.IsAlive() || Starspawn.IsDayBreak) return;
+        if (!pc || !pc.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Forger) || Starspawn.IsDayBreak) return;
 
         var command = $"/forge {playerId} {GetString(role.ToString())}";
 

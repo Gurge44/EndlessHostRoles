@@ -222,6 +222,7 @@ internal static class ChatCommands
             new("ChemistInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, ChemistInfoCommand, true, false),
             new("Forge", "{id} {role}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ForgeCommand, true, true, [GetString("CommandArgs.Forge.Id"), GetString("CommandArgs.Forge.Role")]),
             new("Choose", "{role}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChooseCommand, true, true, [GetString("CommandArgs.Choose.Role")]),
+            new("Mark", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, MarkCommand, true, true, [GetString("CommandArgs.Mark.Id")]),
             new("CopyPreset", "{sourcepreset} {targetpreset}", Command.UsageLevels.Host, Command.UsageTimes.InLobby, CopyPresetCommand, true, false, [GetString("CommandArgs.CopyPreset.SourcePreset"), GetString("CommandArgs.CopyPreset.TargetPreset")]),
             new("AddAdmin", "{id}", Command.UsageLevels.Host, Command.UsageTimes.Always, AddAdminCommand, true, false, [GetString("CommandArgs.AddAdmin.Id")]),
             new("DeleteAdmin", "{id}", Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteAdminCommand, true, false, [GetString("CommandArgs.DeleteAdmin.Id")]),
@@ -899,19 +900,48 @@ internal static class ChatCommands
             OptionSaver.Save();
         }
     }
-    
+
     public static void ChooseCommand(PlayerControl player, string text, string[] args)
     {
-        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || state.IsDead || state.Role is not Pawn pawn) return;
-        
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state) || state.IsDead) return;
+
         if (args.Length < 2 || !GetRoleByName(string.Join(' ', args[1..]), out var role) || !role.IsEnable())
         {
             Utils.SendMessage("\n", player.PlayerId, GetString("PawnChooseFail"));
             return;
         }
 
-        pawn.ChosenRole = role;
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
+        if (state.Role is Pawn pawn)
+        {
+            pawn.ChosenRole = role;
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PawnChosenRole"), role.ToColoredString()));
+        }
+        else if (state.Role is Changeling changeling)
+        {
+            if (!Changeling.Roles.Contains(role))
+            {
+                Utils.SendMessage("\n", player.PlayerId, GetString("ChangelingChooseFail"));
+                return;
+            }
+            changeling.CurrentRole = role;
+            changeling.UsedCommand = true;
+            Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("ChangelingChosenRole"), role.ToColoredString()));
+        }
+        else
+            return;
+
+        MeetingManager.SendCommandUsedMessage(args[0]);
+    }
+
+    public static void MarkCommand(PlayerControl player, string text, string[] args)
+    {
+        if (Starspawn.IsDayBreak) return;
+
+        if (!player.IsAlive() || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId != byte.MaxValue) return;
+
+        ms.MarkedId = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
+
+        player.RPCPlayCustomSound("Line");
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -2683,7 +2713,9 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) ? byte.MaxValue : player.PlayerId;
+        byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo)
+            ? byte.MaxValue : player.PlayerId;
+            ClientControlGUI.BroadcastRoleInfo = false;
         SendRolesInfo(subArgs, to);
     }
 

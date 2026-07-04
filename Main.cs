@@ -82,6 +82,7 @@ public class Main : BasePlugin
     public static readonly MapNames[] MapNamesValues = Enum.GetValues<MapNames>();
     public static readonly RoleTypes[] RoleTypesValues = Enum.GetValues<RoleTypes>();
 
+    public static bool Loaded;
     public static IntPtr? OriginalAffinity;
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static OptionBackupData RealOptionsData;
@@ -200,6 +201,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> UnlockFps { get; private set; }
     public static ConfigEntry<bool> ShowFps { get; private set; }
     public static ConfigEntry<bool> AutoStart { get; private set; }
+    public static ConfigEntry<bool> AutoPlayAgain { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
     public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
     public static ConfigEntry<bool> EnableCustomButton { get; private set; }
@@ -358,6 +360,7 @@ public class Main : BasePlugin
         UnlockFps = Config.Bind("Client Options", "UnlockFPS", false);
         ShowFps = Config.Bind("Client Options", "ShowFPS", false);
         AutoStart = Config.Bind("Client Options", "AutoStart", false);
+        AutoPlayAgain = Config.Bind("Client Options", "AutoPlayAgain", false);
         ForceOwnLanguage = Config.Bind("Client Options", "ForceOwnLanguage", false);
         ForceOwnLanguageRoleName = Config.Bind("Client Options", "ForceOwnLanguageRoleName", false);
         EnableCustomButton = Config.Bind("Client Options", "EnableCustomButton", true);
@@ -590,6 +593,7 @@ public class Main : BasePlugin
                 { CustomRoles.Deputy, "#df9026" },
                 { CustomRoles.Bestower, "#4C4FE4" },
                 { CustomRoles.Retributionist, "#cfc999" },
+                { CustomRoles.Revenant, "#811a7a" },
                 { CustomRoles.Cleanser, "#98FF98" },
                 { CustomRoles.Swapper, "#922348" },
                 { CustomRoles.Ignitor, "#ffffa5" },
@@ -770,7 +774,7 @@ public class Main : BasePlugin
                 { CustomRoles.Composter, "#8D6F64" },
                 { CustomRoles.TaskMaster, "#00ffa5" },
                 { CustomRoles.Compelled, "#D2E44C" },
-                { CustomRoles.Commited, "#f5c542" },
+                { CustomRoles.Committed, "#f5c542" },
                 { CustomRoles.BananaMan, "#ffe135" },
                 { CustomRoles.Blind, "#666666" },
                 { CustomRoles.Shy, "#9582f5" },
@@ -980,8 +984,9 @@ public class Main : BasePlugin
         IL2CPPChainloader.Instance.Finished += () =>
         {
             CustomLogger.ClearLog();
+            Loaded = true;
             BepInEx.Logging.Logger.Listeners.Add(new HtmlLogListener());
-
+            
             StartCoroutine(ModNewsFetcher.FetchNews());
 
             try { DevManager.StartFetchingTags(); }

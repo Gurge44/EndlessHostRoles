@@ -232,6 +232,7 @@ internal static class ExtendedPlayerControl
 
             void Action()
             {
+                if (!player || player.Pointer == IntPtr.Zero) return;
                 bool dead = player.Data.IsDead;
                 MessageWriter writer = packedWriter ?? MessageWriter.Get(SendOption.Reliable);
                 writer.StartMessage(6);
@@ -930,7 +931,7 @@ internal static class ExtendedPlayerControl
         {
             if (!player) return;
 
-            if (!Mathf.Approximately(time, -1f) && Commited.ReduceKCD != null && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            if (!Mathf.Approximately(time, -1f) && Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 time = Math.Max(time - reduction, 0.01f);
 
             Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(time < 0f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
@@ -1817,7 +1818,7 @@ internal static class ExtendedPlayerControl
                 Logger.Info($"KCD of player set to {Main.AllPlayerKillCooldown[player.PlayerId]}", "Antidote");
             }
 
-            if (Commited.ReduceKCD != null && Commited.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
+            if (Committed.ReduceKCD != null && Committed.ReduceKCD.TryGetValue(player.PlayerId, out float reduction))
                 Main.AllPlayerKillCooldown[player.PlayerId] -= reduction;
 
             if (sync) player.SyncSettings();
@@ -2557,6 +2558,7 @@ internal static class ExtendedPlayerControl
         {
             return DataFlagRateLimiter.Enqueue(() =>
             {
+                if (!playerInfo || playerInfo.Pointer == IntPtr.Zero) return;
                 MessageWriter writer = MessageWriter.Get(sendOption);
                 writer.StartMessage(5);
                 writer.Write(AmongUsClient.Instance.GameId);

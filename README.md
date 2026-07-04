@@ -19,7 +19,7 @@
 <p align="center">
   <img src="https://discordapp.com/api/guilds/1039487420757966858/widget.png?style=banner3" alt="Discord Banner"/>
 </p>
-<p align="left" style="font-size: 10px"><i>Image by oCelestino & Seleneous on Discord</i></p>
+<p align="left" style="font-size: 10px"><i>Image by thecelestrinity & Seleneous on Discord</i></p>
 </div>
 
 ---
@@ -103,7 +103,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Catcher           | Cleaner         | Deathknight       | Wyrd          | Circumvent     |
 | Chameleon         | Clock Blocker   | Demon             |               | Cleansed       |
 | Chef              | Commander       | Doppelganger      |               | Clumsy         |
-| Clairvoyant       | Consigliere     | Doomsayer         |               | Commited       |
+| Clairvoyant       | Consigliere     | Doomsayer         |               | Committed       |
 | Cleanser          | Consort         | Duality           |               | Compelled      |
 | Convener          | Councillor      | Eclipse           |               | Composter      |
 | Copycat           | Crewpostor      | Enderman          |               | Concealer      |
@@ -180,26 +180,27 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Rabbit            | Trapster        | Stalker           |               | Stressed       |
 | Randomizer        | Trickster       | Starspawn         |               | Swift          |
 | Retributionist    | Twister         | Cultist           |               | Sunglasses     |
-| Rhapsode          | Undertaker      | Sunnyboy          |               | Talkative      |
-| Ricochet          | Vampire         | Tank              |               | Taskcounter    |
-| Safeguard         | Venerer         | Technician        |               | Task Master    |
-| Scanner           | Ventriloquist   | Terrorist         |               | Tiebreaker     |
-| Scout             | Vindicator      | Thanos            |               | Tired          |
-| Security Guard    | Visionary       | Thief             |               | Torch          |
-| Sensor            | Warlock         | Tiger             |               | Truant         |
-| Sentinel          | Wasp            | Traitor           |               | Unbound        |
-| Sentry            | Wildling        | Tremor            |               | Undead         |
-| Sheriff           | Wiper           | Vector            |               | Underdog       |
-| Shiftguard        | Witch           | Vengeance         |               | Unlucky        |
-| Snitch            | Yin Yanger      | Vengeful Romantic |               | Urgent         |
-| Socialite         | Zombie          | Virus             |               | Venom          |
-| Soothsayer        |                 | Vortex            |               | Warden         |
-| Spiritualist      |                 | Vulture           |               | Watcher        |
-| Speedrunner       |                 | Wraith            |               | Workhorse      |
-| Speed Booster     |                 | Werewolf          |               | YouTuber       |
-| Spy               |                 | Weapon Master     |               |                |
-| Super Star        |                 | Weatherman        |               |                |
-| Survivor          |                 | Workaholic        |               |                |
+| Revenant          | Undertaker      | Sunnyboy          |               | Talkative      |
+| Rhapsode          | Vampire         | Tank              |               | Taskcounter    |
+| Ricochet          | Venerer         | Technician        |               | Task Master    |
+| Safeguard         | Ventriloquist   | Terrorist         |               | Tiebreaker     |
+| Scanner           | Vindicator      | Thanos            |               | Tired          |
+| Scout             | Visionary       | Thief             |               | Torch          |
+| Security Guard    | Warlock         | Tiger             |               | Truant         |
+| Sensor            | Wasp            | Traitor           |               | Unbound        |
+| Sentinel          | Wildling        | Tremor            |               | Undead         |
+| Sentry            | Wiper           | Vector            |               | Underdog       |
+| Sheriff           | Witch           | Vengeance         |               | Unlucky        |
+| Shiftguard        | Yin Yanger      | Vengeful Romantic |               | Urgent         |
+| Snitch            | Zombie          | Virus             |               | Venom          |
+| Socialite         |                 | Vortex            |               | Warden         |
+| Soothsayer        |                 | Vulture           |               | Watcher        |
+| Spiritualist      |                 | Wraith            |               | Workhorse      |
+| Speedrunner       |                 | Werewolf          |               | YouTuber       |
+| Speed Booster     |                 | Weapon Master     |               |                |
+| Spy               |                 | Weatherman        |               |                |
+| Super Star        |                 | Workaholic        |               |                |
+| Survivor          |                 |                   |               |                |
 | Swapper           |                 |                   |               |                |
 | Tar               |                 |                   |               |                |
 | Task Manager      |                 |                   |               |                |
@@ -224,7 +225,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Witness           |                 |                   |               |                |
 | Wizard            |                 |                   |               |                |
 |                   |                 |                   |               |                |
-| 143               | 113             | 120               | 21            | 117            |
+| 144               | 113             | 120               | 21            | 117            |
 
 ## VIP, Moderator, and Admin perks
 
@@ -398,7 +399,8 @@ Click this badge to view our translation project:
 | /xor                                           | Specify 2 roles that will never spawn in the same game.                                       | &#x1F538; **role** – A main role that will never spawn in the same game with the other role<br>&#x1F538; **role** – A main role that will never spawn in the same game with the other role<br>                                                                                                                               | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                      |
 | /ci<br>/chemistinfo                            | Show all processes available for the Chemist role.                                            | –                                                                                                                                                                                                                                                                                                                            | :purple_circle: Everyone                  | :purple_square: Always                  | :x:                      |
 | /forge                                         | As the Forger, forge a fake role for a player.                                                | &#x1F538; **id** – The player's ID to forge a fake role for<br>&#x1F538; **role** – The fake role to forge<br>                                                                                                                                                                                                               | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
-| /choose<br>/pick                               | Choose your role as the Pawn after completing all tasks.                                      | &#x1F538; **role** – The role to choose<br>                                                                                                                                                                                                                                                                                  | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
+| /choose<br>/pick                               | Choose your role as the Changeling, or as the Pawn after completing all tasks.                | &#x1F538; **role** – The role to choose<br>                                                                                                                                                                                                                                                                                  | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
+| /mark                                          | Mark a target as the Markseeker.                                                              | &#x1F538; **id** – The player's ID to mark as the target<br>                                                                                                                                                                                                                                                                 | :purple_circle: Everyone                  | :yellow_square: In Meetings             | :heavy_check_mark:       |
 | /copypreset<br>/presetcopy<br>/cpp             | Copy all settings from a preset to another preset.                                            | &#x1F538; **sourcepreset** – The preset to copy all settings from<br>&#x1F538; **targetpreset** – The preset to paste all settings to<br>                                                                                                                                                                                    | :yellow_circle: Host                      | :green_square: In Lobby                 | :x:                      |
 | /addadmin                                      | Add a player to the list of admins                                                            | &#x1F538; **id** – The player's ID to add to the list of admins<br>                                                                                                                                                                                                                                                          | :yellow_circle: Host                      | :purple_square: Always                  | :x:                      |
 | /deleteadmin                                   | Remove a player from the list of admins                                                       | &#x1F538; **id** – The player's ID to remove from the list of admins<br>                                                                                                                                                                                                                                                     | :yellow_circle: Host                      | :purple_square: Always                  | :x:                      |
@@ -550,6 +552,12 @@ Click this badge to view our translation project:
 
 >
 > - Reference: Custom Region Installer (adding modded regions)
+>
+
+### :star: [AutoRejoin](https://github.com/Maxi0fc/AutoRejoin) :
+
+>
+> - Reference: Auto Rejoin
 >
 
 ### :star: [Crowded](https://github.com/CrowdedMods/CrowdedMod)
