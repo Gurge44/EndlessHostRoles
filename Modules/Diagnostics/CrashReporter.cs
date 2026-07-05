@@ -10,7 +10,8 @@ namespace EHR;
 
 public static class CrashReporter
 {
-    private static readonly string PendingCrashPath = GetPendingCrashPath();
+    private static readonly string PendingCrashPath = Path.Combine(
+        Main.DataPath, "BepInEx", "pending_crash.json");
 
     private const string ApiEndpoint = "https://app.gurge44.eu/api/reports/crashes";
     private const int MaxLogChars = 5 * 1024 * 1024;
@@ -32,16 +33,6 @@ public static class CrashReporter
     {
         lock (ErrorBufferLock)
             ErrorBuffer.Add(line);
-    }
-
-    // BepInEx/ is unreachable on Starlight Android
-    private static string GetPendingCrashPath()
-    {
-        string dir = OperatingSystem.IsAndroid()
-            ? Path.Combine(Main.DataPath, "EHR_Logs")
-            : Path.Combine(Main.DataPath, "BepInEx");
-
-        return Path.Combine(dir, "pending_crash.json");
     }
 
     // upload anything left over from a previous session that failed to send
