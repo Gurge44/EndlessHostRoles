@@ -2498,7 +2498,7 @@
   "Berserker.LowerKillCooldown": "Lower Kill Cooldown",
   "Blockade": "Blockade",
   "BlockadeInfo": "Place Blockades",
-  "BlockadeInfoLong": "(Neutrals):\\nAs the Blockade, you can vanish/pet/shapeshift to place blockades. No one other than you can go through them. All blockades disappear when a meeting starts.",
+  "BlockadeInfoLong": "(Neutrals):\\nAs the Blockade, you can vanish/pet/shapeshift to place blockades. No one other than you can go through them. All blockades disappear when a meeting starts.\\nKill everyone to win!",
   "Blockade.BlockadeRadius": "Blockade Radius",
   "BloodKnight": "Blood Knight",
   "BloodKnightInfo": "Killing gives you a temporary shield",

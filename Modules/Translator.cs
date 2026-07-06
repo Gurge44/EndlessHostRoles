@@ -350,7 +350,9 @@ public static class Translator
 
     public static string FixRoleName(this string infoLong, CustomRoles role)
     {
-        return OriginalRoleNames.TryGetValue(role, out var d) && d.TryGetValue(GetUserTrueLang(), out var o) ? infoLong.Replace(o, role.ToColoredString(), StringComparison.OrdinalIgnoreCase) : infoLong;
+        if (!OriginalRoleNames.TryGetValue(role, out var d) || !d.TryGetValue(GetUserTrueLang(), out var o)) return infoLong;
+        string modifiedName = role.ToColoredString();
+        return infoLong.Contains(modifiedName) ? infoLong : infoLong.Replace(o, modifiedName, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool LangHasSensitiveOutlineText()

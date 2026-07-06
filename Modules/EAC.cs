@@ -6,6 +6,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using AmongUs.QuickChat;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Patches.ReversePatches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -1251,8 +1252,7 @@ internal static class InitializePlayerTimeoutPatch
     {
         player.Visible = false;
         bool exit = false;
-        AssertWithTimeoutPatch.AllowCall = true;
-        yield return player.AssertWithTimeout((Func<bool>)(() => GameData.Instance != null && player.Data != null && !player.Data.IsIncomplete), (Action)(() =>
+        yield return player.AssertWithTimeout_Unpatched((Func<bool>)(() => GameData.Instance != null && player.Data != null && !player.Data.IsIncomplete), (Action)(() =>
         {
             if (player == null || player.Pointer == IntPtr.Zero)
             {
