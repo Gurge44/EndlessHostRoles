@@ -57,13 +57,21 @@ public static class Options
     }
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum ModLanguages
     {
         UseGameLanguage,
         Hungarian,
         Polish,
         Indonesian,
-        Persian
+        Persian,
+        Arabic,
+        Slovak,
+        Romanian,
+        Serbian,
+        Vietnamese,
+        Belarusian,
+        Turkish
     }
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
