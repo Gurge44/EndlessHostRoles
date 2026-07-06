@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -8,6 +9,7 @@ namespace EHR.Roles;
 internal class Impartial : RoleBase
 {
     public static bool On;
+    private static List<Impartial> Instances;
 
     private static readonly Dictionary<string, string> ReplacementDictionary = new() { { "Minimum", "<color=#00ffff>Minimum</color>" }, { "Maximum", "<color=#00a5ff>Maximum</color>" } };
 
@@ -24,22 +26,27 @@ internal class Impartial : RoleBase
     private static OptionItem HasImpVision;
     private static OptionItem HasImpVisionAfterWinning;
     private static OptionItem CanWinWhenKillingMore;
-    private (int Killed, int Limit) CovenKillCount = (0, 0);
+    private static OptionItem ChangeRoleWhenWinningIsImpossible;
+    private static OptionItem RoleToChangeTo;
 
-    private (int Killed, int Limit) CrewKillCount = (0, 0);
-    private (int Killed, int Limit) ImpKillCount = (0, 0);
-    private (int Killed, int Limit) NeutralKillCount = (0, 0);
+    private static readonly CustomRoles[] ChangeRoles =
+    [
+        CustomRoles.Amnesiac,
+        CustomRoles.Pursuer,
+        CustomRoles.Maverick,
+        CustomRoles.Follower,
+        CustomRoles.Opportunist,
+        CustomRoles.Crewmate,
+        CustomRoles.Jester
+    ];
+
+    private Dictionary<Team, (int Killed, int Limit)> Kills = [];
+
+    private byte ImpartialId;
 
     public override bool IsEnable => On;
 
-    public bool IsWon
-    {
-        get
-        {
-            if (CanWinWhenKillingMore.GetBool()) return ImpKillCount.Killed >= ImpKillCount.Limit && NeutralKillCount.Killed >= NeutralKillCount.Limit && CrewKillCount.Killed >= CrewKillCount.Limit && CovenKillCount.Killed >= CovenKillCount.Limit;
-            return ImpKillCount.Killed == ImpKillCount.Limit && NeutralKillCount.Killed == NeutralKillCount.Limit && CrewKillCount.Killed == CrewKillCount.Limit && CovenKillCount.Killed == CovenKillCount.Limit;
-        }
-    }
+    public bool IsWon => CanWinWhenKillingMore.GetBool() ? Kills.Values.All(x => x.Killed >= x.Limit) : Kills.Values.All(x => x.Killed == x.Limit);
 
     public override void SetupCustomOption()
     {
@@ -68,6 +75,12 @@ internal class Impartial : RoleBase
 
         CanWinWhenKillingMore = new BooleanOptionItem(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
+        
+        ChangeRoleWhenWinningIsImpossible = new BooleanOptionItem(id + 13, "VultureChangeRoleWhenCantWin", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
+
+        RoleToChangeTo = new StringOptionItem(id + 14, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
+            .SetParent(ChangeRoleWhenWinningIsImpossible);
     }
 
     private static OptionItem CreateSetting(int id, bool min, string roleType)
@@ -82,16 +95,29 @@ internal class Impartial : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
+        ImpartialId = playerId;
+        Instances ??= [];
+        Instances.Add(this);
         var r = IRandom.Instance;
-        ImpKillCount = (0, r.Next(ImpMinOpt.GetInt(), ImpMaxOpt.GetInt() + 1));
-        NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
-        CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
-        CovenKillCount = (0, r.Next(CovenMinOpt.GetInt(), CovenMaxOpt.GetInt() + 1));
+        Kills = new()
+        {
+            [Team.Impostor] = (0, r.Next(ImpMinOpt.GetInt(), ImpMaxOpt.GetInt() + 1)),
+            [Team.Neutral] = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1)),
+            [Team.Crewmate] = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1)),
+            [Team.Coven] = (0, r.Next(CovenMinOpt.GetInt(), CovenMaxOpt.GetInt() + 1)),
+            [Team.None] = (0, 0)
+        };
     }
 
     public override void Init()
     {
         On = false;
+        Instances = null;
+    }
+
+    public override void Remove(byte playerId)
+    {
+        Instances.Remove(this);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -111,43 +137,57 @@ internal class Impartial : RoleBase
 
     public void ReceiveRPC(MessageReader reader)
     {
-        switch (reader.ReadPackedInt32())
-        {
-            case 2:
-                ImpKillCount.Killed++;
-                break;
-            case 3:
-                NeutralKillCount.Killed++;
-                break;
-            case 4:
-                CrewKillCount.Killed++;
-                break;
-            case 5:
-                CovenKillCount.Killed++;
-                break;
-        }
+        Team team = (Team)reader.ReadByte();
+        var tuple = Kills[team];
+        tuple.Killed++;
+        Kills[team] = tuple;
     }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        switch (target.GetTeam())
+        Team team = target.GetTeam();
+        if (team == Team.None) return;
+        var tuple = Kills[team];
+        tuple.Killed++;
+        Kills[team] = tuple;
+        Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, (byte)team);
+    }
+
+    public static void OnAnyoneDead()
+    {
+        if (!ChangeRoleWhenWinningIsImpossible.GetBool()) return;
+
+        var aapc = Main.CachedAlivePlayerControls();
+        Dictionary<Team, int> numAlive = new()
         {
-            case Team.Impostor:
-                ImpKillCount.Killed++;
-                Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 2);
-                break;
-            case Team.Neutral:
-                NeutralKillCount.Killed++;
-                Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 3);
-                break;
-            case Team.Crewmate:
-                CrewKillCount.Killed++;
-                Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 4);
-                break;
-            case Team.Coven:
-                CovenKillCount.Killed++;
-                Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 5);
-                break;
+            [Team.Impostor] = 0,
+            [Team.Neutral] = 0,
+            [Team.Crewmate] = 0,
+            [Team.Coven] = 0,
+            [Team.None] = 0
+        };
+
+        for (int index = 0; index < aapc.Count; index++)
+            numAlive[aapc[index].GetTeam()]++;
+
+        foreach (Impartial instance in Instances)
+        {
+            var pc = instance.ImpartialId.GetPlayer();
+            if (!pc || !pc.IsAlive()) continue;
+            
+            for (int index = 1; index < Main.TeamValues.Length; index++)
+            {
+                Team team = Main.TeamValues[index];
+                var kills = instance.Kills[team];
+
+                if (kills.Killed + numAlive[team] < kills.Limit)
+                {
+                    CustomRoles role = ChangeRoles[RoleToChangeTo.GetValue()];
+                    pc.RpcSetCustomRole(role);
+                    pc.RpcChangeRoleBasis(role);
+                    return;
+                }
+            }
         }
     }
 
@@ -159,10 +199,19 @@ internal class Impartial : RoleBase
             return;
         }
 
-        resultText
-            .Append(" <").Append(Main.ImpostorColor).Append('>').Append(ImpKillCount.Killed).Append('/').Append(ImpKillCount.Limit).Append("</color>")
-            .Append(" <").Append(Main.NeutralColor).Append('>').Append(NeutralKillCount.Killed).Append('/').Append(NeutralKillCount.Limit).Append("</color>")
-            .Append(" <").Append(Main.CrewmateColor).Append('>').Append(CrewKillCount.Killed).Append('/').Append(CrewKillCount.Limit).Append("</color>")
-            .Append(" <").Append(Main.CovenColor).Append('>').Append(CovenKillCount.Killed).Append('/').Append(CovenKillCount.Limit).Append("</color>");
+        for (int index = 1; index < Main.TeamValues.Length; index++)
+        {
+            Team team = Main.TeamValues[index];
+            var kills = Kills[team];
+            
+            resultText.Append(' ');
+            resultText.Append('<');
+            resultText.Append(team.GetTextColor());
+            resultText.Append('>');
+            resultText.Append(kills.Killed);
+            resultText.Append('/');
+            resultText.Append(kills.Limit);
+            resultText.Append("</color>");
+        }
     }
 }

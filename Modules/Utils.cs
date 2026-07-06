@@ -4429,6 +4429,7 @@ public static class Utils
                 Occultist.OnAnyoneDead();
                 Vulture.OnAnyoneDead();
                 Jackal.OnAnyoneDead();
+                Impartial.OnAnyoneDead();
             }, 0.1f);
 
             if (!onMeeting && !disconnect)
