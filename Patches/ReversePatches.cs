@@ -3,6 +3,7 @@ using HarmonyLib;
 
 namespace EHR.Patches.ReversePatches;
 
+[HarmonyPatch]
 public static class ReversePatches
 {
     [HarmonyReversePatch]

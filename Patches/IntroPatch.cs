@@ -1313,12 +1313,9 @@ internal static class IntroCutsceneDestroyPatch
                 }
 
                 LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
-
-                LateTask.New(() =>
-                {
-                    aapc.NotifyPlayers(GetString("GLHF"), 3f);
-                }, 4f, "GLHF");
             }
+
+            LateTask.New(() => aapc.NotifyPlayers(GetString("GLHF"), 3f), 4f, "GLHF");
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
             {

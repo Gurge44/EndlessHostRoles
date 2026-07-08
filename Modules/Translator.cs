@@ -179,8 +179,6 @@ public static class Translator
             foreach (KeyValuePair<string, string> rd in replacementDic)
                 str = str.Replace(rd.Key, rd.Value);
         }
-        if (modLanguageId == 1 && (str.Contains('ő') || str.Contains('ű'))) // Hungarian (none of the fonts support ő/ű and innersloth doesn't care, thankfully at least German has ö/ü)
-            str = str.Replace("ő", "ö", StringComparison.CurrentCultureIgnoreCase).Replace("ű", "ü", StringComparison.CurrentCultureIgnoreCase);
 
         return str;
     }
