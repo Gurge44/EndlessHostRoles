@@ -269,7 +269,9 @@ public static class Snowdown
 
             long now = Utils.TimeStamp;
             Vector2 pos = __instance.Pos();
-            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && FastVector2.DistanceWithinRange(x.Position, pos, 1.5f * SnowballSize));
+            var snowballRange = Mathf.Max(0.5f, 1.5f * SnowballSize);
+            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && FastVector2.DistanceWithinRange(x.Position, pos, snowballRange));
+
 
             if (touchingSnowball != null)
             {
