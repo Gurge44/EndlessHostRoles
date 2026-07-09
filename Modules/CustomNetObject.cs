@@ -949,7 +949,7 @@ namespace EHR
         {
             Thrower = thrower;
             Direction = direction;
-            CreateNetObject("<line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
+            CreateNetObject($"<size={Snowdown.SnowballSize * 100}%><line-height=97%><cspace=0.16em><#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W</color>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<mark=#e4fdff>WWWWWW</mark>\n<#0000>W</color><mark=#e4fdff>WWWW</mark><#0000>W", from);
             Active = true;
         }
 
@@ -961,7 +961,7 @@ namespace EHR
             
             Vector2 newPos = Position + Direction * Time.fixedDeltaTime * Snowdown.SnowballThrowSpeed;
             
-            if ((PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false)) ||
+            if (PhysicsHelpers.AnythingBetween(Position, newPos, Constants.ShipOnlyMask, false) ||
                 newPos.x < Snowdown.MapBounds.X.Left || newPos.x > Snowdown.MapBounds.X.Right || newPos.y < Snowdown.MapBounds.Y.Bottom || newPos.y > Snowdown.MapBounds.Y.Top)
             {
                 SetInactive();
