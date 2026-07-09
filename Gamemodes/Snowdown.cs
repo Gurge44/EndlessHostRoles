@@ -103,7 +103,7 @@ public static class Snowdown
             .SetParent(GameEndsWhenPointsReachedOption)
             .SetValueFormat(OptionFormat.Pieces);
 
-        SnowballSizeOption = new FloatOptionItem(id++, "Snowdown.SnowballSizeOption", new(0.5f, 2f, 0.1f), 1f, tab)
+        SnowballSizeOption = new FloatOptionItem(id++, "Snowdown.SnowballSizeOption", new(0.1f, 2f, 0.1f), 1f, tab)
             .SetHeader(true)
             .SetColor(color)
             .SetGameMode(gameMode)
