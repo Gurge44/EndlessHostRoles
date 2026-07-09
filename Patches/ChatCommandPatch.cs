@@ -390,7 +390,7 @@ internal static class ChatCommands
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp)
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd"))
         {
             LateTask.New(() =>
             {
@@ -2045,7 +2045,7 @@ internal static class ChatCommands
         if (GameStates.IsLobby || !player.FriendCode.GetDevUser().up) return;
 
         string subArgs = text.Remove(0, 8);
-        string setRole = FixRoleNameInput(subArgs.Trim());
+        string setRole = subArgs.Trim().Replace("着", "者");
 
         foreach (CustomRoles rl in Main.CustomRoleValues)
         {
@@ -2713,9 +2713,8 @@ internal static class ChatCommands
     private static void RCommand(PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 2);
-        byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo)
-            ? byte.MaxValue : player.PlayerId;
-            ClientControlGUI.BroadcastRoleInfo = false;
+        byte to = player.AmOwner && ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) || ClientControlGUI.BroadcastRoleInfo) ? byte.MaxValue : player.PlayerId;
+        ClientControlGUI.BroadcastRoleInfo = false;
         SendRolesInfo(subArgs, to);
     }
 
@@ -3262,17 +3261,6 @@ internal static class ChatCommands
         return true;
     }
 
-    private static string FixRoleNameInput(string text)
-    {
-        text = text.Replace("着", "者").Trim().ToLower();
-
-        return text switch
-        {
-            "schrodingers cat" or "schrodingerscat" or "cat" => "Schrödinger's Cat",
-            _ => text
-        };
-    }
-
     public static bool GetRoleByName(string name, out CustomRoles role)
     {
         role = new();
@@ -3291,7 +3279,7 @@ internal static class ChatCommands
                 result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
             }
 
-            name = FixRoleNameInput(result.Replace("是", string.Empty).Trim());
+            name = result.Replace("是", string.Empty).Trim().Replace("着", "者");
         }
         else
             name = name.Trim().ToLower();
@@ -3324,10 +3312,6 @@ internal static class ChatCommands
         }
 
         role = role.Trim().ToLower();
-        if (role.StartsWith("/r")) _ = role.Replace("/r", string.Empty);
-        if (role.StartsWith("/up")) _ = role.Replace("/up", string.Empty);
-        if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
-        if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
         if (role == "")
         {
@@ -3335,7 +3319,8 @@ internal static class ChatCommands
             return;
         }
 
-        role = FixRoleNameInput(role).ToLower().Trim().Replace(" ", string.Empty);
+        string originalInput = role;
+        role = role.Replace("着", "者").ToLower().Trim().Replace(" ", string.Empty);
 
         foreach (CustomRoles rl in Main.CustomRoleValues)
         {
@@ -3343,7 +3328,7 @@ internal static class ChatCommands
 
             string roleName = Regex.Replace(GetString(rl.ToString()).RemoveHtmlTags().ToLower().Trim().TrimStart('*'), @"[^\p{L}-]+", string.Empty);
 
-            if (role == roleName)
+            if (role == roleName || (originalInput is "schrodingers cat" or "schrodingerscat" or "cat" && rl == CustomRoles.SchrodingersCat))
             {
                 if ((isDev || isUp) && GameStates.IsLobby)
                 {
@@ -3423,13 +3408,13 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive())
+        if (text.StartsWith("\n")) text = text[1..];
+
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive() && !text.StartsWith("/cmd"))
         {
             player.RpcGuesserMurderPlayer();
             player.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));
         }
-
-        if (text.StartsWith("\n")) text = text[1..];
 
         switch (Options.CurrentGameMode)
         {

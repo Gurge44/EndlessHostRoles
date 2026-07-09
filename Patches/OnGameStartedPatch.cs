@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.Data;
 using AmongUs.GameOptions;
-using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Gamemodes;
 using EHR.Modules;
@@ -379,24 +377,8 @@ internal static class StartGameHostPatch
     private static AmongUsClient AUClient;
 
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
-    private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
     private static RoleOptionsCollectionV10 RoleOpt => Main.NormalOptions.roleOptions;
-
-    private static void UpdateRoleTypeNums()
-    {
-        RoleTypeNums = new()
-        {
-            { RoleTypes.Scientist, AddScientistNum },
-            { RoleTypes.Engineer, AddEngineerNum },
-            { RoleTypes.Shapeshifter, AddShapeshifterNum },
-            { RoleTypes.Noisemaker, AddNoisemakerNum },
-            { RoleTypes.Phantom, AddPhantomNum },
-            { RoleTypes.Tracker, AddTrackerNum },
-            { RoleTypes.Detective, AddDetectiveNum },
-            { RoleTypes.Viper, AddViperNum }
-        };
-    }
 
     private static System.Collections.IEnumerator WaitAndSmoothlyUpdate(this LoadingBarManager loadingBarManager, float startPercent, float targetPercent, float duration, string loadingText)
     {
@@ -591,9 +573,7 @@ internal static class StartGameHostPatch
         SelectAddonRoles();
         CalculateVanillaRoleCount();
 
-        UpdateRoleTypeNums();
-
-        foreach ((RoleTypes roleTypes, int roleNum) in RoleTypeNums)
+        foreach ((RoleTypes roleTypes, int roleNum) in AddRoleTypesNum)
             RoleOpt.SetRoleRate(roleTypes, roleNum, roleNum > 0 ? 100 : RoleOpt.GetChancePerGame(roleTypes));
 
         Statistics.OnRoleSelectionComplete();
@@ -966,7 +946,7 @@ internal static class StartGameHostPatch
                 pc.ResetKillCooldown(false);
 
 
-            foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
+            foreach (KeyValuePair<RoleTypes, int> roleType in AddRoleTypesNum)
             {
                 var roleNum = 0;
                 roleNum -= roleType.Value;
@@ -1118,7 +1098,7 @@ internal static class StartGameHostPatch
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
 
             RoleTypes selfRole = isHost ? baseRole == RoleTypes.Shapeshifter ? RoleTypes.Shapeshifter : hostBaseRole : baseRole;
-            RoleTypes othersRole = isHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
+            const RoleTypes othersRole = RoleTypes.Crewmate;
 
             // Set Desync role for self and for others
             foreach (PlayerControl target in Main.EnumeratePlayerControls())

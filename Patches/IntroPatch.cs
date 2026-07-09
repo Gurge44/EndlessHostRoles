@@ -1313,12 +1313,9 @@ internal static class IntroCutsceneDestroyPatch
                 }
 
                 LateTask.New(GrantPetForEveryone, 3f, "Grant Pet For Everyone");
-
-                LateTask.New(() =>
-                {
-                    aapc.NotifyPlayers(GetString("GLHF"), 3f);
-                }, 4f, "GLHF");
             }
+
+            LateTask.New(() => aapc.NotifyPlayers(GetString("GLHF"), 3f), 4f, "GLHF");
 
             if (Options.RandomSpawn.GetBool() && Main.CurrentMap != MapNames.Airship && !Main.LIMap && AmongUsClient.Instance.AmHost && Options.CurrentGameMode is not CustomGameMode.CaptureTheFlag and not CustomGameMode.KingOfTheZones and not CustomGameMode.BedWars and not CustomGameMode.Deathrace)
             {
@@ -1398,7 +1395,6 @@ internal static class IntroCutsceneDestroyPatch
             LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 6f, "NotifyEveryoneAsync On Game Start");
             LateTask.New(Utils.MarkEveryoneDirtySettings, 0.5f, "SyncAllSettings On Game Start");
             LateTask.New(() => Main.Instance.StartCoroutine(ShipStatusFixedUpdatePatch.Postfix()), 5f, "ShipStatusFixedUpdatePatch Postfix Start");
-            LateTask.New(() => Main.Instance.StartCoroutine(Utils.SendGameDataContinuously()), 10f, "SendGameDataContinuously Start");
 
             Utils.CheckAndSetVentInteractions();
         }

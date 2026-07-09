@@ -1839,7 +1839,8 @@ public static class Utils
             text = text.Replace("color=#", "#");
             title = title.Replace("color=", string.Empty);
 
-            bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
+            var serverType = GameStates.CurrentServerType;
+            bool vanilla = serverType == GameStates.ServerType.Vanilla;
 
             SendOption sendOption = SendOption.Reliable;
 
@@ -1970,6 +1971,8 @@ public static class Utils
 
             int fullRpcSizeLimit = Options.MessageRpcSizeLimit.GetInt();
             if (vanilla && fullRpcSizeLimit > 1200) fullRpcSizeLimit = 1200;
+            if (serverType == GameStates.ServerType.Niko && fullRpcSizeLimit > 1400) fullRpcSizeLimit = 1400;
+            
             string resetName = Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty);
 
             // --------------------------------------------------------------------------
@@ -3874,47 +3877,6 @@ public static class Utils
 
         return true;
     }
-    
-    public static IEnumerator SendGameDataContinuously()
-    {
-        float waitTime = GameData.Instance.AllPlayers.Count switch
-        {
-            <= 15 => 1f,
-            <= 20 => 0.8f,
-            _ => 0.5f
-        };
-        
-        while (GameStates.InGame && !GameStates.IsEnded && ShipStatus.Instance)
-        {
-            if (ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting || ExileController.Instance || AntiBlackout.SkipTasks)
-            {
-                yield return new WaitForSecondsRealtime(10f);
-                continue;
-            }
-
-            for (var index = 0; index < GameData.Instance.AllPlayers.Count; index++)
-            {
-                NetworkedPlayerInfo playerInfo = GameData.Instance.AllPlayers[index];
-                
-                if (!playerInfo || (Astral.On && Main.PlayerStates.TryGetValue(playerInfo.PlayerId, out PlayerState state) && state.Role is Astral { Timer: not null }) || (SoulCollector.On && Main.PlayerStates.Values.Any(x => x.Role is SoulCollector sc && sc.ToExile.Contains(playerInfo.PlayerId)))) continue;
-
-                playerInfo.IsDead = !playerInfo.Object.IsAlive();
-
-                var qa = playerInfo.SendGameData(SendOption.None);
-                yield return qa.Wait();
-
-                if (qa.Dropped || !GameStates.InGame || GameStates.IsEnded || !ShipStatus.Instance)
-                {
-                    Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
-                    yield break;
-                }
-
-                yield return new WaitForSecondsRealtime(waitTime);
-            }
-        }
-        
-        Logger.Msg("Coroutine finished", nameof(SendGameDataContinuously));
-    }
 
     public static void SendGameDataTo(int targetClientId)
     {
@@ -4429,6 +4391,7 @@ public static class Utils
                 Occultist.OnAnyoneDead();
                 Vulture.OnAnyoneDead();
                 Jackal.OnAnyoneDead();
+                Impartial.OnAnyoneDead();
             }, 0.1f);
 
             if (!onMeeting && !disconnect)
