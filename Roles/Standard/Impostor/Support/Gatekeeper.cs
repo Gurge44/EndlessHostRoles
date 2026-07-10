@@ -48,6 +48,12 @@ public class Gatekeeper : RoleBase
         return false;
     }
 
+    public override bool OnVanish(PlayerControl pc)
+    {
+        MarkRoom(pc);
+        return false;
+    }
+
     public override void OnPet(PlayerControl pc)
     {
         MarkRoom(pc);

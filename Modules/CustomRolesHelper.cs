@@ -1115,6 +1115,7 @@ internal static class CustomRolesHelper
                              or CustomRoles.Disperser
                              or CustomRoles.Escapist
                              or CustomRoles.Fireworker
+                             or CustomRoles.Gatekeeper
                              or CustomRoles.Hypnotist
                              or CustomRoles.Librarian
                              or CustomRoles.Miner
