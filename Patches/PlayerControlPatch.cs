@@ -1799,7 +1799,7 @@ internal static class FixedUpdatePatch
                         
                         if (!player.IsModdedClient() && remaining <= 30)
                         {
-                            if (remaining % 5 == 0) sendOption = SendOption.Reliable;
+                            if (remaining % 10 == 0 || remaining == 5) sendOption = SendOption.Reliable;
                             NotifyRoles(SpecifySeer: player, SpecifyTarget: player, SendOption: sendOption);
                         }
 

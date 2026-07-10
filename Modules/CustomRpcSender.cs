@@ -979,7 +979,7 @@ static class PreventLargePacketKickPatch
 
         var serverType = GameStates.CurrentServerType;
 
-        if (!AmongUsClient.Instance.AmHost || serverType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla || (serverType == GameStates.ServerType.Niko && msg.Length > 1400))
+        if (!AmongUsClient.Instance.AmHost || serverType is GameStates.ServerType.Local or GameStates.ServerType.Vanilla || (serverType == GameStates.ServerType.Niko && !AmongUsClient.Instance.AmHost))
         {
             Logger.Warn($" Blocked large packet from sending (size: {msg.Length})", nameof(PreventLargePacketKickPatch));
             return false;

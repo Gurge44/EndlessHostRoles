@@ -1839,8 +1839,7 @@ public static class Utils
             text = text.Replace("color=#", "#");
             title = title.Replace("color=", string.Empty);
 
-            var serverType = GameStates.CurrentServerType;
-            bool vanilla = serverType == GameStates.ServerType.Vanilla;
+            bool vanilla = GameStates.CurrentServerType == GameStates.ServerType.Vanilla;
 
             SendOption sendOption = SendOption.Reliable;
 
@@ -1971,7 +1970,6 @@ public static class Utils
 
             int fullRpcSizeLimit = Options.MessageRpcSizeLimit.GetInt();
             if (vanilla && fullRpcSizeLimit > 1200) fullRpcSizeLimit = 1200;
-            if (serverType == GameStates.ServerType.Niko && fullRpcSizeLimit > 1400) fullRpcSizeLimit = 1400;
             
             string resetName = Main.AllPlayerNames.GetValueOrDefault(sender.PlayerId, string.Empty);
 
@@ -4040,9 +4038,6 @@ public static class Utils
 
         int cd = role switch
         {
-            CustomRoles.Farmer => 2,
-            CustomRoles.Thanos => 5,
-            CustomRoles.Blockade => 5,
             CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Operative => Operative.AbilityCooldown.GetInt(),
             CustomRoles.PortalMaker => PortalMaker.AbilityCooldown.GetInt(),
@@ -4110,13 +4105,15 @@ public static class Utils
             _ => -1
         };
 
-        if (cd == -1) return;
+        if (cd <= 3) return;
 
         if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic))
             cd = (int)Math.Round(cd * 0.75f);
 
         if (!includeDuration && ExileControllerWrapUpPatch.Stopwatch?.IsRunning == true)
             cd -= (int)ExileControllerWrapUpPatch.Stopwatch.Elapsed.TotalSeconds;
+        
+        if (cd <= 3) return;
 
         Main.AbilityCD[playerId] = (TimeStamp, cd);
         if (playerId == 0 || !playerId.IsPlayerModdedClient()) return;
