@@ -68,6 +68,7 @@ public enum CustomRoles
     Frightener,
     Gambler,
     Gangster,
+    Gatekeeper,
     Generator,
     Godfather,
     Greedy,
