@@ -7,7 +7,7 @@ using static EHR.Translator;
 
 namespace EHR.Modules;
 
-public static class ModPrivacyPolicy
+public static class ModConsentPopUp
 {
     public static bool IsShowingModPolicy { get; private set; }
     private static int OriginalVersion { get; set; }
@@ -71,7 +71,7 @@ public static class ModPrivacyPolicy
         if (acceptTMP != null)
         {
             acceptTMP.DestroyTranslator();
-            acceptTMP.text = GetString("Yes");
+            acceptTMP.text = GetString("Accept");
         }
 
         var disagreeGO = UnityEngine.Object.Instantiate(acceptGO, acceptGO.transform.parent);
@@ -93,7 +93,7 @@ public static class ModPrivacyPolicy
         if (disagreeTMP != null)
         {
             disagreeTMP.DestroyTranslator();
-            disagreeTMP.text = GetString("EHRConsentDisagree");
+            disagreeTMP.text = GetString("Reject");
         }
 
         if (screen.ManageDataButton != null)
@@ -119,7 +119,7 @@ internal static class PrivacyPolicyScreenShowPatch
     public static void Prefix(PrivacyPolicyScreen __instance)
     {
         if (!Main.AckdConsentPopup.Value)
-            ModPrivacyPolicy.SetupCustomPolicy(__instance);
+            ModConsentPopUp.SetupCustomPolicy(__instance);
     }
 }
 
@@ -128,6 +128,6 @@ internal static class PrivacyPolicyScreenClosePatch
 {
     public static void Postfix()
     {
-        ModPrivacyPolicy.OnPolicyAccepted();
+        ModConsentPopUp.OnPolicyAccepted();
     }
 }
