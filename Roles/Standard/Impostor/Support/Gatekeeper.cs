@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
@@ -39,6 +40,20 @@ public class Gatekeeper : RoleBase
         MarkedRooms = [];
         GatekeeperId = playerId;
         playerId.SetAbilityUseLimit(AbilityUseLimit.GetFloat());
+    }
+
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        if (Options.UsePhantomBasis.GetBool())
+        {
+            AURoleOptions.PhantomCooldown = 1f;
+            AURoleOptions.PhantomDuration = 1f;
+        }
+        else if (!Options.UsePets.GetBool())
+        {
+            AURoleOptions.ShapeshifterCooldown = 1f;
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
