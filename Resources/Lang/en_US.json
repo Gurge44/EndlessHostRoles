@@ -1947,7 +1947,7 @@
   "GangsterSuccessfullyRecruited": "You successfully recruited a player",
   "Gatekeeper": "Gatekeeper",
   "GatekeeperInfo": "Keep Track Of People In Rooms",
-  "GatekeeperInfoLong": "(Impostors):\\nAs the Gatekeeper, you may pet/shapeshift to mark the room you're in. From now, you'll now see how many living players are in that room, updated in real time. Dead bodies aren't counted.",
+  "GatekeeperInfoLong": "(Impostors):\\nAs the Gatekeeper, you may pet/shapeshift to mark the room you're in. From now, you'll now see how many living players are in that room, updated in real time. Dead bodies aren't counted. You can have multiple marked rooms at the same time depending on settings.",
   "Gatekeeper.MaxRoomsMarkedAtOnce": "Max Rooms Marked At Once",
   "Generator": "Generator",
   "GeneratorInfo": "Power up the ship",
