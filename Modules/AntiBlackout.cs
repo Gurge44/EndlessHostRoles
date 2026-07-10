@@ -95,21 +95,19 @@ public static class AntiBlackout
                     rolesForSeers[seerId] = role;
                 }
 
-                // Are they all identical?
-                RoleTypes firstRole = rolesForSeers.Values.First();
-                bool identical = rolesForSeers.Values.All(r => r == firstRole);
+                // First set them to the role they're most commonly seen as.
+                RoleTypes globalRole = rolesForSeers.GroupBy(x => x.Value).MaxBy(g => g.Count()).Key;
+                target.RpcSetRoleGlobal(globalRole);
 
-                if (identical)
+                LateTask.New(() =>
                 {
-                    // Only 1 RPC is needed if the role type is the same for everyone.
-                    target.RpcSetRoleGlobal(firstRole);
-                }
-                else
-                {
+                    // Only send desync RPCs where needed. Often this will just be 1 additional RPC or none.
                     foreach ((byte seerId, RoleTypes roleTypes) in rolesForSeers)
                     {
                         try
                         {
+                            if (roleTypes == globalRole) continue;
+
                             PlayerControl seer = seerId.GetPlayer();
 
                             if (!seer || (seerId == targetId && seer.AmOwner && Utils.TempReviveHostRunning))
@@ -119,7 +117,7 @@ public static class AntiBlackout
                         }
                         catch (Exception e) { Utils.ThrowException(e); }
                     }
-                }
+                }, 0.2f, "Set Desync Roles");
             }
             catch (Exception e) { Utils.ThrowException(e); }
         }
@@ -175,7 +173,7 @@ public static class AntiBlackout
                 SkipTasks = false;
                 ExileControllerWrapUpPatch.AfterMeetingTasks();
             }, 1f, "Reset SkipTasks after SetRealPlayerRoles");
-        }, 0.2f, "SetRealPlayerRoles - Reset Cooldowns");
+        }, 0.4f, "SetRealPlayerRoles - Reset Cooldowns");
     }
 
     public static void Reset()
