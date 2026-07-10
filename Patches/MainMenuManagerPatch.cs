@@ -118,7 +118,7 @@ public static class MainMenuManagerPatch
     public static void Start_Postfix(MainMenuManager __instance)
     {
         Instance = __instance;
-
+        
         SimpleButton.SetBase(__instance.creditsButton);
         var logoObject = new GameObject("titleLogo_MG");
         Transform logoTransform = logoObject.transform;

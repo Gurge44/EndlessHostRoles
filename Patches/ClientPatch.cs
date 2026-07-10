@@ -90,11 +90,10 @@ internal static class RunLoginPatch
     public static void Prefix(ref bool canOnline)
     {
         if (DebugModeManager.AmDebugger) canOnline = true;
-
-        if (!Main.AckdPrivacyPolicy.Value)
+        
+        if (!Main.AckdConsentPopup.Value)
         {
-            ModUpdater.ShowPopupWithTwoButtons(GetString("PrivacyPolicy"), GetString("Yes"), GetString("MainMenu.ExitGameButton"), () => Main.AckdPrivacyPolicy.Value = true, SplashLogoAnimatorPatch.SceneChanger.ExitGame);
-            return;
+            canOnline = true;
         }
 
         try { ModUpdater.ShowAvailableUpdate(); }
