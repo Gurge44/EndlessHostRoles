@@ -156,7 +156,7 @@ public class Druid : RoleBase
             }, onTick: () => pc.Notify(string.Format(GetString("DruidTimeLeft"), (int)Math.Ceiling(DelayTimer.Remaining.TotalSeconds)), 2f, overrideAll: true), onCanceled: () => DelayTimer = null);
         }
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: isPet);
     }
 
     public override void OnCheckPlayerPosition(PlayerControl pc)

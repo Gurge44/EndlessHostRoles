@@ -41,6 +41,7 @@ internal static class CustomRolesHelper
         CustomRoles.Carrier,
         CustomRoles.Empress,
         CustomRoles.Tar,
+        CustomRoles.Bouncer,
 
         // HnS
         CustomRoles.Jet,
@@ -252,6 +253,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Farmer => CustomRoles.Crewmate,
                 CustomRoles.Captain => CustomRoles.Crewmate,
                 CustomRoles.Transmitter => CustomRoles.Crewmate,
+                CustomRoles.Bouncer => CustomRoles.Crewmate,
                 CustomRoles.Tar => CustomRoles.Crewmate,
                 CustomRoles.Sensor => CustomRoles.Crewmate,
                 CustomRoles.Doorjammer => CustomRoles.Crewmate,
@@ -1433,6 +1435,7 @@ internal static class CustomRolesHelper
                 CustomRoles.Benefactor => RoleOptionType.Crewmate_Support,
                 CustomRoles.Bestower => RoleOptionType.Crewmate_Support,
                 CustomRoles.Bodyguard => RoleOptionType.Crewmate_Support,
+                CustomRoles.Bouncer => RoleOptionType.Crewmate_Support,
                 CustomRoles.Chef => RoleOptionType.Crewmate_Support,
                 CustomRoles.Cleanser => RoleOptionType.Crewmate_Support,
                 CustomRoles.Convener => RoleOptionType.Crewmate_Support,

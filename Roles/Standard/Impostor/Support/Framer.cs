@@ -55,8 +55,8 @@ public class Framer : RoleBase
         {
             FramedPlayers.Add(target.PlayerId);
             killer.SetKillCooldown();
+            killer.RpcRemoveAbilityUse(notify: false);
             killer.Notify(string.Format(Translator.GetString("Framer.TargetFramedNotify"), target.PlayerId.ColoredPlayerName()));
-            killer.RpcRemoveAbilityUse();
         });
     }
 }

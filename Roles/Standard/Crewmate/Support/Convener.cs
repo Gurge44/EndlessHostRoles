@@ -64,7 +64,7 @@ internal class Convener : RoleBase
 
     private static void PullEveryone(PlayerControl pc, bool isPet = false)
     {
-        if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
+        if (!pc || pc.GetAbilityUseLimit() < 1f) return;
 
         pc.RPCPlayCustomSound("Teleport");
         LateTask.New(() => Main.EnumerateAlivePlayerControls().MassTP(pc.Pos(), log: true), isPet ? 0.5f : 2f, "Convener TP");

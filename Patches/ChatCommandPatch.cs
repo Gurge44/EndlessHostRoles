@@ -1153,10 +1153,10 @@ internal static class ChatCommands
 
     private static void JailTalkCommand(PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 2) return;
+        if (args.Length < 2 || !player.IsAlive()) return;
 
         Jailor jailor = Main.PlayerStates[player.PlayerId].Role as Jailor ?? Main.PlayerStates.Select(x => x.Value.Role as Jailor).FirstOrDefault(x => x != null);
-        if (jailor == null) return;
+        if (jailor == null || jailor.JailorTarget == byte.MaxValue) return;
 
         bool amJailor = Jailor.PlayerIdList.Contains(player.PlayerId);
         bool amJailed = player.PlayerId == jailor.JailorTarget;

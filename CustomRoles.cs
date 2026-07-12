@@ -170,6 +170,7 @@ public enum CustomRoles
     Benefactor,
     Bestower,
     Bodyguard,
+    Bouncer,
     CameraMan,
     Captain,
     Car,

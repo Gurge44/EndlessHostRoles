@@ -51,12 +51,13 @@ public class Tree : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1) return;
-        pc.RpcRemoveAbilityUse();
 
         Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
         pc.MarkDirtySettings();
 
         bool treeSpriteVisible = TreeSpriteVisible.GetBool();
+        
+        pc.RpcRemoveAbilityUse(notify: !treeSpriteVisible);
         
         if (treeSpriteVisible)
         {

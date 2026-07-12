@@ -70,7 +70,7 @@ public class Starspawn : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsolatedPlayers.Add(target.PlayerId)) return false;
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, target.PlayerId);

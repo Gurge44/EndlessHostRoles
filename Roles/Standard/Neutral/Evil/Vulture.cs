@@ -159,7 +159,7 @@ public class Vulture : RoleBase
             return false;
         }
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         CooldownTimer = new CountdownTimer(VultureReportCD.GetInt(), () =>
         {
             CooldownTimer = null;

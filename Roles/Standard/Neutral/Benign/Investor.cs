@@ -63,7 +63,7 @@ public class Investor : RoleBase
     {
         if (MarkedPlayers.Add(target.PlayerId))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, target.PlayerId);
             killer.SetKillCooldown(AbilityCooldown.GetInt());

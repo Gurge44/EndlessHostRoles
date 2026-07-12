@@ -91,7 +91,7 @@ public class Aid : RoleBase
     {
         if (pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue)
         {
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             PlayerControl target = Utils.GetPlayerById(TargetId);
             ShieldedPlayers[TargetId] = new CountdownTimer(AidDur.GetInt(), () =>
             {

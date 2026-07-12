@@ -206,9 +206,9 @@ public class Gaslighter : RoleBase
                 target.RpcGuardAndKill(killer);
                 target.RpcGuardAndKill(target);
                 target.Notify(CustomRoles.Monarch.ColoredTextByRole(Translator.GetString("KnightedByMonarch")));
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                killer.RpcRemoveAbilityUse();
+                killer.RpcRemoveAbilityUse(notify: false);
                 killer.SetKillCooldown();
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 break;
             case Round.Curse:
                 killer.RPCPlayCustomSound("Curse");
@@ -221,10 +221,10 @@ public class Gaslighter : RoleBase
                 killer.RPCPlayCustomSound("Shield");
                 target.RPCPlayCustomSound("Shield");
                 ShieldedPlayers.Add(target.PlayerId);
+                killer.RpcRemoveAbilityUse(notify: false);
+                killer.SetKillCooldown();
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
-                killer.RpcRemoveAbilityUse();
-                killer.SetKillCooldown();
                 break;
         }
 

@@ -123,8 +123,8 @@ internal class Grenadier : RoleBase
             }
 
             pc.RPCPlayCustomSound("FlashBang");
+            pc.RpcRemoveAbilityUse(notify: false);
             pc.Notify(Translator.GetString("GrenadierSkillInUse"), GrenadierSkillDuration.GetFloat());
-            pc.RpcRemoveAbilityUse();
             Utils.MarkEveryoneDirtySettingsV3();
         }
         else

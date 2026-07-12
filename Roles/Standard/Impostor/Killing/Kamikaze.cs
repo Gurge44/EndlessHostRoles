@@ -61,8 +61,6 @@ internal class Kamikaze : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null) return false;
-
         if (killer.GetAbilityUseLimit() < 1) return true;
 
         return killer.CheckDoubleTrigger(target, () =>

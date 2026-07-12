@@ -164,7 +164,7 @@ public class Jackal : RoleBase
         var sender = CustomRpcSender.Create("Jackal.OnCheckMurder", SendOption.Reliable);
         var hasValue = false;
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         target.RpcSetCustomRole(CustomRoles.Sidekick);
         target.RpcChangeRoleBasis(CustomRoles.Sidekick);
         SidekickId = target.PlayerId;

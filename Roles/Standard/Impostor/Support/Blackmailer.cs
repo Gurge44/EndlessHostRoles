@@ -54,9 +54,9 @@ internal class Blackmailer : RoleBase
         return killer.CheckDoubleTrigger(target, () =>
         {
             BlackmailedPlayerIds.Add(target.PlayerId);
+            killer.RpcRemoveAbilityUse(notify: false);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             killer.SetKillCooldown(3f);
-            killer.RpcRemoveAbilityUse();
             NumBlackmailedThisRound++;
         });
     }

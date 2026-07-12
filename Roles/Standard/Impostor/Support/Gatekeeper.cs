@@ -82,7 +82,7 @@ public class Gatekeeper : RoleBase
         
         if (room && MarkedRooms.TryAdd(room.RoomId, -1))
         {
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             
             if (MarkedRooms.Count > MaxRoomsMarkedAtOnce.GetInt())
                 MarkedRooms.Remove(MarkedRooms.Keys.First());

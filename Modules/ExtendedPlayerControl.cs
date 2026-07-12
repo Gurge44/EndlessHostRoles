@@ -869,25 +869,25 @@ internal static class ExtendedPlayerControl
             return Main.AbilityUseLimit.GetValueOrDefault(player.PlayerId, float.NaN);
         }
 
-        public void RpcRemoveAbilityUse(bool log = true)
+        public void RpcRemoveAbilityUse(bool log = true, bool notify = true)
         {
             float current = player.GetAbilityUseLimit();
             if (float.IsNaN(current) || current <= 0f) return;
 
-            player.SetAbilityUseLimit(current - 1, log: log);
+            player.SetAbilityUseLimit(current - 1, log: log, notify: notify);
         }
 
-        public void RpcIncreaseAbilityUseLimitBy(float get, bool log = true)
+        public void RpcIncreaseAbilityUseLimitBy(float get, bool log = true, bool notify = true)
         {
             float current = player.GetAbilityUseLimit();
             if (float.IsNaN(current)) return;
 
-            player.SetAbilityUseLimit(current + get, log: log);
+            player.SetAbilityUseLimit(current + get, log: log, notify: notify);
         }
 
-        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true)
+        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true, bool notify = true)
         {
-            player.PlayerId.SetAbilityUseLimit(limit, rpc, log);
+            player.PlayerId.SetAbilityUseLimit(limit, rpc, log, notify);
         }
 
         public void Suicide(PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
@@ -2510,7 +2510,7 @@ internal static class ExtendedPlayerControl
             return Main.AbilityUseLimit.GetValueOrDefault(playerId, float.NaN);
         }
 
-        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true)
+        public void SetAbilityUseLimit(float limit, bool rpc = true, bool log = true, bool notify = true)
         {
             limit = (float)Math.Round(limit, 2);
 
@@ -2527,7 +2527,7 @@ internal static class ExtendedPlayerControl
             }
 
             PlayerControl pc = GetPlayerById(playerId);
-            if (Main.IntroDestroyed) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (notify && Main.IntroDestroyed) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             if (log) Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 2)}", "SetAbilityUseLimit");
         }
 

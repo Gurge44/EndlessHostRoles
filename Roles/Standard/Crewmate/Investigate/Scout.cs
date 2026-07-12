@@ -87,7 +87,7 @@ public class Scout : RoleBase
         byte trackerId = reader.ReadByte();
         byte targetId = reader.ReadByte();
 
-        Utils.GetPlayerById(trackerId).RpcRemoveAbilityUse();
+        Utils.GetPlayerById(trackerId)?.RpcRemoveAbilityUse();
 
         TrackerTarget[trackerId].Add(targetId);
     }

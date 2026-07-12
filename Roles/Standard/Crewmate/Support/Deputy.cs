@@ -80,7 +80,7 @@ public class Deputy : RoleBase
 
         if (!target.Is(CustomRoles.Deputy))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
 
             killer.Notify(CustomRoles.Deputy.ColoredTextByRole(GetString("DeputyHandcuffedPlayer")));
 

@@ -74,11 +74,10 @@ internal class Perceiver : RoleBase
     private static void UseAbility(PlayerControl pc)
     {
         if (!pc || pc.GetAbilityUseLimit() < 1f) return;
+        pc.RpcRemoveAbilityUse(notify: false);
 
         PlayerControl[] killers = FastVector2.GetPlayersInRange(pc.Pos(), Radius.GetFloat(), x => !x.Is(Team.Crewmate) && x.HasKillButton()).ToArray();
         pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
-
-        pc.RpcRemoveAbilityUse();
 
         if (pc.AmOwner)
         {

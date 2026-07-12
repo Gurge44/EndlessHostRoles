@@ -210,7 +210,7 @@ public class Swooper : RoleBase
 
             StartInvisTimer(pc, ventId);
             
-            if (!wraith) pc.RpcRemoveAbilityUse();
+            if (!wraith) pc.RpcRemoveAbilityUse(notify: false);
 
             pc.Notify(GetString("SwooperInvisState"), Duration);
             return true;
@@ -253,7 +253,7 @@ public class Swooper : RoleBase
             
             StartInvisTimer(pc);
             
-            if (!wraith) pc.RpcRemoveAbilityUse();
+            if (!wraith) pc.RpcRemoveAbilityUse(notify: false);
 
             pc.Notify(GetString("SwooperInvisState"), Duration);
         }

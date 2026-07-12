@@ -4039,6 +4039,7 @@ public static class Utils
         int cd = role switch
         {
             CustomRoles.Mole => Mole.CD.GetInt(),
+            CustomRoles.Bouncer => Bouncer.AbilityCooldown.GetInt(),
             CustomRoles.Operative => Operative.AbilityCooldown.GetInt(),
             CustomRoles.PortalMaker => PortalMaker.AbilityCooldown.GetInt(),
             CustomRoles.Telecommunication => Telecommunication.VentCooldown.GetInt(),

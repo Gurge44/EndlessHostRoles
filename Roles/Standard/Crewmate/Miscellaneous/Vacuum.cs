@@ -71,7 +71,7 @@ public class Vacuum : RoleBase
     public override void OnPet(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1) return;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         Timer = new CountdownTimer(AbilityDuration.GetInt(), () =>
         {
             Timer = null;
