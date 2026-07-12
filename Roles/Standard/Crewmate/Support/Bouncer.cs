@@ -115,6 +115,8 @@ public class Bouncer : RoleBase
             _ => false
         })
             pc.TP(lastPosition);
+        else
+            LastPosition[pc.PlayerId] = pc.transform.position;
     }
 
     public void ReceiveRPC(MessageReader reader)
