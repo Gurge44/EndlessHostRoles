@@ -68,13 +68,18 @@ public class Bouncer : RoleBase
         Timer = new CountdownTimer(AbilityDuration.GetFloat(), () =>
         {
             Timer = null;
+            LastPosition = [];
             if (!pc || !pc.IsAlive()) return;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, onTick: () =>
         {
             if (Timer.Remaining.TotalSeconds >= 6 || !pc || !pc.IsAlive()) return;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }, onCanceled: () => Timer = null);
+        }, onCanceled: () =>
+        {
+            Timer = null;
+            LastPosition = [];
+        });
         pc.RpcRemoveAbilityUse(notify: false);
         Utils.SendRPC(CustomRPC.SyncRoleData, BouncerId, false);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -90,6 +95,7 @@ public class Bouncer : RoleBase
             {
                 Timer.Dispose();
                 Timer = null;
+                LastPosition = [];
                 Utils.SendRPC(CustomRPC.SyncRoleData, BouncerId, true);
             }
 
@@ -97,7 +103,10 @@ public class Bouncer : RoleBase
         }
 
         if (!LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPosition))
+        {
+            if (pc.IsInRoom(MarkedRoom)) return;
             LastPosition[pc.PlayerId] = pc.transform.position;
+        }
         else if (pc.IsInRoom(MarkedRoom) && WhoGetsBounced.GetValue() switch
         {
             0 => true,
