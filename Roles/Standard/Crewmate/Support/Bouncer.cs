@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using EHR.Modules;
 using EHR.Modules.Extensions;
+using Hazel;
 
 namespace EHR.Roles;
 
@@ -74,6 +76,7 @@ public class Bouncer : RoleBase
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }, onCanceled: () => Timer = null);
         pc.RpcRemoveAbilityUse(notify: false);
+        Utils.SendRPC(CustomRPC.SyncRoleData, BouncerId, false);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
@@ -87,6 +90,7 @@ public class Bouncer : RoleBase
             {
                 Timer.Dispose();
                 Timer = null;
+                Utils.SendRPC(CustomRPC.SyncRoleData, BouncerId, true);
             }
 
             return;
@@ -102,6 +106,11 @@ public class Bouncer : RoleBase
             _ => false
         })
             pc.TP(lastPosition);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        Timer = reader.ReadBoolean() ? null : new CountdownTimer(AbilityDuration.GetFloat(), () => Timer = null, onCanceled: () => Timer = null);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
