@@ -1826,6 +1826,8 @@ internal static class ExtendedPlayerControl
 
         public void BeartrapKilled(PlayerControl target)
         {
+            if (player.Is(CustomRoles.Focused)) return;
+            
             Logger.Info($"{target?.Data?.PlayerName} was Beartrap", "Beartrap");
             float tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
             Main.AllPlayerSpeed[player.PlayerId] = Main.MinSpeed;

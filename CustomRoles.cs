@@ -566,8 +566,9 @@ public enum CustomRoles
     Facilitator, // Ghost role
     Finder,
     Flash,
-    Fragile,
+    Focused,
     Fool,
+    Fragile,
     Giant,
     Glow,
     Gravestone,

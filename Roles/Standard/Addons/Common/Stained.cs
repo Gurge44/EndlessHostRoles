@@ -15,7 +15,7 @@ internal class Stained : IAddon
 
     public static void OnDeath(PlayerControl pc, PlayerControl killer)
     {
-        if (!killer || !pc || pc.PlayerId == killer.PlayerId || !killer.IsAlive() || !GameStates.IsInTask) return;
+        if (!killer || !pc || pc.PlayerId == killer.PlayerId || !killer.IsAlive() || killer.Is(CustomRoles.Focused) || !GameStates.IsInTask) return;
 
         VioletNameList ??= [];
         VioletNameList.Add(killer.PlayerId);

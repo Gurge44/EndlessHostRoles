@@ -888,9 +888,9 @@ public static class RoomRush
 
         try
         {
-            Main.CachedAllPlayerControls().Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
+            Main.CachedAllPlayerControls().ForEach(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             Vector2 goalPos = RoomGoal.GetRoomClass().transform.position;
-            if (DisplayArrowToRoom.GetBool()) Main.CachedAllPlayerControls().Do(x => LocateArrow.Add(x.PlayerId, goalPos));
+            if (DisplayArrowToRoom.GetBool()) Main.CachedAllPlayerControls().ForEach(x => LocateArrow.Add(x.PlayerId, goalPos));
         }
         catch (Exception e) { Utils.ThrowException(e); }
 
