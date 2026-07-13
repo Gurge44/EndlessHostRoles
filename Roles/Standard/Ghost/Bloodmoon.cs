@@ -56,7 +56,7 @@ internal class Bloodmoon : IGhostRole
         DieOnMeetingCall = new BooleanOptionItem(649405, "Bloodmoon.DieOnMeetingCall", true, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon]);
         
-        CDIncreasePerUse = new IntegerOptionItem(649406, "Bloodmoon.CDCIncreasePerUse", new(0, 60, 1), 15, TabGroup.OtherRoles)
+        CDIncreasePerUse = new IntegerOptionItem(649406, "Bloodmoon.CDCIncreasePerUse", new(0, 600, 1), 15, TabGroup.OtherRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
             .SetValueFormat(OptionFormat.Seconds);
     }
