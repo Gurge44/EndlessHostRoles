@@ -67,7 +67,7 @@ internal static class HudManagerPatch
                 }
                 else if (!PingTrackerUpdatePatch.Instance && SettingsText)
                 {
-                    Object.Destroy(SettingsText.gameObject);
+                    ObjectHelper.Destroy(SettingsText.gameObject);
                     SettingsText = null;
                 }
 
@@ -79,7 +79,7 @@ internal static class HudManagerPatch
             }
             else if (SettingsText)
             {
-                Object.Destroy(SettingsText.gameObject);
+                ObjectHelper.Destroy(SettingsText.gameObject);
                 SettingsText = null;
             }
 

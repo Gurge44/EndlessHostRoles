@@ -48,7 +48,7 @@ public static class ModConsentPopUp
         var translator = hyperlink.GetComponent<TextTranslatorTMP>();
         if (translator != null)
         {
-            UnityEngine.Object.Destroy(translator);
+            Object.Destroy(translator);
         }
     }
 
@@ -74,7 +74,7 @@ public static class ModConsentPopUp
             acceptTMP.text = GetString("Accept");
         }
 
-        var disagreeGO = UnityEngine.Object.Instantiate(acceptGO, acceptGO.transform.parent);
+        var disagreeGO = Object.Instantiate(acceptGO, acceptGO.transform.parent);
         disagreeGO.name = "DisagreeButton";
 
         float z = acceptGO.transform.localPosition.z;

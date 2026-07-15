@@ -76,8 +76,8 @@ public static class Prompt
 
     private static void HidePromt()
     {
-        Object.Destroy(YesButton?.Button.gameObject);
-        Object.Destroy(NoButton?.Button.gameObject);
+        ObjectHelper.Destroy(YesButton?.Button.gameObject);
+        ObjectHelper.Destroy(NoButton?.Button.gameObject);
 
         YesButton = null;
         NoButton = null;
