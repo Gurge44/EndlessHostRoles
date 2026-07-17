@@ -147,8 +147,8 @@ internal static class ChangeRoleSettings
 
             try
             {
-                SabotageMapPatch.TimerTexts.Values.DoIf(x => x, x => Object.Destroy(x.gameObject));
-                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x, x => Object.Destroy(x.gameObject));
+                SabotageMapPatch.TimerTexts.Values.DoIf(x => x, x => ObjectHelper.Destroy(x.gameObject));
+                MapRoomDoorsUpdatePatch.DoorTimerTexts.Values.DoIf(x => x, x => ObjectHelper.Destroy(x.gameObject));
             }
             catch (Exception e) { Utils.ThrowException(e); }
             
@@ -456,7 +456,7 @@ internal static class StartGameHostPatch
             AUClient.SendOrDisconnect(writer);
             writer.Recycle();
             AUClient.RemoveNetObject(LobbyBehaviour.Instance);
-            Object.Destroy(LobbyBehaviour.Instance.gameObject);
+            ObjectHelper.Destroy(LobbyBehaviour.Instance.gameObject);
         }
         else
         {

@@ -431,7 +431,6 @@ public class ClientControlGUI : MonoBehaviour
         bool notJoined  = GameStates.IsNotJoined;
         bool localAlive = PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.IsAlive();
         bool canMove    = GameStates.IsCanMove;
-        bool noGameEnd  = Options.NoGameEnd.GetBool();
 
         if (inLobby)
         {
@@ -533,12 +532,11 @@ public class ClientControlGUI : MonoBehaviour
                     );
                 });
 
-            if (noGameEnd)
-                Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>
-                {
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                    GameEndChecker.CheckCustomEndCriteria();
-                });
+            Btn(ref y, Label("Force Game End", "SHIFT + ENTER + L"), _sDanger, () =>
+            {
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                GameEndChecker.CheckCustomEndCriteria();
+            });
         }
 
         bool canZoom = Zoom.CanZoom;

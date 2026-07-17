@@ -391,7 +391,7 @@ internal static class ChatCommands
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd"))
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd") && !PlayerControl.LocalPlayer.Is(CustomRoles.Pestilence))
         {
             LateTask.New(() =>
             {
@@ -3458,7 +3458,7 @@ internal static class ChatCommands
 
         if (text.StartsWith("\n")) text = text[1..];
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive() && !text.StartsWith("/cmd"))
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive() && !text.StartsWith("/cmd") && !player.Is(CustomRoles.Pestilence))
         {
             player.RpcGuesserMurderPlayer();
             player.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));

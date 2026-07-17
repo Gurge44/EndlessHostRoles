@@ -107,14 +107,17 @@ public class Bouncer : RoleBase
             if (pc.IsInRoom(MarkedRoom)) return;
             LastPosition[pc.PlayerId] = pc.transform.position;
         }
-        else if (pc.IsInRoom(MarkedRoom) && WhoGetsBounced.GetValue() switch
+        else if (pc.IsInRoom(MarkedRoom))
         {
-            0 => true,
-            1 => pc.Is(Team.Impostor),
-            2 => pc.Is(Team.Impostor) || pc.IsNeutralKiller() || pc.IsNeutralPariah() || pc.IsNeutralEvil(),
-            _ => false
-        })
-            pc.TP(lastPosition);
+            if (WhoGetsBounced.GetValue() switch
+            {
+                0 => true,
+                1 => pc.Is(Team.Impostor),
+                2 => pc.Is(Team.Impostor) || pc.IsNeutralKiller() || pc.IsNeutralPariah() || pc.IsNeutralEvil(),
+                _ => false
+            })
+                pc.TP(lastPosition);
+        }
         else
             LastPosition[pc.PlayerId] = pc.transform.position;
     }

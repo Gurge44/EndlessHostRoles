@@ -170,6 +170,7 @@ public enum CustomRoles
     Benefactor,
     Bestower,
     Bodyguard,
+    Bouncer,
     CameraMan,
     Captain,
     Car,
@@ -565,8 +566,9 @@ public enum CustomRoles
     Facilitator, // Ghost role
     Finder,
     Flash,
-    Fragile,
+    Focused,
     Fool,
+    Fragile,
     Giant,
     Glow,
     Gravestone,

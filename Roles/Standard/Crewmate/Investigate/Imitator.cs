@@ -71,7 +71,7 @@ public class Imitator : RoleBase
                 foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
                 {
                     Transform button = pva.transform.FindChild("ImitatorButton");
-                    if (button != null) Object.Destroy(button.gameObject);
+                    if (button != null) ObjectHelper.Destroy(button.gameObject);
                 }
             }
         }

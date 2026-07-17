@@ -122,7 +122,7 @@ public static class EndGameManagerPatch
 
         if (CountdownText)
         {
-            Object.Destroy(CountdownText);
+            ObjectHelper.Destroy(CountdownText);
             CountdownText = null;
         }
     }
