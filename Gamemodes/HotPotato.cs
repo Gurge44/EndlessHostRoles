@@ -215,7 +215,30 @@ internal static class HotPotato
                 if (aapcCount < HolderHasArrowToNearestPlayerIfPlayersLessThan.GetInt())
                 {
                     Vector2 pos = target.Pos();
-                    TargetArrow.Add(HotPotatoState.HolderID, aapc.Without(target).Where(x => x.PlayerId != HotPotatoState.LastHolderID).MinBy(x => Vector2.Distance(x.Pos(), pos)).PlayerId);
+                    
+                    PlayerControl closestPlayer = null;
+                    float minDistance = float.MaxValue;
+                    
+                    foreach (var x in aapc)
+                    {
+                        if (x == target) 
+                            continue;
+                        
+                        if (x.PlayerId == HotPotatoState.LastHolderID) 
+                            continue;
+                        
+                        float dist = Vector2.Distance(x.Pos(), pos);
+                        if (dist < minDistance)
+                        {
+                            minDistance = dist;
+                            closestPlayer = x;
+                        }
+                    }
+                    
+                    if (closestPlayer != null)
+                    {
+                        TargetArrow.Add(HotPotatoState.HolderID, closestPlayer.PlayerId);
+                    }
                 }
 
                 Main.AllPlayerSpeed[target.PlayerId] = HolderSpeed.GetFloat();

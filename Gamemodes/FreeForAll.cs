@@ -141,7 +141,7 @@ internal static class FreeForAll
 
         var allPlayers = Main.EnumerateAlivePlayerControls();
         if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer);
-        allPlayers = allPlayers.ExceptBy(ChatCommands.Spectators, x => x.PlayerId).ToArray();
+        allPlayers = allPlayers.Where(x => !ChatCommands.Spectators.Contains(x.PlayerId)).ToArray();
 
         foreach (PlayerControl pc in allPlayers)
         {
