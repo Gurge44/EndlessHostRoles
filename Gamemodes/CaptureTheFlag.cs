@@ -686,7 +686,17 @@ public static class CaptureTheFlag
 
                     if (GameEndCriteria.GetValue() == 0 && RoundsPlayed >= RoundsToPlay.GetInt() && RoundsWon != enemyTeam.RoundsWon)
                     {
-                        CTFTeamData winner = TeamData.Values.MaxBy(x => x.RoundsWon);
+                        CTFTeamData winner = null;
+                        int maxRounds = int.MinValue;
+                        foreach (var team in TeamData.Values)
+                        {
+                            if (team.RoundsWon > maxRounds)
+                            {
+                                maxRounds = team.RoundsWon;
+                                winner = team;
+                            }
+                        }
+                        
                         winner.SetAsWinner();
                         return;
                     }
@@ -795,7 +805,17 @@ public static class CaptureTheFlag
                     {
                         case <= 1 when TeamData.Count == 2 && TeamData[CTFTeam.Blue].RoundsWon != TeamData[CTFTeam.Yellow].RoundsWon:
                         {
-                            CTFTeamData winner = TeamData.Values.MaxBy(x => x.RoundsWon);
+                            CTFTeamData winner = null;
+                            int maxRounds = int.MinValue;
+                            foreach (var teamm in TeamData.Values)
+                            {
+                                if (teamm.RoundsWon > maxRounds)
+                                {
+                                    maxRounds = teamm.RoundsWon;
+                                    winner = teamm;
+                                }
+                            }
+
                             winner.SetAsWinner();
                             return;
                         }

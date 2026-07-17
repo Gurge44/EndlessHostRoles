@@ -74,10 +74,11 @@ public static class BedWars
     private static OptionItem AllBedsBrokenAfterTimeOption;
 
     private static readonly StringBuilder HudText = new();
-    private static readonly BedWarsTeam[] AllBedWarsTeam = Enum.GetValues<BedWarsTeam>();
-    private static readonly Item[] Selections = Enum.GetValues<Item>();
-    private static readonly ItemCategory[] Categories = Enum.GetValues<ItemCategory>()[1..];
-    private static readonly Upgrade[] AllUpgrade = Enum.GetValues<Upgrade>();
+    private static readonly BedWarsTeam[] AllBedWarsTeam = (BedWarsTeam[])Enum.GetValues(typeof(BedWarsTeam));
+    private static readonly Item[] Selections = (Item[])Enum.GetValues(typeof(Item));
+    private static readonly ItemCategory[] Categories = ((ItemCategory[])Enum.GetValues(typeof(ItemCategory)))[1..];
+    private static readonly Upgrade[] AllUpgrade = (Upgrade[])Enum.GetValues(typeof(Upgrade));
+
     public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
 
     public static void SetupCustomOption()
@@ -1379,7 +1380,19 @@ public static class BedWars
 
                 if (onBase)
                 {
-                    BedWarsTeam team = AllBedWarsTeam.MinBy(x => Vector2.Distance(Bases[Main.CurrentMap][x].BedPosition, NetObject.Position));
+                    BedWarsTeam team = AllBedWarsTeam[0];
+                    float minDistance = float.MaxValue;
+
+                    foreach (var x in AllBedWarsTeam)
+                    {
+                        float dist = Vector2.Distance(Bases[Main.CurrentMap][x].BedPosition, NetObject.Position);
+                        if (dist < minDistance)
+                        {
+                            minDistance = dist;
+                            team = x;
+                        }
+                    }
+                    
                     if (Upgrades.TryGetValue(team, out HashSet<Upgrade> upgrades) && upgrades.Contains(Upgrade.Forge)) Generated++;
                 }
             }
@@ -1844,7 +1857,7 @@ public static class BedWars
                     {
                         lastNotify = Utils.TimeStamp;
                         var left = (int)Math.Ceiling(timer / totalTime * progressDisplayParts);
-                        string progress = Utils.ColorString(layerDisplay.Color, $"{new('\u25a0', progressDisplayParts - left)}{new('\u25a1', left)}");
+                        string progress = Utils.ColorString(layerDisplay.Color, $"{new string('\u25a0', progressDisplayParts - left)}{new string('\u25a1', left)}");
                         string newStr = string.Format(Translator.GetString("Bedwars.BedStatus.Breaking"), layerName, progress);
                         if (newStr != str) pc.Notify(newStr, 100f, true);
                     }

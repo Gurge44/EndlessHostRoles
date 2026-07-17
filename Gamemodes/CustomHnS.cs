@@ -177,7 +177,7 @@ internal static class CustomHnS
         Dictionary<Team, PlayerControl[]> playerTeams = Main.TeamValues[1..4]
             .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
             .Shuffle()
-            .Zip(allPlayers)
+            .Zip(allPlayers, (first, second) => (First: first, Second: second))
             .GroupBy(x => x.First, x => x.Second)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
@@ -249,7 +249,7 @@ internal static class CustomHnS
         foreach (byte spectator in ChatCommands.Spectators)
             PlayerRoles[spectator] = (new Hider(), CustomRoles.GM);
 
-        LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
+        LateTask.New(() => result.Where(x => Main.PlayerStates.ContainsKey(x.Key.PlayerId)).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
 
         // ==================================================================================================================
 
@@ -334,7 +334,7 @@ internal static class CustomHnS
 
     public static string GetTaskBarText()
     {
-        string text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+        string text = Main.PlayerStates.Where(x => PlayerRoles.ContainsKey(x.Key)).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
         return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
         static string GetStateText(KeyValuePair<byte, PlayerState> state)
@@ -391,8 +391,8 @@ internal static class CustomHnS
     {
         return Danger.TryGetValue(seer.PlayerId, out int danger)
             ? danger <= 5
-                ? $"\n<color={GetColorFromDanger()}>{new('\u25a0', 5 - danger)}{new('\u25a1', danger)}</color>"
-                : $"\n<color=#ffffff>{new('\u25a1', 5)}</color>"
+                ? $"\n<color={GetColorFromDanger()}>{new string('\u25a0', 5 - danger)}{new string('\u25a1', danger)}</color>"
+                : $"\n<color=#ffffff>{new string('\u25a1', 5)}</color>"
             : string.Empty;
 
         string GetColorFromDanger() // 0: Highest, 4: Lowest

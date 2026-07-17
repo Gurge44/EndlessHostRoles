@@ -29,7 +29,7 @@ public static class KingOfTheZones
     private static OptionItem SpawnProtectionTime;
 
     private static readonly string[] PreferNumTeamsOptions = ["KOTZ.PNTO.Less", "KOTZ.PNTO.More"];
-    private static readonly KOTZTeam[] AllKOTZTeam = Enum.GetValues<KOTZTeam>();
+    private static readonly KOTZTeam[] AllKOTZTeam = (KOTZTeam[])Enum.GetValues(typeof(KOTZTeam));
     private static readonly StringBuilder Suffix = new();
 
     public static (UnityEngine.Color Color, string Team) WinnerData = (Color.white, "No one wins");
@@ -274,7 +274,7 @@ public static class KingOfTheZones
 
         var aapc = Main.AllAlivePlayerControlsToList;
         int numPlayers = aapc.Count;
-        bool showTutorial = aapc.ExceptBy(PlayedFCs, x => x.FriendCode).Count() > numPlayers / 2;
+        bool showTutorial = aapc.Count(x => !PlayedFCs.Contains(x.FriendCode)) > numPlayers / 2;
         NameNotifyManager.Reset();
 
         if (AutoSetNumTeams.GetBool() && numPlayers % NumTeams.GetInt() != 0)

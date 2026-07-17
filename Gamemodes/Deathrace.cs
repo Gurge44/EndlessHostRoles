@@ -11,7 +11,7 @@ namespace EHR.Gamemodes;
 
 public static class Deathrace
 {
-    private static readonly PowerUp[] AllPowerUp = Enum.GetValues<PowerUp>();
+    private static readonly PowerUp[] AllPowerUp = (PowerUp[])Enum.GetValues(typeof(PowerUp));
     public static readonly Dictionary<string, HashSet<MapNames>> PlayedMaps = [];
     public static List<SystemTypes> Track = [];
     public static Dictionary<byte, PlayerData> Data = [];
