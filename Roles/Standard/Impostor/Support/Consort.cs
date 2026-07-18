@@ -49,13 +49,11 @@ public class Consort : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (!IsEnable || killer == null || target == null) return false;
-
         if (killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Consort)) return true;
 
         return killer.CheckDoubleTrigger(target, () =>
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
             target.BlockRole(Duration.GetFloat());
             killer.Notify(GetString("EscortTargetHacked"));
             killer.SetKillCooldown(CD.GetFloat());

@@ -149,7 +149,7 @@ internal class Sentry : RoleBase
         if (!fromDevice)
         {
             if (pc.GetAbilityUseLimit() < 1) return;
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
         }
 
         string roomName = Translator.GetString(MonitoredRoom.RoomId);
@@ -168,7 +168,7 @@ internal class Sentry : RoleBase
             if (target.shapeshiftTargetPlayerId != byte.MaxValue)
                 realTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
 
-            if (realTarget == null) realTarget = target;
+            if (!realTarget) realTarget = target;
 
             string coloredName = Utils.ColorString(Main.PlayerColors[realTarget.PlayerId], realTarget.GetRealName());
 
@@ -182,7 +182,7 @@ internal class Sentry : RoleBase
         foreach (byte id in DeadBodiesInRoom)
         {
             PlayerControl bodyPc = Utils.GetPlayerById(id);
-            if (bodyPc == null) continue;
+            if (!bodyPc) continue;
 
             string coloredName = Utils.ColorString(Main.PlayerColors[id], bodyPc.GetRealName());
 

@@ -7,41 +7,29 @@
 > While at the time of releasing this, the mod should more-less work on InnerSloth's regions, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
 
 ## Bug Fixes
-- **Fixed crashes caused by the settings UI** - by Zypherus
-- **Fixed the memory leaks introduced by the settings UI in the latest Among Us update**
-- CTA data is now synced with non-host modded clients
-- Fixed Generator not seeing its charge
-- Fixed forged roles having incorrect colors
-- Exorcist ability no longer kills ghosts
-- + Mostly internal code-wise fixes
+- **Fixed the main reason of reported crashes** (thank you!)
+- Further reduced the number of RPCs to fix most of the kicking on vanilla regions
+- Fixed large messages not being sent on Niko regions
+- Fixed `/jailtalk` working after death or when nobody is jailed
 
 ## Changes
-- **The HTML log file now contains all data from the other log file (LogOutput.log)** (that means you'll only need the HTML log to make bug reports from now on, and only the HTML log will be dumped!)
-- More compatibility with [BAU](https://github.com/D1GQ/BetterAmongUs) - by Limeau
-- Ghost roles use manual cooldown tracking instead of the protect button cooldown (fixes inconsistencies)
-- Renaming commands now check the DenyName list
-- Ventilation and Decontamination rooms are now available in room-based game modes
-- Ventriloquist works again on InnerSloth's regions
-- Improved how the lobby settings UI works overall (no more close & reopens required)
-- Quick Chat messages are now handled by the mod just like normal text messages
-- Improved the detection of 'start' spam
-- Impostors don't see each other's progress texts when there is a Double Agent
-- Pestilence is now immune to after-meeting deaths
-- Chat character limit lowered to 1000 characters due to packet size limits
-- New loading spinner icon
+- Commited -> Committed
+- Auto Play Again was moved to Client Options and is available for non-host modded clients too - by Newholiday
+- Improved consent popup at the start - by HayashiUme
+- Added more custom languages
+- Exorcist ability ignores messages starting with /cmd
+- Markseeker now uses `/mark {id}` instead of the vote mechanic - by Newholiday
 
 ## Additions
-- New setting under `Apply DenyName List`: `Ban instead of kick on trigger`
-- More ability button icons - by Newholiday
-
-### New game mode: Doom Tag - by HayashiUme
-- In the Doom Tag gamemode, every player is assigned a target, shown by an arrow.
-- You can only kill your assigned target.
-- Killing the wrong player will result in a punishment, such as death or reduced vision.
-- When you eliminate your target, you inherit their target and continue the hunt.
-- As more players are eliminated, the circle grows smaller and the pressure increases.
-- When only a few players remain, Frenzy Mode activates. All remaining players receive a speed boost and a reduced kill cooldown, turning the final showdown into a fast-paced battle for survival.
-- Be the last player standing to win!
+- New role: Gatekeeper (Impostor Support)
+- New role: Bouncer (Crewmate Support)
+- New role: Revenant (Crewmate Investigate) - by Newholiday
+- New setting for Snowdown: `Snowball Size` - by Newholiday
+- Client Control GUI: Reordering & New option: Broadcast Role Info - by Zypherus
+- Fallback fonts: All characters can be rendered now, including Arabic/Persian/Hungarian/Slovak/etc. characters - huge thanks to Atony for the code and resources!
+- Changeling can now use `/choose {role}` instead of the cycling mechanic - by Newholiday
+- New command: `/startnow` - Starts the game immediately, without the countdown - Can be used by The Host & Admins In Lobby
+- New settings for Impartial: `Change role when winning is impossible` & `Role to change to`
 
 > [!WARNING]
 > If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")

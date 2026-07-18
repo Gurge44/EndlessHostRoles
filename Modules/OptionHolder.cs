@@ -68,10 +68,11 @@ public static class Options
         Arabic,
         Slovak,
         Romanian,
-        Serbian,
+        LatinSerbian,
         Vietnamese,
         Belarusian,
-        Turkish
+        Turkish,
+        CyrillicSerbian
     }
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];

@@ -49,7 +49,7 @@ public class Fakeshifter : RoleBase
         if (MarkedId == byte.MaxValue && target.IsAlive())
         {
             MarkedId = target.PlayerId;
-            PlayerControl randomPlayer = Main.CachedAlivePlayerControls().Without(target).RandomElement();
+            PlayerControl randomPlayer = Main.CachedAlivePlayerControls().FindAll(x => x.PlayerId != target.PlayerId).RandomElement();
             bool hasValue = false;
             CustomRpcSender sender = CustomRpcSender.Create("Fakeshifter", SendOption.Reliable);
             sender.StartPackedMessage();

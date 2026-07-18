@@ -103,12 +103,6 @@ public static class Snowdown
             .SetParent(GameEndsWhenPointsReachedOption)
             .SetValueFormat(OptionFormat.Pieces);
 
-        SnowballSizeOption = new FloatOptionItem(id++, "Snowdown.SnowballSizeOption", new(0.5f, 2f, 0.1f), 1f, tab)
-            .SetHeader(true)
-            .SetColor(color)
-            .SetGameMode(gameMode)
-            .SetValueFormat(OptionFormat.Multiplier);
-
         PowerUpPriceOptions = AllPowerUp.ToDictionary(x => x, x => new IntegerOptionItem(id++, "Snowdown.PowerUpPriceOption", new(1, 20, 1), PowerUpPrices[x], tab)
             .SetColor(color)
             .SetGameMode(gameMode)
@@ -269,7 +263,7 @@ public static class Snowdown
 
             long now = Utils.TimeStamp;
             Vector2 pos = __instance.Pos();
-            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && FastVector2.DistanceWithinRange(x.Position, pos, 1.5f * SnowballSize));
+            Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && FastVector2.DistanceWithinRange(x.Position, pos, 1.5f));
 
             if (touchingSnowball != null)
             {

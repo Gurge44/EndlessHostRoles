@@ -170,7 +170,7 @@ public class Medic : RoleBase
     {
         if (ProtectList.Contains(target.PlayerId)) return false;
 
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
 
         ProtectList.Add(target.PlayerId);
         TempMarkProtectedList.Add(target.PlayerId);
@@ -225,23 +225,23 @@ public class Medic : RoleBase
         killer.SetKillCooldown(ResetCooldown.GetFloat());
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
-        var medics = Main.EnumeratePlayerControls().Where(x => PlayerIdList.Contains(x.PlayerId) && x.IsAlive()).ToArray();
+        var medics = Main.CachedAllPlayerControls().FindAll(x => PlayerIdList.Contains(x.PlayerId) && x.IsAlive());
 
         switch (KnowShieldBroken.GetInt())
         {
             case 0:
                 target.RpcGuardAndKill();
-                medics.Do(x => x.KillFlash());
+                medics.ForEach(x => x.KillFlash());
                 medics.NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic"));
-                Main.EnumeratePlayerControls().Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
+                Main.CachedAllPlayerControls().Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
                 break;
             case 1:
-                medics.Do(x => x.KillFlash());
+                medics.ForEach(x => x.KillFlash());
                 medics.NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic"));
                 break;
             case 2:
                 target.RpcGuardAndKill();
-                Main.EnumeratePlayerControls().Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
+                Main.CachedAllPlayerControls().Where(x => ProtectList.Contains(x.PlayerId)).NotifyPlayers(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget"));
                 break;
         }
 
@@ -268,44 +268,24 @@ public class Medic : RoleBase
 
     public static void OnCheckMark()
     {
-        var notify = false;
-        notify |= CheckMedicDeath();
-        notify |= CheckShieldBreak();
-
-        if (notify)
-        {
-            foreach (byte id in PlayerIdList)
-            {
-                foreach (byte id2 in ProtectList)
-                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
-            }
-        }
+        CheckMedicDeath();
+        CheckShieldBreak();
     }
 
-    private static bool CheckMedicDeath()
+    private static void CheckMedicDeath()
     {
-        if (!ShieldDeactivatesWhenMedicDies.GetBool()) return false;
+        if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
 
         if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.AfterMeeting)
-        {
             TempMarkProtectedList = [];
-            return true;
-        }
-
-        return false;
     }
 
-    private static bool CheckShieldBreak()
+    private static void CheckShieldBreak()
     {
-        if (!ShieldBreaksOnKillAttempt.GetBool()) return false;
+        if (!ShieldBreaksOnKillAttempt.GetBool()) return;
 
         if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.AfterMeeting)
-        {
             TempMarkProtectedList = [];
-            return true;
-        }
-
-        return false;
     }
 
     public static void IsDead(PlayerControl target)
@@ -322,7 +302,8 @@ public class Medic : RoleBase
         {
             TempMarkProtectedList = [];
 
-            foreach (byte id in ProtectList) Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: target);
+            foreach (PlayerControl pc in ProtectList.ToValidPlayers())
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
         }
     }
 

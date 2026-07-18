@@ -88,7 +88,7 @@ internal class Nullifier : RoleBase
                         Vigilante.SendRPC(target.PlayerId);
                         break;
                     default:
-                        target.RpcRemoveAbilityUse();
+                        target.RpcRemoveAbilityUse(notify: false);
                         break;
                 }
 

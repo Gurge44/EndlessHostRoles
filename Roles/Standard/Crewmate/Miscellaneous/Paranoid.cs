@@ -89,7 +89,7 @@ internal class Paranoid : RoleBase
     {
         if (pc.GetAbilityUseLimit() >= 1)
         {
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             if (AmongUsClient.Instance.AmHost) LateTask.New(() => Utils.SendMessage(Translator.GetString("SkillUsedLeft") + (ParanoidNumOfUseButton.GetInt() - ParaUsedButtonCount[pc.PlayerId]), pc.PlayerId), 4f, "Paranoid Skill Remain Message");
             pc.NoCheckStartMeeting(pc.Data);
         }

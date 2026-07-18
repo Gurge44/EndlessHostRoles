@@ -702,7 +702,7 @@ internal static class SetEverythingUpPatch
 
             yield return null;
 
-            Object.Destroy(roleSummaryObject);
+            ObjectHelper.Destroy(roleSummaryObject);
 
             yield return null;
 

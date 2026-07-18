@@ -74,7 +74,7 @@ public class Monarch : RoleBase
 
         if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.Stealer))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
             target.RpcSetCustomRole(CustomRoles.Knighted);
 
             var sender = CustomRpcSender.Create("Monarch.OnCheckMurder", SendOption.Reliable);

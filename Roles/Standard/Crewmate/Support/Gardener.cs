@@ -52,8 +52,8 @@ public class Gardener : RoleBase
         }
 
         Plants.Add(new Plant(pos));
+        pc.RpcRemoveAbilityUse(notify: false);
         pc.Notify(Translator.GetString("Gardener.PlantCreated"));
-        pc.RpcRemoveAbilityUse();
     }
 
     public override void AfterMeetingTasks()

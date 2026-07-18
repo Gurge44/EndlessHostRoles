@@ -521,9 +521,9 @@ public static class InGameRoleInfoMenu
         Menu.name = "EHR Role Info Menu Page";
         Menu.transform.SetLocalZ(-990f);
 
-        Object.Destroy(Menu.transform.FindChild("Title Text").gameObject);
-        Object.Destroy(Menu.transform.FindChild("BackButton").gameObject);
-        Object.Destroy(Menu.transform.FindChild("EvenMoreInfo").gameObject);
+        ObjectHelper.Destroy(Menu.transform.FindChild("Title Text").gameObject);
+        ObjectHelper.Destroy(Menu.transform.FindChild("BackButton").gameObject);
+        ObjectHelper.Destroy(Menu.transform.FindChild("EvenMoreInfo").gameObject);
 
         MainInfo = Menu.transform.FindChild("InfoText_TMP").gameObject;
         MainInfo.name = "Main Role Info";

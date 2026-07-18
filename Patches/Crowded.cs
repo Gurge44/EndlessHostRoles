@@ -112,7 +112,7 @@ internal static class Crowded
             {
                 ImpostorsOptionButton secondButton = __instance.ImpostorButtons[1];
                 secondButton.SpriteRenderer.enabled = false;
-                Object.Destroy(secondButton.transform.FindChild("ConsoleHighlight").gameObject);
+                ObjectHelper.Destroy(secondButton.transform.FindChild("ConsoleHighlight").gameObject);
                 Object.Destroy(secondButton.PassiveButton);
                 Object.Destroy(secondButton.BoxCollider);
                 TextMeshPro secondButtonText = secondButton.TextMesh;

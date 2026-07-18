@@ -140,7 +140,7 @@ static class CoShowIntroPatch
             yield return introCutscene.ShowRole();
 
             ShipStatus.Instance.StartSFX();
-            Object.Destroy(introCutscene.gameObject);
+            ObjectHelper.Destroy(introCutscene.gameObject);
         }
     }
 }

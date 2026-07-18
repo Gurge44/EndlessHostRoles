@@ -104,7 +104,7 @@ public class Cultist : RoleBase
 
         if (CanBeCharmed(target))
         {
-            killer.RpcRemoveAbilityUse();
+            killer.RpcRemoveAbilityUse(notify: false);
 
             target.RpcSetCustomRole(CustomRoles.Charmed);
 

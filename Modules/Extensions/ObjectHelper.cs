@@ -2,12 +2,39 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 
 namespace EHR;
 
 public static class ObjectHelper
 {
+    private static readonly List<Behaviour> BehaviourCache = new(16);
+
+    public static void Destroy(GameObject go)
+    {
+        if (!go || go.Pointer == IntPtr.Zero) return;
+
+        BehaviourCache.Clear();
+        go.GetComponents(BehaviourCache);
+
+        for (int i = 0; i < BehaviourCache.Count; i++)
+        {
+            try
+            {
+                Behaviour behaviour = BehaviourCache[i];
+
+                if (behaviour && behaviour.Pointer != IntPtr.Zero)
+                    Object.Destroy(behaviour);
+            }
+            catch { }
+        }
+
+        BehaviourCache.Clear();
+
+        Object.Destroy(go);
+    }
+    
     public static void DestroyTranslator(this GameObject obj)
     {
         if (!obj) return;
@@ -75,22 +102,20 @@ public static class Il2CppCastHelper
 
     public static bool TryCastFast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase
     {
-        if (obj is T t)
+        switch (obj)
         {
-            casted = t;
-            return true;
+            case T t:
+                casted = t;
+                return true;
+            case null:
+                casted = null;
+                return false;
+            default:
+                casted = OperatingSystem.IsAndroid()
+                    ? obj.Cast<T>()
+                    : obj.Pointer.CastFast<T>();
+
+                return casted != null;
         }
-
-        if (obj == null)
-        {
-            casted = null;
-            return false;
-        }
-
-        casted = OperatingSystem.IsAndroid()
-            ? obj.Cast<T>()
-            : obj.Pointer.CastFast<T>();
-
-        return casted != null;
     }
 }

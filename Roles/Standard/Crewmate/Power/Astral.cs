@@ -68,7 +68,7 @@ public class Astral : RoleBase
     void BecomeGhostTemporarily(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1f || ReportDeadBodyPatch.MeetingStarted || GameStates.IsMeeting) return;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         Timer = new CountdownTimer(AbilityDuration.GetInt(), () => BecomeAliveAgain(pc), onTick: () => Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc), onCanceled: () => Timer = null);
         Utils.SendRPC(CustomRPC.SyncRoleData, AstralId);

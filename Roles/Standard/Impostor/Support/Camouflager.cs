@@ -84,7 +84,7 @@ public class Camouflager : RoleBase
             return true;
         }
 
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
         IsActive = true;
         Camouflage.CheckCamouflage();
 
@@ -94,7 +94,7 @@ public class Camouflager : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         if (pc.GetAbilityUseLimit() < 1) return false;
-        pc.RpcRemoveAbilityUse();
+        pc.RpcRemoveAbilityUse(notify: false);
 
         IsActive = true;
         Camouflage.CheckCamouflage();

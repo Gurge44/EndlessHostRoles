@@ -70,7 +70,7 @@ internal class Ventguard : RoleBase
     {
         if (pc.GetAbilityUseLimit() >= 1)
         {
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             if (!BlockedVents.Contains(vent.Id)) BlockedVents.Add(vent.Id);
 
             pc.Notify(Translator.GetString("VentBlockSuccess"));

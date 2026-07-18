@@ -234,6 +234,7 @@ internal static class ChatCommands
             new("UIScale", "{scale}", Command.UsageLevels.Modded, Command.UsageTimes.Always, UIScaleCommand, true, false, [GetString("CommandArgs.UIScale.Scale")]),
             new("Fabricate", "{deathreason}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, FabricateCommand, true, true, [GetString("CommandArgs.Fabricate.DeathReason")]),
             new("Start", "", Command.UsageLevels.HostOrModerator, Command.UsageTimes.InLobby, StartCommand, false, false),
+            new("StartNow", "", Command.UsageLevels.HostOrAdmin, Command.UsageTimes.InLobby, StartNowCommand, false, false),
             new("Summon", "{id}", Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, SummonCommand, true, true, [GetString("CommandArgs.Summon.Id")]),
             new("CovenInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, CovenInfoCommand, true, false),
             new("NeutralInfo", "", Command.UsageLevels.Everyone, Command.UsageTimes.Always, NeutralInfoCommand, true, false),
@@ -390,7 +391,7 @@ internal static class ChatCommands
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd"))
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > Utils.TimeStamp && !text.StartsWith("/cmd") && !PlayerControl.LocalPlayer.Is(CustomRoles.Pestilence))
         {
             LateTask.New(() =>
             {
@@ -632,6 +633,53 @@ internal static class ChatCommands
     private static void StartCommand(PlayerControl player, string text, string[] args)
     {
         VotedToStart.UnionWith(Main.EnumeratePlayerControls().Select(x => x.PlayerId));
+    }
+    
+    private static void StartNowCommand(PlayerControl player, string text, string[] args)
+    {
+        if (!GameStartManager.InstanceExists) return;
+
+        if (!GameStates.IsCountDown)
+        {
+            Main.EnumeratePlayerControls().DoIf(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId, p => AmongUsClient.Instance.KickPlayer(p.OwnerId, false));
+        
+            GameStartManagerPatch.UpdateSpriteStartButton = true;
+
+            if (Options.RandomMapsMode.GetBool())
+            {
+                Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
+                GameOptionsMapPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+            }
+            else if (GameOptionsMapPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+            else if (GameOptionsMapPickerPatch.SetSubmerged) Main.NormalOptions.MapId = 6;
+
+            if (Options.OverrideSpeedForEachMap.GetBool() && Options.MapSpeeds.TryGetValue(Main.CurrentMap, out var option))
+                Main.NormalOptions.PlayerSpeedMod = option.GetFloat();
+
+            if (Main.CurrentMap == MapNames.Dleks || Main.NormalOptions.MapId == 6)
+            {
+                var opt = Main.NormalOptions.CastFast<IGameOptions>();
+
+                Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+                Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+                AURoleOptions.SetOpt(opt);
+                Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+                AURoleOptions.ShapeshifterCooldown = 0f;
+                AURoleOptions.ImpostorsCanSeeProtect = false;
+
+                GameManager.Instance.LogicOptions.SetDirty();
+                OptionItem.SyncAllOptions();
+            }
+
+            GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
+            GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
+            GameStartManager.Instance.StartButton.gameObject.SetActive(false);
+        
+            if (HudManager.InstanceExists)
+                HudManager.Instance.Dialogue.Hide();
+        }
+        
+        GameStartManager.Instance.countDownTimer = 0;
     }
     
     private static void FabricateCommand(PlayerControl player, string text, string[] args)
@@ -1105,10 +1153,10 @@ internal static class ChatCommands
 
     private static void JailTalkCommand(PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 2) return;
+        if (args.Length < 2 || !player.IsAlive()) return;
 
         Jailor jailor = Main.PlayerStates[player.PlayerId].Role as Jailor ?? Main.PlayerStates.Select(x => x.Value.Role as Jailor).FirstOrDefault(x => x != null);
-        if (jailor == null) return;
+        if (jailor == null || jailor.JailorTarget == byte.MaxValue) return;
 
         bool amJailor = Jailor.PlayerIdList.Contains(player.PlayerId);
         bool amJailed = player.PlayerId == jailor.JailorTarget;
@@ -3410,7 +3458,7 @@ internal static class ChatCommands
 
         if (text.StartsWith("\n")) text = text[1..];
 
-        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive() && !text.StartsWith("/cmd"))
+        if (GameStates.IsMeeting && Exorcist.AbilityEndTS > now && player.IsAlive() && !text.StartsWith("/cmd") && !player.Is(CustomRoles.Pestilence))
         {
             player.RpcGuesserMurderPlayer();
             player.SetRealKiller(Main.EnumeratePlayerControls().FirstOrDefault(x => x.Is(CustomRoles.Exorcist)));

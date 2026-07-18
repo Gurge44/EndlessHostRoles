@@ -106,7 +106,7 @@ internal class Veteran : RoleBase
                 pc.RpcResetAbilityCooldown();
                 pc.Notify(string.Format(Translator.GetString("VeteranOffGuard"), (int)pc.GetAbilityUseLimit()));
             }, onCanceled: () => VeteranInProtect.Remove(pc.PlayerId));
-            pc.RpcRemoveAbilityUse();
+            pc.RpcRemoveAbilityUse(notify: false);
             pc.RPCPlayCustomSound("Gunload");
             pc.Notify(Translator.GetString("VeteranOnGuard"), VeteranSkillDuration.GetFloat());
             pc.MarkDirtySettings();

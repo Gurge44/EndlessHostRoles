@@ -70,7 +70,7 @@ public class Starspawn : RoleBase
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
         if (!IsolatedPlayers.Add(target.PlayerId)) return false;
-        killer.RpcRemoveAbilityUse();
+        killer.RpcRemoveAbilityUse(notify: false);
         killer.SetKillCooldown(AbilityCooldown.GetFloat());
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, target.PlayerId);
@@ -107,7 +107,7 @@ public class Starspawn : RoleBase
     private static void CreateStarspawnButton(MeetingHud __instance)
     {
         GameObject existingButton = GameObject.Find("StarspawnButton");
-        if (existingButton) Object.Destroy(existingButton.gameObject);
+        if (existingButton) ObjectHelper.Destroy(existingButton.gameObject);
         if (!PlayerControl.LocalPlayer || !PlayerControl.LocalPlayer.IsAlive()) return;
         
         GameObject parent = GameObject.Find("Main Camera").transform.Find("Hud").Find("ChatUi").Find("ChatScreenRoot").Find("ChatScreenContainer").gameObject;

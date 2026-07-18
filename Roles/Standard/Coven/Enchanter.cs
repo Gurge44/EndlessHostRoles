@@ -61,10 +61,10 @@ public class Enchanter : CovenBase
             if (killer.GetAbilityUseLimit() < 1) return;
             EnchantedPlayers ??= [];
             EnchantedPlayers.Add(target.PlayerId);
+            killer.RpcRemoveAbilityUse(notify: false);
             Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 1, target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             killer.SetKillCooldown(AbilityCooldown.GetFloat());
-            killer.RpcRemoveAbilityUse();
         }
     }
 }

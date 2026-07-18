@@ -41,8 +41,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "7.6.0";
-    public const string PluginDisplayVersion = "7.6.0";
+    public const string PluginVersion = "7.7.1";
+    public const string PluginDisplayVersion = "7.7.1";
     public const bool TestBuild = false;
 
     public const string NeutralColor = "#ffab1b";
@@ -250,7 +250,7 @@ public class Main : BasePlugin
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
-    public static ConfigEntry<bool> AckdPrivacyPolicy { get; private set; }
+    public static ConfigEntry<bool> AckdConsentPopup { get; private set; }
 
     public static PlayerControl[] AllPlayerControlsToArray => CachedAllPlayerControlsList.ToArray();
     public static PlayerControl[] AllAlivePlayerControlsToArray => CachedAlivePlayerControlsList.ToArray();
@@ -437,7 +437,7 @@ public class Main : BasePlugin
         MessageWait = Config.Bind("Other", "MessageWait", 0);
         LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
-        AckdPrivacyPolicy = Config.Bind("Other", "AckdPrivacyPolicy", false);
+        AckdConsentPopup = Config.Bind("Other", "AckdConsentPopup", false);
 
         HasArgumentException = false;
 
@@ -513,6 +513,7 @@ public class Main : BasePlugin
                 { CustomRoles.Vacuum, "#E44CD6" },
                 { CustomRoles.Carrier, "#5DE2E7" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Bouncer, "#95C8E8" },
                 { CustomRoles.Operative, "#47f5d2" },
                 { CustomRoles.Tar, "#8C796B" },
                 { CustomRoles.Sensor, "#a3f7ff" },
@@ -761,6 +762,7 @@ public class Main : BasePlugin
                 { CustomRoles.Listener, "#060270" },
                 { CustomRoles.Unbound, "#DFC57B" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Focused, "#A10E49" },
                 { CustomRoles.Dizzy, "#de97a7" },
                 { CustomRoles.Entombed, "#8c71de" },
                 { CustomRoles.Urgent, "#D49255" },

@@ -184,7 +184,7 @@ public class Swapper : RoleBase
     {
         if (SwapTargets != (byte.MaxValue, byte.MaxValue))
         {
-            Utils.GetPlayerById(SwapperId).RpcRemoveAbilityUse();
+            Utils.GetPlayerById(SwapperId)?.RpcRemoveAbilityUse(notify: false);
             SwapTargets = (byte.MaxValue, byte.MaxValue);
         }
     }
@@ -266,7 +266,7 @@ public class Swapper : RoleBase
             __instance.playerStates.ToList().ForEach(x =>
             {
                 Transform swapButton = x.transform.FindChild("ShootButton");
-                if (swapButton != null) Object.Destroy(swapButton.gameObject);
+                if (swapButton != null) ObjectHelper.Destroy(swapButton.gameObject);
             });
 
             CreateSwapperButton(__instance);
