@@ -21,15 +21,24 @@ public abstract class CovenBase : RoleBase
 
     private static void GiveNecronomicon()
     {
-        Dictionary<byte, PlayerState> psDict = Main.PlayerStates.Where(x => x.Value.Role is CovenBase { HasNecronomicon: false } coven && coven.NecronomiconReceivePriority != NecronomiconReceivePriorities.Never).ToDictionary(x => x.Key, x => x.Value);
+        Dictionary<byte, PlayerState> psDict = Main.PlayerStates
+            .Where(x => x.Value.Role is CovenBase { HasNecronomicon: false } coven && coven.NecronomiconReceivePriority != NecronomiconReceivePriorities.Never)
+            .ToDictionary(x => x.Key, x => x.Value);
+
         if (psDict.Count == 0) return;
 
-        KeyValuePair<byte, PlayerState> receiver = psDict.Shuffle().OrderByDescending(x => !x.Value.IsDead).ThenBy(x => ((CovenBase)x.Value.Role).NecronomiconReceivePriority).First();
+        var playerControls = Main.EnumeratePlayerControls().ToDictionary(pc => pc.PlayerId, pc => pc);
+
+        KeyValuePair<byte, PlayerState> receiver = psDict.Shuffle()
+            .OrderByDescending(x => !x.Value.IsDead)
+            .ThenByDescending(x => playerControls.TryGetValue(x.Key, out var pc) && pc.Is(CustomRoles.Priority))
+            .ThenBy(x => ((CovenBase)x.Value.Role).NecronomiconReceivePriority)
+            .First();
 
         var covenRole = (CovenBase)receiver.Value.Role;
         covenRole.HasNecronomicon = true;
         covenRole.OnReceiveNecronomicon();
-        
+
         Utils.SendRPC(CustomRPC.Necronomicon, receiver.Key);
 
         LateTask.New(() =>

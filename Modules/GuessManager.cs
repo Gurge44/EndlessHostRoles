@@ -1158,7 +1158,7 @@ public static class GuessManager
 
                 HashSet<byte> guessers = Main.EnumerateAlivePlayerControls().Where(x => !x.IsModdedClient() && CanGuess(x, restrictions)).Select(x => x.PlayerId).ToHashSet();
                 bool meetingSS = Options.UseMeetingShapeshift.GetBool() && Options.UseMeetingShapeshiftForGuessing.GetBool();
-                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"), importance: restrictions && MeetingStates.FirstMeeting ? MessageImportance.High : MessageImportance.Medium)), 12f, log: false);
+                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS && x.GetPlayer().UsesMeetingShapeshift() ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"), importance: restrictions && MeetingStates.FirstMeeting ? MessageImportance.High : MessageImportance.Medium)), 12f, log: false);
                 if (meetingSS) Data = guessers.ToDictionary(x => x, x => new MeetingShapeshiftData(x));
             }
 
@@ -1171,7 +1171,7 @@ public static class GuessManager
 
         public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
-            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances != null && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
+            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool() || lp.Is(CustomRoles.NecroGuesser)) && Banshee.Instances != null && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
                 CustomRoles.EvilGuesser => true,
@@ -1697,12 +1697,34 @@ public static class GuessManager
 
             // Step 4: build label strings for each bucket: if bucket covers multiple distinct prefixes, show "first-last" else show "first"
             // But we might have buckets whose prefix string is identical for every role (common case).
+            // Count how many roles start with each first letter
+            Dictionary<string, int> firstLetterCounts = roles
+                .GroupBy(r => GetPrefix(r, 1))
+                .ToDictionary(g => g.Key, g => g.Count());
+
             foreach ((string prefix, List<string> roles) bucket in buckets)
             {
-                // show all distinct prefixes in this bucket (e.g. "A-B-C" if roles are "Ant", "Bat", "Cat")
-                List<string> distinctPrefixes = bucket.roles.Select(r => GetPrefix(r, 1)).Distinct().ToList();
-                string label = distinctPrefixes.Count == 1 ? distinctPrefixes[0] : string.Join('-', distinctPrefixes);
-                yield return label;
+                // If this bucket only contains one role, and that role is the only role
+                // starting with its first letter, show the role name instead.
+                if (bucket.roles.Count == 1)
+                {
+                    string firstLetter = GetPrefix(bucket.roles[0], 1);
+
+                    if (firstLetterCounts[firstLetter] == 1)
+                    {
+                        yield return bucket.roles[0];
+                        continue;
+                    }
+                }
+
+                List<string> distinctPrefixes = bucket.roles
+                    .Select(r => GetPrefix(r, 1))
+                    .Distinct()
+                    .ToList();
+
+                yield return distinctPrefixes.Count == 1
+                    ? distinctPrefixes[0]
+                    : string.Join('-', distinctPrefixes);
             }
 
             yield break;

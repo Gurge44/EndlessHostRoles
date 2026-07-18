@@ -798,6 +798,8 @@ public class Main : BasePlugin
                 { CustomRoles.Busy, "#32a852" },
                 { CustomRoles.Sleep, "#000000" },
                 { CustomRoles.Truant, "#eb3467" },
+                { CustomRoles.Bluetooth, "#ff1313" },
+                { CustomRoles.Priority, CovenColor },
                 { CustomRoles.Disco, "#eb34e8" },
                 { CustomRoles.Sonar, "#b8fffe" },
                 { CustomRoles.Asthmatic, "#8feb34" },
