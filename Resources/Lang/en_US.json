@@ -431,7 +431,7 @@
   "Car.PropelDistance": "Propel Distance",
   "Carrier": "Carrier",
   "CarrierInfo": "Carry Players to Locations",
-  "CarrierInfoLong": "(Crewmates):\\nAs the Carrier, mark a location by petting. Then you can use your shapeshift menu to teleport someone to that location.",
+  "CarrierInfoLong": "(Crewmates):\\nAs the Carrier, mark a location by sabotaging/petting. Then you can use your shapeshift menu to teleport someone to that location.",
   "Carrier.TargetNotify": "You were carried to a new location!",
   "Catcher": "Catcher",
   "CatcherInfo": "Catch Players' Roles",

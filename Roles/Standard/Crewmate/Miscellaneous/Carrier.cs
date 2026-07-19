@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using Hazel;
 
 namespace EHR.Roles;
@@ -57,14 +58,17 @@ public class Carrier : RoleBase
         pc.Notify(Translator.GetString("MarkDone"));
     }
 
+    public override bool OnSabotage(PlayerControl pc)
+    {
+        if (Options.UsePets.GetBool()) return base.OnSabotage(pc);
+        OnPet(pc);
+        return false;
+    }
+
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting) return true;
-        if (!Location.HasValue)
-        {
-            OnPet(shapeshifter);
-            return false;
-        }
+        if (!Location.HasValue) return false;
         target.TP(Location.Value);
         target.Notify(Translator.GetString("Carrier.TargetNotify"));
         shapeshifter.RpcRemoveAbilityUse();
