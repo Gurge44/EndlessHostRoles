@@ -15,6 +15,7 @@ public abstract class CovenBase : RoleBase
 
     protected abstract NecronomiconReceivePriorities NecronomiconReceivePriority { get; }
 
+    public bool CanGetPriorityAddon => NecronomiconReceivePriority != NecronomiconReceivePriorities.Never;
     public bool HasNecronomicon { get; set; }
 
     public virtual void OnReceiveNecronomicon() { }

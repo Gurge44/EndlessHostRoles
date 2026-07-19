@@ -11,6 +11,7 @@ using Hazel;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+using Priority = HarmonyLib.Priority;
 
 namespace EHR.Patches;
 

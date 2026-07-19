@@ -1925,7 +1925,7 @@ internal static class CustomRolesHelper
             CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.Mercenary or CustomRoles.Cantankerous => false,
             CustomRoles.Damocles when pc.GetRoleTypes() is not (RoleTypes.Impostor or RoleTypes.Phantom or RoleTypes.Shapeshifter or RoleTypes.Viper) => false,
             CustomRoles.Damocles when pc.Is(CustomRoleTypes.Coven) && !pc.Is(CustomRoles.CovenLeader) => false,
-            CustomRoles.Priority when !pc.Is(Team.Coven) => false,
+            CustomRoles.Priority when Main.PlayerStates[pc.PlayerId].Role is CovenBase coven && coven.CanGetPriorityAddon => false,
             CustomRoles.Flash when pc.Is(CustomRoles.Giant) || pc.Is(CustomRoles.Spurt) || pc.GetCustomRole() is CustomRoles.Tank or CustomRoles.Zombie or CustomRoles.Swiftclaw or CustomRoles.Express => false,
             CustomRoles.Giant when pc.Is(CustomRoles.Flash) || pc.Is(CustomRoles.Spurt) || pc.GetCustomRole() is CustomRoles.RoomRusher or CustomRoles.Tank or CustomRoles.Zombie or CustomRoles.Swiftclaw or CustomRoles.Express => false,
             CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,

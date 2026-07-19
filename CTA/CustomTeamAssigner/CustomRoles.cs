@@ -497,13 +497,13 @@ public enum CustomRoles
 
     // Bed Wars
     BedWarsPlayer,
-    
+
     // Deathrace
     Racer,
-    
+
     // Mingle
     MinglePlayer,
-    
+
     // Snowdown
     SnowdownPlayer,
 
