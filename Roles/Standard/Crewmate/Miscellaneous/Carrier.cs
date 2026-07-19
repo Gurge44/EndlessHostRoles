@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using Hazel;
 
 namespace EHR.Roles;
 
@@ -10,8 +11,8 @@ public class Carrier : RoleBase
 
     private static OptionItem AbilityCooldown;
     private static OptionItem AbilityUseLimit;
-    private static OptionItem AbilityUseGainWithEachTaskCompleted;
-    private static OptionItem AbilityChargesWhenFinishedTasks;
+    public static OptionItem AbilityUseGainWithEachTaskCompleted;
+    public static OptionItem AbilityChargesWhenFinishedTasks;
 
     private Vector2? Location;
     private bool TaskMode;
@@ -59,9 +60,14 @@ public class Carrier : RoleBase
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (!shapeshifting) return true;
-        if (!Location.HasValue) return false;
+        if (!Location.HasValue)
+        {
+            OnPet(shapeshifter);
+            return false;
+        }
         target.TP(Location.Value);
         target.Notify(Translator.GetString("Carrier.TargetNotify"));
+        shapeshifter.RpcRemoveAbilityUse();
         return false;
     }
 
@@ -78,16 +84,24 @@ public class Carrier : RoleBase
             case true when (pc.GetAbilityUseLimit() >= 1 || pc.GetTaskState().IsTaskFinished) && pc.IsAlive():
                 pc.RpcChangeRoleBasis(CustomRoles.Carrier);
                 TaskMode = false;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, TaskMode);
                 break;
             case false when !pc.IsAlive():
                 pc.RpcSetRoleGlobal(RoleTypes.CrewmateGhost);
                 TaskMode = true;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, TaskMode);
                 break;
             case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
                 pc.RpcSetRoleGlobal(RoleTypes.Crewmate, setRoleMap: true);
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 TaskMode = true;
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, TaskMode);
                 break;
         }
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        TaskMode = reader.ReadBoolean();
     }
 }

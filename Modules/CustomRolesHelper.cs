@@ -38,7 +38,6 @@ internal static class CustomRolesHelper
         CustomRoles.Farmer,
         CustomRoles.Tree,
         CustomRoles.Doorjammer,
-        CustomRoles.Carrier,
         CustomRoles.Empress,
         CustomRoles.Tar,
         CustomRoles.Bouncer,
