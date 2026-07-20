@@ -405,7 +405,7 @@ internal static class ChatCommands
         if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
             ChatHistory.Add(text);
 
-        ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
+        ControllerManagerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
         var canceled = false;
         Main.IsChatCommand = true;
@@ -3563,25 +3563,9 @@ internal static class ChatCommands
     }
 }
 
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
-
-    public static void Postfix(ChatController __instance)
-    {
-        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
-        chatBubble.TextArea.overrideColorTags = false;
-
-        if (Main.DarkTheme.Value)
-        {
-            chatBubble.TextArea.color = Color.white;
-            chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
-        }
-
-        long now = Utils.TimeStamp;
-        LastMessages.RemoveAll(x => now - x.SendTimeStamp > 10);
-    }
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)
     {

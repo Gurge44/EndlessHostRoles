@@ -1691,21 +1691,3 @@ public static class FixInputChatField
         return true;
     }
 }
-
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
-public static class FixDarkThemeForSearchBar
-{
-    public static void Postfix()
-    {
-        if (!GameSettingMenu.Instance) return;
-
-        FreeChatInputField field = GameSettingMenuPatch.InputField;
-
-        if (field && field.gameObject.activeSelf)
-        {
-            field.background.color = new Color32(40, 40, 40, byte.MaxValue);
-            field.textArea.compoText.Color(Color.white);
-            field.textArea.outputText.color = Color.white;
-        }
-    }
-}

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using AmongUs.Data;
 using EHR.Modules;
@@ -69,16 +68,28 @@ internal static class MMOnlineManagerStartPatch
     }
 }
 
-[HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
+[HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Start))]
 internal static class SplashLogoAnimatorPatch
 {
     public static SceneChanger SceneChanger;
     
-    public static void Prefix(SplashManager __instance)
+    public static void Postfix(SplashManager __instance)
     {
         SceneChanger = __instance.sceneChanger;
-        __instance.sceneChanger.AllowFinishLoadingScene();
-        __instance.startedSceneLoad = true;
+        Main.Instance.StartCoroutine(Coroutine());
+        return;
+
+        System.Collections.IEnumerator Coroutine()
+        {
+            while (__instance && SceneChanger && SceneChanger.loadOp == null) yield return null;
+                
+            if (SceneChanger) SceneChanger.AllowFinishLoadingScene();
+            if (__instance) __instance.startedSceneLoad = true;
+
+            while (!ModManager.InstanceExists) yield return null;
+            
+            ModManager.Instance.ShowModStamp();
+        }
     }
 }
 

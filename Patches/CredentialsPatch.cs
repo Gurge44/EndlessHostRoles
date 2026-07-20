@@ -379,40 +379,6 @@ internal static class TitleLogoPatch
     }
 }
 
-[HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
-internal static class ModManagerLateUpdatePatch
-{
-    public static bool Prefix(ModManager __instance)
-    {
-        __instance.ShowModStamp();
-
-        ChatBubbleShower.Update();
-
-        if (!string.IsNullOrEmpty(LobbySharingAPI.LastRoomCode) && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
-            LobbySharingAPI.NotifyLobbyStatusChanged(!PlayerControl.LocalPlayer ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
-
-        return false;
-    }
-
-    public static void Postfix(ModManager __instance)
-    {
-        if (__instance.localCamera)
-        {
-            float offsetY = HudManager.InstanceExists ? 1.1f : 0.9f;
-
-            __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
-                __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
-                new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
-        }
-        else
-        {
-            __instance.localCamera = !HudManager.InstanceExists
-                ? Camera.main
-                : HudManager.Instance.GetComponentInChildren<Camera>();
-        }
-    }
-}
-
 [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Open))]
 internal static class OptionsMenuBehaviourOpenPatch
 {

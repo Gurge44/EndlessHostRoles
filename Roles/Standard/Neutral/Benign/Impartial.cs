@@ -76,10 +76,10 @@ internal class Impartial : RoleBase
         CanWinWhenKillingMore = new BooleanOptionItem(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
         
-        ChangeRoleWhenWinningIsImpossible = new BooleanOptionItem(id + 13, "VultureChangeRoleWhenCantWin", true, TabGroup.NeutralRoles)
+        ChangeRoleWhenWinningIsImpossible = new BooleanOptionItem(id + 15, "VultureChangeRoleWhenCantWin", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
 
-        RoleToChangeTo = new StringOptionItem(id + 14, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
+        RoleToChangeTo = new StringOptionItem(id + 16, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(ChangeRoleWhenWinningIsImpossible);
     }
 
