@@ -173,7 +173,7 @@ internal static class ExileControllerWrapUpPatch
             if (Options.EnableGameTimeLimit.GetBool()) finalText += $"\n<#888888>{Options.GameTimeLimit.GetInt() - Main.GameTimer.Elapsed.TotalSeconds:N0}s {Translator.GetString("RemainingText.Suffix")}";
 
             if (!string.IsNullOrWhiteSpace(finalText))
-                Main.EnumerateAlivePlayerControls().NotifyPlayers(finalText, 13f);
+                Main.EnumerateAlivePlayerControls().NotifyPlayers(finalText, 13f, setName: false, sendOption: ejectionNotify ? SendOption.None : SendOption.Reliable);
         }
 
         LateTask.New(() =>
