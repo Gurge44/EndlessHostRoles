@@ -61,7 +61,7 @@ public class Exorcist : RoleBase
     private static void CreateExorcistButton(MeetingHud __instance)
     {
         GameObject existingButton = GameObject.Find("ExorcistButton");
-        if (existingButton) ObjectHelper.Destroy(existingButton.gameObject);
+        if (existingButton) Object.Destroy(existingButton.gameObject);
         if (!PlayerControl.LocalPlayer || !PlayerControl.LocalPlayer.IsAlive()) return;
 
         GameObject parent = GameObject.Find("Main Camera").transform.Find("Hud").Find("ChatUi").Find("ChatScreenRoot").Find("ChatScreenContainer").gameObject;

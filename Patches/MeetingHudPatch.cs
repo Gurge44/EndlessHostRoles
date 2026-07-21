@@ -979,7 +979,7 @@ internal static class MeetingHudStartPatch
             deathReasonTextMeeting.enableWordWrapping = false;
             deathReasonTextMeeting.enabled = seer.KnowDeathReason(target);
             Transform child = deathReasonTextMeeting.transform.FindChild("RoleTextMeeting");
-            if (child) ObjectHelper.Destroy(child.gameObject);
+            if (child) Object.Destroy(child.gameObject);
 
             byte id = pva.TargetPlayerId;
             
@@ -1219,7 +1219,7 @@ internal static class MeetingHudUpdatePatch
     {
         __instance.playerStates.DoIf(
             x => (forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out PlayerState ps) || ps.IsDead) && x.transform.FindChild("ShootButton"),
-            x => ObjectHelper.Destroy(x.transform.FindChild("ShootButton").gameObject));
+            x => Object.Destroy(x.transform.FindChild("ShootButton").gameObject));
     }
 
     public static bool Prefix(MeetingHud __instance)

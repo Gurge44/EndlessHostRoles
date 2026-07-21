@@ -159,7 +159,7 @@ namespace EHR
                     writer.Recycle();
 
                     AmongUsClient.Instance.RemoveNetObject(playerControl);
-                    ObjectHelper.Destroy(playerControl.gameObject);
+                    Object.Destroy(playerControl.gameObject);
                 }
                 
                 AllObjects.Remove(this);

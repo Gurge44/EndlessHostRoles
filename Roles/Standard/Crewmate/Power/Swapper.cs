@@ -266,7 +266,7 @@ public class Swapper : RoleBase
             __instance.playerStates.ToList().ForEach(x =>
             {
                 Transform swapButton = x.transform.FindChild("ShootButton");
-                if (swapButton != null) ObjectHelper.Destroy(swapButton.gameObject);
+                if (swapButton != null) Object.Destroy(swapButton.gameObject);
             });
 
             CreateSwapperButton(__instance);
