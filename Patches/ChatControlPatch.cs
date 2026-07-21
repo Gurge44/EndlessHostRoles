@@ -83,8 +83,6 @@ static class ChatControllerAwakePatch
                 
                 yield return null;
             }
-            
-            Logger.Warn("ChatController Coroutine exit", "test");
         }
     }
 }
