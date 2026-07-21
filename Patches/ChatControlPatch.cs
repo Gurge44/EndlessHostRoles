@@ -67,19 +67,24 @@ static class ChatControllerAwakePatch
         {
             while (__instance)
             {
-                __instance.freeChatField.background.color = DarkBackgroundColor;
+                if (__instance.IsOpenOrOpening)
+                {
+                    __instance.freeChatField.background.color = DarkBackgroundColor;
                 
-                if (!QuickChatIcon) QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
-                if (QuickChatIcon) QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
+                    if (!QuickChatIcon) QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
+                    if (QuickChatIcon) QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
     
-                if (!OpenBanMenuIcon) OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
-                if (OpenBanMenuIcon) OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
+                    if (!OpenBanMenuIcon) OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
+                    if (OpenBanMenuIcon) OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
     
-                if (!OpenKeyboardIcon) OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
-                if (OpenKeyboardIcon) OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+                    if (!OpenKeyboardIcon) OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
+                    if (OpenKeyboardIcon) OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+                }
                 
                 yield return null;
             }
+            
+            Logger.Warn("ChatController Coroutine exit", "test");
         }
     }
 }
