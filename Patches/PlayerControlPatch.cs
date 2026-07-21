@@ -21,7 +21,7 @@ internal static class CheckProtectPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead || !target.IsAlive()) return false;
+        if (!AmongUsClient.Instance.AmHost || AntiBlackout.SkipTasks || target.Data.IsDead || !target.IsAlive()) return false;
 
         Logger.Info($"CheckProtect: {__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "CheckProtect");
 

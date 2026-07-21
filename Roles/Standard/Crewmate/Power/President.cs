@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 
 namespace EHR.Roles;
 
@@ -145,7 +147,7 @@ public class President : RoleBase
             return;
         }
 
-        if (!Utils.GetPlayerById(president.PresidentId).IsAlive()) return;
+        if (!pc.IsAlive()) return;
 
         if (!int.TryParse(message, out int num) || num is > 6 or < 1)
         {
@@ -167,11 +169,10 @@ public class President : RoleBase
         {
             case Decree.Reveal:
                 if (!DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
-
                 if ((!DecreeSettings[decree][2].GetBool() && pc.IsConverted()) || pc.Is(CustomRoles.Bloodlust)) return;
-
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")), importance: MessageImportance.High);
                 Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.RevealMessage"), pc.PlayerId.ColoredPlayerName()), importance: MessageImportance.High);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId);
                 break;
             case Decree.Finish:
                 MeetingHudRpcClosePatch.AllowClose = true;
@@ -263,5 +264,10 @@ public class President : RoleBase
     public override void OnMeetingShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         OnVote(shapeshifter, target);
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        UsedDecrees.Add(Decree.Reveal);
     }
 }

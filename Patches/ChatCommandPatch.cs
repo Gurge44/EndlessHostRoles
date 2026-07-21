@@ -990,6 +990,7 @@ internal static class ChatCommands
         ms.MarkedId = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
 
         player.RPCPlayCustomSound("Line");
+        Utils.SendRPC(CustomRPC.SyncRoleData, player.PlayerId, ms.MarkedId);
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -1259,6 +1260,12 @@ internal static class ChatCommands
 
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
+        if (!Options.EnableAnagramCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("AnagramDisabled"), importance: MessageImportance.Low);
+            return;
+        }
+        
         string langParam = GetLangParam();
         int lengthIndex = Options.AnagramWordLength.GetValue();
         int wordLength = lengthIndex == 0 ? 0 : lengthIndex + 1;

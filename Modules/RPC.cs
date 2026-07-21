@@ -164,6 +164,8 @@ public enum CustomRPC
     Necronomicon,
     Stained,
     Entombed,
+    Committed,
+    Haunter,
     CTA,
 
     // Game Modes
@@ -1383,6 +1385,16 @@ internal static class RPCHandlerPatch
                 case CustomRPC.Entombed:
                 {
                     Entombed.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.Committed:
+                {
+                    Committed.ReceiveRPC(reader);
+                    break;
+                }
+                case CustomRPC.Haunter:
+                {
+                    Haunter.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.CTA:

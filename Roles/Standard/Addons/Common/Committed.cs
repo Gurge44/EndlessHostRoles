@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
 
 namespace EHR.Roles;
 
@@ -43,6 +45,7 @@ public class Committed : IAddon
             ReduceKCD = null;
 
         var aapc = Main.CachedAlivePlayerControls();
+        var doRPC = false;
 
         foreach (PlayerControl pc in aapc)
         {
@@ -50,7 +53,22 @@ public class Committed : IAddon
             {
                 Target ??= [];
                 Target[pc.PlayerId] = aapc.Where(x => !x.Is(CustomRoles.Committed)).RandomElement().PlayerId;
+                if (pc.IsNonHostModdedClient()) doRPC = true;
             }
+        }
+
+        if (doRPC)
+        {
+            var writer = Utils.CreateRPC(CustomRPC.Committed);
+            writer.WritePacked(Target.Count);
+
+            foreach ((byte key, byte value) in Target)
+            {
+                writer.Write(key);
+                writer.Write(value);
+            }
+            
+            Utils.EndRPC(writer);
         }
     }
 
@@ -76,5 +94,11 @@ public class Committed : IAddon
     {
         if (!seer.Is(CustomRoles.Committed) || Target == null || !Target.TryGetValue(seer.PlayerId, out byte t) || t != target.PlayerId) return string.Empty;
         return CustomRoles.Committed.ColoredTextByRole("⌆");
+    }
+
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        Target = [];
+        Loop.Times(reader.ReadPackedInt32(), _ => Target[reader.ReadByte()] = reader.ReadByte());
     }
 }

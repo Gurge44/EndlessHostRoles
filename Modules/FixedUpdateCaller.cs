@@ -67,15 +67,22 @@ public static class FixedUpdateCaller
                 HudSpritePatch.Postfix(HudManager);
                 ChatBubbleShower.Update();
 
-                if (ChatUpdatePatch.LastMessages.Count > 0)
+                try
                 {
-                    long now = Utils.TimeStamp;
-
-                    for (var i = ChatUpdatePatch.LastMessages.Count - 1; i >= 0; i--)
+                    if (ChatUpdatePatch.LastMessages.Count > 0)
                     {
-                        if (now - ChatUpdatePatch.LastMessages[i].SendTimeStamp > 10)
-                            ChatUpdatePatch.LastMessages.RemoveAt(i);
+                        long now = Utils.TimeStamp;
+
+                        for (var i = ChatUpdatePatch.LastMessages.Count - 1; i >= 0; i--)
+                        {
+                            if (now - ChatUpdatePatch.LastMessages[i].SendTimeStamp > 10)
+                                ChatUpdatePatch.LastMessages.RemoveAt(i);
+                        }
                     }
+                }
+                catch
+                {
+                    ChatUpdatePatch.LastMessages.Clear();
                 }
             }
 
