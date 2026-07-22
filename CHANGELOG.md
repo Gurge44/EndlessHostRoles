@@ -1,38 +1,30 @@
 # Thank you so much for finding and using EHR!
 
+# FULL MANUAL REINSTALLATION REQUIRED!!
+
 > [!CAUTION]
-> The latest Among Us update introduced a lot (and I mean a LOT) of issues with the base game itself, which also affects all mods. Expect some bugs! We did our best to fix the ones we could, but there are still some that we haven't figured out. Sorry for the inconvenience....
+> **YOU MUST FULLY REINSTALL THE MOD FOR THIS UPDATE TO WORK!!!!** Just replacing EHR.dll does NOT fix the issues!
 
-> [!NOTE]
-> While at the time of releasing this, the mod should more-less work on InnerSloth's regions, **I still recommend playing on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA).
+### This release fixes the crashes introduced by the latest Among Us update.
+#### The necessary changes are NOT in EHR.dll, hence why you need to completely reinstall the mod for the fixes to take effect.
+Shoutout to Pietro for finding the reason and the fix!
 
-## Bug Fixes
-- **Fixed the main reason of reported crashes** (thank you!)
-- Further reduced the number of RPCs to fix most of the kicking on vanilla regions
-- Fixed large messages not being sent on Niko regions
-- Fixed `/jailtalk` working after death or when nobody is jailed
+> [!IMPORTANT]
+> Make sure to back up your templates, player data, banlist, presets, etc. before you reinstall! We're happy to assist you in our Discord server.
 
-## Changes
-- Commited -> Committed
-- Auto Play Again was moved to Client Options and is available for non-host modded clients too - by Newholiday
-- Improved consent popup at the start - by HayashiUme
-- Added more custom languages
-- Exorcist ability ignores messages starting with /cmd
-- Markseeker now uses `/mark {id}` instead of the vote mechanic - by Newholiday
-
-## Additions
-- New role: Gatekeeper (Impostor Support)
-- New role: Bouncer (Crewmate Support)
-- New role: Revenant (Crewmate Investigate) - by Newholiday
-- New setting for Snowdown: `Snowball Size` - by Newholiday
-- Client Control GUI: Reordering & New option: Broadcast Role Info - by Zypherus
-- Fallback fonts: All characters can be rendered now, including Arabic/Persian/Hungarian/Slovak/etc. characters - huge thanks to Atony for the code and resources!
-- Changeling can now use `/choose {role}` instead of the cycling mechanic - by Newholiday
-- New command: `/startnow` - Starts the game immediately, without the countdown - Can be used by The Host & Admins In Lobby
-- New settings for Impartial: `Change role when winning is impossible` & `Role to change to`
+##### Other changes
+- Optimizations, both FPS-wise and network-wise
+- New add-on: Focused (Killers-Only Mixed)
+- New setting: `Enable use of /anagram` (Mod Settings > Commands)
+- Added non-host modded client sync for Committed, Haunter, Markseeker, President, and Curser
+- Players can no longer use ghost roles' abilities after meetings before the cooldown is applied
+- Inquisitor inspecting a neutral who only knows their own role now shows the same message as a crewmate
 
 > [!WARNING]
 > If you're joining a lobby hosted on vanilla regions (NA/EU/AS), please make sure you have a vanilla region selected in the Create Game menu, otherwise authentication will fail. ("Sabotage! The Among Us servers could not authenticate you!")
 I'm saying this now, it's guaranteed that we'll get someone who skipped reading this complaining about this exact issue.
+
+> [!TIP]
+> **Play on modded regions** (MEU/MAS/MNA/Niko-EU/Niko-AS/Niko-NA) for an overall better experience. Mobile and PC users can install them [from my website](https://ehr.gurge44.eu/regions).
 
 ---

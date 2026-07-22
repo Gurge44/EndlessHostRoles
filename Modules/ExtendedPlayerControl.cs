@@ -2154,7 +2154,7 @@ internal static class ExtendedPlayerControl
 
         public string GetRoleInfo(bool infoLong = false)
         {
-            CustomRoles role = player.AmOwner && Main.GM.Value ? CustomRoles.GM : player.GetCustomRole();
+            CustomRoles role = AmongUsClient.Instance.AmHost && player.AmOwner && Main.GM.Value ? CustomRoles.GM : player.GetCustomRole();
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor) infoLong = false;
 
             string info = (role.IsVanilla() ? "Blurb" : "Info") + (infoLong ? "Long" : string.Empty);

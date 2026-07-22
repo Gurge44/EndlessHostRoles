@@ -405,7 +405,7 @@ internal static class ChatCommands
         if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
             ChatHistory.Add(text);
 
-        ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
+        ControllerManagerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
         var canceled = false;
         Main.IsChatCommand = true;
@@ -990,6 +990,7 @@ internal static class ChatCommands
         ms.MarkedId = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
 
         player.RPCPlayCustomSound("Line");
+        Utils.SendRPC(CustomRPC.SyncRoleData, player.PlayerId, ms.MarkedId);
 
         MeetingManager.SendCommandUsedMessage(args[0]);
     }
@@ -1259,6 +1260,12 @@ internal static class ChatCommands
 
     private static void AnagramCommand(PlayerControl player, string text, string[] args)
     {
+        if (!Options.EnableAnagramCommand.GetBool())
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("AnagramDisabled"), importance: MessageImportance.Low);
+            return;
+        }
+        
         string langParam = GetLangParam();
         int lengthIndex = Options.AnagramWordLength.GetValue();
         int wordLength = lengthIndex == 0 ? 0 : lengthIndex + 1;
@@ -3563,25 +3570,9 @@ internal static class ChatCommands
     }
 }
 
-[HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
 internal static class ChatUpdatePatch
 {
     public static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
-
-    public static void Postfix(ChatController __instance)
-    {
-        var chatBubble = __instance.chatBubblePool.Prefab.CastFast<ChatBubble>();
-        chatBubble.TextArea.overrideColorTags = false;
-
-        if (Main.DarkTheme.Value)
-        {
-            chatBubble.TextArea.color = Color.white;
-            chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
-        }
-
-        long now = Utils.TimeStamp;
-        LastMessages.RemoveAll(x => now - x.SendTimeStamp > 10);
-    }
 
     internal static bool SendLastMessages(ref CustomRpcSender sender)
     {

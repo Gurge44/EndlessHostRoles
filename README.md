@@ -24,11 +24,6 @@
 
 ---
 
-> [!IMPORTANT]
-> **Our webapp domain was changed from `gurge44.pythonanywhere.com` to `app.gurge44.eu`**
-
----
-
 ### Regarding this mod
 
 <div align="left">
@@ -103,7 +98,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Catcher           | Cleaner         | Deathknight       | Wyrd          | Circumvent     |
 | Chameleon         | Clock Blocker   | Demon             |               | Cleansed       |
 | Chef              | Commander       | Doppelganger      |               | Clumsy         |
-| Clairvoyant       | Consigliere     | Doomsayer         |               | Committed       |
+| Clairvoyant       | Consigliere     | Doomsayer         |               | Committed      |
 | Cleanser          | Consort         | Duality           |               | Compelled      |
 | Convener          | Councillor      | Eclipse           |               | Composter      |
 | Copycat           | Crewpostor      | Enderman          |               | Concealer      |
@@ -606,6 +601,10 @@ Click this badge to view our translation project:
 - DoArc (ES)
 - Kurma (ID)
 - Gurge44 (HU)
+
+# Sponsors
+| <img src="https://cdn.brandfetch.io/idXCVMKbd8/w/180/h/180/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1777121415987" alt="SignPath Logo" width="44"/> | Free code signing on Windows provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org) |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 
 # License for the Custom Team Assigner application (everything inside the `CTA` folder)
 

@@ -730,6 +730,7 @@ public static class Options
     public static OptionItem DisablePlayerVotedMessage;
 
     // Game Commands
+    public static OptionItem EnableAnagramCommand;
     public static OptionItem AnagramLanguage;
     public static OptionItem AnagramWordLength;
     public static OptionItem AnagramDifficulty;
@@ -3018,6 +3019,9 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
+        EnableAnagramCommand = new BooleanOptionItem(23820, "EnableAnagramCommand", true, TabGroup.GameSettings)
+            .SetColor(new Color32(100, 220, 255, byte.MaxValue));
+
         AnagramLanguage = new StringOptionItem(23821, "AnagramLanguage", [
             "AnagramLang.Auto",
             "AnagramLang.English",
@@ -3029,6 +3033,7 @@ public static class Options
             "AnagramLang.BrazilianPortuguese",
             "AnagramLang.Romanian"
         ], 0, TabGroup.GameSettings)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramWordLength = new StringOptionItem(23822, "AnagramWordLength", [
@@ -3036,6 +3041,7 @@ public static class Options
                 "2", "3", "4", "5", "6", "7", "8", "9", "10",
                 "11", "12", "13", "14", "15"
             ], 0, TabGroup.GameSettings, noTranslation: true)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
         AnagramDifficulty = new StringOptionItem(23823, "AnagramDifficulty", [
@@ -3045,6 +3051,7 @@ public static class Options
             "AnagramDiff.MediumHard",
             "AnagramDiff.Hard"
         ], 0, TabGroup.GameSettings)
+            .SetParent(EnableAnagramCommand)
             .SetColor(new Color32(100, 220, 255, byte.MaxValue));
 
 

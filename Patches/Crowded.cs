@@ -112,7 +112,7 @@ internal static class Crowded
             {
                 ImpostorsOptionButton secondButton = __instance.ImpostorButtons[1];
                 secondButton.SpriteRenderer.enabled = false;
-                ObjectHelper.Destroy(secondButton.transform.FindChild("ConsoleHighlight").gameObject);
+                Object.Destroy(secondButton.transform.FindChild("ConsoleHighlight").gameObject);
                 Object.Destroy(secondButton.PassiveButton);
                 Object.Destroy(secondButton.BoxCollider);
                 TextMeshPro secondButtonText = secondButton.TextMesh;
@@ -287,17 +287,6 @@ internal static class Crowded
         public static void Postfix(ref SecurityLogger __instance)
         {
             __instance.Timers = new Il2CppStructArray<float>(127);
-        }
-    }
-
-    [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.Update))]
-    public static class PlayerTabIsSelectedItemEquippedPatch
-    {
-        [SuppressMessage("ReSharper", "UnusedMember.Global")]
-        public static void Postfix(PlayerTab __instance)
-        {
-            if (GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers > 15)
-                __instance.currentColorIsEquipped = false;
         }
     }
 

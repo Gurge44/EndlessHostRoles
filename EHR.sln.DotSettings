@@ -82,6 +82,24 @@
     <s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpUseContinuousIndentInsideBracesMigration/@EntryIndexedValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EMigrateBlankLinesAroundFieldToBlankLinesAroundProperty/@EntryIndexedValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/Housekeeping/Layout/SolBuilderDuoView/ShowBuildProgressInToolWindow/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Applicability/=Live/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Applicability/=Surround/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Categories/=Imported_0020Visual_0020C_0023_0020Snippets/@EntryIndexedValue">Imported Visual C# Snippets</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Description/@EntryValue">try + empty catch</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/IsBlessed/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Mnemonic/@EntryValue">8</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/CustomProperties/=minimumLanguageVersion/@EntryIndexedValue">2.0</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Scope/=2C285F182AC98D44B0B4F29D4D2149EC/Type/@EntryValue">InCSharpStatement</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Shortcut/@EntryValue">trye</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=A0247799D36DB94EBB3D0F552C99C784/Text/@EntryValue">try
+{
+  $SELECTION$
+}
+catch { }</s:String>
     <s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=DED7798D82D02045ABA68FC339C76DFA/Field/=EXCEPTION/Expression/@EntryValue">constant("System.Exception")</s:String>
     <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=DED7798D82D02045ABA68FC339C76DFA/Field/=EXCEPTION/InitialRange/@EntryValue">-1</s:Int64>
     <s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=DED7798D82D02045ABA68FC339C76DFA/Field/=EX_005FNAME/InitialRange/@EntryValue">-1</s:Int64>

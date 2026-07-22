@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles;
@@ -37,6 +38,11 @@ internal class Markseeker : RoleBase
     {
         On = false;
         PlayerIdList = null;
+    }
+
+    public void ReceiveRPC(MessageReader reader)
+    {
+        MarkedId = reader.ReadByte();
     }
 
 /*

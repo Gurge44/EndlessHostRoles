@@ -1,8 +1,7 @@
-using System.Text;
 using HarmonyLib;
 using TMPro;
 
-namespace ArabicSupport
+namespace EHR.ArabicSupport
 {
     [HarmonyPatch(typeof(TMP_Text))]
     public static class ArabicTextPatch
@@ -22,7 +21,7 @@ namespace ArabicSupport
         {
             foreach (char c in s)
             {
-                if ((c >= '\u0600' && c <= '\u06FF') || (c >= '\uFB50' && c <= '\uFEFF'))
+                if (c is >= '\u0600' and <= '\u06FF' or >= '\uFB50' and <= '\uFEFF')
                     return true;
             }
             return false;

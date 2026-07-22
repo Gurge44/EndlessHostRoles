@@ -47,9 +47,9 @@ public static class OnlinePresetsManager
             upload.SetClickMask(menu.ButtonClickMask);
             upload.SetUpFromData(null, 20);
             
-            ObjectHelper.Destroy(upload.transform.FindChild("Value_TMP (1)").gameObject);
-            ObjectHelper.Destroy(upload.transform.FindChild("ValueBox").gameObject);
-            ObjectHelper.Destroy(upload.PlusBtn.gameObject);
+            Object.Destroy(upload.transform.FindChild("Value_TMP (1)").gameObject);
+            Object.Destroy(upload.transform.FindChild("ValueBox").gameObject);
+            Object.Destroy(upload.PlusBtn.gameObject);
 
             upload.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
             upload.MinusBtn.OnClick = new();
@@ -93,8 +93,8 @@ public static class OnlinePresetsManager
             row.SetClickMask(menu.ButtonClickMask);
             row.SetUpFromData(null, 20);
 
-            ObjectHelper.Destroy(row.transform.FindChild("Value_TMP (1)").gameObject);
-            ObjectHelper.Destroy(row.transform.FindChild("ValueBox").gameObject);
+            Object.Destroy(row.transform.FindChild("Value_TMP (1)").gameObject);
+            Object.Destroy(row.transform.FindChild("ValueBox").gameObject);
 
             row.OnValueChanged = new Action<OptionBehaviour>(menu.ValueChanged);
             row.LabelBackground.transform.localScale += new Vector3(1f, 0f, 0f);

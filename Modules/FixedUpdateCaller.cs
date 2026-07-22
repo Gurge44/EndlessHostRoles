@@ -31,6 +31,13 @@ public static class FixedUpdateCaller
             AmongUsClient = AmongUsClient.Instance;
             LobbyBehaviour = LobbyBehaviour.Instance;
 
+            try
+            {
+                if (!string.IsNullOrEmpty(LobbySharingAPI.LastRoomCode) && Utils.TimeStamp - LobbySharingAPI.LastRequestTimeStamp > Options.LobbyUpdateInterval.GetInt())
+                    LobbySharingAPI.NotifyLobbyStatusChanged(!PlayerControl.LocalPlayer ? LobbyStatus.Closed : GameStates.InGame ? LobbyStatus.In_Game : LobbyStatus.In_Lobby);
+            }
+            catch { }
+
             if (LobbyBehaviour)
             {
                 LobbyFixedUpdatePatch.Postfix();
@@ -58,6 +65,25 @@ public static class FixedUpdateCaller
                 HudManagerPatch.Postfix(HudManager);
                 Zoom.Postfix();
                 HudSpritePatch.Postfix(HudManager);
+                ChatBubbleShower.Update();
+
+                try
+                {
+                    if (ChatUpdatePatch.LastMessages.Count > 0)
+                    {
+                        long now = Utils.TimeStamp;
+
+                        for (var i = ChatUpdatePatch.LastMessages.Count - 1; i >= 0; i--)
+                        {
+                            if (now - ChatUpdatePatch.LastMessages[i].SendTimeStamp > 10)
+                                ChatUpdatePatch.LastMessages.RemoveAt(i);
+                        }
+                    }
+                }
+                catch
+                {
+                    ChatUpdatePatch.LastMessages.Clear();
+                }
             }
 
             try { DataFlagRateLimiter.OnFixedUpdate(); }

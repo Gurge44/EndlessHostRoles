@@ -139,7 +139,7 @@ jobs:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: 298f5e96-d02b-40b5-88f6-32bddafcd47d
           project-slug: EndlessHostRoles
-          signing-policy-slug: test-signing
+          signing-policy-slug: release-signing
           artifact-configuration-slug: initial
           github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
           wait-for-completion: true
@@ -195,11 +195,6 @@ jobs:
         run: |
           curl -L https://github.com/miniduikboot/Mini.RegionInstall/releases/download/v1.2.0/Mini.RegionInstall.dll -o epic/BepInEx/plugins/Mini.RegionInstall.dll
           cp epic/BepInEx/plugins/Mini.RegionInstall.dll steam/BepInEx/plugins/Mini.RegionInstall.dll
-
-      - name: Download boot config fixer DLL
-        run: |
-          curl -L https://github.com/Pietrodjaowjao/RemoveGcMaxTimeSlice/releases/download/1.0.0/RemoveGcMaxTimeSlice.Plugin.dll -o epic/BepInEx/plugins/RemoveGcMaxTimeSlice.Plugin.dll
-          cp epic/BepInEx/plugins/RemoveGcMaxTimeSlice.Plugin.dll steam/BepInEx/plugins/RemoveGcMaxTimeSlice.Plugin.dll
 
       - name: Copy packaging files to BepInEx config
         run: |

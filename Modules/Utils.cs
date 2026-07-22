@@ -5261,7 +5261,7 @@ public static class Utils
             writer.WritePacked(playerControl.NetId);
             writer.EndMessage();
             AmongUsClient.Instance.RemoveNetObject(playerControl);
-            ObjectHelper.Destroy(playerControl.gameObject);
+            Object.Destroy(playerControl.gameObject);
             sender.EndMessage();
             sender.SendMessage();
         });

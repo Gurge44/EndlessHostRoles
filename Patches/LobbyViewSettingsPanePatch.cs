@@ -505,7 +505,7 @@ public static class LobbyViewSettingsPanePatch
     {
         viewSettings.currentTab = tabName;
         for (var i = 0; i < viewSettings.settingsInfo.Count; i++)
-            ObjectHelper.Destroy(viewSettings.settingsInfo[i].gameObject);
+            Object.Destroy(viewSettings.settingsInfo[i].gameObject);
         viewSettings.settingsInfo.Clear();
         SetTabPatch_Postfix(viewSettings);
     }

@@ -2,39 +2,12 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Il2CppInterop.Runtime.InteropTypes;
-using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 
 namespace EHR;
 
 public static class ObjectHelper
 {
-    private static readonly List<Behaviour> BehaviourCache = new(16);
-
-    public static void Destroy(GameObject go)
-    {
-        if (!go || go.Pointer == IntPtr.Zero) return;
-
-        BehaviourCache.Clear();
-        go.GetComponents(BehaviourCache);
-
-        for (int i = 0; i < BehaviourCache.Count; i++)
-        {
-            try
-            {
-                Behaviour behaviour = BehaviourCache[i];
-
-                if (behaviour && behaviour.Pointer != IntPtr.Zero)
-                    Object.Destroy(behaviour);
-            }
-            catch { }
-        }
-
-        BehaviourCache.Clear();
-
-        Object.Destroy(go);
-    }
-    
     public static void DestroyTranslator(this GameObject obj)
     {
         if (!obj) return;

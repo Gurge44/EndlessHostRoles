@@ -54,7 +54,7 @@ internal static class AddVotePatch
         LateTask.New(() =>
         {
             AmongUsClient.Instance.RemoveNetObject(__instance);
-            ObjectHelper.Destroy(__instance.gameObject);
+            Object.Destroy(__instance.gameObject);
         }, 5f);
 
         return false;
