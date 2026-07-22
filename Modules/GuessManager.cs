@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -819,9 +819,9 @@ public static class GuessManager
             Transform smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
             TextTemplate.enabled = true;
             Transform roleTextMeeting = TextTemplate.transform.FindChild("RoleTextMeeting");
-            if (roleTextMeeting) Object.Destroy(roleTextMeeting.gameObject);
+            if (roleTextMeeting) ObjectHelper.Destroy(roleTextMeeting.gameObject);
             Transform deathReasonTextMeeting = TextTemplate.transform.FindChild("DeathReasonTextMeeting");
-            if (deathReasonTextMeeting) Object.Destroy(deathReasonTextMeeting.gameObject);
+            if (deathReasonTextMeeting) ObjectHelper.Destroy(deathReasonTextMeeting.gameObject);
 
             Transform exitButtonParent = new GameObject().transform;
             exitButtonParent.SetParent(container);
@@ -839,7 +839,7 @@ public static class GuessManager
             passiveButton.OnClick.AddListener((Action)(() =>
             {
                 __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
-                Object.Destroy(container.gameObject);
+                ObjectHelper.Destroy(container.gameObject);
             }));
 
 
@@ -1052,7 +1052,7 @@ public static class GuessManager
 
                             // Reset the GUI
                             __instance.playerStates.ToList().ForEach(x => x.gameObject.SetActive(true));
-                            Object.Destroy(container.gameObject);
+                            ObjectHelper.Destroy(container.gameObject);
                             TextTemplate.enabled = false;
                         }
                     }));
@@ -1171,7 +1171,7 @@ public static class GuessManager
 
         public static bool CanGuess(PlayerControl lp, bool restrictions)
         {
-            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool() || lp.Is(CustomRoles.NecroGuesser)) && Banshee.Instances != null && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
+            if ((!Options.UseMeetingShapeshift.GetBool() || !Options.UseMeetingShapeshiftForGuessing.GetBool()) && Banshee.Instances != null && Banshee.Instances.Exists(x => x.ScreechedPlayers.Contains(lp.PlayerId))) return false; // Vanilla clients can't guess with their chat hidden, so don't let modded clients guess for fairness
             return lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
                 CustomRoles.EvilGuesser => true,
@@ -1215,10 +1215,10 @@ public static class GuessManager
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (TextTemplate && TextTemplate.gameObject) Object.Destroy(TextTemplate.gameObject);
+            if (TextTemplate && TextTemplate.gameObject) ObjectHelper.Destroy(TextTemplate.gameObject);
             TextTemplate = null;
 
-            if (GuesserUI) Object.Destroy(GuesserUI);
+            if (GuesserUI) ObjectHelper.Destroy(GuesserUI);
             GuesserUI = null;
 
             if (RoleButtons != null)
@@ -1228,7 +1228,7 @@ public static class GuessManager
                     foreach (Transform transform in roleButtonsValue)
                     {
                         if (transform && transform.gameObject)
-                            Object.Destroy(transform.gameObject);
+                            ObjectHelper.Destroy(transform.gameObject);
                     }
                 }
 
@@ -1240,7 +1240,7 @@ public static class GuessManager
                 foreach (SpriteRenderer spriteRenderer in RoleSelectButtons.Values)
                 {
                     if (spriteRenderer && spriteRenderer.gameObject)
-                        Object.Destroy(spriteRenderer.gameObject);
+                        ObjectHelper.Destroy(spriteRenderer.gameObject);
                 }
 
                 RoleSelectButtons = null;
@@ -1251,7 +1251,7 @@ public static class GuessManager
                 foreach (SpriteRenderer spriteRenderer in PageButtons)
                 {
                     if (spriteRenderer && spriteRenderer.gameObject)
-                        Object.Destroy(spriteRenderer.gameObject);
+                        ObjectHelper.Destroy(spriteRenderer.gameObject);
                 }
 
                 PageButtons = null;
@@ -1697,34 +1697,12 @@ public static class GuessManager
 
             // Step 4: build label strings for each bucket: if bucket covers multiple distinct prefixes, show "first-last" else show "first"
             // But we might have buckets whose prefix string is identical for every role (common case).
-            // Count how many roles start with each first letter
-            Dictionary<string, int> firstLetterCounts = roles
-                .GroupBy(r => GetPrefix(r, 1))
-                .ToDictionary(g => g.Key, g => g.Count());
-
             foreach ((string prefix, List<string> roles) bucket in buckets)
             {
-                // If this bucket only contains one role, and that role is the only role
-                // starting with its first letter, show the role name instead.
-                if (bucket.roles.Count == 1)
-                {
-                    string firstLetter = GetPrefix(bucket.roles[0], 1);
-
-                    if (firstLetterCounts[firstLetter] == 1)
-                    {
-                        yield return bucket.roles[0];
-                        continue;
-                    }
-                }
-
-                List<string> distinctPrefixes = bucket.roles
-                    .Select(r => GetPrefix(r, 1))
-                    .Distinct()
-                    .ToList();
-
-                yield return distinctPrefixes.Count == 1
-                    ? distinctPrefixes[0]
-                    : string.Join('-', distinctPrefixes);
+                // show all distinct prefixes in this bucket (e.g. "A-B-C" if roles are "Ant", "Bat", "Cat")
+                List<string> distinctPrefixes = bucket.roles.Select(r => GetPrefix(r, 1)).Distinct().ToList();
+                string label = distinctPrefixes.Count == 1 ? distinctPrefixes[0] : string.Join('-', distinctPrefixes);
+                yield return label;
             }
 
             yield break;
