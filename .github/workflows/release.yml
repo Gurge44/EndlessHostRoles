@@ -198,8 +198,8 @@ jobs:
 
       - name: Copy packaging files to BepInEx config
         run: |
-          cp -rf packaging/* epic/
-          cp -rf packaging/* steam/
+          cp -rf packaging-epic/* epic/
+          cp -rf packaging-steam/* steam/
 
       - name: Steam App ID
         run : echo "945360" > steam/steam_appid.txt
