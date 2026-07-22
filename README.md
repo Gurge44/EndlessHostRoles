@@ -565,6 +565,11 @@ Click this badge to view our translation project:
 >
 > - Next button sprites (Inactive and Active)
 > - Double task panel
+
+### :star: [UnityDoorstop](https://github.com/Pietrodjaowjao/UnityDoorstop)
+
+>
+> - Modified doorstop_config.ini and winhttp.dll for packaging
 	
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
