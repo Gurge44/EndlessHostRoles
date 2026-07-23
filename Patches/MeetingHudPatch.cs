@@ -1549,6 +1549,48 @@ internal static class MeetingHudRpcClosePatch
         }
         
         AllowClose = false;
+
+        // Official/vanilla regionsuse default ejection screen modded uses custom
+        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame
+            && GameStates.CurrentServerType != GameStates.ServerType.Vanilla)
+        {
+            if (AmongUsClient.Instance.AmClient)
+                __instance.Close();
+
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+
+            writer.StartMessage(5);
+            writer.Write(AmongUsClient.Instance.GameId);
+
+            if (CheckForEndVotingPatch.TempExiledPlayer != null)
+            {
+                NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
+                PlayerControl player = info.Object;
+
+                if (player != null)
+                {
+                    writer.StartMessage(2);
+                    writer.WritePacked(player.NetId);
+                    writer.Write((byte)RpcCalls.SetName);
+                    writer.Write(info.NetId);
+                    writer.Write(CheckForEndVotingPatch.EjectionText);
+                    writer.EndMessage();
+                }
+            }
+
+            writer.StartMessage(2);
+            writer.WritePacked(__instance.NetId);
+            writer.Write((byte)RpcCalls.CloseMeeting);
+            writer.Write(CheckForEndVotingPatch.EjectionText);
+            writer.EndMessage();
+
+            writer.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+
+            return false;
+        }
+
         return true;
     }
 }
