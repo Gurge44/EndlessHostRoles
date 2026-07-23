@@ -1531,7 +1531,6 @@ static class MeetingHud_Start
 }
 
 // All below are from: https://github.com/EnhancedNetwork/TownofHost-Enhanced (with some modifications)
-
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.RpcClose))]
 internal static class MeetingHudRpcClosePatch
 {
@@ -1549,46 +1548,6 @@ internal static class MeetingHudRpcClosePatch
         }
         
         AllowClose = false;
-
-        if (Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.TheMindGame)
-        {
-            if (AmongUsClient.Instance.AmClient)
-                __instance.Close();
-
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-
-            writer.StartMessage(5);
-            writer.Write(AmongUsClient.Instance.GameId);
-
-            if (CheckForEndVotingPatch.TempExiledPlayer != null)
-            {
-                NetworkedPlayerInfo info = CheckForEndVotingPatch.TempExiledPlayer;
-                PlayerControl player = info.Object;
-
-                if (player != null)
-                {
-                    writer.StartMessage(2);
-                    writer.WritePacked(player.NetId);
-                    writer.Write((byte)RpcCalls.SetName);
-                    writer.Write(info.NetId);
-                    writer.Write(CheckForEndVotingPatch.EjectionText);
-                    writer.EndMessage();
-                }
-            }
-
-            writer.StartMessage(2);
-            writer.WritePacked(__instance.NetId);
-            writer.Write((byte)RpcCalls.CloseMeeting);
-            writer.Write(CheckForEndVotingPatch.EjectionText);
-            writer.EndMessage();
-
-            writer.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
-
-            return false;
-        }
-
         return true;
     }
 }
