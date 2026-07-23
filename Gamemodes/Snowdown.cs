@@ -272,7 +272,6 @@ public static class Snowdown
             var snowballRange = Mathf.Max(0.5f, 1.5f * SnowballSize);
             Snowball touchingSnowball = Snowballs.Find(x => x.Active && x.Thrower != __instance && FastVector2.DistanceWithinRange(x.Position, pos, snowballRange));
 
-
             if (touchingSnowball != null)
             {
                 touchingSnowball.SetInactive();

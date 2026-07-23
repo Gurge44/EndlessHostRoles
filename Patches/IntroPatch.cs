@@ -546,6 +546,14 @@ internal static class BeginCrewmatePatch
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.Bloodlust");
         }
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.Egoist))
+        {
+            __instance.TeamTitle.text = GetString("Egoist");
+            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Egoist);
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
+            __instance.ImpostorText.gameObject.SetActive(true);
+            __instance.ImpostorText.text = GetString("EgoistInfo");
+        }
         else
         {
             switch (role)
@@ -799,7 +807,7 @@ internal static class BeginCrewmatePatch
                     or CustomRoles.Leery
                     or CustomRoles.Mortician
                     or CustomRoles.Oracle
-                     or CustomRoles.Witness
+                    or CustomRoles.Witness
                     => GetIntroSound(RoleTypes.Detective),
 
                 CustomRoles.Noisemaker

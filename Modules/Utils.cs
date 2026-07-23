@@ -352,7 +352,7 @@ public static class Utils
 
         foreach (PlayerControl seer in Main.CachedAllPlayerControls())
         {
-            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer))
+            if (seer.Is(CustomRoles.GM) || seer.Is(CustomRoles.Seer) || (seer.Is(CustomRoles.Bluetooth) && target.Is(Team.Impostor)))
             {
                 seer.KillFlash();
                 continue;

@@ -11,7 +11,7 @@ public class Vigilante : RoleBase
     private const int Id = 652300;
     private static List<byte> PlayerIdList = [];
     public static List<byte> Killed = [];
-    private static OptionItem CanVent;
+    public static OptionItem CanVent;
     private static OptionItem KCD;
     public static OptionItem CanKillRound1;
     public static OptionItem UsePet;
@@ -63,6 +63,8 @@ public class Vigilante : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(false);
+        AURoleOptions.EngineerCooldown = 0.01f;
+        AURoleOptions.EngineerInVentMaxTime = 0f;
     }
 
     public override void GetProgressText(byte playerId, bool comms, StringBuilder resultText)
@@ -119,7 +121,7 @@ public class Vigilante : RoleBase
             Killed.Add(killer.PlayerId);
             SetKillCooldown(killer.PlayerId);
             if (Options.UsePets.GetBool() && UsePet.GetBool()) return;
-            killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+            killer.RpcChangeRoleBasis(!killer.IsModdedClient() && CanVent.GetBool() ? CustomRoles.EngineerEHR : CustomRoles.CrewmateEHR);
             killer.RpcResetTasks();
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }, 0.2f, log: false);

@@ -497,13 +497,13 @@ public enum CustomRoles
 
     // Bed Wars
     BedWarsPlayer,
-    
+
     // Deathrace
     Racer,
-    
+
     // Mingle
     MinglePlayer,
-    
+
     // Snowdown
     SnowdownPlayer,
 
@@ -537,6 +537,7 @@ public enum CustomRoles
     Blocked,
     Bloodlust,
     Bloodmoon, // Ghost role
+    Bluetooth,
     Busy,
     Charmed,
     Circumvent,
@@ -604,6 +605,7 @@ public enum CustomRoles
     Sleep,
     Phantasm, // Ghost role
     Physicist,
+    Priority,
     Rascal,
     Reach,
     Rookie,

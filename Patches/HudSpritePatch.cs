@@ -314,7 +314,8 @@ public static class HudSpritePatch
                 case CustomRoles.Carrier:
                 {
                     newAbilityButton = CustomButton.Get("TPToLoca");
-                    newPetButton = CustomButton.Get("abscond");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond"); 
+                    else newSabotageButton = CustomButton.Get("abscond");
                     break;
                 }
                 case CustomRoles.Astral:
@@ -881,7 +882,7 @@ public static class HudSpritePatch
                 newPetButton = DefaultIcons[4];
 
             // for Bloodlust, due to it using the impostor vent button instead of the engineer vent button, show it on the vent button instead of the ability button, and only if the ability button is not the default button
-            if (player.Is(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && !player.Is(CustomRoles.Scanner) && !player.Is(CustomRoles.Transporter))
+            if (player.Is(CustomRoles.Bloodlust) && newAbilityButton != DefaultIcons[1] && player.GetCustomRole().GetVNRole() is CustomRoles.Engineer)
                 newVentButton = newAbilityButton;
 
             if (player.Is(CustomRoles.Sleuth) && newReportButton == DefaultIcons[5])

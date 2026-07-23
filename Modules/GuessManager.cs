@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -1158,7 +1158,7 @@ public static class GuessManager
 
                 HashSet<byte> guessers = Main.EnumerateAlivePlayerControls().Where(x => !x.IsModdedClient() && CanGuess(x, restrictions)).Select(x => x.PlayerId).ToHashSet();
                 bool meetingSS = Options.UseMeetingShapeshift.GetBool() && Options.UseMeetingShapeshiftForGuessing.GetBool();
-                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"), importance: restrictions && MeetingStates.FirstMeeting ? MessageImportance.High : MessageImportance.Medium)), 12f, log: false);
+                LateTask.New(() => guessers.Do(x => Utils.SendMessage(GetString(meetingSS && !x.GetPlayer().UsesMeetingShapeshift() ? "YouCanGuessMeetingSS" : "YouCanGuess"), x, GetString("YouCanGuessTitle"), importance: restrictions && MeetingStates.FirstMeeting ? MessageImportance.High : MessageImportance.Medium)), 12f, log: false);
                 if (meetingSS) Data = guessers.ToDictionary(x => x, x => new MeetingShapeshiftData(x));
             }
 
