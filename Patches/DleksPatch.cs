@@ -52,6 +52,7 @@ internal static class AllMapIconsPatch
                 if (Main.NormalOptions.MapId == 3)
                 {
                     Main.NormalOptions.MapId = 0;
+                    if (__instance && __instance.MapImage)
                     __instance.UpdateMapImage(MapNames.Skeld);
 
                     if (!Options.RandomMapsMode.GetBool()) GameOptionsMapPickerPatch.SetDleks = true;
@@ -64,6 +65,8 @@ internal static class AllMapIconsPatch
     [HarmonyPrefix]
     public static bool Prefix_UpdateMapImage(GameStartManager __instance)
     {
+        if (!__instance || !__instance.MapImage) return false;
+    
         if (GameOptionsMapPickerPatch.SetDleks)
         {
             __instance.MapImage.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 160f);
