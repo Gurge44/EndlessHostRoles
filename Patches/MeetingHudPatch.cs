@@ -1531,6 +1531,7 @@ static class MeetingHud_Start
 }
 
 // All below are from: https://github.com/EnhancedNetwork/TownofHost-Enhanced (with some modifications)
+
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.RpcClose))]
 internal static class MeetingHudRpcClosePatch
 {
